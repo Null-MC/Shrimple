@@ -41,10 +41,6 @@ uniform mat4 gbufferModelViewInverse;
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
-#if MC_VERSION >= 11700 && !defined IS_IRIS
-	uniform vec3 chunkOffset;
-#endif
-
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;
 	uniform mat4 shadowProjection;
@@ -52,11 +48,6 @@ uniform vec3 cameraPosition;
 	uniform float far;
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #ifndef IS_IRIS
-            uniform mat4 gbufferPreviousModelView;
-            uniform mat4 gbufferPreviousProjection;
-        #endif
-
 		uniform mat4 gbufferProjection;
 		uniform float near;
 	#endif

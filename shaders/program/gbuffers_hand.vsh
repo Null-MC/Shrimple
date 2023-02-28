@@ -44,11 +44,6 @@ uniform mat4 gbufferModelViewInverse;
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		attribute vec3 at_midBlock;
 
-        #ifndef IS_IRIS
-            uniform mat4 gbufferPreviousModelView;
-        	uniform mat4 gbufferPreviousProjection;
-        #endif
-
 		uniform mat4 gbufferProjection;
 		uniform float near;
 	#endif

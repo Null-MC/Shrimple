@@ -82,64 +82,6 @@ vec3 GetShadowTileColor(const in int tile) {
             vec4(0.0, 0.0, 0.0, 1.0));
     }
 
-    #if defined SHADOW_CSM_TIGHTEN || defined DEBUG_CSM_FRUSTUM
-        void GetFrustumMinMax(const in mat4 matProjection, out vec3 clipMin, out vec3 clipMax) {
-            vec3 frustum[8] = vec3[](
-                vec3(-1.0, -1.0, -1.0),
-                vec3( 1.0, -1.0, -1.0),
-                vec3(-1.0,  1.0, -1.0),
-                vec3( 1.0,  1.0, -1.0),
-                vec3(-1.0, -1.0,  1.0),
-                vec3( 1.0, -1.0,  1.0),
-                vec3(-1.0,  1.0,  1.0),
-                vec3( 1.0,  1.0,  1.0));
-
-            for (int i = 0; i < 8; i++) {
-                vec3 shadowClipPos = unproject(matProjection * vec4(frustum[i], 1.0));
-
-                if (i == 0) {
-                    clipMin = shadowClipPos;
-                    clipMax = shadowClipPos;
-                }
-                else {
-                    clipMin = min(clipMin, shadowClipPos);
-                    clipMax = max(clipMax, shadowClipPos);
-                }
-            }
-        }
-        
-        vec3 GetCascadePaddedFrustumClipBounds(const in mat4 matShadowProjection, const in float padding) {
-            return 1.0 + padding * vec3(
-                matShadowProjection[0].x,
-                matShadowProjection[1].y,
-               -matShadowProjection[2].z);
-        }
-
-        #ifdef IRIS_FEATURE_SSBO
-            bool CascadeContainsProjection(const in vec3 shadowViewPos, const in int cascade) {
-                return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade]))
-                    && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade]));
-            }
-
-            bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in int cascade) {
-                return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
-                    && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
-            }
-        #else
-            bool CascadeContainsProjection(const in vec3 shadowViewPos, const in mat4 matShadowProjection) {
-                vec3 clipPos = (matShadowProjection * vec4(shadowViewPos, 1.0)).xyz;
-                vec3 paddedSize = GetCascadePaddedFrustumClipBounds(matShadowProjection, -1.5);
-                return all(greaterThan(clipPos, -paddedSize)) && all(lessThan(clipPos, paddedSize));
-            }
-
-            bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in mat4 matShadowProjection) {
-                vec3 clipPos = (matShadowProjection * vec4(shadowViewPos, 1.0)).xyz;
-                vec3 paddedSize = GetCascadePaddedFrustumClipBounds(matShadowProjection, 1.5);
-                return all(greaterThan(clipPos, -paddedSize)) && all(lessThan(clipPos, paddedSize));
-            }
-        #endif
-    #endif
-
     mat4 GetShadowTileProjectionMatrix(const in float cascadeSizes[4], const in int tile, out vec2 shadowViewMin, out vec2 shadowViewMax) {
         float tileSize = cascadeSizes[tile];
         float projectionSize = tileSize * 2.0 + 3.0;
@@ -152,56 +94,45 @@ vec3 GetShadowTileColor(const in int tile) {
 
         mat4 matShadowProjection = BuildOrthoProjectionMatrix(projectionSize, projectionSize, zNear, zFar);
 
-        #ifdef SHADOW_CSM_TIGHTEN
-            #ifdef IS_IRIS
-                mat4 matSceneProjectionRanged = gbufferProjection;
-                mat4 matSceneModelView = gbufferModelView;
-            #else
-                mat4 matSceneProjectionRanged = gbufferPreviousProjection;
-                mat4 matSceneModelView = gbufferPreviousModelView;
-            #endif
-            
-            // project scene view frustum slices to shadow-view space and compute min/max XY bounds
-            float rangeNear = tile > 0 ? GetCascadeDistance(tile - 1) : near;
+        // project scene view frustum slices to shadow-view space and compute min/max XY bounds
+        float rangeNear = tile > 0 ? GetCascadeDistance(tile - 1) : near;
 
-            rangeNear = max(rangeNear - 3.0, near);
-            float rangeFar = tileSize + 3.0;
+        rangeNear = max(rangeNear - 3.0, near);
+        float rangeFar = tileSize + 3.0;
 
-            SetProjectionRange(matSceneProjectionRanged, rangeNear, rangeFar);
+        mat4 matSceneProjectionRanged = gbufferProjection;
+        SetProjectionRange(matSceneProjectionRanged, rangeNear, rangeFar);
 
-            mat4 matModelViewProjectionInv = inverse(matSceneProjectionRanged * matSceneModelView);
-            mat4 matSceneToShadow = matShadowProjection * (shadowModelView * matModelViewProjectionInv);
+        mat4 matModelViewProjectionInv = inverse(matSceneProjectionRanged * gbufferModelView);
+        mat4 matSceneToShadow = matShadowProjection * (shadowModelView * matModelViewProjectionInv);
 
-            vec3 clipMin, clipMax;
-            GetFrustumMinMax(matSceneToShadow, clipMin, clipMax);
+        vec3 clipMin, clipMax;
+        GetFrustumMinMax(matSceneToShadow, clipMin, clipMax);
 
-            clipMin = max(clipMin, vec3(-1.0));
-            clipMax = min(clipMax, vec3( 1.0));
+        clipMin = max(clipMin, vec3(-1.0));
+        clipMax = min(clipMax, vec3( 1.0));
 
-            float viewScale = 2.0 / projectionSize;
-            shadowViewMin = clipMin.xy / viewScale;
-            shadowViewMax = clipMax.xy / viewScale;
+        float viewScale = 2.0 / projectionSize;
+        shadowViewMin = clipMin.xy / viewScale;
+        shadowViewMax = clipMax.xy / viewScale;
 
-            // add block padding to clip min/max
-            vec2 blockPadding = 3.0 * vec2(
-                matShadowProjection[0][0],
-                matShadowProjection[1][1]);
+        // add block padding to clip min/max
+        vec2 blockPadding = 3.0 * vec2(
+            matShadowProjection[0][0],
+            matShadowProjection[1][1]);
 
-            clipMin.xy -= blockPadding;
-            clipMax.xy += blockPadding;
+        clipMin.xy -= blockPadding;
+        clipMax.xy += blockPadding;
 
-            clipMin = max(clipMin, vec3(-1.0));
-            clipMax = min(clipMax, vec3( 1.0));
+        clipMin = max(clipMin, vec3(-1.0));
+        clipMax = min(clipMax, vec3( 1.0));
 
-            // offset & scale frustum clip bounds to fullsize
-            vec2 center = (clipMin.xy + clipMax.xy) * 0.5;
-            vec2 scale = 2.0 / (clipMax.xy - clipMin.xy);
-            mat4 matProjScale = BuildScalingMatrix(vec3(scale, 1.0));
-            mat4 matProjTranslate = BuildTranslationMatrix(vec3(-center, 0.0));
-            matShadowProjection = matProjScale * (matProjTranslate * matShadowProjection);
-        #endif
-
-        return matShadowProjection;
+        // offset & scale frustum clip bounds to fullsize
+        vec2 center = (clipMin.xy + clipMax.xy) * 0.5;
+        vec2 scale = 2.0 / (clipMax.xy - clipMin.xy);
+        mat4 matProjScale = BuildScalingMatrix(vec3(scale, 1.0));
+        mat4 matProjTranslate = BuildTranslationMatrix(vec3(-center, 0.0));
+        return matProjScale * (matProjTranslate * matShadowProjection);
     }
 
     mat4 GetShadowTileProjectionMatrix(const in float cascadeSizes[4], const in int tile) {
@@ -220,15 +151,10 @@ vec3 GetShadowTileColor(const in int tile) {
         //#endif
 
         for (int i = 0; i < max; i++) {
-            #ifdef SHADOW_CSM_TIGHTEN
-                #ifdef IRIS_FEATURE_SSBO
-                    if (CascadeContainsProjection(blockPos, i)) return i;
-                #else
-                    if (CascadeContainsProjection(blockPos, matShadowProjections[i])) return i;
-                #endif
+            #ifdef IRIS_FEATURE_SSBO
+                if (CascadeContainsProjection(blockPos, i)) return i;
             #else
-                float size = GetCascadeDistance(i);
-                if (all(greaterThan(blockPos.xy, -size)) && all(lessThan(blockPos.xy, size))) return i;
+                if (CascadeContainsProjection(blockPos, matShadowProjections[i])) return i;
             #endif
         }
 
@@ -288,17 +214,9 @@ vec3 GetShadowTileColor(const in int tile) {
             blockPos = floor(blockPos + 0.5);
             blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;
         #else
-            #if MC_VERSION >= 11700 && !defined IS_IRIS
-                vec3 blockPos = floor(vaPosition + chunkOffset + at_midBlock / 64.0 + fract(cameraPosition));
-
-                #if defined RENDER_TERRAIN
-                    blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;
-                #endif
-            #else
-                vec3 blockPos = floor(gl_Vertex.xyz + at_midBlock / 64.0 + fract(cameraPosition));
-                blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
-                blockPos = (shadowModelView * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
-            #endif
+            vec3 blockPos = floor(gl_Vertex.xyz + at_midBlock / 64.0 + fract(cameraPosition));
+            blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
+            blockPos = (shadowModelView * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
         #endif
 
         shadowTile = GetShadowTile(cascadeProjection, blockPos);

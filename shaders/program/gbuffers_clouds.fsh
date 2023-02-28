@@ -15,8 +15,11 @@ uniform float fogEnd;
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outColor0;
 
-float linear_fog_fade(const in float dist, const in float start, const in float end) {
-    return 1.0;
+float linear_fog_fade(const in float vertexDistance, const in float fogStart, const in float fogEnd) {
+    if (vertexDistance <= fogStart) return 1.0;
+    else if (vertexDistance >= fogEnd) return 0.0;
+
+    return smoothstep(fogEnd, fogStart, vertexDistance);
 }
 
 void main() {

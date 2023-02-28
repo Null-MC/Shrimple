@@ -101,10 +101,10 @@
 
                     // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
                     float sampleShadow = 1.0;
-                    #ifdef LIGHT_COLOR_NORMAL_CHECK
+                    #ifdef DYN_LIGHT_DIRECTIONAL
                         //if (hasTexNormal && hasGeoNormal)
                         if (hasGeoNormal)
-                            sampleShadow = step(-EPSILON, dot(localNormal, lightDir));
+                            sampleShadow = step(-EPSILON, dot(localNormal, lightDir));// * 0.96 + 0.04;
                     #endif
                     
                     float lightDiffuse = (1.0 - lightNoLm) * sss + lightNoLm * sampleShadow;
@@ -170,7 +170,11 @@
 
     #if defined RENDER_GBUFFER && !defined RENDER_CLOUDS
         vec4 GetColor() {
-            vec4 color = texture(gtexture, texcoord);
+            #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
+                vec4 color = textureAnisotropic(gtexture, texcoord);
+            #else
+                vec4 color = texture(gtexture, texcoord);
+            #endif
 
             #if !defined RENDER_WATER && !defined RENDER_HAND_WATER
                 if (color.a < alphaTestRef) {
@@ -181,11 +185,11 @@
 
             color.rgb *= glcolor.rgb;
 
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED && defined DEBUG_CASCADE_TINT && defined SHADOW_BLUR
-                color.rgb = RGBToLinear(color.rgb);
-                color.rgb *= 1.0 - LOD_TINT_FACTOR * (1.0 - GetShadowTileColor(shadowTile));
-                color.rgb = LinearToRGB(color.rgb);
-            #endif
+            // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED && defined DEBUG_CASCADE_TINT && defined SHADOW_BLUR
+            //     color.rgb = RGBToLinear(color.rgb);
+            //     color.rgb *= 1.0 - LOD_TINT_FACTOR * (1.0 - GetShadowTileColor(shadowTile));
+            //     color.rgb = LinearToRGB(color.rgb);
+            // #endif
 
             return color;
         }
@@ -242,7 +246,7 @@
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
                 #endif
             #else
-                #if defined IS_IRIS && defined IRIS_FEATURE_CUSTOM_TEXTURE_NAME
+                #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
                     vec3 blockLight = textureLod(texLightMap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
                 #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
                     vec3 blockLight = textureLod(colortex3, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
@@ -253,7 +257,7 @@
                 blockLight = RGBToLinear(blockLight);
             #endif
 
-            #if defined IS_IRIS && defined IRIS_FEATURE_CUSTOM_TEXTURE_NAME
+            #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
                 vec3 skyLight = textureLod(texLightMap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
             #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
                 vec3 skyLight = textureLod(colortex3, vec2(1.0/32.0, lmcoord.y), 0).rgb;

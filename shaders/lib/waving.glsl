@@ -55,9 +55,7 @@ vec3 fbm(vec3 pos) {
 vec3 GetWavingOffset() {
     float range = (mc_Entity.x == 10002.0 || mc_Entity.x == 10004.0) ? 0.01 : 0.06;
 
-    #if MC_VERSION >= 11700 && !defined IS_IRIS
-        vec3 worldPos = vaPosition.xyz + chunkOffset + cameraPosition;
-    #elif defined RENDER_SHADOW
+    #if defined RENDER_SHADOW
         vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
         vec3 worldPos = localPos + cameraPosition;
     #else

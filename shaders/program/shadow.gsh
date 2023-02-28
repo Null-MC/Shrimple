@@ -35,15 +35,6 @@ uniform int renderStage;
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform float near;
     uniform float far;
-
-    #ifndef IS_IRIS
-        // NOTE: We are using the previous gbuffer matrices cause the current ones don't work in shadow pass
-        uniform mat4 gbufferPreviousModelView;
-        uniform mat4 gbufferPreviousProjection;
-    #else
-        //uniform mat4 gbufferModelView;
-        //uniform mat4 gbufferProjection;
-    #endif
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO

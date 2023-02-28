@@ -11,7 +11,7 @@ uniform sampler2D colortex0;
 uniform sampler2D colortex1;
 uniform sampler2D colortex2;
 
-#if defined IS_IRIS && defined IRIS_FEATURE_CUSTOM_TEXTURE_NAME
+#ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
 	uniform sampler2D texLightMap;
 #else
 	uniform sampler2D colortex3;

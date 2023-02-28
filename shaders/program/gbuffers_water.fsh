@@ -36,12 +36,18 @@ uniform sampler2D gtexture;
 
 uniform float far;
 
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
 #if MC_VERSION >= 11700
 	uniform float alphaTestRef;
 #endif
 
 #ifndef SHADOW_BLUR
-    #if defined IS_IRIS && defined IRIS_FEATURE_CUSTOM_TEXTURE_NAME
+    #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
         uniform sampler2D texLightMap;
     #else
         uniform sampler2D lightmap;
@@ -70,7 +76,7 @@ uniform float far;
 	uniform sampler2D shadowtex1;
 	
     #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IS_IRIS
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             uniform sampler2DShadow shadowtex0HW;
         #else
             uniform sampler2DShadow shadow;
@@ -85,6 +91,10 @@ uniform float far;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/sampling/ign.glsl"

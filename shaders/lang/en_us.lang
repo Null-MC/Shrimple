@@ -79,10 +79,6 @@ option.SHADOW_DISTORT_FACTOR.comment=Distortion factor for the shadow map. Appli
 option.SHADOW_CSM_FITRANGE=Fit CSM to Shadow Range
 option.SHADOW_CSM_FITRANGE.comment=When enabled, all but the nearest cascade will be scaled to fit the shadow range.
 
-option.SHADOW_CSM_TIGHTEN=Fit CSM to Frustum
-option.SHADOW_CSM_TIGHTEN.comment=When enabled, the shadows cascades will be tightly fit to the view frustum to improve quality. Applies to CSM only. NOTE: disables entity shadows because Optifine bugs!
-
-
 screen.SHADOW_FILTER_OPTIONS=Filtering
 screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.
 
@@ -114,6 +110,3 @@ value.DEBUG_SHADOW_BUFFER.3=shadowtex1
 
 option.DEBUG_CASCADE_TINT=Tint Cascades
 option.DEBUG_CASCADE_TINT.comment=When enabled, shadow casters will show their cascade level by tint coloring. Applies to CSM only.
-
-option.IS_IRIS=Using Iris?
-option.IS_IRIS.comment=Disable this option if you are using Optifine.
