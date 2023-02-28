@@ -32,6 +32,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/matrix.glsl"
         #include "/lib/shadows/cascaded.glsl"
     #endif
 #endif

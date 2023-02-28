@@ -41,10 +41,14 @@ uniform int renderStage;
     uniform float frameTimeCounter;
 #endif
 
-#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    #include "/lib/shadows/cascaded.glsl"
-#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/shadows/basic.glsl"
+#if SHADOW_TYPE != SHADOW_TYPE_NONE
+    #include "/lib/matrix.glsl"
+
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+    #endif
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
