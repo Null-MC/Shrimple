@@ -48,7 +48,7 @@ const bool colortex2Clear = true;
 #define DYN_LIGHT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_BRIGHTNESS 100 // [20 40 60 80 100 120 140 160 180 200]
 #define DYN_LIGHT_DIRECTIONAL
-//#define DYN_LIGHT_FLICKER
+#define DYN_LIGHT_FLICKER
 //#define LIGHT_LAVA_ENABLED
 #define LIGHT_BIN_MAX_COUNT 64 // [16 32 48 64 80 96 112 128 144 160 176 192]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
@@ -65,7 +65,7 @@ const bool colortex2Clear = true;
 
 // Other
 #define FXAA_ENABLED
-#define AF_SAMPLES 16
+#define AF_SAMPLES 1
 
 
 // Debug Options

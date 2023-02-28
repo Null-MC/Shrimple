@@ -67,7 +67,8 @@
                 bool hasTexNormal = false;//any(greaterThan(abs(localNormal), EPSILON3));
 
                 #if defined RENDER_TERRAIN || defined RENDER_WATER
-                    vec3 accumDiffuse = GetSceneBlockLightColor(blockId);
+                    vec2 lightNoiseSample = GetDynLightNoise(localPos);
+                    vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
                 #else
                     vec3 accumDiffuse = vec3(0.0);
                 #endif

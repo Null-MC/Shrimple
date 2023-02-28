@@ -34,6 +34,8 @@ in vec3 at_midBlock;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	out vec3 vBlockLight;
+
+	uniform sampler2D noisetex;
 #endif
 
 uniform mat4 gbufferModelView;
@@ -55,6 +57,10 @@ uniform vec3 cameraPosition;
 
 #include "/lib/blocks.glsl"
 #include "/lib/waving.glsl"
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+	#include "/lib/lighting/blackbody.glsl"
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
