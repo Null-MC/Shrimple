@@ -1,0 +1,2 @@
+composite1		post bilateral gaussian blur
+composite2		final / debug output

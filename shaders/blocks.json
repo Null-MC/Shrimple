@@ -1,0 +1,12 @@
+{
+	"__offset": 100,
+	"BLOCK_TORCH": {
+		"match": "torch lantern",
+		"lightColor": [0.768, 0.701, 0.325],
+		"lightRange": 12.0
+	},
+	"BLOCK_SOUL_TORCH": {
+		"match": "soul_torch soul_lantern",
+		"lightColor": [,,]
+	},
+}

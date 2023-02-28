@@ -1,0 +1,119 @@
+screen.WORLD_OPTIONS=World
+screen.WORLD_OPTIONS.comment=Options for everything else.
+
+option.ENABLE_WAVING=Waving Plants
+option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
+
+option.FOLIAGE_UP=Upward Normals
+option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
+
+
+screen.SHADOW_OPTIONS=Shadows
+screen.SHADOW_OPTIONS.comment=Options for shadows.
+
+option.SHADOW_TYPE=Shadow Type
+option.SHADOW_TYPE.comment=The type of shadow mapping to use.
+value.SHADOW_TYPE.0=None
+value.SHADOW_TYPE.1=Basic
+value.SHADOW_TYPE.2=Distorted
+value.SHADOW_TYPE.3=Cascaded
+
+option.shadowMapResolution=Shadow Resolution
+option.shadowMapResolution.comment=Resolution of the shadow map. Higher numbers mean more accurate shadows.
+
+option.shadowDistance=Shadow Distance
+option.shadowDistance.comment=How far away shadows will be rendered.
+
+option.SHADOW_FILTER=Filtering
+option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
+value.SHADOW_FILTER.0=None
+value.SHADOW_FILTER.1=PCF
+value.SHADOW_FILTER.2=PCF+PCSS
+
+option.SHADOW_EXCLUDE_ENTITIES=Hide Entities
+option.SHADOW_EXCLUDE_ENTITIES.comment=If true, entities will not cast shadows.
+
+option.SHADOW_EXCLUDE_FOLIAGE=Hide Foliage
+option.SHADOW_EXCLUDE_FOLIAGE.comment=If true, foliage will not cast shadows.
+
+option.SHADOW_COLORS=Color Tinting
+option.SHADOW_COLORS.comment=0: Stained glass will cast ordinary shadows. 1: Stained glass will cast colored shadows. 2: Stained glass will not cast any shadows.
+value.SHADOW_COLORS.0=Disabled
+value.SHADOW_COLORS.1=Enabled
+value.SHADOW_COLORS.2=Ignored
+
+option.SHADOW_BRIGHTNESS=Brightness
+option.SHADOW_BRIGHTNESS.comment=Light levels are multiplied by this number when the surface is in shadows.
+
+option.SHADOW_BIAS_SCALE=Bias Scale
+option.SHADOW_BIAS_SCALE.comment=Increase this if you get shadow acne. Decrease this if you get peter panning.
+value.SHADOW_BIAS_SCALE.0.1=10%
+value.SHADOW_BIAS_SCALE.0.2=20%
+value.SHADOW_BIAS_SCALE.0.3=30%
+value.SHADOW_BIAS_SCALE.0.4=40%
+value.SHADOW_BIAS_SCALE.0.5=50%
+value.SHADOW_BIAS_SCALE.0.6=60%
+value.SHADOW_BIAS_SCALE.0.7=70%
+value.SHADOW_BIAS_SCALE.0.8=80%
+value.SHADOW_BIAS_SCALE.0.9=90%
+value.SHADOW_BIAS_SCALE.1.0=100%
+value.SHADOW_BIAS_SCALE.1.1=110%
+value.SHADOW_BIAS_SCALE.1.2=120%
+value.SHADOW_BIAS_SCALE.1.3=130%
+value.SHADOW_BIAS_SCALE.1.4=140%
+value.SHADOW_BIAS_SCALE.1.5=150%
+value.SHADOW_BIAS_SCALE.1.6=160%
+value.SHADOW_BIAS_SCALE.1.7=170%
+value.SHADOW_BIAS_SCALE.1.8=180%
+value.SHADOW_BIAS_SCALE.1.9=190%
+value.SHADOW_BIAS_SCALE.2.0=200%
+value.SHADOW_BIAS_SCALE.2.1=210%
+value.SHADOW_BIAS_SCALE.2.2=220%
+value.SHADOW_BIAS_SCALE.2.3=230%
+value.SHADOW_BIAS_SCALE.2.4=240%
+value.SHADOW_BIAS_SCALE.2.5=250%
+
+option.SHADOW_DISTORT_FACTOR=Distortion
+option.SHADOW_DISTORT_FACTOR.comment=Distortion factor for the shadow map. Applies to distorted shadows only.
+
+option.SHADOW_CSM_FITRANGE=Fit CSM to Shadow Range
+option.SHADOW_CSM_FITRANGE.comment=When enabled, all but the nearest cascade will be scaled to fit the shadow range.
+
+option.SHADOW_CSM_TIGHTEN=Fit CSM to Frustum
+option.SHADOW_CSM_TIGHTEN.comment=When enabled, the shadows cascades will be tightly fit to the view frustum to improve quality. Applies to CSM only. NOTE: disables entity shadows because Optifine bugs!
+
+
+screen.SHADOW_FILTER_OPTIONS=Filtering
+screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.
+
+option.SHADOW_PCF_SIZE=PCF Radius
+option.SHADOW_PCF_SIZE.comment=The radius of the shadow blurring using a block-sized scale.
+
+option.SHADOW_PCF_SAMPLES=PCF Samples
+option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring.
+
+option.SHADOW_PCSS_SAMPLES=PCSS Samples
+option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining penumbra width.
+
+option.SHADOW_ENABLE_HWCOMP=HW-Accelerated
+option.SHADOW_ENABLE_HWCOMP.comment=When enabled, shadows will leverage hardware-filtering for better quality and performance.
+
+option.SHADOW_BLUR=Blur
+option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
+
+
+screen.DEBUG_OPTIONS=Debug
+screen.DEBUG_OPTIONS.comment=Special options for debugging.
+
+option.DEBUG_SHADOW_BUFFER=Display
+option.DEBUG_SHADOW_BUFFER.comment=Configures which buffer to draw to the screen.
+value.DEBUG_SHADOW_BUFFER.0=gcolor
+value.DEBUG_SHADOW_BUFFER.1=shadowcolor0
+value.DEBUG_SHADOW_BUFFER.2=shadowtex0
+value.DEBUG_SHADOW_BUFFER.3=shadowtex1
+
+option.DEBUG_CASCADE_TINT=Tint Cascades
+option.DEBUG_CASCADE_TINT.comment=When enabled, shadow casters will show their cascade level by tint coloring. Applies to CSM only.
+
+option.IS_IRIS=Using Iris?
+option.IS_IRIS.comment=Disable this option if you are using Optifine.
