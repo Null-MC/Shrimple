@@ -64,6 +64,10 @@ const bool colortex2Clear = true;
 #define LIGHT_MASK_SIZE (LIGHT_BIN_SIZE3/32)
 
 
+// Other
+#define FXAA_ENABLED
+
+
 // Debug Options
 #define DEBUG_SHADOW_BUFFER 0 // [0 1 2 3]
 //#define DEBUG_CASCADE_TINT
@@ -86,8 +90,9 @@ const bool colortex2Clear = true;
 
 
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
-
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
+
+const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 
 const bool shadowcolor0Nearest = false;
 const vec4 shadowcolor0ClearColor = vec4(1.0, 1.0, 1.0, 0.0);
@@ -154,10 +159,14 @@ vec3 LinearToRGB(const in vec3 color) {
 	return pow(color, vec3(1.0 / GAMMA));
 }
 
-float expStep(float x) {
-    return 1.0 - exp(-x*x);
+float luminance(const in vec3 color) {
+   return dot(color, luma_factor);
 }
 
 vec3 unproject(const in vec4 pos) {
     return pos.xyz / pos.w;
+}
+
+float expStep(float x) {
+    return 1.0 - exp(-x*x);
 }
