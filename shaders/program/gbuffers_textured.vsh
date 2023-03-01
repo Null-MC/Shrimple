@@ -29,6 +29,8 @@ out float vLit;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     out vec3 vBlockLight;
+#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    flat out int vBlockId;
 #endif
 
 uniform mat4 gbufferModelView;

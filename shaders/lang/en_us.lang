@@ -98,6 +98,39 @@ option.SHADOW_BLUR=Blur
 option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
 
 
+screen.DYNAMIC_LIGHT=Dynamic Lights
+
+option.DYN_LIGHT_MODE=Mode
+value.DYN_LIGHT_MODE.0=None
+value.DYN_LIGHT_MODE.1=Vertex
+value.DYN_LIGHT_MODE.2=Pixel
+
+option.DYN_LIGHT_BRIGHTNESS=Brightness
+option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
+suffix.DYN_LIGHT_BRIGHTNESS=%
+
+option.DYN_LIGHT_FLICKER=Dynamic
+option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
+
+option.LIGHT_BIN_SIZE=Bin Size
+option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.
+
+option.LIGHT_BIN_MAX_COUNT=Max Bin Lights
+option.LIGHT_BIN_MAX_COUNT.comment=The maximum number of lights each bin can hold.
+
+option.LIGHT_SIZE_XZ=Horizontal Bin Count
+
+option.LIGHT_SIZE_Y=Vertical Bin Count
+
+option.DYN_LIGHT_DIRECTIONAL=Directional
+
+option.LIGHT_LAVA_ENABLED=Lava
+option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
+
+option.LIGHT_FALLBACK=Fallback
+option.LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
+
+
 screen.DEBUG_OPTIONS=Debug
 screen.DEBUG_OPTIONS.comment=Special options for debugging.
 
@@ -110,3 +143,8 @@ value.DEBUG_SHADOW_BUFFER.3=shadowtex1
 
 option.DEBUG_CASCADE_TINT=Tint Cascades
 option.DEBUG_CASCADE_TINT.comment=When enabled, shadow casters will show their cascade level by tint coloring. Applies to CSM only.
+
+option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
+
+
+option.FXAA_ENABLED=FXAA

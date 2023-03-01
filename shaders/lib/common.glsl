@@ -56,6 +56,8 @@ const bool colortex2Clear = true;
 #define LIGHT_SIZE_Y 8 // [4 8 16 32]
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
+#define DYN_LIGHT_FRUSTUM_TEST
+//#define DYN_LIGHT_DEBUG_COUNTS
 #define LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -132,6 +134,8 @@ const bool generateShadowMipmap = false;
 #ifdef SHADOW_BLUR
 #endif
 #ifdef SHADOW_COLOR_BLEND
+#endif
+#ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
 
 

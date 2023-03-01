@@ -350,14 +350,19 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
     bool intersects = true;
     #ifdef DYN_LIGHT_FRUSTUM_TEST
         vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos[0], 1.0)).xyz;
-        vec3 lightClipPosMin = unproject(gbufferProjection * vec4(lightViewPos - lightRange - 1.0, 1.0));
-        vec3 lightClipPosMax = unproject(gbufferProjection * vec4(lightViewPos + lightRange + 1.0, 1.0));
 
-        if (lightClipPosMax.z < -1.0) intersects = false;
-        if (lightClipPosMin.z >  1.0) intersects = false;
-        
-        if (lightClipPosMax.x < -1.0) intersects = false;
-        //if (lightClipPosMin.x >  1.0) intersects = false;
+        if (lightViewPos.z > lightRange) intersects = false;
+        //else if (lightViewPos.z < -far - lightRange) intersects = false;
+        else {
+            //vec3 lightClipPosMin = unproject(gbufferProjection * vec4(lightViewPos - lightRange - 1.0, 1.0));
+            //vec3 lightClipPosMax = unproject(gbufferProjection * vec4(lightViewPos + lightRange + 1.0, 1.0));
+            
+            //if (lightClipPosMax.x < -1.0) intersects = false;
+            //if (lightClipPosMin.x >  1.0) intersects = false;
+            
+            //if (lightClipPosMax.y < -1.0) intersects = false;
+            //if (lightClipPosMin.y >  1.0) intersects = false;
+        }
     #endif
 
     // if (any(greaterThan(lightClipPosMax.xy, vec2(-1.0)))

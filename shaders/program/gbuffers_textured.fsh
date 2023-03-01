@@ -15,6 +15,8 @@ in float vLit;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     in vec3 vBlockLight;
+#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    flat in int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -64,7 +66,12 @@ uniform float far;
     uniform int fogMode;
 
     uniform float blindness;
-#endif 
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    uniform mat4 gbufferModelViewInverse;
+    uniform vec3 cameraPosition;
+#endif
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
@@ -106,6 +113,11 @@ uniform float far;
         #include "/lib/shadows/basic.glsl"
         #include "/lib/shadows/basic_render.glsl"
     #endif
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/dynamic.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

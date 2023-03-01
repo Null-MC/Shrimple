@@ -1,12 +1,97 @@
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in int blockId, const in float blockLight) {
+        uint gridIndex;
+        vec3 lightFragPos = localPos + 0.01 * localNormal;
+        int lightCount = GetSceneLights(lightFragPos, gridIndex);
+
+        vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
+
+        if (gridIndex != -1u) {
+            bool hasGeoNormal = true;//any(greaterThan(abs(vNormal), EPSILON3));
+            bool hasTexNormal = false;//any(greaterThan(abs(localNormal), EPSILON3));
+
+            #if defined RENDER_TERRAIN || defined RENDER_WATER
+                vec2 lightNoiseSample = GetDynLightNoise(localPos);
+                vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
+            #else
+                vec3 accumDiffuse = vec3(0.0);
+            #endif
+
+            for (int i = 0; i < lightCount; i++) {
+                SceneLightData light = GetSceneLight(gridIndex, i);
+                vec3 lightVec = light.position - lightFragPos;
+                if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+
+                float lightDist = length(lightVec);
+                vec3 lightDir = lightVec / max(lightDist, EPSILON);
+                lightDist = max(lightDist - 0.5, 0.0);
+
+                float lightAtt = 1.0 - saturate(lightDist / light.range);
+                lightAtt = pow(lightAtt, 5.0);
+                
+                float lightNoLm = 1.0;
+                // if (hasTexNormal) {
+                //     lightNoLm = max(dot(localNormal, lightDir), 0.0);
+                // }
+
+                float sss = 0.0;
+                // if (material.scattering > EPSILON) {
+                //     float lightVoL = dot(localViewDir, lightDir);
+
+                //     sss = 3.0 * material.scattering * max(mix(
+                //         ComputeVolumetricScattering(lightVoL, -0.2),
+                //         ComputeVolumetricScattering(lightVoL, 0.6),
+                //         0.65), 0.0);
+                // }
+
+                // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
+                float sampleShadow = 1.0;
+                #ifdef DYN_LIGHT_DIRECTIONAL
+                    //if (hasTexNormal && hasGeoNormal)
+                    if (hasGeoNormal)
+                        sampleShadow = step(-EPSILON, dot(localNormal, lightDir));// * 0.96 + 0.04;
+                #endif
+                
+                float lightDiffuse = (1.0 - lightNoLm) * sss + lightNoLm * sampleShadow;
+
+                accumDiffuse += lightDiffuse * light.color.rgb * lightAtt;
+            }
+
+            accumDiffuse *= blockLight * DynamicLightBrightness;
+
+            #ifdef LIGHT_FALLBACK
+                // TODO: shrink to shadow bounds
+                vec3 offsetPos = localPos + LightGridCenter;
+                //vec3 maxSize = SceneLightSize
+                float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 15.0;
+                accumDiffuse = mix(pow(blockLight, 4.0) * blockLightColor, accumDiffuse, saturate(fade));
+            #endif
+
+            return accumDiffuse;
+        }
+        else {
+            #ifdef LIGHT_FALLBACK
+                return pow(blockLight, 4.0) * blockLightColor;
+            #else
+                return vec3(0.0);
+            #endif
+        }
+    }
+#endif
+
 #ifdef RENDER_VERTEX
     void BasicVertex() {
         vec4 pos = gl_Vertex;
 
+        #if DYN_LIGHT_MODE != DYN_LIGHT_PIXEL
+            int vBlockId;
+        #endif
+
         #if defined RENDER_TERRAIN || defined RENDER_WATER
-            int blockId = int(mc_Entity.x + 0.5);
+            vBlockId = int(mc_Entity.x + 0.5);
 
             #ifdef ENABLE_WAVING
-                if (blockId >= 10001 && blockId <= 10004)
+                if (vBlockId >= 10001 && vBlockId <= 10004)
                     pos.xyz += GetWavingOffset();
             #endif
         #endif
@@ -27,7 +112,7 @@
                 vLit = geoNoL;
 
                 #if defined RENDER_TERRAIN && defined FOLIAGE_UP
-                    if (blockId >= 10001 && blockId <= 10004)
+                    if (vBlockId >= 10001 && vBlockId <= 10004)
                         vLit = dot(lightDir, gbufferModelView[1].xyz);
                 #endif
             #endif
@@ -51,88 +136,11 @@
             ApplyShadows(shadowLocalPos);
         #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !defined RENDER_COMPOSITE
+        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_TERRAIN || defined RENDER_WATER)
             vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
             vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
-            float blockLight = lmcoord.x;
 
-            vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
-
-            uint gridIndex;
-            vec3 lightFragPos = localPos + 0.01 * vNormal;
-            int lightCount = GetSceneLights(lightFragPos, gridIndex);
-
-            if (gridIndex != -1u) {
-                bool hasGeoNormal = true;//any(greaterThan(abs(vNormal), EPSILON3));
-                bool hasTexNormal = false;//any(greaterThan(abs(localNormal), EPSILON3));
-
-                #if defined RENDER_TERRAIN || defined RENDER_WATER
-                    vec2 lightNoiseSample = GetDynLightNoise(localPos);
-                    vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
-                #else
-                    vec3 accumDiffuse = vec3(0.0);
-                #endif
-
-                for (int i = 0; i < lightCount; i++) {
-                    SceneLightData light = GetSceneLight(gridIndex, i);
-                    vec3 lightVec = light.position - lightFragPos;
-                    if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
-
-                    float lightDist = length(lightVec);
-                    vec3 lightDir = lightVec / max(lightDist, EPSILON);
-                    lightDist = max(lightDist - 0.5, 0.0);
-
-                    float lightAtt = 1.0 - saturate(lightDist / light.range);
-                    lightAtt = pow(lightAtt, 5.0);
-                    
-                    float lightNoLm = 1.0;
-                    // if (hasTexNormal) {
-                    //     lightNoLm = max(dot(localNormal, lightDir), 0.0);
-                    // }
-
-                    float sss = 0.0;
-                    // if (material.scattering > EPSILON) {
-                    //     float lightVoL = dot(localViewDir, lightDir);
-
-                    //     sss = 3.0 * material.scattering * max(mix(
-                    //         ComputeVolumetricScattering(lightVoL, -0.2),
-                    //         ComputeVolumetricScattering(lightVoL, 0.6),
-                    //         0.65), 0.0);
-                    // }
-
-                    // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
-                    float sampleShadow = 1.0;
-                    #ifdef DYN_LIGHT_DIRECTIONAL
-                        //if (hasTexNormal && hasGeoNormal)
-                        if (hasGeoNormal)
-                            sampleShadow = step(-EPSILON, dot(localNormal, lightDir));// * 0.96 + 0.04;
-                    #endif
-                    
-                    float lightDiffuse = (1.0 - lightNoLm) * sss + lightNoLm * sampleShadow;
-
-                    accumDiffuse += lightDiffuse * light.color.rgb * lightAtt;
-                }
-
-                accumDiffuse *= blockLight * DynamicLightBrightness;
-
-                #ifdef LIGHT_FALLBACK
-                    // TODO: shrink to shadow bounds
-                    vec3 offsetPos = localPos + LightGridCenter;
-                    //vec3 maxSize = SceneLightSize
-                    float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 15.0;
-                    accumDiffuse = mix(pow(blockLight, 4.0) * blockLightColor, accumDiffuse, saturate(fade));
-                #endif
-
-                vBlockLight = accumDiffuse;
-                //vBlockLight = vec3(0.0, 1.0, 0.0);
-            }
-            else {
-                #ifdef LIGHT_FALLBACK
-                    vBlockLight = pow(blockLight, 4.0) * blockLightColor;
-                #else
-                    vBlockLight = vec3(0.0);
-                #endif
-            }
+            vBlockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
         #endif
 
         gl_Position = gl_ProjectionMatrix * viewPos;
@@ -233,7 +241,7 @@
     #endif
 
     #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_COMPOSITE
-        vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 localPos, const in vec2 lmcoord, const in float occlusion) {
+        vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 albedo = RGBToLinear(color.rgb);
 
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED && defined DEBUG_CASCADE_TINT && !defined RENDER_CLOUDS && !defined RENDER_COMPOSITE
@@ -242,6 +250,16 @@
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 vec3 blockLight = vBlockLight * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+
+                #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                    if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
+                #endif
+            #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
+                vec3 blockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
+                blockLight *= saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+                //return vec4(localNormal * 0.5 + 0.5, 1.0);
 
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
@@ -273,7 +291,7 @@
             vec3 diffuse = albedo.rgb * (blockLight + skyLight * shadowColor * (1.0 - SHADOW_BRIGHTNESS));
             vec4 final = vec4(ambient + diffuse, color.a);
 
-            ApplyFog(final, localPos);
+            ApplyFog(final, viewPos);
 
             final.rgb = LinearToRGB(final.rgb);
             return final;

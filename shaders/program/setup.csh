@@ -10,10 +10,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
 #if defined IRIS_FEATURE_SSBO && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    layout(std430, binding = 1) buffer shadowDiskData {
-        vec2 pcfDiskOffset[32];     // 256
-        vec2 pcssDiskOffset[32];    // 256
-    };
+    #include "/lib/buffers/shadow.glsl"
 #endif
 
 
@@ -43,5 +40,5 @@ void main() {
         }
     #endif
 
-    barrier();
+    //barrier();
 }

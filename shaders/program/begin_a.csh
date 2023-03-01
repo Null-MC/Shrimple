@@ -10,15 +10,6 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(4, 1, 1);
 
 #if defined IRIS_FEATURE_SSBO && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    layout(std430, binding = 0) buffer csmData {
-        float cascadeSize[4];           // 16
-        vec2 shadowProjectionSize[4];   // 32
-        vec2 shadowProjectionPos[4];    // 32
-        mat4 cascadeProjection[4];      // 256
-        vec2 cascadeViewMin[4];         // 32
-        vec2 cascadeViewMax[4];         // 32
-    };
-
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
@@ -31,9 +22,13 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #include "/lib/buffers/lighting.glsl"
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    #ifdef WORLD_SHADOW_ENABLED
         #include "/lib/matrix.glsl"
-        #include "/lib/shadows/cascaded.glsl"
+        #include "/lib/buffers/shadow.glsl"
+
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded.glsl"
+        #endif
     #endif
 #endif
 

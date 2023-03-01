@@ -36,6 +36,8 @@ in vec3 at_midBlock;
 	out vec3 vBlockLight;
 
 	uniform sampler2D noisetex;
+#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    flat out int vBlockId;
 #endif
 
 uniform mat4 gbufferModelView;

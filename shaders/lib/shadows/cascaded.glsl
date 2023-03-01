@@ -6,18 +6,6 @@ const vec3 _shadowTileColors[4] = vec3[](
     vec3(0.0, 0.0, 1.0),
     vec3(1.0, 0.0, 1.0));
 
-#if defined IRIS_FEATURE_SSBO && !defined RENDER_BEGIN
-    layout(std430, binding = 0) readonly buffer csmData {
-        float cascadeSize[4];           // 16
-        vec2 shadowProjectionSize[4];   // 32
-        vec2 shadowProjectionPos[4];    // 32
-        mat4 cascadeProjection[4];      // 256
-
-        vec2 cascadeViewMin[4];         // 32
-        vec2 cascadeViewMax[4];         // 32
-    };
-#endif
-
 
 // tile: 0-3
 vec2 GetShadowTilePos(const in int tile) {
@@ -57,31 +45,6 @@ vec3 GetShadowTileColor(const in int tile) {
         matProj[3][2] = -(2.0 * zFar * zNear) / (zFar - zNear);
     }
 
-    // size: in world-space units
-    // mat4 BuildOrthoProjectionMatrix(const in float width, const in float height, const in float zNear, const in float zFar) {
-    //     return mat4(
-    //         vec4(2.0 / width, 0.0, 0.0, 0.0),
-    //         vec4(0.0, 2.0 / height, 0.0, 0.0),
-    //         vec4(0.0, 0.0, -2.0 / (zFar - zNear), 0.0),
-    //         vec4(0.0, 0.0, -(zFar + zNear)/(zFar - zNear), 1.0));
-    // }
-
-    // mat4 BuildTranslationMatrix(const in vec3 delta) {
-    //     return mat4(
-    //         vec4(1.0, 0.0, 0.0, 0.0),
-    //         vec4(0.0, 1.0, 0.0, 0.0),
-    //         vec4(0.0, 0.0, 1.0, 0.0),
-    //         vec4(delta, 1.0));
-    // }
-
-    // mat4 BuildScalingMatrix(const in vec3 scale) {
-    //     return mat4(
-    //         vec4(scale.x, 0.0, 0.0, 0.0),
-    //         vec4(0.0, scale.y, 0.0, 0.0),
-    //         vec4(0.0, 0.0, scale.z, 0.0),
-    //         vec4(0.0, 0.0, 0.0, 1.0));
-    // }
-    
     void GetFrustumMinMax(const in mat4 matProjection, out vec3 clipMin, out vec3 clipMax) {
         vec3 frustum[8] = vec3[](
             vec3(-1.0, -1.0, -1.0),

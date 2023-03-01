@@ -10,9 +10,9 @@ struct LightCellData {
 };
 
 #if defined RENDER_BEGIN || defined RENDER_SHADOW
-    layout(std430, binding = 2) buffer globalLightingData
+    layout(std430, binding = 1) buffer globalLightingData
 #else
-    layout(std430, binding = 2) readonly buffer globalLightingData
+    layout(std430, binding = 1) readonly buffer globalLightingData
 #endif
 {
     uint SceneLightCount;
@@ -20,9 +20,9 @@ struct LightCellData {
 };
 
 #if defined RENDER_BEGIN || defined RENDER_SHADOW
-    layout(std430, binding = 3) buffer localLightingData
+    layout(std430, binding = 2) buffer localLightingData
 #else
-    layout(std430, binding = 3) readonly buffer localLightingData
+    layout(std430, binding = 2) readonly buffer localLightingData
 #endif
 {
     LightCellData[] SceneLightMaps;
