@@ -7,8 +7,11 @@
         vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
 
         if (gridIndex != -1u) {
-            bool hasGeoNormal = true;//any(greaterThan(abs(vNormal), EPSILON3));
-            bool hasTexNormal = false;//any(greaterThan(abs(localNormal), EPSILON3));
+            #ifdef RENDER_TEXTURED
+                bool hasGeoNormal = false;
+            #else
+                bool hasGeoNormal = true;
+            #endif
 
             #if defined RENDER_TERRAIN || defined RENDER_WATER
                 vec2 lightNoiseSample = GetDynLightNoise(localPos);
@@ -30,31 +33,15 @@
                 lightAtt = pow(lightAtt, 5.0);
                 
                 float lightNoLm = 1.0;
-                // if (hasTexNormal) {
-                //     lightNoLm = max(dot(localNormal, lightDir), 0.0);
-                // }
-
-                float sss = 0.0;
-                // if (material.scattering > EPSILON) {
-                //     float lightVoL = dot(localViewDir, lightDir);
-
-                //     sss = 3.0 * material.scattering * max(mix(
-                //         ComputeVolumetricScattering(lightVoL, -0.2),
-                //         ComputeVolumetricScattering(lightVoL, 0.6),
-                //         0.65), 0.0);
-                // }
 
                 // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
                 float sampleShadow = 1.0;
                 #ifdef DYN_LIGHT_DIRECTIONAL
-                    //if (hasTexNormal && hasGeoNormal)
                     if (hasGeoNormal)
-                        sampleShadow = step(-EPSILON, dot(localNormal, lightDir));// * 0.96 + 0.04;
+                        sampleShadow = step(-0.01, dot(localNormal, lightDir));
                 #endif
                 
-                float lightDiffuse = (1.0 - lightNoLm) * sss + lightNoLm * sampleShadow;
-
-                accumDiffuse += lightDiffuse * light.color.rgb * lightAtt;
+                accumDiffuse += lightNoLm * sampleShadow * light.color.rgb * lightAtt;
             }
 
             accumDiffuse *= blockLight * DynamicLightBrightness;
@@ -137,7 +124,7 @@
             ApplyShadows(shadowLocalPos);
         #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_TERRAIN || defined RENDER_WATER)
+        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
             vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
             vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
 
@@ -195,12 +182,6 @@
 
             color.rgb *= glcolor.rgb;
 
-            // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED && defined DEBUG_CASCADE_TINT && defined SHADOW_BLUR
-            //     color.rgb = RGBToLinear(color.rgb);
-            //     color.rgb *= 1.0 - LOD_TINT_FACTOR * (1.0 - GetShadowTileColor(shadowTile));
-            //     color.rgb = LinearToRGB(color.rgb);
-            // #endif
-
             return color;
         }
 
@@ -245,10 +226,6 @@
         vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 albedo = RGBToLinear(color.rgb);
 
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED && defined DEBUG_CASCADE_TINT && !defined RENDER_CLOUDS && !defined RENDER_COMPOSITE
-                albedo *= 1.0 - LOD_TINT_FACTOR * (1.0 - GetShadowTileColor(shadowTile));
-            #endif
-
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 vec3 blockLight = vBlockLight * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
@@ -260,7 +237,6 @@
                 vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
                 vec3 blockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
                 blockLight *= saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
-                //return vec4(localNormal * 0.5 + 0.5, 1.0);
 
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);

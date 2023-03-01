@@ -102,14 +102,14 @@ uniform float far;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/sampling/ign.glsl"
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"
         #include "/lib/shadows/cascaded_render.glsl"
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+    #else
         #include "/lib/shadows/basic.glsl"
         #include "/lib/shadows/basic_render.glsl"
     #endif

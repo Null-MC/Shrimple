@@ -66,20 +66,12 @@ void main() {
      || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
      || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
      || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
-        #ifdef SHADOW_EXCLUDE_FOLIAGE
-            if (vBlockId[0] >= 10000 && vBlockId[0] <= 10004) return;
-        #endif
-
         #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             AddSceneBlockLight(vBlockId[0], vOriginPos[0]);
         #endif
     }
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #ifdef SHADOW_EXCLUDE_ENTITIES
-            if (vEntityId[0] == 0) return;
-        #endif
-
         //if (vEntityId[0] == MATERIAL_LIGHTNING_BOLT) return;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -101,10 +93,6 @@ void main() {
 
             int shadowTile = GetShadowTile(cascadeProjection, originPos);
             if (shadowTile < 0) return;
-
-            #ifndef SHADOW_EXCLUDE_ENTITIES
-                if (renderStage == MC_RENDER_STAGE_ENTITIES && vEntityId[0] == CSM_PLAYER_ID) shadowTile = 0;
-            #endif
 
             #ifdef SHADOW_CSM_OVERLAP
                 int cascadeMin = max(shadowTile - 1, 0);

@@ -22,13 +22,10 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #include "/lib/buffers/lighting.glsl"
     #endif
 
-    #ifdef WORLD_SHADOW_ENABLED
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/matrix.glsl"
         #include "/lib/buffers/shadow.glsl"
-
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded.glsl"
-        #endif
+        #include "/lib/shadows/cascaded.glsl"
     #endif
 #endif
 

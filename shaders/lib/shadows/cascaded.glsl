@@ -239,9 +239,5 @@ vec3 GetShadowTileColor(const in int tile) {
         #endif
 
         shadowTile = GetShadowTile(cascadeProjection, blockPos);
-
-        #if defined DEBUG_CASCADE_TINT && !defined RENDER_TEXTURED
-            shadowTileColor = GetShadowTileColor(shadowTile);
-        #endif
     }
 #endif

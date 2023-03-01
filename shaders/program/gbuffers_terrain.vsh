@@ -64,13 +64,13 @@ uniform vec3 cameraPosition;
 	#include "/lib/lighting/blackbody.glsl"
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		#include "/lib/shadows/cascaded.glsl"
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
+	#else
 		#include "/lib/shadows/basic.glsl"
 	#endif
 #endif

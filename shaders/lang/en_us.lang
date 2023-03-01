@@ -1,3 +1,5 @@
+
+
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.
 
@@ -29,12 +31,6 @@ option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
 value.SHADOW_FILTER.0=None
 value.SHADOW_FILTER.1=PCF
 value.SHADOW_FILTER.2=PCF+PCSS
-
-option.SHADOW_EXCLUDE_ENTITIES=Hide Entities
-option.SHADOW_EXCLUDE_ENTITIES.comment=If true, entities will not cast shadows.
-
-option.SHADOW_EXCLUDE_FOLIAGE=Hide Foliage
-option.SHADOW_EXCLUDE_FOLIAGE.comment=If true, foliage will not cast shadows.
 
 option.SHADOW_COLORS=Color Tinting
 option.SHADOW_COLORS.comment=0: Stained glass will cast ordinary shadows. 1: Stained glass will cast colored shadows. 2: Stained glass will not cast any shadows.
@@ -131,8 +127,7 @@ option.LIGHT_FALLBACK=Fallback
 option.LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
 
 
-screen.DEBUG_OPTIONS=Debug
-screen.DEBUG_OPTIONS.comment=Special options for debugging.
+screen.DEBUG_OPTIONS=Shrimple
 
 option.DEBUG_SHADOW_BUFFER=Display
 option.DEBUG_SHADOW_BUFFER.comment=Configures which buffer to draw to the screen.
@@ -140,9 +135,6 @@ value.DEBUG_SHADOW_BUFFER.0=gcolor
 value.DEBUG_SHADOW_BUFFER.1=shadowcolor0
 value.DEBUG_SHADOW_BUFFER.2=shadowtex0
 value.DEBUG_SHADOW_BUFFER.3=shadowtex1
-
-option.DEBUG_CASCADE_TINT=Tint Cascades
-option.DEBUG_CASCADE_TINT.comment=When enabled, shadow casters will show their cascade level by tint coloring. Applies to CSM only.
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

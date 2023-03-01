@@ -69,10 +69,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_LIGHTING_ROD_POWERED:
             lightColor = vec3(0.870, 0.956, 0.975);
             break;
-        case BLOCK_LAVA: // lava
-            #ifndef LIGHT_LAVA_ENABLED
-                break;
-            #endif
+        case BLOCK_LAVA:
         case BLOCK_LAVA_CAULDRON:
             lightColor = vec3(0.804, 0.424, 0.149);
             break;
