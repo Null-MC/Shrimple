@@ -129,7 +129,8 @@
             float viewDist = 1.0 + length(viewPos.xyz);
 
             vec3 shadowViewPos = viewPos.xyz;
-            shadowViewPos += vNormal * viewDist * SHADOW_NORMAL_BIAS * max(1.0 - geoNoL, 0.0);
+
+            shadowViewPos += vNormal * viewDist * ShadowNormalBias * max(1.0 - geoNoL, 0.0);
 
             vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
 

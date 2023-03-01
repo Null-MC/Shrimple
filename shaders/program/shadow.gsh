@@ -43,6 +43,7 @@ uniform int renderStage;
 
 #if SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
+    #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"

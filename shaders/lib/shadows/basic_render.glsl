@@ -1,5 +1,5 @@
 float GetShadowBias(const in float geoNoL) {
-    return 0.000004;
+    return 0.00004;
 }
 
 float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {

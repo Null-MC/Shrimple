@@ -365,8 +365,6 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
         }
     #endif
 
-    // if (any(greaterThan(lightClipPosMax.xy, vec2(-1.0)))
-    //  && any(lessThan(lightClipPosMin.xy, vec2(1.0)))) {
     if (intersects) {
         // if (blockId == BLOCK_TORCH) {
         //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
