@@ -1,0 +1,66 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release Version'
+        required: true
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Zip Content
+        run: zip -r "Shrimple_v${{ github.event.inputs.version }}.zip" . -x ".git/*" ".github/*" "shaders/info/*"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          release_name: Release ${{ github.event.inputs.version }}
+          prerelease: true
+          draft: true
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Shrimple_v${{ github.event.inputs.version }}.zip
+          asset_name: Shrimple_v${{ github.event.inputs.version }}.zip
+          asset_content_type: application/zip
+      # - name: Publish to CurseForge
+      #   uses: itsmeow/curseforge-upload@v3
+      #   with:
+      #     display_name: Shrimple v${{ github.event.inputs.version }}
+      #     file_path: Shrimple_v${{ github.event.inputs.version }}.zip
+      #     changelog: "###Release ${{ github.event.inputs.version }}"
+      #     game_versions: "9559,9550,9366,9259,9186,8993"
+      #     token: ${{ secrets.CF_API_TOKEN }}
+      #     game_endpoint: minecraft
+      #     project_id: 832754
+      #     release_type: beta
+      - name: Publish to CurseForge, Modrinth
+        uses: Kir-Antipov/mc-publish@v3.2
+        with:
+          name: Shrimple v${{ github.event.inputs.version }}
+          files: ./Shrimple_v${{ github.event.inputs.version }}.zip
+          changelog: "###Release ${{ github.event.inputs.version }}"
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-id: BS9T99lD
+          curseforge-token: ${{ secrets.CF_API_TOKEN }}
+          curseforge-id: 832754
+          version-type: beta
+          game-versions: |
+            1.19.3
+            1.19.2
+            1.19.1
+            1.19
