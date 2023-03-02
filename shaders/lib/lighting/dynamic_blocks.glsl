@@ -346,7 +346,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
 
     bool intersects = true;
     #ifdef DYN_LIGHT_FRUSTUM_TEST
-        vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos[0], 1.0)).xyz;
+        vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
 
         if (lightViewPos.z > lightRange) intersects = false;
         else if (lightViewPos.z < -far - lightRange) intersects = false;
@@ -376,7 +376,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
 
             if (glow > EPSILON) {
                 float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-                lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+                //lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
             }
         #endif
 

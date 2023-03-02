@@ -41,15 +41,12 @@ void main() {
         #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
             SceneLightCount = 0u;
 
-            // TODO: get player frustum planes in view-space
-            // - project 4 far-plane points in view-space
             vec3 farClipPos[4];
             farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));
             farClipPos[1] = unproject(gbufferProjectionInverse * vec4( 1.0, -1.0, 1.0, 1.0));
             farClipPos[2] = unproject(gbufferProjectionInverse * vec4(-1.0,  1.0, 1.0, 1.0));
             farClipPos[3] = unproject(gbufferProjectionInverse * vec4( 1.0,  1.0, 1.0, 1.0));
 
-            // - get top, bottom, left, right normals
             sceneViewUp    = normalize(cross(farClipPos[0] - farClipPos[1], farClipPos[0]));
             sceneViewRight = normalize(cross(farClipPos[1] - farClipPos[3], farClipPos[1]));
             sceneViewDown  = normalize(cross(farClipPos[3] - farClipPos[2], farClipPos[3]));

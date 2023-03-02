@@ -232,6 +232,7 @@
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
                 #endif
+                return vec4(blockLight, 1.0);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
                 vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
