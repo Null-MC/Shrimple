@@ -37,17 +37,17 @@ jobs:
           asset_path: ./Shrimple_v${{ github.event.inputs.version }}.zip
           asset_name: Shrimple_v${{ github.event.inputs.version }}.zip
           asset_content_type: application/zip
-      # - name: Publish to CurseForge
-      #   uses: itsmeow/curseforge-upload@v3
-      #   with:
-      #     display_name: Shrimple v${{ github.event.inputs.version }}
-      #     file_path: Shrimple_v${{ github.event.inputs.version }}.zip
-      #     changelog: "###Release ${{ github.event.inputs.version }}"
-      #     game_versions: "9559,9550,9366,9259,9186,8993"
-      #     token: ${{ secrets.CF_API_TOKEN }}
-      #     game_endpoint: minecraft
-      #     project_id: 832754
-      #     release_type: beta
+      - name: Publish to CurseForge
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          display_name: Shrimple v${{ github.event.inputs.version }}
+          file_path: Shrimple_v${{ github.event.inputs.version }}.zip
+          changelog: "###Release ${{ github.event.inputs.version }}"
+          game_versions: "9559,9550,9366,9259,9186,8993"
+          token: ${{ secrets.CF_API_TOKEN }}
+          game_endpoint: minecraft
+          project_id: 832754
+          release_type: beta
       - name: Publish to CurseForge, Modrinth
         uses: Kir-Antipov/mc-publish@v3.2
         with:
@@ -58,8 +58,8 @@ jobs:
           changelog: "###Release ${{ github.event.inputs.version }}"
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: BS9T99lD
-          curseforge-token: ${{ secrets.CF_API_TOKEN }}
-          curseforge-id: 832754
+          #curseforge-token: ${{ secrets.CF_API_TOKEN }}
+          #curseforge-id: 832754
           loaders: |
             fabric
             forge
