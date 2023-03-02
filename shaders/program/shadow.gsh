@@ -75,6 +75,17 @@ void main() {
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         //if (vEntityId[0] == MATERIAL_LIGHTNING_BOLT) return;
 
+        vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
+
+        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+            bool intersects = true;
+            //vec3 shadowClipPos = (shadowProjection * vec4(originShadowViewPos, 1.0)).xyz;
+
+            // TODO: shadow culling needs different frustum tests
+
+            if (!intersects) return;
+        #endif
+
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #ifndef IRIS_FEATURE_SSBO
                 float cascadeSizes[4];
@@ -90,9 +101,7 @@ void main() {
                 cascadeProjection[3] = GetShadowTileProjectionMatrix(cascadeSizes, 3);
             #endif
 
-            vec3 originPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
-
-            int shadowTile = GetShadowTile(cascadeProjection, originPos);
+            int shadowTile = GetShadowTile(cascadeProjection, originShadowViewPos);
             if (shadowTile < 0) return;
 
             #ifdef SHADOW_CSM_OVERLAP
@@ -108,9 +117,9 @@ void main() {
                     #ifdef SHADOW_CSM_OVERLAP
                         // duplicate geometry if intersecting overlapping cascades
                         #ifdef IRIS_FEATURE_SSBO
-                            if (!CascadeIntersectsProjection(originPos, c)) continue;
+                            if (!CascadeIntersectsProjection(originShadowViewPos, c)) continue;
                         #else
-                            if (!CascadeIntersectsProjection(originPos, cascadeProjection[c])) continue;
+                            if (!CascadeIntersectsProjection(originShadowViewPos, cascadeProjection[c])) continue;
                         #endif
                     #else
                         continue;
