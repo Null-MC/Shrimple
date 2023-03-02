@@ -61,8 +61,8 @@ jobs:
           #curseforge-token: ${{ secrets.CF_API_TOKEN }}
           #curseforge-id: 832754
           loaders: |
-            Optifine
-            Iris
+            optifine
+            iris
           game-versions: |
             1.19.3
             1.19.2
