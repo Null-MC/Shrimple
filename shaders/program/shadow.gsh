@@ -31,10 +31,11 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform vec3 cameraPosition;
 uniform int renderStage;
+uniform float far;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform float near;
-    uniform float far;
+    //uniform float far;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO

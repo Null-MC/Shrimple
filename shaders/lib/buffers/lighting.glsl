@@ -16,6 +16,10 @@ struct LightCellData {
 #endif
 {
     uint SceneLightCount;
+    vec3 sceneViewUp;
+    vec3 sceneViewRight;
+    vec3 sceneViewDown;
+    vec3 sceneViewLeft;
     SceneLightData SceneLights[];
 };
 

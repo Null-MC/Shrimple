@@ -3,6 +3,8 @@
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.
 
+option.OLD_LIGHTING=Old Lighting
+
 option.ENABLE_WAVING=Waving Plants
 option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
 

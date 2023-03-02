@@ -349,16 +349,12 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
         vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
         if (lightViewPos.z > lightRange) intersects = false;
-        //else if (lightViewPos.z < -far - lightRange) intersects = false;
+        else if (lightViewPos.z < -far - lightRange) intersects = false;
         else {
-            //vec3 lightClipPosMin = unproject(gbufferProjection * vec4(lightViewPos - lightRange - 1.0, 1.0));
-            //vec3 lightClipPosMax = unproject(gbufferProjection * vec4(lightViewPos + lightRange + 1.0, 1.0));
-            
-            //if (lightClipPosMax.x < -1.0) intersects = false;
-            //if (lightClipPosMin.x >  1.0) intersects = false;
-            
-            //if (lightClipPosMax.y < -1.0) intersects = false;
-            //if (lightClipPosMin.y >  1.0) intersects = false;
+            if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
+            if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
+            if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
+            if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
         }
     #endif
 

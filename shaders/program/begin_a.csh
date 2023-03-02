@@ -9,12 +9,18 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const ivec3 workGroups = ivec3(4, 1, 1);
 
-#if defined IRIS_FEATURE_SSBO && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    uniform mat4 gbufferModelView;
-    uniform mat4 gbufferProjection;
-    uniform mat4 shadowModelView;
-    uniform float near;
-    uniform float far;
+#ifdef IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        uniform mat4 gbufferProjectionInverse;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        uniform mat4 gbufferModelView;
+        uniform mat4 gbufferProjection;
+        uniform mat4 shadowModelView;
+        uniform float near;
+        uniform float far;
+    #endif
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -34,6 +40,20 @@ void main() {
     #ifdef IRIS_FEATURE_SSBO
         #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
             SceneLightCount = 0u;
+
+            // TODO: get player frustum planes in view-space
+            // - project 4 far-plane points in view-space
+            vec3 farClipPos[4];
+            farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));
+            farClipPos[1] = unproject(gbufferProjectionInverse * vec4( 1.0, -1.0, 1.0, 1.0));
+            farClipPos[2] = unproject(gbufferProjectionInverse * vec4(-1.0,  1.0, 1.0, 1.0));
+            farClipPos[3] = unproject(gbufferProjectionInverse * vec4( 1.0,  1.0, 1.0, 1.0));
+
+            // - get top, bottom, left, right normals
+            sceneViewUp    = normalize(cross(farClipPos[0] - farClipPos[1], farClipPos[0]));
+            sceneViewRight = normalize(cross(farClipPos[1] - farClipPos[3], farClipPos[1]));
+            sceneViewDown  = normalize(cross(farClipPos[3] - farClipPos[2], farClipPos[3]));
+            sceneViewLeft  = normalize(cross(farClipPos[2] - farClipPos[0], farClipPos[2]));
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED

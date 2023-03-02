@@ -21,6 +21,7 @@ const bool colortex2Clear = true;
 // World Options
 #define ENABLE_WAVING
 #define FOLIAGE_UP
+#define OLD_LIGHTING
 
 
 // Shadow Options
@@ -126,6 +127,8 @@ const bool generateShadowMipmap = false;
     const float alphaTestRef = 0.1;
 #endif
 
+#ifdef OLD_LIGHTING
+#endif
 #ifdef FOLIAGE_UP
 #endif
 #ifdef SHADOW_BLUR
