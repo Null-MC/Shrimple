@@ -52,13 +52,18 @@ jobs:
         uses: Kir-Antipov/mc-publish@v3.2
         with:
           name: Shrimple v${{ github.event.inputs.version }}
+          version: v${{ github.event.inputs.version }}
+          version-type: beta
           files: ./Shrimple_v${{ github.event.inputs.version }}.zip
           changelog: "###Release ${{ github.event.inputs.version }}"
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           modrinth-id: BS9T99lD
           curseforge-token: ${{ secrets.CF_API_TOKEN }}
           curseforge-id: 832754
-          version-type: beta
+          loaders: |
+            fabric
+            forge
+            quilt
           game-versions: |
             1.19.3
             1.19.2
