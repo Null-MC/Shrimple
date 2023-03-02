@@ -60,6 +60,9 @@ jobs:
           modrinth-id: BS9T99lD
           #curseforge-token: ${{ secrets.CF_API_TOKEN }}
           #curseforge-id: 832754
+          loaders: |
+            Optifine
+            Iris
           game-versions: |
             1.19.3
             1.19.2
