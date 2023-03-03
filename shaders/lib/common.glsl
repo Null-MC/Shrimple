@@ -1,10 +1,20 @@
 const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 20 30 40 50 60]
 
 /*
+const int shadowcolor0Format = RGBA8;
 const int colortex0Format = RGBA8;
 const int colortex1Format = RGBA8;
 const int colortex2Format = RGBA8;
 */
+
+const bool generateShadowMipmap = false;
+const bool generateShadowColorMipmap = false;
+
+const vec4 shadowcolor0ClearColor = vec4(1.0, 1.0, 1.0, 0.0);
+const bool shadowcolor0Clear = true;
+
+const bool shadowtex0Mipmap = false;
+const bool shadowtex1Mipmap = false;
 
 const bool colortex0MipmapEnabled = false;
 const bool colortex0Clear = true;
@@ -20,8 +30,9 @@ const bool colortex2Clear = true;
 
 // World Options
 #define ENABLE_WAVING
-#define FOLIAGE_UP
 #define OLD_LIGHTING
+#define HAND_LIGHT_MODE 1 // [0 1 2]
+#define FOLIAGE_UP
 
 
 // Shadow Options
@@ -58,7 +69,6 @@ const bool colortex2Clear = true;
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
-//#define DYN_LIGHT_DEBUG_COUNTS
 #define LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -73,6 +83,7 @@ const bool colortex2Clear = true;
 
 // Debug Options
 #define DEBUG_SHADOW_BUFFER 0 // [0 1 2 3]
+//#define DYN_LIGHT_DEBUG_COUNTS
 
 
 // INTERNAL SETTINGS
@@ -97,10 +108,6 @@ const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 
-const bool shadowcolor0Nearest = false;
-const vec4 shadowcolor0ClearColor = vec4(1.0, 1.0, 1.0, 0.0);
-const bool shadowcolor0Clear = true;
-
 const float shadowDistanceRenderMul = 1.0;
 
 const float shadowDistance = 150; // [50 100 150 200 300 400 800]
@@ -114,14 +121,14 @@ const int shadowMapResolution = 2048; // [128 256 512 1024 2048 4096 8192]
 
 const float shadowPixelSize = 1.0 / shadowMapSize;
 
-const bool generateShadowMipmap = false;
-
 #ifdef SHADOW_ENABLE_HWCOMP
     const bool shadowHardwareFiltering = true;
+    //const bool shadowHardwareFiltering0 = true;
+    //const bool shadowHardwareFiltering1 = true;
     const bool shadowtex0Nearest = false;
     const bool shadowtex1Nearest = false;
+    const bool shadowcolor0Nearest = false;
 #endif
-
 
 #if MC_VERSION < 11700
     const float alphaTestRef = 0.1;

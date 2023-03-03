@@ -13,6 +13,11 @@ out vec3 vNormal;
 out float geoNoL;
 out float vLit;
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+    out vec3 vLocalPos;
+    out vec3 vLocalNormal;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		out vec3 shadowPos[4];
@@ -28,16 +33,22 @@ out float vLit;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
 	out vec3 vBlockLight;
+#endif
 
-	uniform sampler2D noisetex;
-#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     flat out int vBlockId;
 #endif
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+	uniform sampler2D noisetex;
+#endif
+
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;
@@ -53,8 +64,11 @@ uniform mat4 gbufferModelViewInverse;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	uniform vec3 cameraPosition;
+#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+    uniform int heldItemId;
+    uniform int heldBlockLightValue;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -69,8 +83,14 @@ uniform mat4 gbufferModelViewInverse;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	#include "/lib/buffers/lighting.glsl"
-	#include "/lib/lighting/dynamic.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/dynamic.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+    #include "/lib/blocks.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

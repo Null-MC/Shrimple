@@ -1,3 +1,26 @@
+float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 lightPos, const in float lightRange) {
+    vec3 lightVec = lightPos - fragLocalPos;
+    //if (dot(lightVec, lightVec) >= pow2(lightRange)) continue;
+
+    float lightDist = length(lightVec);
+    vec3 lightDir = lightVec / max(lightDist, EPSILON);
+    lightDist = max(lightDist - 0.5, 0.0);
+
+    float lightAtt = 1.0 - saturate(lightDist / lightRange);
+    lightAtt = pow(lightAtt, 5.0);
+    
+    float lightNoLm = 1.0;
+
+    // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
+    #ifdef DYN_LIGHT_DIRECTIONAL
+        if (dot(fragLocalNormal, fragLocalNormal) > EPSILON)
+            //lightNoLm = step(-0.01, dot(fragLocalNormal, lightDir));
+            lightNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+    #endif
+    
+    return lightNoLm * lightAtt;
+}
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in int blockId, const in float blockLight) {
         uint gridIndex;
@@ -22,26 +45,11 @@
 
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
+
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
-                float lightDist = length(lightVec);
-                vec3 lightDir = lightVec / max(lightDist, EPSILON);
-                lightDist = max(lightDist - 0.5, 0.0);
-
-                float lightAtt = 1.0 - saturate(lightDist / light.range);
-                lightAtt = pow(lightAtt, 5.0);
-                
-                float lightNoLm = 1.0;
-
-                // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
-                float sampleShadow = 1.0;
-                #ifdef DYN_LIGHT_DIRECTIONAL
-                    if (hasGeoNormal)
-                        sampleShadow = step(-0.01, dot(localNormal, lightDir));
-                #endif
-                
-                accumDiffuse += lightNoLm * sampleShadow * light.color.rgb * lightAtt;
+                accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;
             }
 
             accumDiffuse *= blockLight * DynamicLightBrightness;
@@ -63,6 +71,23 @@
                 return vec3(0.0);
             #endif
         }
+    }
+#endif
+
+#if HAND_LIGHT_MODE != HAND_LIGHT_NONE
+    vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal) {
+        vec2 noiseSample = vec2(1.0); // TODO!
+
+        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(0.3, -0.3, 0.2, 1.0)).xyz;
+        if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+
+        vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
+        float lightRange = heldBlockLightValue;
+
+        vec3 lightVec = lightLocalPos - fragLocalPos;
+        if (dot(lightVec, lightVec) >= pow2(lightRange)) return vec3(0.0);
+
+        return SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, lightRange) * lightColor;
     }
 #endif
 
@@ -124,11 +149,21 @@
             ApplyShadows(shadowLocalPos);
         #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
-            vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
-            vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
+        vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
+        vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
 
+        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
             vBlockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
+            vBlockLight *= saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+        #endif
+
+        #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+            vBlockLight += SampleHandLight(localPos, localNormal);
+        #endif
+
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+            vLocalPos = localPos;
+            vLocalNormal = localNormal;
         #endif
 
         gl_Position = gl_ProjectionMatrix * viewPos;
@@ -226,32 +261,42 @@
         vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 albedo = RGBToLinear(color.rgb);
 
+            // vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            // vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
+            vec3 blockLight = vec3(0.0);
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+                blockLight = vBlockLight;
+            #endif
+
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                vec3 blockLight = vBlockLight * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+                //vec3 blockLight = vBlockLight;
 
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
                 #endif
                 //return vec4(blockLight, 1.0);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-                vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
-                vec3 blockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
-                blockLight *= saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+                blockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, vBlockId, lmcoord.x)
+                    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
                 #endif
             #else
                 #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
-                    vec3 blockLight = textureLod(texLightMap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(texLightMap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
                 #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
-                    vec3 blockLight = textureLod(colortex3, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(colortex3, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
                 #else
-                    vec3 blockLight = textureLod(lightmap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
                 #endif
 
-                blockLight = RGBToLinear(blockLight);
+                blockLight += RGBToLinear(blockLightDefault);
+            #endif
+
+            #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+                blockLight += SampleHandLight(vLocalPos, vLocalNormal);
             #endif
 
             #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME

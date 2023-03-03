@@ -13,6 +13,11 @@ in vec3 vNormal;
 in float geoNoL;
 in float vLit;
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+    in vec3 vLocalPos;
+    in vec3 vLocalNormal;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		in vec3 shadowPos[4];
@@ -36,6 +41,7 @@ in float vLit;
 
 uniform sampler2D gtexture;
 
+uniform mat4 gbufferModelViewInverse;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -73,7 +79,7 @@ uniform float far;
 	uniform sampler2D noisetex;
 
 	uniform float frameTimeCounter;
-    uniform mat4 gbufferModelViewInverse;
+    //uniform mat4 gbufferModelViewInverse;
     uniform vec3 cameraPosition;
 #endif
 
@@ -98,6 +104,11 @@ uniform float far;
 	#if SHADOW_TYPE != SHADOW_TYPE_NONE
 		uniform mat4 shadowProjection;
 	#endif
+#endif
+
+#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+    uniform int heldItemId;
+    uniform int heldBlockLightValue;
 #endif
 
 #include "/lib/sampling/noise.glsl"

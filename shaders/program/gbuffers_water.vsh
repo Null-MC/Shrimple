@@ -5,6 +5,10 @@
 #include "/lib/common.glsl"
 #include "/lib/constants.glsl"
 
+in vec4 mc_Entity;
+in vec3 vaPosition;
+in vec3 at_midBlock;
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -13,9 +17,10 @@ out vec3 vNormal;
 out float geoNoL;
 out float vLit;
 
-in vec4 mc_Entity;
-in vec3 vaPosition;
-in vec3 at_midBlock;
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+    out vec3 vLocalPos;
+    out vec3 vLocalNormal;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -55,6 +60,13 @@ uniform vec3 cameraPosition;
 		uniform mat4 gbufferProjection;
 		uniform float near;
 	#endif
+#endif
+
+#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+    uniform int heldItemId;
+    uniform int heldBlockLightValue;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
 #endif
 
 #include "/lib/blocks.glsl"

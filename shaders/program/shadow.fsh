@@ -24,7 +24,7 @@ uniform int renderStage;
 layout(location = 0) out vec4 outColor0;
 
 void main() {
-	#if SHADOW_TYPE == 3
+	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		vec2 p = gl_FragCoord.xy / shadowMapSize - gShadowTilePos;
 		if (clamp(p, vec2(0.0), vec2(0.5)) != p) discard;
 	#endif

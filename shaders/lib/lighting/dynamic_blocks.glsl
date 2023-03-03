@@ -221,7 +221,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
         case BLOCK_FIRE:
             lightOffset = vec3(0.0, -0.3, 0.0);
             lightRange = 15.0;
-            flicker = 0.3;
+            flicker = 0.5;
             break;
         case BLOCK_FURNACE_LIT:
             lightOffset = vec3(0.0, -0.2, 0.0);
@@ -376,7 +376,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
 
             if (glow > EPSILON) {
                 float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-                //lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+                lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
             }
         #endif
 
