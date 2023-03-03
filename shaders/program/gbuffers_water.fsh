@@ -33,15 +33,23 @@ in float vLit;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
     in vec3 vBlockLight;
-#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     flat in int vBlockId;
 #endif
 
 uniform sampler2D gtexture;
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+	uniform sampler2D noisetex;
+#endif
+
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -75,14 +83,6 @@ uniform float far;
     uniform float blindness;
 #endif 
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-	uniform sampler2D noisetex;
-
-	uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelViewInverse;
-    uniform vec3 cameraPosition;
-#endif
-
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -109,6 +109,8 @@ uniform float far;
 #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     uniform int heldItemId;
     uniform int heldBlockLightValue;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
 #endif
 
 #include "/lib/sampling/noise.glsl"

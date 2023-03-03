@@ -37,12 +37,16 @@ out float vLit;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
 	out vec3 vBlockLight;
+#endif
 
-	uniform sampler2D noisetex;
-#elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     flat out int vBlockId;
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+	uniform sampler2D noisetex;
 #endif
 
 uniform mat4 gbufferModelView;
@@ -72,10 +76,6 @@ uniform vec3 cameraPosition;
 #include "/lib/blocks.glsl"
 #include "/lib/waving.glsl"
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	#include "/lib/lighting/blackbody.glsl"
-#endif
-
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -87,8 +87,9 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
 	#include "/lib/buffers/lighting.glsl"
+	#include "/lib/lighting/blackbody.glsl"
 	#include "/lib/lighting/dynamic.glsl"
 	#include "/lib/lighting/dynamic_blocks.glsl"
 #endif

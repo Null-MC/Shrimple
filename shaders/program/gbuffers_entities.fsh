@@ -50,6 +50,7 @@ uniform sampler2D gtexture;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec4 entityColor;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -155,6 +156,8 @@ layout(location = 0) out vec4 outColor0;
 
 void main() {
 	vec4 color = GetColor();
+
+	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
 	#if SHADOW_COLORS == SHADOW_COLOR_ENABLED
 		vec3 lightColor = GetFinalShadowColor();

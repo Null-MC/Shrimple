@@ -149,10 +149,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
         vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
         vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
+        vBlockLight = vec3(0.0);
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
-            vBlockLight = SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x);
-            vBlockLight *= saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+            vBlockLight += SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x)
+                * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
         #endif
 
         #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
