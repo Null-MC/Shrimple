@@ -48,7 +48,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
                 #ifdef DYN_LIGHT_PT
-                    //
+                    // TODO: trace to light
                 #endif
 
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;

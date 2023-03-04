@@ -391,7 +391,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             
             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
-                TrySetSceneLightMask(blockCell, gridIndex);
+                SetSceneSolidMask(blockCell, gridIndex);
             }
         }
     #endif
