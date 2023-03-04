@@ -150,9 +150,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
 }
 
 void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
-    // TODO: dont sample noise if flicker disabled
-    vec2 noiseSample = GetDynLightNoise(blockLocalPos);
-    vec3 lightColor = GetSceneBlockLightColor(blockId, noiseSample);
+    #ifdef DYN_LIGHT_FLICKER
+        vec2 noiseSample = GetDynLightNoise(blockLocalPos);
+        vec3 lightColor = GetSceneBlockLightColor(blockId, noiseSample);
+    #endif
 
     vec3 lightOffset = vec3(0.0);
     float lightRange = 0.0;
@@ -342,44 +343,56 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             break;
     }
 
-    if (lightRange < EPSILON) return;
-
     bool intersects = true;
-    #ifdef DYN_LIGHT_FRUSTUM_TEST
-        vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+    if (lightRange > EPSILON) {
+        #ifdef DYN_LIGHT_FRUSTUM_TEST
+            vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
 
-        if (lightViewPos.z > lightRange) intersects = false;
-        else if (lightViewPos.z < -far - lightRange) intersects = false;
-        else {
-            if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
-            if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
-            if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
-            if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
-        }
-    #endif
-
-    if (intersects) {
-        // if (blockId == BLOCK_TORCH) {
-        //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
-        //     //texPos.z += 2.0 * time;
-
-        //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
-
-        //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
-        //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
-        // }
-
-        #ifdef DYN_LIGHT_FLICKER
-            if (flicker > EPSILON) {
-                lightColor.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
-            }
-
-            if (glow > EPSILON) {
-                float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-                lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+            if (lightViewPos.z > lightRange) intersects = false;
+            else if (lightViewPos.z < -far - lightRange) intersects = false;
+            else {
+                if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
+                if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
+                if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
+                if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
             }
         #endif
 
-        AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
+        if (intersects) {
+            // if (blockId == BLOCK_TORCH) {
+            //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
+            //     //texPos.z += 2.0 * time;
+
+            //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
+
+            //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
+            //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
+            // }
+
+            #ifdef DYN_LIGHT_FLICKER
+                if (flicker > EPSILON) {
+                    lightColor.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
+                }
+
+                if (glow > EPSILON) {
+                    float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
+                    lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+                }
+            #endif
+
+            AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
+        }
     }
+
+    #ifdef DYN_LIGHT_PT
+        if (lightRange < EPSILON || !intersects) {
+            ivec3 gridCell, blockCell;
+            vec3 gridPos = GetLightGridPosition(blockLocalPos);
+            
+            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                uint gridIndex = GetSceneLightGridIndex(gridCell);
+                TrySetSceneLightMask(blockCell, gridIndex);
+            }
+        }
+    #endif
 }

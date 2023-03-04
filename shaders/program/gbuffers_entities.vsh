@@ -67,7 +67,9 @@ uniform vec3 cameraPosition;
 
 #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
     uniform int heldItemId;
+    uniform int heldItemId2;
     uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif

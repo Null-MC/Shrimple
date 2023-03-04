@@ -1,7 +1,6 @@
 const ivec3 SceneLightGridSize = ivec3(LIGHT_SIZE_XZ, LIGHT_SIZE_Y, LIGHT_SIZE_XZ);
 const ivec3 SceneLightSize = SceneLightGridSize * LIGHT_BIN_SIZE;
 const ivec3 LightGridCenter = SceneLightSize / 2;
-const int lightMaskBitCount = int(log2(LIGHT_BIN_SIZE));
 
 
 vec3 GetLightGridPosition(const in vec3 position) {
@@ -36,19 +35,36 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return dot(pointDist, pointDist) < pow2(lightRange);
     }
 
+    bool TrySetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
+        const int lightMaskBitCount = int(log2(LIGHT_BIN_SIZE));
+
+        uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+
+        #ifdef DYN_LIGHT_PT
+            maskIndex *= 2u;
+        #endif
+
+        uint intIndex = maskIndex >> 5;
+        uint bit = 1 << (maskIndex & 31);
+
+        uint status = atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
+        return (status & bit) == 0;
+    }
+
     void AddSceneLight(const in vec3 position, const in float range, const in vec4 color) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);
         if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
         uint gridIndex = GetSceneLightGridIndex(gridCell);
 
-        uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-        uint intIndex = maskIndex >> 5;
-        uint bitIndex = maskIndex & 31;
-        uint bit = 1 << bitIndex;
+        // uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+        // uint intIndex = maskIndex >> 5;
+        // uint bitIndex = maskIndex & 31;
+        // uint bit = 1 << bitIndex;
 
-        uint status = atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
-        if ((status & bit) != 0) return;
+        // uint status = atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
+        // if ((status & bit) != 0) return;
+        if (!TrySetSceneLightMask(blockCell, gridIndex)) return;
 
         uint gridLightIndex = atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
         if (gridLightIndex >= LIGHT_BIN_MAX_COUNT) return;

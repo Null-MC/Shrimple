@@ -47,6 +47,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
+                #ifdef DYN_LIGHT_PT
+                    //
+                #endif
+
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;
             }
 
@@ -75,17 +79,35 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 #if HAND_LIGHT_MODE != HAND_LIGHT_NONE
     vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal) {
         vec2 noiseSample = vec2(1.0); // TODO!
+        vec3 result = vec3(0.0);
 
-        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(0.3, -0.3, 0.2, 1.0)).xyz;
-        if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+        if (heldItemId == 115) return vec3(1.0);
 
-        vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
-        float lightRange = heldBlockLightValue;
+        if (heldBlockLightValue > 0) {
+            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(0.3, -0.3, 0.2, 1.0)).xyz;
+            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
-        vec3 lightVec = lightLocalPos - fragLocalPos;
-        if (dot(lightVec, lightVec) >= pow2(lightRange)) return vec3(0.0);
+            vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
 
-        return SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, lightRange) * lightColor;
+            vec3 lightVec = lightLocalPos - fragLocalPos;
+            if (dot(lightVec, lightVec) >= pow2(heldBlockLightValue)) return vec3(0.0);
+
+            result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
+        }
+
+        if (heldBlockLightValue2 > 0) {
+            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(-0.3, -0.3, 0.2, 1.0)).xyz;
+            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+
+            vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
+
+            vec3 lightVec = lightLocalPos - fragLocalPos;
+            if (dot(lightVec, lightVec) >= pow2(heldBlockLightValue2)) return vec3(0.0);
+
+            result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
+        }
+
+        return result;
     }
 #endif
 
