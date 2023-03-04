@@ -20,6 +20,50 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 }
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined DYN_LIGHT_PT && defined RENDER_FRAG
+        bool TraceDDA(const in vec3 origin, const in vec3 endPos) {
+            vec3 traceRay = endPos - origin;
+            float traceRayLen = length(traceRay);
+            if (traceRayLen < EPSILON) return false;
+
+            vec3 direction = traceRay / traceRayLen;
+            float STEP_COUNT = ceil(traceRayLen);
+
+            vec3 stepSizes = 1.0 / abs(direction);
+            vec3 stepDir = sign(direction);
+            vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
+
+            vec3 voxelPos = floor(origin);
+            vec3 currPos = origin;
+
+            bool hit;
+            for (int i = 0; i < STEP_COUNT && !hit; i++) {
+                float closestDist = minOf(nextDist);
+                currPos += direction * closestDist;
+
+                vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
+
+                voxelPos += stepAxis * stepDir;
+                nextDist -= closestDist;
+                nextDist += stepSizes * stepAxis;
+                //normal = -stepAxis;
+                
+                // Check for voxel intersection
+                // normal is the intersection normal
+
+                ivec3 gridCell, blockCell;
+                vec3 gridPos = GetLightGridPosition(currPos);
+                
+                if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                    uint gridIndex = GetSceneLightGridIndex(gridCell);
+                    hit = GetSceneSolidMask(blockCell, gridIndex);
+                }
+            }
+
+            return hit;
+        }
+    #endif
+
     vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in int blockId, const in float blockLight) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.01 * localNormal;
@@ -41,14 +85,20 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 accumDiffuse = vec3(0.0);
             #endif
 
+            #if defined DYN_LIGHT_PT && defined RENDER_FRAG
+                vec3 traceOffset = fract(cameraPosition);
+            #endif
+
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
-                #ifdef DYN_LIGHT_PT
-                    // TODO: trace to light
+                #if defined DYN_LIGHT_PT && defined RENDER_FRAG
+                    vec3 traceOrigin = lightFragPos + traceOffset;
+                    vec3 traceEnd = light.position + traceOffset;
+                    if (TraceDDA(traceOrigin, traceEnd)) continue;
                 #endif
 
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;

@@ -31,6 +31,18 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     return ivec2(gridIndex % 4096, y + gridLightIndex);
 }
 
+#ifdef DYN_LIGHT_PT
+    bool GetSceneSolidMask(const in ivec3 blockCell, const in uint gridIndex) {
+        uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+        maskIndex *= 2u;
+
+        uint intIndex = maskIndex >> 5;
+        uint bit = 1 << (maskIndex & 31 + 1);
+
+        return (SceneLightMaps[gridIndex].Mask[intIndex] & bit) == 1;
+    }
+#endif
+
 #if defined RENDER_SHADOW
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
