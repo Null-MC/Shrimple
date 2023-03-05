@@ -38,7 +38,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         uint intIndex = maskIndex >> 5;
 
         uint bit = SceneLightMaps[gridIndex].Mask[intIndex] >> ((maskIndex & 31) + 1);
-        return (bit & 7);
+        return (bit & 31);
     }
 #endif
 

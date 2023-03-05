@@ -131,7 +131,7 @@ option.LIGHT_LAVA_ENABLED=Lava
 option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
 
 option.DYN_LIGHT_PT=PT Shadows
-option.DYN_LIGHT_PT.comment=Enables path-traced shadows for block-lighting.
+option.DYN_LIGHT_PT.comment=Enables path-traced shadows for block-lighting. Requires the hand/dynamic lighting mode to be set to 'pixel'!
 value.DYN_LIGHT_PT.0=Off
 value.DYN_LIGHT_PT.4=Low
 value.DYN_LIGHT_PT.8=Medium

@@ -91,6 +91,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                                 boundsMin = vec3(0.0);
                                 boundsMax = vec3(1.0);
                                 break;
+                            case BLOCKTYPE_PATHWAY:
+                                boundsMin = vec3(0.0);
+                                boundsMax = vec3(1.0, (15.0/16.0), 1.0);
+                                break;
                             case BLOCKTYPE_SLAB_TOP:
                                 boundsMin = vec3(0.0, 0.5, 0.0);
                                 boundsMax = vec3(1.0);

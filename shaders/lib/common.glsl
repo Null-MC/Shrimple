@@ -74,7 +74,7 @@ const bool colortex2Clear = true;
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
-#define DYN_LIGHT_PT_STRIDE 4
+#define DYN_LIGHT_PT_STRIDE 6
 
 
 // Other
