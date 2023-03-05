@@ -1,7 +1,10 @@
 #if DYN_LIGHT_PT > 0
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId == BLOCK_WATER) return false;
-        if (blockId >= 200 && blockId < 400) return false;
+        if (blockId >= 200 && blockId < 400) {
+            if (blockId == BLOCK_SLABS_BOTTOM || blockId == BLOCK_SLABS_TOP) return true;
+            return false;
+        }
         return true;
     }
 #endif
@@ -464,8 +467,16 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             vec3 gridPos = GetLightGridPosition(blockLocalPos);
             
             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                uint blockType = BLOCKTYPE_SOLID;
+
+                // TODO: set other block tpyes
+                if (blockId == BLOCK_SLABS_BOTTOM)
+                    blockType = BLOCKTYPE_SLAB_BOTTOM;
+                else if (blockId == BLOCK_SLABS_TOP)
+                    blockType = BLOCKTYPE_SLAB_TOP;
+
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
-                SetSceneSolidMask(blockCell, gridIndex);
+                SetSceneBlockMask(blockCell, gridIndex, blockType);
             }
         }
     #endif

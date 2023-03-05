@@ -1,6 +1,3 @@
-#define LIGHT_MASK_SIZE (LIGHT_BIN_SIZE3/32)
-
-
 struct SceneLightData {
     vec3 position;
     float range;
@@ -10,9 +7,9 @@ struct SceneLightData {
 struct LightCellData {
     uint LightCount;
     #if DYN_LIGHT_PT > 0
-        uint[LIGHT_MASK_SIZE*2] Mask;
+        uint[(LIGHT_BIN_SIZE3*DYN_LIGHT_PT_STRIDE/32)] Mask;
     #else
-        uint[LIGHT_MASK_SIZE] Mask;
+        uint[(LIGHT_BIN_SIZE3/32)] Mask;
     #endif
 };
 

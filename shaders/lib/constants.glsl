@@ -15,4 +15,9 @@
 #define DYN_LIGHT_VERTEX 1
 #define DYN_LIGHT_PIXEL 2
 
+#define BLOCKTYPE_EMPTY 0u
+#define BLOCKTYPE_SOLID 1u
+#define BLOCKTYPE_SLAB_TOP 2u
+#define BLOCKTYPE_SLAB_BOTTOM 3u
+
 #define TEX_LIGHT_NOISE noisetex

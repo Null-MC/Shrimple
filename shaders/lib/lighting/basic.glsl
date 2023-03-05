@@ -21,7 +21,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
-        #define TRACE_MODE TraceShitty
+        #define TRACE_MODE TraceRay
 
         bool TraceDDA(const in vec3 origin, const in vec3 endPos) {
             vec3 traceRay = endPos - origin;
@@ -58,14 +58,15 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 ivec3 gridCell, blockCell;
                 if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
-                    hit = GetSceneSolidMask(blockCell, gridIndex);
+                    uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+                    hit = blockType == BLOCKTYPE_SOLID;
                 }
             }
 
             return hit;
         }
 
-        bool TraceShitty(const in vec3 origin, const in vec3 endPos) {
+        bool TraceRay(const in vec3 origin, const in vec3 endPos) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return false;
@@ -80,7 +81,29 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 ivec3 gridCell, blockCell;
                 if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
-                    hit = GetSceneSolidMask(blockCell, gridIndex);
+                    uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+
+                    if (blockType != BLOCKTYPE_EMPTY) {
+                        vec3 boundsMin, boundsMax;
+
+                        switch (blockType) {
+                            case BLOCKTYPE_SOLID:
+                                boundsMin = vec3(0.0);
+                                boundsMax = vec3(1.0);
+                                break;
+                            case BLOCKTYPE_SLAB_TOP:
+                                boundsMin = vec3(0.0, 0.5, 0.0);
+                                boundsMax = vec3(1.0);
+                                break;
+                            case BLOCKTYPE_SLAB_BOTTOM:
+                                boundsMin = vec3(0.0);
+                                boundsMax = vec3(1.0, 0.5, 1.0);
+                                break;
+                        }
+
+                        vec3 blockPos = fract(gridPos);
+                        hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
+                    }
                 }
             }
 
