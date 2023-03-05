@@ -70,14 +70,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return false;
 
-            const float STEP_COUNT = 8;//ceil(traceRayLen);
-
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-
-            vec3 stepSize = traceRay / STEP_COUNT;
-
+            vec3 stepSize = traceRay / DYN_LIGHT_PT;
             bool hit = false;
-            for (int i = 1; i < STEP_COUNT && !hit; i++) {
+            
+            for (int i = 1; i < DYN_LIGHT_PT && !hit; i++) {
                 vec3 gridPos = (i + dither) * stepSize + origin;
                 
                 ivec3 gridCell, blockCell;
