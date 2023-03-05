@@ -20,7 +20,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 }
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+    #if DYN_LIGHT_PT > 0 && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined RENDER_FRAG
         #define TRACE_MODE TraceRay
 
         bool TraceDDA(const in vec3 origin, const in vec3 endPos) {
