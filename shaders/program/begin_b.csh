@@ -25,7 +25,7 @@ void main() {
 
         SceneLightMaps[gridIndex].LightCount = 0u;
 
-        #ifdef DYN_LIGHT_PT
+        #if DYN_LIGHT_PT > 0
             for (int i = 0; i < (LIGHT_MASK_SIZE*2u); i++)
                 SceneLightMaps[gridIndex].Mask[i] = 0u;
         #else

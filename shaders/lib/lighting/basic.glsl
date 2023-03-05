@@ -20,14 +20,16 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 }
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #if defined DYN_LIGHT_PT && defined RENDER_FRAG
+    #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+        #define TRACE_MODE TraceShitty
+
         bool TraceDDA(const in vec3 origin, const in vec3 endPos) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return false;
 
             vec3 direction = traceRay / traceRayLen;
-            float STEP_COUNT = ceil(traceRayLen);
+            float STEP_COUNT = 1;//ceil(traceRayLen);
 
             vec3 stepSizes = 1.0 / abs(direction);
             vec3 stepDir = sign(direction);
@@ -36,7 +38,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 voxelPos = floor(origin);
             vec3 currPos = origin;
 
-            bool hit;
+            bool hit = false;
             for (int i = 0; i < STEP_COUNT && !hit; i++) {
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
@@ -51,9 +53,34 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 // Check for voxel intersection
                 // normal is the intersection normal
 
-                ivec3 gridCell, blockCell;
-                vec3 gridPos = GetLightGridPosition(currPos);
+                vec3 gridPos = currPos;//GetLightGridPosition(currPos);
                 
+                ivec3 gridCell, blockCell;
+                if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                    uint gridIndex = GetSceneLightGridIndex(gridCell);
+                    hit = GetSceneSolidMask(blockCell, gridIndex);
+                }
+            }
+
+            return hit;
+        }
+
+        bool TraceShitty(const in vec3 origin, const in vec3 endPos) {
+            vec3 traceRay = endPos - origin;
+            float traceRayLen = length(traceRay);
+            if (traceRayLen < EPSILON) return false;
+
+            const float STEP_COUNT = 8;//ceil(traceRayLen);
+
+            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+
+            vec3 stepSize = traceRay / STEP_COUNT;
+
+            bool hit = false;
+            for (int i = 1; i < STEP_COUNT && !hit; i++) {
+                vec3 gridPos = (i + dither) * stepSize + origin;
+                
+                ivec3 gridCell, blockCell;
                 if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     hit = GetSceneSolidMask(blockCell, gridIndex);
@@ -85,8 +112,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 accumDiffuse = vec3(0.0);
             #endif
 
-            #if defined DYN_LIGHT_PT && defined RENDER_FRAG
-                vec3 traceOffset = fract(cameraPosition);
+            #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
             #endif
 
             for (int i = 0; i < lightCount; i++) {
@@ -95,10 +122,14 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
-                #if defined DYN_LIGHT_PT && defined RENDER_FRAG
-                    vec3 traceOrigin = lightFragPos + traceOffset;
-                    vec3 traceEnd = light.position + traceOffset;
-                    if (TraceDDA(traceOrigin, traceEnd)) continue;
+                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                    //vec3 traceOrigin = light.position;// + traceOffset;
+                    vec3 traceOrigin = GetLightGridPosition(light.position);
+
+                    //vec3 traceEnd = lightFragPos;// + traceOffset;
+                    vec3 traceEnd = GetLightGridPosition(lightFragPos);
+
+                    if (TRACE_MODE(traceOrigin, traceEnd)) continue;
                 #endif
 
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;
@@ -131,7 +162,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         vec2 noiseSample = vec2(1.0); // TODO!
         vec3 result = vec3(0.0);
 
-        if (heldItemId == 115) return vec3(1.0);
+        //if (heldItemId == 115) return vec3(1.0);
 
         if (heldBlockLightValue > 0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(0.3, -0.3, 0.2, 1.0)).xyz;
@@ -140,9 +171,20 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
 
             vec3 lightVec = lightLocalPos - fragLocalPos;
-            if (dot(lightVec, lightVec) >= pow2(heldBlockLightValue)) return vec3(0.0);
+            if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
+                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                    //vec3 traceOrigin = light.position;// + traceOffset;
+                    vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
 
-            result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
+                    //vec3 traceEnd = lightFragPos;// + traceOffset;
+                    vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+
+                    if (TRACE_MODE(traceOrigin, traceEnd))
+                        lightColor *= 0.0;
+                #endif
+
+                result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
+            }
         }
 
         if (heldBlockLightValue2 > 0) {
@@ -152,9 +194,20 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
 
             vec3 lightVec = lightLocalPos - fragLocalPos;
-            if (dot(lightVec, lightVec) >= pow2(heldBlockLightValue2)) return vec3(0.0);
+            if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
+                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                    //vec3 traceOrigin = light.position;// + traceOffset;
+                    vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
 
-            result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
+                    //vec3 traceEnd = lightFragPos;// + traceOffset;
+                    vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+
+                    if (TRACE_MODE(traceOrigin, traceEnd))
+                        lightColor *= 0.0;
+                #endif
+
+                result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
+            }
         }
 
         return result;
@@ -221,15 +274,18 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
         vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
         vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
-        vBlockLight = vec3(0.0);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
-            vBlockLight += SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x)
-                * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
-        #endif
+        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+            vBlockLight = vec3(0.0);
 
-        #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
-            vBlockLight += SampleHandLight(localPos, localNormal);
+            #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
+                vBlockLight += SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x)
+                    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+            #endif
+
+            #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+                vBlockLight += SampleHandLight(localPos, localNormal);
+            #endif
         #endif
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL

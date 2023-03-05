@@ -55,6 +55,7 @@ uniform float far;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"

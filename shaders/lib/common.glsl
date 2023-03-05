@@ -69,7 +69,7 @@ const bool colortex2Clear = true;
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
-#define DYN_LIGHT_PT
+#define DYN_LIGHT_PT 0 // [0 4 8 12 16]
 #define LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u

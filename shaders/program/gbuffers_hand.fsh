@@ -108,19 +108,21 @@ uniform float far;
 
 #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     uniform int heldItemId;
+    uniform int heldItemId2;
     uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/ign.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/sampling/ign.glsl"
     #include "/lib/buffers/shadow.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -139,6 +141,7 @@ uniform float far;
 
 #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif

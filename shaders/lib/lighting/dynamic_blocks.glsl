@@ -1,3 +1,11 @@
+#if DYN_LIGHT_PT > 0
+    bool IsDynLightSolidBlock(const in int blockId) {
+        if (blockId == BLOCK_WATER) return false;
+        if (blockId >= 200 && blockId < 400) return false;
+        return true;
+    }
+#endif
+
 #ifdef DYN_LIGHT_FLICKER
     vec2 GetDynLightNoise(const in vec3 blockLocalPos) {
         float time = frameTimeCounter / 3600.0;
@@ -21,9 +29,13 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_AMETHYST_CLUSTER:
         case BLOCK_AMETHYST_BUD_LARGE:
         case BLOCK_AMETHYST_BUD_MEDIUM:
+        case ITEM_AMETHYST_CLUSTER:
+        case ITEM_AMETHYST_BUD_LARGE:
+        case ITEM_AMETHYST_BUD_MEDIUM:
             lightColor = vec3(0.447, 0.188, 0.758);
             break;
         case BLOCK_BEACON:
+        case ITEM_BEACON:
             lightColor = vec3(1.0, 1.0, 1.0);
             break;
         case BLOCK_BLAST_FURNACE_LIT:
@@ -40,12 +52,15 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.758, 0.553, 0.239);
             break;
         case BLOCK_CAVEVINE_BERRIES:
+        case ITEM_GLOW_BERRIES:
             lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
             break;
         case BLOCK_CRYING_OBSIDIAN:
+        case ITEM_CRYING_OBSIDIAN:
             lightColor = vec3(0.390, 0.065, 0.646);
             break;
         case BLOCK_END_ROD:
+        case ITEM_END_ROD:
             lightColor = vec3(0.957, 0.929, 0.875);
             break;
         case BLOCK_FIRE:
@@ -55,15 +70,19 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.697, 0.654, 0.458);
             break;
         case BLOCK_GLOWSTONE:
+        case ITEM_GLOWSTONE:
             lightColor = vec3(0.652, 0.583, 0.275);
             break;
         case BLOCK_GLOW_LICHEN:
+        case ITEM_GLOW_LICHEN:
             lightColor = vec3(0.332, 0.495, 0.367);
             break;
         case BLOCK_JACK_O_LANTERN:
+        case ITEM_JACK_O_LANTERN:
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
         case BLOCK_LANTERN:
+        case ITEM_LANTERN:
             lightColor = vec3(0.906, 0.737, 0.451);
             break;
         case BLOCK_LIGHTING_ROD_POWERED:
@@ -74,21 +93,25 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.804, 0.424, 0.149);
             break;
         case BLOCK_MAGMA:
+        case ITEM_MAGMA:
             lightColor = vec3(0.747, 0.323, 0.110);
             break;
         case BLOCK_NETHER_PORTAL:
             lightColor = vec3(0.502, 0.165, 0.831);
             break;
         case BLOCK_FROGLIGHT_OCHRE:
+        case ITEM_FROGLIGHT_OCHRE:
             lightColor = vec3(0.768, 0.648, 0.108);
             break;
         case BLOCK_FROGLIGHT_PEARLESCENT:
+        case ITEM_FROGLIGHT_PEARLESCENT:
             lightColor = vec3(0.737, 0.435, 0.658);
             break;
         case BLOCK_REDSTONE_LAMP:
             lightColor = vec3(0.953, 0.796, 0.496);
             break;
         case BLOCK_REDSTONE_TORCH:
+        case ITEM_REDSTONE_TORCH:
             lightColor = vec3(0.697, 0.130, 0.051);
             break;
         case BLOCK_RESPAWN_ANCHOR_4:
@@ -98,12 +121,21 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.390, 0.065, 0.646);
             break;
         case BLOCK_SCULK_CATALYST:
+        case ITEM_SCULK_CATALYST:
             lightColor = vec3(0.510, 0.831, 0.851);
             break;
         case BLOCK_SEA_LANTERN:
+        case ITEM_SEA_LANTERN:
+            lightColor = vec3(0.498, 0.894, 0.834);
+            break;
+        case BLOCK_SEA_PICKLE_WET_1:
+        case BLOCK_SEA_PICKLE_WET_2:
+        case BLOCK_SEA_PICKLE_WET_3:
+        case BLOCK_SEA_PICKLE_WET_4:
             lightColor = vec3(0.498, 0.894, 0.834);
             break;
         case BLOCK_SHROOMLIGHT:
+        case ITEM_SHROOMLIGHT:
             lightColor = vec3(0.848, 0.469, 0.205);
             break;
         case BLOCK_SMOKER_LIT:
@@ -111,12 +143,16 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             break;
         case BLOCK_SOUL_LANTERN:
         case BLOCK_SOUL_TORCH:
+        case ITEM_SOUL_LANTERN:
+        case ITEM_SOUL_TORCH:
             lightColor = vec3(0.203, 0.725, 0.758);
             break;
         case BLOCK_TORCH:
+        case ITEM_TORCH:
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
         case BLOCK_FROGLIGHT_VERDANT:
+        case ITEM_FROGLIGHT_VERDANT:
             lightColor = vec3(0.463, 0.763, 0.409);
             break;
     }
@@ -175,10 +211,12 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
 
     switch (blockId) {
         case BLOCK_AMETHYST_CLUSTER:
+        case ITEM_AMETHYST_CLUSTER:
             lightRange = 5.0;
             glow = 0.2;
             break;
         case BLOCK_BEACON:
+        case ITEM_BEACON:
             lightRange = 15.0;
             break;
         case BLOCK_BLAST_FURNACE_LIT:
@@ -210,13 +248,16 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             flicker = 0.14;
             break;
         case BLOCK_CAVEVINE_BERRIES:
+        case ITEM_GLOW_BERRIES:
             lightRange = 14.0;
             break;
         case BLOCK_CRYING_OBSIDIAN:
+        case ITEM_CRYING_OBSIDIAN:
             lightRange = 10.0;
             glow = 0.3;
             break;
         case BLOCK_END_ROD:
+        case ITEM_END_ROD:
             lightRange = 14.0;
             break;
         case BLOCK_FIRE:
@@ -229,18 +270,22 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             lightRange = 6.0;
             break;
         case BLOCK_GLOWSTONE:
+        case ITEM_GLOWSTONE:
             lightRange = 15.0;
             glow = 0.4;
             break;
         case BLOCK_GLOW_LICHEN:
+        case ITEM_GLOW_LICHEN:
             lightRange = 7.0;
             glow = 0.2;
             break;
         case BLOCK_JACK_O_LANTERN:
+        case ITEM_JACK_O_LANTERN:
             lightRange = 15.0;
             flicker = 0.3;
             break;
         case BLOCK_LANTERN:
+        case ITEM_LANTERN:
             lightOffset = vec3(0.0, -0.25, 0.0);
             lightRange = 12.0;
             flicker = 0.05;
@@ -250,6 +295,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             flicker = 0.8;
             break;
         case BLOCK_AMETHYST_BUD_LARGE:
+        case ITEM_AMETHYST_BUD_LARGE:
             lightRange = 4.0;
             glow = 0.2;
             break;
@@ -262,10 +308,12 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             glow = 0.4;
             break;
         case BLOCK_MAGMA:
+        case ITEM_MAGMA:
             lightRange = 3.0;
             glow = 0.2;
             break;
         case BLOCK_AMETHYST_BUD_MEDIUM:
+        case ITEM_AMETHYST_BUD_MEDIUM:
             lightRange = 2.0;
             glow = 0.2;
             break;
@@ -274,10 +322,12 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             glow = 0.8;
             break;
         case BLOCK_FROGLIGHT_OCHRE:
+        case ITEM_FROGLIGHT_OCHRE:
             lightRange = 15.0;
             glow = 0.2;
             break;
         case BLOCK_FROGLIGHT_PEARLESCENT:
+        case ITEM_FROGLIGHT_PEARLESCENT:
             lightRange = 15.0;
             glow = 0.2;
             break;
@@ -285,6 +335,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             lightRange = 15.0;
             break;
         case BLOCK_REDSTONE_TORCH:
+        case ITEM_REDSTONE_TORCH:
             lightRange = 7.0;
             break;
         case BLOCK_RESPAWN_ANCHOR_4:
@@ -308,14 +359,33 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             glow = 0.6;
             break;
         case BLOCK_SCULK_CATALYST:
+        case ITEM_SCULK_CATALYST:
             lightOffset = vec3(0.0, 0.4, 0.0);
             lightRange = 6.0;
             break;
         case BLOCK_SEA_LANTERN:
+        case ITEM_SEA_LANTERN:
+            lightRange = 15.0;
+            glow = 0.4;
+            break;
+        case BLOCK_SEA_PICKLE_WET_1:
+            lightRange = 6.0;
+            glow = 0.4;
+            break;
+        case BLOCK_SEA_PICKLE_WET_2:
+            lightRange = 9.0;
+            glow = 0.4;
+            break;
+        case BLOCK_SEA_PICKLE_WET_3:
+            lightRange = 12.0;
+            glow = 0.4;
+            break;
+        case BLOCK_SEA_PICKLE_WET_4:
             lightRange = 15.0;
             glow = 0.4;
             break;
         case BLOCK_SHROOMLIGHT:
+        case ITEM_SHROOMLIGHT:
             lightRange = 15.0;
             glow = 0.6;
             break;
@@ -324,20 +394,24 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             lightRange = 6.0;
             break;
         case BLOCK_SOUL_LANTERN:
+        case ITEM_SOUL_LANTERN:
             lightOffset = vec3(0.0, -0.25, 0.0);
             lightRange = 12.0;
             flicker = 0.1;
             break;
         case BLOCK_SOUL_TORCH:
+        case ITEM_SOUL_TORCH:
             lightRange = 12.0;
             flicker = 0.1;
             break;
         case BLOCK_TORCH:
+        case ITEM_TORCH:
             lightOffset = vec3(0.0, 0.4, 0.0);
             lightRange = 12.0;
             flicker = 0.4;
             break;
         case BLOCK_FROGLIGHT_VERDANT:
+        case ITEM_FROGLIGHT_VERDANT:
             lightRange = 15.0;
             glow = 0.2;
             break;
@@ -384,8 +458,8 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
         }
     }
 
-    #ifdef DYN_LIGHT_PT
-        if (lightRange < EPSILON || !intersects) {
+    #if DYN_LIGHT_PT > 0
+        if ((lightRange < EPSILON || !intersects) && IsDynLightSolidBlock(blockId)) {
             ivec3 gridCell, blockCell;
             vec3 gridPos = GetLightGridPosition(blockLocalPos);
             

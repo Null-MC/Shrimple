@@ -9,7 +9,7 @@ struct SceneLightData {
 
 struct LightCellData {
     uint LightCount;
-    #ifdef DYN_LIGHT_PT
+    #if DYN_LIGHT_PT > 0
         uint[LIGHT_MASK_SIZE*2] Mask;
     #else
         uint[LIGHT_MASK_SIZE] Mask;

@@ -130,6 +130,14 @@ option.DYN_LIGHT_DIRECTIONAL=Directional
 option.LIGHT_LAVA_ENABLED=Lava
 option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
 
+option.DYN_LIGHT_PT=PT Shadows
+option.DYN_LIGHT_PT.comment=Enables path-traced shadows for block-lighting.
+value.DYN_LIGHT_PT.0=Off
+value.DYN_LIGHT_PT.4=Low
+value.DYN_LIGHT_PT.8=Medium
+value.DYN_LIGHT_PT.12=High
+value.DYN_LIGHT_PT.16=Very High
+
 option.LIGHT_FALLBACK=Fallback
 option.LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
 

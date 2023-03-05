@@ -31,15 +31,15 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     return ivec2(gridIndex % 4096, y + gridLightIndex);
 }
 
-#ifdef DYN_LIGHT_PT
+#if DYN_LIGHT_PT > 0
     bool GetSceneSolidMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
         maskIndex *= 2u;
 
         uint intIndex = maskIndex >> 5;
-        uint bit = 1 << (maskIndex & 31 + 1);
+        uint bit = 1 << ((maskIndex & 31) + 1);
 
-        return (SceneLightMaps[gridIndex].Mask[intIndex] & bit) == 1;
+        return (SceneLightMaps[gridIndex].Mask[intIndex] & bit) == bit;
     }
 #endif
 
@@ -52,7 +52,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     bool TrySetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
-        #ifdef DYN_LIGHT_PT
+        #if DYN_LIGHT_PT > 0
             maskIndex *= 2u;
         #endif
 
@@ -63,13 +63,13 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return (status & bit) == 0;
     }
 
-    #ifdef DYN_LIGHT_PT
+    #if DYN_LIGHT_PT > 0
         void SetSceneSolidMask(const in ivec3 blockCell, const in uint gridIndex) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
             maskIndex *= 2u;
 
             uint intIndex = maskIndex >> 5;
-            uint bit = 1 << (maskIndex & 31 + 1);
+            uint bit = 1 << ((maskIndex & 31) + 1);
 
             atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
         }
