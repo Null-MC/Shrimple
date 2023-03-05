@@ -90,6 +90,7 @@ uniform vec3 cameraPosition;
 
 #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
     #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
