@@ -72,6 +72,14 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     boundsMin = vec3(0.375, 0.0, 0.375);
                     boundsMax = vec3(0.625, 1.0, 0.625);
                     break;
+                case BLOCKTYPE_PRESSURE_PLATE:
+                    boundsMin = vec3((1.0/16.0), 0.0, (1.0/16.0));
+                    boundsMax = vec3((15.0/16.0), (1.0/16.0), (15.0/16.0));
+                    break;
+                case BLOCKTYPE_WALL_POST:
+                    boundsMin = vec3(0.25, 0.0, 0.25);
+                    boundsMax = vec3(0.75, 1.0, 0.75);
+                    break;
             }
 
             bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
@@ -271,8 +279,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             #endif
 
             #if defined RENDER_TERRAIN || defined RENDER_WATER
-                vec2 lightNoiseSample = GetDynLightNoise(localPos);
-                vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
+                //vec2 lightNoiseSample = GetDynLightNoise(localPos);
+                //vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
+                vec3 accumDiffuse = vec3(GetSceneBlockLightLevel(blockId) / 16.0);
             #else
                 vec3 accumDiffuse = vec3(0.0);
             #endif

@@ -58,7 +58,7 @@ const bool colortex2Clear = true;
 
 // Dynamic Lighting
 #define DYN_LIGHT_MODE 1 // [0 1 2]
-#define DYN_LIGHT_BRIGHTNESS 100 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
+#define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_DIRECTIONAL
 #define DYN_LIGHT_FLICKER
 //#define LIGHT_LAVA_ENABLED
@@ -79,7 +79,7 @@ const bool colortex2Clear = true;
 
 // Post-Processing
 #define TONEMAP_ENABLED
-#define TONEMAP_CONTRAST 0.02 // [0.0 0.01 0.02 0.03 0.04]
+#define TONEMAP_CONTRAST 0.02 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
 #define FXAA_ENABLED
 #define AF_SAMPLES 1
 
