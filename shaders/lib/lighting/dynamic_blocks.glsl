@@ -693,6 +693,18 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_WALL_W_LOW:
                         blockType = BLOCKTYPE_WALL_POST;
                         break;
+                    case BLOCK_DOOR_N:
+                        blockType = BLOCKTYPE_DOOR_N;
+                        break;
+                    case BLOCK_DOOR_E:
+                        blockType = BLOCKTYPE_DOOR_E;
+                        break;
+                    case BLOCK_DOOR_S:
+                        blockType = BLOCKTYPE_DOOR_S;
+                        break;
+                    case BLOCK_DOOR_W:
+                        blockType = BLOCKTYPE_DOOR_W;
+                        break;
                 }
 
                 uint gridIndex = GetSceneLightGridIndex(gridCell);

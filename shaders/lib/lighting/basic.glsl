@@ -80,6 +80,22 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     boundsMin = vec3(0.25, 0.0, 0.25);
                     boundsMax = vec3(0.75, 1.0, 0.75);
                     break;
+                case BLOCKTYPE_DOOR_N:
+                    boundsMin = vec3(0.0, 0.0, (13.0/16.0));
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_DOOR_E:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3((3.0/16.0), 1.0, 1.0);
+                    break;
+                case BLOCKTYPE_DOOR_S:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0, 1.0, (3.0/16.0));
+                    break;
+                case BLOCKTYPE_DOOR_W:
+                    boundsMin = vec3((13.0/16.0), 0.0, 0.0);
+                    boundsMax = vec3(1.0);
+                    break;
             }
 
             bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));

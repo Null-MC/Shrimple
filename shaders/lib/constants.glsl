@@ -49,7 +49,13 @@
 #define BLOCKTYPE_FENCE_E 31u
 #define BLOCKTYPE_FENCE_S 32u
 #define BLOCKTYPE_FENCE_W 33u
+// TODO: add remaining fence types
 #define BLOCKTYPE_PRESSURE_PLATE 40u
 #define BLOCKTYPE_WALL_POST 41u
+// TODO: add remaining fence types
+#define BLOCKTYPE_DOOR_N 50u
+#define BLOCKTYPE_DOOR_E 51u
+#define BLOCKTYPE_DOOR_S 52u
+#define BLOCKTYPE_DOOR_W 53u
 
 #define TEX_LIGHT_NOISE noisetex
