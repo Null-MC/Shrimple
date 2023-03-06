@@ -45,6 +45,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
                 case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
                 case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
+                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_W:
+                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_E:
+                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
+                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_E:
                     boundsMin = vec3(0.0);
                     boundsMax = vec3(1.0, 0.5, 1.0);
                     break;
@@ -53,6 +57,14 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 case BLOCKTYPE_STAIRS_TOP_E:
                 case BLOCKTYPE_STAIRS_TOP_S:
                 case BLOCKTYPE_STAIRS_TOP_W:
+                case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
+                case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
+                case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
+                case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
+                case BLOCKTYPE_STAIRS_TOP_OUTER_N_W:
+                case BLOCKTYPE_STAIRS_TOP_OUTER_N_E:
+                case BLOCKTYPE_STAIRS_TOP_OUTER_S_W:
+                case BLOCKTYPE_STAIRS_TOP_OUTER_S_E:
                     boundsMin = vec3(0.0, 0.5, 0.0);
                     boundsMax = vec3(1.0);
                     break;
@@ -91,6 +103,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                         break;
 
                     case BLOCKTYPE_STAIRS_TOP_N:
+                    case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
+                    case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
                         boundsMin = vec3(0.0, 0.0, 0.0);
                         boundsMax = vec3(1.0, 0.5, 0.5);
                         break;
@@ -99,6 +113,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                         boundsMax = vec3(1.0, 0.5, 1.0);
                         break;
                     case BLOCKTYPE_STAIRS_TOP_S:
+                    case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
+                    case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
                         boundsMin = vec3(0.0, 0.0, 0.5);
                         boundsMax = vec3(1.0, 0.5, 1.0);
                         break;
@@ -110,26 +126,51 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
                 hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
 
-                if (!hit && blockType >= 9u && blockType <= 16u) {
+                if (!hit && ((blockType >= 9u && blockType <= 16u) || (blockType >= 21u && blockType <= 28u))) {
                     boundsMin = vec3(-1.0);
                     boundsMax = vec3(-1.0);
 
                     switch (blockType) {
                         case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
+                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
                             boundsMin = vec3(0.0, 0.5, 0.5);
                             boundsMax = vec3(0.5, 1.0, 1.0);
                             break;
                         case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
+                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_W:
                             boundsMin = vec3(0.0, 0.5, 0.0);
                             boundsMax = vec3(0.5, 1.0, 0.5);
                             break;
                         case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
+                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_E:
                             boundsMin = vec3(0.5, 0.5, 0.5);
                             boundsMax = vec3(1.0, 1.0, 1.0);
                             break;
                         case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
+                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_E:
                             boundsMin = vec3(0.5, 0.5, 0.0);
                             boundsMax = vec3(1.0, 1.0, 0.5);
+                            break;
+
+                        case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
+                        case BLOCKTYPE_STAIRS_TOP_OUTER_S_W:
+                            boundsMin = vec3(0.0, 0.0, 0.5);
+                            boundsMax = vec3(0.5, 0.5, 1.0);
+                            break;
+                        case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
+                        case BLOCKTYPE_STAIRS_TOP_OUTER_N_W:
+                            boundsMin = vec3(0.0, 0.0, 0.0);
+                            boundsMax = vec3(0.5, 0.5, 0.5);
+                            break;
+                        case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
+                        case BLOCKTYPE_STAIRS_TOP_OUTER_S_E:
+                            boundsMin = vec3(0.5, 0.0, 0.5);
+                            boundsMax = vec3(1.0, 0.5, 1.0);
+                            break;
+                        case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
+                        case BLOCKTYPE_STAIRS_TOP_OUTER_N_E:
+                            boundsMin = vec3(0.5, 0.0, 0.0);
+                            boundsMax = vec3(1.0, 0.5, 0.5);
                             break;
                     }
 

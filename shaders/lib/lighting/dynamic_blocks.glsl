@@ -501,18 +501,18 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_STAIRS_BOTTOM_INNER_S_E:
                         blockType = BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E;
                         break;
-                    // case BLOCK_STAIRS_BOTTOM_OUT_N:
-                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_N;
-                    //     break;
-                    // case BLOCK_STAIRS_BOTTOM_OUT_E:
-                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_E;
-                    //     break;
-                    // case BLOCK_STAIRS_BOTTOM_OUT_S:
-                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_S;
-                    //     break;
-                    // case BLOCK_STAIRS_BOTTOM_OUT_W:
-                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_W;
-                    //     break;
+                    case BLOCK_STAIRS_BOTTOM_OUTER_N_W:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_W;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_OUTER_N_E:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_E;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_OUTER_S_W:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_OUTER_S_E:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_E;
+                        break;
                     case BLOCK_STAIRS_TOP_N:
                         blockType = BLOCKTYPE_STAIRS_TOP_N;
                         break;
@@ -525,30 +525,30 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_STAIRS_TOP_W:
                         blockType = BLOCKTYPE_STAIRS_TOP_W;
                         break;
-                    // case BLOCK_STAIRS_TOP_IN_N:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_N;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_IN_E:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_E;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_IN_S:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_S;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_IN_W:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_W;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_OUT_N:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_N;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_OUT_E:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_E;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_OUT_S:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_S;
-                    //     break;
-                    // case BLOCK_STAIRS_TOP_OUT_W:
-                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_W;
-                    //     break;
+                    case BLOCK_STAIRS_TOP_INNER_N_W:
+                        blockType = BLOCKTYPE_STAIRS_TOP_INNER_N_W;
+                        break;
+                    case BLOCK_STAIRS_TOP_INNER_N_E:
+                        blockType = BLOCKTYPE_STAIRS_TOP_INNER_N_E;
+                        break;
+                    case BLOCK_STAIRS_TOP_INNER_S_W:
+                        blockType = BLOCKTYPE_STAIRS_TOP_INNER_S_W;
+                        break;
+                    case BLOCK_STAIRS_TOP_INNER_S_E:
+                        blockType = BLOCKTYPE_STAIRS_TOP_INNER_S_E;
+                        break;
+                    case BLOCK_STAIRS_TOP_OUTER_N_W:
+                        blockType = BLOCKTYPE_STAIRS_TOP_OUTER_N_W;
+                        break;
+                    case BLOCK_STAIRS_TOP_OUTER_N_E:
+                        blockType = BLOCKTYPE_STAIRS_TOP_OUTER_N_E;
+                        break;
+                    case BLOCK_STAIRS_TOP_OUTER_S_W:
+                        blockType = BLOCKTYPE_STAIRS_TOP_OUTER_S_W;
+                        break;
+                    case BLOCK_STAIRS_TOP_OUTER_S_E:
+                        blockType = BLOCKTYPE_STAIRS_TOP_OUTER_S_E;
+                        break;
                     case BLOCK_FENCE_POST:
                     case BLOCK_FENCE_N:
                     case BLOCK_FENCE_E:
