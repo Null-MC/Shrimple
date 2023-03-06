@@ -151,6 +151,13 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef IRIS_FEATURE_CLEARFIX
 #endif
 
+#ifdef DYN_LIGHT_PT
+    #undef HAND_LIGHT_MODE
+    #define HAND_LIGHT_MODE 2
+    #undef DYN_LIGHT_MODE
+    #define DYN_LIGHT_MODE 2
+#endif
+
 
 #define rcp(x) (1.0 / (x))
 
