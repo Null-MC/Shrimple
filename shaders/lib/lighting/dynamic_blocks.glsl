@@ -2,7 +2,7 @@
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId == BLOCK_WATER) return false;
         if (blockId >= 200 && blockId < 500) return false;
-        //if (blockId >= 500) return false;
+        //if (blockId >= 541) return false;
         return true;
     }
 #endif
@@ -467,13 +467,98 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                 uint blockType = BLOCKTYPE_SOLID;
 
-                // TODO: set other block tpyes
-                if (blockId == BLOCK_PATHWAY)
-                    blockType = BLOCKTYPE_PATHWAY;
-                else if (blockId >= 501 && blockId < 520)
-                    blockType = BLOCKTYPE_SLAB_BOTTOM;
-                else if (blockId >= 520 && blockId < 540)
-                    blockType = BLOCKTYPE_SLAB_TOP;
+                switch (blockId) {
+                    case BLOCK_PATHWAY:
+                        blockType = BLOCKTYPE_PATHWAY;
+                        break;
+                    case BLOCK_SLABS_BOTTOM:
+                        blockType = BLOCKTYPE_SLAB_BOTTOM;
+                        break;
+                    case BLOCK_SLABS_TOP:
+                        blockType = BLOCKTYPE_SLAB_TOP;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_N:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_N;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_E:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_E;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_S:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_S;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_W:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_W;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_INNER_N_W:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_INNER_N_E:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_INNER_S_W:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W;
+                        break;
+                    case BLOCK_STAIRS_BOTTOM_INNER_S_E:
+                        blockType = BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E;
+                        break;
+                    // case BLOCK_STAIRS_BOTTOM_OUT_N:
+                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_N;
+                    //     break;
+                    // case BLOCK_STAIRS_BOTTOM_OUT_E:
+                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_E;
+                    //     break;
+                    // case BLOCK_STAIRS_BOTTOM_OUT_S:
+                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_S;
+                    //     break;
+                    // case BLOCK_STAIRS_BOTTOM_OUT_W:
+                    //     blockType = BLOCKTYPE_STAIRS_BOTTOM_OUT_W;
+                    //     break;
+                    case BLOCK_STAIRS_TOP_N:
+                        blockType = BLOCKTYPE_STAIRS_TOP_N;
+                        break;
+                    case BLOCK_STAIRS_TOP_E:
+                        blockType = BLOCKTYPE_STAIRS_TOP_E;
+                        break;
+                    case BLOCK_STAIRS_TOP_S:
+                        blockType = BLOCKTYPE_STAIRS_TOP_S;
+                        break;
+                    case BLOCK_STAIRS_TOP_W:
+                        blockType = BLOCKTYPE_STAIRS_TOP_W;
+                        break;
+                    // case BLOCK_STAIRS_TOP_IN_N:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_N;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_IN_E:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_E;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_IN_S:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_S;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_IN_W:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_IN_W;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_OUT_N:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_N;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_OUT_E:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_E;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_OUT_S:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_S;
+                    //     break;
+                    // case BLOCK_STAIRS_TOP_OUT_W:
+                    //     blockType = BLOCKTYPE_STAIRS_TOP_OUT_W;
+                    //     break;
+                    case BLOCK_FENCE_POST:
+                    case BLOCK_FENCE_N:
+                    case BLOCK_FENCE_E:
+                    case BLOCK_FENCE_S:
+                    case BLOCK_FENCE_W:
+                    //case BLOCK_FENCE_N_S:
+                    //case BLOCK_FENCE_W_E:
+                        blockType = BLOCKTYPE_FENCE_POST;
+                        break;
+                }
 
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
                 SetSceneBlockMask(blockCell, gridIndex, blockType);

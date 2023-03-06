@@ -58,7 +58,7 @@ const bool colortex2Clear = true;
 
 // Dynamic Lighting
 #define DYN_LIGHT_MODE 1 // [0 1 2]
-#define DYN_LIGHT_BRIGHTNESS 100 // [20 40 60 80 100 120 140 160 180 200]
+#define DYN_LIGHT_BRIGHTNESS 100 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_DIRECTIONAL
 #define DYN_LIGHT_FLICKER
 //#define LIGHT_LAVA_ENABLED
@@ -74,10 +74,12 @@ const bool colortex2Clear = true;
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
-#define DYN_LIGHT_PT_STRIDE 6
+#define DYN_LIGHT_PT_STRIDE 8
 
 
-// Other
+// Post-Processing
+#define TONEMAP_ENABLED
+#define TONEMAP_CONTRAST 0.02 // [0.0 0.01 0.02 0.03 0.04]
 #define FXAA_ENABLED
 #define AF_SAMPLES 1
 
@@ -85,6 +87,7 @@ const bool colortex2Clear = true;
 // Debug Options
 #define DEBUG_SHADOW_BUFFER 0 // [0 1 2 3]
 //#define DYN_LIGHT_DEBUG_COUNTS
+//#define IRIS_FEATURE_CLEARFIX
 
 
 // INTERNAL SETTINGS
@@ -144,6 +147,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef SHADOW_COLOR_BLEND
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
+#endif
+#ifdef IRIS_FEATURE_CLEARFIX
 #endif
 
 

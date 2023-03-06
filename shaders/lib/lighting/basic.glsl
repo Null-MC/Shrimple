@@ -21,20 +21,141 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_PT > 0 && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined RENDER_FRAG
-        #define TRACE_MODE TraceRay
+        #define TRACE_MODE TraceRay // [TraceDDA TraceRay]
 
-        bool TraceDDA(const in vec3 origin, const in vec3 endPos) {
+        bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
+            vec3 boundsMin = vec3(-1.0);
+            vec3 boundsMax = vec3(-1.0);
+
+            switch (blockType) {
+                case BLOCKTYPE_SOLID:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_PATHWAY:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0, (15.0/16.0), 1.0);
+                    break;
+                case BLOCKTYPE_SLAB_BOTTOM:
+                case BLOCKTYPE_STAIRS_BOTTOM_N:
+                case BLOCKTYPE_STAIRS_BOTTOM_E:
+                case BLOCKTYPE_STAIRS_BOTTOM_S:
+                case BLOCKTYPE_STAIRS_BOTTOM_W:
+                case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
+                case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
+                case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
+                case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0, 0.5, 1.0);
+                    break;
+                case BLOCKTYPE_SLAB_TOP:
+                case BLOCKTYPE_STAIRS_TOP_N:
+                case BLOCKTYPE_STAIRS_TOP_E:
+                case BLOCKTYPE_STAIRS_TOP_S:
+                case BLOCKTYPE_STAIRS_TOP_W:
+                    boundsMin = vec3(0.0, 0.5, 0.0);
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_FENCE_POST:
+                    boundsMin = vec3(0.375, 0.0, 0.375);
+                    boundsMax = vec3(0.625, 1.0, 0.625);
+                    break;
+            }
+
+            bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
+
+            if (!hit && blockType >= 5u && blockType <= 28u) {
+                boundsMin = vec3(-1.0);
+                boundsMax = vec3(-1.0);
+
+                switch (blockType) {
+                    case BLOCKTYPE_STAIRS_BOTTOM_N:
+                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
+                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
+                        boundsMin = vec3(0.0, 0.5, 0.0);
+                        boundsMax = vec3(1.0, 1.0, 0.5);
+                        break;
+                    case BLOCKTYPE_STAIRS_BOTTOM_E:
+                        boundsMin = vec3(0.5, 0.5, 0.0);
+                        boundsMax = vec3(1.0, 1.0, 1.0);
+                        break;
+                    case BLOCKTYPE_STAIRS_BOTTOM_S:
+                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
+                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
+                        boundsMin = vec3(0.0, 0.5, 0.5);
+                        boundsMax = vec3(1.0, 1.0, 1.0);
+                        break;
+                    case BLOCKTYPE_STAIRS_BOTTOM_W:
+                        boundsMin = vec3(0.0, 0.5, 0.0);
+                        boundsMax = vec3(0.5, 1.0, 1.0);
+                        break;
+
+                    case BLOCKTYPE_STAIRS_TOP_N:
+                        boundsMin = vec3(0.0, 0.0, 0.0);
+                        boundsMax = vec3(1.0, 0.5, 0.5);
+                        break;
+                    case BLOCKTYPE_STAIRS_TOP_E:
+                        boundsMin = vec3(0.5, 0.0, 0.0);
+                        boundsMax = vec3(1.0, 0.5, 1.0);
+                        break;
+                    case BLOCKTYPE_STAIRS_TOP_S:
+                        boundsMin = vec3(0.0, 0.0, 0.5);
+                        boundsMax = vec3(1.0, 0.5, 1.0);
+                        break;
+                    case BLOCKTYPE_STAIRS_TOP_W:
+                        boundsMin = vec3(0.0, 0.0, 0.0);
+                        boundsMax = vec3(0.5, 0.5, 1.0);
+                        break;
+                }
+
+                hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
+
+                if (!hit && blockType >= 9u && blockType <= 16u) {
+                    boundsMin = vec3(-1.0);
+                    boundsMax = vec3(-1.0);
+
+                    switch (blockType) {
+                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
+                            boundsMin = vec3(0.0, 0.5, 0.5);
+                            boundsMax = vec3(0.5, 1.0, 1.0);
+                            break;
+                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
+                            boundsMin = vec3(0.0, 0.5, 0.0);
+                            boundsMax = vec3(0.5, 1.0, 0.5);
+                            break;
+                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
+                            boundsMin = vec3(0.5, 0.5, 0.5);
+                            boundsMax = vec3(1.0, 1.0, 1.0);
+                            break;
+                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
+                            boundsMin = vec3(0.5, 0.5, 0.0);
+                            boundsMax = vec3(1.0, 1.0, 0.5);
+                            break;
+                    }
+
+                    hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
+                }
+            }
+
+            return hit;
+        }
+
+        bool TraceDDA(vec3 origin, const in vec3 endPos) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return false;
 
             vec3 direction = traceRay / traceRayLen;
-            float STEP_COUNT = 1;//ceil(traceRayLen);
+            float STEP_COUNT = 12;//ceil(traceRayLen);
+
+            origin += direction * 0.001;
+            traceRayLen -= 0.001;
 
             vec3 stepSizes = 1.0 / abs(direction);
             vec3 stepDir = sign(direction);
             vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
+            float traceRayLen2 = pow2(traceRayLen);
             vec3 voxelPos = floor(origin);
             vec3 currPos = origin;
 
@@ -43,23 +164,23 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
 
+                if (dot(currPos - origin, traceRay) >= traceRayLen2) break;
+
                 vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
                 voxelPos += stepAxis * stepDir;
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
-                //normal = -stepAxis;
-                
-                // Check for voxel intersection
-                // normal is the intersection normal
-
-                vec3 gridPos = currPos;//GetLightGridPosition(currPos);
                 
                 ivec3 gridCell, blockCell;
-                if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                if (GetSceneLightGridCell(currPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
-                    hit = blockType == BLOCKTYPE_SOLID;
+
+                    if (blockType != BLOCKTYPE_EMPTY) {
+                        vec3 blockPos = fract(currPos);
+                        hit = TraceHitTest(blockPos, blockType);
+                    }
                 }
             }
 
@@ -84,29 +205,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
                     if (blockType != BLOCKTYPE_EMPTY) {
-                        vec3 boundsMin, boundsMax;
-
-                        switch (blockType) {
-                            case BLOCKTYPE_SOLID:
-                                boundsMin = vec3(0.0);
-                                boundsMax = vec3(1.0);
-                                break;
-                            case BLOCKTYPE_PATHWAY:
-                                boundsMin = vec3(0.0);
-                                boundsMax = vec3(1.0, (15.0/16.0), 1.0);
-                                break;
-                            case BLOCKTYPE_SLAB_TOP:
-                                boundsMin = vec3(0.0, 0.5, 0.0);
-                                boundsMax = vec3(1.0);
-                                break;
-                            case BLOCKTYPE_SLAB_BOTTOM:
-                                boundsMin = vec3(0.0);
-                                boundsMax = vec3(1.0, 0.5, 1.0);
-                                break;
-                        }
-
                         vec3 blockPos = fract(gridPos);
-                        hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
+                        hit = TraceHitTest(blockPos, blockType);
                     }
                 }
             }
@@ -409,6 +509,15 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
     #endif
 
     #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_COMPOSITE
+        #ifdef TONEMAP_ENABLED
+            vec3 tonemap_Tech(const in vec3 color) {
+                const float c = rcp(TONEMAP_CONTRAST);
+                vec3 a = color * min(vec3(1.0), 1.0 - exp(-c * color));
+                a = mix(a, color, color * color);
+                return a / (a + 0.6);
+            }
+        #endif
+
         vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 albedo = RGBToLinear(color.rgb);
             vec3 blockLight = vec3(0.0);
@@ -460,6 +569,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec4 final = vec4(ambient + diffuse, color.a);
 
             ApplyFog(final, viewPos);
+
+            #ifdef TONEMAP_ENABLED
+                final.rgb = tonemap_Tech(final.rgb);
+            #endif
 
             final.rgb = LinearToRGB(final.rgb);
             return final;
