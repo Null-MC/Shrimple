@@ -20,7 +20,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 }
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #if DYN_LIGHT_PT > 0 && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined RENDER_FRAG
+    #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
         #define TRACE_MODE TraceRay // [TraceDDA TraceRay]
 
         bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
@@ -93,6 +93,30 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     boundsMax = vec3(1.0, 1.0, (3.0/16.0));
                     break;
                 case BLOCKTYPE_DOOR_W:
+                    boundsMin = vec3((13.0/16.0), 0.0, 0.0);
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_TRAPDOOR_BOTTOM:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0, (3.0/16.0), 1.0);
+                    break;
+                case BLOCKTYPE_TRAPDOOR_TOP:
+                    boundsMin = vec3(0.0, (13.0/16.0), 0.0);
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_TRAPDOOR_N:
+                    boundsMin = vec3(0.0, 0.0, (13.0/16.0));
+                    boundsMax = vec3(1.0);
+                    break;
+                case BLOCKTYPE_TRAPDOOR_E:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3((3.0/16.0), 1.0, 1.0);
+                    break;
+                case BLOCKTYPE_TRAPDOOR_S:
+                    boundsMin = vec3(0.0);
+                    boundsMax = vec3(1.0, 1.0, (3.0/16.0));
+                    break;
+                case BLOCKTYPE_TRAPDOOR_W:
                     boundsMin = vec3((13.0/16.0), 0.0, 0.0);
                     boundsMax = vec3(1.0);
                     break;
@@ -258,10 +282,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             if (traceRayLen < EPSILON) return false;
 
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-            vec3 stepSize = traceRay / DYN_LIGHT_PT;
+            vec3 stepSize = traceRay / DYN_LIGHT_RT_SHADOWS;
             bool hit = false;
             
-            for (int i = 1; i < DYN_LIGHT_PT && !hit; i++) {
+            for (int i = 1; i < DYN_LIGHT_RT_SHADOWS && !hit; i++) {
                 vec3 gridPos = (i + dither) * stepSize + origin;
                 
                 ivec3 gridCell, blockCell;
@@ -302,7 +326,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 accumDiffuse = vec3(0.0);
             #endif
 
-            #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+            #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                 vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
             #endif
 
@@ -312,7 +336,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
-                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                     //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(light.position);
 
@@ -327,7 +351,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             accumDiffuse *= blockLight * DynamicLightBrightness;
 
-            #ifdef LIGHT_FALLBACK
+            #ifdef DYN_LIGHT_FALLBACK
                 // TODO: shrink to shadow bounds
                 vec3 offsetPos = localPos + LightGridCenter;
                 //vec3 maxSize = SceneLightSize
@@ -338,7 +362,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             return accumDiffuse;
         }
         else {
-            #ifdef LIGHT_FALLBACK
+            #ifdef DYN_LIGHT_FALLBACK
                 return pow(blockLight, 4.0) * blockLightColor;
             #else
                 return vec3(0.0);
@@ -362,7 +386,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             vec3 lightVec = lightLocalPos - fragLocalPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
-                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                     //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
 
@@ -385,7 +409,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             vec3 lightVec = lightLocalPos - fragLocalPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
-                #if DYN_LIGHT_PT > 0 && defined RENDER_FRAG
+                #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                     //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
 

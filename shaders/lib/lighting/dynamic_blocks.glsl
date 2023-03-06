@@ -1,4 +1,4 @@
-#if DYN_LIGHT_PT > 0
+#if DYN_LIGHT_RT_SHADOWS > 0
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId == BLOCK_WATER) return false;
         if (blockId >= 200 && blockId < 500) return false;
@@ -584,7 +584,7 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
         }
     }
 
-    #if DYN_LIGHT_PT > 0
+    #if DYN_LIGHT_RT_SHADOWS > 0
         if ((lightRange < EPSILON || !intersects) && IsDynLightSolidBlock(blockId)) {
             ivec3 gridCell, blockCell;
             vec3 gridPos = GetLightGridPosition(blockLocalPos);
@@ -704,6 +704,24 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                         break;
                     case BLOCK_DOOR_W:
                         blockType = BLOCKTYPE_DOOR_W;
+                        break;
+                    case BLOCK_TRAPDOOR_BOTTOM:
+                        blockType = BLOCKTYPE_TRAPDOOR_BOTTOM;
+                        break;
+                    case BLOCK_TRAPDOOR_TOP:
+                        blockType = BLOCKTYPE_TRAPDOOR_TOP;
+                        break;
+                    case BLOCK_TRAPDOOR_N:
+                        blockType = BLOCKTYPE_TRAPDOOR_N;
+                        break;
+                    case BLOCK_TRAPDOOR_E:
+                        blockType = BLOCKTYPE_TRAPDOOR_E;
+                        break;
+                    case BLOCK_TRAPDOOR_S:
+                        blockType = BLOCKTYPE_TRAPDOOR_S;
+                        break;
+                    case BLOCK_TRAPDOOR_W:
+                        blockType = BLOCKTYPE_TRAPDOOR_W;
                         break;
                 }
 

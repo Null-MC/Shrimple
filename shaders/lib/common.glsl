@@ -69,12 +69,12 @@ const bool colortex2Clear = true;
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
-#define DYN_LIGHT_PT 0 // [0 4 8 12 16]
-#define LIGHT_FALLBACK
+#define DYN_LIGHT_RT_SHADOWS 0 // [0 4 8 12 16]
+#define DYN_LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
-#define DYN_LIGHT_PT_STRIDE 8
+#define DYN_LIGHT_MASK_STRIDE 8
 
 
 // Post-Processing
@@ -151,7 +151,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef IRIS_FEATURE_CLEARFIX
 #endif
 
-#ifdef DYN_LIGHT_PT
+#if DYN_LIGHT_RT_SHADOWS != 0
     #undef HAND_LIGHT_MODE
     #define HAND_LIGHT_MODE 2
     #undef DYN_LIGHT_MODE

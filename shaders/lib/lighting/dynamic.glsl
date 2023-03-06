@@ -31,10 +31,10 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     return ivec2(gridIndex % 4096, y + gridLightIndex);
 }
 
-#if DYN_LIGHT_PT > 0
+#if DYN_LIGHT_RT_SHADOWS > 0
     uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-        maskIndex *= DYN_LIGHT_PT_STRIDE;
+        maskIndex *= DYN_LIGHT_MASK_STRIDE;
         uint intIndex = maskIndex >> 5;
 
         uint bit = SceneLightMaps[gridIndex].Mask[intIndex] >> ((maskIndex & 31) + 1);
@@ -51,8 +51,8 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     bool TrySetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
-        #if DYN_LIGHT_PT > 0
-            maskIndex *= DYN_LIGHT_PT_STRIDE;
+        #if DYN_LIGHT_RT_SHADOWS > 0
+            maskIndex *= DYN_LIGHT_MASK_STRIDE;
         #endif
 
         uint intIndex = maskIndex >> 5;
@@ -62,10 +62,10 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return (status & bit) == 0;
     }
 
-    #if DYN_LIGHT_PT > 0
+    #if DYN_LIGHT_RT_SHADOWS > 0
         void SetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex, const in uint blockType) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-            maskIndex *= DYN_LIGHT_PT_STRIDE;
+            maskIndex *= DYN_LIGHT_MASK_STRIDE;
 
             uint intIndex = maskIndex >> 5;
             uint bit = blockType << ((maskIndex & 31) + 1);
