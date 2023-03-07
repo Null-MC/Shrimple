@@ -23,295 +23,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
     #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
         #define TRACE_MODE TraceRay // [TraceDDA TraceRay]
 
-        bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
-            vec3 boundsMin = vec3(-1.0);
-            vec3 boundsMax = vec3(-1.0);
-
-            switch (blockType) {
-                case BLOCKTYPE_SOLID:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_PATHWAY:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0, (15.0/16.0), 1.0);
-                    break;
-                case BLOCKTYPE_SLAB_BOTTOM:
-                case BLOCKTYPE_STAIRS_BOTTOM_N:
-                case BLOCKTYPE_STAIRS_BOTTOM_E:
-                case BLOCKTYPE_STAIRS_BOTTOM_S:
-                case BLOCKTYPE_STAIRS_BOTTOM_W:
-                case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
-                case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
-                case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
-                case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
-                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_W:
-                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_E:
-                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
-                case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_E:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0, 0.5, 1.0);
-                    break;
-                case BLOCKTYPE_SLAB_TOP:
-                case BLOCKTYPE_STAIRS_TOP_N:
-                case BLOCKTYPE_STAIRS_TOP_E:
-                case BLOCKTYPE_STAIRS_TOP_S:
-                case BLOCKTYPE_STAIRS_TOP_W:
-                case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
-                case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
-                case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
-                case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
-                case BLOCKTYPE_STAIRS_TOP_OUTER_N_W:
-                case BLOCKTYPE_STAIRS_TOP_OUTER_N_E:
-                case BLOCKTYPE_STAIRS_TOP_OUTER_S_W:
-                case BLOCKTYPE_STAIRS_TOP_OUTER_S_E:
-                    boundsMin = vec3(0.0, 0.5, 0.0);
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_FENCE_POST:
-                    boundsMin = vec3(0.375, 0.0, 0.375);
-                    boundsMax = vec3(0.625, 1.0, 0.625);
-                    break;
-                case BLOCKTYPE_PRESSURE_PLATE:
-                    boundsMin = vec3((1.0/16.0), 0.0, (1.0/16.0));
-                    boundsMax = vec3((15.0/16.0), (1.0/16.0), (15.0/16.0));
-                    break;
-                case BLOCKTYPE_WALL_POST:
-                case BLOCKTYPE_WALL_POST_LOW_N_S:
-                case BLOCKTYPE_WALL_POST_LOW_W_E:
-                case BLOCKTYPE_WALL_POST_TALL_N_S:
-                case BLOCKTYPE_WALL_POST_TALL_W_E:
-                case BLOCKTYPE_WALL_N_LOW:
-                case BLOCKTYPE_WALL_E_LOW:
-                case BLOCKTYPE_WALL_S_LOW:
-                case BLOCKTYPE_WALL_W_LOW:
-                case BLOCKTYPE_WALL_N_TALL:
-                case BLOCKTYPE_WALL_E_TALL:
-                case BLOCKTYPE_WALL_S_TALL:
-                case BLOCKTYPE_WALL_W_TALL:
-                    boundsMin = vec3(0.25, 0.0, 0.25);
-                    boundsMax = vec3(0.75, 1.0, 0.75);
-                    break;
-                case BLOCKTYPE_WALL_LOW_N_S:
-                    boundsMin = vec3(0.3125, 0.0, 0.0);
-                    boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
-                    break;
-                case BLOCKTYPE_WALL_LOW_W_E:
-                    boundsMin = vec3(0.0, 0.0, 0.3125);
-                    boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
-                    break;
-                case BLOCKTYPE_WALL_TALL_N_S:
-                    boundsMin = vec3(0.3125, 0.0, 0.0);
-                    boundsMax = vec3(0.6875, 1.0, 1.0);
-                    break;
-                case BLOCKTYPE_WALL_TALL_W_E:
-                    boundsMin = vec3(0.0, 0.0, 0.3125);
-                    boundsMax = vec3(1.0, 1.0, 0.6875);
-                    break;
-                case BLOCKTYPE_DOOR_N:
-                    boundsMin = vec3(0.0, 0.0, (13.0/16.0));
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_DOOR_E:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3((3.0/16.0), 1.0, 1.0);
-                    break;
-                case BLOCKTYPE_DOOR_S:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0, 1.0, (3.0/16.0));
-                    break;
-                case BLOCKTYPE_DOOR_W:
-                    boundsMin = vec3((13.0/16.0), 0.0, 0.0);
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_TRAPDOOR_BOTTOM:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0, (3.0/16.0), 1.0);
-                    break;
-                case BLOCKTYPE_TRAPDOOR_TOP:
-                    boundsMin = vec3(0.0, (13.0/16.0), 0.0);
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_TRAPDOOR_N:
-                    boundsMin = vec3(0.0, 0.0, (13.0/16.0));
-                    boundsMax = vec3(1.0);
-                    break;
-                case BLOCKTYPE_TRAPDOOR_E:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3((3.0/16.0), 1.0, 1.0);
-                    break;
-                case BLOCKTYPE_TRAPDOOR_S:
-                    boundsMin = vec3(0.0);
-                    boundsMax = vec3(1.0, 1.0, (3.0/16.0));
-                    break;
-                case BLOCKTYPE_TRAPDOOR_W:
-                    boundsMin = vec3((13.0/16.0), 0.0, 0.0);
-                    boundsMax = vec3(1.0);
-                    break;
-            }
-
-            bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
-
-            if (!hit) {// && blockType >= 5u && blockType <= 28u) {
-                boundsMin = vec3(-1.0);
-                boundsMax = vec3(-1.0);
-
-                switch (blockType) {
-                    case BLOCKTYPE_STAIRS_BOTTOM_N:
-                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
-                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
-                        boundsMin = vec3(0.0, 0.5, 0.0);
-                        boundsMax = vec3(1.0, 1.0, 0.5);
-                        break;
-                    case BLOCKTYPE_STAIRS_BOTTOM_E:
-                        boundsMin = vec3(0.5, 0.5, 0.0);
-                        boundsMax = vec3(1.0, 1.0, 1.0);
-                        break;
-                    case BLOCKTYPE_STAIRS_BOTTOM_S:
-                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
-                    case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
-                        boundsMin = vec3(0.0, 0.5, 0.5);
-                        boundsMax = vec3(1.0, 1.0, 1.0);
-                        break;
-                    case BLOCKTYPE_STAIRS_BOTTOM_W:
-                        boundsMin = vec3(0.0, 0.5, 0.0);
-                        boundsMax = vec3(0.5, 1.0, 1.0);
-                        break;
-
-                    case BLOCKTYPE_STAIRS_TOP_N:
-                    case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
-                    case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
-                        boundsMin = vec3(0.0, 0.0, 0.0);
-                        boundsMax = vec3(1.0, 0.5, 0.5);
-                        break;
-                    case BLOCKTYPE_STAIRS_TOP_E:
-                        boundsMin = vec3(0.5, 0.0, 0.0);
-                        boundsMax = vec3(1.0, 0.5, 1.0);
-                        break;
-                    case BLOCKTYPE_STAIRS_TOP_S:
-                    case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
-                    case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
-                        boundsMin = vec3(0.0, 0.0, 0.5);
-                        boundsMax = vec3(1.0, 0.5, 1.0);
-                        break;
-                    case BLOCKTYPE_STAIRS_TOP_W:
-                        boundsMin = vec3(0.0, 0.0, 0.0);
-                        boundsMax = vec3(0.5, 0.5, 1.0);
-                        break;
-
-                    case BLOCKTYPE_WALL_N_LOW:
-                        boundsMin = vec3(0.3125, 0.0, 0.0);
-                        boundsMax = vec3(0.6875, (14.0/16.0), 0.5);
-                        break;
-                    case BLOCKTYPE_WALL_E_LOW:
-                        boundsMin = vec3(0.5, 0.0, 0.3125);
-                        boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
-                        break;
-                    case BLOCKTYPE_WALL_S_LOW:
-                        boundsMin = vec3(0.3125, 0.0, 0.5);
-                        boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
-                        break;
-                    case BLOCKTYPE_WALL_W_LOW:
-                        boundsMin = vec3(0.0, 0.0, 0.3125);
-                        boundsMax = vec3(0.5, (14.0/16.0), 0.6875);
-                        break;
-
-                    case BLOCKTYPE_WALL_N_TALL:
-                        boundsMin = vec3(0.3125, 0.0, 0.0);
-                        boundsMax = vec3(0.6875, 1.0, 0.5);
-                        break;
-                    case BLOCKTYPE_WALL_E_TALL:
-                        boundsMin = vec3(0.5, 0.0, 0.3125);
-                        boundsMax = vec3(1.0, 1.0, 0.6875);
-                        break;
-                    case BLOCKTYPE_WALL_S_TALL:
-                        boundsMin = vec3(0.3125, 0.0, 0.5);
-                        boundsMax = vec3(0.6875, 1.0, 1.0);
-                        break;
-                    case BLOCKTYPE_WALL_W_TALL:
-                        boundsMin = vec3(0.0, 0.0, 0.3125);
-                        boundsMax = vec3(0.5, 1.0, 0.6875);
-                        break;
-
-                    case BLOCKTYPE_WALL_POST_LOW_N_S:
-                        boundsMin = vec3(0.3125, 0.0, 0.0);
-                        boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
-                        break;
-                    case BLOCKTYPE_WALL_POST_LOW_W_E:
-                        boundsMin = vec3(0.0, 0.0, 0.3125);
-                        boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
-                        break;
-                    case BLOCKTYPE_WALL_POST_TALL_N_S:
-                        boundsMin = vec3(0.3125, 0.0, 0.0);
-                        boundsMax = vec3(0.6875, 1.0, 1.0);
-                        break;
-                    case BLOCKTYPE_WALL_POST_TALL_W_E:
-                        boundsMin = vec3(0.0, 0.0, 0.3125);
-                        boundsMax = vec3(1.0, 1.0, 0.6875);
-                        break;
-                }
-
-                hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
-
-                if (!hit && ((blockType >= 9u && blockType <= 16u) || (blockType >= 21u && blockType <= 28u))) {
-                    boundsMin = vec3(-1.0);
-                    boundsMax = vec3(-1.0);
-
-                    switch (blockType) {
-                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
-                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
-                            boundsMin = vec3(0.0, 0.5, 0.5);
-                            boundsMax = vec3(0.5, 1.0, 1.0);
-                            break;
-                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_W:
-                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_W:
-                            boundsMin = vec3(0.0, 0.5, 0.0);
-                            boundsMax = vec3(0.5, 1.0, 0.5);
-                            break;
-                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_E:
-                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_E:
-                            boundsMin = vec3(0.5, 0.5, 0.5);
-                            boundsMax = vec3(1.0, 1.0, 1.0);
-                            break;
-                        case BLOCKTYPE_STAIRS_BOTTOM_INNER_S_E:
-                        case BLOCKTYPE_STAIRS_BOTTOM_OUTER_N_E:
-                            boundsMin = vec3(0.5, 0.5, 0.0);
-                            boundsMax = vec3(1.0, 1.0, 0.5);
-                            break;
-
-                        case BLOCKTYPE_STAIRS_TOP_INNER_N_W:
-                        case BLOCKTYPE_STAIRS_TOP_OUTER_S_W:
-                            boundsMin = vec3(0.0, 0.0, 0.5);
-                            boundsMax = vec3(0.5, 0.5, 1.0);
-                            break;
-                        case BLOCKTYPE_STAIRS_TOP_INNER_S_W:
-                        case BLOCKTYPE_STAIRS_TOP_OUTER_N_W:
-                            boundsMin = vec3(0.0, 0.0, 0.0);
-                            boundsMax = vec3(0.5, 0.5, 0.5);
-                            break;
-                        case BLOCKTYPE_STAIRS_TOP_INNER_N_E:
-                        case BLOCKTYPE_STAIRS_TOP_OUTER_S_E:
-                            boundsMin = vec3(0.5, 0.0, 0.5);
-                            boundsMax = vec3(1.0, 0.5, 1.0);
-                            break;
-                        case BLOCKTYPE_STAIRS_TOP_INNER_S_E:
-                        case BLOCKTYPE_STAIRS_TOP_OUTER_N_E:
-                            boundsMin = vec3(0.5, 0.0, 0.0);
-                            boundsMax = vec3(1.0, 0.5, 0.5);
-                            break;
-                    }
-
-                    hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
-                }
-            }
-
-            return hit;
-        }
-
-        bool TraceDDA(vec3 origin, const in vec3 endPos) {
+        vec3 TraceDDA(vec3 origin, const in vec3 endPos) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
-            if (traceRayLen < EPSILON) return false;
+            if (traceRayLen < EPSILON) return vec3(1.0);
 
             vec3 direction = traceRay / traceRayLen;
             float STEP_COUNT = 12;//ceil(traceRayLen);
@@ -352,19 +67,23 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 }
             }
 
-            return hit;
+            return vec3(hit ? 0.0 : 1.0);
         }
 
-        bool TraceRay(const in vec3 origin, const in vec3 endPos) {
+        vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
-            if (traceRayLen < EPSILON) return false;
+            if (traceRayLen < EPSILON) return vec3(1.0);
 
+            int stepCount = int(DYN_LIGHT_RT_SHADOWS * range);
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-            vec3 stepSize = traceRay / DYN_LIGHT_RT_SHADOWS;
+            vec3 stepSize = traceRay / stepCount;
+            vec3 color = vec3(1.0);
             bool hit = false;
             
-            for (int i = 1; i < DYN_LIGHT_RT_SHADOWS && !hit; i++) {
+            //vec3 lastGridPos = origin;
+            uint blockTypeLast;
+            for (int i = 1; i < stepCount && !hit; i++) {
                 vec3 gridPos = (i + dither) * stepSize + origin;
                 
                 ivec3 gridCell, blockCell;
@@ -372,14 +91,74 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-                    if (blockType != BLOCKTYPE_EMPTY) {
+                    if (blockType >= BLOCKTYPE_STAINED_GLASS_BLACK && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+                        vec3 stepTint = vec3(1.0);
+                        switch (blockType) {
+                            case BLOCKTYPE_STAINED_GLASS_BLACK:
+                                stepTint = vec3(0.1, 0.1, 0.1);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_BLUE:
+                                stepTint = vec3(0.1, 0.1, 0.98);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_BROWN:
+                                stepTint = vec3(0.566, 0.388, 0.148);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_CYAN:
+                                stepTint = vec3(0.082, 0.533, 0.763);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_GRAY:
+                                stepTint = vec3(0.4, 0.4, 0.4);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_GREEN:
+                                stepTint = vec3(0.125, 0.808, 0.081);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_LIGHT_BLUE:
+                                stepTint = vec3(0.320, 0.685, 0.955);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_LIGHT_GRAY:
+                                stepTint = vec3(0.7, 0.7, 0.7);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_LIME:
+                                stepTint = vec3(0.633, 0.924, 0.124);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_MAGENTA:
+                                stepTint = vec3(0.698, 0.298, 0.847);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_ORANGE:
+                                stepTint = vec3(0.934, 0.518, 0.163);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_PINK:
+                                stepTint = vec3(0.949, 0.274, 0.497);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_PURPLE:
+                                stepTint = vec3(0.578, 0.170, 0.904);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_RED:
+                                stepTint = vec3(0.98, 0.1, 0.1);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_WHITE:
+                                stepTint = vec3(0.96, 0.96, 0.96);
+                                break;
+                            case BLOCKTYPE_STAINED_GLASS_YELLOW:
+                                stepTint = vec3(0.965, 0.965, 0.123);
+                                break;
+                        }
+
+                        color *= RGBToLinear(stepTint);
+                    }
+                    else if (blockType != BLOCKTYPE_EMPTY) {
                         vec3 blockPos = fract(gridPos);
                         hit = TraceHitTest(blockPos, blockType);
+                        if (hit) color = vec3(0.0);
                     }
+
+                    blockTypeLast = blockType;
                 }
+
+                //lastGridPos = gridPos;
             }
 
-            return hit;
+            return color;
         }
     #endif
 
@@ -415,6 +194,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
+                vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                     //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(light.position);
@@ -422,10 +202,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(lightFragPos);
 
-                    if (TRACE_MODE(traceOrigin, traceEnd)) continue;
+                    lightTint = TRACE_MODE(traceOrigin, traceEnd, light.range);
                 #endif
 
-                accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb;
+                accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb * lightTint;
             }
 
             accumDiffuse *= blockLight * DynamicLightBrightness;
@@ -472,8 +252,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
-                    if (TRACE_MODE(traceOrigin, traceEnd))
-                        lightColor *= 0.0;
+                    lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue);
                 #endif
 
                 result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
@@ -495,8 +274,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
-                    if (TRACE_MODE(traceOrigin, traceEnd))
-                        lightColor *= 0.0;
+                    lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue2);
                 #endif
 
                 result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
@@ -731,9 +509,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             #endif
 
             skyLight = RGBToLinear(skyLight);
+            skyLight = skyLight * (1.0 - SHADOW_BRIGHTNESS) + (SHADOW_BRIGHTNESS);
             skyLight *= 1.0 - blindness;
 
-            vec3 ambient = albedo.rgb * skyLight * occlusion * SHADOW_BRIGHTNESS;
+            vec3 ambient = albedo.rgb * skyLight * occlusion;
             vec3 diffuse = albedo.rgb * (blockLight + skyLight * shadowColor * (1.0 - SHADOW_BRIGHTNESS));
             vec4 final = vec4(ambient + diffuse, color.a);
 

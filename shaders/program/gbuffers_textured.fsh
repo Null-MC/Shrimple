@@ -133,6 +133,15 @@ uniform float far;
     #endif
 #endif
 
+#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+    #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
+#endif
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && DYN_LIGHT_RT_SHADOWS > 0
+    #include "/lib/lighting/collisions.glsl"
+#endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"

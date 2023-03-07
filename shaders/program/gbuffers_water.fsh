@@ -137,6 +137,13 @@ uniform float far;
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+#endif
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && DYN_LIGHT_RT_SHADOWS > 0
+    #include "/lib/lighting/collisions.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"

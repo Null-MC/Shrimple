@@ -37,8 +37,8 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
         uint intIndex = maskIndex >> 5;
 
-        uint bit = SceneLightMaps[gridIndex].Mask[intIndex] >> ((maskIndex & 31) + 1);
-        return (bit & 127);
+        uint bit = SceneLightMaps[gridIndex].Mask[intIndex] >> (maskIndex & 31);
+        return (bit & 255);
     }
 #endif
 
@@ -56,9 +56,15 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         #endif
 
         uint intIndex = maskIndex >> 5;
-        uint bit = 1 << (maskIndex & 31);
+
+        #if DYN_LIGHT_RT_SHADOWS > 0
+            uint bit = 255 << (maskIndex & 31);
+        #else
+            uint bit = 1 << (maskIndex & 31);
+        #endif
 
         uint status = atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
+
         return (status & bit) == 0;
     }
 
@@ -68,7 +74,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
             maskIndex *= DYN_LIGHT_MASK_STRIDE;
 
             uint intIndex = maskIndex >> 5;
-            uint bit = blockType << ((maskIndex & 31) + 1);
+            uint bit = blockType << (maskIndex & 31);
 
             atomicOr(SceneLightMaps[gridIndex].Mask[intIndex], bit);
         }

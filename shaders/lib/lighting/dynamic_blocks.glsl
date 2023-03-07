@@ -356,16 +356,16 @@ float GetSceneBlockLightLevel(const in int blockId) {
 
 void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
     float lightRange = GetSceneBlockLightLevel(blockId);
+    vec3 lightOffset = vec3(0.0);
+    vec3 lightColor = vec3(0.0);
     
-    bool intersects = true;
     if (lightRange > EPSILON) {
         vec2 noiseSample = vec2(0.0);
         #ifdef DYN_LIGHT_FLICKER
             noiseSample = GetDynLightNoise(blockLocalPos);
         #endif
 
-        vec3 lightColor = GetSceneBlockLightColor(blockId, noiseSample);
-        vec3 lightOffset = vec3(0.0);
+        lightColor = GetSceneBlockLightColor(blockId, noiseSample);
         float flicker = 0.0;
         //float pulse = 0.0;
         float glow = 0.0;
@@ -544,48 +544,51 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                 glow = 0.2;
                 break;
         }
+        
+        // if (blockId == BLOCK_TORCH) {
+        //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
+        //     //texPos.z += 2.0 * time;
 
-        #ifdef DYN_LIGHT_FRUSTUM_TEST
-            vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+        //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
 
-            if (lightViewPos.z > lightRange) intersects = false;
-            else if (lightViewPos.z < -far - lightRange) intersects = false;
-            else {
-                if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
-                if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
-                if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
-                if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
+        //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
+        //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
+        // }
+
+        #ifdef DYN_LIGHT_FLICKER
+            if (flicker > EPSILON) {
+                lightColor.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
+            }
+
+            if (glow > EPSILON) {
+                float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
+                lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
             }
         #endif
-
-        if (intersects) {
-            // if (blockId == BLOCK_TORCH) {
-            //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
-            //     //texPos.z += 2.0 * time;
-
-            //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
-
-            //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
-            //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
-            // }
-
-            #ifdef DYN_LIGHT_FLICKER
-                if (flicker > EPSILON) {
-                    lightColor.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
-                }
-
-                if (glow > EPSILON) {
-                    float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-                    lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
-                }
-            #endif
-
-            AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
-        }
     }
 
+    #ifdef DYN_LIGHT_FRUSTUM_TEST
+        vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+        bool intersects = true;
+
+        float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+        if (lightViewPos.z > maxRange) intersects = false;
+        else if (lightViewPos.z < -far - maxRange) intersects = false;
+        else {
+            if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
+            if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
+            if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
+            if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
+        }
+
+        if (!intersects) return;
+    #endif
+
+    if (lightRange > EPSILON) {
+        AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
+    }
     #if DYN_LIGHT_RT_SHADOWS > 0
-        if ((lightRange < EPSILON || !intersects) && IsDynLightSolidBlock(blockId)) {
+        else if (IsDynLightSolidBlock(blockId)) {
             ivec3 gridCell, blockCell;
             vec3 gridPos = GetLightGridPosition(blockLocalPos);
             
@@ -593,15 +596,141 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                 uint blockType = BLOCKTYPE_SOLID;
 
                 switch (blockId) {
+                    case BLOCK_CACTUS:
+                        blockType = BLOCKTYPE_CACTUS;
+                        break;
+                    case BLOCK_CAKE:
+                        blockType = BLOCKTYPE_CAKE;
+                        break;
+                    case BLOCK_CANDLE_CAKE:
+                        blockType = BLOCKTYPE_CANDLE_CAKE;
+                        break;
+                    case BLOCK_CARPET:
+                        blockType = BLOCKTYPE_CARPET;
+                        break;
+                    case BLOCK_DAYLIGHT_DETECTOR:
+                        blockType = BLOCKTYPE_DAYLIGHT_DETECTOR;
+                        break;
+                    case BLOCK_ENCHANTING_TABLE:
+                        blockType = BLOCKTYPE_ENCHANTING_TABLE;
+                        break;
+                    case BLOCK_END_PORTAL_FRAME:
+                        blockType = BLOCKTYPE_END_PORTAL_FRAME;
+                        break;
+                    case BLOCK_HOPPER_DOWN:
+                        blockType = BLOCKTYPE_HOPPER_DOWN;
+                        break;
+                    case BLOCK_HOPPER_N:
+                        blockType = BLOCKTYPE_HOPPER_N;
+                        break;
+                    case BLOCK_HOPPER_E:
+                        blockType = BLOCKTYPE_HOPPER_E;
+                        break;
+                    case BLOCK_HOPPER_S:
+                        blockType = BLOCKTYPE_HOPPER_S;
+                        break;
+                    case BLOCK_HOPPER_W:
+                        blockType = BLOCKTYPE_HOPPER_W;
+                        break;
                     case BLOCK_PATHWAY:
                         blockType = BLOCKTYPE_PATHWAY;
                         break;
+                    case BLOCK_PRESSURE_PLATE:
+                        blockType = BLOCKTYPE_PRESSURE_PLATE;
+                        break;
+                    case BLOCK_STONECUTTER:
+                        blockType = BLOCKTYPE_STONECUTTER;
+                        break;
+
+                    case BLOCK_BUTTON_FLOOR_N_S:
+                        blockType = BLOCKTYPE_BUTTON_FLOOR_N_S;
+                        break;
+                    case BLOCK_BUTTON_FLOOR_W_E:
+                        blockType = BLOCKTYPE_BUTTON_FLOOR_W_E;
+                        break;
+                    case BLOCK_BUTTON_CEILING_N_S:
+                        blockType = BLOCKTYPE_BUTTON_CEILING_N_S;
+                        break;
+                    case BLOCK_BUTTON_CEILING_W_E:
+                        blockType = BLOCKTYPE_BUTTON_CEILING_W_E;
+                        break;
+                    case BLOCK_BUTTON_WALL_N:
+                        blockType = BLOCKTYPE_BUTTON_WALL_N;
+                        break;
+                    case BLOCK_BUTTON_WALL_E:
+                        blockType = BLOCKTYPE_BUTTON_WALL_E;
+                        break;
+                    case BLOCK_BUTTON_WALL_S:
+                        blockType = BLOCKTYPE_BUTTON_WALL_S;
+                        break;
+                    case BLOCK_BUTTON_WALL_W:
+                        blockType = BLOCKTYPE_BUTTON_WALL_W;
+                        break;
+
+                    case BLOCK_LEVER_FLOOR_N_S:
+                        blockType = BLOCKTYPE_LEVER_FLOOR_N_S;
+                        break;
+                    case BLOCK_LEVER_FLOOR_W_E:
+                        blockType = BLOCKTYPE_LEVER_FLOOR_W_E;
+                        break;
+                    case BLOCK_LEVER_CEILING_N_S:
+                        blockType = BLOCKTYPE_LEVER_CEILING_N_S;
+                        break;
+                    case BLOCK_LEVER_CEILING_W_E:
+                        blockType = BLOCKTYPE_LEVER_CEILING_W_E;
+                        break;
+                    case BLOCK_LEVER_WALL_N:
+                        blockType = BLOCKTYPE_LEVER_WALL_N;
+                        break;
+                    case BLOCK_LEVER_WALL_E:
+                        blockType = BLOCKTYPE_LEVER_WALL_E;
+                        break;
+                    case BLOCK_LEVER_WALL_S:
+                        blockType = BLOCKTYPE_LEVER_WALL_S;
+                        break;
+                    case BLOCK_LEVER_WALL_W:
+                        blockType = BLOCKTYPE_LEVER_WALL_W;
+                        break;
+
+                    case BLOCK_DOOR_N:
+                        blockType = BLOCKTYPE_DOOR_N;
+                        break;
+                    case BLOCK_DOOR_E:
+                        blockType = BLOCKTYPE_DOOR_E;
+                        break;
+                    case BLOCK_DOOR_S:
+                        blockType = BLOCKTYPE_DOOR_S;
+                        break;
+                    case BLOCK_DOOR_W:
+                        blockType = BLOCKTYPE_DOOR_W;
+                        break;
+
+                    case BLOCK_TRAPDOOR_BOTTOM:
+                        blockType = BLOCKTYPE_TRAPDOOR_BOTTOM;
+                        break;
+                    case BLOCK_TRAPDOOR_TOP:
+                        blockType = BLOCKTYPE_TRAPDOOR_TOP;
+                        break;
+                    case BLOCK_TRAPDOOR_N:
+                        blockType = BLOCKTYPE_TRAPDOOR_N;
+                        break;
+                    case BLOCK_TRAPDOOR_E:
+                        blockType = BLOCKTYPE_TRAPDOOR_E;
+                        break;
+                    case BLOCK_TRAPDOOR_S:
+                        blockType = BLOCKTYPE_TRAPDOOR_S;
+                        break;
+                    case BLOCK_TRAPDOOR_W:
+                        blockType = BLOCKTYPE_TRAPDOOR_W;
+                        break;
+
                     case BLOCK_SLABS_BOTTOM:
                         blockType = BLOCKTYPE_SLAB_BOTTOM;
                         break;
                     case BLOCK_SLABS_TOP:
                         blockType = BLOCKTYPE_SLAB_TOP;
                         break;
+
                     case BLOCK_STAIRS_BOTTOM_N:
                         blockType = BLOCKTYPE_STAIRS_BOTTOM_N;
                         break;
@@ -674,18 +803,56 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_STAIRS_TOP_OUTER_S_E:
                         blockType = BLOCKTYPE_STAIRS_TOP_OUTER_S_E;
                         break;
+
                     case BLOCK_FENCE_POST:
-                    case BLOCK_FENCE_N:
-                    case BLOCK_FENCE_E:
-                    case BLOCK_FENCE_S:
-                    case BLOCK_FENCE_W:
-                    //case BLOCK_FENCE_N_S:
-                    //case BLOCK_FENCE_W_E:
                         blockType = BLOCKTYPE_FENCE_POST;
                         break;
-                    case BLOCK_PRESSURE_PLATE:
-                        blockType = BLOCKTYPE_PRESSURE_PLATE;
+                    case BLOCK_FENCE_N:
+                        blockType = BLOCKTYPE_FENCE_N;
                         break;
+                    case BLOCK_FENCE_E:
+                        blockType = BLOCKTYPE_FENCE_E;
+                        break;
+                    case BLOCK_FENCE_S:
+                        blockType = BLOCKTYPE_FENCE_S;
+                        break;
+                    case BLOCK_FENCE_W:
+                        blockType = BLOCKTYPE_FENCE_W;
+                        break;
+                    case BLOCK_FENCE_N_S:
+                        blockType = BLOCKTYPE_FENCE_N_S;
+                        break;
+                    case BLOCK_FENCE_W_E:
+                        blockType = BLOCKTYPE_FENCE_W_E;
+                        break;
+                    case BLOCK_FENCE_N_W:
+                        blockType = BLOCKTYPE_FENCE_N_W;
+                        break;
+                    case BLOCK_FENCE_N_E:
+                        blockType = BLOCKTYPE_FENCE_N_E;
+                        break;
+                    case BLOCK_FENCE_S_W:
+                        blockType = BLOCKTYPE_FENCE_S_W;
+                        break;
+                    case BLOCK_FENCE_S_E:
+                        blockType = BLOCKTYPE_FENCE_S_E;
+                        break;
+                    case BLOCK_FENCE_W_N_E:
+                        blockType = BLOCKTYPE_FENCE_W_N_E;
+                        break;
+                    case BLOCK_FENCE_W_S_E:
+                        blockType = BLOCKTYPE_FENCE_W_S_E;
+                        break;
+                    case BLOCK_FENCE_N_W_S:
+                        blockType = BLOCKTYPE_FENCE_N_W_S;
+                        break;
+                    case BLOCK_FENCE_N_E_S:
+                        blockType = BLOCKTYPE_FENCE_N_E_S;
+                        break;
+                    case BLOCK_FENCE_ALL:
+                        blockType = BLOCKTYPE_FENCE_ALL;
+                        break;
+
                     case BLOCK_WALL_POST:
                         blockType = BLOCKTYPE_WALL_POST;
                         break;
@@ -737,35 +904,64 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_WALL_W_TALL:
                         blockType = BLOCKTYPE_WALL_W_TALL;
                         break;
-                    case BLOCK_DOOR_N:
-                        blockType = BLOCKTYPE_DOOR_N;
+
+                    case BLOCK_CHORUS_DOWN:
+                        blockType = BLOCKTYPE_CHORUS_DOWN;
                         break;
-                    case BLOCK_DOOR_E:
-                        blockType = BLOCKTYPE_DOOR_E;
+                    case BLOCK_CHORUS_UP_DOWN:
+                        blockType = BLOCKTYPE_CHORUS_UP_DOWN;
                         break;
-                    case BLOCK_DOOR_S:
-                        blockType = BLOCKTYPE_DOOR_S;
+                    case BLOCK_CHORUS_OTHER:
+                        blockType = BLOCKTYPE_CHORUS_OTHER;
                         break;
-                    case BLOCK_DOOR_W:
-                        blockType = BLOCKTYPE_DOOR_W;
+
+                    case BLOCK_STAINED_GLASS_BLACK:
+                        blockType = BLOCKTYPE_STAINED_GLASS_BLACK;
                         break;
-                    case BLOCK_TRAPDOOR_BOTTOM:
-                        blockType = BLOCKTYPE_TRAPDOOR_BOTTOM;
+                    case BLOCK_STAINED_GLASS_BLUE:
+                        blockType = BLOCKTYPE_STAINED_GLASS_BLUE;
                         break;
-                    case BLOCK_TRAPDOOR_TOP:
-                        blockType = BLOCKTYPE_TRAPDOOR_TOP;
+                    case BLOCK_STAINED_GLASS_BROWN:
+                        blockType = BLOCKTYPE_STAINED_GLASS_BROWN;
                         break;
-                    case BLOCK_TRAPDOOR_N:
-                        blockType = BLOCKTYPE_TRAPDOOR_N;
+                    case BLOCK_STAINED_GLASS_CYAN:
+                        blockType = BLOCKTYPE_STAINED_GLASS_CYAN;
                         break;
-                    case BLOCK_TRAPDOOR_E:
-                        blockType = BLOCKTYPE_TRAPDOOR_E;
+                    case BLOCK_STAINED_GLASS_GRAY:
+                        blockType = BLOCKTYPE_STAINED_GLASS_GRAY;
                         break;
-                    case BLOCK_TRAPDOOR_S:
-                        blockType = BLOCKTYPE_TRAPDOOR_S;
+                    case BLOCK_STAINED_GLASS_GREEN:
+                        blockType = BLOCKTYPE_STAINED_GLASS_GREEN;
                         break;
-                    case BLOCK_TRAPDOOR_W:
-                        blockType = BLOCKTYPE_TRAPDOOR_W;
+                    case BLOCK_STAINED_GLASS_LIGHT_BLUE:
+                        blockType = BLOCKTYPE_STAINED_GLASS_LIGHT_BLUE;
+                        break;
+                    case BLOCK_STAINED_GLASS_LIGHT_GRAY:
+                        blockType = BLOCKTYPE_STAINED_GLASS_LIGHT_GRAY;
+                        break;
+                    case BLOCK_STAINED_GLASS_LIME:
+                        blockType = BLOCKTYPE_STAINED_GLASS_LIME;
+                        break;
+                    case BLOCK_STAINED_GLASS_MAGENTA:
+                        blockType = BLOCKTYPE_STAINED_GLASS_MAGENTA;
+                        break;
+                    case BLOCK_STAINED_GLASS_ORANGE:
+                        blockType = BLOCKTYPE_STAINED_GLASS_ORANGE;
+                        break;
+                    case BLOCK_STAINED_GLASS_PINK:
+                        blockType = BLOCKTYPE_STAINED_GLASS_PINK;
+                        break;
+                    case BLOCK_STAINED_GLASS_PURPLE:
+                        blockType = BLOCKTYPE_STAINED_GLASS_PURPLE;
+                        break;
+                    case BLOCK_STAINED_GLASS_RED:
+                        blockType = BLOCKTYPE_STAINED_GLASS_RED;
+                        break;
+                    case BLOCK_STAINED_GLASS_WHITE:
+                        blockType = BLOCKTYPE_STAINED_GLASS_WHITE;
+                        break;
+                    case BLOCK_STAINED_GLASS_YELLOW:
+                        blockType = BLOCKTYPE_STAINED_GLASS_YELLOW;
                         break;
                 }
 
