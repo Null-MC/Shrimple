@@ -77,8 +77,36 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     boundsMax = vec3((15.0/16.0), (1.0/16.0), (15.0/16.0));
                     break;
                 case BLOCKTYPE_WALL_POST:
+                case BLOCKTYPE_WALL_POST_LOW_N_S:
+                case BLOCKTYPE_WALL_POST_LOW_W_E:
+                case BLOCKTYPE_WALL_POST_TALL_N_S:
+                case BLOCKTYPE_WALL_POST_TALL_W_E:
+                case BLOCKTYPE_WALL_N_LOW:
+                case BLOCKTYPE_WALL_E_LOW:
+                case BLOCKTYPE_WALL_S_LOW:
+                case BLOCKTYPE_WALL_W_LOW:
+                case BLOCKTYPE_WALL_N_TALL:
+                case BLOCKTYPE_WALL_E_TALL:
+                case BLOCKTYPE_WALL_S_TALL:
+                case BLOCKTYPE_WALL_W_TALL:
                     boundsMin = vec3(0.25, 0.0, 0.25);
                     boundsMax = vec3(0.75, 1.0, 0.75);
+                    break;
+                case BLOCKTYPE_WALL_LOW_N_S:
+                    boundsMin = vec3(0.3125, 0.0, 0.0);
+                    boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
+                    break;
+                case BLOCKTYPE_WALL_LOW_W_E:
+                    boundsMin = vec3(0.0, 0.0, 0.3125);
+                    boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_TALL_N_S:
+                    boundsMin = vec3(0.3125, 0.0, 0.0);
+                    boundsMax = vec3(0.6875, 1.0, 1.0);
+                    break;
+                case BLOCKTYPE_WALL_TALL_W_E:
+                    boundsMin = vec3(0.0, 0.0, 0.3125);
+                    boundsMax = vec3(1.0, 1.0, 0.6875);
                     break;
                 case BLOCKTYPE_DOOR_N:
                     boundsMin = vec3(0.0, 0.0, (13.0/16.0));
@@ -124,7 +152,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
 
-            if (!hit && blockType >= 5u && blockType <= 28u) {
+            if (!hit) {// && blockType >= 5u && blockType <= 28u) {
                 boundsMin = vec3(-1.0);
                 boundsMax = vec3(-1.0);
 
@@ -169,6 +197,57 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     case BLOCKTYPE_STAIRS_TOP_W:
                         boundsMin = vec3(0.0, 0.0, 0.0);
                         boundsMax = vec3(0.5, 0.5, 1.0);
+                        break;
+
+                    case BLOCKTYPE_WALL_N_LOW:
+                        boundsMin = vec3(0.3125, 0.0, 0.0);
+                        boundsMax = vec3(0.6875, (14.0/16.0), 0.5);
+                        break;
+                    case BLOCKTYPE_WALL_E_LOW:
+                        boundsMin = vec3(0.5, 0.0, 0.3125);
+                        boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
+                        break;
+                    case BLOCKTYPE_WALL_S_LOW:
+                        boundsMin = vec3(0.3125, 0.0, 0.5);
+                        boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
+                        break;
+                    case BLOCKTYPE_WALL_W_LOW:
+                        boundsMin = vec3(0.0, 0.0, 0.3125);
+                        boundsMax = vec3(0.5, (14.0/16.0), 0.6875);
+                        break;
+
+                    case BLOCKTYPE_WALL_N_TALL:
+                        boundsMin = vec3(0.3125, 0.0, 0.0);
+                        boundsMax = vec3(0.6875, 1.0, 0.5);
+                        break;
+                    case BLOCKTYPE_WALL_E_TALL:
+                        boundsMin = vec3(0.5, 0.0, 0.3125);
+                        boundsMax = vec3(1.0, 1.0, 0.6875);
+                        break;
+                    case BLOCKTYPE_WALL_S_TALL:
+                        boundsMin = vec3(0.3125, 0.0, 0.5);
+                        boundsMax = vec3(0.6875, 1.0, 1.0);
+                        break;
+                    case BLOCKTYPE_WALL_W_TALL:
+                        boundsMin = vec3(0.0, 0.0, 0.3125);
+                        boundsMax = vec3(0.5, 1.0, 0.6875);
+                        break;
+
+                    case BLOCKTYPE_WALL_POST_LOW_N_S:
+                        boundsMin = vec3(0.3125, 0.0, 0.0);
+                        boundsMax = vec3(0.6875, (14.0/16.0), 1.0);
+                        break;
+                    case BLOCKTYPE_WALL_POST_LOW_W_E:
+                        boundsMin = vec3(0.0, 0.0, 0.3125);
+                        boundsMax = vec3(1.0, (14.0/16.0), 0.6875);
+                        break;
+                    case BLOCKTYPE_WALL_POST_TALL_N_S:
+                        boundsMin = vec3(0.3125, 0.0, 0.0);
+                        boundsMax = vec3(0.6875, 1.0, 1.0);
+                        break;
+                    case BLOCKTYPE_WALL_POST_TALL_W_E:
+                        boundsMin = vec3(0.0, 0.0, 0.3125);
+                        boundsMax = vec3(1.0, 1.0, 0.6875);
                         break;
                 }
 
