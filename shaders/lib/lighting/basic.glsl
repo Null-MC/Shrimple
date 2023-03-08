@@ -542,8 +542,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                         vec3 viewPosPrev = (gbufferLightModelView[i] * vec4(worldPos - lightCameraPosition[i], 1.0)).xyz;
                         vec3 clipPosPrev = unproject(gbufferLightProjection[i] * vec4(viewPosPrev, 1.0));
 
-                        ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5 + offset) * vec2(viewWidth, viewHeight));
-                        blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                        if (all(greaterThan(clipPosPrev.xy, vec2(-1.0))) && all(lessThan(clipPosPrev.xy, vec2(1.0)))) {
+                            ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5 + offset) * vec2(viewWidth, viewHeight));
+                            blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                        }
                     }
                 #else
                     vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
