@@ -5,6 +5,8 @@ const int shadowcolor0Format = RGBA8;
 const int colortex0Format = RGBA8;
 const int colortex1Format = RGBA8;
 const int colortex2Format = RGBA8;
+const int colortex4Format = RGB16F;
+const int colortex5Format = RGB16F;
 */
 
 const bool generateShadowMipmap = false;
@@ -26,6 +28,13 @@ const bool colortex1Clear = true;
 const vec4 colortex2ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex2MipmapEnabled = false;
 const bool colortex2Clear = true;
+
+const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex4MipmapEnabled = false;
+const bool colortex4Clear = true;
+
+const bool colortex5MipmapEnabled = false;
+const bool colortex5Clear = false;
 
 
 // World Options
@@ -70,6 +79,7 @@ const bool colortex2Clear = true;
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_RT_SHADOWS 0 // [0 1 2 4 8]
+#define DYN_LIGHT_TEMPORAL 1 // [0 1]
 #define DYN_LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u

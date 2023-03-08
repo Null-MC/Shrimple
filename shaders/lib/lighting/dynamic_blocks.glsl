@@ -632,6 +632,9 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                     case BLOCK_HOPPER_W:
                         blockType = BLOCKTYPE_HOPPER_W;
                         break;
+                    case BLOCK_LECTERN:
+                        blockType = BLOCKTYPE_LECTERN;
+                        break;
                     case BLOCK_PATHWAY:
                         blockType = BLOCKTYPE_PATHWAY;
                         break;
@@ -667,6 +670,19 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                         blockType = BLOCKTYPE_BUTTON_WALL_W;
                         break;
 
+                    case BLOCK_DOOR_N:
+                        blockType = BLOCKTYPE_DOOR_N;
+                        break;
+                    case BLOCK_DOOR_E:
+                        blockType = BLOCKTYPE_DOOR_E;
+                        break;
+                    case BLOCK_DOOR_S:
+                        blockType = BLOCKTYPE_DOOR_S;
+                        break;
+                    case BLOCK_DOOR_W:
+                        blockType = BLOCKTYPE_DOOR_W;
+                        break;
+
                     case BLOCK_LEVER_FLOOR_N_S:
                         blockType = BLOCKTYPE_LEVER_FLOOR_N_S;
                         break;
@@ -692,19 +708,6 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                         blockType = BLOCKTYPE_LEVER_WALL_W;
                         break;
 
-                    case BLOCK_DOOR_N:
-                        blockType = BLOCKTYPE_DOOR_N;
-                        break;
-                    case BLOCK_DOOR_E:
-                        blockType = BLOCKTYPE_DOOR_E;
-                        break;
-                    case BLOCK_DOOR_S:
-                        blockType = BLOCKTYPE_DOOR_S;
-                        break;
-                    case BLOCK_DOOR_W:
-                        blockType = BLOCKTYPE_DOOR_W;
-                        break;
-
                     case BLOCK_TRAPDOOR_BOTTOM:
                         blockType = BLOCKTYPE_TRAPDOOR_BOTTOM;
                         break;
@@ -722,6 +725,19 @@ void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
                         break;
                     case BLOCK_TRAPDOOR_W:
                         blockType = BLOCKTYPE_TRAPDOOR_W;
+                        break;
+
+                    case BLOCK_TRIPWIRE_HOOK_N:
+                        blockType = BLOCKTYPE_TRIPWIRE_HOOK_N;
+                        break;
+                    case BLOCK_TRIPWIRE_HOOK_E:
+                        blockType = BLOCKTYPE_TRIPWIRE_HOOK_E;
+                        break;
+                    case BLOCK_TRIPWIRE_HOOK_S:
+                        blockType = BLOCKTYPE_TRIPWIRE_HOOK_S;
+                        break;
+                    case BLOCK_TRIPWIRE_HOOK_W:
+                        blockType = BLOCKTYPE_TRIPWIRE_HOOK_W;
                         break;
 
                     case BLOCK_SLABS_BOTTOM:

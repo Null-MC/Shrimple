@@ -43,6 +43,10 @@ in float vLit;
 
 uniform sampler2D gtexture;
 
+// #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
+//     uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
+// #endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
 	uniform sampler2D noisetex;
 #endif
@@ -115,6 +119,15 @@ uniform float far;
     uniform vec3 eyePosition;
 #endif
 
+// #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
+//     uniform mat4 gbufferPreviousModelView;
+//     uniform mat4 gbufferPreviousProjection;
+//     uniform vec3 previousCameraPosition;
+//     uniform int frameCounter;
+//     uniform float viewWidth;
+//     uniform float viewHeight;
+// #endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
@@ -160,6 +173,7 @@ layout(location = 0) out vec4 outColor0;
 	layout(location = 2) out vec4 outColor2;
 #endif
 
+
 void main() {
 	vec4 color = GetColor();
 
@@ -174,6 +188,8 @@ void main() {
 		outColor1 = vec4(lightColor, 1.0);
 		outColor2 = vec4(lmcoord, glcolor.a, 1.0);
 	#else
-		outColor0 = GetFinalLighting(color, lightColor, vPos, lmcoord, glcolor.a);
+		vec3 blockLightColor = GetFinalBlockLighting(lmcoord.x);
+
+		outColor0 = GetFinalLighting(color, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
 	#endif
 }

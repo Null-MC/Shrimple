@@ -4,34 +4,49 @@
 #include "/lib/common.glsl"
 #include "/lib/constants.glsl"
 
-in vec2 texcoord;
+uniform sampler2D colortex4;
+uniform sampler2D colortex5;
 
-uniform sampler2D shadowcolor0;
-uniform sampler2D shadowtex0;
-uniform sampler2D shadowtex1;
+#if DYN_LIGHT_TEMPORAL > 1
+	uniform sampler2D depthtex1;
+#endif
 
-#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-	uniform mat4 shadowModelView;
-	uniform float near;
-	uniform float far;
+uniform float frameTime;
+
+#if DYN_LIGHT_TEMPORAL > 1
+	uniform mat4 gbufferProjectionInverse;
+	uniform mat4 gbufferModelViewInverse;
+	uniform mat4 gbufferPreviousProjection;
+	uniform mat4 gbufferPreviousModelView;
+	uniform vec3 previousCameraPosition;
+	uniform vec3 cameraPosition;
+	uniform float viewWidth;
+	uniform float viewHeight;
 #endif
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outColor0;
+/* RENDERTARGETS: 5 */
+layout(location = 0) out vec3 outColor0;
 
 void main() {
-	#if DEBUG_SHADOW_BUFFER == 1
-		vec4 shadowColor = textureLod(shadowcolor0, texcoord, 0);
-		//shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), pow2(shadowColor.a));
-		vec3 color = shadowColor.rgb;
-	#elif DEBUG_SHADOW_BUFFER == 2
-		vec3 color = textureLod(shadowtex0, texcoord, 0).rrr;
-	#elif DEBUG_SHADOW_BUFFER == 3
-		vec3 color = textureLod(shadowtex1, texcoord, 0).rrr;
-	#else
-		const vec3 color = vec3(0.0);
+	vec3 colorCurrent = texelFetch(colortex4, ivec2(gl_FragCoord.xy), 0).rgb;
+
+	#if DYN_LIGHT_TEMPORAL > 1
+        vec2 viewSize = vec2(viewWidth, viewHeight);
+
+        float depth = texelFetch(depthtex1, ivec2(gl_FragCoord.xy), 0).r;
+
+        vec3 clipPos = vec3(gl_FragCoord.xy / viewSize, depth) * 2.0 - 1.0;
+        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+        vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz + cameraPosition;
+        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
+        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+
+        vec2 uv = clipPosPrev.xy * 0.5 - 0.5;
+		vec3 colorLast = texelFetch(colortex5, ivec2(uv * viewSize), 0).rgb;
+		colorCurrent = mix(colorLast, colorCurrent, 1.0);
 	#endif
 
-	outColor0 = vec4(color, 1.0);
+	//float time = saturate(100.0 * frameTime);
+	outColor0 = colorCurrent;
 }

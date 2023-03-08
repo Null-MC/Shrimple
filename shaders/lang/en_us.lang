@@ -115,16 +115,6 @@ suffix.DYN_LIGHT_BRIGHTNESS=%
 option.DYN_LIGHT_FLICKER=Dynamic
 option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
 
-option.LIGHT_BIN_SIZE=Bin Size
-option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.
-
-option.LIGHT_BIN_MAX_COUNT=Max Bin Lights
-option.LIGHT_BIN_MAX_COUNT.comment=The maximum number of lights each bin can hold.
-
-option.LIGHT_SIZE_XZ=Horizontal Bin Count
-
-option.LIGHT_SIZE_Y=Vertical Bin Count
-
 option.DYN_LIGHT_DIRECTIONAL=Directional
 
 option.LIGHT_LAVA_ENABLED=Lava
@@ -137,6 +127,23 @@ value.DYN_LIGHT_RT_SHADOWS.1=Low
 value.DYN_LIGHT_RT_SHADOWS.2=Medium
 value.DYN_LIGHT_RT_SHADOWS.4=High
 value.DYN_LIGHT_RT_SHADOWS.8=Very High
+
+
+screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
+
+option.LIGHT_BIN_SIZE=Bin Size
+option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.
+
+option.LIGHT_BIN_MAX_COUNT=Max Bin Lights
+option.LIGHT_BIN_MAX_COUNT.comment=The maximum number of lights each bin can hold.
+
+option.LIGHT_SIZE_XZ=Horizontal Bin Count
+
+option.LIGHT_SIZE_Y=Vertical Bin Count
+
+option.DYN_LIGHT_TEMPORAL=Temporal Count
+option.DYN_LIGHT_TEMPORAL.comment=When enabled, the number of lights rendered will be spread across the number of specified frames. Improves performance at the cost of quality/blur.
+value.DYN_LIGHT_TEMPORAL.0=Off
 
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.

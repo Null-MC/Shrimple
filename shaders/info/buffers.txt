@@ -1,3 +1,5 @@
 colortex0		RGBA8		1.0		output
 colortex1		RGBA8		1.0		shadow color
 colortex2		RGBA8		1.0		lighting (block, sky, ao)
+colortex4		RGB8		1.0	 	temporal blocklight write
+colortex5		RGB8		1.0	 	temporal blocklight read

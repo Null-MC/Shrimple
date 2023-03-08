@@ -23,7 +23,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
     #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
         #define TRACE_MODE TraceRay // [TraceDDA TraceRay]
 
-        vec3 TraceDDA(vec3 origin, const in vec3 endPos) {
+        vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return vec3(1.0);
@@ -75,7 +75,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return vec3(1.0);
 
-            int stepCount = int(DYN_LIGHT_RT_SHADOWS * range);
+            int stepCount = int(0.5 * DYN_LIGHT_RT_SHADOWS * range);
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
             vec3 stepSize = traceRay / stepCount;
             vec3 color = vec3(1.0);
@@ -188,8 +188,24 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
             #endif
 
-            for (int i = 0; i < lightCount; i++) {
-                SceneLightData light = GetSceneLight(gridIndex, i);
+            //float dither = floor(DYN_LIGHT_TEMPORAL * InterleavedGradientNoise(gl_FragCoord.xy) + 0.98);
+            float start = 0.0;
+            int step = 1;
+
+            // #if DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
+            //     start = mod(gl_FragCoord.x + gl_FragCoord.y + frameCounter, (DYN_LIGHT_TEMPORAL+1));
+            //     step = (DYN_LIGHT_TEMPORAL+1);
+            // #endif
+
+            for (int i = 0; i < lightCount; i += step) {
+                int altI = int(mod(i + start, lightCount));
+                SceneLightData light = GetSceneLight(gridIndex, altI);
+
+                #if DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
+                    vec3 p = floor(cameraPosition + light.position);
+                    float alt = mod(p.x + p.y + p.z + frameCounter, (DYN_LIGHT_TEMPORAL+1));
+                    if (alt > 0.5) continue;
+                #endif
 
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
@@ -465,8 +481,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             }
         #endif
 
-        vec4 GetFinalLighting(const in vec4 color, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
-            vec3 albedo = RGBToLinear(color.rgb);
+        vec3 GetFinalBlockLighting(const in float lmcoordX) {
             vec3 blockLight = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
@@ -475,22 +490,27 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
+                    if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
                 #endif
             #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                blockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, vBlockId, lmcoord.x)
-                    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+                vec3 lit = SampleDynamicLighting(vLocalPos, vLocalNormal, vBlockId, lmcoordX);
+
+                #if DYN_LIGHT_RT_SHADOWS == 0
+                    lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
+                #endif
+
+                blockLight += lit;
 
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    if (gl_FragCoord.x < 0) return vec4(texelFetch(shadowcolor0, ivec2(0.0), 0).rgb, 1.0);
+                    if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
                 #endif
             #else
                 #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
-                    vec3 blockLightDefault = textureLod(texLightMap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(texLightMap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
                 #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
-                    vec3 blockLightDefault = textureLod(colortex3, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(colortex3, vec2(lmcoordX, 1.0/32.0), 0).rgb;
                 #else
-                    vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                    vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
                 #endif
 
                 blockLight += RGBToLinear(blockLightDefault);
@@ -498,6 +518,23 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
                 blockLight += SampleHandLight(vLocalPos, vLocalNormal);
+            #endif
+
+            return blockLight;
+        }
+
+        vec4 GetFinalLighting(const in vec4 color, const in vec3 blockLightColor, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
+            vec3 albedo = RGBToLinear(color.rgb);
+
+            vec3 blockLight = blockLightColor;
+
+            #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
+                vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz + cameraPosition;
+                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
+                vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+
+                ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5) * vec2(viewWidth, viewHeight));
+                blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
             #endif
 
             #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
