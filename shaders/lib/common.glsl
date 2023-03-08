@@ -79,7 +79,7 @@ const bool colortex5Clear = false;
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_RT_SHADOWS 0 // [0 1 2 4 8]
-#define DYN_LIGHT_TEMPORAL 1 // [0 1]
+#define DYN_LIGHT_TEMPORAL 2 // [0 2 5]
 #define DYN_LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -95,7 +95,7 @@ const bool colortex5Clear = false;
 
 
 // Debug Options
-#define DEBUG_SHADOW_BUFFER 0 // [0 1 2 3]
+#define DEBUG_BUFFER 0 // [0 1 2 3 4]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define IRIS_FEATURE_CLEARFIX
 

@@ -8,6 +8,10 @@ in vec2 texcoord;
 
 uniform sampler2D colortex0;
 
+#if DEBUG_BUFFER == 4
+	uniform sampler2D colortex5;
+#endif
+
 #ifdef FXAA_ENABLED
 	uniform float viewWidth;
 	uniform float viewHeight;
@@ -24,12 +28,14 @@ uniform sampler2D colortex0;
 
 
 void main() {
-	#if DEBUG_SHADOW_BUFFER == 1
+	#if DEBUG_BUFFER == 1
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
-	#elif DEBUG_SHADOW_BUFFER == 2
+	#elif DEBUG_BUFFER == 2
 		vec3 color = textureLod(shadowtex0, texcoord, 0).rrr;
-	#elif DEBUG_SHADOW_BUFFER == 3
+	#elif DEBUG_BUFFER == 3
 		vec3 color = textureLod(shadowtex1, texcoord, 0).rrr;
+	#elif DEBUG_BUFFER == 4
+		vec3 color = textureLod(colortex5, texcoord, 0).rgb;
 	#else
 		#ifdef FXAA_ENABLED
 			vec3 color = FXAA(texcoord);

@@ -159,12 +159,12 @@ option.FXAA_ENABLED=FXAA
 
 screen.DEBUG_OPTIONS=Shrimple
 
-option.DEBUG_SHADOW_BUFFER=Display
-option.DEBUG_SHADOW_BUFFER.comment=Configures which buffer to draw to the screen.
-value.DEBUG_SHADOW_BUFFER.0=gcolor
-value.DEBUG_SHADOW_BUFFER.1=shadowcolor0
-value.DEBUG_SHADOW_BUFFER.2=shadowtex0
-value.DEBUG_SHADOW_BUFFER.3=shadowtex1
+option.DEBUG_BUFFER=Display
+option.DEBUG_BUFFER.comment=Configures which buffer to draw to the screen.
+value.DEBUG_BUFFER.0=gcolor
+value.DEBUG_BUFFER.1=shadowcolor0
+value.DEBUG_BUFFER.2=shadowtex0
+value.DEBUG_BUFFER.3=shadowtex1
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

@@ -13,7 +13,7 @@ struct LightCellData {
     #endif
 };
 
-#if defined RENDER_BEGIN || defined RENDER_SHADOW
+#if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LIGHTS
     layout(std430, binding = 1) buffer globalLightingData
 #else
     layout(std430, binding = 1) readonly buffer globalLightingData
@@ -24,6 +24,13 @@ struct LightCellData {
     vec3 sceneViewRight;
     vec3 sceneViewDown;
     vec3 sceneViewLeft;
+
+    #if DYN_LIGHT_TEMPORAL > 2
+        vec3 lightCameraPosition[4];
+        mat4 gbufferLightModelView[4];
+        mat4 gbufferLightProjection[4];
+    #endif
+
     SceneLightData SceneLights[];
 };
 

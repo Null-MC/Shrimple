@@ -188,7 +188,6 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
             #endif
 
-            //float dither = floor(DYN_LIGHT_TEMPORAL * InterleavedGradientNoise(gl_FragCoord.xy) + 0.98);
             float start = 0.0;
             int step = 1;
 
@@ -203,7 +202,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
                 #if DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
                     vec3 p = floor(cameraPosition + light.position);
-                    float alt = mod(p.x + p.y + p.z + frameCounter, (DYN_LIGHT_TEMPORAL+1));
+                    float alt = mod(p.x + p.y + p.z + frameCounter, DYN_LIGHT_TEMPORAL);
                     if (alt > 0.5) continue;
                 #endif
 
@@ -530,11 +529,29 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
             #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
                 vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz + cameraPosition;
-                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
-                vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-                ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5) * vec2(viewWidth, viewHeight));
-                blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                #if DYN_LIGHT_TEMPORAL > 2
+                    //int o = int(mod(frameCounter, 4));
+
+                    for (int i = 0; i < 4; i++) {
+                        vec2 offset;
+                        offset.x = mod(i, 2);
+                        offset.y = floor(i / 2.0);
+
+                        // TODO: use previous matrices from SSBO
+                        vec3 viewPosPrev = (gbufferLightModelView[i] * vec4(worldPos - lightCameraPosition[i], 1.0)).xyz;
+                        vec3 clipPosPrev = unproject(gbufferLightProjection[i] * vec4(viewPosPrev, 1.0));
+
+                        ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5 + offset) * vec2(viewWidth, viewHeight));
+                        blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                    }
+                #else
+                    vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
+                    vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+
+                    ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5) * vec2(viewWidth, viewHeight));
+                    blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                #endif
             #endif
 
             #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
