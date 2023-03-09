@@ -93,15 +93,15 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
             float traceRayLen2 = pow2(traceRayLen);
-            vec3 voxelPos = floor(origin);
-            vec3 currPos = origin;
+            //vec3 voxelPos = floor(origin);
+            vec3 currPos = origin;// + direction * 0.04;
 
             uint blockTypeLast;
             vec3 color = vec3(1.0);
             bool hit = false;
 
             for (int i = 0; i < STEP_COUNT && !hit; i++) {
-                vec3 rayStart = currPos + direction * 0.001;
+                vec3 rayStart = currPos;// - direction * 0.001;
 
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
@@ -110,14 +110,14 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
                 vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
-                voxelPos += stepAxis * stepDir;
+                //voxelPos += stepAxis * stepDir;
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
                 
-                vec3 rayEnd = currPos + direction * 0.001;
+                vec3 voxelPos = floor(0.5 * (currPos + rayStart));
 
                 ivec3 gridCell, blockCell;
-                if (GetSceneLightGridCell(rayStart, gridCell, blockCell)) {
+                if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
@@ -125,9 +125,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                         color *= GetLightGlassTint(blockType);
                     }
                     else if (blockType != BLOCKTYPE_EMPTY) {
-                        //vec3 blockPos = fract(rayEnd);
-                        vec3 rayInv = rcp(rayEnd - rayStart);
-                        hit = TraceHitTest(blockType, fract(rayStart), rayInv);
+                        vec3 rayInv = rcp(currPos - rayStart);
+                        hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
                         if (hit) color = vec3(0.0);
                     }
 
@@ -219,12 +218,17 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(light.position);
-                    vec3 traceEnd = GetLightGridPosition(lightFragPos);
+                    vec3 traceEnd = GetLightGridPosition(lightFragPos);// + 0.1 * vLocalNormal);
+
+                    #if DYN_LIGHT_TRACE_MODE == 0
+                        vec3 offset = hash32(gl_FragCoord.xy + 0.001*frameCounter) - 0.5;
+                        traceOrigin += 0.1 * offset;
+                    #endif
 
                     #if DYN_LIGHT_RT_MODE == 1
                         lightTint = TraceRay(traceOrigin, traceEnd, light.range);
                     #else
-                        lightTint = TraceDDA(traceOrigin, traceEnd, light.range);
+                        lightTint = TraceDDA(traceEnd, traceOrigin, light.range);
                     #endif
                 #endif
 

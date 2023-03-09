@@ -625,6 +625,7 @@ float GetSceneBlockLightLevel(const in int blockId) {
                             blockType = BLOCKTYPE_END_PORTAL_FRAME;
                             break;
                         case BLOCK_FLOWER_POT:
+                        case BLOCK_POTTED_PLANT:
                             blockType = BLOCKTYPE_FLOWER_POT;
                             break;
                         case BLOCK_GRINDSTONE_FLOOR_N_S:

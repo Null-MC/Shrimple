@@ -8,8 +8,8 @@ bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 raySta
     float rmin = maxOf(tmin);
     float rmax = minOf(tmax);
 
-    //return !isinf(rmin) && rmax >= max(rmin, 0.0);
-    return rmax >= rmin;
+    return !isinf(rmin) && rmax >= max(rmin, 0.0);
+    //return rmax >= rmin;
 }
 
 bool BoxPointTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 point) {

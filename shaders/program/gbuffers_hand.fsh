@@ -48,6 +48,7 @@ uniform sampler2D gtexture;
 	uniform sampler2D noisetex;
 #endif
 
+uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -121,7 +122,6 @@ uniform float far;
     uniform mat4 gbufferPreviousModelView;
     uniform mat4 gbufferPreviousProjection;
     uniform vec3 previousCameraPosition;
-    uniform int frameCounter;
     uniform float viewWidth;
     uniform float viewHeight;
 #endif

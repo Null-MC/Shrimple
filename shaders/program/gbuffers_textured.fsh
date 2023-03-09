@@ -116,13 +116,16 @@ uniform float far;
     uniform vec3 eyePosition;
 #endif
 
-#if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
-    uniform mat4 gbufferPreviousModelView;
-    uniform mat4 gbufferPreviousProjection;
-    uniform vec3 previousCameraPosition;
+#if DYN_LIGHT_RT_SHADOWS > 0
     uniform int frameCounter;
-    uniform float viewWidth;
-    uniform float viewHeight;
+
+    #if DYN_LIGHT_TEMPORAL > 0
+        uniform mat4 gbufferPreviousModelView;
+        uniform mat4 gbufferPreviousProjection;
+        uniform vec3 previousCameraPosition;
+        uniform float viewWidth;
+        uniform float viewHeight;
+    #endif
 #endif
 
 #include "/lib/sampling/noise.glsl"

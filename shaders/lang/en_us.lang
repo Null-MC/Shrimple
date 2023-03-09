@@ -141,6 +141,10 @@ option.LIGHT_SIZE_XZ=Horizontal Bin Count
 
 option.LIGHT_SIZE_Y=Vertical Bin Count
 
+option.DYN_LIGHT_RT_MODE=Trace Mode
+value.DYN_LIGHT_RT_MODE.0=DDA
+value.DYN_LIGHT_RT_MODE.1=Ray
+
 option.DYN_LIGHT_TEMPORAL=Temporal Count
 option.DYN_LIGHT_TEMPORAL.comment=When enabled, the number of lights rendered will be spread across the number of specified frames. Improves performance at the cost of quality/blur.
 value.DYN_LIGHT_TEMPORAL.0=Off
