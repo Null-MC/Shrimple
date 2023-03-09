@@ -51,6 +51,7 @@ uniform sampler2D gtexture;
 	uniform sampler2D noisetex;
 #endif
 
+uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -118,15 +119,6 @@ uniform float far;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif
-
-// #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
-//     uniform mat4 gbufferPreviousModelView;
-//     uniform mat4 gbufferPreviousProjection;
-//     uniform vec3 previousCameraPosition;
-//     uniform int frameCounter;
-//     uniform float viewWidth;
-//     uniform float viewHeight;
-// #endif
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"

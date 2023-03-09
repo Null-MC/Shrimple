@@ -14,6 +14,7 @@ out vec4 vColor;
 flat out vec3 vOriginPos;
 flat out int vBlockId;
 flat out int vEntityId;
+flat out int vVertexId;
 
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
@@ -26,38 +27,51 @@ uniform int entityId;
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
-	uniform float near;
-	uniform float far;
+    uniform float near;
+    uniform float far;
 #endif
 
 #ifdef ENABLE_WAVING
-	#include "/lib/waving.glsl"
+    #include "/lib/waving.glsl"
 #endif
 
 
 void main() {
-	vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	vColor = gl_Color;
+    vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vColor = gl_Color;
 
-	int blockId = int(mc_Entity.x + 0.5);
+    int blockId = int(mc_Entity.x + 0.5);
 
     vOriginPos = gl_Vertex.xyz + at_midBlock / 64.0;
-	vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
-	vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
+    vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
+    vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
+    vVertexId = -1;
     if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-		vEntityId = entityId;
+        vEntityId = entityId;
+
+        switch (vEntityId) {
+            case 10: // ENTITY_BLAZE
+                vVertexId = int(mod(gl_VertexID, 312));
+                break;
+            case 11: // ENTITY_MAGMA_CUBE
+                vVertexId = int(mod(gl_VertexID, 216));
+                break;
+            case 12: // ENTITY_END_CRYSTAL
+                vVertexId = int(mod(gl_VertexID, 72));
+                break;
+        }
     }
     else {
-		vBlockId = blockId;
+        vBlockId = blockId;
     }
 
-	vec4 pos = gl_Vertex;
+    vec4 pos = gl_Vertex;
 
-	#ifdef ENABLE_WAVING
-		if (blockId >= 10001 && blockId <= 10004)
-			pos.xyz += GetWavingOffset();
-	#endif
+    #ifdef ENABLE_WAVING
+        if (blockId >= 10001 && blockId <= 10004)
+            pos.xyz += GetWavingOffset();
+    #endif
 
-	gl_Position = gl_ModelViewMatrix * pos;
+    gl_Position = gl_ModelViewMatrix * pos;
 }

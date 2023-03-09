@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "overworld.glsl"
-#include "/program/gbuffers_water.vsh"
+#include "/program/gbuffers_entities.vsh"

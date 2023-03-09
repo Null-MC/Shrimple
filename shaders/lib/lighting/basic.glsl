@@ -23,16 +23,70 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
     #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
         #define TRACE_MODE TraceRay // [TraceDDA TraceRay]
 
+        vec3 GetLightGlassTint(const in uint blockType) {
+            vec3 stepTint = vec3(1.0);
+
+            switch (blockType) {
+                case BLOCKTYPE_STAINED_GLASS_BLACK:
+                    stepTint = vec3(0.1, 0.1, 0.1);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_BLUE:
+                    stepTint = vec3(0.1, 0.1, 0.98);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_BROWN:
+                    stepTint = vec3(0.566, 0.388, 0.148);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_CYAN:
+                    stepTint = vec3(0.082, 0.533, 0.763);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_GRAY:
+                    stepTint = vec3(0.4, 0.4, 0.4);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_GREEN:
+                    stepTint = vec3(0.125, 0.808, 0.081);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_LIGHT_BLUE:
+                    stepTint = vec3(0.320, 0.685, 0.955);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_LIGHT_GRAY:
+                    stepTint = vec3(0.7, 0.7, 0.7);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_LIME:
+                    stepTint = vec3(0.633, 0.924, 0.124);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_MAGENTA:
+                    stepTint = vec3(0.698, 0.298, 0.847);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_ORANGE:
+                    stepTint = vec3(0.934, 0.518, 0.163);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_PINK:
+                    stepTint = vec3(0.949, 0.274, 0.497);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_PURPLE:
+                    stepTint = vec3(0.578, 0.170, 0.904);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_RED:
+                    stepTint = vec3(0.98, 0.1, 0.1);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_WHITE:
+                    stepTint = vec3(0.96, 0.96, 0.96);
+                    break;
+                case BLOCKTYPE_STAINED_GLASS_YELLOW:
+                    stepTint = vec3(0.965, 0.965, 0.123);
+                    break;
+            }
+
+            return RGBToLinear(stepTint);
+        }
+
         vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             vec3 traceRay = endPos - origin;
             float traceRayLen = length(traceRay);
             if (traceRayLen < EPSILON) return vec3(1.0);
 
             vec3 direction = traceRay / traceRayLen;
-            float STEP_COUNT = 12;//ceil(traceRayLen);
-
-            origin += direction * 0.001;
-            traceRayLen -= 0.001;
+            float STEP_COUNT = 16;//ceil(traceRayLen);
 
             vec3 stepSizes = 1.0 / abs(direction);
             vec3 stepDir = sign(direction);
@@ -42,12 +96,15 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 voxelPos = floor(origin);
             vec3 currPos = origin;
 
+            uint blockTypeLast;
+            vec3 color = vec3(1.0);
             bool hit = false;
+
             for (int i = 0; i < STEP_COUNT && !hit; i++) {
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
 
-                if (dot(currPos - origin, traceRay) >= traceRayLen2) break;
+                if (dot(currPos - origin, traceRay) > traceRayLen2) break;
 
                 vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
@@ -55,19 +112,27 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
                 
+                vec3 testPos = currPos + direction * 0.001;
+
                 ivec3 gridCell, blockCell;
-                if (GetSceneLightGridCell(currPos, gridCell, blockCell)) {
+                if (GetSceneLightGridCell(testPos, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-                    if (blockType != BLOCKTYPE_EMPTY) {
-                        vec3 blockPos = fract(currPos);
-                        hit = TraceHitTest(blockPos, blockType);
+                    if (blockType >= BLOCKTYPE_STAINED_GLASS_BLACK && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+                        color *= GetLightGlassTint(blockType);
                     }
+                    else if (blockType != BLOCKTYPE_EMPTY) {
+                        vec3 blockPos = fract(testPos);
+                        hit = TraceHitTest(blockPos, blockType);
+                        if (hit) color = vec3(0.0);
+                    }
+
+                    blockTypeLast = blockType;
                 }
             }
 
-            return vec3(hit ? 0.0 : 1.0);
+            return color;
         }
 
         vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) {
@@ -76,7 +141,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             if (traceRayLen < EPSILON) return vec3(1.0);
 
             int stepCount = int(0.5 * DYN_LIGHT_RT_SHADOWS * range);
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float dither = InterleavedGradientNoise(gl_FragCoord.xy);// + frameCounter);
             vec3 stepSize = traceRay / stepCount;
             vec3 color = vec3(1.0);
             bool hit = false;
@@ -92,59 +157,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
                     if (blockType >= BLOCKTYPE_STAINED_GLASS_BLACK && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
-                        vec3 stepTint = vec3(1.0);
-                        switch (blockType) {
-                            case BLOCKTYPE_STAINED_GLASS_BLACK:
-                                stepTint = vec3(0.1, 0.1, 0.1);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_BLUE:
-                                stepTint = vec3(0.1, 0.1, 0.98);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_BROWN:
-                                stepTint = vec3(0.566, 0.388, 0.148);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_CYAN:
-                                stepTint = vec3(0.082, 0.533, 0.763);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_GRAY:
-                                stepTint = vec3(0.4, 0.4, 0.4);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_GREEN:
-                                stepTint = vec3(0.125, 0.808, 0.081);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_LIGHT_BLUE:
-                                stepTint = vec3(0.320, 0.685, 0.955);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_LIGHT_GRAY:
-                                stepTint = vec3(0.7, 0.7, 0.7);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_LIME:
-                                stepTint = vec3(0.633, 0.924, 0.124);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_MAGENTA:
-                                stepTint = vec3(0.698, 0.298, 0.847);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_ORANGE:
-                                stepTint = vec3(0.934, 0.518, 0.163);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_PINK:
-                                stepTint = vec3(0.949, 0.274, 0.497);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_PURPLE:
-                                stepTint = vec3(0.578, 0.170, 0.904);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_RED:
-                                stepTint = vec3(0.98, 0.1, 0.1);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_WHITE:
-                                stepTint = vec3(0.96, 0.96, 0.96);
-                                break;
-                            case BLOCKTYPE_STAINED_GLASS_YELLOW:
-                                stepTint = vec3(0.965, 0.965, 0.123);
-                                break;
-                        }
-
-                        color *= RGBToLinear(stepTint);
+                        color *= GetLightGlassTint(blockType);
                     }
                     else if (blockType != BLOCKTYPE_EMPTY) {
                         vec3 blockPos = fract(gridPos);
@@ -179,26 +192,17 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             #if defined RENDER_TERRAIN || defined RENDER_WATER
                 //vec2 lightNoiseSample = GetDynLightNoise(localPos);
                 //vec3 accumDiffuse = GetSceneBlockLightColor(blockId, lightNoiseSample);
-                vec3 accumDiffuse = vec3(GetSceneBlockLightLevel(blockId) / 16.0);
+                vec3 accumDiffuse = vec3(GetSceneBlockLightLevel(blockId) / 64.0);
             #else
                 vec3 accumDiffuse = vec3(0.0);
             #endif
 
-            #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
-                vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
-            #endif
+            //#if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
+            //    vec3 traceOffset = vec3(0.0);//fract(cameraPosition);
+            //#endif
 
-            float start = 0.0;
-            int step = 1;
-
-            // #if DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
-            //     start = mod(gl_FragCoord.x + gl_FragCoord.y + frameCounter, (DYN_LIGHT_TEMPORAL+1));
-            //     step = (DYN_LIGHT_TEMPORAL+1);
-            // #endif
-
-            for (int i = 0; i < lightCount; i += step) {
-                int altI = int(mod(i + start, lightCount));
-                SceneLightData light = GetSceneLight(gridIndex, altI);
+            for (int i = 0; i < lightCount; i++) {
+                SceneLightData light = GetSceneLight(gridIndex, i);
 
                 #if DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
                     vec3 p = floor(cameraPosition + light.position);
@@ -211,10 +215,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
                 vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
-                    //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(light.position);
-
-                    //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(lightFragPos);
 
                     lightTint = TRACE_MODE(traceOrigin, traceEnd, light.range);
@@ -223,7 +224,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb * lightTint;
             }
 
-            accumDiffuse *= blockLight * DynamicLightBrightness;
+            accumDiffuse *= DynamicLightBrightness;
+
+            #if DYN_LIGHT_RT_SHADOWS == 0
+                accumDiffuse *= blockLight;
+            #endif
 
             #ifdef DYN_LIGHT_FALLBACK
                 // TODO: shrink to shadow bounds
@@ -261,10 +266,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 lightVec = lightLocalPos - fragLocalPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
                 #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
-                    //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-
-                    //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
                     lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue);
@@ -283,10 +285,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 lightVec = lightLocalPos - fragLocalPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
                 #if DYN_LIGHT_RT_SHADOWS > 0 && defined RENDER_FRAG
-                    //vec3 traceOrigin = light.position;// + traceOffset;
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-
-                    //vec3 traceEnd = lightFragPos;// + traceOffset;
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
                     lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue2);
@@ -361,9 +360,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
         vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
-            vBlockLight = vec3(0.0);
+        vBlockLight = vec3(0.0);
 
+        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
             #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX //&& (defined RENDER_TERRAIN || defined RENDER_WATER)
                 vBlockLight += SampleDynamicLighting(localPos, localNormal, vBlockId, lmcoord.x)
                     * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
@@ -372,6 +371,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             #if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
                 vBlockLight += SampleHandLight(localPos, localNormal);
             #endif
+        #endif
+
+        #ifdef RENDER_ENTITIES
+            //int entityId = int();
+            vBlockLight += GetSceneEntityLightColor(entityId);
         #endif
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
@@ -404,7 +408,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
         void ApplyFog(inout vec4 color, const in vec3 localPos) {
             float fogF = GetVanillaFogFactor(localPos);
-            vec3 fogCol = RGBToLinear(fogColor);
+            vec3 fogCol = RGBToLinear(fogColor) * (WORLD_BRIGHTNESS / 100.0);
 
             color.rgb = mix(color.rgb, fogCol, fogF);
 
@@ -515,9 +519,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 blockLight += RGBToLinear(blockLightDefault);
             #endif
 
-            #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
-                blockLight += SampleHandLight(vLocalPos, vLocalNormal);
-            #endif
+            // #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+            //     blockLight += SampleHandLight(vLocalPos, vLocalNormal);
+            // #endif
 
             return blockLight;
         }
@@ -531,20 +535,24 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz + cameraPosition;
 
                 #if DYN_LIGHT_TEMPORAL > 2
-                    //int o = int(mod(frameCounter, 4));
+                    float depthLinear = linearizeDepthFast(gl_FragCoord.z, near, far);
 
                     for (int i = 0; i < 4; i++) {
                         vec2 offset;
                         offset.x = mod(i, 2);
                         offset.y = floor(i / 2.0);
 
-                        // TODO: use previous matrices from SSBO
                         vec3 viewPosPrev = (gbufferLightModelView[i] * vec4(worldPos - lightCameraPosition[i], 1.0)).xyz;
-                        vec3 clipPosPrev = unproject(gbufferLightProjection[i] * vec4(viewPosPrev, 1.0));
+                        vec3 clipPosPrev = unproject(gbufferLightProjection[i] * vec4(viewPosPrev, 1.0)) * 0.5 + 0.5;
 
-                        if (all(greaterThan(clipPosPrev.xy, vec2(-1.0))) && all(lessThan(clipPosPrev.xy, vec2(1.0)))) {
-                            ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5 + offset) * vec2(viewWidth, viewHeight));
-                            blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
+                        if (all(greaterThan(clipPosPrev.xy, vec2(0.0))) && all(lessThan(clipPosPrev.xy, vec2(1.0)))) {
+                            vec2 uv = (clipPosPrev.xy + offset) * 0.5;
+                            vec4 lightSample = textureLod(BUFFER_BLOCKLIGHT_PREV, uv, 0);
+
+                            float weight = abs(depthLinear - lightSample.a);
+                            weight = saturate(1.0 - 0.5*weight);
+
+                            blockLight += weight * lightSample.rgb;
                         }
                     }
                 #else
@@ -556,6 +564,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 #endif
             #endif
 
+            #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+                blockLight += SampleHandLight(vLocalPos, vLocalNormal);
+            #endif
+
             #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
                 vec3 skyLight = textureLod(texLightMap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
             #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
@@ -564,7 +576,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
             #endif
 
-            skyLight = RGBToLinear(skyLight);
+            skyLight = RGBToLinear(skyLight) * (WORLD_BRIGHTNESS / 100.0);
             skyLight = skyLight * (1.0 - SHADOW_BRIGHTNESS) + (SHADOW_BRIGHTNESS);
             skyLight *= 1.0 - blindness;
 

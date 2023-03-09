@@ -6,7 +6,7 @@ const int colortex0Format = RGBA8;
 const int colortex1Format = RGBA8;
 const int colortex2Format = RGBA8;
 const int colortex4Format = RGB16F;
-const int colortex5Format = RGB16F;
+const int colortex5Format = RGBA16F;
 */
 
 const bool generateShadowMipmap = false;
@@ -80,6 +80,7 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_RT_SHADOWS 0 // [0 1 2 4 8]
 #define DYN_LIGHT_TEMPORAL 2 // [0 2 5]
+#define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -89,7 +90,7 @@ const bool colortex5Clear = false;
 
 // Post-Processing
 #define TONEMAP_ENABLED
-#define TONEMAP_CONTRAST 0.02 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
+#define TONEMAP_CONTRAST 0.00 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
 #define FXAA_ENABLED
 #define AF_SAMPLES 1
 

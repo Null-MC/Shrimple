@@ -55,6 +55,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec4 entityColor;
+uniform float near;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -76,7 +77,6 @@ uniform float far;
 
 	uniform vec3 upPosition;
 	uniform vec3 skyColor;
-	//uniform float far;
 	
 	uniform vec3 fogColor;
 	uniform float fogDensity;
@@ -129,6 +129,7 @@ uniform float far;
     uniform float viewHeight;
 #endif
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
