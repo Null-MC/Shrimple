@@ -24,42 +24,6 @@
     }
 #endif
 
-vec4 GetSceneEntityLightColor(const in int entityId) {
-    vec3 lightColor = vec3(0.0);
-    float lightRange = 0.0;
-    
-    switch (entityId) {
-        case 10:
-            lightColor = RGBToLinear(vec3(0.854, 0.714, 0.132));
-            lightRange = 9.0;
-            break;
-        case 11:
-            lightColor = RGBToLinear(vec3(0.707, 0.373, 0.157));
-            lightRange = 9.0;
-            break;
-        case 12:
-            lightColor = RGBToLinear(vec3(0.848, 0.165, 0.724));
-            lightRange = 9.0;
-            break;
-    }
-
-    return vec4(lightColor, lightRange);
-}
-
-vec4 GetSceneEntityLightColor(const in int entityId, const in int vertexId[3]) {
-    const int BlazeVertexId = 300;
-    const int MagmaCubeVertexId = 0;
-    const int EndCrystalVertexId = 0;
-    
-    bool match = false;
-    if (entityId == 10 && (vertexId[0] == BlazeVertexId || vertexId[1] == BlazeVertexId || vertexId[2] == BlazeVertexId)) match = true;
-    else if (entityId == 11 && (vertexId[0] == MagmaCubeVertexId || vertexId[1] == MagmaCubeVertexId || vertexId[2] == MagmaCubeVertexId)) match = true;
-    else if (entityId == 12 && (vertexId[0] == EndCrystalVertexId || vertexId[1] == EndCrystalVertexId || vertexId[2] == EndCrystalVertexId)) match = true;
-    if (!match) return vec4(0.0);
-
-    return GetSceneEntityLightColor(entityId);
-}
-
 vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
     switch (blockId) {
@@ -633,6 +597,12 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     uint blockType = BLOCKTYPE_SOLID;
 
                     switch (blockId) {
+                        case BLOCK_ANVIL_N_S:
+                            blockType = BLOCKTYPE_ANVIL_N_S;
+                            break;
+                        case BLOCK_ANVIL_W_E:
+                            blockType = BLOCKTYPE_ANVIL_W_E;
+                            break;
                         case BLOCK_CACTUS:
                             blockType = BLOCKTYPE_CACTUS;
                             break;
@@ -653,6 +623,21 @@ float GetSceneBlockLightLevel(const in int blockId) {
                             break;
                         case BLOCK_END_PORTAL_FRAME:
                             blockType = BLOCKTYPE_END_PORTAL_FRAME;
+                            break;
+                        case BLOCK_FLOWER_POT:
+                            blockType = BLOCKTYPE_FLOWER_POT;
+                            break;
+                        case BLOCK_GRINDSTONE_FLOOR_N_S:
+                            blockType = BLOCKTYPE_GRINDSTONE_FLOOR_N_S;
+                            break;
+                        case BLOCK_GRINDSTONE_FLOOR_W_E:
+                            blockType = BLOCKTYPE_GRINDSTONE_FLOOR_W_E;
+                            break;
+                        case BLOCK_GRINDSTONE_WALL_N_S:
+                            blockType = BLOCKTYPE_GRINDSTONE_WALL_N_S;
+                            break;
+                        case BLOCK_GRINDSTONE_WALL_W_E:
+                            blockType = BLOCKTYPE_GRINDSTONE_WALL_W_E;
                             break;
                         case BLOCK_HOPPER_DOWN:
                             blockType = BLOCKTYPE_HOPPER_DOWN;
@@ -904,6 +889,13 @@ float GetSceneBlockLightLevel(const in int blockId) {
                             break;
                         case BLOCK_FENCE_ALL:
                             blockType = BLOCKTYPE_FENCE_ALL;
+                            break;
+
+                        case BLOCK_FENCE_GATE_CLOSED_N_S:
+                            blockType = BLOCKTYPE_FENCE_GATE_CLOSED_N_S;
+                            break;
+                        case BLOCK_FENCE_GATE_CLOSED_W_E:
+                            blockType = BLOCKTYPE_FENCE_GATE_CLOSED_W_E;
                             break;
 
                         case BLOCK_WALL_POST:

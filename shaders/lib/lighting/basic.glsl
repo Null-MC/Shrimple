@@ -101,6 +101,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             bool hit = false;
 
             for (int i = 0; i < STEP_COUNT && !hit; i++) {
+                vec3 rayStart = currPos + direction * 0.001;
+
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
 
@@ -112,10 +114,10 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
                 
-                vec3 testPos = currPos + direction * 0.001;
+                vec3 rayEnd = currPos + direction * 0.001;
 
                 ivec3 gridCell, blockCell;
-                if (GetSceneLightGridCell(testPos, gridCell, blockCell)) {
+                if (GetSceneLightGridCell(rayStart, gridCell, blockCell)) {
                     uint gridIndex = GetSceneLightGridIndex(gridCell);
                     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
@@ -123,8 +125,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                         color *= GetLightGlassTint(blockType);
                     }
                     else if (blockType != BLOCKTYPE_EMPTY) {
-                        vec3 blockPos = fract(testPos);
-                        hit = TraceHitTest(blockPos, blockType);
+                        //vec3 blockPos = fract(rayEnd);
+                        vec3 rayInv = rcp(rayEnd - rayStart);
+                        hit = TraceHitTest(blockType, fract(rayStart), rayInv);
                         if (hit) color = vec3(0.0);
                     }
 
@@ -161,7 +164,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     }
                     else if (blockType != BLOCKTYPE_EMPTY) {
                         vec3 blockPos = fract(gridPos);
-                        hit = TraceHitTest(blockPos, blockType);
+                        hit = TraceHitTest(blockType, blockPos, vec3(0.0));
                         if (hit) color = vec3(0.0);
                     }
 
@@ -218,7 +221,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     vec3 traceOrigin = GetLightGridPosition(light.position);
                     vec3 traceEnd = GetLightGridPosition(lightFragPos);
 
-                    lightTint = TRACE_MODE(traceOrigin, traceEnd, light.range);
+                    #if DYN_LIGHT_RT_MODE == 1
+                        lightTint = TraceRay(traceOrigin, traceEnd, light.range);
+                    #else
+                        lightTint = TraceDDA(traceOrigin, traceEnd, light.range);
+                    #endif
                 #endif
 
                 accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb * lightTint;
@@ -269,7 +276,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
-                    lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue);
+                    #if DYN_LIGHT_RT_MODE == 1
+                        lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
+                    #else
+                        lightColor *= TraceDDA(traceOrigin, traceEnd, heldBlockLightValue);
+                    #endif
                 #endif
 
                 result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
@@ -288,7 +299,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = GetLightGridPosition(fragLocalPos);
 
-                    lightColor *= TRACE_MODE(traceOrigin, traceEnd, heldBlockLightValue2);
+                    #if DYN_LIGHT_RT_MODE == 1
+                        lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
+                    #else
+                        lightColor *= TraceDDA(traceOrigin, traceEnd, heldBlockLightValue2);
+                    #endif
                 #endif
 
                 result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
@@ -375,7 +390,8 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
         #ifdef RENDER_ENTITIES
             //int entityId = int();
-            vBlockLight += GetSceneEntityLightColor(entityId);
+            vec4 light = GetSceneEntityLightColor(entityId);
+            vBlockLight += light.rgb * (light.a / 15.0);
         #endif
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL

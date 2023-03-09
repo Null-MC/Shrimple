@@ -1,4 +1,22 @@
-bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
+bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 rayStart, const in vec3 rayInv) {
+    vec3 t1 = (boxMin - rayStart) * rayInv;
+    vec3 t2 = (boxMax - rayStart) * rayInv;
+
+    vec3 tmin = min(t1, t2);
+    vec3 tmax = max(t1, t2);
+
+    float rmin = maxOf(tmin);
+    float rmax = minOf(tmax);
+
+    //return !isinf(rmin) && rmax >= max(rmin, 0.0);
+    return rmax >= rmin;
+}
+
+bool BoxPointTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 point) {
+    return all(greaterThanEqual(point, boxMin)) && all(lessThanEqual(point, boxMax));
+}
+
+bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3 rayInv) {
     vec3 boundsMin = vec3(-1.0);
     vec3 boundsMax = vec3(-1.0);
 
@@ -6,6 +24,14 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
         case BLOCKTYPE_SOLID:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_ANVIL_N_S:
+            boundsMin = vec3(( 3.0/16.0), (10.0/16.0), 0.0);
+            boundsMax = vec3((13.0/16.0),         1.0, 1.0);
+            break;
+        case BLOCKTYPE_ANVIL_W_E:
+            boundsMin = vec3(0.0, (10.0/16.0), ( 3.0/16.0));
+            boundsMax = vec3(1.0,         1.0, (13.0/16.0));
             break;
         case BLOCKTYPE_CACTUS:
             boundsMin = vec3(( 1.0/16.0), 0.0, ( 1.0/16.0));
@@ -31,6 +57,26 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
         case BLOCKTYPE_END_PORTAL_FRAME:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0, (13.0/16.0), 1.0);
+            break;
+        case BLOCKTYPE_FLOWER_POT:
+            boundsMin = vec3((5.0/16.0), 0.0, (5.0/16.0));
+            boundsMax = vec3((10.0/16.0), (6.0/16.0), (10.0/16.0));
+            break;
+        case BLOCKTYPE_GRINDSTONE_FLOOR_N_S:
+            boundsMin = vec3(0.25, 0.25, ( 2.0/16.0));
+            boundsMax = vec3(0.75, 1.00, (14.0/16.0));
+            break;
+        case BLOCKTYPE_GRINDSTONE_FLOOR_W_E:
+            boundsMin = vec3(( 2.0/16.0), 0.25, 0.25);
+            boundsMax = vec3((14.0/16.0), 1.00, 0.75);
+            break;
+        case BLOCKTYPE_GRINDSTONE_WALL_N_S:
+            boundsMin = vec3(0.25, ( 2.0/16.0), ( 2.0/16.0));
+            boundsMax = vec3(0.75, (14.0/16.0), (14.0/16.0));
+            break;
+        case BLOCKTYPE_GRINDSTONE_WALL_W_E:
+            boundsMin = vec3(( 2.0/16.0), ( 2.0/16.0), 0.25);
+            boundsMax = vec3((14.0/16.0), (14.0/16.0), 0.75);
             break;
         case BLOCKTYPE_HOPPER_DOWN:
         case BLOCKTYPE_HOPPER_N:
@@ -282,13 +328,26 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
             break;
     }
 
-    bool hit = all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax));
+    #if DYN_LIGHT_RT_MODE == 1
+        bool hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+    #else
+        bool hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+    #endif
 
     if (!hit) {// && blockType >= 5u && blockType <= 28u) {
         boundsMin = vec3(-1.0);
         boundsMax = vec3(-1.0);
 
         switch (blockType) {
+            case BLOCKTYPE_ANVIL_N_S:
+                boundsMin = vec3(( 6.0/16.0), 0.25, 0.25);
+                boundsMax = vec3((10.0/16.0), 0.75, 0.75);
+                break;
+            case BLOCKTYPE_ANVIL_W_E:
+                boundsMin = vec3(0.25, 0.25, ( 6.0/16.0));
+                boundsMax = vec3(0.75, 0.75, (10.0/16.0));
+                break;
+
             case BLOCKTYPE_CANDLE_CAKE:
                 boundsMin = vec3((7.0/16.0),         0.5, (7.0/16.0));
                 boundsMax = vec3((9.0/16.0), (14.0/16.0), (9.0/16.0));
@@ -362,10 +421,16 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
                 boundsMax = vec3(0.5, (9.0/16.0), (9.0/16.0));
                 break;
             case BLOCKTYPE_FENCE_N_S:
+            case BLOCKTYPE_FENCE_N_W_S:
+            case BLOCKTYPE_FENCE_N_E_S:
+            case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
                 boundsMin = vec3((7.0/16.0), (6.0/16.0), 0.0);
                 boundsMax = vec3((9.0/16.0), (9.0/16.0), 1.0);
                 break;
             case BLOCKTYPE_FENCE_W_E:
+            case BLOCKTYPE_FENCE_W_N_E:
+            case BLOCKTYPE_FENCE_W_S_E:
+            case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
                 boundsMin = vec3(0.0, (6.0/16.0), (7.0/16.0));
                 boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
                 break;
@@ -431,13 +496,23 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
                 break;
         }
 
-        hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
+        #if DYN_LIGHT_RT_MODE == 1
+            hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+        #else
+            hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+        #endif
 
         if (!hit) {// && ((blockType >= 9u && blockType <= 16u) || (blockType >= 21u && blockType <= 28u))) {
             boundsMin = vec3(-1.0);
             boundsMax = vec3(-1.0);
 
             switch (blockType) {
+                case BLOCKTYPE_ANVIL_N_S:
+                case BLOCKTYPE_ANVIL_W_E:
+                    boundsMin = vec3(( 2.0/16.0), 0.00, ( 2.0/16.0));
+                    boundsMax = vec3((14.0/16.0), 0.25, (14.0/16.0));
+                    break;
+
                 case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
                 case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
                     boundsMin = vec3(0.0, 0.5, 0.5);
@@ -501,10 +576,16 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
                     boundsMax = vec3(0.5, (15.0/16.0), (9.0/16.0));
                     break;
                 case BLOCKTYPE_FENCE_N_S:
+                case BLOCKTYPE_FENCE_N_W_S:
+                case BLOCKTYPE_FENCE_N_E_S:
+                case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
                     boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.0);
                     boundsMax = vec3((9.0/16.0), (15.0/16.0), 1.0);
                     break;
                 case BLOCKTYPE_FENCE_W_E:
+                case BLOCKTYPE_FENCE_W_N_E:
+                case BLOCKTYPE_FENCE_W_S_E:
+                case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
                     boundsMin = vec3(0.0, (12.0/16.0), (7.0/16.0));
                     boundsMax = vec3(1.0, (15.0/16.0), (9.0/16.0));
                     break;
@@ -531,7 +612,11 @@ bool TraceHitTest(const in vec3 blockPos, const in uint blockType) {
                     break;
             }
 
-            hit = (all(greaterThanEqual(blockPos, boundsMin)) && all(lessThanEqual(blockPos, boundsMax)));
+            #if DYN_LIGHT_RT_MODE == 1
+                hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+            #else
+                hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+            #endif
         }
     }
 

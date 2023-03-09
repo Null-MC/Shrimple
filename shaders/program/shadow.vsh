@@ -35,6 +35,15 @@ uniform int entityId;
     #include "/lib/waving.glsl"
 #endif
 
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+    #include "/lib/entities.glsl"
+    // #include "/lib/buffers/lighting.glsl"
+    // #include "/lib/lighting/blackbody.glsl"
+    // #include "/lib/lighting/dynamic.glsl"
+    // #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_entities.glsl"
+#endif
+
 
 void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -49,18 +58,7 @@ void main() {
     vVertexId = -1;
     if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         vEntityId = entityId;
-
-        switch (vEntityId) {
-            case 10: // ENTITY_BLAZE
-                vVertexId = int(mod(gl_VertexID, 312));
-                break;
-            case 11: // ENTITY_MAGMA_CUBE
-                vVertexId = int(mod(gl_VertexID, 216));
-                break;
-            case 12: // ENTITY_END_CRYSTAL
-                vVertexId = int(mod(gl_VertexID, 72));
-                break;
-        }
+        vVertexId = GetWrappedVertexID();
     }
     else {
         vBlockId = blockId;

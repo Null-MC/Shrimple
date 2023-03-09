@@ -56,11 +56,13 @@ uniform float far;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
+    #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_entities.glsl"
 #endif
 
 
@@ -74,26 +76,6 @@ void main() {
         #endif
     }
     else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-        vec3 lightColor = vec3(0.0);
-        float lightRange = 0.0;
-
-        const int BlazeVertexId = 300;
-        const int MagmaCubeVertexId = 0;
-        const int EndCrystalVertexId = 0;
-
-        // if (vEntityId[0] == 10 && (vVertexId[0] == BlazeVertexId || vVertexId[1] == BlazeVertexId || vVertexId[2] == BlazeVertexId)) {
-        //     lightColor = RGBToLinear(vec3(0.854, 0.714, 0.132));
-        //     lightRange = 9.0;
-        // }
-        // else if (vEntityId[0] == 11 && (vVertexId[0] == MagmaCubeVertexId || vVertexId[1] == MagmaCubeVertexId || vVertexId[2] == MagmaCubeVertexId)) {
-        //     lightColor = RGBToLinear(vec3(0.707, 0.373, 0.157));
-        //     lightRange = 9.0;
-        // }
-        // else if (vEntityId[0] == 12 && (vVertexId[0] == EndCrystalVertexId || vVertexId[1] == EndCrystalVertexId || vVertexId[2] == EndCrystalVertexId)) {
-        //     lightColor = RGBToLinear(vec3(0.848, 0.165, 0.724));
-        //     lightRange = 9.0;
-        // }
-
         vec4 light = GetSceneEntityLightColor(vEntityId[0], vVertexId);
         if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
     }

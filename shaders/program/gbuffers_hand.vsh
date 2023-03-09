@@ -12,6 +12,7 @@ out vec3 vPos;
 out vec3 vNormal;
 out float geoNoL;
 out float vLit;
+out vec3 vBlockLight;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     out vec3 vLocalPos;
@@ -31,10 +32,6 @@ out float vLit;
 	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
 		out vec3 shadowPos;
 	#endif
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
-	out vec3 vBlockLight;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL

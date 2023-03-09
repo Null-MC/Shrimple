@@ -78,6 +78,7 @@ const bool colortex5Clear = false;
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
+#define DYN_LIGHT_RT_MODE 1 // [0 1]
 #define DYN_LIGHT_RT_SHADOWS 0 // [0 1 2 4 8]
 #define DYN_LIGHT_TEMPORAL 2 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]

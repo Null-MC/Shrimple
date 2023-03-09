@@ -12,14 +12,11 @@ in vec3 vPos;
 in vec3 vNormal;
 in float geoNoL;
 in float vLit;
+in vec3 vBlockLight;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     in vec3 vLocalPos;
     in vec3 vLocalNormal;
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
-    in vec3 vBlockLight;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
@@ -55,6 +52,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec4 entityColor;
+uniform int entityId;
 uniform float near;
 uniform float far;
 
@@ -151,6 +149,7 @@ uniform float far;
 
 #if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
     #include "/lib/blocks.glsl"
+    #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 #endif
 
@@ -197,7 +196,7 @@ void main() {
 		outColor1 = vec4(lightColor, 1.0);
 		outColor2 = vec4(lmcoord, glcolor.a, 1.0);
 	#else
-		vec3 blockLightColor = GetFinalBlockLighting(lmcoord.x);
+		vec3 blockLightColor = GetFinalBlockLighting(lmcoord.x) + vBlockLight;
 
 		outColor0 = GetFinalLighting(color, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
 		
