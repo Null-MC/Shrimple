@@ -145,6 +145,11 @@ option.DYN_LIGHT_RT_MODE=Trace Mode
 value.DYN_LIGHT_RT_MODE.0=DDA
 value.DYN_LIGHT_RT_MODE.1=Ray
 
+option.DYN_LIGHT_PENUMBRA=DDA Penumbra
+option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
+suffix.DYN_LIGHT_PENUMBRA=%
+value.DYN_LIGHT_PENUMBRA.0=None
+
 option.DYN_LIGHT_TEMPORAL=Temporal Count
 option.DYN_LIGHT_TEMPORAL.comment=When enabled, the number of lights rendered will be spread across the number of specified frames. Improves performance at the cost of quality/blur.
 value.DYN_LIGHT_TEMPORAL.0=Off

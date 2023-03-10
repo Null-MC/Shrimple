@@ -81,6 +81,7 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_RT_MODE 1 // [0 1]
 #define DYN_LIGHT_RT_SHADOWS 0 // [0 1 2 4 8]
 #define DYN_LIGHT_TEMPORAL 2 // [0 2 5]
+#define DYN_LIGHT_PENUMBRA 6 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 
@@ -119,6 +120,7 @@ const bool colortex5Clear = false;
     const float ShadowNormalBias = SHADOW_DISTORTED_NORMAL_BIAS;
 #endif
 
+const float DynamicLightPenumbra = (DYN_LIGHT_PENUMBRA * 0.01);
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 

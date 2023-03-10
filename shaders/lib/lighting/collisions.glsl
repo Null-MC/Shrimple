@@ -282,18 +282,31 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             break;
 
         case BLOCKTYPE_WALL_POST:
+        case BLOCKTYPE_WALL_POST_LOW_N:
+        case BLOCKTYPE_WALL_POST_LOW_E:
+        case BLOCKTYPE_WALL_POST_LOW_S:
+        case BLOCKTYPE_WALL_POST_LOW_W:
         case BLOCKTYPE_WALL_POST_LOW_N_S:
         case BLOCKTYPE_WALL_POST_LOW_W_E:
+        case BLOCKTYPE_WALL_POST_LOW_N_W:
+        case BLOCKTYPE_WALL_POST_LOW_N_E:
+        case BLOCKTYPE_WALL_POST_LOW_S_W:
+        case BLOCKTYPE_WALL_POST_LOW_S_E:
+        case BLOCKTYPE_WALL_POST_LOW_N_W_S:
+        case BLOCKTYPE_WALL_POST_LOW_N_E_S:
+        case BLOCKTYPE_WALL_POST_LOW_W_N_E:
+        case BLOCKTYPE_WALL_POST_LOW_W_S_E:
+        case BLOCKTYPE_WALL_POST_TALL_N:
+        case BLOCKTYPE_WALL_POST_TALL_E:
+        case BLOCKTYPE_WALL_POST_TALL_S:
+        case BLOCKTYPE_WALL_POST_TALL_W:
         case BLOCKTYPE_WALL_POST_TALL_N_S:
         case BLOCKTYPE_WALL_POST_TALL_W_E:
-        case BLOCKTYPE_WALL_N_LOW:
-        case BLOCKTYPE_WALL_E_LOW:
-        case BLOCKTYPE_WALL_S_LOW:
-        case BLOCKTYPE_WALL_W_LOW:
-        case BLOCKTYPE_WALL_N_TALL:
-        case BLOCKTYPE_WALL_E_TALL:
-        case BLOCKTYPE_WALL_S_TALL:
-        case BLOCKTYPE_WALL_W_TALL:
+        case BLOCKTYPE_WALL_POST_TALL_N_W_S:
+        case BLOCKTYPE_WALL_POST_TALL_N_E_S:
+        case BLOCKTYPE_WALL_POST_TALL_W_N_E:
+        case BLOCKTYPE_WALL_POST_TALL_W_S_E:
+        case BLOCKTYPE_WALL_POST_TALL_ALL:
             boundsMin = vec3(0.25, 0.0, 0.25);
             boundsMax = vec3(0.75, 1.0, 0.75);
             break;
@@ -435,55 +448,57 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
                 break;
 
-            case BLOCKTYPE_WALL_N_LOW:
+            case BLOCKTYPE_WALL_POST_LOW_N:
+            case BLOCKTYPE_WALL_POST_LOW_N_E:
+            case BLOCKTYPE_WALL_POST_LOW_W_N_E:
                 boundsMin = vec3(0.3125, 0.000, 0.0);
                 boundsMax = vec3(0.6875, 0.875, 0.5);
                 break;
-            case BLOCKTYPE_WALL_E_LOW:
+            case BLOCKTYPE_WALL_POST_LOW_E:
+            case BLOCKTYPE_WALL_POST_LOW_S_E:
                 boundsMin = vec3(0.5, 0.000, 0.3125);
                 boundsMax = vec3(1.0, 0.875, 0.6875);
                 break;
-            case BLOCKTYPE_WALL_S_LOW:
+            case BLOCKTYPE_WALL_POST_LOW_S:
+            case BLOCKTYPE_WALL_POST_LOW_S_W:
+            case BLOCKTYPE_WALL_POST_LOW_W_S_E:
                 boundsMin = vec3(0.3125, 0.000, 0.5);
                 boundsMax = vec3(0.6875, 0.875, 1.0);
                 break;
-            case BLOCKTYPE_WALL_W_LOW:
+            case BLOCKTYPE_WALL_POST_LOW_W:
+            case BLOCKTYPE_WALL_POST_LOW_N_W:
                 boundsMin = vec3(0.0, 0.000, 0.3125);
                 boundsMax = vec3(0.5, 0.875, 0.6875);
                 break;
 
-            case BLOCKTYPE_WALL_N_TALL:
+            case BLOCKTYPE_WALL_POST_TALL_N:
+            case BLOCKTYPE_WALL_POST_TALL_N_E:
                 boundsMin = vec3(0.3125, 0.0, 0.0);
                 boundsMax = vec3(0.6875, 1.0, 0.5);
                 break;
-            case BLOCKTYPE_WALL_E_TALL:
+            case BLOCKTYPE_WALL_POST_TALL_E:
+            case BLOCKTYPE_WALL_POST_TALL_S_E:
                 boundsMin = vec3(0.5, 0.0, 0.3125);
                 boundsMax = vec3(1.0, 1.0, 0.6875);
                 break;
-            case BLOCKTYPE_WALL_S_TALL:
+            case BLOCKTYPE_WALL_POST_TALL_S:
+            case BLOCKTYPE_WALL_POST_TALL_S_W:
                 boundsMin = vec3(0.3125, 0.0, 0.5);
                 boundsMax = vec3(0.6875, 1.0, 1.0);
                 break;
-            case BLOCKTYPE_WALL_W_TALL:
+            case BLOCKTYPE_WALL_POST_TALL_W:
+            case BLOCKTYPE_WALL_POST_TALL_N_W:
                 boundsMin = vec3(0.0, 0.0, 0.3125);
                 boundsMax = vec3(0.5, 1.0, 0.6875);
                 break;
 
-            case BLOCKTYPE_WALL_POST_LOW_N_S:
-                boundsMin = vec3(0.3125, 0.000, 0.0);
-                boundsMax = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCKTYPE_WALL_POST_LOW_W_E:
+            case BLOCKTYPE_WALL_POST_LOW_ALL:
                 boundsMin = vec3(0.0, 0.000, 0.3125);
                 boundsMax = vec3(1.0, 0.875, 0.6875);
                 break;
-            case BLOCKTYPE_WALL_POST_TALL_N_S:
-                boundsMin = vec3(0.3125, 0.0, 0.0);
-                boundsMax = vec3(0.6875, 1.0, 1.0);
-                break;
-            case BLOCKTYPE_WALL_POST_TALL_W_E:
-                boundsMin = vec3(0.0, 0.0, 0.3125);
-                boundsMax = vec3(1.0, 1.0, 0.6875);
+            case BLOCKTYPE_WALL_POST_TALL_ALL:
+                boundsMin = vec3(0.0, 0.000, 0.3125);
+                boundsMax = vec3(1.0, 0.875, 0.6875);
                 break;
 
             case BLOCKTYPE_HOPPER_DOWN:
@@ -609,6 +624,65 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 case BLOCKTYPE_HOPPER_W:
                     boundsMin = vec3(0.00, 0.25, 0.25);
                     boundsMax = vec3(0.25, 0.50, 0.75);
+                    break;
+
+                case BLOCKTYPE_WALL_POST_LOW_N_S:
+                case BLOCKTYPE_WALL_POST_LOW_N_W_S:
+                case BLOCKTYPE_WALL_POST_LOW_N_E_S:
+                case BLOCKTYPE_WALL_POST_LOW_ALL:
+                    boundsMin = vec3(0.3125, 0.000, 0.0);
+                    boundsMax = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCKTYPE_WALL_POST_LOW_W_E:
+                case BLOCKTYPE_WALL_POST_LOW_W_N_E:
+                case BLOCKTYPE_WALL_POST_LOW_W_S_E:
+                    boundsMin = vec3(0.0, 0.000, 0.3125);
+                    boundsMax = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_POST_LOW_N_W:
+                    boundsMin = vec3(0.3125, 0.000, 0.0);
+                    boundsMax = vec3(0.6875, 0.875, 0.5);
+                    break;
+                case BLOCKTYPE_WALL_POST_LOW_N_E:
+                    boundsMin = vec3(0.5, 0.000, 0.3125);
+                    boundsMax = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_POST_LOW_S_E:
+                    boundsMin = vec3(0.3125, 0.000, 0.5);
+                    boundsMax = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCKTYPE_WALL_POST_LOW_S_W:
+                    boundsMin = vec3(0.0, 0.000, 0.3125);
+                    boundsMax = vec3(0.5, 0.875, 0.6875);
+                    break;
+
+                case BLOCKTYPE_WALL_POST_TALL_N_S:
+                    boundsMin = vec3(0.3125, 0.0, 0.0);
+                    boundsMax = vec3(0.6875, 1.0, 1.0);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_W_E:
+                    boundsMin = vec3(0.0, 0.0, 0.3125);
+                    boundsMax = vec3(1.0, 1.0, 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_N_W:
+                    boundsMin = vec3(0.3125, 0.0, 0.0);
+                    boundsMax = vec3(0.6875, 1.0, 0.5);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_N_E:
+                    boundsMin = vec3(0.5, 0.0, 0.3125);
+                    boundsMax = vec3(1.0, 1.0, 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_S_E:
+                    boundsMin = vec3(0.3125, 0.0, 0.5);
+                    boundsMax = vec3(0.6875, 1.0, 1.0);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_S_W:
+                    boundsMin = vec3(0.0, 0.0, 0.3125);
+                    boundsMax = vec3(0.5, 1.0, 0.6875);
+                    break;
+                case BLOCKTYPE_WALL_POST_TALL_ALL:
+                    boundsMin = vec3(0.3125, 0.0, 0.0);
+                    boundsMax = vec3(0.6875, 1.0, 1.0);
                     break;
             }
 

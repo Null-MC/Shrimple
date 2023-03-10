@@ -93,24 +93,21 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
             float traceRayLen2 = pow2(traceRayLen);
-            //vec3 voxelPos = floor(origin);
-            vec3 currPos = origin;// + direction * 0.04;
+            vec3 currPos = origin;
 
-            uint blockTypeLast;
+            uint blockTypeLast = BLOCKTYPE_EMPTY;
             vec3 color = vec3(1.0);
             bool hit = false;
 
             for (int i = 0; i < STEP_COUNT && !hit; i++) {
-                vec3 rayStart = currPos;// - direction * 0.001;
+                vec3 rayStart = currPos;
 
                 float closestDist = minOf(nextDist);
                 currPos += direction * closestDist;
-
                 if (dot(currPos - origin, traceRay) > traceRayLen2) break;
 
                 vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
-                //voxelPos += stepAxis * stepDir;
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
                 
@@ -220,9 +217,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     vec3 traceOrigin = GetLightGridPosition(light.position);
                     vec3 traceEnd = GetLightGridPosition(lightFragPos);// + 0.1 * vLocalNormal);
 
-                    #if DYN_LIGHT_TRACE_MODE == 0
-                        vec3 offset = hash32(gl_FragCoord.xy + 0.001*frameCounter) - 0.5;
-                        traceOrigin += 0.1 * offset;
+                    #if DYN_LIGHT_TRACE_MODE == 0 && DYN_LIGHT_PENUMBRA > 0
+                        vec3 offset = hash32(gl_FragCoord.xy + 0.001*frameCounter)*2.0 - 1.0;
+                        traceOrigin += DynamicLightPenumbra * offset;
                     #endif
 
                     #if DYN_LIGHT_RT_MODE == 1
