@@ -71,11 +71,11 @@ uniform float far;
 
 
 void main() {
-    if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
-     || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
-     || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
-     || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
-        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
+         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
+         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
+         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
             #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
                 vec3 lightColor = vec3(0.0);
                 float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
@@ -84,12 +84,12 @@ void main() {
             #else
                 AddSceneBlockLight(vBlockId[0], vOriginPos[0]);
             #endif
-        #endif
-    }
-    else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-        vec4 light = GetSceneEntityLightColor(vEntityId[0], vVertexId);
-        if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
-    }
+        }
+        else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
+            vec4 light = GetSceneEntityLightColor(vEntityId[0], vVertexId);
+            if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
+        }
+    #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         //if (vEntityId[0] == MATERIAL_LIGHTNING_BOLT) return;

@@ -55,7 +55,6 @@ uniform int entityId;
 		attribute vec3 at_midBlock;
 
 		uniform mat4 gbufferProjection;
-		uniform int entityId;
 		uniform float near;
 	#endif
 #endif

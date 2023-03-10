@@ -92,7 +92,6 @@ uniform vec3 cameraPosition;
 	#include "/lib/items.glsl"
 	#include "/lib/buffers/lighting.glsl"
 	#include "/lib/lighting/dynamic.glsl"
-	#include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE

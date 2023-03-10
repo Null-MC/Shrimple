@@ -306,9 +306,9 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         vec4 pos = gl_Vertex;
 
         #if defined RENDER_TERRAIN || defined RENDER_WATER
-            // #if DYN_LIGHT_MODE != DYN_LIGHT_PIXEL
-            //     int vBlockId;
-            // #endif
+            #if !(DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+                int vBlockId;
+            #endif
 
             vBlockId = int(mc_Entity.x + 0.5);
 

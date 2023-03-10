@@ -54,7 +54,10 @@ void main() {
     vVertexId = -1;
     if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         vEntityId = entityId;
-        vVertexId = GetWrappedVertexID();
+
+        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+            vVertexId = GetWrappedVertexID();
+        #endif
     }
     else {
         vBlockId = blockId;
