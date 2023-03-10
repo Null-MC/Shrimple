@@ -3,9 +3,14 @@ float fogify(float x, float w) {
 }
 
 vec3 GetFogColor(const in float NoUp) {
-	vec3 fogColorFinal = RGBToLinear(fogColor);
-	vec3 skyColorFinal = RGBToLinear(skyColor);
-	return mix(skyColorFinal, fogColorFinal, fogify(max(NoUp, 0.0), 0.25));
+	vec3 fogColorFinal = RGBToLinear(fogColor) * WorldBrightnessF;
+	
+	#ifdef WORLD_SKY_ENABLED
+		vec3 skyColorFinal = RGBToLinear(skyColor);
+		return mix(skyColorFinal, fogColorFinal, fogify(max(NoUp, 0.0), 0.25));
+	#else
+		return fogColorFinal;
+	#endif
 }
 
 vec3 GetFogColor(const in vec3 viewDir) {
