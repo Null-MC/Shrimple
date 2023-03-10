@@ -26,7 +26,7 @@ out vec4 gColor;
     uniform sampler2D gtexture;
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D noisetex;
 #endif
 
@@ -43,7 +43,7 @@ uniform float far;
     //uniform float far;
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform float frameTimeCounter;
 #endif
 
@@ -58,7 +58,7 @@ uniform float far;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
@@ -71,7 +71,7 @@ uniform float far;
 
 
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
@@ -96,7 +96,7 @@ void main() {
 
         vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
-        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
             bool intersects = true;
             //vec3 shadowClipPos = (shadowProjection * vec4(originShadowViewPos, 1.0)).xyz;
 
@@ -106,20 +106,6 @@ void main() {
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #ifndef IRIS_FEATURE_SSBO
-                float cascadeSizes[4];
-                cascadeSizes[0] = GetCascadeDistance(0);
-                cascadeSizes[1] = GetCascadeDistance(1);
-                cascadeSizes[2] = GetCascadeDistance(2);
-                cascadeSizes[3] = GetCascadeDistance(3);
-
-                mat4 cascadeProjection[4];
-                cascadeProjection[0] = GetShadowTileProjectionMatrix(cascadeSizes, 0);
-                cascadeProjection[1] = GetShadowTileProjectionMatrix(cascadeSizes, 1);
-                cascadeProjection[2] = GetShadowTileProjectionMatrix(cascadeSizes, 2);
-                cascadeProjection[3] = GetShadowTileProjectionMatrix(cascadeSizes, 3);
-            #endif
-
             int shadowTile = GetShadowTile(cascadeProjection, originShadowViewPos);
             if (shadowTile < 0) return;
 
@@ -135,21 +121,13 @@ void main() {
                 if (c != shadowTile) {
                     #ifdef SHADOW_CSM_OVERLAP
                         // duplicate geometry if intersecting overlapping cascades
-                        #ifdef IRIS_FEATURE_SSBO
-                            if (!CascadeIntersectsProjection(originShadowViewPos, c)) continue;
-                        #else
-                            if (!CascadeIntersectsProjection(originShadowViewPos, cascadeProjection[c])) continue;
-                        #endif
+                        if (!CascadeIntersectsProjection(originShadowViewPos, c)) continue;
                     #else
                         continue;
                     #endif
                 }
 
-                #ifdef IRIS_FEATURE_SSBO
-                    vec2 shadowTilePos = shadowProjectionPos[c];
-                #else
-                    vec2 shadowTilePos = GetShadowTilePos(c);
-                #endif
+                vec2 shadowTilePos = shadowProjectionPos[c];
 
                 for (int v = 0; v < 3; v++) {
                     gShadowTilePos = shadowTilePos;

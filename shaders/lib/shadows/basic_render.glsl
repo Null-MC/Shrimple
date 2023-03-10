@@ -37,29 +37,14 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     // PCF
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-            #ifdef IRIS_FEATURE_SSBO
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-                float angle = fract(dither) * TAU;
-                float s = sin(angle), c = cos(angle);
-                mat2 rotation = mat2(c, -s, s, c);
-            #else
-                float startAngle = hash12(gl_FragCoord.xy) * (2.0 * PI);
-                vec2 rotation = vec2(cos(startAngle), sin(startAngle));
-
-                const float angleDiff = -(PI * 2.0) / SHADOW_PCF_SAMPLES;
-                const vec2 angleStep = vec2(cos(angleDiff), sin(angleDiff));
-                const mat2 rotationStep = mat2(angleStep, -angleStep.y, angleStep.x);
-            #endif
+            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float angle = fract(dither) * TAU;
+            float s = sin(angle), c = cos(angle);
+            mat2 rotation = mat2(c, -s, s, c);
             
             vec3 shadowColor = vec3(0.0);
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-                #ifdef IRIS_FEATURE_SSBO
-                    vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
-                #else
-                    rotation *= rotationStep;
-                    float noiseDist = hash13(vec3(gl_FragCoord.xy, i));
-                    vec2 pixelOffset = rotation * noiseDist * pixelRadius;
-                #endif
+                vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
 
                 vec4 sampleColor = vec4(1.0);
 
@@ -84,30 +69,14 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         }
     #else
         float GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-            #ifdef IRIS_FEATURE_SSBO
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-                float angle = fract(dither) * TAU;
-                float s = sin(angle), c = cos(angle);
-                mat2 rotation = mat2(c, -s, s, c);
-            #else
-                float startAngle = hash12(gl_FragCoord.xy) * (2.0 * PI);
-                vec2 rotation = vec2(cos(startAngle), sin(startAngle));
-
-                const float angleDiff = -(PI * 2.0) / SHADOW_PCF_SAMPLES;
-                const vec2 angleStep = vec2(cos(angleDiff), sin(angleDiff));
-                const mat2 rotationStep = mat2(angleStep, -angleStep.y, angleStep.x);
-            #endif
+            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float angle = fract(dither) * TAU;
+            float s = sin(angle), c = cos(angle);
+            mat2 rotation = mat2(c, -s, s, c);
 
             float shadow = 0.0;
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-                #ifdef IRIS_FEATURE_SSBO
-                    vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
-                #else
-                    rotation *= rotationStep;
-                    float noiseDist = hash13(vec3(gl_FragCoord.xy, i));
-                    vec2 pixelOffset = rotation * noiseDist * pixelRadius;
-                #endif
-
+                vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
                 shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
             }
 
@@ -134,30 +103,15 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 #if SHADOW_FILTER == 2
     // PCF + PCSS
     float FindBlockerDistance(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-        #ifdef IRIS_FEATURE_SSBO
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-            float angle = fract(dither) * TAU;
-            float s = sin(angle), c = cos(angle);
-            mat2 rotation = mat2(c, -s, s, c);
-        #else
-            float startAngle = hash12(gl_FragCoord.xy) * (2.0 * PI);
-            vec2 rotation = vec2(cos(startAngle), sin(startAngle));
-
-            const float angleDiff = -(PI * 2.0) / SHADOW_PCSS_SAMPLES;
-            const vec2 angleStep = vec2(cos(angleDiff), sin(angleDiff));
-            const mat2 rotationStep = mat2(angleStep, -angleStep.y, angleStep.x);
-        #endif
+        float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+        float angle = fract(dither) * TAU;
+        float s = sin(angle), c = cos(angle);
+        mat2 rotation = mat2(c, -s, s, c);
         
         float blockers = 0.0;
         float avgBlockerDistance = 0.0;
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
-            #ifdef IRIS_FEATURE_SSBO
-                vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
-            #else
-                rotation *= rotationStep;
-                float noiseDist = hash13(vec3(gl_FragCoord.xy, i + 100.0));
-                vec2 pixelOffset = rotation * noiseDist * pixelRadius;
-            #endif
+            vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
 
             #if SHADOW_COLORS == SHADOW_COLOR_IGNORED
                 float texDepth = texture(shadowtex1, shadowPos.xy + pixelOffset).r;

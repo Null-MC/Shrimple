@@ -77,29 +77,15 @@ vec3 GetShadowTileColor(const in int tile) {
            -matShadowProjection[2].z);
     }
 
-    #ifdef IRIS_FEATURE_SSBO
-        bool CascadeContainsProjection(const in vec3 shadowViewPos, const in int cascade) {
-            return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade]))
-                && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade]));
-        }
+    bool CascadeContainsProjection(const in vec3 shadowViewPos, const in int cascade) {
+        return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade]))
+            && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade]));
+    }
 
-        bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in int cascade) {
-            return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
-                && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
-        }
-    #else
-        bool CascadeContainsProjection(const in vec3 shadowViewPos, const in mat4 matShadowProjection) {
-            vec3 clipPos = (matShadowProjection * vec4(shadowViewPos, 1.0)).xyz;
-            vec3 paddedSize = GetCascadePaddedFrustumClipBounds(matShadowProjection, -1.5);
-            return all(greaterThan(clipPos, -paddedSize)) && all(lessThan(clipPos, paddedSize));
-        }
-
-        bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in mat4 matShadowProjection) {
-            vec3 clipPos = (matShadowProjection * vec4(shadowViewPos, 1.0)).xyz;
-            vec3 paddedSize = GetCascadePaddedFrustumClipBounds(matShadowProjection, 1.5);
-            return all(greaterThan(clipPos, -paddedSize)) && all(lessThan(clipPos, paddedSize));
-        }
-    #endif
+    bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in int cascade) {
+        return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
+            && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
+    }
 
     mat4 GetShadowTileProjectionMatrix(const in float cascadeSizes[4], const in int tile, out vec2 shadowViewMin, out vec2 shadowViewMax) {
         float tileSize = cascadeSizes[tile];
@@ -170,11 +156,7 @@ vec3 GetShadowTileColor(const in int tile) {
         //#endif
 
         for (int i = 0; i < max; i++) {
-            #ifdef IRIS_FEATURE_SSBO
-                if (CascadeContainsProjection(blockPos, i)) return i;
-            #else
-                if (CascadeContainsProjection(blockPos, matShadowProjections[i])) return i;
-            #endif
+            if (CascadeContainsProjection(blockPos, i)) return i;
         }
 
         //#ifdef SHADOW_CSM_FITRANGE
@@ -191,39 +173,14 @@ vec3 GetShadowTileColor(const in int tile) {
             shadowTileColor = vec3(1.0);
         #endif
 
-        #ifndef IRIS_FEATURE_SSBO
-            cascadeSize[0] = GetCascadeDistance(0);
-            cascadeSize[1] = GetCascadeDistance(1);
-            cascadeSize[2] = GetCascadeDistance(2);
-            cascadeSize[3] = GetCascadeDistance(3);
-
-            mat4 cascadeProjection[4];
-            cascadeProjection[0] = GetShadowTileProjectionMatrix(cascadeSize, 0);
-            cascadeProjection[1] = GetShadowTileProjectionMatrix(cascadeSize, 1);
-            cascadeProjection[2] = GetShadowTileProjectionMatrix(cascadeSize, 2);
-            cascadeProjection[3] = GetShadowTileProjectionMatrix(cascadeSize, 3);
-        #endif
-
         vec3 shadowViewPos = (shadowModelView * vec4(localPos, 1.0)).xyz;
 
         for (int i = 0; i < 4; i++) {
-            #ifndef IRIS_FEATURE_SSBO
-                shadowProjectionSize[i] = 2.0 / vec2(
-                    cascadeProjection[i][0].x,
-                    cascadeProjection[i][1].y);
-            #endif
-            
             // convert to shadow screen space
             shadowPos[i] = (cascadeProjection[i] * vec4(shadowViewPos, 1.0)).xyz;
 
             shadowPos[i] = shadowPos[i] * 0.5 + 0.5; // convert from -1 ~ +1 to 0 ~ 1
-
-            #ifdef IRIS_FEATURE_SSBO
-                shadowPos[i].xy = shadowPos[i].xy * 0.5 + shadowProjectionPos[i]; // scale and translate to quadrant
-            #else
-                vec2 shadowProjectionPos = GetShadowTilePos(i);
-                shadowPos[i].xy = shadowPos[i].xy * 0.5 + shadowProjectionPos; // scale and translate to quadrant
-            #endif
+            shadowPos[i].xy = shadowPos[i].xy * 0.5 + shadowProjectionPos[i]; // scale and translate to quadrant
         }
 
         #if defined RENDER_ENTITIES || defined RENDER_HAND

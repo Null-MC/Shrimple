@@ -25,11 +25,6 @@ in vec3 vBlockLight;
 		in vec3 shadowPos[4];
 		flat in int shadowTile;
 		flat in vec3 shadowTileColor;
-
-		#ifndef IRIS_FEATURE_SSBO
-			flat in vec2 shadowProjectionSize[4];
-			flat in float cascadeSize[4];
-		#endif
 	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
 		in vec3 shadowPos;
 	#endif

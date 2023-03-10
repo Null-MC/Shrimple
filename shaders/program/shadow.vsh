@@ -35,7 +35,7 @@ uniform int entityId;
     #include "/lib/world/waving.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
     #include "/lib/lighting/dynamic_entities.glsl"
 #endif
@@ -55,7 +55,7 @@ void main() {
     if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         vEntityId = entityId;
 
-        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
             vVertexId = GetWrappedVertexID();
         #endif
     }

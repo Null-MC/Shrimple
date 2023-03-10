@@ -9,13 +9,13 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const ivec3 workGroups = ivec3(1, 1, 1);
 
-#if defined IRIS_FEATURE_SSBO && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 #endif
 
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         const float goldenAngle = PI * (3.0 - sqrt(5.0));
         const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 

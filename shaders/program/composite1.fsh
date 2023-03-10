@@ -41,6 +41,8 @@ uniform float blindness;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+
+#include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

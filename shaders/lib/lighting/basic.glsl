@@ -482,11 +482,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         vec3 GetFinalBlockLighting(const in float lmcoordX) {
             vec3 blockLight = vBlockLight;
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+            #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
                     if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
                 #endif
-            #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+            #elif (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
                 vec3 lit = SampleDynamicLighting(vLocalPos, vLocalNormal, lmcoordX);
 
                 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED

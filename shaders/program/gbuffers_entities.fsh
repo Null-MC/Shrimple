@@ -17,7 +17,6 @@ in vec3 vBlockLight;
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     in vec3 vLocalPos;
     in vec3 vLocalNormal;
-    //flat in int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -25,11 +24,6 @@ in vec3 vBlockLight;
 		in vec3 shadowPos[4];
 		flat in int shadowTile;
 		flat in vec3 shadowTileColor;
-
-		#ifndef IRIS_FEATURE_SSBO
-			flat in vec2 shadowProjectionSize[4];
-			flat in float cascadeSize[4];
-		#endif
 	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
 		in vec3 shadowPos;
 	#endif
