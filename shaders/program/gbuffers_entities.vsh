@@ -14,9 +14,10 @@ out float geoNoL;
 out float vLit;
 out vec3 vBlockLight;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     out vec3 vLocalPos;
     out vec3 vLocalNormal;
+    //flat out int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -34,11 +35,7 @@ out vec3 vBlockLight;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    flat out int vBlockId;
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	uniform sampler2D noisetex;
 #endif
 
@@ -63,7 +60,7 @@ uniform int entityId;
 	#endif
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -83,23 +80,20 @@ uniform int entityId;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE || HAND_LIGHT_MODE != HAND_LIGHT_NONE
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	#include "/lib/buffers/lighting.glsl"
 	#include "/lib/lighting/dynamic.glsl"
-#endif
-
-#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
     #include "/lib/lighting/blackbody.glsl"
 	#include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE || HAND_LIGHT_MODE != HAND_LIGHT_NONE
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
 	#include "/lib/lighting/dynamic_entities.glsl"
 #endif
 

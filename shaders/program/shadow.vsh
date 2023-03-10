@@ -32,7 +32,7 @@ uniform int entityId;
 #endif
 
 #ifdef ENABLE_WAVING
-    #include "/lib/waving.glsl"
+    #include "/lib/world/waving.glsl"
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO

@@ -1,4 +1,4 @@
-#if DYN_LIGHT_RT_SHADOWS > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId == BLOCK_WATER) return false;
         if (blockId >= 200 && blockId < 500) return false;
@@ -261,9 +261,7 @@ float GetSceneBlockLightLevel(const in int blockId) {
             lightRange = 4.0;
             break;
         case BLOCK_LAVA:
-            #ifdef LIGHT_LAVA_ENABLED
-                lightRange = 15.0;
-            #endif
+            lightRange = 15.0;
             break;
         case BLOCK_LAVA_CAULDRON:
             lightRange = 15.0;
@@ -453,10 +451,10 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     glow = 0.2;
                     break;
                 case BLOCK_LAVA:
+                case BLOCK_LAVA_CAULDRON:
                     #ifndef LIGHT_LAVA_ENABLED
                         return;
                     #endif
-                case BLOCK_LAVA_CAULDRON:
                     glow = 0.4;
                     break;
                 case BLOCK_MAGMA:
@@ -588,7 +586,7 @@ float GetSceneBlockLightLevel(const in int blockId) {
         if (lightRange > EPSILON) {
             AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
         }
-        #if DYN_LIGHT_RT_SHADOWS > 0
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             else if (IsDynLightSolidBlock(blockId)) {
                 ivec3 gridCell, blockCell;
                 vec3 gridPos = GetLightGridPosition(blockLocalPos);

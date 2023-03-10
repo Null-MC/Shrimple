@@ -25,7 +25,7 @@ void main() {
 
         SceneLightMaps[gridIndex].LightCount = 0u;
 
-        #if DYN_LIGHT_RT_SHADOWS > 0
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             for (int i = 0; i < (LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32); i++)
                 SceneLightMaps[gridIndex].Mask[i] = 0u;
         #else

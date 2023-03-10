@@ -6,15 +6,16 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 option.ENABLE_WAVING=Waving Plants
 option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
 
+option.OVERWORLD_BRIGHTNESS=Overworld Brightness
+
 option.OLD_LIGHTING=Old Lighting
 
-option.HAND_LIGHT_MODE=Hand Light
-value.HAND_LIGHT_MODE.0=None
-value.HAND_LIGHT_MODE.1=Vertex
-value.HAND_LIGHT_MODE.2=Pixel
+option.NETHER_BRIGHTNESS=Nether Brightness
 
 option.FOLIAGE_UP=Upward Normals
 option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
+
+option.END_BRIGHTNESS=End Brightness
 
 
 screen.SHADOW_OPTIONS=Shadows
@@ -47,6 +48,10 @@ value.SHADOW_COLORS.2=Ignored
 
 option.SHADOW_BRIGHTNESS=Brightness
 option.SHADOW_BRIGHTNESS.comment=Light levels are multiplied by this number when the surface is in shadows.
+suffix.SHADOW_BRIGHTNESS=%
+
+option.SHADOW_COLOR_BLEND=Blending
+option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports tranclucent-sorting.
 
 option.SHADOW_BIAS_SCALE=Bias Scale
 option.SHADOW_BIAS_SCALE.comment=Increase this if you get shadow acne. Decrease this if you get peter panning.
@@ -105,8 +110,13 @@ screen.DYNAMIC_LIGHT_OPTIONS=Dynamic Lights
 
 option.DYN_LIGHT_MODE=Mode
 value.DYN_LIGHT_MODE.0=None
-value.DYN_LIGHT_MODE.1=Vertex
-value.DYN_LIGHT_MODE.2=Pixel
+value.DYN_LIGHT_MODE.1=Per-Vertex
+value.DYN_LIGHT_MODE.2=Per-Pixel
+value.DYN_LIGHT_MODE.3=Ray-Traced
+
+option.DYN_LIGHT_COLORS=Color Mode
+value.DYN_LIGHT_COLORS.0=Hard-Coded
+value.DYN_LIGHT_COLORS.1=Resource-Pack
 
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
@@ -119,14 +129,6 @@ option.DYN_LIGHT_DIRECTIONAL=Directional
 
 option.LIGHT_LAVA_ENABLED=Lava
 option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
-
-option.DYN_LIGHT_RT_SHADOWS=RT Shadows
-option.DYN_LIGHT_RT_SHADOWS.comment=Enables ray-traced shadows for block-lighting. Force-enables per-pixel lighting.
-value.DYN_LIGHT_RT_SHADOWS.0=Off
-value.DYN_LIGHT_RT_SHADOWS.1=Low
-value.DYN_LIGHT_RT_SHADOWS.2=Medium
-value.DYN_LIGHT_RT_SHADOWS.4=High
-value.DYN_LIGHT_RT_SHADOWS.8=Very High
 
 
 screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
@@ -141,14 +143,21 @@ option.LIGHT_SIZE_XZ=Horizontal Bin Count
 
 option.LIGHT_SIZE_Y=Vertical Bin Count
 
-option.DYN_LIGHT_RT_MODE=Trace Mode
-value.DYN_LIGHT_RT_MODE.0=DDA
-value.DYN_LIGHT_RT_MODE.1=Ray
+option.DYN_LIGHT_TRACE_METHOD=Trace Method
+value.DYN_LIGHT_TRACE_METHOD.0=DDA
+value.DYN_LIGHT_TRACE_METHOD.1=Ray
 
 option.DYN_LIGHT_PENUMBRA=DDA Penumbra
 option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
-suffix.DYN_LIGHT_PENUMBRA=%
 value.DYN_LIGHT_PENUMBRA.0=None
+suffix.DYN_LIGHT_PENUMBRA=%
+
+option.DYN_LIGHT_RAY_QUALITY=Ray Quality
+option.DYN_LIGHT_RAY_QUALITY.comment=The quality of ray-traced shadows.
+value.DYN_LIGHT_RAY_QUALITY.1=Low
+value.DYN_LIGHT_RAY_QUALITY.2=Medium
+value.DYN_LIGHT_RAY_QUALITY.4=High
+value.DYN_LIGHT_RAY_QUALITY.8=Very High
 
 option.DYN_LIGHT_TEMPORAL=Temporal Count
 option.DYN_LIGHT_TEMPORAL.comment=When enabled, the number of lights rendered will be spread across the number of specified frames. Improves performance at the cost of quality/blur.

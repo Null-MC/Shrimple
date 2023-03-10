@@ -14,13 +14,9 @@ in float geoNoL;
 in float vLit;
 in vec3 vBlockLight;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     in vec3 vLocalPos;
     in vec3 vLocalNormal;
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    flat in int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -39,11 +35,11 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 
-#if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
     uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform sampler2D noisetex;
 #endif
 
@@ -107,7 +103,7 @@ uniform float far;
     #endif
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -116,7 +112,7 @@ uniform float far;
     uniform vec3 eyePosition;
 #endif
 
-#if DYN_LIGHT_RT_SHADOWS > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform int frameCounter;
 
     #if DYN_LIGHT_TEMPORAL > 0
@@ -130,6 +126,7 @@ uniform float far;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -147,25 +144,24 @@ uniform float far;
     #endif
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && DYN_LIGHT_RT_SHADOWS > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
-    #include "/lib/blocks.glsl"
-    #include "/lib/items.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+#ifdef TONEMAP_ENABLED
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -177,7 +173,7 @@ layout(location = 0) out vec4 outColor0;
     layout(location = 1) out vec4 outColor1;
     layout(location = 2) out vec4 outColor2;
 #endif
-#if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
     layout(location = 3) out vec3 outColor3;
 #endif
 
@@ -199,7 +195,7 @@ void main() {
 
         outColor0 = GetFinalLighting(color, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
         
-        #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
             outColor3 = blockLightColor;
         #endif
     #endif

@@ -31,7 +31,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     return ivec2(gridIndex % 4096, y + gridLightIndex);
 }
 
-#if DYN_LIGHT_RT_SHADOWS > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
@@ -51,13 +51,13 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     bool TrySetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
-        #if DYN_LIGHT_RT_SHADOWS > 0
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             maskIndex *= DYN_LIGHT_MASK_STRIDE;
         #endif
 
         uint intIndex = maskIndex >> 5;
 
-        #if DYN_LIGHT_RT_SHADOWS > 0
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             uint bit = 255 << (maskIndex & 31);
         #else
             uint bit = 1 << (maskIndex & 31);
@@ -68,7 +68,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return (status & bit) == 0;
     }
 
-    #if DYN_LIGHT_RT_SHADOWS > 0
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         void SetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex, const in uint blockType) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
             maskIndex *= DYN_LIGHT_MASK_STRIDE;

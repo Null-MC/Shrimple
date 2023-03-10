@@ -14,7 +14,7 @@ out float geoNoL;
 out float vLit;
 out vec3 vBlockLight;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     out vec3 vLocalPos;
     out vec3 vLocalNormal;
 #endif
@@ -33,11 +33,7 @@ out vec3 vBlockLight;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    flat out int vBlockId;
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform sampler2D noisetex;
 #endif
 
@@ -60,7 +56,7 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -81,13 +77,10 @@ uniform vec3 cameraPosition;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-#endif
-
-#if HAND_LIGHT_MODE == HAND_LIGHT_VERTEX
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif

@@ -14,9 +14,10 @@ in float geoNoL;
 in float vLit;
 in vec3 vBlockLight;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     in vec3 vLocalPos;
     in vec3 vLocalNormal;
+    flat in int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -34,22 +35,15 @@ in vec3 vBlockLight;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    flat in int vBlockId;
-#endif
-
 uniform sampler2D gtexture;
 
-// #if DYN_LIGHT_RT_SHADOWS > 0 && DYN_LIGHT_TEMPORAL > 0
-//     uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
-// #endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
 	uniform sampler2D noisetex;
 #endif
 
 uniform int frameCounter;
 uniform float frameTimeCounter;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform float far;
@@ -108,7 +102,7 @@ uniform float far;
 	#endif
 #endif
 
-#if HAND_LIGHT_MODE == HAND_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -119,6 +113,7 @@ uniform float far;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -136,20 +131,24 @@ uniform float far;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && DYN_LIGHT_RT_SHADOWS > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+#endif
+
+#ifdef TONEMAP_ENABLED
+	#include "/lib/post/tonemap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

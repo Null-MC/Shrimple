@@ -22,6 +22,10 @@ out vec4 gColor;
     flat out vec2 gShadowTilePos;
 #endif
 
+#if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
+    uniform sampler2D gtexture;
+#endif
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     uniform sampler2D noisetex;
 #endif
@@ -72,7 +76,14 @@ void main() {
      || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
      || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
         #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
-            AddSceneBlockLight(vBlockId[0], vOriginPos[0]);
+            #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
+                vec3 lightColor = vec3(0.0);
+                float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
+                if (lightRange > EPSILON) lightColor = RGBToLinear(textureLod(gtexture, vTexcoord[0], 3).rgb);
+                AddSceneBlockLight(vBlockId[0], vOriginPos[0], lightColor, lightRange);
+            #else
+                AddSceneBlockLight(vBlockId[0], vOriginPos[0]);
+            #endif
         #endif
     }
     else if (renderStage == MC_RENDER_STAGE_ENTITIES) {

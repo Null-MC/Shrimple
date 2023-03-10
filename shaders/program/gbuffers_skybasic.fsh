@@ -16,14 +16,11 @@ uniform vec3 skyColor;
 
 uniform float blindness;
 
-float fogify(float x, float w) {
-	return w / (x * x + w);
-}
+#include "/lib/world/fog.glsl"
 
-vec3 calcSkyColor(vec3 pos) {
-	float upDot = dot(pos, gbufferModelView[1].xyz); //not much, what's up with you?
-	return mix(skyColor, fogColor, fogify(max(upDot, 0.0), 0.25));
-}
+#ifdef TONEMAP_ENABLED
+	#include "/lib/post/tonemap.glsl"
+#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -35,12 +32,18 @@ void main() {
 		color = starData.rgb;
 	}
 	else {
-		vec4 pos = vec4(gl_FragCoord.xy / vec2(viewWidth, viewHeight) * 2.0 - 1.0, 1.0, 1.0);
-		pos = gbufferProjectionInverse * pos;
-		color = calcSkyColor(normalize(pos.xyz));
+		vec3 pos = vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight) * 2.0 - 1.0, 1.0);
+		pos = (gbufferProjectionInverse * vec4(pos, 1.0)).xyz;
+		color = GetFogColor(normalize(pos.xyz));
 	}
 
 	color *= 1.0 - blindness;
+
+    #ifdef TONEMAP_ENABLED
+        color = tonemap_Tech(color);
+    #endif
+
+    color = LinearToRGB(color);
 
 	outColor0 = vec4(color, 1.0);
 }

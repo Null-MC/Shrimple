@@ -6,7 +6,7 @@ struct SceneLightData {
 
 struct LightCellData {
     uint LightCount;
-    #if DYN_LIGHT_RT_SHADOWS > 0
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)] Mask;
     #else
         uint[(LIGHT_BIN_SIZE3/32)] Mask;

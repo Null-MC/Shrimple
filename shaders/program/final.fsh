@@ -23,7 +23,7 @@ uniform sampler2D colortex0;
 #endif
 
 #ifdef FXAA_ENABLED
-	#include "/lib/fxaa.glsl"
+	#include "/lib/post/fxaa.glsl"
 #endif
 
 

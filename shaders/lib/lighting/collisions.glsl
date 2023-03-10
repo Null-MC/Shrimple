@@ -341,7 +341,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             break;
     }
 
-    #if DYN_LIGHT_RT_MODE == 1
+    #if DYN_LIGHT_TRACE_METHOD == 1
         bool hit = BoxPointTest(boundsMin, boundsMax, rayStart);
     #else
         bool hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -511,7 +511,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 break;
         }
 
-        #if DYN_LIGHT_RT_MODE == 1
+        #if DYN_LIGHT_TRACE_METHOD == 1
             hit = BoxPointTest(boundsMin, boundsMax, rayStart);
         #else
             hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -686,7 +686,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                     break;
             }
 
-            #if DYN_LIGHT_RT_MODE == 1
+            #if DYN_LIGHT_TRACE_METHOD == 1
                 hit = BoxPointTest(boundsMin, boundsMax, rayStart);
             #else
                 hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
