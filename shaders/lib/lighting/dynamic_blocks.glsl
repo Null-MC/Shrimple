@@ -108,10 +108,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case ITEM_FROGLIGHT_PEARLESCENT:
             lightColor = vec3(0.737, 0.435, 0.658);
             break;
-        case BLOCK_REDSTONE_LAMP:
+        case BLOCK_REDSTONE_LAMP_LIT:
             lightColor = vec3(0.953, 0.796, 0.496);
             break;
-        case BLOCK_REDSTONE_TORCH:
+        case BLOCK_REDSTONE_TORCH_LIT:
         case ITEM_REDSTONE_TORCH:
             lightColor = vec3(0.697, 0.130, 0.051);
             break;
@@ -285,10 +285,10 @@ float GetSceneBlockLightLevel(const in int blockId) {
         case ITEM_FROGLIGHT_PEARLESCENT:
             lightRange = 15.0;
             break;
-        case BLOCK_REDSTONE_LAMP:
+        case BLOCK_REDSTONE_LAMP_LIT:
             lightRange = 15.0;
             break;
-        case BLOCK_REDSTONE_TORCH:
+        case BLOCK_REDSTONE_TORCH_LIT:
         case ITEM_REDSTONE_TORCH:
             lightRange = 7.0;
             break;
@@ -476,9 +476,9 @@ float GetSceneBlockLightLevel(const in int blockId) {
                 case ITEM_FROGLIGHT_PEARLESCENT:
                     glow = 0.2;
                     break;
-                case BLOCK_REDSTONE_LAMP:
+                case BLOCK_REDSTONE_LAMP_LIT:
                     break;
-                case BLOCK_REDSTONE_TORCH:
+                case BLOCK_REDSTONE_TORCH_LIT:
                 case ITEM_REDSTONE_TORCH:
                     break;
                 case BLOCK_RESPAWN_ANCHOR_4:
