@@ -13,11 +13,8 @@ out vec3 vNormal;
 out float geoNoL;
 out float vLit;
 out vec3 vBlockLight;
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    out vec3 vLocalPos;
-    out vec3 vLocalNormal;
-#endif
+out vec3 vLocalPos;
+out vec3 vLocalNormal;
 
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -28,9 +25,7 @@ out vec3 vBlockLight;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform sampler2D noisetex;
-#endif
+uniform sampler2D lightmap;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -51,7 +46,9 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+    uniform sampler2D noisetex;
+
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -71,7 +68,7 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"

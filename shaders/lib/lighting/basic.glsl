@@ -1,25 +1,23 @@
-float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 lightPos, const in float lightRange) {
-    vec3 lightVec = lightPos - fragLocalPos;
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    float SampleLight(const in vec3 lightVec, const in vec3 fragLocalNormal, const in float lightRange) {
+        float lightDist = length(lightVec);
+        vec3 lightDir = lightVec / max(lightDist, EPSILON);
+        lightDist = max(lightDist - 0.5, 0.0);
 
-    float lightDist = length(lightVec);
-    vec3 lightDir = lightVec / max(lightDist, EPSILON);
-    lightDist = max(lightDist - 0.5, 0.0);
+        float lightAtt = 1.0 - saturate(lightDist / lightRange);
+        lightAtt = pow(lightAtt, 5.0);
+        
+        float lightNoLm = 1.0;
 
-    float lightAtt = 1.0 - saturate(lightDist / lightRange);
-    lightAtt = pow(lightAtt, 5.0);
-    
-    float lightNoLm = 1.0;
+        // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
+        #ifdef DYN_LIGHT_DIRECTIONAL
+            if (dot(fragLocalNormal, fragLocalNormal) > EPSILON)
+                lightNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+        #endif
+        
+        return lightNoLm * lightAtt;
+    }
 
-    // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
-    #ifdef DYN_LIGHT_DIRECTIONAL
-        if (dot(fragLocalNormal, fragLocalNormal) > EPSILON)
-            lightNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
-    #endif
-    
-    return lightNoLm * lightAtt;
-}
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
         vec3 GetLightGlassTint(const in uint blockType) {
             vec3 stepTint = vec3(1.0);
@@ -172,9 +170,17 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         }
     #endif
 
+    void ApplyLightPenumbraOffset(inout vec3 position) {
+        vec4 noise = hash42(gl_FragCoord.xy);
+        vec3 offset = noise.xyz*2.0 - 1.0;
+        offset *= pow(noise.w, (1.0/3.0)) / length(offset);
+
+        position += DynamicLightPenumbra * offset;
+    }
+
     vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in float blockLight) {
         uint gridIndex;
-        vec3 lightFragPos = localPos + 0.01 * localNormal;
+        vec3 lightFragPos = localPos + 0.06 * localNormal;
         int lightCount = GetSceneLights(lightFragPos, gridIndex);
 
         vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
@@ -203,11 +209,11 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(light.position);
-                    vec3 traceEnd = GetLightGridPosition(lightFragPos);
+                    //vec3 traceEnd = GetLightGridPosition(lightFragPos);
+                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        vec3 offset = hash32(gl_FragCoord.xy + 0.001*frameCounter)*2.0 - 1.0;
-                        traceOrigin += DynamicLightPenumbra * offset;
+                        ApplyLightPenumbraOffset(traceOrigin);
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -217,7 +223,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     #endif
                 #endif
 
-                accumDiffuse += SampleLight(lightFragPos, localNormal, light.position, light.range) * light.color.rgb * lightTint;
+                accumDiffuse += SampleLight(lightVec, localNormal, light.range) * light.color.rgb * lightTint;
             }
 
             accumDiffuse *= DynamicLightBrightness;
@@ -261,7 +267,12 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+                    //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+                    vec3 traceEnd = traceOrigin - lightVec;
+
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                        ApplyLightPenumbraOffset(traceOrigin);
+                    #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
@@ -270,7 +281,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     #endif
                 #endif
 
-                result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue) * lightColor;
+                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue) * lightColor;
             }
         }
 
@@ -284,7 +295,12 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+                    //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
+                    vec3 traceEnd = traceOrigin - lightVec;
+
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                        ApplyLightPenumbraOffset(traceOrigin);
+                    #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
@@ -293,7 +309,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                     #endif
                 #endif
 
-                result += SampleLight(fragLocalPos, fragLocalNormal, lightLocalPos, heldBlockLightValue2) * lightColor;
+                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue2) * lightColor;
             }
         }
 
@@ -306,10 +322,6 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
         vec4 pos = gl_Vertex;
 
         #if defined RENDER_TERRAIN || defined RENDER_WATER
-            #if !(DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-                int vBlockId;
-            #endif
-
             vBlockId = int(mc_Entity.x + 0.5);
 
             #ifdef ENABLE_WAVING
@@ -324,69 +336,83 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
         vNormal = normalize(gl_NormalMatrix * gl_Normal);
 
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            vec3 lightDir = normalize(shadowLightPosition);
-            geoNoL = dot(lightDir, vNormal);
+        //#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                vec3 lightDir = normalize(shadowLightPosition);
+                geoNoL = dot(lightDir, vNormal);
 
-            #ifdef RENDER_TEXTURED
-                vLit = 1.0;
-            #else
-                vLit = geoNoL;
+                #ifdef RENDER_TEXTURED
+                    vLit = 1.0;
+                #else
+                    vLit = geoNoL;
 
-                #if defined RENDER_TERRAIN && defined FOLIAGE_UP
-                    if (vBlockId >= 10001 && vBlockId <= 10004)
-                        vLit = dot(lightDir, gbufferModelView[1].xyz);
+                    #if defined RENDER_TERRAIN && defined FOLIAGE_UP
+                        if (vBlockId >= 10001 && vBlockId <= 10004)
+                            vLit = dot(lightDir, gbufferModelView[1].xyz);
+                    #endif
                 #endif
-            #endif
-        #else
-            geoNoL = 1.0;
-            vLit = 1.0;
-        #endif
-
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                shadowTile = -1;
+            #else
+                geoNoL = 1.0;
+                vLit = 1.0;
             #endif
 
-            float viewDist = 1.0 + length(viewPos.xyz);
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    shadowTile = -1;
+                #endif
 
-            vec3 shadowViewPos = viewPos.xyz;
+                float viewDist = 1.0 + length(viewPos.xyz);
 
-            shadowViewPos += vNormal * viewDist * ShadowNormalBias * max(1.0 - geoNoL, 0.0);
+                vec3 shadowViewPos = viewPos.xyz;
 
-            vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
+                shadowViewPos += vNormal * viewDist * ShadowNormalBias * max(1.0 - geoNoL, 0.0);
 
-            ApplyShadows(shadowLocalPos);
-        #endif
+                vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
 
-        vec3 localPos = (gbufferModelViewInverse * viewPos).xyz;
-        vec3 localNormal = mat3(gbufferModelViewInverse) * vNormal;
+                ApplyShadows(shadowLocalPos);
+            #endif
+        //#endif
+
+        vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+        vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
 
         vBlockLight = vec3(0.0);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-            vBlockLight += SampleDynamicLighting(localPos, localNormal, lmcoord.x)
-                * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            lmcoord.x = (0.5/16.0);
 
-            vBlockLight += SampleHandLight(localPos, localNormal);
-        #endif
-
-        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
             #ifdef RENDER_ENTITIES
                 vec4 light = GetSceneEntityLightColor(entityId);
                 //vBlockLight += light.rgb * (light.a / 15.0);
-                vBlockLight += vec3(light.a / 15.0);
+                lmcoord.x = (light.a / 15.0) * (15.0/16.0) + (0.5/16.0);
             #elif defined RENDER_TERRAIN || defined RENDER_WATER
-                vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
+                //vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
                 float lightRange = GetSceneBlockLightLevel(vBlockId);
-                //vBlockLight += lightColor * (lightRange / 15.0);
-                vBlockLight += vec3(lightRange / 15.0);
+                lmcoord.x = (lightRange / 15.0) * (15.0/16.0) + (0.5/16.0);
             #endif
-        #endif
+        #else
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+                vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, lmcoord.x)
+                    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            vLocalPos = localPos;
-            vLocalNormal = localNormal;
+                vBlockLight += SampleHandLight(vLocalPos, vLocalNormal);
+            #endif
+
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                #ifdef RENDER_ENTITIES
+                    vec4 light = GetSceneEntityLightColor(entityId);
+                    //vBlockLight += light.rgb * (light.a / 15.0);
+                    vBlockLight += vec3(light.a / 15.0);
+                #elif defined RENDER_TERRAIN || defined RENDER_WATER
+                    vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
+                    float lightRange = GetSceneBlockLightLevel(vBlockId);
+                    //vBlockLight += lightColor * (lightRange / 15.0);
+                    vBlockLight += vec3(lightRange / 15.0);
+                #endif
+            #else
+                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, 1.0/32.0), 0).rgb;
+                vBlockLight += RGBToLinear(blockLightDefault);
+            #endif
         #endif
 
         gl_Position = gl_ProjectionMatrix * viewPos;
@@ -394,33 +420,6 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 #endif
 
 #ifdef RENDER_FRAG
-    #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_COMPOSITE
-        // float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
-        //     float distFactor = dist >= end ? 1.0 : smoothstep(start, end, dist);
-        //     return saturate(pow(distFactor, density));
-        // }
-
-        // float GetVanillaFogFactor(const in vec3 localPos) {
-        //     if (fogStart > far) return 0.0;
-
-        //     vec3 fogPos = localPos;
-        //     if (fogShape == 1)
-        //         fogPos.y = 0.0;
-
-        //     float viewDist = length(fogPos);
-
-        //     return GetFogFactor(viewDist, fogStart, fogEnd, 1.0);
-        // }
-
-        // void ApplyFog(inout vec4 color, const in vec3 localPos) {
-        //     float fogF = GetVanillaFogFactor(localPos);
-        //     color.rgb = mix(color.rgb, skyColor, fogF);
-
-        //     if (color.a > alphaTestRef)
-        //         color.a = mix(color.a, 1.0, fogF);
-        // }
-    #endif
-
     #if defined RENDER_GBUFFER && !defined RENDER_CLOUDS
         vec4 GetColor() {
             #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
@@ -429,7 +428,7 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
                 vec4 color = texture(gtexture, texcoord);
             #endif
 
-            #if !defined RENDER_WATER && !defined RENDER_HAND_WATER
+            #ifndef RENDER_TRANSLUCENT
                 if (color.a < alphaTestRef) {
                     discard;
                     return vec4(0.0);
@@ -441,53 +440,53 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             return color;
         }
 
-        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-            vec3 GetFinalShadowColor() {
-                vec3 shadowColor = vec3(1.0);
+        // #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        //     vec3 GetFinalShadowColor() {
+        //         vec3 shadowColor = vec3(1.0);
 
-                #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                        int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
+        //         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        //             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
-                        if (tile >= 0)
-                            shadowColor = GetShadowColor(shadowPos[tile], tile);
-                    #else
-                        shadowColor = GetShadowColor(shadowPos);
-                    #endif
-                #endif
+        //                 if (tile >= 0)
+        //                     shadowColor = GetShadowColor(shadowPos[tile], tile);
+        //             #else
+        //                 shadowColor = GetShadowColor(shadowPos);
+        //             #endif
+        //         #endif
 
-                return mix(shadowColor * max(vLit, 0.0), vec3(1.0), ShadowBrightnessF);
-            }
-        #else
-            float GetFinalShadowFactor() {
-                float shadow = 1.0;
+        //         return mix(shadowColor * max(vLit, 0.0), vec3(1.0), ShadowBrightnessF);
+        //     }
+        // #else
+        //     float GetFinalShadowFactor() {
+        //         float shadow = 1.0;
 
-                #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                        int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
+        //         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        //             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
-                        if (tile >= 0)
-                            shadow = GetShadowFactor(shadowPos[tile], tile);
-                    #else
-                        shadow = GetShadowFactor(shadowPos);
-                    #endif
-                #endif
+        //                 if (tile >= 0)
+        //                     shadow = GetShadowFactor(shadowPos[tile], tile);
+        //             #else
+        //                 shadow = GetShadowFactor(shadowPos);
+        //             #endif
+        //         #endif
 
-                return shadow * max(vLit, 0.0);
-            }
-        #endif
+        //         return shadow * max(vLit, 0.0);
+        //     }
+        // #endif
     #endif
 
-    #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_COMPOSITE
-        vec3 GetFinalBlockLighting(const in float lmcoordX) {
-            vec3 blockLight = vBlockLight;
+    #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
+        vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in float lmcoordX) {
+            vec3 blockLight = vec3(0.0);//vBlockLight;
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+                #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                     if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
                 #endif
-            #elif (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                vec3 lit = SampleDynamicLighting(vLocalPos, vLocalNormal, lmcoordX);
+            #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+                vec3 lit = SampleDynamicLighting(localPos, localNormal, lmcoordX);
 
                 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
@@ -495,16 +494,14 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
 
                 blockLight += lit;
 
-                #if !defined SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                     if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
                 #endif
             #else
-                #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
-                    vec3 blockLightDefault = textureLod(texLightMap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
-                #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
-                    vec3 blockLightDefault = textureLod(colortex3, vec2(lmcoordX, 1.0/32.0), 0).rgb;
-                #else
+                #ifdef RENDER_GBUFFER
                     vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+                #else
+                    vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 1.0/32.0), 0).rgb;
                 #endif
 
                 blockLight += RGBToLinear(blockLightDefault);
@@ -513,73 +510,26 @@ float SampleLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, con
             return blockLight;
         }
 
-        vec4 GetFinalLighting(const in vec4 color, const in vec3 blockLightColor, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
-            vec3 albedo = RGBToLinear(color.rgb);
-
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLightColor, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 blockLight = blockLightColor;
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
-                vec3 worldPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz + cameraPosition;
-
-                #if DYN_LIGHT_TEMPORAL > 2
-                    float depthLinear = linearizeDepthFast(gl_FragCoord.z, near, far);
-
-                    for (int i = 0; i < 4; i++) {
-                        vec2 offset;
-                        offset.x = mod(i, 2);
-                        offset.y = floor(i / 2.0);
-
-                        vec3 viewPosPrev = (gbufferLightModelView[i] * vec4(worldPos - lightCameraPosition[i], 1.0)).xyz;
-                        vec3 clipPosPrev = unproject(gbufferLightProjection[i] * vec4(viewPosPrev, 1.0)) * 0.5 + 0.5;
-
-                        if (all(greaterThan(clipPosPrev.xy, vec2(0.0))) && all(lessThan(clipPosPrev.xy, vec2(1.0)))) {
-                            vec2 uv = (clipPosPrev.xy + offset) * 0.5;
-                            vec4 lightSample = textureLod(BUFFER_BLOCKLIGHT_PREV, uv, 0);
-
-                            float weight = abs(depthLinear - lightSample.a);
-                            weight = saturate(1.0 - 0.5*weight);
-
-                            blockLight += weight * lightSample.rgb;
-                        }
-                    }
-                #else
-                    vec3 viewPosPrev = (gbufferPreviousModelView * vec4(worldPos - previousCameraPosition, 1.0)).xyz;
-                    vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
-
-                    ivec2 uv = ivec2((clipPosPrev.xy * 0.5 + 0.5) * vec2(viewWidth, viewHeight));
-                    blockLight += texelFetch(BUFFER_BLOCKLIGHT_PREV, uv, 0).rgb;
-                #endif
-            #endif
-
-            #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
                 blockLight += SampleHandLight(vLocalPos, vLocalNormal);
             #endif
 
-            #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
-                vec3 skyLight = textureLod(texLightMap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
-            #elif defined RENDER_COMPOSITE //|| defined RENDER_CLOUDS
-                vec3 skyLight = textureLod(colortex3, vec2(1.0/32.0, lmcoord.y), 0).rgb;
-            #else
+            #ifdef RENDER_GBUFFER
                 vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+            #else
+                vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
             #endif
 
             skyLight = RGBToLinear(skyLight) * WorldBrightnessF;
             //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
             skyLight *= 1.0 - blindness;
 
-            vec3 ambient = albedo.rgb * skyLight * occlusion * ShadowBrightnessF;
-            vec3 diffuse = albedo.rgb * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));
-            vec4 final = vec4(ambient + diffuse, color.a);
-
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            ApplyFog(final, localPos);
-
-            #ifdef TONEMAP_ENABLED
-                final.rgb = tonemap_Tech(final.rgb);
-            #endif
-
-            final.rgb = LinearToRGB(final.rgb);
-            return final;
+            vec3 ambient = albedo * skyLight * occlusion * ShadowBrightnessF;
+            vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));
+            return ambient + diffuse;
         }
     #endif
 #endif

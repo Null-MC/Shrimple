@@ -1,7 +1,7 @@
-int GetWrappedVertexID() {
+int GetWrappedVertexID(const in int entityId) {
     int vertexId = -1;
 
-    switch (vEntityId) {
+    switch (entityId) {
         case ENTITY_BLAZE:
             const int BlazeVertexCount = 312;
             vertexId = int(mod(gl_VertexID, BlazeVertexCount));
@@ -42,7 +42,7 @@ vec4 GetSceneEntityLightColor(const in int entityId) {
             break;
         case ENTITY_TNT:
             lightColor = RGBToLinear(vec3(1.0));
-            lightRange = 6.0;
+            lightRange = 5.0 * entityColor.a + 2.0;
             break;
     }
 
@@ -66,7 +66,7 @@ vec4 GetSceneEntityLightColor(const in int entityId, const in int vertexId[3]) {
             match = vertexId[0] == EndCrystalVertexId || vertexId[1] == EndCrystalVertexId || vertexId[2] == EndCrystalVertexId;
             break;
         case ENTITY_TNT:
-            const int TNTVertexId = 0;
+            const int TNTVertexId = 16;
             match = vertexId[0] == TNTVertexId || vertexId[1] == TNTVertexId || vertexId[2] == TNTVertexId;
             break;
     }

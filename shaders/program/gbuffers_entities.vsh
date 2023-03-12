@@ -12,12 +12,9 @@ out vec3 vPos;
 out vec3 vNormal;
 out float geoNoL;
 out float vLit;
+out vec3 vLocalPos;
+out vec3 vLocalNormal;
 out vec3 vBlockLight;
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    out vec3 vLocalPos;
-    out vec3 vLocalNormal;
-#endif
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -29,6 +26,8 @@ out vec3 vBlockLight;
 	#endif
 #endif
 
+uniform sampler2D lightmap;
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	uniform sampler2D noisetex;
 #endif
@@ -37,6 +36,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec4 entityColor;
 uniform int entityId;
 
 #ifdef WORLD_SHADOW_ENABLED

@@ -1,4 +1,4 @@
-#define RENDER_WATER
+#define RENDER_ENTITIES
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
@@ -15,7 +15,6 @@ in float vLit;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
-flat in int vBlockId;
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -30,6 +29,10 @@ flat in int vBlockId;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
+    uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
+#endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
 	uniform sampler2D noisetex;
 #endif
@@ -39,6 +42,9 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec4 entityColor;
+uniform int entityId;
+uniform float near;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -52,9 +58,14 @@ uniform float far;
 #endif
 
 #ifndef SHADOW_BLUR
+    // #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
+    //     uniform sampler2D texLightMap;
+    // #else
+    //     uniform sampler2D lightmap;
+    // #endif
+
 	uniform vec3 upPosition;
 	uniform vec3 skyColor;
-	//uniform float far;
 	
 	uniform vec3 fogColor;
 	uniform float fogDensity;
@@ -73,7 +84,7 @@ uniform float far;
 #ifdef WORLD_SHADOW_ENABLED
 	uniform sampler2D shadowtex0;
 	uniform sampler2D shadowtex1;
-	
+
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             uniform sampler2DShadow shadowtex0HW;
@@ -81,7 +92,7 @@ uniform float far;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-	
+
 	uniform vec3 shadowLightPosition;
 
 	#if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -98,6 +109,15 @@ uniform float far;
     uniform vec3 eyePosition;
 #endif
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
+    uniform mat4 gbufferPreviousModelView;
+    uniform mat4 gbufferPreviousProjection;
+    uniform vec3 previousCameraPosition;
+    uniform float viewWidth;
+    uniform float viewHeight;
+#endif
+
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
@@ -106,22 +126,23 @@ uniform float far;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		#include "/lib/shadows/cascaded.glsl"
 		#include "/lib/shadows/cascaded_render.glsl"
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
+	#else
 		#include "/lib/shadows/basic.glsl"
 		#include "/lib/shadows/basic_render.glsl"
 	#endif
-	
-    #include "/lib/shadows/common.glsl"
+
+	#include "/lib/shadows/common.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
+    #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 #endif
 
@@ -131,8 +152,8 @@ uniform float far;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
@@ -143,38 +164,63 @@ uniform float far;
 #include "/lib/lighting/basic.glsl"
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outFinal;
-
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+	/* RENDERTARGETS: 1,2,3,4,7 */
+	layout(location = 0) out vec4 outColor;
+	layout(location = 1) out vec4 outNormal;
+	layout(location = 2) out vec4 outLighting;
+	layout(location = 3) out vec4 outFog;
+    layout(location = 4) out vec4 outShadow;
+#else
+	/* RENDERTARGETS: 0 */
+	layout(location = 0) out vec4 outFinal;
+#endif
 
 void main() {
-    #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
-        vec4 color = textureAnisotropic(gtexture, texcoord);
-    #else
-        vec4 color = texture(gtexture, texcoord);
+	vec4 color = GetColor();
+
+	color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
+
+	vec3 localNormal = normalize(vLocalNormal);
+
+    vec3 shadowColor = vec3(1.0);
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+            shadowColor = GetFinalShadowColor();
+        #else
+            shadowColor = vec3(GetFinalShadowFactor());
+        #endif
     #endif
 
-	color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+	#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+		if (color.a < alphaTestRef) {
+			discard;
+			return;
+		}
 
-	#if SHADOW_TYPE != SHADOW_TYPE_NONE
-		#if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-			vec3 lightColor = GetFinalShadowColor();
-		#else
-			vec3 lightColor = vec3(GetFinalShadowFactor());
-		#endif
+		color.a = 1.0;
+
+	    float fogF = GetVanillaFogFactor(vLocalPos);
+	    vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+	    fogColorFinal = LinearToRGB(fogColorFinal);
+
+	    outColor = color;
+		outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
+		outLighting = vec4(lmcoord, glcolor.a, 1.0);
+		outFog = vec4(fogColorFinal, fogF);
+        outShadow = vec4(shadowColor, 1.0);
 	#else
-		vec3 lightColor = vec3(1.0);
+		color.rgb = RGBToLinear(color.rgb);
+	    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+		color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
+
+	    ApplyFog(color, vLocalPos);
+
+	    #ifdef TONEMAP_ENABLED
+	        color.rgb = tonemap_Tech(color.rgb);
+	    #endif
+
+	    color.rgb = LinearToRGB(color.rgb);
+	    outFinal = color;
 	#endif
-
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x);
-	color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
-
-    ApplyFog(color, vLocalPos);
-
-    #ifdef TONEMAP_ENABLED
-        color.rgb = tonemap_Tech(color.rgb);
-    #endif
-
-    color.rgb = LinearToRGB(color.rgb);
-    outFinal = color;
 }

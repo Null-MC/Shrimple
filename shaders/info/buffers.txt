@@ -1,13 +1,10 @@
-colortex0		RGB8		1.0		gbuffer color
-colortex1		RGB8		1.0		gbuffer normal
-colortex2		RGB8		1.0		gbuffer fog
-colortex3		RGB8		1.0		lighting (block, sky, ao)
-colortex4		RGB16F		 *	 	block-light
+colortex0		RGB8		1.0		final
+colortex1		RGB8		1.0		deferred color
+colortex2		RGB8		1.0		deferred normal
+colortex3		RGB8		1.0		deferred lighting (block, sky, ao)
+colortex4		RGBA8		1.0		deferred fog
+colortex5		RGB16F		 *	 	block-light
+colortex6		R32F		 *		block-light depth
+colortex7		RGB8		1.0		deferred shadow
 
-
-
-colortex0		RGBA8		1.0		output
-colortex1		RGBA8		1.0		shadow color
-colortex2		RGBA8		1.0		lighting (block, sky, ao)
-colortex4		RGB8		1.0	 	temporal blocklight write
-colortex5		RGB8		1.0	 	temporal blocklight read
+colortex8			lightmap

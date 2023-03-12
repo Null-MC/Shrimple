@@ -1,13 +1,9 @@
-#define RENDER_WATER
+#define RENDER_ENTITIES
 #define RENDER_GBUFFER
 #define RENDER_VERTEX
 
 #include "/lib/common.glsl"
 #include "/lib/constants.glsl"
-
-in vec4 mc_Entity;
-in vec3 vaPosition;
-in vec3 at_midBlock;
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -19,7 +15,6 @@ out float vLit;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
 out vec3 vBlockLight;
-flat out int vBlockId;
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -33,14 +28,15 @@ flat out int vBlockId;
 
 uniform sampler2D lightmap;
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	uniform sampler2D noisetex;
 #endif
 
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
+uniform int entityId;
 
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;
@@ -49,12 +45,14 @@ uniform vec3 cameraPosition;
 	uniform float far;
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+		attribute vec3 at_midBlock;
+
 		uniform mat4 gbufferProjection;
 		uniform float near;
 	#endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -63,35 +61,32 @@ uniform vec3 cameraPosition;
     uniform vec3 eyePosition;
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/world/waving.glsl"
-
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		#include "/lib/shadows/cascaded.glsl"
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
+	#else
 		#include "/lib/shadows/basic.glsl"
 	#endif
 #endif
 
-#ifdef IRIS_FEATURE_SSBO
-	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-		#include "/lib/items.glsl"
-		#include "/lib/lighting/blackbody.glsl"
-	#endif
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/blocks.glsl"
+    #include "/lib/entities.glsl"
+    #include "/lib/items.glsl"
+#endif
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-		#include "/lib/items.glsl"
-		#include "/lib/buffers/lighting.glsl"
-		#include "/lib/lighting/dynamic.glsl"
-	#endif
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+	#include "/lib/buffers/lighting.glsl"
+	#include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+	#include "/lib/lighting/dynamic_blocks.glsl"
+#endif
 
-	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-		#include "/lib/lighting/dynamic_blocks.glsl"
-	#endif
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+	#include "/lib/lighting/dynamic_entities.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -101,6 +96,6 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	glcolor = gl_Color;
-
+	
 	BasicVertex();
 }

@@ -39,7 +39,7 @@ void main() {
 
 	color *= 1.0 - blindness;
 
-    #ifdef TONEMAP_ENABLED
+    #if defined TONEMAP_ENABLED && DYN_LIGHT_MODE != DYN_LIGHT_TRACED
         color = tonemap_Tech(color);
     #endif
 

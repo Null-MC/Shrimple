@@ -2,11 +2,15 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 
 /*
 const int shadowcolor0Format = RGBA8;
-const int colortex0Format = RGBA8;
-const int colortex1Format = RGBA8;
-const int colortex2Format = RGBA8;
-const int colortex4Format = RGB16F;
-const int colortex5Format = RGBA16F;
+const int colortex0Format = RGB8;
+const int colortex1Format = RGB8;
+const int colortex2Format = RGB8;
+const int colortex2Format = RGB8;
+const int colortex3Format = RGB8;
+const int colortex4Format = RGBA8;
+const int colortex5Format = RGB16F;
+const int colortex6Format = R32F;
+const int colortex7Format = RGB8;
 */
 
 const bool generateShadowMipmap = false;
@@ -18,8 +22,9 @@ const bool shadowcolor0Clear = true;
 const bool shadowtex0Mipmap = false;
 const bool shadowtex1Mipmap = false;
 
+//const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex0MipmapEnabled = false;
-const bool colortex0Clear = true;
+const bool colortex0Clear = false;
 
 const vec4 colortex1ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex1MipmapEnabled = false;
@@ -29,12 +34,25 @@ const vec4 colortex2ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex2MipmapEnabled = false;
 const bool colortex2Clear = true;
 
-const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex3MipmapEnabled = false;
+const bool colortex3Clear = true;
+
+const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex4MipmapEnabled = false;
 const bool colortex4Clear = true;
 
+const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex5MipmapEnabled = false;
-const bool colortex5Clear = false;
+const bool colortex5Clear = true;
+
+const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const bool colortex6MipmapEnabled = false;
+const bool colortex6Clear = true;
+
+const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex7MipmapEnabled = false;
+const bool colortex7Clear = true;
 
 
 // World Options
@@ -80,10 +98,11 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
-#define DYN_LIGHT_PENUMBRA 6 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
-#define DYN_LIGHT_TEMPORAL 2 // [0 2 5]
+#define DYN_LIGHT_PENUMBRA 0 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
+#define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
+#define DYN_LIGHT_BLUR
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
@@ -91,14 +110,14 @@ const bool colortex5Clear = false;
 
 
 // Post-Processing
-#define TONEMAP_ENABLED
+//#define TONEMAP_ENABLED
 #define TONEMAP_CONTRAST 0.00 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
 #define FXAA_ENABLED
 #define AF_SAMPLES 1
 
 
 // Debug Options
-#define DEBUG_BUFFER 0 // [0 1 2 3 4]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define IRIS_FEATURE_CLEARFIX
 

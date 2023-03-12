@@ -12,7 +12,6 @@ in vec4 vColor[3];
 
 flat in vec3 vOriginPos[3];
 flat in int vBlockId[3];
-flat in int vEntityId[3];
 flat in int vVertexId[3];
 
 out vec2 gTexcoord;
@@ -22,12 +21,18 @@ out vec4 gColor;
     flat out vec2 gShadowTilePos;
 #endif
 
-#if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
-    uniform sampler2D gtexture;
-#endif
+#ifdef IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
+        uniform sampler2D gtexture;
+    #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform sampler2D noisetex;
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        uniform sampler2D noisetex;
+    #endif
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        uniform float frameTimeCounter;
+    #endif
 #endif
 
 uniform mat4 gbufferModelView;
@@ -36,16 +41,10 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform vec3 cameraPosition;
 uniform int renderStage;
+uniform vec4 entityColor;
+uniform int entityId;
+uniform float near;
 uniform float far;
-
-#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    uniform float near;
-    //uniform float far;
-#endif
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform float frameTimeCounter;
-#endif
 
 #if SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
@@ -58,7 +57,7 @@ uniform float far;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
@@ -71,7 +70,7 @@ uniform float far;
 
 
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
@@ -86,7 +85,7 @@ void main() {
             #endif
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-            vec4 light = GetSceneEntityLightColor(vEntityId[0], vVertexId);
+            vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
             if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
         }
     #endif
@@ -96,7 +95,7 @@ void main() {
 
         vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
-        #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
             bool intersects = true;
             //vec3 shadowClipPos = (shadowProjection * vec4(originShadowViewPos, 1.0)).xyz;
 

@@ -17,12 +17,9 @@ out vec3 vNormal;
 out float geoNoL;
 out float vLit;
 out vec3 vBlockLight;
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    out vec3 vLocalPos;
-    out vec3 vLocalNormal;
-    flat out int vBlockId;
-#endif
+out vec3 vLocalPos;
+out vec3 vLocalNormal;
+flat out int vBlockId;
 
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -34,7 +31,9 @@ out vec3 vBlockLight;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+uniform sampler2D lightmap;
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
 	uniform sampler2D noisetex;
 #endif
 
@@ -55,7 +54,7 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -68,7 +67,7 @@ uniform vec3 cameraPosition;
 #include "/lib/items.glsl"
 #include "/lib/world/waving.glsl"
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
 	#include "/lib/lighting/blackbody.glsl"
 #endif
 
@@ -83,13 +82,15 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	#include "/lib/buffers/lighting.glsl"
-	#include "/lib/lighting/dynamic.glsl"
-#endif
+#if defined IRIS_FEATURE_SSBO
+	#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+		#include "/lib/buffers/lighting.glsl"
+		#include "/lib/lighting/dynamic.glsl"
+	#endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-	#include "/lib/lighting/dynamic_blocks.glsl"
+	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+		#include "/lib/lighting/dynamic_blocks.glsl"
+	#endif
 #endif
 
 #include "/lib/lighting/basic.glsl"
