@@ -21,7 +21,6 @@ flat in int vBlockId;
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		in vec3 shadowPos[4];
 		flat in int shadowTile;
-		flat in vec3 shadowTileColor;
 	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
 		in vec3 shadowPos;
 	#endif

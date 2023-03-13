@@ -1,4 +1,4 @@
-#define RENDER_TEXTURED
+#define RENDER_PARTICLES
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
@@ -151,12 +151,14 @@ void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
 
     if (color.a < alphaTestRef) {
-        discard;
+        //discard;
+        outFinal = vec4(0.0);
         return;
     }
 
     //color.rgb *= glcolor.rgb;
     //vec3 localNormal = normalize(vLocalNormal);
+    color.rgb = RGBToLinear(color.rgb);
 
     vec3 blockLight = vBlockLight;
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -172,7 +174,6 @@ void main() {
         #endif
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);
     color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, vPos, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);

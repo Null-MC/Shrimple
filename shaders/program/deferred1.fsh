@@ -81,14 +81,9 @@ void main() {
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 		vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        //vec3 offsetPos = localPos + LightGridCenter;
-        //vec3 maxSize = SceneLightSize
-        //float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 15.0;
-
         //float lightmapBlock = saturate((deferredLighting.x - (0.5/16.0)) * (16.0/15.0));
 
 		vec3 blockLight;
-		//if (fade > EPSILON) {
 			vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
 			vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
 			vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
@@ -99,27 +94,22 @@ void main() {
 	        blockLight += SampleHandLight(localPos, localNormal);
 			//blockLight += lightmapBlock;
 
-			vec2 uvPrev = clipPosPrev.xy * 0.5 + 0.5;
-			if (all(greaterThanEqual(uvPrev, vec2(0.0))) && all(lessThan(uvPrev, vec2(1.0)))) {
-				ivec2 iTexPrev = ivec2(uvPrev * bufferSize);
-				float depthPrev = texelFetch(BUFFER_LIGHT_DEPTH, iTexPrev, 0).r;
+			#if DYN_LIGHT_PENUMBRA > 0
+				vec2 uvPrev = clipPosPrev.xy * 0.5 + 0.5;
+				if (all(greaterThanEqual(uvPrev, vec2(0.0))) && all(lessThan(uvPrev, vec2(1.0)))) {
+					ivec2 iTexPrev = ivec2(uvPrev * bufferSize);
+					float depthPrev = texelFetch(BUFFER_LIGHT_DEPTH, iTexPrev, 0).r;
 
-				float linearDepth = linearizeDepthFast(depth, near, far);
-				float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
-				float depthWeight = 1.0 - saturate(4.0 * abs(linearDepth - linearDepthPrev));
+					float linearDepth = linearizeDepthFast(depth, near, far);
+					float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
+					float depthWeight = 1.0 - saturate(4.0 * abs(linearDepth - linearDepthPrev));
 
-				float mixWeight = depthWeight * 0.96;
+					float mixWeight = smoothstep(0.0, 1.0, depthWeight) * 0.96;
 
-				vec3 blockLightPrev = texelFetch(BUFFER_BLOCKLIGHT, iTexPrev, 0).rgb;
-				blockLight = mix(blockLight, blockLightPrev, mixWeight);
-			}
-		//}
-		//else {
-			//const vec3 blockLightColor = vec3(1.0);
-			//blockLight = pow(lightmapBlock, 4.0) * blockLightColor;
-        //    blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, (0.5/16.0)), 0).rgb;
-        //    blockLight = RGBToLinear(blockLight);
-		//}
+					vec3 blockLightPrev = texelFetch(BUFFER_BLOCKLIGHT, iTexPrev, 0).rgb;
+					blockLight = mix(blockLight, blockLightPrev, mixWeight);
+				}
+			#endif
 
 		outLight = vec4(blockLight, 1.0);
 	}

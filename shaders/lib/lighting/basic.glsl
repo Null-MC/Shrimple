@@ -188,7 +188,7 @@
         //vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
 
         if (gridIndex != -1u) {
-            #ifdef RENDER_TEXTURED
+            #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
                 bool hasGeoNormal = false;
             #else
                 bool hasGeoNormal = true;
@@ -343,7 +343,7 @@
                 vec3 lightDir = normalize(shadowLightPosition);
                 geoNoL = dot(lightDir, vNormal);
 
-                #ifdef RENDER_TEXTURED
+                #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
                     vLit = 1.0;
                 #else
                     vLit = geoNoL;

@@ -1,4 +1,4 @@
-#define RENDER_TERRAIN
+#define RENDER_PARTICLES
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
@@ -12,10 +12,9 @@ in vec3 vPos;
 in vec3 vNormal;
 in float geoNoL;
 in float vLit;
-in vec3 vBlockLight;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
-flat in int vBlockId;
+in vec3 vBlockLight;
 
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -27,6 +26,38 @@ flat in int vBlockId;
 #endif
 
 uniform sampler2D gtexture;
+
+uniform mat4 gbufferModelView;
+uniform vec3 skyColor;
+uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+uniform int frameCounter;
+uniform float frameTimeCounter;
+//uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
+//uniform float far;
+
+uniform float blindness;
+
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
+#endif
+
+uniform sampler2D lightmap;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
@@ -47,23 +78,8 @@ uniform sampler2D gtexture;
     #endif
 #endif
 
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform sampler2D lightmap;
-
-    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        uniform sampler2D shadowcolor0;
-    #endif
-
-    uniform int frameCounter;
-    uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelView;
-    uniform mat4 gbufferModelViewInverse;
-    uniform vec3 cameraPosition;
-    //uniform float far;
-
-    uniform float blindness;
-
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#ifdef IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uniform int heldItemId;
         uniform int heldItemId2;
         uniform int heldBlockLightValue;
@@ -71,29 +87,14 @@ uniform sampler2D gtexture;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
+
+    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
-uniform mat4 gbufferModelView;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
-
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
-#endif
-
+#include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1
@@ -102,7 +103,7 @@ uniform int fogMode;
 
 #include "/lib/sampling/depth.glsl"
 //#include "/lib/sampling/noise.glsl"
-#include "/lib/sampling/ign.glsl"
+//#include "/lib/sampling/ign.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -114,25 +115,32 @@ uniform int fogMode;
         #include "/lib/shadows/basic.glsl"
         #include "/lib/shadows/basic_render.glsl"
     #endif
-
+    
     #include "/lib/shadows/common.glsl"
 #endif
 
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#ifdef IRIS_FEATURE_SSBO
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/blocks.glsl"
         #include "/lib/items.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/collisions.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/dynamic.glsl"
         #include "/lib/lighting/dynamic_blocks.glsl"
     #endif
+#endif
 
-    #include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/basic.glsl"
 
-    #ifdef TONEMAP_ENABLED
-        #include "/lib/post/tonemap.glsl"
-    #endif
+#ifdef TONEMAP_ENABLED
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -149,17 +157,12 @@ uniform int fogMode;
 #endif
 
 void main() {
-    vec4 color = texture(gtexture, texcoord);
+    vec4 color = texture(gtexture, texcoord) * glcolor;
 
     if (color.a < alphaTestRef) {
         discard;
         return;
     }
-
-    color.rgb *= glcolor.rgb;
-    color.a = 1.0;
-
-    vec3 localNormal = normalize(vLocalNormal);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -171,19 +174,21 @@ void main() {
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        color.a = 1.0;
+
         float fogF = GetVanillaFogFactor(vLocalPos);
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
         outColor = color;
-        outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
+        outNormal = vec4(vec3(0.0), 1.0);
         outLighting = vec4(lmcoord, glcolor.a, 1.0);
         outFog = vec4(fogColorFinal, fogF);
         outShadow = vec4(shadowColor, 1.0);
     #else
         vec3 blockLight = vBlockLight;
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            blockLight += GetFinalBlockLighting(vLocalPos, vec3(0.0), lmcoord.x);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);

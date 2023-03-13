@@ -120,7 +120,6 @@ const bool colortex7Clear = true;
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7]
 //#define DYN_LIGHT_DEBUG_COUNTS
-//#define IRIS_FEATURE_CLEARFIX
 
 
 // INTERNAL SETTINGS

@@ -127,6 +127,11 @@ option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness
 
 option.DYN_LIGHT_DIRECTIONAL=Directional
 
+option.DYN_LIGHT_TINT=Tint Strength
+option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through stained glass.
+suffix.DYN_LIGHT_TINT=%
+value.DYN_LIGHT_TINT.0=Off
+
 option.LIGHT_LAVA_ENABLED=Lava
 option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
 

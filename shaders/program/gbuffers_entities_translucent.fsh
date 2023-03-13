@@ -20,7 +20,6 @@ in vec3 vBlockLight;
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		in vec3 shadowPos[4];
 		flat in int shadowTile;
-		flat in vec3 shadowTileColor;
 	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
 		in vec3 shadowPos;
 	#endif
@@ -164,17 +163,8 @@ uniform float far;
 #include "/lib/lighting/basic.glsl"
 
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-	/* RENDERTARGETS: 1,2,3,4,7 */
-	layout(location = 0) out vec4 outColor;
-	layout(location = 1) out vec4 outNormal;
-	layout(location = 2) out vec4 outLighting;
-	layout(location = 3) out vec4 outFog;
-    layout(location = 4) out vec4 outShadow;
-#else
-	/* RENDERTARGETS: 0 */
-	layout(location = 0) out vec4 outFinal;
-#endif
+/* RENDERTARGETS: 0 */
+layout(location = 0) out vec4 outFinal;
 
 void main() {
 	vec4 color = GetColor();
@@ -192,35 +182,16 @@ void main() {
         #endif
     #endif
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-		if (color.a < alphaTestRef) {
-			discard;
-			return;
-		}
+	color.rgb = RGBToLinear(color.rgb);
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+	color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
 
-		color.a = 1.0;
+    ApplyFog(color, vLocalPos);
 
-	    float fogF = GetVanillaFogFactor(vLocalPos);
-	    vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-	    fogColorFinal = LinearToRGB(fogColorFinal);
+    #ifdef TONEMAP_ENABLED
+        color.rgb = tonemap_Tech(color.rgb);
+    #endif
 
-	    outColor = color;
-		outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
-		outLighting = vec4(lmcoord, glcolor.a, 1.0);
-		outFog = vec4(fogColorFinal, fogF);
-        outShadow = vec4(shadowColor, 1.0);
-	#else
-		color.rgb = RGBToLinear(color.rgb);
-	    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
-		color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
-
-	    ApplyFog(color, vLocalPos);
-
-	    #ifdef TONEMAP_ENABLED
-	        color.rgb = tonemap_Tech(color.rgb);
-	    #endif
-
-	    color.rgb = LinearToRGB(color.rgb);
-	    outFinal = color;
-	#endif
+    color.rgb = LinearToRGB(color.rgb);
+    outFinal = color;
 }

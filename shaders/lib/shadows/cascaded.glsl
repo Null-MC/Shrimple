@@ -1,11 +1,5 @@
 const float tile_dist[4] = float[](5, 12, 30, 80);
 
-const vec3 _shadowTileColors[4] = vec3[](
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0),
-    vec3(1.0, 0.0, 1.0));
-
 
 // tile: 0-3
 vec2 GetShadowTilePos(const in int tile) {
@@ -15,12 +9,6 @@ vec2 GetShadowTilePos(const in int tile) {
     pos.x = fract(tile / 2.0);
     pos.y = floor(float(tile) * 0.5) * 0.5;
     return pos;
-}
-
-// tile: 0-3
-vec3 GetShadowTileColor(const in int tile) {
-    if (tile < 0) return vec3(1.0);
-    return _shadowTileColors[tile];
 }
 
 #if !defined RENDER_FRAG
@@ -169,10 +157,6 @@ vec3 GetShadowTileColor(const in int tile) {
 
 #if defined RENDER_VERTEX && !defined RENDER_COMPOSITE
     void ApplyShadows(const in vec3 localPos) {
-        #ifndef RENDER_TEXTURED
-            shadowTileColor = vec3(1.0);
-        #endif
-
         vec3 shadowViewPos = (shadowModelView * vec4(localPos, 1.0)).xyz;
 
         for (int i = 0; i < 4; i++) {
