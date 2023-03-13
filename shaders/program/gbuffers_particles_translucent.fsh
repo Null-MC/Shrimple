@@ -150,9 +150,8 @@ layout(location = 0) out vec4 outFinal;
 void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    if (color.a < alphaTestRef) {
-        //discard;
-        outFinal = vec4(0.0);
+    if (color.a < (1.5/255.0)) {
+        discard;
         return;
     }
 
