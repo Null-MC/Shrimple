@@ -74,7 +74,7 @@ void main() {
 	outDepth = vec4(vec3(depth), 1.0);
 
 	if (depth < 1.0) {
-		vec3 deferredLighting = textureLod(BUFFER_DEFERRED_LIGHTING, texcoord, 0).rgb;
+		vec4 deferredLighting = textureLod(BUFFER_DEFERRED_LIGHTING, texcoord, 0);
 		vec3 localNormal = textureLod(BUFFER_DEFERRED_NORMAL, texcoord, 0).rgb;
 
 		vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
@@ -84,35 +84,44 @@ void main() {
         //float lightmapBlock = saturate((deferredLighting.x - (0.5/16.0)) * (16.0/15.0));
 
 		vec3 blockLight;
-			vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
-			vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-			vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+		vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+		vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+		vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-			localNormal = normalize(localNormal * 2.0 - 1.0);
+		localNormal = normalize(localNormal * 2.0 - 1.0);
 
-			blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
-	        blockLight += SampleHandLight(localPos, localNormal);
-			//blockLight += lightmapBlock;
+		blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
+        blockLight += SampleHandLight(localPos, localNormal);
 
-			#if DYN_LIGHT_PENUMBRA > 0
-				vec2 uvPrev = clipPosPrev.xy * 0.5 + 0.5;
-				if (all(greaterThanEqual(uvPrev, vec2(0.0))) && all(lessThan(uvPrev, vec2(1.0)))) {
-					float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev, 0).r;
+        //vec3 lightColor = GetSceneBlockLightColor();
+        //int blockId = int(deferredLighting.a * 255.0 + 0.5);
+        //uint blockType = GetBlockType(blockId);
+        //float lightLevel = GetSceneBlockLightLevel(blockType) / 15.0;
+		blockLight += deferredLighting.a;
 
-					float linearDepth = linearizeDepthFast(depth, near, far);
-					float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
-					//float linearDepth = length(viewPos);
-					//float linearDepthPrev = length(viewPosPrev);
+		#if DYN_LIGHT_PENUMBRA > 0
+			vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
+			if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
+				float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev.xy, 0).r;
 
-					if (abs(linearDepth - linearDepthPrev) < 0.08) {
-						//float time = exp(-6.0 * frameTime);
-						float mixWeight = 0.96;
+				//float linearDepth = linearizeDepthFast(depth, near, far);
+				//float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
+				//float linearDepth = length(viewPos);
+				//float linearDepthPrev = length(viewPosPrev);
 
-						vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev, 0).rgb;
-						blockLight = mix(blockLight, blockLightPrev, 0.96);
-					}
+				//float depthWeight = saturate(200.0 * abs(linearDepth - linearDepthPrev));
+				//outLight = vec4(vec3(abs(linearDepth - linearDepthPrev)), 1.0);
+				//outLight = vec4(vec3(step(abs(uvPrev.z - depthPrev), 0.001)), 1.0);
+				//return;
+
+				if (abs(uvPrev.z - depthPrev) < 0.0001) {
+					//float time = exp(-6.0 * frameTime);
+
+					vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev.xy, 0).rgb;
+					blockLight = mix(blockLight, blockLightPrev, 0.92);
 				}
-			#endif
+			}
+		#endif
 
 		outLight = vec4(blockLight, 1.0);
 	}

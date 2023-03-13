@@ -118,14 +118,19 @@ uniform int fogMode;
     #include "/lib/shadows/common.glsl"
 #endif
 
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#else
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        #include "/lib/blocks.glsl"
-        #include "/lib/items.glsl"
+        //#include "/lib/blocks.glsl"
+        //#include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        //#include "/lib/lighting/dynamic_blocks.glsl"
     #endif
 
     #include "/lib/lighting/basic.glsl"
@@ -175,9 +180,11 @@ void main() {
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
+        float lightLevel = GetSceneBlockLightLevel(vBlockId) / 15.0;
+
         outColor = color;
         outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
-        outLighting = vec4(lmcoord, glcolor.a, 1.0);
+        outLighting = vec4(lmcoord, glcolor.a, lightLevel);
         outFog = vec4(fogColorFinal, fogF);
         outShadow = vec4(shadowColor, 1.0);
     #else

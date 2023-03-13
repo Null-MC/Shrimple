@@ -1,7 +1,7 @@
 colortex0		RGB8		1.0		final
 colortex1		RGB8		1.0		deferred color
 colortex2		RGB8		1.0		deferred normal
-colortex3		RGB8		1.0		deferred lighting (block, sky, ao)
+colortex3		RGBA8		1.0		deferred lighting (block, sky, ao, id)
 colortex4		RGBA8		1.0		deferred fog
 colortex5		RGB16F		 *	 	block-light
 colortex6		R32F		 *		block-light depth

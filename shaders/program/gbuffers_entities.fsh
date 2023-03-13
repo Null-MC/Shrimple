@@ -188,7 +188,7 @@ void main() {
 
 	    outColor = color;
 		outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
-		outLighting = vec4(lmcoord, glcolor.a, 1.0);
+		outLighting = vec4(lmcoord, glcolor.a, 0.0);
 		outFog = vec4(fogColorFinal, fogF);
         outShadow = vec4(shadowColor, 1.0);
 	#else
