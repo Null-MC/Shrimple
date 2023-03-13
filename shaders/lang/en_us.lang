@@ -152,7 +152,7 @@ option.DYN_LIGHT_TRACE_METHOD=Trace Method
 value.DYN_LIGHT_TRACE_METHOD.0=DDA
 value.DYN_LIGHT_TRACE_METHOD.1=Ray
 
-option.DYN_LIGHT_PENUMBRA=DDA Penumbra
+option.DYN_LIGHT_PENUMBRA=Penumbra Size
 option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
 value.DYN_LIGHT_PENUMBRA.0=None
 suffix.DYN_LIGHT_PENUMBRA=%
