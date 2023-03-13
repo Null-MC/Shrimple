@@ -164,9 +164,17 @@ value.DYN_LIGHT_RAY_QUALITY.2=Medium
 value.DYN_LIGHT_RAY_QUALITY.4=High
 value.DYN_LIGHT_RAY_QUALITY.8=Very High
 
+option.DYN_LIGHT_RES=Resolution
+value.DYN_LIGHT_RES.0=Full
+value.DYN_LIGHT_RES.1=Half
+value.DYN_LIGHT_RES.2=Quarter
+
 option.DYN_LIGHT_TEMPORAL=Temporal Count
 option.DYN_LIGHT_TEMPORAL.comment=When enabled, the number of lights rendered will be spread across the number of specified frames. Improves performance at the cost of quality/blur.
 value.DYN_LIGHT_TEMPORAL.0=Off
+
+option.DYN_LIGHT_BLUR=Blur
+option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
