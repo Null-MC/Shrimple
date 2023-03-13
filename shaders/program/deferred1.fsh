@@ -17,6 +17,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D shadowcolor0;
 #endif
 
+uniform float frameTime;
 uniform int frameCounter;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
@@ -70,6 +71,10 @@ void main() {
 	vec2 bufferSize = viewSize / exp2(DYN_LIGHT_RES);
 
 	ivec2 iTex = ivec2(gl_FragCoord.xy * exp2(DYN_LIGHT_RES));
+	#if DYN_LIGHT_RES == 1
+		iTex += 1;
+	#endif
+
 	float depth = texelFetch(depthtex0, iTex, 0).r;
 	outDepth = vec4(vec3(depth), 1.0);
 
@@ -100,11 +105,17 @@ void main() {
 					ivec2 iTexPrev = ivec2(uvPrev * bufferSize);
 					float depthPrev = texelFetch(BUFFER_LIGHT_DEPTH, iTexPrev, 0).r;
 
-					float linearDepth = linearizeDepthFast(depth, near, far);
-					float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
-					float depthWeight = 1.0 - saturate(4.0 * abs(linearDepth - linearDepthPrev));
+					//float linearDepth = linearizeDepthFast(depth, near, far);
+					//float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
+					float linearDepth = length(viewPos);
+					float linearDepthPrev = length(viewPosPrev);
 
-					float mixWeight = smoothstep(0.0, 1.0, depthWeight) * 0.96;
+					float depthWeight = 1.0 - saturate(4.0 * abs(linearDepth - linearDepthPrev));
+					//outLight = vec4(vec3(abs(linearDepth - linearDepthPrev)), 1.0);
+					//return;
+
+					float time = exp(-20.0 * frameTime);
+					float mixWeight = smoothstep(0.0, 1.0, depthWeight * time);
 
 					vec3 blockLightPrev = texelFetch(BUFFER_BLOCKLIGHT, iTexPrev, 0).rgb;
 					blockLight = mix(blockLight, blockLightPrev, mixWeight);
