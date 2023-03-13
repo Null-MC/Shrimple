@@ -52,6 +52,7 @@ uniform float blindness;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/blocks.glsl"
@@ -88,7 +89,6 @@ void main() {
         vec3 deferredShadow = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).rgb;
 
         float linearDepth = linearizeDepthFast(depth, near, far);
-        //const vec3 sigma = vec3(1.2, 1.2, 0.02);
         const vec3 sigma = vec3(3.0, 3.0, 0.002) / linearDepth;
 
         #ifdef DYN_LIGHT_BLUR
@@ -107,13 +107,9 @@ void main() {
         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        //localNormal = normalize(localNormal * 2.0 - 1.0);
-
         vec3 albedo = RGBToLinear(deferredColor);
         final = GetFinalLighting(albedo, blockLight, deferredShadow, viewPos, deferredLighting.xy, deferredLighting.z);
 
-        //ApplyFog(final, localPos);
-        //float fogF = GetVanillaFogFactor(localPos);
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);
     }

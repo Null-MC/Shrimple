@@ -139,14 +139,14 @@ uniform int fogMode;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     /* RENDERTARGETS: 1,2,3,4,7 */
-    layout(location = 0) out vec3 outColor;
-    layout(location = 1) out vec3 outNormal;
-    layout(location = 2) out vec3 outLighting;
+    layout(location = 0) out vec4 outColor;
+    layout(location = 1) out vec4 outNormal;
+    layout(location = 2) out vec4 outLighting;
     layout(location = 3) out vec4 outFog;
     layout(location = 4) out vec4 outShadow;
 #else
     /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec3 outFinal;
+    layout(location = 0) out vec4 outFinal;
 #endif
 
 void main() {
@@ -158,6 +158,8 @@ void main() {
     }
 
     color.rgb *= glcolor.rgb;
+    color.a = 1.0;
+
     vec3 localNormal = normalize(vLocalNormal);
 
     vec3 shadowColor = vec3(1.0);
@@ -174,9 +176,9 @@ void main() {
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
-        outColor = color.rgb;
-        outNormal = localNormal * 0.5 + 0.5;
-        outLighting = vec3(lmcoord, glcolor.a);
+        outColor = color;
+        outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
+        outLighting = vec4(lmcoord, glcolor.a, 1.0);
         outFog = vec4(fogColorFinal, fogF);
         outShadow = vec4(shadowColor, 1.0);
     #else
@@ -194,6 +196,7 @@ void main() {
             color.rgb = tonemap_Tech(color.rgb);
         #endif
 
-        outFinal = LinearToRGB(color.rgb);
+        color.rgb = LinearToRGB(color.rgb);
+        outFinal = color;
     #endif
 }

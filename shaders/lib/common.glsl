@@ -22,7 +22,7 @@ const bool shadowcolor0Clear = true;
 const bool shadowtex0Mipmap = false;
 const bool shadowtex1Mipmap = false;
 
-//const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex0MipmapEnabled = false;
 const bool colortex0Clear = false;
 
@@ -44,11 +44,11 @@ const bool colortex4Clear = true;
 
 const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex5MipmapEnabled = false;
-const bool colortex5Clear = true;
+const bool colortex5Clear = false;
 
 const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex6MipmapEnabled = false;
-const bool colortex6Clear = true;
+const bool colortex6Clear = false;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex7MipmapEnabled = false;
@@ -98,6 +98,7 @@ const bool colortex7Clear = true;
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
+#define DYN_LIGHT_TINT 300 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 0 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
 #define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
@@ -140,6 +141,7 @@ const bool colortex7Clear = true;
 #endif
 
 const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
+const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbra = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;

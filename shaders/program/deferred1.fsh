@@ -9,6 +9,8 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D BUFFER_DEFERRED_LIGHTING;
 uniform sampler2D BUFFER_DEFERRED_NORMAL;
+uniform sampler2D BUFFER_BLOCKLIGHT;
+uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -16,9 +18,12 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 uniform int frameCounter;
-uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
@@ -35,6 +40,7 @@ uniform float far;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/ign.glsl"
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
@@ -56,17 +62,16 @@ uniform float far;
 
 
 /* RENDERTARGETS: 5,6 */
-layout(location = 0) out vec3 outLight;
-layout(location = 1) out float outDepth;
+layout(location = 0) out vec4 outLight;
+layout(location = 1) out vec4 outDepth;
 
 void main() {
 	vec2 viewSize = vec2(viewWidth, viewHeight);
 	vec2 bufferSize = viewSize / exp2(DYN_LIGHT_RES);
 
-    //vec2 offset = mod(gl_FragCoord.xy - 0.5, 2);// / viewSize;
-	//ivec2 iTex = ivec2((gl_FragCoord.xy - 0.5) * exp2(DYN_LIGHT_RES) + offset);
 	ivec2 iTex = ivec2(gl_FragCoord.xy * exp2(DYN_LIGHT_RES));
 	float depth = texelFetch(depthtex0, iTex, 0).r;
+	outDepth = vec4(vec3(depth), 1.0);
 
 	if (depth < 1.0) {
 		vec3 deferredLighting = texelFetch(BUFFER_DEFERRED_LIGHTING, iTex, 0).rgb;
@@ -76,18 +81,49 @@ void main() {
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 		vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-		localNormal = normalize(localNormal * 2.0 - 1.0);
+        //vec3 offsetPos = localPos + LightGridCenter;
+        //vec3 maxSize = SceneLightSize
+        //float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 15.0;
 
-		vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
-        blockLight += SampleHandLight(localPos, localNormal);
-		blockLight += saturate((deferredLighting.x - (0.5/16.0)) * (16.0/15.0));
+        //float lightmapBlock = saturate((deferredLighting.x - (0.5/16.0)) * (16.0/15.0));
 
-		outLight = blockLight;
-		outDepth = depth;
-		//outDepth = linearizeDepthFast(depth, near, far);
+		vec3 blockLight;
+		//if (fade > EPSILON) {
+			vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+			vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+			vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+
+			localNormal = normalize(localNormal * 2.0 - 1.0);
+
+			blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
+	        blockLight += SampleHandLight(localPos, localNormal);
+			//blockLight += lightmapBlock;
+
+			vec2 uvPrev = clipPosPrev.xy * 0.5 + 0.5;
+			if (all(greaterThanEqual(uvPrev, vec2(0.0))) && all(lessThan(uvPrev, vec2(1.0)))) {
+				ivec2 iTexPrev = ivec2(uvPrev * bufferSize);
+				float depthPrev = texelFetch(BUFFER_LIGHT_DEPTH, iTexPrev, 0).r;
+
+				float linearDepth = linearizeDepthFast(depth, near, far);
+				float linearDepthPrev = linearizeDepthFast(depthPrev, near, far);
+				float depthWeight = 1.0 - saturate(4.0 * abs(linearDepth - linearDepthPrev));
+
+				float mixWeight = depthWeight * 0.96;
+
+				vec3 blockLightPrev = texelFetch(BUFFER_BLOCKLIGHT, iTexPrev, 0).rgb;
+				blockLight = mix(blockLight, blockLightPrev, mixWeight);
+			}
+		//}
+		//else {
+			//const vec3 blockLightColor = vec3(1.0);
+			//blockLight = pow(lightmapBlock, 4.0) * blockLightColor;
+        //    blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, (0.5/16.0)), 0).rgb;
+        //    blockLight = RGBToLinear(blockLight);
+		//}
+
+		outLight = vec4(blockLight, 1.0);
 	}
 	else {
-		outLight = vec3(0.0);
-		outDepth = 1.0;
+		outLight = vec4(0.0);
 	}
 }
