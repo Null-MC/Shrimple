@@ -116,7 +116,7 @@
 
                     if (blockType >= BLOCKTYPE_STAINED_GLASS_BLACK && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                         vec3 glassTint = GetLightGlassTint(blockType);
-                        color *= exp(-DynamicLightTintF * closestDist * (1.0 - glassTint));
+                        color *= exp(-4.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
                     }
                     else if (blockType != BLOCKTYPE_EMPTY) {
                         vec3 rayInv = rcp(currPos - rayStart);
@@ -398,7 +398,7 @@
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
                 vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, blockLightDefault)
-                //    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
+                    * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
                 vBlockLight += SampleHandLight(vLocalPos, vLocalNormal);
             #endif
