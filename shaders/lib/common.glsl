@@ -180,12 +180,12 @@ float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
 vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}
 vec3 saturate(const in vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}
 
-float minOf(vec2 vec) {return min(vec[0], vec[1]);}
-float minOf(vec3 vec) {return min(min(vec[0], vec[1]), vec[2]);}
-float minOf(vec4 vec) {return min(min(vec[0], vec[1]), min(vec[2], vec[3]));}
+float minOf(const in vec2 vec) {return min(vec[0], vec[1]);}
+float minOf(const in vec3 vec) {return min(min(vec[0], vec[1]), vec[2]);}
+float minOf(const in vec4 vec) {return min(min(vec[0], vec[1]), min(vec[2], vec[3]));}
 
-float maxOf(vec2 vec) {return max(vec[0], vec[1]);}
-float maxOf(vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
+float maxOf(const in vec2 vec) {return max(vec[0], vec[1]);}
+float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
 vec3 RGBToLinear(const in vec3 color) {
 	return pow(color, vec3(GAMMA));
@@ -203,6 +203,6 @@ vec3 unproject(const in vec4 pos) {
     return pos.xyz / pos.w;
 }
 
-float expStep(float x) {
+float expStep(const in float x) {
     return 1.0 - exp(-x*x);
 }

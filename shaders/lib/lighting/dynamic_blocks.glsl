@@ -364,21 +364,48 @@ float GetSceneBlockLightLevel(const in int blockId) {
                 case BLOCK_ANVIL_W_E:
                     blockType = BLOCKTYPE_ANVIL_W_E;
                     break;
+
+                case BLOCK_BELL_FLOOR_N_S:
+                case BLOCK_BELL_WALL_N:
+                case BLOCK_BELL_WALL_S:
+                case BLOCK_BELL_WALL_N_S:
+                case BLOCK_BELL_CEILING:
+                    blockType = BLOCKTYPE_BELL_FLOOR_N_S;
+                    break;
+                case BLOCK_BELL_FLOOR_W_E:
+                case BLOCK_BELL_WALL_W:
+                case BLOCK_BELL_WALL_E:
+                case BLOCK_BELL_WALL_W_E:
+                    blockType = BLOCKTYPE_BELL_FLOOR_W_E;
+                    break;
+
                 case BLOCK_CACTUS:
                     blockType = BLOCKTYPE_CACTUS;
                     break;
+
                 case BLOCK_CAKE:
                     blockType = BLOCKTYPE_CAKE;
                     break;
+
+                case BLOCK_CAMPFIRE_N_S:
+                    blockType = BLOCKTYPE_CAMPFIRE_N_S;
+                    break;
+                case BLOCK_CAMPFIRE_W_E:
+                    blockType = BLOCKTYPE_CAMPFIRE_W_E;
+                    break;
+
                 case BLOCK_CANDLE_CAKE:
                     blockType = BLOCKTYPE_CANDLE_CAKE;
                     break;
+
                 case BLOCK_CARPET:
                     blockType = BLOCKTYPE_CARPET;
                     break;
+
                 case BLOCK_DAYLIGHT_DETECTOR:
                     blockType = BLOCKTYPE_DAYLIGHT_DETECTOR;
                     break;
+
                 case BLOCK_ENCHANTING_TABLE:
                     blockType = BLOCKTYPE_ENCHANTING_TABLE;
                     break;
@@ -792,10 +819,18 @@ float GetSceneBlockLightLevel(const in int blockId) {
                 case BLOCK_WALL_POST_TALL_S_E:
                     blockType = BLOCKTYPE_WALL_POST_TALL_S_E;
                     break;
-                // TODO: BLOCK_WALL_POST_TALLTALL_N_W_S
-                // TODO: BLOCK_WALL_POST_TALL_N_E_S
-                // TODO: BLOCK_WALL_POST_TALL_W_N_E
-                // TODO: BLOCK_WALL_POST_TALL_W_S_E
+                case BLOCK_WALL_POST_TALL_N_W_S:
+                    blockType = BLOCKTYPE_WALL_POST_TALL_N_W_S;
+                    break;
+                case BLOCK_WALL_POST_TALL_N_E_S:
+                    blockType = BLOCKTYPE_WALL_POST_TALL_N_E_S;
+                    break;
+                case BLOCK_WALL_POST_TALL_W_N_E:
+                    blockType = BLOCKTYPE_WALL_POST_TALL_W_N_E;
+                    break;
+                case BLOCK_WALL_POST_TALL_W_S_E:
+                    blockType = BLOCKTYPE_WALL_POST_TALL_W_S_E;
+                    break;
                 case BLOCK_WALL_POST_TALL_ALL:
                     blockType = BLOCKTYPE_WALL_POST_TALL_ALL;
                     break;
