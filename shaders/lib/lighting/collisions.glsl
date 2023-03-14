@@ -90,9 +90,72 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0, 0.125, 1.0);
             break;
+        case BLOCKTYPE_LIGHTNING_ROD_N:
+        case BLOCKTYPE_LIGHTNING_ROD_S:
+            boundsMin = vec3((7.0/16.0), (7.0/16.0), 0.0);
+            boundsMax = vec3((9.0/16.0), (9.0/16.0), 1.0);
+            break;
+        case BLOCKTYPE_LIGHTNING_ROD_W:
+        case BLOCKTYPE_LIGHTNING_ROD_E:
+            boundsMin = vec3(0.0, (7.0/16.0), (7.0/16.0));
+            boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
+            break;
+        case BLOCKTYPE_LIGHTNING_ROD_UP:
+        case BLOCKTYPE_LIGHTNING_ROD_DOWN:
+            boundsMin = vec3((7.0/16.0), 0.0, (7.0/16.0));
+            boundsMax = vec3((9.0/16.0), 1.0, (9.0/16.0));
+            break;
         case BLOCKTYPE_PATHWAY:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0, (15.0/16.0), 1.0);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_N:
+            boundsMin = vec3(0.0, 0.0, 0.25);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_E:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(0.75, 1.0, 1.0);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_S:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(1.0, 1.0, 0.75);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_W:
+            boundsMin = vec3(0.25, 0.0, 0.0);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_UP:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(1.0, 0.75, 1.0);
+            break;
+        case BLOCKTYPE_PISTON_EXTENDED_DOWN:
+            boundsMin = vec3(0.0, 0.25, 0.0);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_N:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(1.0, 1.0, 0.25);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_E:
+            boundsMin = vec3(0.75, 0.0, 0.0);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_S:
+            boundsMin = vec3(0.0, 0.0, 0.75);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_W:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(0.25, 1.0, 1.0);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_UP:
+            boundsMin = vec3(0.0, 0.75, 0.0);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_PISTON_HEAD_DOWN:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(1.0, 0.25, 1.0);
             break;
         case BLOCKTYPE_PRESSURE_PLATE:
             boundsMin = vec3((1.0/16.0), 0.0, (1.0/16.0));
@@ -365,10 +428,55 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 boundsMin = vec3((7.0/16.0),         0.5, (7.0/16.0));
                 boundsMax = vec3((9.0/16.0), (14.0/16.0), (9.0/16.0));
                 break;
-
             case BLOCKTYPE_LECTERN:
                 boundsMin = vec3(0.25,         0.0, 0.25);
                 boundsMax = vec3(0.75, (13.0/16.0), 0.75);
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_N:
+                boundsMin = vec3( (6.0/16.0),  (6.0/16.0), 0.00);
+                boundsMax = vec3((10.0/16.0), (10.0/16.0), 0.25);
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_E:
+                boundsMin = vec3(0.75,  (6.0/16.0),  (6.0/16.0));
+                boundsMax = vec3(1.00, (10.0/16.0), (10.0/16.0));
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_S:
+                boundsMin = vec3( (6.0/16.0),  (6.0/16.0), 0.75);
+                boundsMax = vec3((10.0/16.0), (10.0/16.0), 1.00);
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_W:
+                boundsMin = vec3(0.00,  (6.0/16.0),  (6.0/16.0));
+                boundsMax = vec3(0.25, (10.0/16.0), (10.0/16.0));
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_UP:
+                boundsMin = vec3( (6.0/16.0), 0.75,  (6.0/16.0));
+                boundsMax = vec3((10.0/16.0), 1.00, (10.0/16.0));
+                break;
+            case BLOCKTYPE_LIGHTNING_ROD_DOWN:
+                boundsMin = vec3( (6.0/16.0), 0.00,  (6.0/16.0));
+                boundsMax = vec3((10.0/16.0), 0.25, (10.0/16.0));
+                break;
+
+            case BLOCKTYPE_PISTON_HEAD_UP:
+            case BLOCKTYPE_PISTON_HEAD_DOWN:
+            case BLOCKTYPE_PISTON_EXTENDED_UP:
+            case BLOCKTYPE_PISTON_EXTENDED_DOWN:
+                boundsMin = vec3(0.375, 0.0, 0.375);
+                boundsMax = vec3(0.625, 1.0, 0.625);
+                break;
+            case BLOCKTYPE_PISTON_HEAD_N:
+            case BLOCKTYPE_PISTON_HEAD_S:
+            case BLOCKTYPE_PISTON_EXTENDED_N:
+            case BLOCKTYPE_PISTON_EXTENDED_S:
+                boundsMin = vec3(0.375, 0.375, 0.0);
+                boundsMax = vec3(0.625, 0.625, 1.0);
+                break;
+            case BLOCKTYPE_PISTON_HEAD_W:
+            case BLOCKTYPE_PISTON_HEAD_E:
+            case BLOCKTYPE_PISTON_EXTENDED_W:
+            case BLOCKTYPE_PISTON_EXTENDED_E:
+                boundsMin = vec3(0.0, 0.375, 0.375);
+                boundsMax = vec3(1.0, 0.625, 0.625);
                 break;
 
             case BLOCKTYPE_STAIRS_BOTTOM_N:

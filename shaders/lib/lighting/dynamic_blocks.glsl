@@ -419,8 +419,62 @@ float GetSceneBlockLightLevel(const in int blockId) {
                 case BLOCK_LECTERN:
                     blockType = BLOCKTYPE_LECTERN;
                     break;
+                case BLOCK_LIGHTNING_ROD_N:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_N;
+                    break;
+                case BLOCK_LIGHTNING_ROD_E:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_E;
+                    break;
+                case BLOCK_LIGHTNING_ROD_S:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_S;
+                    break;
+                case BLOCK_LIGHTNING_ROD_W:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_W;
+                    break;
+                case BLOCK_LIGHTNING_ROD_UP:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_UP;
+                    break;
+                case BLOCK_LIGHTNING_ROD_DOWN:
+                    blockType = BLOCKTYPE_LIGHTNING_ROD_DOWN;
+                    break;
                 case BLOCK_PATHWAY:
                     blockType = BLOCKTYPE_PATHWAY;
+                    break;
+                case BLOCK_PISTON_EXTENDED_N:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_N;
+                    break;
+                case BLOCK_PISTON_EXTENDED_E:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_E;
+                    break;
+                case BLOCK_PISTON_EXTENDED_S:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_S;
+                    break;
+                case BLOCK_PISTON_EXTENDED_W:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_W;
+                    break;
+                case BLOCK_PISTON_EXTENDED_UP:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_UP;
+                    break;
+                case BLOCK_PISTON_EXTENDED_DOWN:
+                    blockType = BLOCKTYPE_PISTON_EXTENDED_DOWN;
+                    break;
+                case BLOCK_PISTON_HEAD_N:
+                    blockType = BLOCKTYPE_PISTON_HEAD_N;
+                    break;
+                case BLOCK_PISTON_HEAD_E:
+                    blockType = BLOCKTYPE_PISTON_HEAD_E;
+                    break;
+                case BLOCK_PISTON_HEAD_S:
+                    blockType = BLOCKTYPE_PISTON_HEAD_S;
+                    break;
+                case BLOCK_PISTON_HEAD_W:
+                    blockType = BLOCKTYPE_PISTON_HEAD_W;
+                    break;
+                case BLOCK_PISTON_HEAD_UP:
+                    blockType = BLOCKTYPE_PISTON_HEAD_UP;
+                    break;
+                case BLOCK_PISTON_HEAD_DOWN:
+                    blockType = BLOCKTYPE_PISTON_HEAD_DOWN;
                     break;
                 case BLOCK_PRESSURE_PLATE:
                     blockType = BLOCKTYPE_PRESSURE_PLATE;
@@ -768,6 +822,12 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     blockType = BLOCKTYPE_CHORUS_OTHER;
                     break;
 
+                case BLOCK_HONEY:
+                    blockType = BLOCKTYPE_HONEY;
+                    break;
+                case BLOCK_SLIME:
+                    blockType = BLOCKTYPE_SLIME;
+                    break;
                 case BLOCK_STAINED_GLASS_BLACK:
                     blockType = BLOCKTYPE_STAINED_GLASS_BLACK;
                     break;

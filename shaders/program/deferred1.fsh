@@ -1,3 +1,4 @@
+#define RENDER_DEFERRED_RT_LIGHT
 #define RENDER_DEFERRED
 #define RENDER_FRAG
 
@@ -46,16 +47,17 @@ uniform float far;
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
+    #include "/lib/lighting/tracing.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 

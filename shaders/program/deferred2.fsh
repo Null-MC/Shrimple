@@ -58,9 +58,10 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 #include "/lib/buffers/lighting.glsl"
-#include "/lib/lighting/collisions.glsl"
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/dynamic.glsl"
+#include "/lib/lighting/collisions.glsl"
+#include "/lib/lighting/tracing.glsl"
 #include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/world/fog.glsl"

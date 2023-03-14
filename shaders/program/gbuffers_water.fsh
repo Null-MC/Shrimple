@@ -18,19 +18,19 @@ in vec3 vBlockLight;
 flat in int vBlockId;
 
 #ifdef WORLD_SHADOW_ENABLED
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		in vec3 shadowPos[4];
-		flat in int shadowTile;
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		in vec3 shadowPos;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        in vec3 shadowPos[4];
+        flat in int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        in vec3 shadowPos;
+    #endif
 #endif
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-	uniform sampler2D noisetex;
+    uniform sampler2D noisetex;
 #endif
 
 uniform int frameCounter;
@@ -47,21 +47,21 @@ uniform float far;
 #endif
 
 #if MC_VERSION >= 11700
-	uniform float alphaTestRef;
+    uniform float alphaTestRef;
 #endif
 
 #ifndef SHADOW_BLUR
-	uniform vec3 upPosition;
-	uniform vec3 skyColor;
-	//uniform float far;
-	
-	uniform vec3 fogColor;
-	uniform float fogDensity;
-	uniform float fogStart;
-	uniform float fogEnd;
-	uniform int fogShape;
-	uniform int fogMode;
-	
+    uniform vec3 upPosition;
+    uniform vec3 skyColor;
+    //uniform float far;
+    
+    uniform vec3 fogColor;
+    uniform float fogDensity;
+    uniform float fogStart;
+    uniform float fogEnd;
+    uniform int fogShape;
+    uniform int fogMode;
+    
     uniform float blindness;
 #endif 
 
@@ -70,9 +70,9 @@ uniform float far;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
-	uniform sampler2D shadowtex0;
-	uniform sampler2D shadowtex1;
-	
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
+    
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             uniform sampler2DShadow shadowtex0HW;
@@ -80,12 +80,12 @@ uniform float far;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-	
-	uniform vec3 shadowLightPosition;
+    
+    uniform vec3 shadowLightPosition;
 
-	#if SHADOW_TYPE != SHADOW_TYPE_NONE
-		uniform mat4 shadowProjection;
-	#endif
+    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+        uniform mat4 shadowProjection;
+    #endif
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -108,35 +108,36 @@ uniform float far;
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		#include "/lib/shadows/cascaded.glsl"
-		#include "/lib/shadows/cascaded_render.glsl"
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		#include "/lib/shadows/basic.glsl"
-		#include "/lib/shadows/basic_render.glsl"
-	#endif
-	
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+        #include "/lib/shadows/cascaded_render.glsl"
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/shadows/basic.glsl"
+        #include "/lib/shadows/basic_render.glsl"
+    #endif
+    
     #include "/lib/shadows/common.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
+    #include "/lib/lighting/tracing.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
 #ifdef TONEMAP_ENABLED
-	#include "/lib/post/tonemap.glsl"
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -153,20 +154,20 @@ void main() {
         vec4 color = texture(gtexture, texcoord);
     #endif
 
-	color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+    color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
-	#if SHADOW_TYPE != SHADOW_TYPE_NONE
-		#if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-			vec3 lightColor = GetFinalShadowColor();
-		#else
-			vec3 lightColor = vec3(GetFinalShadowFactor());
-		#endif
-	#else
-		vec3 lightColor = vec3(1.0);
-	#endif
+    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+            vec3 lightColor = GetFinalShadowColor();
+        #else
+            vec3 lightColor = vec3(GetFinalShadowFactor());
+        #endif
+    #else
+        vec3 lightColor = vec3(1.0);
+    #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x);
-	color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
