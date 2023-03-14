@@ -80,7 +80,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         }
     #endif
 
-    void AddSceneLight(const in vec3 position, const in float range, const in vec4 color) {
+    void AddSceneLight(const in vec3 position, const in float range, const in vec3 color, const in uint metadata) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);
         if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
@@ -94,7 +94,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         uint lightIndex = atomicAdd(SceneLightCount, 1u);
         if (lightIndex >= LIGHT_MAX_COUNT) return;
 
-        SceneLights[lightIndex] = SceneLightData(position, range, color);
+        SceneLights[lightIndex] = SceneLightData(position, range, color, metadata);
         ivec2 uv = GetSceneLightUV(gridIndex, gridLightIndex);
         imageStore(imgSceneLights, uv, uvec4(lightIndex));
 

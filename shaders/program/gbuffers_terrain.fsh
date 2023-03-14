@@ -177,7 +177,7 @@ void main() {
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
-        float lightLevel = GetSceneBlockLightLevel(vBlockId) / 15.0;
+        float lightLevel = GetSceneBlockLightRange(vBlockId) / 15.0;
 
         uvec3 deferredPre;
         deferredPre.r = packUnorm4x8(color);

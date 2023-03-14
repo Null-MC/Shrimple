@@ -48,19 +48,21 @@
 
                 vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    vec3 traceOrigin = GetLightGridPosition(light.position);
-                    //vec3 traceEnd = GetLightGridPosition(lightFragPos);
-                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
+                    if ((light.data & 1) == 0) {
+                        vec3 traceOrigin = GetLightGridPosition(light.position);
+                        //vec3 traceEnd = GetLightGridPosition(lightFragPos);
+                        vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        ApplyLightPenumbraOffset(traceOrigin);
-                    #endif
+                        #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                            ApplyLightPenumbraOffset(traceOrigin);
+                        #endif
 
-                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightTint = TraceRay(traceOrigin, traceEnd, light.range);
-                    #else
-                        lightTint = TraceDDA(traceEnd, traceOrigin, light.range);
-                    #endif
+                        #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+                            lightTint = TraceRay(traceOrigin, traceEnd, light.range);
+                        #else
+                            lightTint = TraceDDA(traceEnd, traceOrigin, light.range);
+                        #endif
+                    }
                 #endif
 
                 accumDiffuse += SampleLight(lightVec, localNormal, light.range) * light.color.rgb * lightTint;
@@ -98,7 +100,7 @@
         //if (heldItemId == 115) return vec3(1.0);
 
         if (heldBlockLightValue > 0) {
-            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(0.3, -0.3, 0.2, 1.0)).xyz;
+            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
@@ -126,7 +128,7 @@
         }
 
         if (heldBlockLightValue2 > 0) {
-            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(-0.3, -0.3, 0.2, 1.0)).xyz;
+            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);

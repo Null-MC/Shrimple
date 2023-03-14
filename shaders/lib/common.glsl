@@ -72,8 +72,8 @@ const bool colortex4Clear = false;
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_DIRECTIONAL
 #define DYN_LIGHT_FLICKER
-//#define DYN_LIGHT_LAVA_ENABLED
-//#define DYN_LIGHT_REDSTONE_ENABLED
+#define DYN_LIGHT_LAVA 1 // [0 1 2]
+#define DYN_LIGHT_REDSTONE 1 // [0 1 2]
 #define LIGHT_BIN_MAX_COUNT 64 // [16 32 48 64 80 96 112 128 144 160 176 192]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 16 // [4 8 16 32 64]
@@ -118,11 +118,8 @@ const bool colortex4Clear = false;
 #define GAMMA 2.2
 
 
-#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    const float ShadowNormalBias = SHADOW_CASCADED_NORMAL_BIAS;
-#else
-    const float ShadowNormalBias = SHADOW_DISTORTED_NORMAL_BIAS;
-#endif
+const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
+const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
@@ -132,6 +129,12 @@ const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
+
+#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    const float ShadowNormalBias = SHADOW_CASCADED_NORMAL_BIAS;
+#else
+    const float ShadowNormalBias = SHADOW_DISTORTED_NORMAL_BIAS;
+#endif
 
 const float shadowDistanceRenderMul = 1.0;
 

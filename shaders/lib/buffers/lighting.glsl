@@ -1,7 +1,8 @@
 struct SceneLightData {
     vec3 position;
     float range;
-    vec4 color;
+    vec3 color;
+    uint data;
 };
 
 struct LightCellData {

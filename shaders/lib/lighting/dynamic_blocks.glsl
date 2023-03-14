@@ -203,7 +203,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
     return lightColor;
 }
 
-float GetSceneBlockLightLevel(const in int blockId) {
+float GetSceneBlockLightRange(const in int blockId) {
     float lightRange = 0.0;
 
     switch (blockId) {
@@ -362,66 +362,78 @@ float GetSceneBlockLightLevel(const in int blockId) {
             lightRange = 15.0;
             break;
 
-        #ifdef DYN_LIGHT_REDSTONE_ENABLED
-            case BLOCK_COMPARATOR_LIT:
-            case BLOCK_REPEATER_LIT:
-                lightRange = 7.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_1:
-                lightRange = 1.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_2:
-                lightRange = 1.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_3:
-                lightRange = 2.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_4:
-                lightRange = 2.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_5:
-                lightRange = 3.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_6:
-                lightRange = 3.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_7:
-                lightRange = 4.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_8:
-                lightRange = 4.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_9:
-                lightRange = 5.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_10:
-                lightRange = 5.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_11:
-                lightRange = 6.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_12:
-                lightRange = 6.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_13:
-                lightRange = 7.0;
-                break;
-            case BLOCK_REDSTONE_WIRE_14:
-                lightRange = 7.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_15:
-                lightRange = 8.0;
-                break;
-        #endif
-        
-        #ifdef DYN_LIGHT_LAVA_ENABLED
-            case BLOCK_LAVA:
-                lightRange = 15.0;
-                break;
-        #endif
+        case BLOCK_COMPARATOR_LIT:
+        case BLOCK_REPEATER_LIT:
+            lightRange = 7.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_1:
+            lightRange = 1.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_2:
+            lightRange = 1.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_3:
+            lightRange = 2.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_4:
+            lightRange = 2.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_5:
+            lightRange = 3.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_6:
+            lightRange = 3.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_7:
+            lightRange = 4.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_8:
+            lightRange = 4.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_9:
+            lightRange = 5.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_10:
+            lightRange = 5.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_11:
+            lightRange = 6.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_12:
+            lightRange = 6.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_13:
+            lightRange = 7.0;
+            break;
+        case BLOCK_REDSTONE_WIRE_14:
+            lightRange = 7.5;
+            break;
+        case BLOCK_REDSTONE_WIRE_15:
+            lightRange = 8.0;
+            break;
+    
+        case BLOCK_LAVA:
+            lightRange = 8.0;
+            break;
     }
 
     return lightRange;
+}
+
+float GetSceneBlockLightLevel(const in int blockId) {
+    #if DYN_LIGHT_REDSTONE != 2
+        if (blockId == BLOCK_COMPARATOR_LIT
+         || blockId == BLOCK_REPEATER_LIT) return 0.0;
+
+        if (blockId >= BLOCK_REDSTONE_WIRE_1
+         && blockId <= BLOCK_REDSTONE_WIRE_15) return 0.0;
+    #endif
+    
+    #if DYN_LIGHT_LAVA == 0
+        if (blockId == BLOCK_LAVA) return 0.0;
+    #endif
+
+    return GetSceneBlockLightRange(blockId);
 }
 
 #ifdef RENDER_SHADOW
@@ -998,6 +1010,17 @@ float GetSceneBlockLightLevel(const in int blockId) {
         }
     #endif
 
+    uint GetSceneBlockLightMetadata(const in int blockId) {
+        uint metadata = 0u;
+
+        #if DYN_LIGHT_LAVA != 2
+            if (blockId == BLOCK_LAVA) metadata |= 1;
+        #endif
+        //...
+
+        return metadata;
+    }
+
     void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
         //float lightRange = GetSceneBlockLightLevel(blockId);
         vec3 lightOffset = vec3(0.0);
@@ -1228,7 +1251,8 @@ float GetSceneBlockLightLevel(const in int blockId) {
         #endif
 
         if (lightRange > EPSILON) {
-            AddSceneLight(blockLocalPos + lightOffset, lightRange, vec4(lightColor, 1.0));
+            uint lightData = GetSceneBlockLightMetadata(blockId);
+            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
         }
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             else if (IsDynLightSolidBlock(blockId)) {
