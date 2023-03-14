@@ -32,6 +32,8 @@ uniform int entityId;
 #endif
 
 #ifdef ENABLE_WAVING
+    #include "/lib/blocks.glsl"
+    #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
 #endif
 
@@ -64,8 +66,7 @@ void main() {
     vec4 pos = gl_Vertex;
 
     #ifdef ENABLE_WAVING
-        if (blockId >= 10001 && blockId <= 10004)
-            pos.xyz += GetWavingOffset();
+        ApplyWavingOffset(pos.xyz, vBlockId);
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;

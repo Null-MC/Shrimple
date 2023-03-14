@@ -74,9 +74,11 @@ void main() {
 
 		text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
 		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
-		printString((_T, _o, _t, _a, _l, _colon, _space));
+		printString((_V, _i, _s, _i, _b, _l, _e, _colon, _space));
 		printUnsignedInt(SceneLightCount);
-		//printNewLine();
+		printLine();
+		printString((_T, _o, _t, _a, _l, _colon, _space, _space, _space));
+		printUnsignedInt(SceneLightMaxCount);
 
 		endText(color);
 	#endif

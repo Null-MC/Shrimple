@@ -167,8 +167,7 @@
             vBlockId = int(mc_Entity.x + 0.5);
 
             #ifdef ENABLE_WAVING
-                if (vBlockId >= 10001 && vBlockId <= 10004)
-                    pos.xyz += GetWavingOffset();
+                ApplyWavingOffset(pos.xyz, vBlockId);
             #endif
         #endif
 

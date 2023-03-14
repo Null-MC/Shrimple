@@ -35,6 +35,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 void main() {
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         SceneLightCount = 0u;
+        SceneLightMaxCount = 0u;
 
         vec3 farClipPos[4];
         farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));

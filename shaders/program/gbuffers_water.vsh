@@ -63,6 +63,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
+#include "/lib/sampling/noise.glsl"
 #include "/lib/world/waving.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED

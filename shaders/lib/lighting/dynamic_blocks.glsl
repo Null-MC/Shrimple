@@ -1233,24 +1233,26 @@ float GetSceneBlockLightLevel(const in int blockId) {
             // #endif
         }
 
-        #ifdef DYN_LIGHT_FRUSTUM_TEST
-            vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
-            bool intersects = true;
-
-            float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-            if (lightViewPos.z > maxRange) intersects = false;
-            else if (lightViewPos.z < -far - maxRange) intersects = false;
-            else {
-                if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
-                if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
-                if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
-                if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
-            }
-
-            if (!intersects) return;
-        #endif
-
         if (lightRange > EPSILON) {
+            atomicAdd(SceneLightMaxCount, 1u);
+
+            #ifdef DYN_LIGHT_FRUSTUM_TEST
+                vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+                bool intersects = true;
+
+                float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+                if (lightViewPos.z > maxRange) intersects = false;
+                else if (lightViewPos.z < -far - maxRange) intersects = false;
+                else {
+                    if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
+                    if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
+                    if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
+                    if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
+                }
+
+                if (!intersects) return;
+            #endif
+
             uint lightData = GetSceneBlockLightMetadata(blockId);
             AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
         }

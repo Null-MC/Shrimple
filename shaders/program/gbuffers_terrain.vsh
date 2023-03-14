@@ -64,6 +64,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/sampling/noise.glsl"
 #include "/lib/world/waving.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
