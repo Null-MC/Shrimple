@@ -105,11 +105,14 @@ void main() {
 				normalPrev = normalize(normalPrev * 2.0 - 1.0);
 	            float normalWeight = 1.0 - dot(localNormal, normalPrev);
 
-				if (abs(uvPrev.z - depthPrev) < 0.0001 && normalWeight < 0.1) {
+	            float depthLinear = linearizeDepthFast(uvPrev.z, near, far);
+	            float depthPrevLinear = linearizeDepthFast(depthPrev, near, far);
+
+				if (abs(depthLinear - depthPrevLinear) < 0.06 && normalWeight < 0.1) {
 					//float time = exp(-6.0 * frameTime);
 
 					vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev.xy, 0).rgb;
-					blockLight = mix(blockLight, blockLightPrev, 0.92);
+					blockLight = mix(blockLight, blockLightPrev, 0.9);
 				}
 			}
 		#endif
