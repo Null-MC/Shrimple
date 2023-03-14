@@ -606,6 +606,8 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     break;
 
                 case BLOCK_SLABS_BOTTOM:
+                case BLOCK_SCULK_SENSOR:
+                case BLOCK_SCULK_SHRIEKER:
                     blockType = BLOCKTYPE_SLAB_BOTTOM;
                     break;
                 case BLOCK_SLABS_TOP:
