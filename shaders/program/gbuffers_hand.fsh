@@ -138,12 +138,9 @@ uniform int fogMode;
 
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    /* RENDERTARGETS: 1,2,3,4,7 */
-    layout(location = 0) out vec4 outColor;
-    layout(location = 1) out vec4 outNormal;
-    layout(location = 2) out vec4 outLighting;
-    layout(location = 3) out vec4 outFog;
-    layout(location = 4) out vec4 outShadow;
+    /* RENDERTARGETS: 1,2 */
+    layout(location = 0) out uvec3 outDeferredPre;
+    layout(location = 1) out uvec2 outDeferredPost;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -175,11 +172,19 @@ void main() {
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
-        outColor = color;
-        outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
-        outLighting = vec4(lmcoord, glcolor.a, 1.0);
-        outFog = vec4(fogColorFinal, fogF);
-        outShadow = vec4(shadowColor, 1.0);
+        const float lightLevel = 0.0;
+
+        uvec3 deferredPre;
+        deferredPre.r = packUnorm4x8(color);
+        deferredPre.g = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
+        deferredPre.b = packUnorm4x8(vec4(lmcoord, glcolor.a, lightLevel));
+
+        uvec2 deferredPost;
+        deferredPost.r = packUnorm4x8(vec4(shadowColor, 1.0));
+        deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF));
+
+        outDeferredPre = deferredPre;
+        outDeferredPost = deferredPost;
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL

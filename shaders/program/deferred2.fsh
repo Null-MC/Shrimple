@@ -9,11 +9,8 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex2;
 uniform sampler2D BUFFER_FINAL;
-uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform sampler2D BUFFER_DEFERRED_NORMAL;
-uniform sampler2D BUFFER_DEFERRED_LIGHTING;
-uniform sampler2D BUFFER_DEFERRED_FOG;
-uniform sampler2D BUFFER_DEFERRED_SHADOW;
+uniform usampler2D BUFFER_DEFERRED_PRE;
+uniform usampler2D BUFFER_DEFERRED_POST;
 uniform sampler2D BUFFER_BLOCKLIGHT;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
@@ -83,11 +80,14 @@ void main() {
     if (depth < 1.0) {
         vec2 viewSize = vec2(viewWidth, viewHeight);
 
-        vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-        //vec3 localNormal = texelFetch(BUFFER_DEFERRED_NORMAL, iTex, 0).rgb;
-        vec3 deferredLighting = texelFetch(BUFFER_DEFERRED_LIGHTING, iTex, 0).rgb;
-        vec4 deferredFog = texelFetch(BUFFER_DEFERRED_FOG, iTex, 0);
-        vec3 deferredShadow = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).rgb;
+        uvec3 deferredPre = texelFetch(BUFFER_DEFERRED_PRE, iTex, 0).rgb;
+        vec3 deferredColor = unpackUnorm4x8(deferredPre.r).rgb;
+        //vec3 localNormal = unpackUnorm4x8(deferredPre.g).rgb;
+        vec3 deferredLighting = unpackUnorm4x8(deferredPre.b).rgb;
+
+        uvec2 deferredPost = texelFetch(BUFFER_DEFERRED_POST, iTex, 0).rg;
+        vec3 deferredShadow = unpackUnorm4x8(deferredPost.r).rgb;
+        vec4 deferredFog = unpackUnorm4x8(deferredPost.g);
 
         float linearDepth = linearizeDepthFast(depth, near, far);
         const vec3 sigma = vec3(3.0, 3.0, 0.002) / linearDepth;

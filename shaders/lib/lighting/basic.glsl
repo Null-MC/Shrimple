@@ -108,7 +108,7 @@
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
-                    vec3 traceEnd = traceOrigin - lightVec;
+                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
                         ApplyLightPenumbraOffset(traceOrigin);
@@ -117,7 +117,7 @@
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
                     #else
-                        lightColor *= TraceDDA(traceOrigin, traceEnd, heldBlockLightValue);
+                        lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue);
                     #endif
                 #endif
 
@@ -136,7 +136,7 @@
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
-                    vec3 traceEnd = traceOrigin - lightVec;
+                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
                         ApplyLightPenumbraOffset(traceOrigin);
@@ -145,7 +145,7 @@
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
                     #else
-                        lightColor *= TraceDDA(traceOrigin, traceEnd, heldBlockLightValue2);
+                        lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue2);
                     #endif
                 #endif
 

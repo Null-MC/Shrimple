@@ -1,10 +1,32 @@
 colortex0		RGB8		1.0		final
-colortex1		RGB8		1.0		deferred color
-colortex2		RGB8		1.0		deferred normal
-colortex3		RGBA8		1.0		deferred lighting (block, sky, ao, id)
-colortex4		RGBA8		1.0		deferred fog
-colortex5		RGB16F		 *	 	block-light
-colortex6		R32F		 *		block-light depth
-colortex7		RGB8		1.0		deferred shadow
 
-colortex8			lightmap
+colortex1		RGB32UI		1.0		deferred pre
+									- R: color.rgb
+									- G: normal.xyz
+									- B: lighting.xyzw (block, sky, ao, emission)
+
+colortex2		RG32UI		1.0		deferred post
+									- R: shadow.rgb
+									- G: fog.rgba
+
+colortex3		RGB16F		 *	 	block-light
+colortex4		R32F		 *		block-light depth
+
+colortex5			lightmap
+
+
+
+
+
+
+
+--colortex1		RGB8		1.0		deferred color
+--colortex2		RGB8		1.0		deferred normal
+--colortex3		RGBA8		1.0		deferred lighting (block, sky, ao, id)
+--colortex7		RGB8		1.0		deferred shadow
+--colortex4		RGBA8		1.0		deferred fog
+
+--colortex5		RGB16F		 *	 	block-light
+--colortex6		R32F		 *		block-light depth
+
+--colortex8			lightmap

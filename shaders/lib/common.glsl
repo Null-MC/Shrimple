@@ -3,14 +3,10 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 /*
 const int shadowcolor0Format = RGBA8;
 const int colortex0Format = RGB8;
-const int colortex1Format = RGB8;
-const int colortex2Format = RGB8;
-const int colortex2Format = RGB8;
-const int colortex3Format = RGBA8;
-const int colortex4Format = RGBA8;
-const int colortex5Format = RGB16F;
-const int colortex6Format = R32F;
-const int colortex7Format = RGB8;
+const int colortex1Format = RGB32UI;
+const int colortex2Format = RG32UI;
+const int colortex3Format = RGB16F;
+const int colortex4Format = R32F;
 */
 
 const bool generateShadowMipmap = false;
@@ -34,25 +30,13 @@ const vec4 colortex2ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex2MipmapEnabled = false;
 const bool colortex2Clear = true;
 
-const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex3MipmapEnabled = false;
-const bool colortex3Clear = true;
+const bool colortex3Clear = false;
 
-const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 colortex4ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex4MipmapEnabled = false;
-const bool colortex4Clear = true;
-
-const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex5MipmapEnabled = false;
-const bool colortex5Clear = false;
-
-const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex6MipmapEnabled = false;
-const bool colortex6Clear = false;
-
-const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex7MipmapEnabled = false;
-const bool colortex7Clear = true;
+const bool colortex4Clear = false;
 
 
 // World Options

@@ -101,7 +101,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
 
             if (blockType >= BLOCKTYPE_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                 vec3 glassTint = GetLightGlassTint(blockType);
-                color *= exp(-4.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
+                color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
             }
             else if (blockType != BLOCKTYPE_EMPTY) {
                 vec3 rayInv = rcp(currPos - rayStart);
