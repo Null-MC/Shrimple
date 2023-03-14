@@ -112,6 +112,23 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.953, 0.796, 0.496);
             break;
         case BLOCK_REDSTONE_TORCH_LIT:
+        case BLOCK_COMPARATOR_LIT:
+        case BLOCK_REPEATER_LIT:
+        case BLOCK_REDSTONE_WIRE_1:
+        case BLOCK_REDSTONE_WIRE_2:
+        case BLOCK_REDSTONE_WIRE_3:
+        case BLOCK_REDSTONE_WIRE_4:
+        case BLOCK_REDSTONE_WIRE_5:
+        case BLOCK_REDSTONE_WIRE_6:
+        case BLOCK_REDSTONE_WIRE_7:
+        case BLOCK_REDSTONE_WIRE_8:
+        case BLOCK_REDSTONE_WIRE_9:
+        case BLOCK_REDSTONE_WIRE_10:
+        case BLOCK_REDSTONE_WIRE_11:
+        case BLOCK_REDSTONE_WIRE_12:
+        case BLOCK_REDSTONE_WIRE_13:
+        case BLOCK_REDSTONE_WIRE_14:
+        case BLOCK_REDSTONE_WIRE_15:
         case ITEM_REDSTONE_TORCH:
             lightColor = vec3(0.697, 0.130, 0.051);
             break;
@@ -260,9 +277,6 @@ float GetSceneBlockLightLevel(const in int blockId) {
         case ITEM_AMETHYST_BUD_LARGE:
             lightRange = 4.0;
             break;
-        case BLOCK_LAVA:
-            lightRange = 15.0;
-            break;
         case BLOCK_LAVA_CAULDRON:
             lightRange = 15.0;
             break;
@@ -347,6 +361,64 @@ float GetSceneBlockLightLevel(const in int blockId) {
         case ITEM_FROGLIGHT_VERDANT:
             lightRange = 15.0;
             break;
+
+        #ifdef DYN_LIGHT_REDSTONE_ENABLED
+            case BLOCK_COMPARATOR_LIT:
+            case BLOCK_REPEATER_LIT:
+                lightRange = 7.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_1:
+                lightRange = 1.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_2:
+                lightRange = 1.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_3:
+                lightRange = 2.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_4:
+                lightRange = 2.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_5:
+                lightRange = 3.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_6:
+                lightRange = 3.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_7:
+                lightRange = 4.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_8:
+                lightRange = 4.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_9:
+                lightRange = 5.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_10:
+                lightRange = 5.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_11:
+                lightRange = 6.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_12:
+                lightRange = 6.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_13:
+                lightRange = 7.0;
+                break;
+            case BLOCK_REDSTONE_WIRE_14:
+                lightRange = 7.5;
+                break;
+            case BLOCK_REDSTONE_WIRE_15:
+                lightRange = 8.0;
+                break;
+        #endif
+        
+        #ifdef DYN_LIGHT_LAVA_ENABLED
+            case BLOCK_LAVA:
+                lightRange = 15.0;
+                break;
+        #endif
     }
 
     return lightRange;
@@ -400,6 +472,10 @@ float GetSceneBlockLightLevel(const in int blockId) {
 
                 case BLOCK_CARPET:
                     blockType = BLOCKTYPE_CARPET;
+                    break;
+
+                case BLOCK_COMPARATOR:
+                    blockType = BLOCKTYPE_COMPARATOR;
                     break;
 
                 case BLOCK_DAYLIGHT_DETECTOR:
@@ -505,6 +581,9 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     break;
                 case BLOCK_PRESSURE_PLATE:
                     blockType = BLOCKTYPE_PRESSURE_PLATE;
+                    break;
+                case BLOCK_REPEATER:
+                    blockType = BLOCKTYPE_REPEATER;
                     break;
                 case BLOCK_STONECUTTER:
                     blockType = BLOCKTYPE_STONECUTTER;
@@ -1017,10 +1096,9 @@ float GetSceneBlockLightLevel(const in int blockId) {
                     glow = 0.2;
                     break;
                 case BLOCK_LAVA:
+                    glow = 0.4;
+                    break;
                 case BLOCK_LAVA_CAULDRON:
-                    #ifndef LIGHT_LAVA_ENABLED
-                        return;
-                    #endif
                     glow = 0.4;
                     break;
                 case BLOCK_MAGMA:

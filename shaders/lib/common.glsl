@@ -72,7 +72,8 @@ const bool colortex4Clear = false;
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_DIRECTIONAL
 #define DYN_LIGHT_FLICKER
-//#define LIGHT_LAVA_ENABLED
+//#define DYN_LIGHT_LAVA_ENABLED
+//#define DYN_LIGHT_REDSTONE_ENABLED
 #define LIGHT_BIN_MAX_COUNT 64 // [16 32 48 64 80 96 112 128 144 160 176 192]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 16 // [4 8 16 32 64]
@@ -165,6 +166,10 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef SHADOW_BLUR
 #endif
 #ifdef SHADOW_COLOR_BLEND
+#endif
+#ifdef DYN_LIGHT_LAVA_ENABLED
+#endif
+#ifdef DYN_LIGHT_REDSTONE_ENABLED
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif

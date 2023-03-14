@@ -113,6 +113,8 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             break;
 
         case BLOCKTYPE_LECTERN:
+        case BLOCKTYPE_COMPARATOR:
+        case BLOCKTYPE_REPEATER:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0, 0.125, 1.0);
             break;

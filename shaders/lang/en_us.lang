@@ -132,8 +132,11 @@ option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through st
 suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
 
-option.LIGHT_LAVA_ENABLED=Lava
-option.LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
+option.DYN_LIGHT_LAVA_ENABLED=Lava
+option.DYN_LIGHT_LAVA_ENABLED.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
+
+option.DYN_LIGHT_REDSTONE_ENABLED=Redstone
+option.DYN_LIGHT_REDSTONE_ENABLED.comment=Enable emission from lit redstone components. Disabled by default as large contraptions can quickly fill the max light count.
 
 
 screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
