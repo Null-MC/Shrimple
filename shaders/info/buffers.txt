@@ -10,6 +10,7 @@ colortex2		RG32UI		1.0		deferred post
 									- G: fog.rgba
 
 colortex3		RGB16F		 *	 	block-light
-colortex4		R32F		 *		block-light depth
+colortex4		RGB8		 *		block-light normal
+colortex5		R32F		 *		block-light depth
 
-colortex5			lightmap
+colortex6			lightmap

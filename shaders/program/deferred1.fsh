@@ -10,6 +10,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform usampler2D BUFFER_DEFERRED_PRE;
 uniform sampler2D BUFFER_BLOCKLIGHT;
+uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
@@ -63,9 +64,10 @@ uniform float far;
 #include "/lib/lighting/basic.glsl"
 
 
-/* RENDERTARGETS: 3,4 */
+/* RENDERTARGETS: 3,4,5 */
 layout(location = 0) out vec4 outLight;
-layout(location = 1) out vec4 outDepth;
+layout(location = 1) out vec4 outNormal;
+layout(location = 2) out vec4 outDepth;
 
 void main() {
 	vec2 viewSize = vec2(viewWidth, viewHeight);
@@ -97,9 +99,13 @@ void main() {
 		#if DYN_LIGHT_PENUMBRA > 0
 			vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 			if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
+				vec3 normalPrev = textureLod(BUFFER_LIGHT_NORMAL, uvPrev.xy, 0).rgb;
 				float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev.xy, 0).r;
 
-				if (abs(uvPrev.z - depthPrev) < 0.0001) {
+				normalPrev = normalize(normalPrev * 2.0 - 1.0);
+	            float normalWeight = 1.0 - dot(localNormal, normalPrev);
+
+				if (abs(uvPrev.z - depthPrev) < 0.0001 && normalWeight < 0.1) {
 					//float time = exp(-6.0 * frameTime);
 
 					vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev.xy, 0).rgb;
@@ -109,8 +115,10 @@ void main() {
 		#endif
 
 		outLight = vec4(blockLight, 1.0);
+		outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
 	}
 	else {
-		outLight = vec4(0.0);
+		outLight = vec4(0.0, 0.0, 0.0, 1.0);
+		outNormal = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 }

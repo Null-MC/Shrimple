@@ -33,8 +33,9 @@
 #define BUFFER_DEFERRED_PRE colortex1
 #define BUFFER_DEFERRED_POST colortex2
 #define BUFFER_BLOCKLIGHT colortex3
-#define BUFFER_LIGHT_DEPTH colortex4
-#define TEX_LIGHTMAP colortex5
+#define BUFFER_LIGHT_NORMAL colortex4
+#define BUFFER_LIGHT_DEPTH colortex5
+#define TEX_LIGHTMAP colortex6
 
 
 #define BLOCKTYPE_EMPTY 0u

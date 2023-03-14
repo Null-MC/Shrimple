@@ -6,7 +6,8 @@ const int colortex0Format = RGB8;
 const int colortex1Format = RGB32UI;
 const int colortex2Format = RG32UI;
 const int colortex3Format = RGB16F;
-const int colortex4Format = R32F;
+const int colortex4Format = RGB8;
+const int colortex5Format = R32F;
 */
 
 const bool generateShadowMipmap = false;
@@ -34,9 +35,13 @@ const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex3MipmapEnabled = false;
 const bool colortex3Clear = false;
 
-const vec4 colortex4ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex4MipmapEnabled = false;
 const bool colortex4Clear = false;
+
+const vec4 colortex5ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const bool colortex5MipmapEnabled = false;
+const bool colortex5Clear = false;
 
 
 // World Options
