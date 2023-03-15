@@ -79,10 +79,10 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_LAVA 1 // [0 1 2]
 #define DYN_LIGHT_REDSTONE 1 // [0 1 2]
-#define LIGHT_BIN_MAX_COUNT 64 // [16 32 48 64 96 128 160 192 224 256 512]
+#define LIGHT_BIN_MAX_COUNT 160 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
-#define LIGHT_SIZE_XZ 16 // [4 8 16 32 64]
-#define LIGHT_SIZE_Y 8 // [4 8 16 32]
+#define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
+#define LIGHT_SIZE_Y 16 // [4 8 16 32]
 #define LIGHT_COLOR_NEIGHBORS
 //#define LIGHT_DEBUG_MASK
 #define DYN_LIGHT_FRUSTUM_TEST
