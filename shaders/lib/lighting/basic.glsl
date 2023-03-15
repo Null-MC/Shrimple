@@ -23,8 +23,6 @@
         vec3 lightFragPos = localPos + 0.06 * localNormal;
         int lightCount = GetSceneLights(lightFragPos, gridIndex);
 
-        //vec3 blockLightColor = vec3(1.0, 0.9, 0.8);
-
         if (gridIndex != -1u) {
             #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
                 bool hasGeoNormal = false;
@@ -37,12 +35,6 @@
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
-                // #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0 && defined RENDER_OPAQUE
-                //     vec3 p = floor(cameraPosition + light.position);
-                //     float alt = mod(p.x + p.y + p.z + frameCounter, DYN_LIGHT_TEMPORAL);
-                //     if (alt > 0.5) continue;
-                // #endif
-
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
@@ -50,7 +42,6 @@
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     if ((light.data & 1) == 0) {
                         vec3 traceOrigin = GetLightGridPosition(light.position);
-                        //vec3 traceEnd = GetLightGridPosition(lightFragPos);
                         vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                         #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
@@ -188,6 +179,7 @@
                     vLit = geoNoL;
 
                     #if defined RENDER_TERRAIN && defined FOLIAGE_UP
+                        // TODO: fix this!
                         if (vBlockId >= 10001 && vBlockId <= 10004)
                             vLit = dot(lightDir, gbufferModelView[1].xyz);
                     #endif
@@ -219,19 +211,7 @@
 
         vBlockLight = vec3(0.0);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            //lmcoord.x = (0.5/16.0);
-
-            // #ifdef RENDER_ENTITIES
-            //     vec4 light = GetSceneEntityLightColor(entityId);
-            //     //vBlockLight += light.rgb * (light.a / 15.0);
-            //     lmcoord.x = (light.a / 15.0) * (15.0/16.0) + (0.5/16.0);
-            // #elif defined RENDER_TERRAIN || defined RENDER_WATER
-            //     //vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
-            //     float lightRange = GetSceneBlockLightLevel(vBlockId);
-            //     lmcoord.x = (lightRange / 15.0) * (15.0/16.0) + (0.5/16.0);
-            // #endif
-        #else
+        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
             blockLightDefault += RGBToLinear(blockLightDefault);
 
@@ -322,7 +302,7 @@
         vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLightColor, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
             vec3 blockLight = blockLightColor;
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+            #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || (DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_TRANSLUCENT))
                 blockLight += SampleHandLight(vLocalPos, vLocalNormal);
             #endif
 

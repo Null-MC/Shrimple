@@ -436,6 +436,14 @@ float GetSceneBlockLightLevel(const in int blockId) {
     return GetSceneBlockLightRange(blockId);
 }
 
+float GetSceneBlockEmission(const in int blockId) {
+    float range = GetSceneBlockLightRange(blockId);
+
+    if (blockId == BLOCK_LAVA) range *= 2.0;
+
+    return range / 15.0;
+}
+
 #ifdef RENDER_SHADOW
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint GetBlockType(const in int blockId) {

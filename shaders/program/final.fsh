@@ -29,6 +29,8 @@ uniform sampler2D colortex0;
 	uniform float viewHeight;
 #endif
 
+#include "/lib/sampling/bayer.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 	#include "/lib/buffers/lighting.glsl"
 	#include "/lib/text.glsl"
@@ -85,6 +87,8 @@ void main() {
 
 		endText(color);
 	#endif
+
+    //color.rgb += (GetScreenBayerValue() * 2.0 - 1.0) / 255.0;
 
 	/* DRAWBUFFERS:0 */
 	gl_FragData[0] = vec4(color, 1.0);

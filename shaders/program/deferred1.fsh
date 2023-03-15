@@ -9,6 +9,7 @@ in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform usampler2D BUFFER_DEFERRED_PRE;
+uniform usampler2D BUFFER_DEFERRED_POST;
 uniform sampler2D BUFFER_BLOCKLIGHT;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
@@ -77,9 +78,11 @@ void main() {
 	outDepth = vec4(vec3(depth), 1.0);
 
 	if (depth < 1.0) {
-		uvec2 deferredPre = texelFetch(BUFFER_DEFERRED_PRE, ivec2(texcoord * viewSize), 0).gb;
-		vec3 localNormal = unpackUnorm4x8(deferredPre.r).rgb;
-		vec4 deferredLighting = unpackUnorm4x8(deferredPre.g);
+		ivec2 deferredTexcoord = ivec2(texcoord * viewSize);
+		uvec2 deferredPreGB = texelFetch(BUFFER_DEFERRED_PRE, deferredTexcoord, 0).gb;
+        uint deferredPostG = texelFetch(BUFFER_DEFERRED_POST, deferredTexcoord, 0).g;
+		vec3 localNormal = unpackUnorm4x8(deferredPreGB.r).rgb;
+		vec4 deferredLighting = unpackUnorm4x8(deferredPreGB.g);
 
 		vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
@@ -95,6 +98,9 @@ void main() {
 		blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
         blockLight += SampleHandLight(localPos, localNormal);
 		blockLight += deferredLighting.a;
+
+        float deferredFogA = unpackUnorm4x8(deferredPostG).a;
+        blockLight *= 1.0 - deferredFogA;
 
 		#if DYN_LIGHT_PENUMBRA > 0
 			vec3 uvPrev = clipPosPrev * 0.5 + 0.5;

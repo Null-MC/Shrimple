@@ -16,6 +16,7 @@ uniform vec3 skyColor;
 
 uniform float blindness;
 
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/world/fog.glsl"
 
 #ifdef TONEMAP_ENABLED
@@ -44,6 +45,7 @@ void main() {
     #endif
 
     color = LinearToRGB(color);
+    color += Bayer16(gl_FragCoord.xy) / 255.0;
 
 	outColor0 = vec4(color, 1.0);
 }
