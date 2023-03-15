@@ -126,18 +126,12 @@ uniform int fogMode;
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
 #else
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        //#include "/lib/blocks.glsl"
-        //#include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
-        //#include "/lib/lighting/dynamic_blocks.glsl"
     #endif
 
     #include "/lib/lighting/basic.glsl"
-
-    #ifdef TONEMAP_ENABLED
-        #include "/lib/post/tonemap.glsl"
-    #endif
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -204,11 +198,7 @@ void main() {
 
         ApplyFog(color, vLocalPos);
 
-        #ifdef TONEMAP_ENABLED
-            color.rgb = tonemap_Tech(color.rgb);
-        #endif
-
-        color.rgb = LinearToRGB(color.rgb);
+        ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }

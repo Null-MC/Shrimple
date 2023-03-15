@@ -110,7 +110,7 @@ const bool colortex5Clear = false;
 
 // Post-Processing
 //#define TONEMAP_ENABLED
-#define TONEMAP_CONTRAST 0.00 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
+//#define TONEMAP_CONTRAST 0.00 // [-0.02 -0.01 0.00 0.01 0.02 0.03 0.04]
 #define FXAA_ENABLED
 #define AF_SAMPLES 1
 

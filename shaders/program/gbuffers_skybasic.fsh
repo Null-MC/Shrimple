@@ -18,10 +18,7 @@ uniform float blindness;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/world/fog.glsl"
-
-#ifdef TONEMAP_ENABLED
-	#include "/lib/post/tonemap.glsl"
-#endif
+#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -40,12 +37,6 @@ void main() {
 
 	color *= 1.0 - blindness;
 
-    #if defined TONEMAP_ENABLED && DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-        color = tonemap_Tech(color);
-    #endif
-
-    color = LinearToRGB(color);
-    color += Bayer16(gl_FragCoord.xy) / 255.0;
-
+    ApplyPostProcessing(color);
 	outColor0 = vec4(color, 1.0);
 }

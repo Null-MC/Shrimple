@@ -26,11 +26,10 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/post/tonemap.glsl"
 
-#ifdef TONEMAP_ENABLED
-    #include "/lib/post/tonemap.glsl"
-#endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     /* RENDERTARGETS: 1,2 */
@@ -65,11 +64,7 @@ void main() {
 
         ApplyFog(color, vLocalPos);
 
-        #ifdef TONEMAP_ENABLED
-            color.rgb = tonemap_Tech(color.rgb);
-        #endif
-
-        color.rgb = LinearToRGB(color.rgb);
+        ApplyPostProcessing(color.rgb);
 		outFinal = color;
 	#endif
 }

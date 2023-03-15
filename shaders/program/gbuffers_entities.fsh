@@ -17,40 +17,40 @@ in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
 #ifdef WORLD_SHADOW_ENABLED
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		in vec3 shadowPos[4];
-		flat in int shadowTile;
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		in vec3 shadowPos;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        in vec3 shadowPos[4];
+        flat in int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        in vec3 shadowPos;
+    #endif
 #endif
 
 uniform sampler2D gtexture;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-	uniform sampler2D lightmap;
+    uniform sampler2D lightmap;
 
-	#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
-	    uniform sampler2D shadowcolor0;
-	#endif
+    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        uniform sampler2D shadowcolor0;
+    #endif
 
-	uniform int frameCounter;
-	uniform float frameTimeCounter;
-	//uniform mat4 gbufferModelView;
-	uniform mat4 gbufferModelViewInverse;
-	uniform vec3 cameraPosition;
-	//uniform float far;
+    uniform int frameCounter;
+    uniform float frameTimeCounter;
+    //uniform mat4 gbufferModelView;
+    uniform mat4 gbufferModelViewInverse;
+    uniform vec3 cameraPosition;
+    //uniform float far;
 
-	uniform float blindness;
+    uniform float blindness;
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-	    uniform int heldItemId;
-	    uniform int heldItemId2;
-	    uniform int heldBlockLightValue;
-	    uniform int heldBlockLightValue2;
-	    uniform bool firstPersonCamera;
-	    uniform vec3 eyePosition;
-	#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        uniform int heldItemId;
+        uniform int heldItemId2;
+        uniform int heldBlockLightValue;
+        uniform int heldBlockLightValue2;
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
 #endif
 
 #if AF_SAMPLES > 1
@@ -60,7 +60,7 @@ uniform sampler2D gtexture;
 #endif
 
 #if MC_VERSION >= 11700
-	uniform float alphaTestRef;
+    uniform float alphaTestRef;
 #endif
 
 uniform mat4 gbufferModelView;
@@ -74,10 +74,10 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
-	
+    
 #ifdef WORLD_SHADOW_ENABLED
-	uniform sampler2D shadowtex0;
-	uniform sampler2D shadowtex1;
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
@@ -87,13 +87,14 @@ uniform int fogMode;
         #endif
     #endif
 
-	uniform vec3 shadowLightPosition;
+    uniform vec3 shadowLightPosition;
 
-	#if SHADOW_TYPE != SHADOW_TYPE_NONE
-		uniform mat4 shadowProjection;
-	#endif
+    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+        uniform mat4 shadowProjection;
+    #endif
 #endif
 
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
@@ -104,42 +105,39 @@ uniform int fogMode;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		#include "/lib/shadows/cascaded.glsl"
-		#include "/lib/shadows/cascaded_render.glsl"
-	#else
-		#include "/lib/shadows/basic.glsl"
-		#include "/lib/shadows/basic_render.glsl"
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+        #include "/lib/shadows/cascaded_render.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+        #include "/lib/shadows/basic_render.glsl"
+    #endif
 
     #include "/lib/shadows/common.glsl"
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-	#include "/lib/sampling/depth.glsl"
-	//#include "/lib/sampling/noise.glsl"
+    #include "/lib/sampling/depth.glsl"
+    //#include "/lib/sampling/noise.glsl"
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-	    #include "/lib/blocks.glsl"
-	    #include "/lib/items.glsl"
-	#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        #include "/lib/blocks.glsl"
+        #include "/lib/items.glsl"
+    #endif
 
-	// #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-	//     #include "/lib/lighting/collisions.glsl"
-	// #endif
+    // #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    //     #include "/lib/lighting/collisions.glsl"
+    // #endif
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-	    #include "/lib/buffers/lighting.glsl"
-	    #include "/lib/lighting/blackbody.glsl"
-	    #include "/lib/lighting/dynamic.glsl"
-	    #include "/lib/lighting/dynamic_blocks.glsl"
-	#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
+    #endif
 
-	#include "/lib/lighting/basic.glsl"
-
-	#ifdef TONEMAP_ENABLED
-	    #include "/lib/post/tonemap.glsl"
-	#endif
+    #include "/lib/lighting/basic.glsl"
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -148,24 +146,24 @@ uniform int fogMode;
     layout(location = 0) out uvec3 outDeferredPre;
     layout(location = 1) out uvec2 outDeferredPost;
 #else
-	/* RENDERTARGETS: 0 */
-	layout(location = 0) out vec4 outFinal;
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, texcoord);
+    vec4 color = texture(gtexture, texcoord);
 
-	if (color.a < alphaTestRef) {
-		discard;
-		return;
-	}
+    if (color.a < alphaTestRef) {
+        discard;
+        return;
+    }
 
-	color.a = 1.0;
-	color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+    color.a = 1.0;
+    color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
 
-	vec3 localNormal = normalize(vLocalNormal);
+    vec3 localNormal = normalize(vLocalNormal);
 
-	if (!gl_FrontFacing) localNormal = -localNormal;
+    if (!gl_FrontFacing) localNormal = -localNormal;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -176,14 +174,14 @@ void main() {
         #endif
     #endif
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-		color.a = 1.0;
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        color.a = 1.0;
 
-	    float fogF = GetVanillaFogFactor(vLocalPos);
-	    vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-	    fogColorFinal = LinearToRGB(fogColorFinal);
+        float fogF = GetVanillaFogFactor(vLocalPos);
+        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        fogColorFinal = LinearToRGB(fogColorFinal);
 
-	    // TODO: set for entities like blaze, magma cube
+        // TODO: set for entities like blaze, magma cube
         const float lightLevel = 0.0;
 
         uvec3 deferredPre;
@@ -197,22 +195,18 @@ void main() {
 
         outDeferredPre = deferredPre;
         outDeferredPost = deferredPost;
-	#else
-		vec3 blockLight = vBlockLight;
-		#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-			blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
-		#endif
+    #else
+        vec3 blockLight = vBlockLight;
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+        #endif
 
         color.rgb = RGBToLinear(color.rgb);
         color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, vPos, lmcoord, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 
-        #ifdef TONEMAP_ENABLED
-            color.rgb = tonemap_Tech(color.rgb);
-        #endif
-
-        color.rgb = LinearToRGB(color.rgb);
+        ApplyPostProcessing(color.rgb);
         outFinal = color;
-	#endif
+    #endif
 }

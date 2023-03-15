@@ -98,6 +98,7 @@ uniform float far;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
@@ -136,11 +137,8 @@ uniform float far;
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
-#ifdef TONEMAP_ENABLED
-    #include "/lib/post/tonemap.glsl"
-#endif
-
 #include "/lib/lighting/basic.glsl"
+#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -171,10 +169,6 @@ void main() {
 
     ApplyFog(color, vLocalPos);
 
-    #ifdef TONEMAP_ENABLED
-        color.rgb = tonemap_Tech(color.rgb);
-    #endif
-
-    color.rgb = LinearToRGB(color.rgb);
+    ApplyPostProcessing(color.rgb);
     outFinal = color;
 }

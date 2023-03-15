@@ -11,24 +11,17 @@ varying vec4 glcolor;
 
 uniform sampler2D gtexture;
 
-//#include "/lib/world/fog.glsl"
-
-#ifdef TONEMAP_ENABLED
-	#include "/lib/post/tonemap.glsl"
-#endif
+#include "/lib/sampling/bayer.glsl"
+#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outColor0;
 
 void main() {
-	vec4 color = texture(gtexture, texcoord) * glcolor;
+    vec4 color = texture(gtexture, texcoord) * glcolor;
+    color.rgb = RGBToLinear(color.rgb);
 
-    #ifdef TONEMAP_ENABLED
-	    color.rgb = RGBToLinear(color.rgb);
-        color.rgb = tonemap_Tech(color.rgb);
-	    color.rgb = LinearToRGB(color.rgb);
-    #endif
-
-	outColor0 = color;
+    ApplyPostProcessing(color.rgb);
+    outColor0 = color;
 }

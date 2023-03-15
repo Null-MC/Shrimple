@@ -94,6 +94,7 @@ uniform sampler2D lightmap;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
@@ -139,10 +140,7 @@ uniform sampler2D lightmap;
 #endif
 
 #include "/lib/lighting/basic.glsl"
-
-#ifdef TONEMAP_ENABLED
-    #include "/lib/post/tonemap.glsl"
-#endif
+#include "/lib/post/tonemap.glsl"
 
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -202,11 +200,7 @@ void main() {
 
         ApplyFog(color, vLocalPos);
 
-        #ifdef TONEMAP_ENABLED
-            color.rgb = tonemap_Tech(color.rgb);
-        #endif
-
-        color.rgb = LinearToRGB(color.rgb);
+        ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }

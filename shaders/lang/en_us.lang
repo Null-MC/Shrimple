@@ -136,16 +136,16 @@ suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
 
 option.DYN_LIGHT_LAVA=Lava Lighting
-option.DYN_LIGHT_LAVA.comment=Lava is disabled by default since lava lakes can quickly fill the max light count.
-value.DYN_LIGHT_LAVA.0=Disabled
-value.DYN_LIGHT_LAVA.1=Emitter
-value.DYN_LIGHT_LAVA.2=Traced
+option.DYN_LIGHT_LAVA.comment=Determines how lighting for lava is handled, to avoid heavy performance impacts from large lava lakes/sources.
+value.DYN_LIGHT_LAVA.0=Disable
+value.DYN_LIGHT_LAVA.1=Emit
+value.DYN_LIGHT_LAVA.2=Trace
 
 option.DYN_LIGHT_REDSTONE=Redstone Lighting
-option.DYN_LIGHT_REDSTONE.comment=Enable emission from lit redstone components. Disabled by default as large contraptions can quickly fill the max light count.
-value.DYN_LIGHT_REDSTONE.0=Disabled
-value.DYN_LIGHT_REDSTONE.1=Emitter
-value.DYN_LIGHT_REDSTONE.2=Traced
+option.DYN_LIGHT_REDSTONE.comment=Determines how lighting for redstone components is handled, to avoid heavy performance impacts from large contraptions.
+value.DYN_LIGHT_REDSTONE.0=Disable
+value.DYN_LIGHT_REDSTONE.1=Emit
+value.DYN_LIGHT_REDSTONE.2=Trace
 
 
 screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
@@ -195,7 +195,7 @@ option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended
 screen.POST_OPTIONS=Post-Processing
 
 option.TONEMAP_ENABLED=Tonemap
-option.TONEMAP_ENABLED.comment=Improves color vibrancy and prevents bright colors from clipping. By Tech.
+option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
 
 option.FXAA_ENABLED=FXAA
 

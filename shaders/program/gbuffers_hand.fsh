@@ -93,17 +93,14 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
-//#include "/lib/sampling/ign.glsl"
-
+#include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/depth.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
-
-#include "/lib/sampling/depth.glsl"
-//#include "/lib/sampling/noise.glsl"
-#include "/lib/sampling/ign.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -130,10 +127,7 @@ uniform int fogMode;
     #endif
 
     #include "/lib/lighting/basic.glsl"
-
-    #ifdef TONEMAP_ENABLED
-        #include "/lib/post/tonemap.glsl"
-    #endif
+    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -196,10 +190,7 @@ void main() {
 
         ApplyFog(color, vLocalPos);
 
-        #ifdef TONEMAP_ENABLED
-            color.rgb = tonemap_Tech(color.rgb);
-        #endif
-
-        outFinal = vec4(LinearToRGB(color.rgb), 1.0);
+        ApplyPostProcessing(color.rgb);
+        outFinal = color;
     #endif
 }

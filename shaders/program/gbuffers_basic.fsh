@@ -29,37 +29,19 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/post/tonemap.glsl"
 
 
-// #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-//     /* RENDERTARGETS: 1,2,3,4 */
-//     layout(location = 0) out vec4 outColor;
-//     layout(location = 1) out vec4 outNormal;
-//     layout(location = 2) out vec4 outLighting;
-//     layout(location = 3) out vec4 outFog;
-// #else
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
-//#endif
+/* RENDERTARGETS: 0 */
+layout(location = 0) out vec4 outFinal;
 
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 	
 	color *= texture(lightmap, lmcoord);
 
-    // #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-	//     color.a = 1.0;
-
-    //     float fogF = GetVanillaFogFactor(vLocalPos);
-    //     vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-    //     fogColorFinal = LinearToRGB(fogColorFinal);
-
-    //     outColor = color;
-    //     outNormal = vec4(0.0, 0.0, 0.0, 1.0);
-    //     outLighting = vec4(lmcoord, 1.0, 1.0);
-    //     outFog = vec4(fogColorFinal, fogF);
-    // #else
-		outFinal = color;
-	//#endif
+    ApplyPostProcessing(color.rgb);
+	outFinal = color;
 }

@@ -50,6 +50,7 @@ uniform float blindness;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
 
@@ -64,14 +65,11 @@ uniform float blindness;
 
 #include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic.glsl"
-
-#ifdef TONEMAP_ENABLED
-    #include "/lib/post/tonemap.glsl"
-#endif
+#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
-layout(location = 0) out vec3 outFinal;
+layout(location = 0) out vec4 outFinal;
 
 vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in vec3 g_sigma) {
     const float c_halfSamplesX = 3.0;
@@ -168,19 +166,17 @@ void main() {
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);
+
+        ApplyPostProcessing(final);
     }
     else {
         #ifdef WORLD_SKY_ENABLED
             final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-            final = RGBToLinear(final);
         #else
             final = RGBToLinear(fogColor) * WorldBrightnessF;
+            ApplyPostProcessing(final);
         #endif
     }
 
-    #ifdef TONEMAP_ENABLED
-        final = tonemap_Tech(final);
-    #endif
-
-    outFinal = LinearToRGB(final);
+    outFinal = vec4(final, 1.0);
 }
