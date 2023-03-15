@@ -58,7 +58,8 @@ void main() {
 		vec3 color = unpackUnorm4x8(deferredPostR).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
 		uint deferredPostG = texelFetch(BUFFER_DEFERRED_POST, ivec2(texcoord * viewSize), 0).g;
-		vec3 color = unpackUnorm4x8(deferredPostG).rgb;
+		vec4 fog = unpackUnorm4x8(deferredPostG);
+		vec3 color = fog.rgb * fog.a;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 		vec3 color = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR

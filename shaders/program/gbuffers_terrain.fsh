@@ -173,8 +173,9 @@ void main() {
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+
         float fogF = GetVanillaFogFactor(vLocalPos);
-        fogF += Bayer16(gl_FragCoord.xy) / 16.0;
 
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
@@ -184,11 +185,11 @@ void main() {
         uvec3 deferredPre;
         deferredPre.r = packUnorm4x8(color);
         deferredPre.g = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
-        deferredPre.b = packUnorm4x8(vec4(lmcoord, glcolor.a, lightLevel));
+        deferredPre.b = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, lightLevel));
 
         uvec2 deferredPost;
         deferredPost.r = packUnorm4x8(vec4(shadowColor, 1.0));
-        deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF));
+        deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
         outDeferredPre = deferredPre;
         outDeferredPost = deferredPost;

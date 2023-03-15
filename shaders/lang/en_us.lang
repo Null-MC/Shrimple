@@ -3,6 +3,9 @@
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.
 
+option.sunPathRotation=Sun Angle
+option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
+
 option.ENABLE_WAVING=Waving Plants
 option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
 
