@@ -27,8 +27,8 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
 }
 
 ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
-    uint y = uint(gridIndex / 4096) * LIGHT_BIN_MAX_COUNT;
-    return ivec2(gridIndex % 4096, y + gridLightIndex);
+    uint z = gridIndex * LIGHT_BIN_MAX_COUNT + gridLightIndex;
+    return ivec2(z % DYN_LIGHT_IMG_SIZE, z / DYN_LIGHT_IMG_SIZE);
 }
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED

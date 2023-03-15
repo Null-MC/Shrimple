@@ -156,7 +156,7 @@ void main() {
 
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
             vec3 lightColor = GetFinalShadowColor();
         #else

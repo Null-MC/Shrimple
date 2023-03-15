@@ -94,15 +94,15 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/depth.glsl"
+#include "/lib/sampling/bayer.glsl"
+//#include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
-
-#include "/lib/sampling/depth.glsl"
-//#include "/lib/sampling/noise.glsl"
-#include "/lib/sampling/ign.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -176,6 +176,7 @@ void main() {
         float fogF = GetVanillaFogFactor(vLocalPos);
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
+        fogColorFinal += (GetScreenBayerValue() - 0.5) / 255.0;
 
         float lightLevel = GetSceneBlockLightRange(vBlockId) / 15.0;
 

@@ -79,6 +79,9 @@ void main() {
 		printLine();
 		printString((_T, _o, _t, _a, _l, _colon, _space, _space, _space));
 		printUnsignedInt(SceneLightMaxCount);
+		printLine();
+		printString((_B, _u, _f, _f, _e, _r, _colon, _space, _space));
+		printUnsignedInt(DYN_LIGHT_IMG_SIZE);
 
 		endText(color);
 	#endif
