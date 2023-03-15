@@ -34,11 +34,11 @@
 
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
+                vec3 lightColor = light.color;
 
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
-                vec3 lightTint = vec3(1.0);
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     if ((light.data & 1) == 0) {
                         vec3 traceOrigin = GetLightGridPosition(light.position);
@@ -49,14 +49,14 @@
                         #endif
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                            lightTint = TraceRay(traceOrigin, traceEnd, light.range);
+                            lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
                         #else
-                            lightTint = TraceDDA(traceEnd, traceOrigin, light.range);
+                            lightColor *= TraceDDA(traceEnd, traceOrigin, light.range);
                         #endif
                     }
                 #endif
 
-                accumDiffuse += SampleLight(lightVec, localNormal, light.range) * light.color.rgb * lightTint;
+                accumDiffuse += SampleLight(lightVec, localNormal, light.range) * lightColor;
             }
 
             accumDiffuse *= DynamicLightBrightness;
@@ -85,10 +85,12 @@
     }
 
     vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal) {
-        vec2 noiseSample = vec2(1.0); // TODO!
+        vec2 noiseSample = GetDynLightNoise(vec3(0.0));
         vec3 result = vec3(0.0);
 
         //if (heldItemId == 115) return vec3(1.0);
+
+        vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
         if (heldBlockLightValue > 0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
@@ -96,11 +98,10 @@
 
             vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
 
-            vec3 lightVec = lightLocalPos - fragLocalPos;
+            vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
@@ -124,11 +125,10 @@
 
             vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
 
-            vec3 lightVec = lightLocalPos - fragLocalPos;
+            vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    //vec3 traceEnd = GetLightGridPosition(fragLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
@@ -146,7 +146,7 @@
             }
         }
 
-        return result;
+        return result * DynamicLightBrightness;
     }
 #endif
 
@@ -258,7 +258,7 @@
 
         #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
-            blockLightDefault += RGBToLinear(blockLightDefault);
+            blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
                 vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, blockLightDefault)

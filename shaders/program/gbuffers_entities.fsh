@@ -26,6 +26,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D gtexture;
+uniform sampler2D noisetex;
 
 uniform int entityId;
 
@@ -119,17 +120,19 @@ uniform int fogMode;
 #endif
 
 #include "/lib/entities.glsl"
-
 #include "/lib/lighting/dynamic_entities.glsl"
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #include "/lib/sampling/depth.glsl"
     //#include "/lib/sampling/noise.glsl"
+    #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
     #endif
 
     #include "/lib/lighting/basic.glsl"

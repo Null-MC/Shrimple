@@ -31,10 +31,7 @@ flat out int vBlockId;
 #endif
 
 uniform sampler2D lightmap;
-
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	uniform sampler2D noisetex;
-#endif
+uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;

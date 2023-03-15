@@ -8,6 +8,7 @@ in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex2;
+uniform sampler2D noisetex;
 uniform sampler2D BUFFER_FINAL;
 uniform usampler2D BUFFER_DEFERRED_PRE;
 uniform usampler2D BUFFER_DEFERRED_POST;
@@ -17,6 +18,7 @@ uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 uniform int frameCounter;
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;

@@ -26,6 +26,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D gtexture;
+uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
 uniform vec3 skyColor;

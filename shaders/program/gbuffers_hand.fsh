@@ -26,6 +26,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D gtexture;
+uniform sampler2D noisetex;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;

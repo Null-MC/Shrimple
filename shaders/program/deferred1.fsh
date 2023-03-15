@@ -8,6 +8,7 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
+uniform sampler2D noisetex;
 uniform usampler2D BUFFER_DEFERRED_PRE;
 uniform usampler2D BUFFER_DEFERRED_POST;
 uniform sampler2D BUFFER_BLOCKLIGHT;
@@ -15,11 +16,12 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
     uniform sampler2D shadowcolor0;
 #endif
 
 uniform float frameTime;
+uniform float frameTimeCounter;
 uniform int frameCounter;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
@@ -32,14 +34,12 @@ uniform float viewHeight;
 uniform float near;
 uniform float far;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
