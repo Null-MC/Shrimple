@@ -27,6 +27,8 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 
+uniform int entityId;
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
 
@@ -116,24 +118,18 @@ uniform int fogMode;
     #include "/lib/shadows/common.glsl"
 #endif
 
+#include "/lib/entities.glsl"
+
+#include "/lib/lighting/dynamic_entities.glsl"
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #include "/lib/sampling/depth.glsl"
     //#include "/lib/sampling/noise.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        #include "/lib/blocks.glsl"
-        #include "/lib/items.glsl"
-    #endif
-
-    // #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    //     #include "/lib/lighting/collisions.glsl"
-    // #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
     #endif
 
     #include "/lib/lighting/basic.glsl"
@@ -181,13 +177,12 @@ void main() {
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
-        // TODO: set for entities like blaze, magma cube
-        const float lightLevel = 0.0;
+        vec4 entityLight = GetSceneEntityLightColor(entityId) / 15.0;
 
         uvec3 deferredPre;
         deferredPre.r = packUnorm4x8(color);
         deferredPre.g = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
-        deferredPre.b = packUnorm4x8(vec4(lmcoord, glcolor.a, lightLevel));
+        deferredPre.b = packUnorm4x8(vec4(lmcoord, glcolor.a, entityLight.a));
 
         uvec2 deferredPost;
         deferredPost.r = packUnorm4x8(vec4(shadowColor, 1.0));
