@@ -276,10 +276,10 @@
                     //vBlockLight += light.rgb * (light.a / 15.0);
                     vBlockLight += vec3(light.a / 15.0);
                 #elif defined RENDER_TERRAIN || defined RENDER_WATER
-                    vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
-                    float lightRange = GetSceneBlockLightLevel(vBlockId);
+                    //vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
+                    float lightRange = GetSceneBlockEmission(vBlockId);
                     //vBlockLight += lightColor * (lightRange / 15.0);
-                    vBlockLight += vec3(lightRange / 15.0);
+                    vBlockLight += vec3(lightRange);
                 #endif
             #else
                 vBlockLight += blockLightDefault;
