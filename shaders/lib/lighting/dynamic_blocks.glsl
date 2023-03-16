@@ -496,15 +496,15 @@ float GetSceneBlockEmission(const in int blockId) {
                     break;
 
                 case BLOCK_COMPARATOR:
-                    blockType = BLOCKTYPE_COMPARATOR;
+                    blockType = BLOCKTYPE_LAYERS_2;
                     break;
 
                 case BLOCK_DAYLIGHT_DETECTOR:
-                    blockType = BLOCKTYPE_DAYLIGHT_DETECTOR;
+                    blockType = BLOCKTYPE_LAYERS_6;
                     break;
 
                 case BLOCK_ENCHANTING_TABLE:
-                    blockType = BLOCKTYPE_ENCHANTING_TABLE;
+                    blockType = BLOCKTYPE_LAYERS_12;
                     break;
                 case BLOCK_END_PORTAL_FRAME:
                     blockType = BLOCKTYPE_END_PORTAL_FRAME;
@@ -604,10 +604,32 @@ float GetSceneBlockEmission(const in int blockId) {
                     blockType = BLOCKTYPE_PRESSURE_PLATE;
                     break;
                 case BLOCK_REPEATER:
-                    blockType = BLOCKTYPE_REPEATER;
+                    blockType = BLOCKTYPE_LAYERS_2;
                     break;
                 case BLOCK_STONECUTTER:
                     blockType = BLOCKTYPE_STONECUTTER;
+                    break;
+                    
+                case BLOCK_SNOW_LAYERS_1:
+                    blockType = BLOCKTYPE_LAYERS_2;
+                    break;
+                case BLOCK_SNOW_LAYERS_2:
+                    blockType = BLOCKTYPE_LAYERS_4;
+                    break;
+                case BLOCK_SNOW_LAYERS_3:
+                    blockType = BLOCKTYPE_LAYERS_6;
+                    break;
+                case BLOCK_SNOW_LAYERS_4:
+                    blockType = BLOCKTYPE_LAYERS_8;
+                    break;
+                case BLOCK_SNOW_LAYERS_5:
+                    blockType = BLOCKTYPE_LAYERS_10;
+                    break;
+                case BLOCK_SNOW_LAYERS_6:
+                    blockType = BLOCKTYPE_LAYERS_12;
+                    break;
+                case BLOCK_SNOW_LAYERS_7:
+                    blockType = BLOCKTYPE_LAYERS_14;
                     break;
 
                 case BLOCK_BUTTON_FLOOR_N_S:
@@ -708,7 +730,7 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_SLABS_BOTTOM:
                 case BLOCK_SCULK_SENSOR:
                 case BLOCK_SCULK_SHRIEKER:
-                    blockType = BLOCKTYPE_SLAB_BOTTOM;
+                    blockType = BLOCKTYPE_LAYERS_8;
                     break;
                 case BLOCK_SLABS_TOP:
                     blockType = BLOCKTYPE_SLAB_TOP;

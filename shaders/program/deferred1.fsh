@@ -118,7 +118,17 @@ void main() {
 					//float time = exp(-6.0 * frameTime);
 
 					vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev.xy, 0).rgb;
-					blockLight = mix(blockLight, blockLightPrev, 0.9);
+					//float weight = 0.02;
+
+					float lum = luminance(blockLight);
+					float lumPrev = luminance(blockLightPrev);
+					//float lumDiff = lum - lumPrev;
+					//if (lumDiff >  0.2) weight = 0.3;
+					//if (lumDiff < -0.1) weight = 0.2;
+
+					float weight = smoothstep(abs(lum - lumPrev), 0.0, 0.08) * 0.3 + 0.04;
+
+					blockLight = mix(blockLight, blockLightPrev, 1.0 - weight);
 				}
 			}
 		#endif
