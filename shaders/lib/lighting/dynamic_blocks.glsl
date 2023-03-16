@@ -440,6 +440,7 @@ float GetSceneBlockEmission(const in int blockId) {
     float range = GetSceneBlockLightRange(blockId);
 
     if (blockId == BLOCK_LAVA) range *= 2.0;
+    if (blockId == BLOCK_CAVEVINE_BERRIES) range = 0.0;
 
     return range / 15.0;
 }
@@ -1024,7 +1025,8 @@ float GetSceneBlockEmission(const in int blockId) {
         #if DYN_LIGHT_LAVA != 2
             if (blockId == BLOCK_LAVA) metadata |= 1;
         #endif
-        //...
+
+        //if (blockId == BLOCK_CAVEVINE_BERRIES) metadata |= 2;
 
         return metadata;
     }
