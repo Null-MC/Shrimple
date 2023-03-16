@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 varying vec2 texcoord;
 varying vec4 glcolor;

@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -124,8 +124,7 @@ uniform int fogMode;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/dynamic_blocks.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-#else
+#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"

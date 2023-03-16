@@ -1,8 +1,8 @@
 #define RENDER_SHADOW
 #define RENDER_GEOMETRY
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 layout(triangles) in;
 layout(triangle_strip, max_vertices=12) out;

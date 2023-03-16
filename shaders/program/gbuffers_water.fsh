@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec2 lmcoord;
 in vec2 texcoord;
@@ -31,6 +31,10 @@ uniform sampler2D lightmap;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform sampler2D noisetex;
+#endif
+
+#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler2D shadowcolor0;
 #endif
 
 uniform int frameCounter;
@@ -64,10 +68,6 @@ uniform float far;
     
     uniform float blindness;
 #endif 
-
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform sampler2D shadowcolor0;
-#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;

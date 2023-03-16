@@ -1,8 +1,8 @@
 #define RENDER_COMPOSITE
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 
 #if DYN_LIGHT_TEMPORAL > 2

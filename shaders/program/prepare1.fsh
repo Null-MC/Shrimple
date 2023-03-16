@@ -1,8 +1,8 @@
 #define RENDER_PREPARE
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 uniform vec3 fogColor;
 

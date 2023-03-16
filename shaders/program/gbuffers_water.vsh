@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_VERTEX
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec4 mc_Entity;
 in vec3 vaPosition;
@@ -81,7 +81,6 @@ uniform vec3 cameraPosition;
 	#endif
 
 	#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-		#include "/lib/items.glsl"
 		#include "/lib/buffers/lighting.glsl"
 		#include "/lib/lighting/dynamic.glsl"
 	#endif

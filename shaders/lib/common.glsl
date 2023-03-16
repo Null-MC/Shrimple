@@ -94,6 +94,7 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
+#define DYN_LIGHT_LPV
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)

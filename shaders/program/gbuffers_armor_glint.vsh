@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_VERTEX
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 varying vec2 lmcoord;
 varying vec2 texcoord;

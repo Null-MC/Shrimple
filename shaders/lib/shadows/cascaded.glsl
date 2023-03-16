@@ -169,7 +169,7 @@ vec2 GetShadowTilePos(const in int tile) {
 
         #if defined RENDER_ENTITIES || defined RENDER_HAND
             vec3 blockPos = vec3(0.0);
-        #elif defined RENDER_TEXTURED
+        #elif defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_WEATHER
             vec3 blockPos = gl_Vertex.xyz;
             blockPos = floor(blockPos + 0.5);
             blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;

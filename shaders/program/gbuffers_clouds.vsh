@@ -2,8 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_VERTEX
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 out vec4 vColor;
 out float vDist;

@@ -1,8 +1,8 @@
 #define RENDER_FINAL
 #define RENDER_FRAG
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec2 texcoord;
 

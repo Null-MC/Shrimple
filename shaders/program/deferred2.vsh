@@ -1,8 +1,8 @@
 #define RENDER_DEFERRED
 #define RENDER_VERTEX
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 out vec2 texcoord;
 

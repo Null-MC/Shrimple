@@ -1,8 +1,8 @@
 #define RENDER_SHADOW
 #define RENDER_VERTEX
 
-#include "/lib/common.glsl"
 #include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec4 mc_Entity;
 in vec3 vaPosition;
