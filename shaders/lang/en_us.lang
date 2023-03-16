@@ -9,7 +9,9 @@ option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 option.ENABLE_WAVING=Waving Plants
 option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
 
-option.OVERWORLD_BRIGHTNESS=Overworld Brightness
+option.OVERWORLD_BRIGHTNESS_DAY=Day Brightness
+
+option.OVERWORLD_BRIGHTNESS_NIGHT=Night Brightness
 
 option.OLD_LIGHTING=Old Lighting
 

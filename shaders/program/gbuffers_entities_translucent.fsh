@@ -41,10 +41,13 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec4 entityColor;
-uniform int entityId;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform float near;
 uniform float far;
+
+uniform int entityId;
+uniform vec4 entityColor;
 
 #if AF_SAMPLES > 1
     uniform float viewWidth;
@@ -57,13 +60,6 @@ uniform float far;
 #endif
 
 #ifndef SHADOW_BLUR
-    // #ifdef IRIS_FEATURE_CUSTOM_TEXTURE_NAME
-    //     uniform sampler2D texLightMap;
-    // #else
-    //     uniform sampler2D lightmap;
-    // #endif
-
-    uniform vec3 upPosition;
     uniform vec3 skyColor;
     
     uniform vec3 fogColor;
@@ -120,6 +116,7 @@ uniform float far;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1

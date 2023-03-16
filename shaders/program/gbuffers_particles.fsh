@@ -28,7 +28,13 @@ in vec3 vBlockLight;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+uniform int frameCounter;
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
 
@@ -38,13 +44,6 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
-
-uniform int frameCounter;
-uniform float frameTimeCounter;
-//uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform vec3 cameraPosition;
-//uniform float far;
 
 uniform float blindness;
 
@@ -97,6 +96,7 @@ uniform sampler2D lightmap;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1

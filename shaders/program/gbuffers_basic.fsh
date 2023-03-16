@@ -15,6 +15,8 @@ uniform sampler2D lightmap;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
 
@@ -30,6 +32,7 @@ uniform int fogMode;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/post/tonemap.glsl"
 

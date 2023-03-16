@@ -360,7 +360,7 @@
                 vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
             #endif
 
-            skyLight = RGBToLinear(skyLight) * WorldBrightnessF;
+            skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
             //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
             skyLight *= 1.0 - blindness;
 

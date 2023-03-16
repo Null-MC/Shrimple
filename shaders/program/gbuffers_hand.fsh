@@ -74,6 +74,8 @@ uniform sampler2D noisetex;
 #endif
 
 uniform mat4 gbufferModelView;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
 
@@ -97,6 +99,7 @@ uniform int fogMode;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1

@@ -12,6 +12,8 @@ in vec3 vLocalPos;
 uniform sampler2D gtexture;
 
 uniform mat4 gbufferModelView;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
 
@@ -27,6 +29,7 @@ uniform int fogMode;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/post/tonemap.glsl"
 

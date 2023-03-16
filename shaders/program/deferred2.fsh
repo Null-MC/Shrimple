@@ -23,6 +23,8 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
@@ -65,6 +67,7 @@ uniform float blindness;
 #include "/lib/lighting/tracing.glsl"
 #include "/lib/lighting/dynamic_blocks.glsl"
 
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
@@ -175,7 +178,7 @@ void main() {
         #ifdef WORLD_SKY_ENABLED
             final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
         #else
-            final = RGBToLinear(fogColor) * WorldBrightnessF;
+            final = RGBToLinear(fogColor) * GetWorldBrightnessF();
             ApplyPostProcessing(final);
         #endif
     }

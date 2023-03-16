@@ -11,12 +11,15 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
 uniform float viewHeight;
 uniform float viewWidth;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 
 uniform float blindness;
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/post/tonemap.glsl"
 

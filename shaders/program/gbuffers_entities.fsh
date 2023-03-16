@@ -28,8 +28,22 @@ in vec3 vBlockLight;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-uniform int entityId;
+uniform mat4 gbufferModelView;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
+uniform vec3 skyColor;
+uniform float far;
 
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+uniform vec4 entityColor;
+uniform int entityId;
+    
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
 
@@ -66,18 +80,6 @@ uniform int entityId;
     uniform float alphaTestRef;
 #endif
 
-uniform mat4 gbufferModelView;
-uniform vec4 entityColor;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
-    
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -99,6 +101,7 @@ uniform int fogMode;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1

@@ -66,7 +66,7 @@ const bool colortex5Clear = false;
 
 #define SHADOW_PENUMBRA_SCALE 0.06
 #define SHADOW_DISTORTED_NORMAL_BIAS 0.02
-#define SHADOW_CASCADED_NORMAL_BIAS 0.006
+#define SHADOW_CASCADED_NORMAL_BIAS 0.02
 #define SHADOW_CSM_FITRANGE
 #define SHADOW_CSM_OVERLAP
 
@@ -135,7 +135,8 @@ const bool colortex5Clear = false;
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
 const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
-const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
+const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
+const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbra = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;

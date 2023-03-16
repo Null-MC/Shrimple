@@ -29,6 +29,9 @@ flat in int vBlockId;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -99,6 +102,7 @@ uniform int fogMode;
 #include "/lib/sampling/bayer.glsl"
 //#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if AF_SAMPLES > 1

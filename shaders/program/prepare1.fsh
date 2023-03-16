@@ -7,6 +7,7 @@
 uniform vec3 fogColor;
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/world/common.glsl"
 #include "/lib/post/tonemap.glsl"
 
 
@@ -14,7 +15,7 @@ uniform vec3 fogColor;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-	vec3 color = RGBToLinear(fogColor) * WorldBrightnessF;
+	vec3 color = RGBToLinear(fogColor) * GetWorldBrightnessF();
     ApplyPostProcessing(color);
 	outFinal = vec4(color, 1.0);
 }
