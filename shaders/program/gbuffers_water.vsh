@@ -21,13 +21,18 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 flat out int vBlockId;
 
+#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+    out vec3 physics_localPosition;
+    out float physics_localWaviness;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		out vec3 shadowPos[4];
-		flat out int shadowTile;
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		out vec3 shadowPos;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        out vec3 shadowPos[4];
+        flat out int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        out vec3 shadowPos;
+    #endif
 #endif
 
 uniform sampler2D lightmap;
@@ -39,15 +44,15 @@ uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
 #ifdef WORLD_SHADOW_ENABLED
-	uniform mat4 shadowModelView;
-	uniform mat4 shadowProjection;
-	uniform vec3 shadowLightPosition;
-	uniform float far;
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
+    uniform vec3 shadowLightPosition;
+    uniform float far;
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		uniform mat4 gbufferProjection;
-		uniform float near;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        uniform mat4 gbufferProjection;
+        uniform float near;
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
@@ -67,36 +72,53 @@ uniform vec3 cameraPosition;
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		#include "/lib/shadows/cascaded.glsl"
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		#include "/lib/shadows/basic.glsl"
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/shadows/basic.glsl"
+    #endif
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
-	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-		#include "/lib/items.glsl"
-		#include "/lib/lighting/blackbody.glsl"
-	#endif
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/items.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+    #endif
 
-	#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-		#include "/lib/buffers/lighting.glsl"
-		#include "/lib/lighting/dynamic.glsl"
-	#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+    #endif
 
-	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-		#include "/lib/lighting/dynamic_blocks.glsl"
-	#endif
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/dynamic_blocks.glsl"
+    #endif
+#endif
+
+#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+    #include "/lib/world/physicsmod_ocean.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
 
 
 void main() {
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	glcolor = gl_Color;
+    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    glcolor = gl_Color;
 
-	BasicVertex();
+    BasicVertex();
+
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        if (vBlockId == BLOCK_WATER) {
+            // basic texture to determine how shallow/far away from the shore the water is
+            physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
+            // transform gl_Vertex (since it is the raw mesh, i.e. not transformed yet)
+            vec4 finalPosition = vec4(gl_Vertex.x, gl_Vertex.y + physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime), gl_Vertex.z, gl_Vertex.w);
+            // pass this to the fragment shader to fetch the texture there for per fragment normals
+            physics_localPosition = finalPosition.xyz;
+
+            gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
+        }
+    #endif
 }

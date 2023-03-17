@@ -13,13 +13,40 @@ uniform sampler2D lightmap;
 uniform sampler2D gtexture;
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outColor0;
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    /* RENDERTARGETS: 1 */
+    layout(location = 0) out vec4 outDeferredColor;
+#else
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+#endif
 
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 	
 	color *= texture(lightmap, lmcoord);
 
-	outColor0 = color;
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        //float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+
+        //float fogF = GetVanillaFogFactor(vLocalPos);
+
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
+
+        //float lightLevel = GetSceneBlockEmission(vBlockId);
+
+        //uvec3 deferredPre;
+        //deferredPre.r = packUnorm4x8(color);
+        //deferredPre.g = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
+        //deferredPre.b = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, lightLevel));
+
+        //uvec2 deferredPost;
+        //deferredPost.r = packUnorm4x8(vec4(shadowColor, 1.0));
+        //deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+
+        outDeferredColor = color;
+    #else
+		outFinal = color;
+	#endif
 }

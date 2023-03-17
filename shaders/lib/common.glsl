@@ -3,8 +3,8 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 /*
 const int shadowcolor0Format = RGBA8;
 const int colortex0Format = RGB8;
-const int colortex1Format = RGB32UI;
-const int colortex2Format = RG32UI;
+const int colortex1Format = RGB8;
+const int colortex2Format = RGBA32UI;
 const int colortex3Format = RGB16F;
 const int colortex4Format = RGB8;
 const int colortex5Format = R32F;
@@ -46,6 +46,7 @@ const bool colortex5Clear = false;
 
 // World Options
 #define ENABLE_WAVING
+#define WATER_REFLECTIONS_ENABLED
 #define OLD_LIGHTING
 #define FOLIAGE_UP
 
@@ -119,6 +120,7 @@ const bool colortex5Clear = false;
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7]
 //#define DYN_LIGHT_DEBUG_COUNTS
+#define PHYSICS_OCEAN_SUPPORT
 
 
 // INTERNAL SETTINGS
@@ -198,6 +200,14 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #define rcp(x) (1.0 / (x))
 
 #define pow2(x) (x*x)
+
+float pow4(const in float x) {
+    float x2 = pow2(x);
+    return pow2(x2);
+}
+
+float pow3(const in float x) {return x * pow2(x);}
+float pow5(const in float x) {return x * pow4(x);}
 
 float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
 vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}

@@ -9,8 +9,7 @@ in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
-uniform usampler2D BUFFER_DEFERRED_PRE;
-uniform usampler2D BUFFER_DEFERRED_POST;
+uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_BLOCKLIGHT;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
@@ -73,18 +72,57 @@ layout(location = 2) out vec4 outDepth;
 void main() {
 	vec2 viewSize = vec2(viewWidth, viewHeight);
 	//vec2 bufferSize = viewSize / exp2(DYN_LIGHT_RES);
+	const int resScale = int(exp2(DYN_LIGHT_RES));
 
-	float depth = textureLod(depthtex0, texcoord, 0).r;
+	//ivec2 offset;
+	vec2 pixelSize = rcp(viewSize);
+	//offset.x += (int(gl_FragCoord.x)) % 2;
+	//offset.y += (int(gl_FragCoord.y) /2) % 2;
+
+	vec2 tex2 = texcoord;// - 0.5 * resScale * pixelSize;
+
+	float depth = textureLod(depthtex0, tex2, 0).r;
 	outDepth = vec4(vec3(depth), 1.0);
 
 	if (depth < 1.0) {
-		ivec2 deferredTexcoord = ivec2(texcoord * viewSize);
-		uvec2 deferredPreGB = texelFetch(BUFFER_DEFERRED_PRE, deferredTexcoord, 0).gb;
-        uint deferredPostG = texelFetch(BUFFER_DEFERRED_POST, deferredTexcoord, 0).g;
-		vec3 localNormal = unpackUnorm4x8(deferredPreGB.r).rgb;
-		vec4 deferredLighting = unpackUnorm4x8(deferredPreGB.g);
+		#if DYN_LIGHT_RES == 0
+			ivec2 deferredTexcoord = ivec2(tex2 * viewSize);
+	        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, deferredTexcoord, 0);
+			vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+			vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+		#else
+			ivec2 deferredTexcoord = ivec2(tex2 * viewSize - 0.5) - resScale/2;
+	        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, deferredTexcoord, 0);
+	        uvec4 deferredData2 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(resScale, 0));
+	        uvec4 deferredData3 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(0, resScale));
+	        uvec4 deferredData4 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(resScale, resScale));
 
-		vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+			vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+			vec3 localNormal2 = unpackUnorm4x8(deferredData2.r).rgb;
+			vec3 localNormal3 = unpackUnorm4x8(deferredData3.r).rgb;
+			vec3 localNormal4 = unpackUnorm4x8(deferredData4.r).rgb;
+
+			vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+			vec4 deferredLighting2 = unpackUnorm4x8(deferredData2.g);
+			vec4 deferredLighting3 = unpackUnorm4x8(deferredData3.g);
+			vec4 deferredLighting4 = unpackUnorm4x8(deferredData4.g);
+
+			vec2 pf = fract(tex2 * (viewSize / resScale));
+
+			vec4 deferredLightingX1 = mix(deferredLighting, deferredLighting2, pf.x);
+			vec4 deferredLightingX2 = mix(deferredLighting3, deferredLighting4, pf.x);
+			deferredLighting = mix(deferredLightingX1, deferredLightingX2, pf.y);
+			
+			vec3 localNormalX1 = mix(localNormal, localNormal2, pf.x);
+			vec3 localNormalX2 = mix(localNormal3, localNormal4, pf.x);
+			localNormal = mix(localNormalX1, localNormalX2, pf.y);
+		#endif
+
+		localNormal = normalize(localNormal * 2.0 - 1.0);
+
+		vec4 deferredFog = unpackUnorm4x8(deferredData.a);
+
+		vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 		vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
@@ -93,14 +131,11 @@ void main() {
 		vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
 		vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-		localNormal = normalize(localNormal * 2.0 - 1.0);
-
 		blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
         blockLight += SampleHandLight(localPos, localNormal);
 		blockLight += deferredLighting.a;
 
-        float deferredFogA = unpackUnorm4x8(deferredPostG).a;
-        blockLight *= 1.0 - deferredFogA;
+        blockLight *= 1.0 - deferredFog.a;
 
 		#if DYN_LIGHT_PENUMBRA > 0
 			vec3 uvPrev = clipPosPrev * 0.5 + 0.5;

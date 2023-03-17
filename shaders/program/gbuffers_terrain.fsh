@@ -141,8 +141,8 @@ uniform int fogMode;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     /* RENDERTARGETS: 1,2 */
-    layout(location = 0) out uvec3 outDeferredPre;
-    layout(location = 1) out uvec2 outDeferredPost;
+    layout(location = 0) out vec4 outDeferredColor;
+    layout(location = 1) out uvec4 outDeferredData;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -180,17 +180,14 @@ void main() {
 
         float lightLevel = GetSceneBlockEmission(vBlockId);
 
-        uvec3 deferredPre;
-        deferredPre.r = packUnorm4x8(color);
-        deferredPre.g = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
-        deferredPre.b = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, lightLevel));
+        outDeferredColor = color;
 
-        uvec2 deferredPost;
-        deferredPost.r = packUnorm4x8(vec4(shadowColor, 1.0));
-        deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
-
-        outDeferredPre = deferredPre;
-        outDeferredPost = deferredPost;
+        uvec4 deferredData;
+        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, lightLevel));
+        deferredData.b = packUnorm4x8(vec4(shadowColor, 1.0));
+        deferredData.a = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL

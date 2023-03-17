@@ -17,6 +17,11 @@ in vec3 vLocalNormal;
 in vec3 vBlockLight;
 flat in int vBlockId;
 
+#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+    in vec3 physics_localPosition;
+    in float physics_localWaviness;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -44,6 +49,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
+uniform int isEyeInWater;
 uniform float far;
 
 #if AF_SAMPLES > 1
@@ -103,9 +109,14 @@ uniform float far;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/blocks.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
+    #include "/lib/world/water.glsl"
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -123,7 +134,6 @@ uniform float far;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
@@ -137,6 +147,10 @@ uniform float far;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/dynamic_blocks.glsl"
+#endif
+
+#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+    #include "/lib/world/physicsmod_ocean.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -166,7 +180,46 @@ void main() {
         vec3 lightColor = vec3(1.0);
     #endif
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x);
+    vec3 localNormal = normalize(vLocalNormal);
+
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        localNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+    #endif
+
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        if (vBlockId == BLOCK_WATER) {
+            if (!gl_FrontFacing && isEyeInWater != 1) {
+                discard;
+                return;
+            }
+        }
+    #endif
+
+    #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            if (!gl_FrontFacing) {
+                if (isEyeInWater == 1) {
+                    localNormal = -localNormal;
+                }
+                else {
+                    discard;
+                    return;
+                }
+            }
+
+            vec3 localViewDir = normalize(vLocalPos);
+            vec3 reflectDir = reflect(localViewDir, localNormal);
+            vec3 reflectColor = GetFogColor(reflectDir.y) * vec3(0.7, 0.8, 1.0);
+
+            float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+            float F = 1.0 - NoVmax;//F_schlick(NoVmax, 0.02, 1.0);
+
+            color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
+            color.a = max(color.a, F);
+        }
+    #endif
+
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);

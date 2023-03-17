@@ -9,15 +9,15 @@ in vec2 texcoord;
 uniform sampler2D colortex0;
 
 #if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
-	uniform usampler2D BUFFER_DEFERRED_PRE;
+	uniform sampler2D BUFFER_DEFERRED_COLOR;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL
-	uniform usampler2D BUFFER_DEFERRED_PRE;
+	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
-	uniform usampler2D BUFFER_DEFERRED_PRE;
+	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-	uniform usampler2D BUFFER_DEFERRED_POST;
+	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
-	uniform usampler2D BUFFER_DEFERRED_POST;
+	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 	uniform sampler2D BUFFER_BLOCKLIGHT;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
@@ -45,20 +45,19 @@ void main() {
 	vec2 viewSize = vec2(viewWidth, viewHeight);
 
 	#if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
-		uint deferredPreR = texelFetch(BUFFER_DEFERRED_PRE, ivec2(texcoord * viewSize), 0).r;
-		vec3 color = unpackUnorm4x8(deferredPreR).rgb;
+		vec3 color = texelFetch(BUFFER_DEFERRED_COLOR, ivec2(texcoord * viewSize), 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL
-		uint deferredPreG = texelFetch(BUFFER_DEFERRED_PRE, ivec2(texcoord * viewSize), 0).g;
-		vec3 color = unpackUnorm4x8(deferredPreG).rgb;
+		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+		vec3 color = unpackUnorm4x8(deferredData.r).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
-		uint deferredPreB = texelFetch(BUFFER_DEFERRED_PRE, ivec2(texcoord * viewSize), 0).b;
-		vec3 color = unpackUnorm4x8(deferredPreB).rgb;
+		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+		vec3 color = unpackUnorm4x8(deferredData.g).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-		uint deferredPostR = texelFetch(BUFFER_DEFERRED_POST, ivec2(texcoord * viewSize), 0).r;
-		vec3 color = unpackUnorm4x8(deferredPostR).rgb;
+		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+		vec3 color = unpackUnorm4x8(deferredData.b).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
-		uint deferredPostG = texelFetch(BUFFER_DEFERRED_POST, ivec2(texcoord * viewSize), 0).g;
-		vec4 fog = unpackUnorm4x8(deferredPostG);
+		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+		vec4 fog = unpackUnorm4x8(deferredData.a);
 		vec3 color = fog.rgb * fog.a;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 		vec3 color = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;

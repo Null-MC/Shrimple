@@ -19,7 +19,6 @@
     }
 
     float GetDynLightFlickerNoise(const in vec2 noiseSample) {
-        //vec2 noiseSample = GetDynLightNoise(blockLocalPos);
         return (1.0 - noiseSample.g) * (1.0 - pow2(noiseSample.r));
     }
 #endif
@@ -76,7 +75,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             break;
         case BLOCK_GLOW_LICHEN:
         case ITEM_GLOW_LICHEN:
-            lightColor = vec3(0.332, 0.495, 0.367);
+            lightColor = vec3(0.256, 0.389, 0.288);
             break;
         case BLOCK_JACK_O_LANTERN:
         case ITEM_JACK_O_LANTERN:
@@ -150,7 +149,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_SEA_PICKLE_WET_2:
         case BLOCK_SEA_PICKLE_WET_3:
         case BLOCK_SEA_PICKLE_WET_4:
-            lightColor = vec3(0.498, 0.894, 0.834);
+            lightColor = vec3(0.265, 0.480, 0.235);
             break;
         case BLOCK_SHROOMLIGHT:
         case ITEM_SHROOMLIGHT:
@@ -1054,9 +1053,8 @@ float GetSceneBlockEmission(const in int blockId) {
     }
 
     void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
-        //float lightRange = GetSceneBlockLightLevel(blockId);
         vec3 lightOffset = vec3(0.0);
-        //vec3 lightColor = vec3(0.0);
+        vec3 lightColorFinal = lightColor;
         
         if (lightRange > EPSILON) {
             vec2 noiseSample = vec2(0.0);
@@ -1064,19 +1062,12 @@ float GetSceneBlockEmission(const in int blockId) {
                 noiseSample = GetDynLightNoise(blockLocalPos);
             #endif
 
-            //lightColor = GetSceneBlockLightColor(blockId, noiseSample);
             float flicker = 0.0;
             //float pulse = 0.0;
             float glow = 0.0;
 
             #ifdef DYN_LIGHT_FLICKER
                 float time = frameTimeCounter / 3600.0;
-            //     vec3 worldPos = cameraPosition + blockLocalPos;
-
-            //     vec3 texPos = fract(worldPos.xzy * vec3(0.04, 0.04, 0.08));
-            //     texPos.z += 200.0 * time;
-
-            //     vec2 noiseSample = texture(TEX_LIGHT_NOISE, vec2(0.3, 0.6)*texPos.y + texPos.xz).rg;
                 float flickerNoise = GetDynLightFlickerNoise(noiseSample);
             #endif
 
@@ -1205,16 +1196,10 @@ float GetSceneBlockEmission(const in int blockId) {
                     glow = 0.4;
                     break;
                 case BLOCK_SEA_PICKLE_WET_1:
-                    glow = 0.4;
-                    break;
                 case BLOCK_SEA_PICKLE_WET_2:
-                    glow = 0.4;
-                    break;
                 case BLOCK_SEA_PICKLE_WET_3:
-                    glow = 0.4;
-                    break;
                 case BLOCK_SEA_PICKLE_WET_4:
-                    glow = 0.4;
+                    glow = 0.9;
                     break;
                 case BLOCK_SHROOMLIGHT:
                 case ITEM_SHROOMLIGHT:
@@ -1253,16 +1238,16 @@ float GetSceneBlockEmission(const in int blockId) {
             //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
             // }
 
-            // #ifdef DYN_LIGHT_FLICKER
-            //     if (flicker > EPSILON) {
-            //         lightColor.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
-            //     }
+            #ifdef DYN_LIGHT_FLICKER
+                if (flicker > EPSILON) {
+                    lightColorFinal.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
+                }
 
-            //     if (glow > EPSILON) {
-            //         float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-            //         lightColor.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
-            //     }
-            // #endif
+                if (glow > EPSILON) {
+                    float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
+                    lightColorFinal.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+                }
+            #endif
         }
 
         if (lightRange > EPSILON) {
@@ -1286,7 +1271,7 @@ float GetSceneBlockEmission(const in int blockId) {
             #endif
 
             uint lightData = GetSceneBlockLightMetadata(blockId);
-            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
+            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightData);
         }
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             else if (IsDynLightSolidBlock(blockId)) {

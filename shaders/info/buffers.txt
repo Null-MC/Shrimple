@@ -1,13 +1,11 @@
 colortex0		RGB8		1.0		final
 
-colortex1		RGB32UI		1.0		deferred pre
-									- R: color.rgb
-									- G: normal.xyz
-									- B: lighting.xyzw (block, sky, ao, emission)
-
-colortex2		RG32UI		1.0		deferred post
-									- R: shadow.rgb
-									- G: fog.rgba
+colortex1		RGB8		1.0		deferred color
+colortex2		RGBA32UI	1.0		deferred data
+									- R: normal.xyz
+									- G: lighting.xyzw (block, sky, ao, emission)
+									- B: shadow.rgb
+									- A: fog.rgba
 
 colortex3		RGB16F		 *	 	block-light
 colortex4		RGB8		 *		block-light normal
