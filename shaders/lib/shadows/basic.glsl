@@ -1,3 +1,11 @@
+float GetShadowNormalBias(const in float geoNoL) {
+    return 0.02 * max(1.0 - geoNoL, 0.0) * SHADOW_BIAS_SCALE;
+}
+
+float GetShadowOffsetBias() {
+    return (0.00004 * SHADOW_BIAS_SCALE);
+}
+
 // euclidian distance is defined as sqrt(a^2 + b^2 + ...)
 // this length function instead does cbrt(a^3 + b^3 + ...)
 // this results in smaller distances along the diagonal axes.
@@ -19,8 +27,17 @@ vec3 distort(const in vec3 v) {
 }
 
 #if defined RENDER_VERTEX && !defined RENDER_SHADOW
-	void ApplyShadows(const in vec3 localPos) {
-		vec3 shadowViewPos = (shadowModelView * vec4(localPos, 1.0)).xyz;
+	void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
+        float bias = GetShadowNormalBias(geoNoL);
+
+        float viewDist = 1.0;
+
+        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+            viewDist += length(localPos);
+        #endif
+
+        vec3 offsetLocalPos = localPos + localNormal * viewDist * bias;
+		vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
 		shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
 
 		#if SHADOW_TYPE == SHADOW_TYPE_DISTORTED

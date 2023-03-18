@@ -243,25 +243,31 @@
             vLit = 1.0;
         #endif
 
+        vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+        vBlockLight = vec3(0.0);
+
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                //float bias = GetShadowNormalBias(cascade, geoNoL);
                 shadowTile = -1;
+            #else
+                //float bias = GetShadowNormalBias(geoNoL);
             #endif
 
-            float viewDist = 1.0 + length(viewPos.xyz);
+            // float viewDist = 1.0;
 
-            vec3 shadowViewPos = viewPos.xyz;
+            // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+            //     viewDist += length(viewPos.xyz);
+            // #endif
 
-            shadowViewPos += vNormal * viewDist * ShadowNormalBias * max(1.0 - geoNoL, 0.0);
+            //vec3 shadowViewPos = viewPos.xyz;
 
-            vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
+            //shadowViewPos += vNormal * viewDist * bias;
 
-            ApplyShadows(shadowLocalPos);
+            //vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
+
+            ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
         #endif
-
-        vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
-
-        vBlockLight = vec3(0.0);
 
         #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;

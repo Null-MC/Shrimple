@@ -11,6 +11,54 @@ vec2 GetShadowTilePos(const in int tile) {
     return pos;
 }
 
+float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
+    float bias = 0.0;
+
+    switch (cascade) {
+        case 0:
+            bias = 0.03;
+            break;
+        case 1:
+            bias = 0.05;
+            break;
+        case 2:
+            bias = 0.08;
+            break;
+        case 3:
+            bias = 0.16;
+            break;
+    }
+
+    return bias * max(1.0 - geoNoL, 0.0) * SHADOW_BIAS_SCALE;
+}
+
+float GetShadowOffsetBias(const in int cascade) {
+    float bias = 0.0;
+
+    switch (cascade) {
+        case 0:
+            bias = 0.000008;
+            break;
+        case 1:
+            bias = 0.000032;
+            break;
+        case 2:
+            bias = 0.000128;
+            break;
+        case 3:
+            bias = 0.000512;
+            break;
+    }
+
+    return bias * SHADOW_BIAS_SCALE;
+
+    // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;
+
+    // float zRangeBias = 0.0000001;
+    // float xySizeBias = blocksPerPixelScale * tile_dist_bias_factor;
+    // return mix(xySizeBias, zRangeBias, geoNoL) * SHADOW_BIAS_SCALE;
+}
+
 #if !defined RENDER_FRAG
     // tile: 0-3
     float GetCascadeDistance(const in int tile) {
@@ -156,10 +204,13 @@ vec2 GetShadowTilePos(const in int tile) {
 #endif
 
 #if defined RENDER_VERTEX && !defined RENDER_COMPOSITE
-    void ApplyShadows(const in vec3 localPos) {
-        vec3 shadowViewPos = (shadowModelView * vec4(localPos, 1.0)).xyz;
-
+    void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
         for (int i = 0; i < 4; i++) {
+            float bias = GetShadowNormalBias(i, geoNoL);
+            vec3 offsetLocalPos = localPos + localNormal * bias;
+
+            vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
+
             // convert to shadow screen space
             shadowPos[i] = (cascadeProjection[i] * vec4(shadowViewPos, 1.0)).xyz;
 

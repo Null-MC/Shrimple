@@ -4,16 +4,6 @@ const int pcf_sizes[4] = int[](4, 3, 2, 1);
 const int pcf_max = 4;
 
 
-float GetShadowBias(const in int cascade, const in float geoNoL) {
-    return 0.000004;
-
-    // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;
-
-    // float zRangeBias = 0.0000001;
-    // float xySizeBias = blocksPerPixelScale * tile_dist_bias_factor;
-    // return mix(xySizeBias, zRangeBias, geoNoL) * SHADOW_BIAS_SCALE;
-}
-
 float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {
     #if SHADOW_COLORS == 0
         return textureLod(shadowtex0, shadowPos + offset, 0).r;
@@ -137,7 +127,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
 
             // blocker search
             float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
@@ -163,12 +153,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
 
             float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
             if (blockerDistance <= 0.0) return 1.0;
 
-            bias *= 1.0 + 20.0 * blockerDistance;
+            //bias *= 1.0 + 20.0 * blockerDistance;
 
             pixelRadius *= min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
             float shadow = GetShadowing_PCF(shadowPos, pixelRadius, bias);
@@ -181,14 +171,14 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
 
             return GetShadowing_PCF(shadowPos, pixelRadius, bias);
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
 
             return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, bias);
         }
@@ -197,7 +187,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     // Unfiltered
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
             if (shadowPos.z - bias > depthOpaque) return vec3(0.0);
@@ -214,7 +204,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
-            float bias = GetShadowBias(cascade, geoNoL);
+            float bias = GetShadowOffsetBias(cascade);
             return CompareDepth(shadowPos, vec2(0.0), bias);
         }
     #endif

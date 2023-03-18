@@ -163,10 +163,16 @@ uniform vec4 entityColor;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    vec4 color = GetColor();
+    vec4 color = texture(gtexture, texcoord);
 
-    color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
-    //color.rgb = RGBToLinear(color.rgb);
+    if (color.a < (1.5/255.0)) {
+        discard;
+        return;
+    }
+
+    color.a = 1.0;
+    color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+    color.rgb = RGBToLinear(color.rgb);
 
     vec3 localNormal = normalize(vLocalNormal);
 

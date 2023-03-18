@@ -1,7 +1,3 @@
-float GetShadowBias(const in float geoNoL) {
-    return 0.00004;
-}
-
 float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {
     #if SHADOW_COLORS == 0
         //for normal shadows, only consider the closest thing to the sun,
@@ -131,7 +127,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos) {
             vec2 pixelRadius = GetShadowPixelRadius(ShadowPCFSize);
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
 
             // blocker search
             float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
@@ -154,7 +150,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #else
         float GetShadowFactor(const in vec3 shadowPos) {
             vec2 pixelRadius = GetShadowPixelRadius(ShadowPCFSize);
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
 
             // blocker search
             float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
@@ -169,14 +165,14 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos) {
             vec2 pixelRadius = GetShadowPixelRadius(ShadowPCFSize);
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
 
             return GetShadowing_PCF(shadowPos, pixelRadius, bias);
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos) {
             vec2 pixelRadius = GetShadowPixelRadius(ShadowPCFSize);
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
 
             return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, bias);
         }
@@ -185,7 +181,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     // Unfiltered
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos) {
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
             if (shadowPos.z - bias > depthOpaque) return vec3(0.0);
@@ -202,7 +198,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos) {
-            float bias = GetShadowBias(geoNoL);
+            float bias = GetShadowOffsetBias();
             return CompareDepth(shadowPos, vec2(0.0), bias);
         }
     #endif
