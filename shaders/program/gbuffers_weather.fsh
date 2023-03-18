@@ -2,6 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
+#define RENDER_BILLBOARD
+
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 

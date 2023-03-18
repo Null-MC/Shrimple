@@ -220,7 +220,7 @@
 
         vPos = viewPos.xyz;
 
-        #if defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES
+        #ifdef RENDER_BILLBOARD
             vec3 vNormal;
             vec3 vLocalNormal;
         #endif
@@ -228,19 +228,15 @@
         vNormal = normalize(gl_NormalMatrix * gl_Normal);
         vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
 
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !(defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
             vec3 lightDir = normalize(shadowLightPosition);
             geoNoL = dot(lightDir, vNormal);
 
-            #if defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES
-                vLit = 1.0;
-            #else
-                vLit = geoNoL;
+            vLit = geoNoL;
 
-                #if defined RENDER_TERRAIN && defined FOLIAGE_UP
-                    if (IsFoliageBlock(vBlockId))
-                        vLit = dot(lightDir, gbufferModelView[1].xyz);
-                #endif
+            #if defined RENDER_TERRAIN && defined FOLIAGE_UP
+                if (IsFoliageBlock(vBlockId))
+                    vLit = dot(lightDir, gbufferModelView[1].xyz);
             #endif
         #else
             geoNoL = 1.0;
@@ -267,11 +263,11 @@
 
         vBlockLight = vec3(0.0);
 
-        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
             blockLightDefault = RGBToLinear(blockLightDefault);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !defined RENDER_WEATHER
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !defined RENDER_BILLBOARD
                 #if defined RENDER_TERRAIN || defined RENDER_WATER
                     float sss = GetBlockSSS(vBlockId);
                 #else
@@ -380,15 +376,17 @@
                 blockLight += SampleHandLight(vLocalPos, vLocalNormal, sss);
             #endif
 
-            #ifdef RENDER_GBUFFER
-                vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
-            #else
-                vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
-            #endif
+            #ifndef RENDER_CLOUDS
+                #ifdef RENDER_GBUFFER
+                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                #else
+                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                #endif
 
-            skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
-            //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
-            skyLight *= 1.0 - blindness;
+                skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
+                //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+                skyLight *= 1.0 - blindness;
+            #endif
 
             vec3 ambient = albedo * skyLight * occlusion * ShadowBrightnessF;
             vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));

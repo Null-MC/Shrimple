@@ -167,16 +167,16 @@ vec2 GetShadowTilePos(const in int tile) {
             shadowPos[i].xy = shadowPos[i].xy * 0.5 + shadowProjectionPos[i]; // scale and translate to quadrant
         }
 
-        #if defined RENDER_ENTITIES || defined RENDER_HAND
+        #if defined RENDER_HAND //|| defined RENDER_ENTITIES
             vec3 blockPos = vec3(0.0);
-        #elif defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_WEATHER
-            vec3 blockPos = gl_Vertex.xyz;
-            blockPos = floor(blockPos + 0.5);
-            blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;
-        #else
+        #elif defined RENDER_TERRAIN || defined RENDER_WATER
             vec3 blockPos = floor(gl_Vertex.xyz + at_midBlock / 64.0 + fract(cameraPosition));
             blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
             blockPos = (shadowModelView * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
+        #else
+            vec3 blockPos = gl_Vertex.xyz;
+            blockPos = floor(blockPos + 0.5);
+            blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;
         #endif
 
         shadowTile = GetShadowTile(cascadeProjection, blockPos);
