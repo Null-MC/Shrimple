@@ -2,6 +2,15 @@ vec3 GetLightGlassTint(const in uint blockType) {
     vec3 stepTint = vec3(1.0);
 
     switch (blockType) {
+        case BLOCKTYPE_AMETHYST:
+            stepTint = vec3(0.707, 0.526, 0.944);
+            break;
+        case BLOCKTYPE_DIAMOND:
+            stepTint = vec3(0.427, 0.969, 0.910);
+            break;
+        case BLOCKTYPE_EMERALD:
+            stepTint = vec3(0.153, 0.804, 0.349);
+            break;
         case BLOCKTYPE_HONEY:
             stepTint = vec3(0.984, 0.733, 0.251);
             break;
@@ -42,7 +51,7 @@ vec3 GetLightGlassTint(const in uint blockType) {
             stepTint = vec3(0.698, 0.298, 0.847);
             break;
         case BLOCKTYPE_STAINED_GLASS_ORANGE:
-            stepTint = vec3(0.934, 0.518, 0.163);
+            stepTint = vec3(0.919, 0.586, 0.185);
             break;
         case BLOCKTYPE_STAINED_GLASS_PINK:
             stepTint = vec3(0.949, 0.274, 0.497);
@@ -102,7 +111,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCKTYPE_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
+            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                 vec3 glassTint = GetLightGlassTint(blockType);
                 color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
             }
@@ -140,7 +149,7 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCKTYPE_STAINED_GLASS_BLACK && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
                 color *= GetLightGlassTint(blockType);
             }
             else if (blockType != BLOCKTYPE_EMPTY) {

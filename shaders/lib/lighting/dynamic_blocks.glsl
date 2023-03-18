@@ -49,6 +49,9 @@ float GetBlockSSS(const in int blockId) {
         case BLOCK_TWISTING_VINES:
         case BLOCK_VINE:
         case BLOCK_WEEPING_VINES:
+        case BLOCK_AMETHYST:
+        case BLOCK_DIAMOND:
+        case BLOCK_EMERALD:
             sss = 0.4;
             break;
         case BLOCK_ALLIUM:
@@ -1044,6 +1047,15 @@ float GetSceneBlockEmission(const in int blockId) {
                     blockType = BLOCKTYPE_CHORUS_OTHER;
                     break;
 
+                case BLOCK_AMETHYST:
+                    blockType = BLOCKTYPE_AMETHYST;
+                    break;
+                case BLOCK_DIAMOND:
+                    blockType = BLOCKTYPE_DIAMOND;
+                    break;
+                case BLOCK_EMERALD:
+                    blockType = BLOCKTYPE_EMERALD;
+                    break;
                 case BLOCK_HONEY:
                     blockType = BLOCKTYPE_HONEY;
                     break;

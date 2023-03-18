@@ -389,6 +389,14 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             boundsMin = vec3(0.375, 0.0, 0.375);
             boundsMax = vec3(0.625, 1.0, 0.625);
             break;
+        case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
+            boundsMin = vec3(( 6.0/16.0), ( 9.0/16.0), (7.0/16.0));
+            boundsMax = vec3((10.0/16.0), (12.0/16.0), (9.0/16.0));
+            break;
+        case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
+            boundsMin = vec3((7.0/16.0), ( 9.0/16.0), ( 6.0/16.0));
+            boundsMax = vec3((9.0/16.0), (12.0/16.0), (10.0/16.0));
+            break;
 
         case BLOCKTYPE_WALL_POST:
         case BLOCKTYPE_WALL_POST_LOW_N:
@@ -901,6 +909,14 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                         boundsMin = vec3(0.0, (6.0/16.0), (7.0/16.0));
                         boundsMax = vec3(0.5, (9.0/16.0), (9.0/16.0));
                         break;
+                    case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
+                        boundsMin = vec3((0.0/16.0), (5.0/16.0), (7.0/16.0));
+                        boundsMax = vec3((2.0/16.0),        1.0, (9.0/16.0));
+                        break;
+                    case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
+                        boundsMin = vec3((7.0/16.0), (5.0/16.0), (0.0/16.0));
+                        boundsMax = vec3((9.0/16.0),        1.0, (2.0/16.0));
+                        break;
                 }
 
                 #if DYN_LIGHT_TRACE_METHOD == 1
@@ -934,6 +950,14 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                         case BLOCKTYPE_FENCE_N_W:
                             boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.0);
                             boundsMax = vec3((9.0/16.0), (15.0/16.0), 0.5);
+                            break;
+                        case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
+                            boundsMin = vec3((14.0/16.0), (5.0/16.0), (7.0/16.0));
+                            boundsMax = vec3(        1.0,        1.0, (9.0/16.0));
+                            break;
+                        case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
+                            boundsMin = vec3((7.0/16.0), (5.0/16.0), (14.0/16.0));
+                            boundsMax = vec3((9.0/16.0),        1.0,         1.0);
                             break;
                     }
 
