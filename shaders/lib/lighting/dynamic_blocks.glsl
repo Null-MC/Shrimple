@@ -27,12 +27,59 @@ float GetBlockSSS(const in int blockId) {
     float sss = 0.0;
 
     switch (blockId) {
+        case BLOCK_BROWN_MUSHROOM:
+        case BLOCK_LILY_PAD:
+        case BLOCK_NETHER_WART:
+        case BLOCK_RED_MUSHROOM:
+            sss = 0.2;
+            break;
+        case BLOCK_AZALEA:
+        case BLOCK_BIG_DRIPLEAF:
+        case BLOCK_BIG_DRIPLEAF_STEM:
+        case BLOCK_CAVE_VINE:
+        case BLOCK_FERN:
+        case BLOCK_KELP:
         case BLOCK_LEAVES:
+        case BLOCK_LARGE_FERN_LOWER:
+        case BLOCK_LARGE_FERN_UPPER:
+        case BLOCK_SAPLING:
+        case BLOCK_SEAGRASS:
+        case BLOCK_SMALL_DRIPLEAF:
+        case BLOCK_SWEET_BERRY_BUSH:
+        case BLOCK_TWISTING_VINES:
+        case BLOCK_VINE:
+        case BLOCK_WEEPING_VINES:
+            sss = 0.4;
+            break;
+        case BLOCK_ALLIUM:
+        case BLOCK_AZURE_BLUET:
+        case BLOCK_BEETROOTS:
+        case BLOCK_BLUE_ORCHID:
+        case BLOCK_CARROTS:
+        case BLOCK_CORNFLOWER:
+        case BLOCK_DANDELION:
+        case BLOCK_LILAC_LOWER:
+        case BLOCK_LILAC_UPPER:
+        case BLOCK_LILY_OF_THE_VALLEY:
+        case BLOCK_OXEYE_DAISY:
+        case BLOCK_PEONY_LOWER:
+        case BLOCK_PEONY_UPPER:
+        case BLOCK_POPPY:
+        case BLOCK_POTATOES:
+        case BLOCK_ROSE_BUSH_LOWER:
+        case BLOCK_ROSE_BUSH_UPPER:
+        case BLOCK_SPORE_BLOSSOM:
+        case BLOCK_SUNFLOWER_LOWER:
+        case BLOCK_SUNFLOWER_UPPER:
+        case BLOCK_TULIP:
+        case BLOCK_WHEAT:
+        case BLOCK_WITHER_ROSE:
             sss = 0.6;
             break;
         case BLOCK_GRASS:
         case BLOCK_TALL_GRASS_UPPER:
         case BLOCK_TALL_GRASS_LOWER:
+        case BLOCK_SNOW:
             sss = 0.8;
             break;
     }
@@ -1002,6 +1049,9 @@ float GetSceneBlockEmission(const in int blockId) {
                     break;
                 case BLOCK_SLIME:
                     blockType = BLOCKTYPE_SLIME;
+                    break;
+                case BLOCK_SNOW:
+                    blockType = BLOCKTYPE_SNOW;
                     break;
                 case BLOCK_STAINED_GLASS_BLACK:
                     blockType = BLOCKTYPE_STAINED_GLASS_BLACK;

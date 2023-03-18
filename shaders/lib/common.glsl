@@ -148,6 +148,7 @@ const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
+const vec3 EPSILON3 = vec3(EPSILON);
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     const float ShadowNormalBias = SHADOW_CASCADED_NORMAL_BIAS;

@@ -607,6 +607,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             case BLOCKTYPE_FENCE_N_S:
             case BLOCKTYPE_FENCE_N_W_S:
             case BLOCKTYPE_FENCE_N_E_S:
+            case BLOCKTYPE_FENCE_ALL:
             case BLOCKTYPE_FENCE_GATE_CLOSED_W_E:
                 boundsMin = vec3((7.0/16.0), (6.0/16.0), 0.0);
                 boundsMax = vec3((9.0/16.0), (9.0/16.0), 1.0);
@@ -782,6 +783,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 case BLOCKTYPE_FENCE_W_E:
                 case BLOCKTYPE_FENCE_W_N_E:
                 case BLOCKTYPE_FENCE_W_S_E:
+                case BLOCKTYPE_FENCE_ALL:
                 case BLOCKTYPE_FENCE_GATE_CLOSED_N_S:
                     boundsMin = vec3(0.0, (12.0/16.0), (7.0/16.0));
                     boundsMax = vec3(1.0, (15.0/16.0), (9.0/16.0));
@@ -873,6 +875,75 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             #else
                 hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
             #endif
+
+            if (!hit) {
+                boundsMin = vec3(-1.0);
+                boundsMax = vec3(-1.0);
+
+                switch (blockType) {
+                    case BLOCKTYPE_FENCE_ALL:
+                        boundsMin = vec3(0.0, (6.0/16.0), (7.0/16.0));
+                        boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
+                        break;
+                    case BLOCKTYPE_FENCE_N_E:
+                        boundsMin = vec3(0.5, (6.0/16.0), (7.0/16.0));
+                        boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
+                        break;
+                    case BLOCKTYPE_FENCE_N_W:
+                        boundsMin = vec3((7.0/16.0), (6.0/16.0), 0.0);
+                        boundsMax = vec3((9.0/16.0), (9.0/16.0), 0.5);
+                        break;
+                    case BLOCKTYPE_FENCE_S_E:
+                        boundsMin = vec3((7.0/16.0), (6.0/16.0), 0.5);
+                        boundsMax = vec3((9.0/16.0), (9.0/16.0), 1.0);
+                        break;
+                    case BLOCKTYPE_FENCE_S_W:
+                        boundsMin = vec3(0.0, (6.0/16.0), (7.0/16.0));
+                        boundsMax = vec3(0.5, (9.0/16.0), (9.0/16.0));
+                        break;
+                }
+
+                #if DYN_LIGHT_TRACE_METHOD == 1
+                    hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+                #else
+                    hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+                #endif
+
+
+                if (!hit) {
+                    boundsMin = vec3(-1.0);
+                    boundsMax = vec3(-1.0);
+
+                    switch (blockType) {
+                        case BLOCKTYPE_FENCE_ALL:
+                            boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.0);
+                            boundsMax = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                            break;
+                        case BLOCKTYPE_FENCE_N_E:
+                            boundsMin = vec3(0.5, (12.0/16.0), (7.0/16.0));
+                            boundsMax = vec3(1.0, (15.0/16.0), (9.0/16.0));
+                            break;
+                        case BLOCKTYPE_FENCE_S_E:
+                            boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.5);
+                            boundsMax = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                            break;
+                        case BLOCKTYPE_FENCE_S_W:
+                            boundsMin = vec3(0.0, (12.0/16.0), (7.0/16.0));
+                            boundsMax = vec3(0.5, (15.0/16.0), (9.0/16.0));
+                            break;
+                        case BLOCKTYPE_FENCE_N_W:
+                            boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.0);
+                            boundsMax = vec3((9.0/16.0), (15.0/16.0), 0.5);
+                            break;
+                    }
+
+                    #if DYN_LIGHT_TRACE_METHOD == 1
+                        hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+                    #else
+                        hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+                    #endif
+                }
+            }
         }
     }
 

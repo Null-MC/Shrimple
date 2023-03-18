@@ -8,6 +8,9 @@ vec3 GetLightGlassTint(const in uint blockType) {
         case BLOCKTYPE_SLIME:
             stepTint = vec3(0.408, 0.725, 0.329);
             break;
+        case BLOCKTYPE_SNOW:
+            stepTint = vec3(0.375, 0.546, 0.621);
+            break;
         case BLOCKTYPE_STAINED_GLASS_BLACK:
             stepTint = vec3(0.1, 0.1, 0.1);
             break;
