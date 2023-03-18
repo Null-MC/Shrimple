@@ -165,9 +165,11 @@ void main() {
         #endif
     #endif
 
+    const float emission = 0.0;
+    const float sss = 0.0;
+
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        const float lightLevel = 0.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
@@ -176,15 +178,15 @@ void main() {
         outDeferredColor = color;
 
         uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, 1.0));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, lightLevel));
+        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(shadowColor, 1.0));
         deferredData.a = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);

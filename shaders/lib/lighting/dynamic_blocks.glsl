@@ -23,6 +23,23 @@
     }
 #endif
 
+float GetBlockSSS(const in int blockId) {
+    float sss = 0.0;
+
+    switch (blockId) {
+        case BLOCK_LEAVES:
+            sss = 0.6;
+            break;
+        case BLOCK_GRASS:
+        case BLOCK_TALL_GRASS_UPPER:
+        case BLOCK_TALL_GRASS_LOWER:
+            sss = 0.8;
+            break;
+    }
+
+    return sss;
+}
+
 vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
     switch (blockId) {
@@ -149,7 +166,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_SEA_PICKLE_WET_2:
         case BLOCK_SEA_PICKLE_WET_3:
         case BLOCK_SEA_PICKLE_WET_4:
-            lightColor = vec3(0.265, 0.480, 0.235);
+            lightColor = vec3(0.283, 0.394, 0.212);
             break;
         case BLOCK_SHROOMLIGHT:
         case ITEM_SHROOMLIGHT:
@@ -1029,6 +1046,7 @@ float GetSceneBlockEmission(const in int blockId) {
                     blockType = BLOCKTYPE_STAINED_GLASS_RED;
                     break;
                 case BLOCK_STAINED_GLASS_WHITE:
+                case BLOCK_LEAVES:
                     blockType = BLOCKTYPE_STAINED_GLASS_WHITE;
                     break;
                 case BLOCK_STAINED_GLASS_YELLOW:

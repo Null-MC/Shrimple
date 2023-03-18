@@ -76,7 +76,7 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_MODE 1 // [0 1 2 3]
 #define DYN_LIGHT_COLORS 0 // [0 1]
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
-#define DYN_LIGHT_DIRECTIONAL
+#define DYN_LIGHT_DIRECTIONAL 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_LAVA 1 // [0 1 2]
 #define DYN_LIGHT_REDSTONE 1 // [0 1 2]
@@ -94,6 +94,7 @@ const bool colortex5Clear = false;
 #define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
+#define DYN_LIGHT_SSS
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_LPV
 
@@ -139,6 +140,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
+const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbra = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;

@@ -166,6 +166,7 @@ void main() {
     vec4 color = GetColor();
 
     color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
+    //color.rgb = RGBToLinear(color.rgb);
 
     vec3 localNormal = normalize(vLocalNormal);
 
@@ -178,8 +179,10 @@ void main() {
         #endif
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+    const float emission = 0.0;
+    const float sss = 0.0;
+
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);

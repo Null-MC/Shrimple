@@ -88,7 +88,7 @@ void main() {
 		#if DYN_LIGHT_RES == 0
 			ivec2 deferredTexcoord = ivec2(tex2 * viewSize);
 	        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, deferredTexcoord, 0);
-			vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+			vec4 localNormal = unpackUnorm4x8(deferredData.r);
 			vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 		#else
 			ivec2 deferredTexcoord = ivec2(tex2 * viewSize - 0.5) - resScale/2;
@@ -97,7 +97,7 @@ void main() {
 	        uvec4 deferredData3 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(0, resScale));
 	        uvec4 deferredData4 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(resScale, resScale));
 
-			vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+			vec4 localNormal = unpackUnorm4x8(deferredData.r);
 			vec3 localNormal2 = unpackUnorm4x8(deferredData2.r).rgb;
 			vec3 localNormal3 = unpackUnorm4x8(deferredData3.r).rgb;
 			vec3 localNormal4 = unpackUnorm4x8(deferredData4.r).rgb;
@@ -113,12 +113,12 @@ void main() {
 			vec4 deferredLightingX2 = mix(deferredLighting3, deferredLighting4, pf.x);
 			deferredLighting = mix(deferredLightingX1, deferredLightingX2, pf.y);
 			
-			vec3 localNormalX1 = mix(localNormal, localNormal2, pf.x);
+			vec3 localNormalX1 = mix(localNormal.xyz, localNormal2, pf.x);
 			vec3 localNormalX2 = mix(localNormal3, localNormal4, pf.x);
-			localNormal = mix(localNormalX1, localNormalX2, pf.y);
+			localNormal.xyz = mix(localNormalX1, localNormalX2, pf.y);
 		#endif
 
-		localNormal = normalize(localNormal * 2.0 - 1.0);
+		localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
 		vec4 deferredFog = unpackUnorm4x8(deferredData.a);
 
@@ -131,9 +131,8 @@ void main() {
 		vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
 		vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-		blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x);
-        blockLight += SampleHandLight(localPos, localNormal);
-		blockLight += deferredLighting.a;
+		blockLight = GetFinalBlockLighting(localPos, localNormal.xyz, deferredLighting.x, deferredLighting.a, localNormal.w);
+        blockLight += SampleHandLight(localPos, localNormal.xyz, localNormal.w);
 
         blockLight *= 1.0 - deferredFog.a;
 
@@ -144,7 +143,7 @@ void main() {
 				float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev.xy, 0).r;
 
 				normalPrev = normalize(normalPrev * 2.0 - 1.0);
-	            float normalWeight = 1.0 - dot(localNormal, normalPrev);
+	            float normalWeight = 1.0 - dot(localNormal.xyz, normalPrev);
 
 	            float depthLinear = linearizeDepthFast(uvPrev.z, near, far);
 	            float depthPrevLinear = linearizeDepthFast(depthPrev, near, far);
@@ -169,7 +168,7 @@ void main() {
 		#endif
 
 		outLight = vec4(blockLight, 1.0);
-		outNormal = vec4(localNormal * 0.5 + 0.5, 1.0);
+		outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
 	}
 	else {
 		outLight = vec4(0.0, 0.0, 0.0, 1.0);

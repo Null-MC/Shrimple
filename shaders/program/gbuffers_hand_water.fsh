@@ -167,6 +167,7 @@ layout(location = 0) out vec4 outFinal;
 
 void main() {
     vec4 color = GetColor();
+    color.rgb = RGBToLinear(color.rgb);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -177,8 +178,10 @@ void main() {
         #endif
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x);
+    const float emission = 0.0;
+    const float sss = 0.0;
+
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
     
     ApplyFog(color, vLocalPos);

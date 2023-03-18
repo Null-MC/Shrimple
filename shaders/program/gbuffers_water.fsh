@@ -219,7 +219,15 @@ void main() {
         }
     #endif
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x);
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        float emission = GetSceneBlockEmission(vBlockId);
+        float sss = GetBlockSSS(vBlockId);
+    #else
+        const float emission = 0.0;
+        const float sss = 0.0;
+    #endif
+
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);

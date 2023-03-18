@@ -1,5 +1,5 @@
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    float SampleLight(const in vec3 lightVec, const in vec3 fragLocalNormal, const in float lightRange) {
+    float SampleLight(const in vec3 lightVec, const in vec3 fragLocalNormal, const in float lightRange, const in float sss) {
         float lightDist = length(lightVec);
         vec3 lightDir = lightVec / max(lightDist, EPSILON);
         lightDist = max(lightDist - 0.5, 0.0);
@@ -9,16 +9,24 @@
         
         float lightNoLm = 1.0;
 
-        // WARN: This breaks on PhysicsMod snow cause geoNormal isn't smooth
-        #ifdef DYN_LIGHT_DIRECTIONAL
-            if (dot(fragLocalNormal, fragLocalNormal) > EPSILON)
+        #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            if (dot(fragLocalNormal, fragLocalNormal) > EPSILON) {
                 lightNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+
+                #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+                    lightNoLm = mix(1.0, lightNoLm, DynamicLightDirectionalF);
+                #endif
+
+                #ifdef DYN_LIGHT_SSS
+                    lightNoLm = mix(lightNoLm, 1.0, sss);
+                #endif
+            }
         #endif
         
         return lightNoLm * lightAtt;
     }
 
-    vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 blockLightDefault) {
+    vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.06 * localNormal;
         int lightCount = GetSceneLights(lightFragPos, gridIndex);
@@ -56,7 +64,7 @@
                     }
                 #endif
 
-                accumDiffuse += SampleLight(lightVec, localNormal, light.range) * lightColor;
+                accumDiffuse += SampleLight(lightVec, localNormal, light.range, sss) * lightColor;
             }
 
             accumDiffuse *= DynamicLightBrightness;
@@ -84,7 +92,7 @@
         }
     }
 
-    vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal) {
+    vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in float sss) {
         vec2 noiseSample = GetDynLightNoise(vec3(0.0));
         vec3 result = vec3(0.0);
 
@@ -115,7 +123,7 @@
                     #endif
                 #endif
 
-                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue) * lightColor;
+                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue, sss) * lightColor;
             }
         }
 
@@ -142,7 +150,7 @@
                     #endif
                 #endif
 
-                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue2) * lightColor;
+                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue2, sss) * lightColor;
             }
         }
 
@@ -264,10 +272,16 @@
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !defined RENDER_WEATHER
-                vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, blockLightDefault)
+                #if defined RENDER_TERRAIN || defined RENDER_WATER
+                    float sss = GetBlockSSS(vBlockId);
+                #else
+                    const float sss = 0.0;
+                #endif
+
+                vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, sss, blockLightDefault)
                     * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
-                vBlockLight += SampleHandLight(vLocalPos, vLocalNormal);
+                vBlockLight += SampleHandLight(vLocalPos, vLocalNormal, sss);
             #endif
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -313,8 +327,8 @@
     #endif
 
     #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
-        vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in float lmcoordX) {
-            vec3 blockLight = vec3(0.0);//vBlockLight;
+        vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in float lmcoordX, const in float emission, const in float sss) {
+            vec3 blockLight = vec3(emission);//vBlockLight;
 
             #ifdef RENDER_GBUFFER
                 vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
@@ -325,7 +339,13 @@
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined RENDER_WEATHER)) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                vec3 lit = SampleDynamicLighting(localPos, localNormal, blockLightDefault);
+                // #if defined RENDER_TERRAIN || defined RENDER_WATER
+                //     float sss = GetBlockSSS(vBlockId);
+                // #else
+                //     const float sss = 0.0;
+                // #endif
+
+                vec3 lit = SampleDynamicLighting(localPos, localNormal, sss, blockLightDefault);
 
                 // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                 //     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
@@ -347,11 +367,17 @@
             vec3 blockLight = blockLightColor;
 
             #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || (DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_TRANSLUCENT) || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined RENDER_WEATHER))
+                #if defined RENDER_TERRAIN || defined RENDER_WATER
+                    float sss = GetBlockSSS(vBlockId);
+                #else
+                    const float sss = 0.0;
+                #endif
+
                 #if defined RENDER_TEXTURED || defined RENDER_WEATHER
                     const vec3 vLocalNormal = vec3(0.0);
                 #endif
 
-                blockLight += SampleHandLight(vLocalPos, vLocalNormal);
+                blockLight += SampleHandLight(vLocalPos, vLocalNormal, sss);
             #endif
 
             #ifdef RENDER_GBUFFER
