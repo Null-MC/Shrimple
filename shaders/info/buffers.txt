@@ -3,7 +3,7 @@ colortex0		RGB8		1.0		final
 colortex1		RGB8		1.0		deferred color
 colortex2		RGB8		1.0		deferred shadow
 colortex3		RGB32UI		1.0		deferred data
-									 - R: normal.xyz
+									 - R: normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
 									 - B: fog.rgba
 

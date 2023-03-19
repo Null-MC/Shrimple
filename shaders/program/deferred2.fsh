@@ -63,12 +63,18 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
+#endif
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
     #include "/lib/lighting/tracing.glsl"
+#endif
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
@@ -147,17 +153,16 @@ void main() {
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.a);
+        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         float linearDepth = linearizeDepthFast(depth, near, far);
 
         #ifdef SHADOW_BLUR
-            //float shadowSigma = 3.0 / linearDepth;
-            const vec3 shadowSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
-
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                const vec3 shadowSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
                 vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
             #else
+                float shadowSigma = 3.0 / linearDepth;
                 vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
             #endif
         #else

@@ -120,7 +120,7 @@ void main() {
 
 		localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
-		vec4 deferredFog = unpackUnorm4x8(deferredData.a);
+		vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
 		vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
