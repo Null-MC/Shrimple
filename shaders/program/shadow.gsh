@@ -71,22 +71,25 @@ uniform float far;
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        vec3 lightOrigin = floor(cameraPosition + (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0) + 0.5 - cameraPosition;
+
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
          || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
+
             #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
                 vec3 lightColor = vec3(0.0);
                 float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
                 if (lightRange > EPSILON) lightColor = RGBToLinear(textureLod(gtexture, vTexcoord[0], 3).rgb);
-                AddSceneBlockLight(vBlockId[0], vOriginPos[0], lightColor, lightRange);
+                AddSceneBlockLight(vBlockId[0], lightOrigin, lightColor, lightRange);
             #else
-                AddSceneBlockLight(vBlockId[0], vOriginPos[0]);
+                AddSceneBlockLight(vBlockId[0], lightOrigin);
             #endif
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
-            if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
+            if (light.a > EPSILON) AddSceneBlockLight(0, lightOrigin, light.rgb, light.a);
         }
     #endif
 

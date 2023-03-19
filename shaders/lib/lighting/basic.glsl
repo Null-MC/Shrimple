@@ -2,7 +2,7 @@
     float SampleLight(const in vec3 lightVec, const in vec3 fragLocalNormal, const in float lightRange, const in float sss) {
         float lightDist = length(lightVec);
         vec3 lightDir = lightVec / max(lightDist, EPSILON);
-        lightDist = max(lightDist - 0.5, 0.0);
+        //lightDist = max(lightDist - 0.5, 0.0);
 
         float lightAtt = 1.0 - saturate(lightDist / lightRange);
         lightAtt = pow(lightAtt, 5.0);
