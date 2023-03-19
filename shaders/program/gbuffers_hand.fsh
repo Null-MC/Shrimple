@@ -47,12 +47,12 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+    uniform sampler2D shadowcolor0;
+#endif
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
-
-    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        uniform sampler2D shadowcolor0;
-    #endif
 
     uniform int frameCounter;
     uniform float frameTimeCounter;

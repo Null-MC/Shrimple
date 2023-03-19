@@ -152,7 +152,8 @@ void main() {
         float linearDepth = linearizeDepthFast(depth, near, far);
 
         #ifdef SHADOW_BLUR
-            float shadowSigma = 3.0 / linearDepth;
+            //float shadowSigma = 3.0 / linearDepth;
+            const vec3 shadowSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
 
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
                 vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
