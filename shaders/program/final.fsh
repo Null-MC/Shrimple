@@ -8,6 +8,9 @@ in vec2 texcoord;
 
 uniform sampler2D colortex0;
 
+uniform float viewWidth;
+uniform float viewHeight;
+
 #if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 	uniform sampler2D BUFFER_DEFERRED_COLOR;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL
@@ -22,11 +25,6 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_BLOCKLIGHT;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 	uniform sampler2D shadowcolor0;
-#endif
-
-#ifdef FXAA_ENABLED
-	uniform float viewWidth;
-	uniform float viewHeight;
 #endif
 
 #include "/lib/sampling/bayer.glsl"

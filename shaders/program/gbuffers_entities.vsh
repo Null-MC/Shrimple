@@ -61,6 +61,8 @@ uniform int entityId;
     uniform vec3 eyePosition;
 #endif
 
+#include "/lib/blocks.glsl"
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -73,7 +75,6 @@ uniform int entityId;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 #endif

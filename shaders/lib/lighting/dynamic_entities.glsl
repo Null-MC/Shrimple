@@ -1,27 +1,29 @@
-int GetWrappedVertexID(const in int entityId) {
-    int vertexId = -1;
+#ifdef RENDER_VERTEX
+    int GetWrappedVertexID(const in int entityId) {
+        int vertexId = -1;
 
-    switch (entityId) {
-        case ENTITY_BLAZE:
-            const int BlazeVertexCount = 312;
-            vertexId = int(mod(gl_VertexID, BlazeVertexCount));
-            break;
-        case ENTITY_MAGMA_CUBE:
-            const int MagmaCubeVertexCount = 216;
-            vertexId = int(mod(gl_VertexID, MagmaCubeVertexCount));
-            break;
-        case ENTITY_END_CRYSTAL:
-            const int EndCrystalVertexCount = 72;
-            vertexId = int(mod(gl_VertexID, EndCrystalVertexCount));
-            break;
-        case ENTITY_TNT:
-            const int TNTVertexCount = 24;
-            vertexId = int(mod(gl_VertexID, TNTVertexCount));
-            break;
+        switch (entityId) {
+            case ENTITY_BLAZE:
+                const int BlazeVertexCount = 312;
+                vertexId = int(mod(gl_VertexID, BlazeVertexCount));
+                break;
+            case ENTITY_MAGMA_CUBE:
+                const int MagmaCubeVertexCount = 216;
+                vertexId = int(mod(gl_VertexID, MagmaCubeVertexCount));
+                break;
+            case ENTITY_END_CRYSTAL:
+                const int EndCrystalVertexCount = 72;
+                vertexId = int(mod(gl_VertexID, EndCrystalVertexCount));
+                break;
+            case ENTITY_TNT:
+                const int TNTVertexCount = 24;
+                vertexId = int(mod(gl_VertexID, TNTVertexCount));
+                break;
+        }
+
+        return vertexId;
     }
-
-    return vertexId;
-}
+#endif
 
 vec4 GetSceneEntityLightColor(const in int entityId) {
     vec3 lightColor = vec3(0.0);

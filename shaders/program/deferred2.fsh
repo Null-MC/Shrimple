@@ -62,12 +62,15 @@ uniform float blindness;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/buffers/lighting.glsl"
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/dynamic.glsl"
-#include "/lib/lighting/collisions.glsl"
-#include "/lib/lighting/tracing.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/collisions.glsl"
+    #include "/lib/lighting/tracing.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
+#endif
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
@@ -183,14 +186,9 @@ void main() {
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x, emission, sss);
-            //blockLight += SampleHandLight(localPos, localNormal, sss);
         #else
             vec3 blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockLight = RGBToLinear(blockLight);
-
-            // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            //     blockLight += SampleHandLight(localPos, localNormal, sss);
-            // #endif
         #endif
 
         vec3 albedo = RGBToLinear(deferredColor);
