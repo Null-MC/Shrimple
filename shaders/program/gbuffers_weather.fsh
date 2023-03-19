@@ -155,7 +155,7 @@ void main() {
     const float sss = 0.0;
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, normal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, 1.0);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, 1.0);
 
     ApplyFog(color, vLocalPos);
 

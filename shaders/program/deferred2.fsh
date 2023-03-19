@@ -11,6 +11,7 @@ uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
+uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_BLOCKLIGHT;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
@@ -40,7 +41,7 @@ uniform int fogMode;
 
 uniform float blindness;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -48,6 +49,7 @@ uniform float blindness;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
@@ -140,34 +142,59 @@ void main() {
         vec2 viewSize = vec2(viewWidth, viewHeight);
 
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec3 deferredLighting = unpackUnorm4x8(deferredData.g).rgb;
-        vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
+        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.a);
 
-        #ifdef DYN_LIGHT_BLUR
-            vec3 deferredNormal = unpackUnorm4x8(deferredData.r).rgb;
-            deferredNormal = normalize(deferredNormal * 2.0 - 1.0);
+        float linearDepth = linearizeDepthFast(depth, near, far);
 
-            float linearDepth = linearizeDepthFast(depth, near, far);
+        #ifdef SHADOW_BLUR
+            float shadowSigma = 3.0 / linearDepth;
 
-            const vec3 sigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
-            vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, deferredNormal, sigma);
-        #else
-            #if DYN_LIGHT_RES == 0
-                vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
+            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
             #else
-                vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+                vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
             #endif
+        #else
+            vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
         #endif
 
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
+        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+        vec3 localNormal = normalize(deferredNormal.rgb * 2.0 - 1.0);
+
+        float emission = deferredLighting.a;
+        float sss = deferredNormal.a;
+
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #ifdef DYN_LIGHT_BLUR
+                const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
+                vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
+            #else
+                #if DYN_LIGHT_RES == 0
+                    vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
+                #else
+                    vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+                #endif
+            #endif
+        #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x, emission, sss);
+            //blockLight += SampleHandLight(localPos, localNormal, sss);
+        #else
+            vec3 blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
+            blockLight = RGBToLinear(blockLight);
+
+            // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            //     blockLight += SampleHandLight(localPos, localNormal, sss);
+            // #endif
+        #endif
+
         vec3 albedo = RGBToLinear(deferredColor);
-        final = GetFinalLighting(albedo, blockLight, deferredShadow, viewPos, deferredLighting.xy, deferredLighting.z);
+        final = GetFinalLighting(albedo, blockLight, deferredShadow, deferredLighting.y, deferredLighting.z);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);

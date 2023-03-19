@@ -199,7 +199,7 @@ void main() {
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, vPos, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

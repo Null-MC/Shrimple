@@ -248,23 +248,8 @@
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                //float bias = GetShadowNormalBias(cascade, geoNoL);
                 shadowTile = -1;
-            #else
-                //float bias = GetShadowNormalBias(geoNoL);
             #endif
-
-            // float viewDist = 1.0;
-
-            // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            //     viewDist += length(viewPos.xyz);
-            // #endif
-
-            //vec3 shadowViewPos = viewPos.xyz;
-
-            //shadowViewPos += vNormal * viewDist * bias;
-
-            //vec3 shadowLocalPos = (gbufferModelViewInverse * vec4(shadowViewPos, 1.0)).xyz;
 
             ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
         #endif
@@ -328,7 +313,7 @@
         }
     #endif
 
-    #if (defined RENDER_GBUFFER && !defined SHADOW_BLUR) || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
+    //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
         vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in float lmcoordX, const in float emission, const in float sss) {
             vec3 blockLight = vec3(emission);//vBlockLight;
 
@@ -340,53 +325,33 @@
 
             blockLightDefault = RGBToLinear(blockLightDefault);
 
-            #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined RENDER_WEATHER)) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                // #if defined RENDER_TERRAIN || defined RENDER_WATER
-                //     float sss = GetBlockSSS(vBlockId);
-                // #else
-                //     const float sss = 0.0;
-                // #endif
+            #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+                blockLight += SampleDynamicLighting(localPos, localNormal, sss, blockLightDefault);
 
-                vec3 lit = SampleDynamicLighting(localPos, localNormal, sss, blockLightDefault);
+                blockLight += SampleHandLight(localPos, localNormal, sss);
 
                 // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                 //     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
                 // #endif
 
-                blockLight += lit;
+                //blockLight += lit;
             #else
                 blockLight += blockLightDefault;
             #endif
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED)
                 if (gl_FragCoord.x < 0) return texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
             #endif
 
             return blockLight;
         }
 
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLightColor, const in vec3 shadowColor, const in vec3 viewPos, const in vec2 lmcoord, const in float occlusion) {
-            vec3 blockLight = blockLightColor;
-
-            #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || (DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_TRANSLUCENT) || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && defined RENDER_WEATHER))
-                #if defined RENDER_TERRAIN || defined RENDER_WATER
-                    float sss = GetBlockSSS(vBlockId);
-                #else
-                    const float sss = 0.0;
-                #endif
-
-                #if defined RENDER_TEXTURED || defined RENDER_WEATHER
-                    const vec3 vLocalNormal = vec3(0.0);
-                #endif
-
-                blockLight += SampleHandLight(vLocalPos, vLocalNormal, sss);
-            #endif
-
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in float lmcoordY, const in float occlusion) {
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
                 #else
-                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
                 #endif
 
                 skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
@@ -398,5 +363,5 @@
             vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));
             return ambient + diffuse;
         }
-    #endif
+    //#endif
 #endif

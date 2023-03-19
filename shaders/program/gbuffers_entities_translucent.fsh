@@ -43,11 +43,20 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
+uniform vec3 skyColor;
 uniform float near;
 uniform float far;
 
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
 uniform int entityId;
 uniform vec4 entityColor;
+uniform float blindness;
 
 #if AF_SAMPLES > 1
     uniform float viewWidth;
@@ -58,19 +67,6 @@ uniform vec4 entityColor;
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
-
-#ifndef SHADOW_BLUR
-    uniform vec3 skyColor;
-    
-    uniform vec3 fogColor;
-    uniform float fogDensity;
-    uniform float fogStart;
-    uniform float fogEnd;
-    uniform int fogShape;
-    uniform int fogMode;
-    
-    uniform float blindness;
-#endif 
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
@@ -189,7 +185,7 @@ void main() {
     const float sss = 0.0;
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, vPos, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

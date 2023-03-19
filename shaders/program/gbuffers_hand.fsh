@@ -135,10 +135,11 @@ uniform int fogMode;
 #endif
 
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    /* RENDERTARGETS: 1,2 */
+#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    /* RENDERTARGETS: 1,2,3 */
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 1) out vec4 outDeferredShadow;
+    layout(location = 2) out uvec4 outDeferredData;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -168,7 +169,7 @@ void main() {
     const float emission = 0.0;
     const float sss = 0.0;
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
@@ -176,12 +177,12 @@ void main() {
         fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
+        outDeferredShadow = vec4(shadowColor, 1.0);
 
-        uvec4 deferredData;
+        uvec4 deferredData = uvec4(0);
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
         deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
-        deferredData.b = packUnorm4x8(vec4(shadowColor, 1.0));
-        deferredData.a = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
@@ -190,7 +191,7 @@ void main() {
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, vPos, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

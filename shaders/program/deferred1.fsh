@@ -64,7 +64,7 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/basic.glsl"
 
 
-/* RENDERTARGETS: 3,4,5 */
+/* RENDERTARGETS: 4,5,6 */
 layout(location = 0) out vec4 outLight;
 layout(location = 1) out vec4 outNormal;
 layout(location = 2) out vec4 outDepth;

@@ -50,7 +50,17 @@ uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
+uniform vec3 skyColor;
 uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+uniform float blindness;
 
 #if AF_SAMPLES > 1
     uniform float viewWidth;
@@ -61,20 +71,6 @@ uniform float far;
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
-
-#ifndef SHADOW_BLUR
-    uniform vec3 skyColor;
-    //uniform float far;
-    
-    uniform vec3 fogColor;
-    uniform float fogDensity;
-    uniform float fogStart;
-    uniform float fogEnd;
-    uniform int fogShape;
-    uniform int fogMode;
-    
-    uniform float blindness;
-#endif 
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
@@ -228,7 +224,7 @@ void main() {
     #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, vPos, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

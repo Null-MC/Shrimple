@@ -31,11 +31,12 @@
 
 //#define BUFFER_FINAL colortex0
 #define BUFFER_DEFERRED_COLOR colortex1
-#define BUFFER_DEFERRED_DATA colortex2
-#define BUFFER_BLOCKLIGHT colortex3
-#define BUFFER_LIGHT_NORMAL colortex4
-#define BUFFER_LIGHT_DEPTH colortex5
-#define TEX_LIGHTMAP colortex6
+#define BUFFER_DEFERRED_SHADOW colortex2
+#define BUFFER_DEFERRED_DATA colortex3
+#define BUFFER_BLOCKLIGHT colortex4
+#define BUFFER_LIGHT_NORMAL colortex5
+#define BUFFER_LIGHT_DEPTH colortex6
+#define TEX_LIGHTMAP colortex7
 #define TEX_LIGHT_NOISE noisetex
 
 
