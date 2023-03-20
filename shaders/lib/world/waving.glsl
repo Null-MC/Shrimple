@@ -1,49 +1,36 @@
-vec3 waving_noise(vec3 p) {
-    vec3 f = fract(p);
-    p = floor(p);
-    return mix(
-        mix(
-            mix(
-                hash33(p + vec3(0, 0, 0)),
-                hash33(p + vec3(0, 0, 1)),
-                f.z
-            ),
-            mix(
-                hash33(p + vec3(0, 1, 0)),
-                hash33(p + vec3(0, 1, 1)),
-                f.z
-            ),
-            f.y
-        ),
-        mix(
-            mix(
-                hash33(p + vec3(1, 0, 0)),
-                hash33(p + vec3(1, 0, 1)),
-                f.z
-            ),
-            mix(
-                hash33(p + vec3(1, 1, 0)),
-                hash33(p + vec3(1, 1, 1)),
-                f.z
-            ),
-            f.y
-        ),
-        f.x
-    );
-}
+const float wavingScale = 8.0;
+const float wavingHeight = 0.6;
 
-vec3 waving_fbm(vec3 pos) {
-    vec3 val = vec3(0);
-    float weight = 0.8;
-    float totalWeight = 0.0;
-    float frequency = 0.8;
+vec3 waving_fbm(const in vec3 worldPos) {
+    vec2 position = worldPos.xz * rcp(wavingScale);
+
+    float iter = 0.0;
+    float frequency = 3.0;
+    float speed = 1.0;
+    float weight = 1.0;
+    float height = 0.0;
+    float waveSum = 0.0;
+
+    float time = frameTimeCounter / 3.6;
+    
     for (int i = 0; i < 8; i++) {
-        val += waving_noise(pos * frequency) * weight;
-        totalWeight += weight;
+        vec2 direction = vec2(sin(iter), cos(iter));
+        float x = dot(direction, position) * frequency + time * speed;
+        float wave = exp(sin(x) - 1.0);
+        float result = wave * cos(x);
+        vec2 force = result * weight * direction;
+        
+        position -= force * 0.03;
+        height += wave * weight;
+        iter += 12.0;
+        waveSum += weight;
         weight *= 0.8;
-        frequency *= 1.2;
+        frequency *= 1.1;
+        speed *= 1.3;
     }
-    return val / totalWeight;
+
+    position = (position * wavingScale) - worldPos.xz;
+    return vec3(position.x, height / waveSum * wavingHeight - 0.5 * wavingHeight, position.y);
 }
 
 float GetWavingRange(const in int blockId, out uint attachment) {
@@ -120,8 +107,7 @@ void ApplyWavingOffset(inout vec3 position, const in int blockId) {
         vec3 worldPos = localPos + cameraPosition;
     #endif
 
-	vec3 hash = mod(waving_fbm(worldPos) * 2.0 * PI + 1.2 * frameTimeCounter, 2.0 * PI);
-	vec3 offset = sin(hash) * range;
+    vec3 offset = waving_fbm(worldPos);
 
     if (attachment != 0) {
         float attachOffset = 0.0;

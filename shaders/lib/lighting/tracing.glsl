@@ -86,10 +86,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
     float traceRayLen2 = pow2(traceRayLen);
-    vec3 currPos = origin;
-
-    uint blockTypeLast = BLOCKTYPE_EMPTY;
     vec3 color = vec3(1.0);
+    vec3 currPos = origin;
     bool hit = false;
 
     for (int i = 0; i < STEP_COUNT && !hit; i++) {
@@ -120,8 +118,6 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                 hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
                 if (hit) color = vec3(0.0);
             }
-
-            blockTypeLast = blockType;
         }
     }
 
@@ -134,12 +130,11 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     int stepCount = int(0.5 * DYN_LIGHT_RAY_QUALITY * range);
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);// + frameCounter);
+    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
     vec3 stepSize = traceRay / stepCount;
     vec3 color = vec3(1.0);
     bool hit = false;
     
-    //vec3 lastGridPos = origin;
     uint blockTypeLast;
     for (int i = 1; i < stepCount && !hit; i++) {
         vec3 gridPos = (i + dither) * stepSize + origin;
@@ -160,8 +155,6 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
 
             blockTypeLast = blockType;
         }
-
-        //lastGridPos = gridPos;
     }
 
     return color;

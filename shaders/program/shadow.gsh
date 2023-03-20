@@ -71,7 +71,6 @@ uniform float far;
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
@@ -89,14 +88,14 @@ void main() {
             #endif
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
+            if (entityId == ENTITY_LIGHTNING_BOLT) return;
+
             vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
             if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
         }
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        //if (vEntityId[0] == MATERIAL_LIGHTNING_BOLT) return;
-
         vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED

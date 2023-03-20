@@ -142,7 +142,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             break;
         case BLOCK_GLOW_LICHEN:
         case ITEM_GLOW_LICHEN:
-            lightColor = vec3(0.256, 0.389, 0.288);
+            lightColor = vec3(0.173, 0.374, 0.252);
             break;
         case BLOCK_JACK_O_LANTERN:
         case ITEM_JACK_O_LANTERN:
@@ -675,7 +675,7 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_STONECUTTER:
                     blockType = BLOCKTYPE_STONECUTTER;
                     break;
-                    
+
                 case BLOCK_SNOW_LAYERS_1:
                     blockType = BLOCKTYPE_LAYERS_2;
                     break;
@@ -697,7 +697,9 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_SNOW_LAYERS_7:
                     blockType = BLOCKTYPE_LAYERS_14;
                     break;
-
+            }
+                    
+            switch (blockId) {
                 case BLOCK_BUTTON_FLOOR_N_S:
                     blockType = BLOCKTYPE_BUTTON_FLOOR_N_S;
                     break;
@@ -874,7 +876,9 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_STAIRS_TOP_OUTER_S_E:
                     blockType = BLOCKTYPE_STAIRS_TOP_OUTER_S_E;
                     break;
+            }
 
+            switch (blockId) {
                 case BLOCK_FENCE_POST:
                     blockType = BLOCKTYPE_FENCE_POST;
                     break;
@@ -930,7 +934,9 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_FENCE_GATE_CLOSED_W_E:
                     blockType = BLOCKTYPE_FENCE_GATE_CLOSED_W_E;
                     break;
+            }
 
+            switch (blockId) {
                 case BLOCK_WALL_POST:
                     blockType = BLOCKTYPE_WALL_POST;
                     break;
@@ -1046,7 +1052,9 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_CHORUS_OTHER:
                     blockType = BLOCKTYPE_CHORUS_OTHER;
                     break;
+            }
 
+            switch (blockId) {
                 case BLOCK_AMETHYST:
                     blockType = BLOCKTYPE_AMETHYST;
                     break;
