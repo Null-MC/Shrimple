@@ -23,6 +23,14 @@ option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
 option.END_BRIGHTNESS=End Brightness
 
 
+screen.MATERIAL_OPTIONS=Materials
+
+option.NORMALMAP_TYPE=Normal Mapping
+value.NORMALMAP_TYPE.0=None
+value.NORMALMAP_TYPE.1=OldPBR
+value.NORMALMAP_TYPE.2=LabPBR
+
+
 screen.SHADOW_OPTIONS=Shadows
 screen.SHADOW_OPTIONS.comment=Options for shadows.
 
@@ -212,8 +220,9 @@ value.DEBUG_VIEW.2=Deferred Normal
 value.DEBUG_VIEW.3=Deferred Light
 value.DEBUG_VIEW.4=Deferred Shadow
 value.DEBUG_VIEW.5=Deferred Fog
-value.DEBUG_VIEW.6=Deferred BlockLight
-value.DEBUG_VIEW.7=Shadow Color
+value.DEBUG_VIEW.6=Deferred Texture
+value.DEBUG_VIEW.7=Deferred BlockLight
+value.DEBUG_VIEW.8=Shadow Color
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

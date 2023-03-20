@@ -2,7 +2,8 @@ struct SceneLightData {
     vec3 position;
     float range;
     vec3 color;
-    uint data;
+    float size;
+    //uint data;
 };
 
 struct LightCellData {

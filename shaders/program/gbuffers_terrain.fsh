@@ -17,6 +17,11 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 flat in int vBlockId;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -28,6 +33,10 @@ flat in int vBlockId;
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
 
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
@@ -57,27 +66,10 @@ uniform vec3 upPosition;
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
-
-    uniform int frameCounter;
-    uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelView;
-    uniform mat4 gbufferModelViewInverse;
-    uniform vec3 cameraPosition;
-    //uniform float far;
-
-    uniform float blindness;
-
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        uniform int heldItemId;
-        uniform int heldItemId2;
-        uniform int heldBlockLightValue;
-        uniform int heldBlockLightValue2;
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
 #endif
 
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
 uniform vec3 skyColor;
 uniform float far;
 
@@ -96,6 +88,26 @@ uniform int fogMode;
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
+#endif
+
+#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+    uniform int frameCounter;
+    uniform float frameTimeCounter;
+    //uniform mat4 gbufferModelView;
+    //uniform mat4 gbufferModelViewInverse;
+    uniform vec3 cameraPosition;
+    //uniform float far;
+
+    uniform float blindness;
+
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        uniform int heldItemId;
+        uniform int heldItemId2;
+        uniform int heldBlockLightValue;
+        uniform int heldBlockLightValue2;
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
 #endif
 
 #include "/lib/sampling/depth.glsl"
@@ -171,6 +183,50 @@ void main() {
         #endif
     #endif
 
+    vec2 lmFinal = lmcoord;
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        //vec3 viewNormal = normalize(viewNormal);
+        vec3 localTangent = normalize(vLocalTangent);
+
+        if (!gl_FrontFacing) {
+            localNormal = -localNormal;
+        }
+
+        vec3 localBinormal = normalize(cross(localTangent, localNormal) * vTangentW);
+
+        // if (!gl_FrontFacing) {
+        //     localTangent = -localTangent;
+        //     localBinormal = -localBinormal;
+        // }
+        
+        mat3 matTBN = mat3(localTangent, localBinormal, localNormal);
+
+        #if NORMALMAP_TYPE == NORMALMAP_LAB
+            vec3 texNormal = texture(normals, texcoord).rgg;
+
+            if (any(greaterThan(texNormal.rg, EPSILON2))) {
+                texNormal.xy = texNormal.xy * 2.0 - 1.0;
+                texNormal.z = sqrt(max(1.0 - dot(texNormal.xy, texNormal.xy), EPSILON));
+            }
+        #elif NORMALMAP_TYPE == NORMALMAP_OLD
+            vec3 texNormal = texture(normals, texcoord).rgb;
+
+            if (any(greaterThan(texNormal, EPSILON3)))
+                texNormal = normalize(texNormal * 2.0 - 1.0);
+        #endif
+
+        texNormal = matTBN * texNormal;
+
+        // apply sun/moon NoL to SkyLight
+        float skyLight = saturate((lmFinal.y - (0.5/16.0)) * (16.0/15.0));
+
+        vec3 localLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+        skyLight *= max(dot(localLightDir, texNormal), 0.0) * 0.7 + 0.7;
+
+        lmFinal.y = saturate(skyLight) * (15.0/16.0) + (0.5/16.0);
+    #endif
+
     float emission = GetSceneBlockEmission(vBlockId);
     float sss = GetBlockSSS(vBlockId);
 
@@ -187,17 +243,26 @@ void main() {
 
         uvec4 deferredData = uvec4(0);
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+
+        #if NORMALMAP_TYPE != NORMALMAP_NONE
+            deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        #endif
+
         outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
+            #if NORMALMAP_TYPE != NORMALMAP_NONE
+                blockLight += GetFinalBlockLighting(vLocalPos, texNormal, lmFinal.x, emission, sss);
+            #else
+                blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmFinal.x, emission, sss);
+            #endif
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmFinal.y, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

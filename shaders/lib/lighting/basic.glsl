@@ -48,12 +48,12 @@
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    if ((light.data & 1) == 0) {
+                    if (light.size > EPSILON) {
                         vec3 traceOrigin = GetLightGridPosition(light.position);
                         vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                         #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                            ApplyLightPenumbraOffset(traceOrigin);
+                            ApplyLightPenumbraOffset(traceOrigin, light.size * 0.5);
                         #endif
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -104,16 +104,17 @@
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
-            vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
-
             vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
+                vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
+
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        ApplyLightPenumbraOffset(traceOrigin);
+                        float lightSize = GetSceneBlockLightSize(heldItemId);
+                        ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -131,16 +132,17 @@
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
-            vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
-
             vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
+                vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
+
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        ApplyLightPenumbraOffset(traceOrigin);
+                        float lightSize = GetSceneBlockLightSize(heldItemId);
+                        ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -229,6 +231,13 @@
 
         vNormal = normalize(gl_NormalMatrix * gl_Normal);
         vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
+
+        #if NORMALMAP_TYPE != NORMALMAP_NONE && defined RENDER_TERRAIN
+            vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+            vLocalTangent = mat3(gbufferModelViewInverse) * viewTangent;
+
+            vTangentW = at_tangent.w;
+        #endif
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
             vec3 lightDir = normalize(shadowLightPosition);
@@ -357,7 +366,9 @@
                 #endif
 
                 skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
+
                 //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+                
                 skyLight *= 1.0 - blindness;
             #else
                 const float skyLight = 1.0;

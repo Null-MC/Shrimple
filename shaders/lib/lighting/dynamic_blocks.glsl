@@ -130,6 +130,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case ITEM_END_ROD:
             lightColor = vec3(0.957, 0.929, 0.875);
             break;
+        case BLOCK_CAMPFIRE_LIT:
         case BLOCK_FIRE:
             lightColor = vec3(0.851, 0.616, 0.239);
             break;
@@ -227,6 +228,8 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             break;
         case BLOCK_SOUL_LANTERN:
         case BLOCK_SOUL_TORCH:
+        case BLOCK_SOUL_CAMPFIRE_LIT:
+        case BLOCK_SOUL_FIRE:
         case ITEM_SOUL_LANTERN:
         case ITEM_SOUL_TORCH:
             lightColor = vec3(0.203, 0.725, 0.758);
@@ -248,12 +251,12 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         //vec2 noiseSample = GetDynLightNoise(blockLocalPos);
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
-        if (blockId == BLOCK_TORCH || blockId == BLOCK_LANTERN || blockId == BLOCK_FIRE) {
+        if (blockId == BLOCK_TORCH || blockId == BLOCK_LANTERN || blockId == BLOCK_FIRE || blockId == BLOCK_CAMPFIRE_LIT) {
             float torchTemp = mix(3000, 4000, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 
-        if (blockId == BLOCK_SOUL_TORCH || blockId == BLOCK_SOUL_LANTERN) {
+        if (blockId == BLOCK_SOUL_TORCH || blockId == BLOCK_SOUL_LANTERN || blockId == BLOCK_SOUL_FIRE || blockId == BLOCK_SOUL_CAMPFIRE_LIT) {
             float soulTorchTemp = mix(1200, 1800, 1.0 - flickerNoise);
             lightColor = 0.8 * saturate(1.0 - blackbody(soulTorchTemp));
         }
@@ -314,6 +317,7 @@ float GetSceneBlockLightRange(const in int blockId) {
         case ITEM_END_ROD:
             lightRange = 14.0;
             break;
+        case BLOCK_CAMPFIRE_LIT:
         case BLOCK_FIRE:
             lightRange = 15.0;
             break;
@@ -411,6 +415,8 @@ float GetSceneBlockLightRange(const in int blockId) {
         case BLOCK_SMOKER_LIT:
             lightRange = 6.0;
             break;
+        case BLOCK_SOUL_CAMPFIRE_LIT:
+        case BLOCK_SOUL_FIRE:
         case BLOCK_SOUL_LANTERN:
         case ITEM_SOUL_LANTERN:
             lightRange = 12.0;
@@ -487,7 +493,7 @@ float GetSceneBlockLightRange(const in int blockId) {
 }
 
 float GetSceneBlockLightLevel(const in int blockId) {
-    #if DYN_LIGHT_REDSTONE != 2
+    #if DYN_LIGHT_REDSTONE == 0
         if (blockId == BLOCK_COMPARATOR_LIT
          || blockId == BLOCK_REPEATER_LIT) return 0.0;
 
@@ -509,6 +515,66 @@ float GetSceneBlockEmission(const in int blockId) {
     if (blockId == BLOCK_CAVEVINE_BERRIES) range = 0.0;
 
     return range / 15.0;
+}
+
+float GetSceneBlockLightSize(const in int blockId) {
+    float size = 0.1;
+
+    switch (blockId) {
+        case BLOCK_CRYING_OBSIDIAN:
+        case BLOCK_FIRE:
+        case BLOCK_FROGLIGHT_OCHRE:
+        case BLOCK_FROGLIGHT_PEARLESCENT:
+        case BLOCK_FROGLIGHT_VERDANT:
+        case BLOCK_GLOWSTONE:
+        case BLOCK_LAVA:
+        case BLOCK_MAGMA:
+        case BLOCK_SEA_LANTERN:
+        case BLOCK_SHROOMLIGHT:
+        case BLOCK_SOUL_FIRE:
+            size = 1.0;
+            break;
+        case BLOCK_REDSTONE_LAMP_LIT:
+            size = 0.9;
+            break;
+        case BLOCK_CAMPFIRE_LIT:
+        case BLOCK_SOUL_CAMPFIRE_LIT:
+            size = 0.8;
+            break;
+        case BLOCK_BEACON:
+            size = 0.6;
+            break;
+        case BLOCK_END_ROD:
+            size = 0.5;
+        case BLOCK_LANTERN:
+        case BLOCK_SOUL_LANTERN:
+        case BLOCK_CANDLES_LIT_4:
+            size = 0.4;
+            break;
+        case BLOCK_CANDLES_LIT_3:
+            size = 0.3;
+            break;
+        case BLOCK_TORCH:
+        case BLOCK_SOUL_TORCH:
+        case BLOCK_CANDLES_LIT_2:
+            size = 0.2;
+            break;
+        case BLOCK_CANDLES_LIT_1:
+            size = 0.1;
+            break;
+    }
+
+    #if DYN_LIGHT_LAVA != 2
+        if (blockId == BLOCK_LAVA) size = 0.0;
+    #endif
+
+    #if DYN_LIGHT_REDSTONE != 2
+        if (blockId >= BLOCK_REDSTONE_WIRE_1 && blockId <= BLOCK_REDSTONE_WIRE_15) size = 0.0;
+    #endif
+
+    //if (blockId == BLOCK_CAVEVINE_BERRIES) size = 0.4;
+
+    return size * max(DynamicLightPenumbraF, 0.01);
 }
 
 #ifdef RENDER_SHADOW
@@ -1128,18 +1194,6 @@ float GetSceneBlockEmission(const in int blockId) {
         }
     #endif
 
-    uint GetSceneBlockLightMetadata(const in int blockId) {
-        uint metadata = 0u;
-
-        #if DYN_LIGHT_LAVA != 2
-            if (blockId == BLOCK_LAVA) metadata |= 1;
-        #endif
-
-        //if (blockId == BLOCK_CAVEVINE_BERRIES) metadata |= 2;
-
-        return metadata;
-    }
-
     void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
         vec3 lightOffset = vec3(0.0);
         vec3 lightColorFinal = lightColor;
@@ -1296,6 +1350,7 @@ float GetSceneBlockEmission(const in int blockId) {
                 case BLOCK_SMOKER_LIT:
                     lightOffset = vec3(0.0, -0.3, 0.0);
                     break;
+                case BLOCK_SOUL_FIRE:
                 case BLOCK_SOUL_LANTERN:
                 case ITEM_SOUL_LANTERN:
                     lightOffset = vec3(0.0, -0.25, 0.0);
@@ -1358,8 +1413,8 @@ float GetSceneBlockEmission(const in int blockId) {
                 if (!intersects) return;
             #endif
 
-            uint lightData = GetSceneBlockLightMetadata(blockId);
-            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightData);
+            float lightSize = GetSceneBlockLightSize(blockId);
+            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightSize);
         }
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             else if (IsDynLightSolidBlock(blockId)) {

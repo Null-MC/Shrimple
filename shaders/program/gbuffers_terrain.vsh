@@ -21,6 +21,13 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 flat out int vBlockId;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+	in vec4 at_tangent;
+
+	out vec3 vLocalTangent;
+	out float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		out vec3 shadowPos[4];

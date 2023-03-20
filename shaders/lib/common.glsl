@@ -56,6 +56,10 @@ const bool colortex6Clear = false;
 #define FOLIAGE_UP
 
 
+// Material Options
+#define NORMALMAP_TYPE 0 // [0 1 2]
+
+
 // Shadow Options
 #define SHADOW_TYPE 2 // [0 2 3]
 #define SHADOW_COLORS 2 // [0 1 2]
@@ -95,7 +99,7 @@ const bool colortex6Clear = false;
 #define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
-#define DYN_LIGHT_PENUMBRA 0 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
+#define DYN_LIGHT_PENUMBRA 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
@@ -123,12 +127,12 @@ const bool colortex6Clear = false;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8]
 //#define DYN_LIGHT_DEBUG_COUNTS
-#define PHYSICS_OCEAN_SUPPORT
 
 
 // INTERNAL SETTINGS
+#define PHYSICS_OCEAN_SUPPORT
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
@@ -146,12 +150,13 @@ const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
-const float DynamicLightPenumbra = DYN_LIGHT_PENUMBRA * 0.01;
+const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
+const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
