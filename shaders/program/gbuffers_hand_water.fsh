@@ -31,6 +31,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D gtexture;
+uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -44,10 +45,6 @@ uniform sampler2D lightmap;
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
         uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
-    #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        uniform sampler2D noisetex;
     #endif
 
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -74,6 +71,9 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+
+uniform int heldItemId;
+uniform int heldItemId2;
 
 #if AF_SAMPLES > 1
     uniform float viewWidth;
@@ -106,8 +106,6 @@ uniform float blindness;
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        uniform int heldItemId;
-        uniform int heldItemId2;
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
         uniform bool firstPersonCamera;
@@ -148,12 +146,12 @@ uniform float blindness;
     #include "/lib/shadows/common.glsl"
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/blocks.glsl"
-        #include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/dynamic.glsl"
     #endif
 
@@ -161,11 +159,10 @@ uniform float blindness;
         #include "/lib/lighting/collisions.glsl"
         #include "/lib/lighting/tracing.glsl"
     #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/dynamic_blocks.glsl"
-    #endif
 #endif
+
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
@@ -200,17 +197,18 @@ void main() {
         texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
 
-    #if MATERIAL_EMISSION == EMISSION_OLDPBR
-        float emission = texture(specular, texcoord).b;
-    #elif MATERIAL_EMISSION == EMISSION_LABPBR
-        float emission = texture(specular, texcoord).a;
-        if (emission > (253.5/255.0)) emission = 0.0;
-    #else
-        // TODO: How do you separately apply hard-coded lighting to hands?!
-        float emission = GetSceneBlockEmission(heldItemId);
-    #endif
-
+    float emission = 0.0;
     const float sss = 0.0;
+
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #elif DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        // TODO: How do you separately apply hard-coded lighting to hands?!
+        emission = GetSceneBlockEmission(heldItemId);
+    #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmFinal.y, glcolor.a);

@@ -47,6 +47,9 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
 #endif
@@ -91,8 +94,6 @@ uniform int fogMode;
     uniform float blindness;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        uniform int heldItemId;
-        uniform int heldItemId2;
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
         uniform bool firstPersonCamera;
@@ -138,16 +139,18 @@ uniform int fogMode;
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        #include "/lib/blocks.glsl"
-        #include "/lib/items.glsl"
-        #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
-    #endif
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/dynamic.glsl"
+#endif
+
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #include "/lib/lighting/basic.glsl"
     #include "/lib/post/tonemap.glsl"
 #endif
@@ -192,17 +195,18 @@ void main() {
         texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
 
-    #if MATERIAL_EMISSION == EMISSION_OLDPBR
-        float emission = texture(specular, texcoord).b;
-    #elif MATERIAL_EMISSION == EMISSION_LABPBR
-        float emission = texture(specular, texcoord).a;
-        if (emission > (253.5/255.0)) emission = 0.0;
-    #else
-        // TODO: How do you separately apply hard-coded lighting to hands?!
-        float emission = GetSceneBlockEmission(heldItemId);
-    #endif
-
+    float emission = 0.0;
     const float sss = 0.0;
+
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #elif DYN_LIGHT_MODE != SHADOW_TYPE_NONE
+        // TODO: How do you separately apply hard-coded lighting to hands?!
+        emission = GetSceneBlockEmission(heldItemId);
+    #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
