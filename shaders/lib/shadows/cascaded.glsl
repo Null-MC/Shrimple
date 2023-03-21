@@ -16,16 +16,16 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
 
     switch (cascade) {
         case 0:
-            bias = 0.03;
-            break;
-        case 1:
             bias = 0.05;
             break;
+        case 1:
+            bias = 0.10;
+            break;
         case 2:
-            bias = 0.08;
+            bias = 0.20;
             break;
         case 3:
-            bias = 0.16;
+            bias = 0.30;
             break;
     }
 
