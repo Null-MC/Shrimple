@@ -183,7 +183,12 @@ void main() {
         #endif
 
         outLight = vec4(blockLight, 1.0);
-        outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
+
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            outNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
+        #else
+            outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
+        #endif
     }
     else {
         outLight = vec4(0.0, 0.0, 0.0, 1.0);

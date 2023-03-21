@@ -97,6 +97,7 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 lightBufferSize = viewSize * lightBufferScaleInv;
     vec2 blendPixelSize = rcp(lightBufferSize);
+    vec2 screenPixelSize = rcp(viewSize);
 
     float total = 0.0;
     vec3 accum = vec3(0.0);
@@ -107,9 +108,8 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
 
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
-            vec2 sampleTex = vec2(ix, iy);
 
-            vec2 sampleBlendTex = texcoord + sampleTex * blendPixelSize;
+            vec2 sampleBlendTex = texcoord - 0.5 * screenPixelSize + (vec2(ix, iy) + 0.5) * blendPixelSize;
             vec3 sampleValue = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
 
             //if (abs(iy) < EPSILON && abs(ix) < EPSILON) defaultColor = sampleValue;
@@ -129,8 +129,8 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
             sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
             sampleDepth = linearizeDepthFast(sampleDepth, near, far);
             
-            float normalWeight = 1.0 - dot(normal, sampleNormal);
-            float fv = Gaussian(g_sigma.z, 10.0*abs(sampleDepth - linearDepth) + normalWeight);
+            float normalWeight = max(dot(normal, sampleNormal), 0.0);
+            float fv = Gaussian(g_sigma.z, 10.0*abs(sampleDepth - linearDepth) + 12.0*(1.0 - normalWeight));
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;
@@ -194,7 +194,11 @@ void main() {
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             #ifdef DYN_LIGHT_BLUR
                 const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
-                vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
+                #if MATERIAL_NORMALS != NORMALMAP_NONE
+                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, texNormal, lightSigma);
+                #else
+                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
+                #endif
             #else
                 #if DYN_LIGHT_RES == 0
                     vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
