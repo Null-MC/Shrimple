@@ -135,6 +135,10 @@ uniform int fogMode;
     #include "/lib/shadows/common.glsl"
 #endif
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 #include "/lib/lighting/blackbody.glsl"
@@ -174,6 +178,9 @@ void main() {
 
     vec3 localNormal = normalize(vLocalNormal);
 
+    if (!gl_FrontFacing)
+        localNormal = -localNormal;
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
@@ -186,45 +193,8 @@ void main() {
     vec2 lmFinal = lmcoord;
 
     #if NORMALMAP_TYPE != NORMALMAP_NONE
-        //vec3 viewNormal = normalize(viewNormal);
         vec3 localTangent = normalize(vLocalTangent);
-
-        if (!gl_FrontFacing) {
-            localNormal = -localNormal;
-        }
-
-        vec3 localBinormal = normalize(cross(localTangent, localNormal) * vTangentW);
-
-        // if (!gl_FrontFacing) {
-        //     localTangent = -localTangent;
-        //     localBinormal = -localBinormal;
-        // }
-        
-        mat3 matTBN = mat3(localTangent, localBinormal, localNormal);
-
-        #if NORMALMAP_TYPE == NORMALMAP_LAB
-            vec3 texNormal = texture(normals, texcoord).rgg;
-
-            if (any(greaterThan(texNormal.rg, EPSILON2))) {
-                texNormal.xy = texNormal.xy * 2.0 - 1.0;
-                texNormal.z = sqrt(max(1.0 - dot(texNormal.xy, texNormal.xy), EPSILON));
-            }
-        #elif NORMALMAP_TYPE == NORMALMAP_OLD
-            vec3 texNormal = texture(normals, texcoord).rgb;
-
-            if (any(greaterThan(texNormal, EPSILON3)))
-                texNormal = normalize(texNormal * 2.0 - 1.0);
-        #endif
-
-        texNormal = matTBN * texNormal;
-
-        // apply sun/moon NoL to SkyLight
-        float skyLight = saturate((lmFinal.y - (0.5/16.0)) * (16.0/15.0));
-
-        vec3 localLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-        skyLight *= max(dot(localLightDir, texNormal), 0.0) * 0.7 + 0.7;
-
-        lmFinal.y = saturate(skyLight) * (15.0/16.0) + (0.5/16.0);
+        vec3 texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
 
     float emission = GetSceneBlockEmission(vBlockId);

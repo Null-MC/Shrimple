@@ -17,6 +17,11 @@ in vec3 vLocalNormal;
 in vec3 vBlockLight;
 flat in int vBlockId;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
     in vec3 physics_localPosition;
     in float physics_localWaviness;
@@ -33,6 +38,10 @@ flat in int vBlockId;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
+
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform sampler2D noisetex;
@@ -145,6 +154,10 @@ uniform float blindness;
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
     #include "/lib/world/physicsmod_ocean.glsl"
 #endif
@@ -178,8 +191,16 @@ void main() {
 
     vec3 localNormal = normalize(vLocalNormal);
 
+    vec2 lmFinal = lmcoord;
+    vec3 texNormal = localNormal;
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    #endif
+
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        localNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+        texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -191,11 +212,13 @@ void main() {
         }
     #endif
 
+    vec3 localViewDir = normalize(vLocalPos);
+
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
         if (vBlockId == BLOCK_WATER) {
             if (!gl_FrontFacing) {
                 if (isEyeInWater == 1) {
-                    localNormal = -localNormal;
+                    texNormal = -texNormal;
                 }
                 else {
                     discard;
@@ -203,16 +226,24 @@ void main() {
                 }
             }
 
-            vec3 localViewDir = normalize(vLocalPos);
-            vec3 reflectDir = reflect(localViewDir, localNormal);
+            vec3 reflectDir = reflect(localViewDir, texNormal);
             vec3 reflectColor = GetFogColor(reflectDir.y) * vec3(0.7, 0.8, 1.0);
 
-            float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
             float F = 1.0 - NoVmax;//F_schlick(NoVmax, 0.02, 1.0);
 
             color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
             color.a = max(color.a, F);
         }
+        else {
+            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+            float F = F_schlick(NoVmax, 0.04, 1.0);
+            color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
+        }
+    #else
+        float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+        float F = F_schlick(NoVmax, 0.04, 1.0);
+        color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -223,7 +254,7 @@ void main() {
         const float sss = 0.0;
     #endif
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);

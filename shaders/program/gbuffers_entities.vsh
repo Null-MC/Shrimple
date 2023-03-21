@@ -16,6 +16,13 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 out vec3 vBlockLight;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+	in vec4 at_tangent;
+
+	out vec3 vLocalTangent;
+	out float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		out vec3 shadowPos[4];
@@ -90,6 +97,10 @@ uniform int entityId;
 	#include "/lib/lighting/dynamic_entities.glsl"
 #endif
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #include "/lib/lighting/basic.glsl"
 
 
@@ -99,4 +110,8 @@ void main() {
 	glcolor = gl_Color;
 	
 	BasicVertex();
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        PrepareNormalMap();
+    #endif
 }

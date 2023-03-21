@@ -97,6 +97,10 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #include "/lib/lighting/basic.glsl"
 
 
@@ -106,4 +110,8 @@ void main() {
 	glcolor = gl_Color;
 
 	BasicVertex();
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        PrepareNormalMap();
+    #endif
 }

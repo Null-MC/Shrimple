@@ -16,6 +16,11 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -28,7 +33,12 @@ in vec3 vBlockLight;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
+
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
@@ -54,7 +64,7 @@ uniform int entityId;
     uniform int frameCounter;
     uniform float frameTimeCounter;
     //uniform mat4 gbufferModelView;
-    uniform mat4 gbufferModelViewInverse;
+    //uniform mat4 gbufferModelViewInverse;
     uniform vec3 cameraPosition;
     //uniform float far;
 
@@ -125,6 +135,10 @@ uniform int entityId;
 #include "/lib/entities.glsl"
 #include "/lib/lighting/dynamic_entities.glsl"
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #include "/lib/sampling/depth.glsl"
     //#include "/lib/sampling/noise.glsl"
@@ -168,6 +182,13 @@ void main() {
 
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    vec2 lmFinal = lmcoord;
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        vec3 texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    #endif
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
@@ -193,17 +214,26 @@ void main() {
 
         uvec4 deferredData = uvec4(0);
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+
+        #if NORMALMAP_TYPE != NORMALMAP_NONE
+            deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        #endif
+
         outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
+            #if NORMALMAP_TYPE != NORMALMAP_NONE
+                blockLight += GetFinalBlockLighting(vLocalPos, texNormal, lmFinal.x, emission, sss);
+            #else
+                blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmFinal.x, emission, sss);
+            #endif
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmFinal.y, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

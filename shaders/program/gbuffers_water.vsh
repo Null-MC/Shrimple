@@ -21,6 +21,13 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 flat out int vBlockId;
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    in vec4 at_tangent;
+
+    out vec3 vLocalTangent;
+    out float vTangentW;
+#endif
+
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
     out vec3 physics_localPosition;
     out float physics_localWaviness;
@@ -95,6 +102,10 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#if NORMALMAP_TYPE != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
     #include "/lib/world/physicsmod_ocean.glsl"
 #endif
@@ -108,6 +119,10 @@ void main() {
     glcolor = gl_Color;
 
     BasicVertex();
+
+    #if NORMALMAP_TYPE != NORMALMAP_NONE
+        PrepareNormalMap();
+    #endif
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {

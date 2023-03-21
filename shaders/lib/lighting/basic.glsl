@@ -232,13 +232,6 @@
         vNormal = normalize(gl_NormalMatrix * gl_Normal);
         vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE && defined RENDER_TERRAIN
-            vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-            vLocalTangent = mat3(gbufferModelViewInverse) * viewTangent;
-
-            vTangentW = at_tangent.w;
-        #endif
-
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
             vec3 lightDir = normalize(shadowLightPosition);
             geoNoL = dot(lightDir, vNormal);
@@ -368,7 +361,7 @@
                 skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
 
                 //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
-                
+
                 skyLight *= 1.0 - blindness;
             #else
                 const float skyLight = 1.0;
