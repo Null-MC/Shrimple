@@ -166,10 +166,11 @@ void main() {
 
     vec3 blockLight = vBlockLight;
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        const vec3 normal = vec3(0.0);
         const float emission = 0.0;
         const float sss = 0.0;
 
-        blockLight += GetFinalBlockLighting(vLocalPos, vec3(0.0), lmcoord.x, emission, sss);
+        blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, emission, sss);
     #endif
 
     vec3 shadowColor = vec3(1.0);

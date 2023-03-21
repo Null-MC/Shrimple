@@ -16,6 +16,11 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -27,6 +32,14 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
+
+#if MATERIAL_EMISSION != EMISSION_NONE
+    uniform sampler2D specular;
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
@@ -154,6 +167,10 @@ uniform float blindness;
     #endif
 #endif
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
+#endif
+
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
 
@@ -175,12 +192,28 @@ void main() {
     #endif
 
     vec3 localNormal = normalize(vLocalNormal);
+    vec2 lmFinal = lmcoord;
 
-    const float emission = 0.0;
+    vec3 texNormal = vec3(0.0);
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    #endif
+
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        float emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        float emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #else
+        // TODO: How do you separately apply hard-coded lighting to hands?!
+        float emission = GetSceneBlockEmission(heldItemId);
+    #endif
+
     const float sss = 0.0;
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmFinal.y, glcolor.a);
     
     ApplyFog(color, vLocalPos);
 

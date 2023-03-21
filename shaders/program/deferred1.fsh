@@ -122,9 +122,10 @@ void main() {
 
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
+        vec3 texNormal = vec3(0.0);
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            vec3 texNormal = deferredTexture.xyz;
+            texNormal = deferredTexture.xyz;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
@@ -139,13 +140,8 @@ void main() {
         vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
         vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            blockLight = GetFinalBlockLighting(localPos, texNormal, deferredLighting.x, deferredLighting.a, localNormal.w);
-            blockLight += SampleHandLight(localPos, texNormal, localNormal.w);
-        #else
-            blockLight = GetFinalBlockLighting(localPos, localNormal.xyz, deferredLighting.x, deferredLighting.a, localNormal.w);
-            blockLight += SampleHandLight(localPos, localNormal.xyz, localNormal.w);
-        #endif
+        blockLight = GetFinalBlockLighting(localPos, localNormal.xyz, texNormal, deferredLighting.x, deferredLighting.a, localNormal.w);
+        blockLight += SampleHandLight(localPos, localNormal.xyz, texNormal, localNormal.w);
 
         blockLight *= 1.0 - deferredFog.a;
 

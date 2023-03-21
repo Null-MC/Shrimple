@@ -37,7 +37,11 @@
 	    float skyLight = saturate((lmcoordY - (0.5/16.0)) * (16.0/15.0));
 
 	    vec3 localLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-	    skyLight *= max(dot(localLightDir, texNormal), 0.0) * 0.7 + 0.7;
+
+	    float NoLmax = max(dot(localLightDir, localNormal), 0.0);
+	    float texNoLmax = max(dot(localLightDir, texNormal), 0.0);
+
+	    skyLight *= min(NoLmax, texNoLmax) * 0.7 + 0.7;
 
 	    lmcoordY = saturate(skyLight) * (15.0/16.0) + (0.5/16.0);
 

@@ -192,7 +192,7 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
 
     vec2 lmFinal = lmcoord;
-    vec3 texNormal = localNormal;
+    vec3 texNormal = vec3(0.0);
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
@@ -200,7 +200,8 @@ void main() {
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+        if (vBlockId == BLOCK_WATER)
+            texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -218,6 +219,7 @@ void main() {
         if (vBlockId == BLOCK_WATER) {
             if (!gl_FrontFacing) {
                 if (isEyeInWater == 1) {
+                    localNormal = -localNormal;
                     texNormal = -texNormal;
                 }
                 else {
@@ -254,7 +256,7 @@ void main() {
         const float sss = 0.0;
     #endif
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, texNormal, lmcoord.x, emission, sss);
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);

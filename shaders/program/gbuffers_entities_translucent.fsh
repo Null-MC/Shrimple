@@ -16,6 +16,11 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -27,6 +32,14 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
+
+#if MATERIAL_EMISSION != EMISSION_NONE
+    uniform sampler2D specular;
+#endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
     uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
@@ -133,9 +146,11 @@ uniform float blindness;
     #include "/lib/shadows/common.glsl"
 #endif
 
+#include "/lib/entities.glsl"
+#include "/lib/lighting/dynamic_entities.glsl"
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
-    #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
@@ -149,6 +164,10 @@ uniform float blindness;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/dynamic_blocks.glsl"
+#endif
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -170,7 +189,17 @@ void main() {
     color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
     color.rgb = RGBToLinear(color.rgb);
 
+    vec2 lmFinal = lmcoord;
+
     vec3 localNormal = normalize(vLocalNormal);
+
+    if (!gl_FrontFacing) localNormal = -localNormal;
+
+    vec3 texNormal = vec3(0.0);
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -181,11 +210,19 @@ void main() {
         #endif
     #endif
 
-    const float emission = 0.0;
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        float emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        float emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #else
+        float emission = GetSceneEntityLightColor(entityId).a / 15.0;
+    #endif
+
     const float sss = 0.0;
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);
+    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmFinal.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

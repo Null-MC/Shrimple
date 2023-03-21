@@ -1,32 +1,40 @@
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    float SampleLight(const in vec3 lightVec, const in vec3 fragLocalNormal, const in float lightRange, const in float sss) {
+    float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
+        float NoLm = 1.0;
+
+        #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            if (dot(localNormal, localNormal) > EPSILON)
+                NoLm = max(dot(localNormal, lightDir), 0.0);
+
+            if (dot(texNormal, texNormal) > EPSILON) {
+                float texNoLm = max(dot(texNormal, lightDir), 0.0);
+                NoLm = min(saturate(NoLm * 20.0), texNoLm);
+            }
+        #endif
+
+        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+            NoLm = mix(1.0, NoLm, DynamicLightDirectionalF);
+        #endif
+
+        #ifdef DYN_LIGHT_SSS
+            NoLm = mix(NoLm, 1.0, sss);
+        #endif
+
+        return NoLm;
+    }
+
+    float SampleLight(const in vec3 lightVec, const in float lightNoLm, const in float lightRange) {
         float lightDist = length(lightVec);
         vec3 lightDir = lightVec / max(lightDist, EPSILON);
         //lightDist = max(lightDist - 0.5, 0.0);
 
         float lightAtt = 1.0 - saturate(lightDist / lightRange);
         lightAtt = pow(lightAtt, 5.0);
-        
-        float lightNoLm = 1.0;
-
-        #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            if (dot(fragLocalNormal, fragLocalNormal) > EPSILON) {
-                lightNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
-
-                #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-                    lightNoLm = mix(1.0, lightNoLm, DynamicLightDirectionalF);
-                #endif
-
-                #ifdef DYN_LIGHT_SSS
-                    lightNoLm = mix(lightNoLm, 1.0, sss);
-                #endif
-            }
-        #endif
-        
+                
         return lightNoLm * lightAtt;
     }
 
-    vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in float sss, const in vec3 blockLightDefault) {
+    vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.06 * localNormal;
         int lightCount = GetSceneLights(lightFragPos, gridIndex);
@@ -64,7 +72,11 @@
                     }
                 #endif
 
-                accumDiffuse += SampleLight(lightVec, localNormal, light.range, sss) * lightColor;
+                vec3 lightDir = normalize(lightVec);
+                float lightNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
+
+                if (lightNoLm > EPSILON)
+                    accumDiffuse += SampleLight(lightVec, lightNoLm, light.range) * lightColor;
             }
 
             accumDiffuse *= DynamicLightBrightness;
@@ -92,7 +104,7 @@
         }
     }
 
-    vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in float sss) {
+    vec3 SampleHandLight(const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float sss) {
         vec2 noiseSample = GetDynLightNoise(vec3(0.0));
         vec3 result = vec3(0.0);
 
@@ -124,7 +136,11 @@
                     #endif
                 #endif
 
-                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue, sss) * lightColor;
+                vec3 lightDir = normalize(lightVec);
+                float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
+
+                if (lightNoLm > EPSILON)
+                    result += SampleLight(lightVec, lightNoLm, heldBlockLightValue) * lightColor;
             }
         }
 
@@ -151,8 +167,12 @@
                         lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue2);
                     #endif
                 #endif
+                
+                vec3 lightDir = normalize(lightVec);
+                float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
 
-                result += SampleLight(lightVec, fragLocalNormal, heldBlockLightValue2, sss) * lightColor;
+                if (lightNoLm > EPSILON)
+                    result += SampleLight(lightVec, lightNoLm, heldBlockLightValue2) * lightColor;
             }
         }
 
@@ -269,10 +289,10 @@
                     const float sss = 0.0;
                 #endif
 
-                vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, sss, blockLightDefault)
+                vBlockLight += SampleDynamicLighting(vLocalPos, vLocalNormal, vec3(0.0), sss, blockLightDefault)
                     * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
 
-                vBlockLight += SampleHandLight(vLocalPos, vLocalNormal, sss);
+                vBlockLight += SampleHandLight(vLocalPos, vLocalNormal, vec3(0.0), sss);
             #endif
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -318,7 +338,7 @@
     #endif
 
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
-        vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in float lmcoordX, const in float emission, const in float sss) {
+        vec3 GetFinalBlockLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float emission, const in float sss) {
             vec3 blockLight = vec3(emission);//vBlockLight;
 
             #ifdef RENDER_GBUFFER
@@ -330,9 +350,9 @@
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                blockLight += SampleDynamicLighting(localPos, localNormal, sss, blockLightDefault);
+                blockLight += SampleDynamicLighting(localPos, localNormal, texNormal, sss, blockLightDefault);
 
-                blockLight += SampleHandLight(localPos, localNormal, sss);
+                blockLight += SampleHandLight(localPos, localNormal, texNormal, sss);
 
                 // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                 //     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));

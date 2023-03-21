@@ -155,9 +155,10 @@ void main() {
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
+        vec3 texNormal = vec3(0.0);
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            vec3 texNormal = deferredTexture.rgb;
+            texNormal = deferredTexture.rgb;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
@@ -202,11 +203,7 @@ void main() {
                 #endif
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            #if MATERIAL_NORMALS != NORMALMAP_NONE
-                vec3 blockLight = GetFinalBlockLighting(localPos, texNormal, deferredLighting.x, emission, sss);
-            #else
-                vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x, emission, sss);
-            #endif
+            vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, texNormal, deferredLighting.x, emission, sss);
         #else
             vec3 blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockLight = RGBToLinear(blockLight);

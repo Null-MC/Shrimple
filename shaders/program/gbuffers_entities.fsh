@@ -37,6 +37,10 @@ uniform sampler2D noisetex;
     uniform sampler2D normals;
 #endif
 
+#if MATERIAL_EMISSION != EMISSION_NONE
+    uniform sampler2D specular;
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 sunPosition;
@@ -184,9 +188,10 @@ void main() {
 
     vec2 lmFinal = lmcoord;
 
+    vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
-        vec3 texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -198,7 +203,15 @@ void main() {
         #endif
     #endif
 
-    const float emission = GetSceneEntityLightColor(entityId).a / 15.0;
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        float emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        float emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #else
+        float emission = GetSceneEntityLightColor(entityId).a / 15.0;
+    #endif
+
     const float sss = 0.0;
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -225,11 +238,7 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            #if MATERIAL_NORMALS != NORMALMAP_NONE
-                blockLight += GetFinalBlockLighting(vLocalPos, texNormal, lmFinal.x, emission, sss);
-            #else
-                blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmFinal.x, emission, sss);
-            #endif
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
