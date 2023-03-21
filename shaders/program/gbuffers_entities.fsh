@@ -16,7 +16,7 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
 #endif
@@ -33,7 +33,7 @@ in vec3 vBlockLight;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
 #endif
 
@@ -135,7 +135,7 @@ uniform int entityId;
 #include "/lib/entities.glsl"
 #include "/lib/lighting/dynamic_entities.glsl"
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
@@ -184,7 +184,7 @@ void main() {
 
     vec2 lmFinal = lmcoord;
 
-    #if NORMALMAP_TYPE != NORMALMAP_NONE
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
         vec3 texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
@@ -217,7 +217,7 @@ void main() {
         deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         #endif
 
@@ -225,7 +225,7 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            #if NORMALMAP_TYPE != NORMALMAP_NONE
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
                 blockLight += GetFinalBlockLighting(vLocalPos, texNormal, lmFinal.x, emission, sss);
             #else
                 blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmFinal.x, emission, sss);

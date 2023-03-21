@@ -16,7 +16,7 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 out vec3 vBlockLight;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
 	in vec4 at_tangent;
 
 	out vec3 vLocalTangent;
@@ -97,7 +97,7 @@ uniform int entityId;
 	#include "/lib/lighting/dynamic_entities.glsl"
 #endif
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
@@ -111,7 +111,7 @@ void main() {
 	
 	BasicVertex();
 
-    #if NORMALMAP_TYPE != NORMALMAP_NONE
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
     #endif
 }

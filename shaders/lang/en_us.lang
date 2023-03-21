@@ -25,10 +25,10 @@ option.END_BRIGHTNESS=End Brightness
 
 screen.MATERIAL_OPTIONS=Materials
 
-option.NORMALMAP_TYPE=Normal Mapping
-value.NORMALMAP_TYPE.0=None
-value.NORMALMAP_TYPE.1=OldPBR
-value.NORMALMAP_TYPE.2=LabPBR
+option.MATERIAL_NORMALS=Normal Mapping
+value.MATERIAL_NORMALS.0=None
+value.MATERIAL_NORMALS.1=OldPBR
+value.MATERIAL_NORMALS.2=LabPBR
 
 
 screen.SHADOW_OPTIONS=Shadows

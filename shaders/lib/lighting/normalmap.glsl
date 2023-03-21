@@ -9,14 +9,14 @@
 
 #ifdef RENDER_FRAG
 	vec3 ApplyNormalMap(inout float lmcoordY, const in vec2 texcoord, const in vec3 localNormal, const in vec3 localTangent) {
-	    #if NORMALMAP_TYPE == NORMALMAP_LAB
+	    #if MATERIAL_NORMALS == NORMALMAP_LAB
 	        vec3 texNormal = texture(normals, texcoord).rgg;
 
 	        if (any(greaterThan(texNormal.rg, EPSILON2))) {
 	            texNormal.xy = texNormal.xy * 2.0 - 1.0;
 	            texNormal.z = sqrt(max(1.0 - dot(texNormal.xy, texNormal.xy), EPSILON));
 	        }
-	    #elif NORMALMAP_TYPE == NORMALMAP_OLD
+	    #elif MATERIAL_NORMALS == NORMALMAP_OLD
 	        vec3 texNormal = texture(normals, texcoord).rgb;
 
 	        if (any(greaterThan(texNormal, EPSILON3)))

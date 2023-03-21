@@ -21,7 +21,7 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 flat out int vBlockId;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec4 at_tangent;
 
     out vec3 vLocalTangent;
@@ -102,7 +102,7 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
@@ -120,7 +120,7 @@ void main() {
 
     BasicVertex();
 
-    #if NORMALMAP_TYPE != NORMALMAP_NONE
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
     #endif
 

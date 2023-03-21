@@ -57,7 +57,8 @@ const bool colortex6Clear = false;
 
 
 // Material Options
-#define NORMALMAP_TYPE 0 // [0 1 2]
+#define MATERIAL_NORMALS 0 // [0 1 2]
+#define MATERIAL_EMISSION 0 // [0 1 2]
 
 
 // Shadow Options

@@ -155,7 +155,7 @@ void main() {
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
             vec3 texNormal = deferredTexture.rgb;
 
@@ -202,7 +202,7 @@ void main() {
                 #endif
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            #if NORMALMAP_TYPE != NORMALMAP_NONE
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
                 vec3 blockLight = GetFinalBlockLighting(localPos, texNormal, deferredLighting.x, emission, sss);
             #else
                 vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, deferredLighting.x, emission, sss);

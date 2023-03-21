@@ -193,7 +193,7 @@ void main() {
         deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         #endif
 

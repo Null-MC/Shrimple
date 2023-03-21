@@ -17,7 +17,7 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 flat in int vBlockId;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
 #endif
@@ -34,8 +34,12 @@ flat in int vBlockId;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
+#endif
+
+#if MATERIAL_EMISSION != EMISSION_NONE
+    uniform sampler2D specular;
 #endif
 
 uniform vec3 sunPosition;
@@ -135,7 +139,7 @@ uniform int fogMode;
     #include "/lib/shadows/common.glsl"
 #endif
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
@@ -192,12 +196,20 @@ void main() {
 
     vec2 lmFinal = lmcoord;
 
-    #if NORMALMAP_TYPE != NORMALMAP_NONE
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
         vec3 texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
 
-    float emission = GetSceneBlockEmission(vBlockId);
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        float emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        float emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #else
+        float emission = GetSceneBlockEmission(vBlockId);
+    #endif
+
     float sss = GetBlockSSS(vBlockId);
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -216,7 +228,7 @@ void main() {
         deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         #endif
 
@@ -224,7 +236,7 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            #if NORMALMAP_TYPE != NORMALMAP_NONE
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
                 blockLight += GetFinalBlockLighting(vLocalPos, texNormal, lmFinal.x, emission, sss);
             #else
                 blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmFinal.x, emission, sss);

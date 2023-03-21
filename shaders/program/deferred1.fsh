@@ -122,7 +122,7 @@ void main() {
 
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
             vec3 texNormal = deferredTexture.xyz;
 
@@ -139,7 +139,7 @@ void main() {
         vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
         vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
-        #if NORMALMAP_TYPE != NORMALMAP_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
             blockLight = GetFinalBlockLighting(localPos, texNormal, deferredLighting.x, deferredLighting.a, localNormal.w);
             blockLight += SampleHandLight(localPos, texNormal, localNormal.w);
         #else
@@ -158,7 +158,7 @@ void main() {
                 if (any(greaterThan(normalPrev, EPSILON3)))
                     normalPrev = normalize(normalPrev * 2.0 - 1.0);
 
-                #if NORMALMAP_TYPE != NORMALMAP_NONE
+                #if MATERIAL_NORMALS != NORMALMAP_NONE
                     float normalWeight = 1.0 - dot(texNormal, normalPrev);
                 #else
                     float normalWeight = 1.0 - dot(localNormal.xyz, normalPrev);

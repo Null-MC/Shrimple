@@ -17,7 +17,7 @@ in vec3 vLocalNormal;
 in vec3 vBlockLight;
 flat in int vBlockId;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
 #endif
@@ -39,7 +39,7 @@ flat in int vBlockId;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
 #endif
 
@@ -154,7 +154,7 @@ uniform float blindness;
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
-#if NORMALMAP_TYPE != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/lighting/normalmap.glsl"
 #endif
 
@@ -194,7 +194,7 @@ void main() {
     vec2 lmFinal = lmcoord;
     vec3 texNormal = localNormal;
 
-    #if NORMALMAP_TYPE != NORMALMAP_NONE
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
         texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
     #endif
