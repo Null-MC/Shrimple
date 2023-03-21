@@ -30,6 +30,11 @@ value.MATERIAL_NORMALS.0=None
 value.MATERIAL_NORMALS.1=OldPBR
 value.MATERIAL_NORMALS.2=LabPBR
 
+option.MATERIAL_EMISSION=Emission
+value.MATERIAL_EMISSION.0=Hard-Coded
+value.MATERIAL_EMISSION.1=OldPBR
+value.MATERIAL_EMISSION.2=LabPBR
+
 
 screen.SHADOW_OPTIONS=Shadows
 screen.SHADOW_OPTIONS.comment=Options for shadows.
