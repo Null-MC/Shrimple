@@ -193,6 +193,8 @@
                 case BLOCK_BEETROOTS:
                 case BLOCK_BLUE_ORCHID:
                 case BLOCK_CARROTS:
+                case BLOCK_CAVE_VINE:
+                case BLOCK_CAVEVINE_BERRIES:
                 case BLOCK_CORNFLOWER:
                 case BLOCK_DANDELION:
                 case BLOCK_FERN:

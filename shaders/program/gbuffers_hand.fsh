@@ -16,6 +16,11 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    in vec3 vLocalTangent;
+    in float vTangentW;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -27,6 +32,28 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 sunPosition;
+uniform vec3 upPosition;
+uniform vec3 skyColor;
+uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    uniform sampler2D normals;
+#endif
+
+#if MATERIAL_EMISSION != EMISSION_NONE
+    uniform sampler2D specular;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
@@ -57,7 +84,7 @@ uniform sampler2D noisetex;
     uniform int frameCounter;
     uniform float frameTimeCounter;
     //uniform mat4 gbufferModelView;
-    uniform mat4 gbufferModelViewInverse;
+    //uniform mat4 gbufferModelViewInverse;
     uniform vec3 cameraPosition;
     //uniform float far;
 
@@ -72,19 +99,6 @@ uniform sampler2D noisetex;
         uniform vec3 eyePosition;
     #endif
 #endif
-
-uniform mat4 gbufferModelView;
-uniform vec3 sunPosition;
-uniform vec3 upPosition;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
 
 #if AF_SAMPLES > 1
     uniform float viewWidth;
@@ -118,6 +132,10 @@ uniform int fogMode;
     #endif
 
     #include "/lib/shadows/common.glsl"
+#endif
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    #include "/lib/lighting/normalmap.glsl"
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
@@ -155,7 +173,6 @@ void main() {
 
     color.a = 1.0;
     color.rgb *= glcolor.rgb;
-    vec3 localNormal = normalize(vLocalNormal);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -166,7 +183,25 @@ void main() {
         #endif
     #endif
 
-    const float emission = 0.0;
+    vec3 localNormal = normalize(vLocalNormal);
+    vec2 lmFinal = lmcoord;
+
+    vec3 texNormal = vec3(0.0);
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    #endif
+
+    #if MATERIAL_EMISSION == EMISSION_OLDPBR
+        float emission = texture(specular, texcoord).b;
+    #elif MATERIAL_EMISSION == EMISSION_LABPBR
+        float emission = texture(specular, texcoord).a;
+        if (emission > (253.5/255.0)) emission = 0.0;
+    #else
+        // TODO: How do you separately apply hard-coded lighting to hands?!
+        float emission = GetSceneBlockEmission(heldItemId);
+    #endif
+
     const float sss = 0.0;
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -183,11 +218,16 @@ void main() {
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
         deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        #endif
+        
         outDeferredData = deferredData;
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, lmcoord.x, emission, sss);
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
