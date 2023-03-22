@@ -179,29 +179,44 @@ void main() {
 
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-            vec3 lightColor = GetFinalShadowColor();
-        #else
-            vec3 lightColor = vec3(GetFinalShadowFactor());
-        #endif
-    #else
-        vec3 lightColor = vec3(1.0);
-    #endif
-
     vec3 localNormal = normalize(vLocalNormal);
 
-    vec2 lmFinal = lmcoord;
-    vec3 texNormal = vec3(0.0);
+    if (!gl_FrontFacing)
+        localNormal = -localNormal;
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        vec3 localTangent = normalize(vLocalTangent);
-        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
+    vec3 shadowColor = vec3(1.0);
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
+
+        if (skyGeoNoL < EPSILON) shadowColor = vec3(0.0);
+        else {
+            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                shadowColor = GetFinalShadowColor();
+            #else
+                shadowColor = vec3(GetFinalShadowFactor());
+            #endif
+        }
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (vBlockId == BLOCK_WATER)
-            texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+    vec3 texNormal = vec3(0.0);
+    #if MATERIAL_NORMALS != NORMALMAP_NONE
+        vec3 localTangent = normalize(vLocalTangent);
+        texNormal = ApplyNormalMap(texcoord, localNormal, localTangent);
+
+        float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
+        shadowColor *= 1.5 * pow(skyTexNoL, 0.6);
+    #endif
+
+    #ifdef WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            #ifdef PHYSICS_OCEAN
+                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+            #else
+                texNormal = localNormal;
+            #endif
+        }
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -257,7 +272,7 @@ void main() {
     #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord.y, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

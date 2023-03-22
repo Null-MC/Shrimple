@@ -8,7 +8,7 @@
 #endif
 
 #ifdef RENDER_FRAG
-	vec3 ApplyNormalMap(inout float lmcoordY, const in vec2 texcoord, const in vec3 localNormal, const in vec3 localTangent) {
+	vec3 ApplyNormalMap(const in vec2 texcoord, const in vec3 localNormal, const in vec3 localTangent) {
 	    #if MATERIAL_NORMALS == NORMALMAP_LAB
 	        vec3 texNormal = texture(normals, texcoord).rgg;
 
@@ -34,16 +34,16 @@
 	    texNormal = matTBN * texNormal;
 
 	    // apply sun/moon NoL to SkyLight
-	    float skyLight = saturate((lmcoordY - (0.5/16.0)) * (16.0/15.0));
+	    // float skyLight = saturate((lmcoordY - (0.5/16.0)) * (16.0/15.0));
 
-	    vec3 localLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+	    // vec3 localLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-	    float NoLmax = max(dot(localLightDir, localNormal), 0.0);
-	    float texNoLmax = max(dot(localLightDir, texNormal), 0.0);
+	    // float NoLmax = max(dot(localLightDir, localNormal), 0.0);
+	    // float texNoLmax = max(dot(localLightDir, texNormal), 0.0);
 
-	    skyLight *= min(NoLmax, texNoLmax) * 0.7 + 0.7;
+	    // skyLight *= min(NoLmax, texNoLmax) * 0.7 + 0.7;
 
-	    lmcoordY = saturate(skyLight) * (15.0/16.0) + (0.5/16.0);
+	    // lmcoordY = saturate(skyLight) * (15.0/16.0) + (0.5/16.0);
 
 	    return texNormal;
 	}

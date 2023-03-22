@@ -183,33 +183,41 @@ void main() {
     color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
 
     vec3 localNormal = normalize(vLocalNormal);
-
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec2 lmFinal = lmcoord;
+    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
+    vec3 shadowColor = vec3(1.0);
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
+
+        if (skyGeoNoL < EPSILON) shadowColor = vec3(0.0);
+        else {
+            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                shadowColor = GetFinalShadowColor();
+            #else
+                shadowColor = vec3(GetFinalShadowFactor());
+            #endif
+        }
+    #endif
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = ApplyNormalMap(lmFinal.y, texcoord, localNormal, localTangent);
+        texNormal = ApplyNormalMap(texcoord, localNormal, localTangent);
+
+        float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
+        shadowColor *= 1.5 * pow(skyTexNoL, 0.6);
     #endif
 
-    vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-            shadowColor = GetFinalShadowColor();
-        #else
-            shadowColor = vec3(GetFinalShadowFactor());
-        #endif
-    #endif
-
+    float emission = 0.0;
     #if MATERIAL_EMISSION == EMISSION_OLDPBR
-        float emission = texture(specular, texcoord).b;
+        emission = texture(specular, texcoord).b;
     #elif MATERIAL_EMISSION == EMISSION_LABPBR
-        float emission = texture(specular, texcoord).a;
-        if (emission > (253.5/255.0)) emission = 0.0;
-    #else
-        float emission = GetSceneEntityLightColor(entityId).a / 15.0;
+        emission = texture(specular, texcoord).a;
+        if (emission > (254.5/255.0)) emission = 0.0;
+    #elif DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        emission = GetSceneEntityLightColor(entityId).a / 15.0;
     #endif
 
     const float sss = 0.0;
@@ -227,7 +235,7 @@ void main() {
 
         uvec4 deferredData = uvec4(0);
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
         #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -238,11 +246,11 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmFinal.y, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 
