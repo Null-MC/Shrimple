@@ -38,7 +38,7 @@ uniform sampler2D lightmap;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -70,6 +70,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform float viewWidth;
 uniform float blindness;
 
 uniform int heldItemId;
@@ -163,9 +164,11 @@ uniform int heldItemId2;
 
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/dynamic_blocks.glsl"
+#include "/lib/material/emission.glsl"
+#include "/lib/material/subsurface.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/lighting/normalmap.glsl"
+    #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -184,42 +187,49 @@ void main() {
 
     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
 
+    float sss, emission;
+    if (gl_FragCoord.x > viewWidth / 2) {
+        sss = GetMaterialSSS(heldItemId2, texcoord);
+        emission = GetMaterialEmission(heldItemId2, texcoord);
+    }
+    else {
+        sss = GetMaterialSSS(heldItemId, texcoord);
+        emission = GetMaterialEmission(heldItemId, texcoord);
+    }
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
 
-        if (skyGeoNoL < EPSILON) shadowColor = vec3(0.0);
+        if (skyGeoNoL < EPSILON && sss < EPSILON) {
+            shadowColor = vec3(0.0);
+        }
         else {
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                shadowColor = GetFinalShadowColor();
+                shadowColor = GetFinalShadowColor(sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor());
+                shadowColor = vec3(GetFinalShadowFactor(sss));
             #endif
         }
     #endif
-    vec2 lmFinal = lmcoord;
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = ApplyNormalMap(texcoord, localNormal, localTangent);
+        texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
 
-        float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
-        shadowColor *= 1.5 * pow(skyTexNoL, 0.6);
+        float skyTexNoL = dot(texNormal, localLightDir);
+
+        #if MATERIAL_SSS != SSS_NONE
+            skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
+        #else
+            skyTexNoL = max(skyTexNoL, 0.0);
+        #endif
+
+        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    #else
+        shadowColor *= max(vLit, 0.0);
     #endif
-
-    float emission = 0.0;
-    #if MATERIAL_EMISSION == EMISSION_OLDPBR
-        emission = texture(specular, texcoord).b;
-    #elif MATERIAL_EMISSION == EMISSION_LABPBR
-        emission = texture(specular, texcoord).a;
-        if (emission > (254.5/255.0)) emission = 0.0;
-    #elif DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        // TODO: How do you separately apply hard-coded lighting to hands?!
-        emission = GetSceneBlockEmission(heldItemId);
-    #endif
-
-    const float sss = 0.0;
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);

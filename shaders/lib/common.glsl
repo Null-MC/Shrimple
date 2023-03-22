@@ -52,7 +52,7 @@ const bool colortex6Clear = false;
 // World Options
 #define ENABLE_WAVING
 #define WATER_REFLECTIONS_ENABLED
-#define OLD_LIGHTING
+//#define OLD_LIGHTING
 #define FOLIAGE_UP
 
 

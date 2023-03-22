@@ -89,7 +89,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/lighting/normalmap.glsl"
+    #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

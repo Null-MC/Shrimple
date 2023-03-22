@@ -103,7 +103,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/lighting/normalmap.glsl"
+    #include "/lib/material/normalmap.glsl"
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
