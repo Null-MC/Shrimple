@@ -76,3 +76,15 @@ vec4 GetSceneEntityLightColor(const in int entityId, const in int vertexId[3]) {
     if (!match) return vec4(0.0);
     return GetSceneEntityLightColor(entityId);
 }
+
+float GetEntitySSS(const in int entityId) {
+    float sss = 0.0;
+
+    switch (entityId) {
+        case ENTITY_SLIME:
+            sss = 0.9;
+            break;
+    }
+
+    return sss;
+}

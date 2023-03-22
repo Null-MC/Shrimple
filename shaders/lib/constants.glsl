@@ -15,6 +15,10 @@
 #define EMISSION_OLDPBR 1
 #define EMISSION_LABPBR 2
 
+#define SSS_NONE 0
+#define SSS_DEFAULT 1
+#define SSS_LABPBR 2
+
 #define DYN_LIGHT_NONE 0
 #define DYN_LIGHT_VERTEX 1
 #define DYN_LIGHT_PIXEL 2

@@ -1,26 +1,28 @@
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
-        float NoLm = 1.0;
+        float NoL = 1.0;
 
         #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             if (dot(localNormal, localNormal) > EPSILON)
-                NoLm = max(dot(localNormal, lightDir), 0.0);
+                NoL = dot(localNormal, lightDir);
 
             if (dot(texNormal, texNormal) > EPSILON) {
-                float texNoLm = max(dot(texNormal, lightDir), 0.0);
-                NoLm = min(saturate(NoLm * 20.0), texNoLm);
+                float texNoL = dot(texNormal, lightDir);
+                NoL = min(NoL, texNoL);
             }
         #endif
 
+        #if MATERIAL_SSS != SSS_NONE
+            NoL = mix(max(NoL, 0.0), abs(NoL), sss);
+        #else
+            NoL = max(NoL, 0.0);
+        #endif
+
         #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-            NoLm = mix(1.0, NoLm, DynamicLightDirectionalF);
+            NoL = mix(1.0, NoL, DynamicLightDirectionalF);
         #endif
 
-        #ifdef DYN_LIGHT_SSS
-            NoLm = mix(NoLm, 1.0, sss);
-        #endif
-
-        return NoLm;
+        return NoL;
     }
 
     float SampleLight(const in vec3 lightVec, const in float lightNoLm, const in float lightRange) {

@@ -201,7 +201,7 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            blockLight += GetFinalBlockLighting(vLocalPos, normal, lmcoord.x, emission, sss);
+            blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);

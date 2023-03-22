@@ -35,6 +35,12 @@ value.MATERIAL_EMISSION.0=Hard-Coded
 value.MATERIAL_EMISSION.1=OldPBR
 value.MATERIAL_EMISSION.2=LabPBR
 
+option.MATERIAL_SSS=SSS
+option.MATERIAL_SSS.comment=SubSurface Scattering
+value.MATERIAL_SSS.0=None
+value.MATERIAL_SSS.1=Hard-Coded
+value.MATERIAL_SSS.2=LabPBR
+
 
 screen.SHADOW_OPTIONS=Shadows
 screen.SHADOW_OPTIONS.comment=Options for shadows.
@@ -196,9 +202,6 @@ option.DYN_LIGHT_RES=Resolution
 value.DYN_LIGHT_RES.0=Full
 value.DYN_LIGHT_RES.1=Half
 value.DYN_LIGHT_RES.2=Quarter
-
-option.DYN_LIGHT_SSS=SSS
-option.DYN_LIGHT_SSS.comment=Enables a cheap subsurface scattering effect on blocks like foliage to reduce shadowing from directional lights.
 
 option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.

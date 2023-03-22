@@ -59,6 +59,7 @@ const bool colortex6Clear = false;
 // Material Options
 #define MATERIAL_NORMALS 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
+#define MATERIAL_SSS 0 // [0 1 2]
 
 
 // Shadow Options
@@ -104,7 +105,6 @@ const bool colortex6Clear = false;
 #define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
-#define DYN_LIGHT_SSS
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_LPV
 

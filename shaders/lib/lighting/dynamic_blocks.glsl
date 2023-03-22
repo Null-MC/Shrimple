@@ -37,6 +37,7 @@ float GetBlockSSS(const in int blockId) {
         case BLOCK_BIG_DRIPLEAF:
         case BLOCK_BIG_DRIPLEAF_STEM:
         case BLOCK_CAVE_VINE:
+        case BLOCK_CAVEVINE_BERRIES:
         case BLOCK_FERN:
         case BLOCK_KELP:
         case BLOCK_LEAVES:

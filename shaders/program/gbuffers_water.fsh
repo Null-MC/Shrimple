@@ -38,13 +38,14 @@ flat in int vBlockId;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
+uniform sampler2D noisetex;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uniform sampler2D noisetex;
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
+    uniform sampler2D specular;
 #endif
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -115,6 +116,7 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -139,9 +141,7 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
 #endif
 
@@ -150,12 +150,16 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
-#endif
+//#endif
+
+#include "/lib/material/emission.glsl"
+#include "/lib/material/subsurface.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/lighting/normalmap.glsl"
+    #include "/lib/material/normalmap.glsl"
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -180,22 +184,25 @@ void main() {
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
     vec3 localNormal = normalize(vLocalNormal);
-
-    if (!gl_FrontFacing)
-        localNormal = -localNormal;
+    if (!gl_FrontFacing) localNormal = -localNormal;
 
     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
+    float sss = GetMaterialSSS(vBlockId, texcoord);
+    float emission = GetMaterialEmission(vBlockId, texcoord);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
 
-        if (skyGeoNoL < EPSILON) shadowColor = vec3(0.0);
+        if (skyGeoNoL < EPSILON && sss < EPSILON) {
+            shadowColor = vec3(0.0);
+        }
         else {
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                shadowColor = GetFinalShadowColor();
+                shadowColor = GetFinalShadowColor(sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor());
+                shadowColor = vec3(GetFinalShadowFactor(sss));
             #endif
         }
     #endif
@@ -203,10 +210,17 @@ void main() {
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = ApplyNormalMap(texcoord, localNormal, localTangent);
+        texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
 
         float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
-        shadowColor *= 1.5 * pow(skyTexNoL, 0.6);
+
+        #if MATERIAL_SSS != SSS_NONE
+            skyTexNoL = mix(skyTexNoL, 1.0, sss);
+        #endif
+
+        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    #else
+        shadowColor *= max(vLit, 0.0);
     #endif
 
     #ifdef WORLD_WATER_ENABLED
@@ -263,13 +277,13 @@ void main() {
         color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        float emission = GetSceneBlockEmission(vBlockId);
-        float sss = GetBlockSSS(vBlockId);
-    #else
-        const float emission = 0.0;
-        const float sss = 0.0;
-    #endif
+    // #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    //     float emission = GetSceneBlockEmission(vBlockId);
+    //     float sss = GetBlockSSS(vBlockId);
+    // #else
+    //     const float emission = 0.0;
+    //     const float sss = 0.0;
+    // #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);

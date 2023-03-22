@@ -1,5 +1,5 @@
 #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-    vec3 GetFinalShadowColor() {
+    vec3 GetFinalShadowColor(const in float sss) {
         vec3 shadowColor = vec3(1.0);
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -9,14 +9,25 @@
                 if (tile >= 0)
                     shadowColor = GetShadowColor(shadowPos[tile], tile);
             #else
-                shadowColor = GetShadowColor(shadowPos);
+                float bias = sss * (1.5 / 256.0);
+                shadowColor = GetShadowColor(shadowPos, bias);
             #endif
         #endif
 
-        return mix(shadowColor * max(vLit, 0.0), vec3(1.0), ShadowBrightnessF);
+        // #if MATERIAL_SSS != SSS_NONE
+        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
+        // #else
+        //     shadowColor *= max(NoL, 0.0);
+        // #endif
+
+        return shadowColor;
+    }
+
+    vec3 GetFinalShadowColor() {
+        return GetFinalShadowColor(0.0);
     }
 #else
-    float GetFinalShadowFactor() {
+    float GetFinalShadowFactor(const in float sss) {
         float shadow = 1.0;
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -26,10 +37,21 @@
                 if (tile >= 0)
                     shadow = GetShadowFactor(shadowPos[tile], tile);
             #else
-                shadow = GetShadowFactor(shadowPos);
+                float bias = sss * (1.5 / 256.0);
+                shadow = GetShadowFactor(shadowPos, bias);
             #endif
         #endif
 
-        return shadow * max(vLit, 0.0);
+        // #if MATERIAL_SSS != SSS_NONE
+        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
+        // #else
+        //     shadowColor *= max(NoL, 0.0);
+        // #endif
+
+        return shadow;
+    }
+
+    float GetFinalShadowFactor() {
+        return GetFinalShadowFactor(0.0);
     }
 #endif

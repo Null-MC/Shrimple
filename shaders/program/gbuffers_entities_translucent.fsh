@@ -37,7 +37,7 @@ uniform sampler2D lightmap;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -166,8 +166,11 @@ uniform float blindness;
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
+#include "/lib/material/emission.glsl"
+#include "/lib/material/subsurface.glsl"
+
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/lighting/normalmap.glsl"
+    #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"
@@ -185,7 +188,7 @@ void main() {
         return;
     }
 
-    color.a = 1.0;
+    //color.a = 1.0;
     color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
     color.rgb = RGBToLinear(color.rgb);
 
@@ -194,16 +197,21 @@ void main() {
 
     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
 
+    float sss = GetMaterialSSS(entityId, texcoord);
+    float emission = GetMaterialEmission(entityId, texcoord);
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
 
-        if (skyGeoNoL < EPSILON) shadowColor = vec3(0.0);
+        if (skyGeoNoL < EPSILON && sss < EPSILON) {
+            shadowColor = vec3(0.0);
+        }
         else {
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                shadowColor = GetFinalShadowColor();
+                shadowColor = GetFinalShadowColor(sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor());
+                shadowColor = vec3(GetFinalShadowFactor(sss));
             #endif
         }
     #endif
@@ -211,22 +219,18 @@ void main() {
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = ApplyNormalMap(texcoord, localNormal, localTangent);
+        texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
 
         float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
-        shadowColor *= 1.5 * pow(skyTexNoL, 0.6);
-    #endif
 
-    #if MATERIAL_EMISSION == EMISSION_OLDPBR
-        float emission = texture(specular, texcoord).b;
-    #elif MATERIAL_EMISSION == EMISSION_LABPBR
-        float emission = texture(specular, texcoord).a;
-        if (emission > (254.5/255.0)) emission = 0.0;
-    #elif DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        float emission = GetSceneEntityLightColor(entityId).a / 15.0;
-    #endif
+        #if MATERIAL_SSS != SSS_NONE
+            skyTexNoL = mix(skyTexNoL, 1.0, sss);
+        #endif
 
-    const float sss = 0.0;
+        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    #else
+        shadowColor *= max(vLit, 0.0);
+    #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord.y, glcolor.a);
