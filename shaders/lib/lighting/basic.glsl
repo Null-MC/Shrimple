@@ -52,18 +52,23 @@
 
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
-                vec3 lightColor = light.color;
 
                 vec3 lightVec = light.position - lightFragPos;
                 if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
+                uint traceFace = 1u << GetLightMaskFace(-lightVec);
+                if ((light.data & traceFace) == traceFace) continue;
+
+                vec3 lightColor = light.color;
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    if (light.size > EPSILON) {
+                    if ((light.data & 1u) == 1u) {
                         vec3 traceOrigin = GetLightGridPosition(light.position);
                         vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                         #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                            ApplyLightPenumbraOffset(traceOrigin, light.size * 0.5);
+                            float size = ((light.data >> 8u) & 31u) / 31.0;
+                            size *= 0.5 * DynamicLightPenumbraF;
+                            ApplyLightPenumbraOffset(traceOrigin, size);
                         #endif
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY

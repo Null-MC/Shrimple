@@ -40,6 +40,18 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         uint bit = SceneLightMaps[gridIndex].Mask[intIndex] >> (maskIndex & 31);
         return (bit & 255);
     }
+
+    uint GetLightMaskFace(const in vec3 normal) {
+        vec3 normalAbs = abs(normal);
+
+        if (normalAbs.y > normalAbs.x && normalAbs.y > normalAbs.z)
+            return normal.y > 0 ? LIGHT_MASK_UP : LIGHT_MASK_DOWN;
+        
+        if (normalAbs.x > normalAbs.z)
+            return normal.x > 0 ? LIGHT_MASK_EAST : LIGHT_MASK_WEST;
+
+        return normal.z > 0 ? LIGHT_MASK_SOUTH : LIGHT_MASK_NORTH;
+    }
 #endif
 
 #if defined RENDER_SHADOW
@@ -80,9 +92,9 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         }
     #endif
 
-    void AddSceneLight(const in vec3 position, const in float range, const in vec3 color, const in float size) {
+    void AddSceneLight(const in SceneLightData light) {
         ivec3 gridCell, blockCell;
-        vec3 gridPos = GetLightGridPosition(position);
+        vec3 gridPos = GetLightGridPosition(light.position);
         if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
         uint gridIndex = GetSceneLightGridIndex(gridCell);
 
@@ -94,17 +106,17 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         uint lightIndex = atomicAdd(SceneLightCount, 1u);
         if (lightIndex >= LIGHT_MAX_COUNT) return;
 
-        SceneLights[lightIndex] = SceneLightData(position, range, color, size);
+        SceneLights[lightIndex] = light;
         ivec2 uv = GetSceneLightUV(gridIndex, gridLightIndex);
         imageStore(imgSceneLights, uv, uvec4(lightIndex));
 
         #ifdef LIGHT_COLOR_NEIGHBORS
-            float neighborRange = range;//max(range - 1.5, 0.0);
+            float neighborRange = light.range;//max(range - 1.5, 0.0);
 
-            vec3 neighborGridPosMin = GetLightGridPosition(position - neighborRange);
+            vec3 neighborGridPosMin = GetLightGridPosition(light.position - neighborRange);
             ivec3 neighborGridCellMin = GetSceneLightGridCell(neighborGridPosMin);
 
-            vec3 neighborGridPosMax = GetLightGridPosition(position + neighborRange);
+            vec3 neighborGridPosMax = GetLightGridPosition(light.position + neighborRange);
             ivec3 neighborGridCellMax = GetSceneLightGridCell(neighborGridPosMax);
 
             vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
@@ -116,7 +128,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
                         if (neighborGridCell == gridCell || any(lessThan(neighborGridCell, ivec3(0.0))) || any(greaterThanEqual(neighborGridCell, SceneLightGridSize))) continue;
 
                         vec3 binPos = (neighborGridCell + 0.5) * LIGHT_BIN_SIZE + 0.5 - LightGridCenter - cameraOffset;
-                        if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, position, neighborRange)) continue;
+                        if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, neighborRange)) continue;
 
                         uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
                         uint neighborLightIndex = atomicAdd(SceneLightMaps[neighborGridIndex].LightCount, 1u);

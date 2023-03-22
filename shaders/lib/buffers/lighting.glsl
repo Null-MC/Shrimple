@@ -1,9 +1,16 @@
+#define LIGHT_MASK_UP 1u
+#define LIGHT_MASK_DOWN 2u
+#define LIGHT_MASK_NORTH 3u
+#define LIGHT_MASK_SOUTH 4u
+#define LIGHT_MASK_WEST 5u
+#define LIGHT_MASK_EAST 6u
+
+
 struct SceneLightData {
     vec3 position;
     float range;
     vec3 color;
-    float size;
-    //uint data;
+    uint data;
 };
 
 struct LightCellData {

@@ -146,7 +146,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case ITEM_GLOW_LICHEN:
             lightColor = vec3(0.173, 0.374, 0.252);
             break;
-        case BLOCK_JACK_O_LANTERN:
+        case BLOCK_JACK_O_LANTERN_N:
+        case BLOCK_JACK_O_LANTERN_E:
+        case BLOCK_JACK_O_LANTERN_S:
+        case BLOCK_JACK_O_LANTERN_W:
         case ITEM_JACK_O_LANTERN:
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
@@ -264,7 +267,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
 
         if (blockId == BLOCK_CANDLES_LIT_1 || blockId == BLOCK_CANDLES_LIT_2
          || blockId == BLOCK_CANDLES_LIT_3 || blockId == BLOCK_CANDLES_LIT_4
-         || blockId == BLOCK_CANDLE_CAKE_LIT || blockId == BLOCK_JACK_O_LANTERN) {
+         || blockId == BLOCK_CANDLE_CAKE_LIT || (blockId >= BLOCK_JACK_O_LANTERN_N && blockId <= BLOCK_JACK_O_LANTERN_W)) {
             float candleTemp = mix(2600, 3600, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
@@ -333,7 +336,10 @@ float GetSceneBlockLightRange(const in int blockId) {
         case ITEM_GLOW_LICHEN:
             lightRange = 7.0;
             break;
-        case BLOCK_JACK_O_LANTERN:
+        case BLOCK_JACK_O_LANTERN_N:
+        case BLOCK_JACK_O_LANTERN_E:
+        case BLOCK_JACK_O_LANTERN_S:
+        case BLOCK_JACK_O_LANTERN_W:
         case ITEM_JACK_O_LANTERN:
             lightRange = 15.0;
             break;
@@ -575,7 +581,7 @@ float GetSceneBlockLightSize(const in int blockId) {
 
     //if (blockId == BLOCK_CAVEVINE_BERRIES) size = 0.4;
 
-    return size * max(DynamicLightPenumbraF, 0.01);
+    return size;
 }
 
 #ifdef RENDER_SHADOW
@@ -1195,6 +1201,66 @@ float GetSceneBlockLightSize(const in int blockId) {
         }
     #endif
 
+    uint BuildBlockLightMask(const in int blockId, const in float lightSize) {
+        uint lightData;
+
+        // trace
+        lightData = lightSize > EPSILON ? 1u : 0u;
+
+        switch (blockId) {
+            case BLOCK_BEACON:
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                break;
+            case BLOCK_JACK_O_LANTERN_N:
+                lightData |= 1u << LIGHT_MASK_UP;
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                lightData |= 1u << LIGHT_MASK_SOUTH;
+                lightData |= 1u << LIGHT_MASK_WEST;
+                lightData |= 1u << LIGHT_MASK_EAST;
+                break;
+            case BLOCK_JACK_O_LANTERN_E:
+                lightData |= 1u << LIGHT_MASK_UP;
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                lightData |= 1u << LIGHT_MASK_NORTH;
+                lightData |= 1u << LIGHT_MASK_SOUTH;
+                lightData |= 1u << LIGHT_MASK_WEST;
+                break;
+            case BLOCK_JACK_O_LANTERN_S:
+                lightData |= 1u << LIGHT_MASK_UP;
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                lightData |= 1u << LIGHT_MASK_NORTH;
+                lightData |= 1u << LIGHT_MASK_WEST;
+                lightData |= 1u << LIGHT_MASK_EAST;
+                break;
+            case BLOCK_JACK_O_LANTERN_W:
+                lightData |= 1u << LIGHT_MASK_UP;
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                lightData |= 1u << LIGHT_MASK_NORTH;
+                lightData |= 1u << LIGHT_MASK_SOUTH;
+                lightData |= 1u << LIGHT_MASK_EAST;
+                break;
+            case BLOCK_LANTERN:
+            case BLOCK_SOUL_LANTERN:
+                lightData |= 1u << LIGHT_MASK_UP;
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                break;
+        }
+
+        // faces
+        // lightData |= 1u << LIGHT_MASK_UP;
+        // lightData |= 1u << LIGHT_MASK_DOWN;
+        // lightData |= 1u << LIGHT_MASK_NORTH;
+        // lightData |= 1u << LIGHT_MASK_SOUTH;
+        // lightData |= 1u << LIGHT_MASK_WEST;
+        // lightData |= 1u << LIGHT_MASK_EAST;
+
+        // size
+        uint bitSize = uint(saturate(lightSize) * 31.0 + 0.5);
+        lightData |= bitSize << 8u;
+
+        return lightData;
+    }
+
     void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
         vec3 lightOffset = vec3(0.0);
         vec3 lightColorFinal = lightColor;
@@ -1268,7 +1334,10 @@ float GetSceneBlockLightSize(const in int blockId) {
                 case ITEM_GLOW_LICHEN:
                     glow = 0.2;
                     break;
-                case BLOCK_JACK_O_LANTERN:
+                case BLOCK_JACK_O_LANTERN_N:
+                case BLOCK_JACK_O_LANTERN_E:
+                case BLOCK_JACK_O_LANTERN_S:
+                case BLOCK_JACK_O_LANTERN_W:
                 case ITEM_JACK_O_LANTERN:
                     flicker = 0.3;
                     break;
@@ -1415,7 +1484,10 @@ float GetSceneBlockLightSize(const in int blockId) {
             #endif
 
             float lightSize = GetSceneBlockLightSize(blockId);
-            AddSceneLight(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightSize);
+            uint lightData = BuildBlockLightMask(blockId, lightSize);
+            SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightData);
+
+            AddSceneLight(light);
         }
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             else if (IsDynLightSolidBlock(blockId)) {
