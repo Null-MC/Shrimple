@@ -27,7 +27,7 @@
 
     float SampleLight(const in vec3 lightVec, const in float lightNoLm, const in float lightRange) {
         float lightDist = length(lightVec);
-        vec3 lightDir = lightVec / max(lightDist, EPSILON);
+        //vec3 lightDir = lightVec / max(lightDist, EPSILON);
         //lightDist = max(lightDist - 0.5, 0.0);
 
         float lightAtt = 1.0 - saturate(lightDist / lightRange);
@@ -53,23 +53,23 @@
             for (int i = 0; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
-                vec3 lightVec = light.position - lightFragPos;
-                if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                vec3 lightPos = light.position;
+                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                    float size = ((light.data >> 8u) & 31u) / 31.0;
+                    size *= 0.5 * DynamicLightPenumbraF;
+                    ApplyLightPenumbraOffset(lightPos, size);
+                #endif
 
-                uint traceFace = 1u << GetLightMaskFace(-lightVec);
+                vec3 lightVec = lightFragPos - lightPos;
+                uint traceFace = 1u << GetLightMaskFace(lightVec);
                 if ((light.data & traceFace) == traceFace) continue;
+                if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
                 vec3 lightColor = light.color;
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     if ((light.data & 1u) == 1u) {
-                        vec3 traceOrigin = GetLightGridPosition(light.position);
-                        vec3 traceEnd = traceOrigin - 0.99*lightVec;
-
-                        #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                            float size = ((light.data >> 8u) & 31u) / 31.0;
-                            size *= 0.5 * DynamicLightPenumbraF;
-                            ApplyLightPenumbraOffset(traceOrigin, size);
-                        #endif
+                        vec3 traceOrigin = GetLightGridPosition(lightPos);
+                        vec3 traceEnd = traceOrigin + 0.99*lightVec;
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                             lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
@@ -79,7 +79,7 @@
                     }
                 #endif
 
-                vec3 lightDir = normalize(lightVec);
+                vec3 lightDir = normalize(-lightVec);
                 float lightNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
 
                 if (lightNoLm > EPSILON)

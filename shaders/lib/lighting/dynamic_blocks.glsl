@@ -546,9 +546,14 @@ float GetSceneBlockLightSize(const in int blockId) {
             break;
         case BLOCK_CAMPFIRE_LIT:
         case BLOCK_SOUL_CAMPFIRE_LIT:
+        case BLOCK_LAVA_CAULDRON:
             size = 0.8;
             break;
         case BLOCK_BEACON:
+        case BLOCK_JACK_O_LANTERN_N:
+        case BLOCK_JACK_O_LANTERN_E:
+        case BLOCK_JACK_O_LANTERN_S:
+        case BLOCK_JACK_O_LANTERN_W:
             size = 0.6;
             break;
         case BLOCK_END_ROD:
@@ -1244,15 +1249,14 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_UP;
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 break;
+            case BLOCK_LAVA_CAULDRON:
+                lightData |= 1u << LIGHT_MASK_DOWN;
+                lightData |= 1u << LIGHT_MASK_NORTH;
+                lightData |= 1u << LIGHT_MASK_SOUTH;
+                lightData |= 1u << LIGHT_MASK_WEST;
+                lightData |= 1u << LIGHT_MASK_EAST;
+                break;
         }
-
-        // faces
-        // lightData |= 1u << LIGHT_MASK_UP;
-        // lightData |= 1u << LIGHT_MASK_DOWN;
-        // lightData |= 1u << LIGHT_MASK_NORTH;
-        // lightData |= 1u << LIGHT_MASK_SOUTH;
-        // lightData |= 1u << LIGHT_MASK_WEST;
-        // lightData |= 1u << LIGHT_MASK_EAST;
 
         // size
         uint bitSize = uint(saturate(lightSize) * 31.0 + 0.5);
@@ -1334,11 +1338,31 @@ float GetSceneBlockLightSize(const in int blockId) {
                 case ITEM_GLOW_LICHEN:
                     glow = 0.2;
                     break;
-                case BLOCK_JACK_O_LANTERN_N:
-                case BLOCK_JACK_O_LANTERN_E:
-                case BLOCK_JACK_O_LANTERN_S:
-                case BLOCK_JACK_O_LANTERN_W:
                 case ITEM_JACK_O_LANTERN:
+                    flicker = 0.3;
+                    break;
+                case BLOCK_JACK_O_LANTERN_N:
+                    #if DYN_LIGHT_PENUMBRA > 0
+                        lightOffset = vec3(0.0, -0.3, -0.4);
+                    #endif
+                    flicker = 0.3;
+                    break;
+                case BLOCK_JACK_O_LANTERN_E:
+                    #if DYN_LIGHT_PENUMBRA > 0
+                        lightOffset = vec3(0.4, -0.3, 0.0);
+                    #endif
+                    flicker = 0.3;
+                    break;
+                case BLOCK_JACK_O_LANTERN_S:
+                    #if DYN_LIGHT_PENUMBRA > 0
+                        lightOffset = vec3(0.0, -0.3, 0.4);
+                    #endif
+                    flicker = 0.3;
+                    break;
+                case BLOCK_JACK_O_LANTERN_W:
+                    #if DYN_LIGHT_PENUMBRA > 0
+                        lightOffset = vec3(-0.4, -0.3, 0.0);
+                    #endif
                     flicker = 0.3;
                     break;
                 case BLOCK_LANTERN:
@@ -1357,6 +1381,11 @@ float GetSceneBlockLightSize(const in int blockId) {
                     glow = 0.4;
                     break;
                 case BLOCK_LAVA_CAULDRON:
+                    #if DYN_LIGHT_PENUMBRA > 0
+                        lightOffset = vec3(0.0, 0.4, 0.0);
+                    #else
+                        lightOffset = vec3(0.0, 0.2, 0.0);
+                    #endif
                     glow = 0.4;
                     break;
                 case BLOCK_MAGMA:
