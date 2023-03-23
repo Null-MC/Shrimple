@@ -206,6 +206,9 @@ value.DYN_LIGHT_RES.2=Quarter
 option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
+option.DYN_LIGHT_TA=Temporal Accumulation
+option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
+
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
 

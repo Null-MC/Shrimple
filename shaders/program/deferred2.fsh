@@ -258,16 +258,17 @@ void main() {
                     //     float normalWeight = 1.0 - dot(localNormal.xyz, normalPrev);
                     // #endif
 
-                    float depthPrevLinear = linearizeDepthFast(depthPrev, near, far);
+                    float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
+                    float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
-                    if (abs(depthLinear - depthPrevLinear) < 0.06) {// && normalWeight < 0.06) {
+                    if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
                         //float time = exp(-6.0 * frameTime);
 
                         vec3 blockLightPrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
                         //float weight = 0.02;
 
-                        float lum = luminance(blockLight);
-                        float lumPrev = luminance(blockLightPrev);
+                        float lum = log(luminance(blockLight));
+                        float lumPrev = log(luminance(blockLightPrev));
                         //float lumDiff = lum - lumPrev;
                         //if (lumDiff >  0.2) weight = 0.3;
                         //if (lumDiff < -0.1) weight = 0.2;
@@ -307,7 +308,7 @@ void main() {
         #endif
 
         vec3 albedo = RGBToLinear(deferredColor);
-        final = GetFinalLighting(albedo, blockLight, deferredShadow, deferredLighting.y, deferredLighting.z);
+        final = GetFinalLighting(albedo, blockLight, deferredShadow, deferredLighting.xy, deferredLighting.z);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);

@@ -182,7 +182,7 @@ void main() {
         #endif
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord.y, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

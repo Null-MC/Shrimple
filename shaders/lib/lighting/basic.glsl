@@ -383,12 +383,12 @@
             return blockLight;
         }
 
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in float lmcoordY, const in float occlusion) {
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in vec2 lmcoord, const in float occlusion) {
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
                 #else
-                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
                 #endif
 
                 skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
@@ -400,7 +400,13 @@
                 const float skyLight = 1.0;
             #endif
 
-            vec3 ambient = albedo * skyLight * occlusion * ShadowBrightnessF;
+            vec3 ambientLight = skyLight;
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_DEFERRED
+                ambientLight = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
+                ambientLight = RGBToLinear(ambientLight);
+            #endif
+
+            vec3 ambient = albedo * ambientLight * occlusion * ShadowBrightnessF;
             vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));
             return ambient + diffuse;
         }

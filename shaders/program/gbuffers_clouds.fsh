@@ -143,12 +143,6 @@ void main() {
 
     final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);
 
-    //const vec3 vBlockLight = vec3(0.0);
-    
-    //vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, normal, 0.0, 0.0, 0.0);
-    //final.rgb = GetFinalLighting(final.rgb, blockLightColor, shadowColor, vPos, vec2(0.0), 1.0);
-    //final.rgb += blockLightColor;
-
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         const vec3 normal = vec3(0.0);
         final.rgb += SampleDynamicLighting(vLocalPos, normal, normal, 0.0, vec3(0.0));

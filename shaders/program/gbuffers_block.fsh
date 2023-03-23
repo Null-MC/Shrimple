@@ -167,7 +167,7 @@ void main() {
     #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, vLocalNormal, lmcoord.x);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord.y, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockLightColor, lightColor, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
