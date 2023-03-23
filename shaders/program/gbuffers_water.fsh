@@ -267,12 +267,22 @@ void main() {
             color.a = max(color.a, F);
         }
         else {
-            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
+                float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+            #else
+                float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+            #endif
+
             float F = F_schlick(NoVmax, 0.04, 1.0);
             color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
         }
     #else
-        float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+        #else
+            float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+        #endif
+
         float F = F_schlick(NoVmax, 0.04, 1.0);
         color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
     #endif

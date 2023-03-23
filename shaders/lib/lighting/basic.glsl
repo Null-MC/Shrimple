@@ -55,7 +55,7 @@
 
                 vec3 lightPos = light.position;
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                         float size = ((light.data >> 8u) & 31u) / 31.0;
                         size *= 0.5 * DynamicLightPenumbraF;
                         ApplyLightPenumbraOffset(lightPos, size);
