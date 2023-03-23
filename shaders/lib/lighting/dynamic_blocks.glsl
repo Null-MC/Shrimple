@@ -1378,26 +1378,24 @@ float GetSceneBlockLightSize(const in int blockId) {
                     flicker = 0.3;
                     break;
                 case BLOCK_JACK_O_LANTERN_N:
-                    #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.0, -0.3, -0.4);
-                    #endif
+                    lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
                     flicker = 0.3;
                     break;
                 case BLOCK_JACK_O_LANTERN_E:
                     #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.4, -0.3, 0.0);
+                        lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
                     #endif
                     flicker = 0.3;
                     break;
                 case BLOCK_JACK_O_LANTERN_S:
                     #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.0, -0.3, 0.4);
+                        lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
                     #endif
                     flicker = 0.3;
                     break;
                 case BLOCK_JACK_O_LANTERN_W:
                     #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(-0.4, -0.3, 0.0);
+                        lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
                     #endif
                     flicker = 0.3;
                     break;

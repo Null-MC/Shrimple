@@ -9,6 +9,9 @@ const int colortex3Format = RGBA32UI;
 const int colortex4Format = RGB16F;
 const int colortex5Format = RGB8;
 const int colortex6Format = R32F;
+const int colortex7Format = RGB16F;
+const int colortex8Format = RGB8;
+const int colortex9Format = R32F;
 */
 
 const bool generateShadowMipmap = false;
@@ -47,6 +50,18 @@ const bool colortex5Clear = false;
 const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex6MipmapEnabled = false;
 const bool colortex6Clear = false;
+
+const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex7MipmapEnabled = false;
+const bool colortex7Clear = false;
+
+const vec4 colortex8ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex8MipmapEnabled = false;
+const bool colortex8Clear = false;
+
+const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const bool colortex9MipmapEnabled = false;
+const bool colortex9Clear = false;
 
 
 // World Options
@@ -107,6 +122,7 @@ const bool colortex6Clear = false;
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_LPV
+#define DYN_LIGHT_TA
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
@@ -142,6 +158,10 @@ const bool colortex6Clear = false;
 #define TAU 6.2831853076
 #define EPSILON 1e-6
 #define GAMMA 2.2
+
+
+#ifdef DYN_LIGHT_BLUR
+#endif
 
 
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);

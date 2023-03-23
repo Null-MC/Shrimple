@@ -10,9 +10,6 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 uniform usampler2D BUFFER_DEFERRED_DATA;
-uniform sampler2D BUFFER_BLOCKLIGHT;
-uniform sampler2D BUFFER_LIGHT_NORMAL;
-uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
@@ -22,12 +19,9 @@ uniform sampler2D TEX_LIGHTMAP;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform int frameCounter;
-uniform mat4 gbufferPreviousModelView;
-uniform mat4 gbufferPreviousProjection;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
@@ -64,6 +58,12 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/basic.glsl"
 
 
+ivec2 GetTemporalOffset(const in int size) {
+    ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
+    return ivec2(coord.x % size, (coord.y / size) % size);
+}
+
+
 /* RENDERTARGETS: 4,5,6 */
 layout(location = 0) out vec4 outLight;
 layout(location = 1) out vec4 outNormal;
@@ -71,56 +71,29 @@ layout(location = 2) out vec4 outDepth;
 
 void main() {
     vec2 viewSize = vec2(viewWidth, viewHeight);
-    //vec2 bufferSize = viewSize / exp2(DYN_LIGHT_RES);
     const int resScale = int(exp2(DYN_LIGHT_RES));
 
-    //ivec2 offset;
-    vec2 pixelSize = rcp(viewSize);
-    //offset.x += (int(gl_FragCoord.x)) % 2;
-    //offset.y += (int(gl_FragCoord.y) /2) % 2;
+    vec2 tex2 = texcoord;
+    #ifdef DYN_LIGHT_TA
+        vec2 pixelSize = rcp(viewSize);
 
-    vec2 tex2 = texcoord;// - 0.5 * resScale * pixelSize;
+        #if DYN_LIGHT_RES == 2
+            tex2 += GetTemporalOffset(4) * pixelSize;
+        #elif DYN_LIGHT_RES == 1
+            tex2 += GetTemporalOffset(2) * pixelSize;
+        #endif
+    #endif
 
     float depth = textureLod(depthtex0, tex2, 0).r;
     outDepth = vec4(vec3(depth), 1.0);
 
     if (depth < 1.0) {
-        #if DYN_LIGHT_RES == 0
-            ivec2 deferredTexcoord = ivec2(tex2 * viewSize);
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, deferredTexcoord, 0);
-            vec4 localNormal = unpackUnorm4x8(deferredData.r);
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        #else
-            ivec2 deferredTexcoord = ivec2(tex2 * viewSize - 0.5) - resScale/2;
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, deferredTexcoord, 0);
-            uvec4 deferredData2 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(resScale, 0));
-            uvec4 deferredData3 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(0, resScale));
-            uvec4 deferredData4 = texelFetchOffset(BUFFER_DEFERRED_DATA, deferredTexcoord, 0, ivec2(resScale, resScale));
-
-            vec4 localNormal = unpackUnorm4x8(deferredData.r);
-            vec3 localNormal2 = unpackUnorm4x8(deferredData2.r).rgb;
-            vec3 localNormal3 = unpackUnorm4x8(deferredData3.r).rgb;
-            vec3 localNormal4 = unpackUnorm4x8(deferredData4.r).rgb;
-
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-            vec4 deferredLighting2 = unpackUnorm4x8(deferredData2.g);
-            vec4 deferredLighting3 = unpackUnorm4x8(deferredData3.g);
-            vec4 deferredLighting4 = unpackUnorm4x8(deferredData4.g);
-
-            vec2 pf = fract(tex2 * (viewSize / resScale));
-
-            vec4 deferredLightingX1 = mix(deferredLighting, deferredLighting2, pf.x);
-            vec4 deferredLightingX2 = mix(deferredLighting3, deferredLighting4, pf.x);
-            deferredLighting = mix(deferredLightingX1, deferredLightingX2, pf.y);
-            
-            vec3 localNormalX1 = mix(localNormal.xyz, localNormal2, pf.x);
-            vec3 localNormalX2 = mix(localNormal3, localNormal4, pf.x);
-            localNormal.xyz = mix(localNormalX1, localNormalX2, pf.y);
-        #endif
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(tex2 * viewSize), 0);
+        vec4 localNormal = unpackUnorm4x8(deferredData.r);
+        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
-
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         vec3 texNormal = vec3(0.0);
         #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -136,51 +109,9 @@ void main() {
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
         vec3 blockLight;
-        vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
-        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
-
         blockLight = GetFinalBlockLighting(localPos, localNormal.xyz, texNormal, deferredLighting.x, deferredLighting.a, localNormal.w);
         blockLight += SampleHandLight(localPos, localNormal.xyz, texNormal, localNormal.w);
-
         blockLight *= 1.0 - deferredFog.a;
-
-        #if DYN_LIGHT_PENUMBRA > 0
-            vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
-            if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
-                vec3 normalPrev = textureLod(BUFFER_LIGHT_NORMAL, uvPrev.xy, 0).rgb;
-                float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev.xy, 0).r;
-
-                if (any(greaterThan(normalPrev, EPSILON3)))
-                    normalPrev = normalize(normalPrev * 2.0 - 1.0);
-
-                #if MATERIAL_NORMALS != NORMALMAP_NONE
-                    float normalWeight = 1.0 - dot(texNormal, normalPrev);
-                #else
-                    float normalWeight = 1.0 - dot(localNormal.xyz, normalPrev);
-                #endif
-
-                float depthLinear = linearizeDepthFast(uvPrev.z, near, far);
-                float depthPrevLinear = linearizeDepthFast(depthPrev, near, far);
-
-                if (abs(depthLinear - depthPrevLinear) < 0.06 && normalWeight < 0.06) {
-                    //float time = exp(-6.0 * frameTime);
-
-                    vec3 blockLightPrev = textureLod(BUFFER_BLOCKLIGHT, uvPrev.xy, 0).rgb;
-                    //float weight = 0.02;
-
-                    float lum = luminance(blockLight);
-                    float lumPrev = luminance(blockLightPrev);
-                    //float lumDiff = lum - lumPrev;
-                    //if (lumDiff >  0.2) weight = 0.3;
-                    //if (lumDiff < -0.1) weight = 0.2;
-
-                    float weight = smoothstep(abs(lum - lumPrev), 0.0, 0.08) * 0.3 + 0.04;
-
-                    blockLight = mix(blockLight, blockLightPrev, 1.0 - weight);
-                }
-            }
-        #endif
 
         outLight = vec4(blockLight, 1.0);
 

@@ -54,16 +54,20 @@
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
                 vec3 lightPos = light.position;
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                    float size = ((light.data >> 8u) & 31u) / 31.0;
-                    size *= 0.5 * DynamicLightPenumbraF;
-                    ApplyLightPenumbraOffset(lightPos, size);
-                #endif
+                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                        float size = ((light.data >> 8u) & 31u) / 31.0;
+                        size *= 0.5 * DynamicLightPenumbraF;
+                        ApplyLightPenumbraOffset(lightPos, size);
+                    #endif
 
-                vec3 lightVec = lightFragPos - lightPos;
-                uint traceFace = 1u << GetLightMaskFace(lightVec);
-                if ((light.data & traceFace) == traceFace) continue;
-                if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                    vec3 lightVec = lightFragPos - lightPos;
+                    uint traceFace = 1u << GetLightMaskFace(lightVec);
+                    if ((light.data & traceFace) == traceFace) continue;
+                    if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                #else
+                    vec3 lightVec = lightFragPos - lightPos;
+                #endif
 
                 vec3 lightColor = light.color;
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
