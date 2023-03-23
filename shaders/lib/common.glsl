@@ -239,7 +239,8 @@ float pow4(const in float x) {
     return pow2(x2);
 }
 
-float pow3(const in float x) {return x * pow2(x);}
+float pow3(const in float x) {float x2 = x*x; return x * x2;}
+vec2  pow3(const in vec2  x) {vec2  x2 = x*x; return x * x2;}
 float pow5(const in float x) {return x * pow4(x);}
 
 float saturate(const in float x) {return clamp(x, 0.0, 1.0);}

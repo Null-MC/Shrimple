@@ -1274,11 +1274,11 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_SOUTH;
                 lightData |= 1u << LIGHT_MASK_EAST;
                 break;
-            case BLOCK_LANTERN:
-            case BLOCK_SOUL_LANTERN:
-                lightData |= 1u << LIGHT_MASK_UP;
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                break;
+            // case BLOCK_LANTERN:
+            // case BLOCK_SOUL_LANTERN:
+            //     lightData |= 1u << LIGHT_MASK_UP;
+            //     lightData |= 1u << LIGHT_MASK_DOWN;
+            //     break;
             case BLOCK_LAVA_CAULDRON:
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 lightData |= 1u << LIGHT_MASK_NORTH;
