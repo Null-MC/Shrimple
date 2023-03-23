@@ -106,7 +106,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case ITEM_BEACON:
             lightColor = vec3(1.0, 1.0, 1.0);
             break;
-        case BLOCK_BLAST_FURNACE_LIT:
+        case BLOCK_BLAST_FURNACE_LIT_N:
+        case BLOCK_BLAST_FURNACE_LIT_E:
+        case BLOCK_BLAST_FURNACE_LIT_S:
+        case BLOCK_BLAST_FURNACE_LIT_W:
             lightColor = vec3(0.697, 0.654, 0.458);
             break;
         case BLOCK_BREWING_STAND:
@@ -135,7 +138,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_FIRE:
             lightColor = vec3(0.851, 0.616, 0.239);
             break;
-        case BLOCK_FURNACE_LIT:
+        case BLOCK_FURNACE_LIT_N:
+        case BLOCK_FURNACE_LIT_E:
+        case BLOCK_FURNACE_LIT_S:
+        case BLOCK_FURNACE_LIT_W:
             lightColor = vec3(0.697, 0.654, 0.458);
             break;
         case BLOCK_GLOWSTONE:
@@ -227,7 +233,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case ITEM_SHROOMLIGHT:
             lightColor = vec3(0.848, 0.469, 0.205);
             break;
-        case BLOCK_SMOKER_LIT:
+        case BLOCK_SMOKER_LIT_N:
+        case BLOCK_SMOKER_LIT_E:
+        case BLOCK_SMOKER_LIT_S:
+        case BLOCK_SMOKER_LIT_W:
             lightColor = vec3(0.697, 0.654, 0.458);
             break;
         case BLOCK_SOUL_LANTERN:
@@ -288,7 +297,10 @@ float GetSceneBlockLightRange(const in int blockId) {
         case ITEM_BEACON:
             lightRange = 15.0;
             break;
-        case BLOCK_BLAST_FURNACE_LIT:
+        case BLOCK_BLAST_FURNACE_LIT_N:
+        case BLOCK_BLAST_FURNACE_LIT_E:
+        case BLOCK_BLAST_FURNACE_LIT_S:
+        case BLOCK_BLAST_FURNACE_LIT_W:
             lightRange = 6.0;
             break;
         case BLOCK_BREWING_STAND:
@@ -325,7 +337,10 @@ float GetSceneBlockLightRange(const in int blockId) {
         case BLOCK_FIRE:
             lightRange = 15.0;
             break;
-        case BLOCK_FURNACE_LIT:
+        case BLOCK_FURNACE_LIT_N:
+        case BLOCK_FURNACE_LIT_E:
+        case BLOCK_FURNACE_LIT_S:
+        case BLOCK_FURNACE_LIT_W:
             lightRange = 6.0;
             break;
         case BLOCK_GLOWSTONE:
@@ -419,7 +434,10 @@ float GetSceneBlockLightRange(const in int blockId) {
         case ITEM_SHROOMLIGHT:
             lightRange = 15.0;
             break;
-        case BLOCK_SMOKER_LIT:
+        case BLOCK_SMOKER_LIT_N:
+        case BLOCK_SMOKER_LIT_E:
+        case BLOCK_SMOKER_LIT_S:
+        case BLOCK_SMOKER_LIT_W:
             lightRange = 6.0;
             break;
         case BLOCK_SOUL_CAMPFIRE_LIT:
@@ -1217,6 +1235,9 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 break;
             case BLOCK_JACK_O_LANTERN_N:
+            case BLOCK_FURNACE_LIT_N:
+            case BLOCK_BLAST_FURNACE_LIT_N:
+            case BLOCK_SMOKER_LIT_N:
                 lightData |= 1u << LIGHT_MASK_UP;
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 lightData |= 1u << LIGHT_MASK_SOUTH;
@@ -1224,6 +1245,9 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_EAST;
                 break;
             case BLOCK_JACK_O_LANTERN_E:
+            case BLOCK_FURNACE_LIT_E:
+            case BLOCK_BLAST_FURNACE_LIT_E:
+            case BLOCK_SMOKER_LIT_E:
                 lightData |= 1u << LIGHT_MASK_UP;
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 lightData |= 1u << LIGHT_MASK_NORTH;
@@ -1231,6 +1255,9 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_WEST;
                 break;
             case BLOCK_JACK_O_LANTERN_S:
+            case BLOCK_FURNACE_LIT_S:
+            case BLOCK_BLAST_FURNACE_LIT_S:
+            case BLOCK_SMOKER_LIT_S:
                 lightData |= 1u << LIGHT_MASK_UP;
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 lightData |= 1u << LIGHT_MASK_NORTH;
@@ -1238,6 +1265,9 @@ float GetSceneBlockLightSize(const in int blockId) {
                 lightData |= 1u << LIGHT_MASK_EAST;
                 break;
             case BLOCK_JACK_O_LANTERN_W:
+            case BLOCK_FURNACE_LIT_W:
+            case BLOCK_BLAST_FURNACE_LIT_W:
+            case BLOCK_SMOKER_LIT_W:
                 lightData |= 1u << LIGHT_MASK_UP;
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 lightData |= 1u << LIGHT_MASK_NORTH;
@@ -1292,7 +1322,10 @@ float GetSceneBlockLightSize(const in int blockId) {
                 case BLOCK_BEACON:
                 case ITEM_BEACON:
                     break;
-                case BLOCK_BLAST_FURNACE_LIT:
+                case BLOCK_BLAST_FURNACE_LIT_N:
+                case BLOCK_BLAST_FURNACE_LIT_E:
+                case BLOCK_BLAST_FURNACE_LIT_S:
+                case BLOCK_BLAST_FURNACE_LIT_W:
                     lightOffset = vec3(0.0, -0.4, 0.0);
                     break;
                 case BLOCK_BREWING_STAND:
@@ -1327,7 +1360,10 @@ float GetSceneBlockLightSize(const in int blockId) {
                     lightOffset = vec3(0.0, -0.3, 0.0);
                     flicker = 0.5;
                     break;
-                case BLOCK_FURNACE_LIT:
+                case BLOCK_FURNACE_LIT_N:
+                case BLOCK_FURNACE_LIT_E:
+                case BLOCK_FURNACE_LIT_S:
+                case BLOCK_FURNACE_LIT_W:
                     lightOffset = vec3(0.0, -0.2, 0.0);
                     break;
                 case BLOCK_GLOWSTONE:
@@ -1446,7 +1482,10 @@ float GetSceneBlockLightSize(const in int blockId) {
                 case ITEM_SHROOMLIGHT:
                     glow = 0.6;
                     break;
-                case BLOCK_SMOKER_LIT:
+                case BLOCK_SMOKER_LIT_N:
+                case BLOCK_SMOKER_LIT_E:
+                case BLOCK_SMOKER_LIT_S:
+                case BLOCK_SMOKER_LIT_W:
                     lightOffset = vec3(0.0, -0.3, 0.0);
                     break;
                 case BLOCK_SOUL_FIRE:
