@@ -42,7 +42,9 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+
 uniform int entityId;
+uniform vec4 entityColor;
 
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;

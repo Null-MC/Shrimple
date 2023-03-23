@@ -122,10 +122,6 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
-    #include "/lib/world/water.glsl"
-#endif
-
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
@@ -139,6 +135,8 @@ uniform float blindness;
     
     #include "/lib/shadows/common.glsl"
 #endif
+
+#include "/lib/lighting/fresnel.glsl"
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/lighting.glsl"
@@ -186,13 +184,13 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
         float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
@@ -212,13 +210,15 @@ void main() {
         vec3 localTangent = normalize(vLocalTangent);
         texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
 
-        float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
 
-        #if MATERIAL_SSS != SSS_NONE
-            skyTexNoL = mix(skyTexNoL, 1.0, sss);
+            #if MATERIAL_SSS != SSS_NONE
+                skyTexNoL = mix(skyTexNoL, 1.0, sss);
+            #endif
+
+            shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
         #endif
-
-        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     #else
         shadowColor *= max(vLit, 0.0);
     #endif

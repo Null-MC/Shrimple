@@ -185,13 +185,13 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
         float skyGeoNoL = dot(localNormal, localLightDir);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
@@ -211,15 +211,17 @@ void main() {
         vec3 localTangent = normalize(vLocalTangent);
         texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
 
-        float skyTexNoL = dot(texNormal, localLightDir);
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            float skyTexNoL = dot(texNormal, localLightDir);
 
-        #if MATERIAL_SSS != SSS_NONE
-            skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
-        #else
-            skyTexNoL = max(skyTexNoL, 0.0);
+            #if MATERIAL_SSS != SSS_NONE
+                skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
+            #else
+                skyTexNoL = max(skyTexNoL, 0.0);
+            #endif
+
+            shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
         #endif
-
-        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     #else
         shadowColor *= max(vLit, 0.0);
     #endif

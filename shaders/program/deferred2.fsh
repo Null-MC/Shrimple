@@ -150,6 +150,11 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
     return accum / total;
 }
 
+ivec2 GetTemporalOffset(const in int size) {
+    ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
+    return ivec2(coord.x % size, (coord.y / size) % size);
+}
+
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     /* RENDERTARGETS: 0,7,8,9 */
@@ -239,6 +244,17 @@ void main() {
                 vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
 
                 vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
+
+                // #ifdef DYN_LIGHT_TA
+                //     vec2 pixelSize = rcp(viewSize);
+
+                //     #if DYN_LIGHT_RES == 2
+                //         uvPrev.xy -= GetTemporalOffset(4) * pixelSize;
+                //     #elif DYN_LIGHT_RES == 1
+                //         uvPrev.xy -= GetTemporalOffset(2) * pixelSize;
+                //     #endif
+                // #endif
+
                 if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
                     //float lightDepth = textureLod(BUFFER_LIGHT_DEPTH, texcoord, 0).r;
 
