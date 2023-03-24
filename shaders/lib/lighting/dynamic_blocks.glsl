@@ -1,9 +1,7 @@
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsDynLightSolidBlock(const in int blockId) {
-        if (blockId == BLOCK_WATER) return false;
-        if (blockId >= 200 && blockId < 500) return false;
-        //if (blockId >= 541) return false;
-        return true;
+        if (blockId < 1) return true;
+        return blockId >= 500 && blockId < 700;
     }
 #endif
 
@@ -611,6 +609,7 @@ float GetSceneBlockLightSize(const in int blockId) {
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint GetBlockType(const in int blockId) {
             uint blockType = BLOCKTYPE_SOLID;
+            if (blockId < 1) return blockType;
 
             switch (blockId) {
                 case BLOCK_ANVIL_N_S:
