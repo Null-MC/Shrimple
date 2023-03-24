@@ -43,6 +43,7 @@ uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
@@ -69,7 +70,7 @@ uniform int entityId;
     uniform float frameTimeCounter;
     //uniform mat4 gbufferModelView;
     //uniform mat4 gbufferModelViewInverse;
-    uniform vec3 cameraPosition;
+    //uniform vec3 cameraPosition;
     //uniform float far;
 
     uniform float blindness;
@@ -113,6 +114,7 @@ uniform int entityId;
     #endif
 #endif
 
+#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
@@ -177,15 +179,45 @@ uniform int entityId;
 #endif
 
 void main() {
-    vec4 color = texture(gtexture, texcoord);
+    vec4 color = vec4(1.0);
+    if (entityId == ENTITY_PHYSICSMOD_SNOW) {
+        vec3 pos = (vLocalPos + cameraPosition) * 64.0;
+        vec3 posMin = floor(pos);
+        vec3 posMax = ceil(pos);
+        vec3 f = fract(pos);
 
-    if (color.a < alphaTestRef) {
-        discard;
-        return;
+        float density_x1y1z1 = hash13(posMin);
+        float density_x2y1z1 = hash13(vec3(posMax.x, posMin.y, posMin.z));
+        float density_x1y2z1 = hash13(vec3(posMin.x, posMax.y, posMin.z));
+        float density_x2y2z1 = hash13(vec3(posMax.x, posMax.y, posMin.z));
+        float density_x1y1z2 = hash13(vec3(posMin.x, posMin.y, posMax.z));
+        float density_x2y1z2 = hash13(vec3(posMax.x, posMin.y, posMax.z));
+        float density_x1y2z2 = hash13(vec3(posMin.x, posMax.y, posMax.z));
+        float density_x2y2z2 = hash13(posMax);
+
+        float density_y1z1 = mix(density_x1y1z1, density_x2y1z1, f.x);
+        float density_y2z1 = mix(density_x1y2z1, density_x2y2z1, f.x);
+        float density_z1 = mix(density_y1z1, density_y2z1, f.y);
+        float density_y1z2 = mix(density_x1y1z2, density_x2y1z2, f.x);
+        float density_y2z2 = mix(density_x1y2z2, density_x2y2z2, f.x);
+        float density_z2 = mix(density_y1z2, density_y2z2, f.y);
+        float density = mix(density_z1, density_z2, f.z);
+
+        const vec3 snowDark = vec3(0.758, 0.842, 0.869);
+        const vec3 snowLight = vec3(0.837, 0.904, 0.901);
+        color.rgb = mix(snowDark, snowLight, density);
     }
+    else {
+        color = texture(gtexture, texcoord);
 
-    color.a = 1.0;
-    color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+        if (color.a < alphaTestRef) {
+            discard;
+            return;
+        }
+
+        color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+        color.a = 1.0;
+    }
 
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;

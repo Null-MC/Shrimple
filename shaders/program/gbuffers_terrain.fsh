@@ -210,20 +210,22 @@ void main() {
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         vec3 localTangent = normalize(vLocalTangent);
         texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
+    #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = dot(texNormal, localLightDir);
-
-            #if MATERIAL_SSS != SSS_NONE
-                skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
-            #else
-                skyTexNoL = max(skyTexNoL, 0.0);
-            #endif
-
-            shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            float skyNoL = dot(texNormal, localLightDir);
+        #else
+            float skyNoL = dot(localNormal, localLightDir);
         #endif
-    #else
-        shadowColor *= max(vLit, 0.0);
+
+        #if MATERIAL_SSS != SSS_NONE
+            skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
+        #else
+            skyNoL = max(skyNoL, 0.0);
+        #endif
+
+        shadowColor *= 1.2 * pow(skyNoL, 0.8);
     #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)

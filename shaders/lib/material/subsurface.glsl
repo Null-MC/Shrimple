@@ -1,6 +1,10 @@
 float GetMaterialSSS(const in int blockId, const in vec2 texcoord) {
     float sss = 0.0;
 
+    #ifdef RENDER_ENTITIES
+        //if (entityId == ENTITY_PHYSICSMOD_SNOW) return 0.8;
+    #endif
+
     #if MATERIAL_SSS == SSS_LABPBR
         sss = texture(specular, texcoord).b;
         sss = max(sss - 0.25, 0.0) / 0.75;
