@@ -1,7 +1,7 @@
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId < 1) return true;
-        return blockId >= 500 && blockId < 700;
+        return blockId >= 300 && blockId < 500;
     }
 #endif
 
@@ -204,6 +204,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_REDSTONE_WIRE_13:
         case BLOCK_REDSTONE_WIRE_14:
         case BLOCK_REDSTONE_WIRE_15:
+        case BLOCK_RAIL_POWERED:
         case ITEM_REDSTONE_TORCH:
             lightColor = vec3(0.697, 0.130, 0.051);
             break;
@@ -457,6 +458,10 @@ float GetSceneBlockLightRange(const in int blockId) {
             lightRange = 15.0;
             break;
 
+        case BLOCK_RAIL_POWERED:
+            lightRange = 3.0;
+            break;
+
         case BLOCK_COMPARATOR_LIT:
         case BLOCK_REPEATER_LIT:
             lightRange = 7.0;
@@ -518,7 +523,8 @@ float GetSceneBlockLightRange(const in int blockId) {
 float GetSceneBlockLightLevel(const in int blockId) {
     #if DYN_LIGHT_REDSTONE == 0
         if (blockId == BLOCK_COMPARATOR_LIT
-         || blockId == BLOCK_REPEATER_LIT) return 0.0;
+         || blockId == BLOCK_REPEATER_LIT
+         || blockId == BLOCK_RAIL_POWERED) return 0.0;
 
         if (blockId >= BLOCK_REDSTONE_WIRE_1
          && blockId <= BLOCK_REDSTONE_WIRE_15) return 0.0;
@@ -570,6 +576,7 @@ float GetSceneBlockLightSize(const in int blockId) {
         case BLOCK_JACK_O_LANTERN_E:
         case BLOCK_JACK_O_LANTERN_S:
         case BLOCK_JACK_O_LANTERN_W:
+        case BLOCK_RAIL_POWERED:
             size = 0.6;
             break;
         case BLOCK_END_ROD:
