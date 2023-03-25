@@ -264,7 +264,7 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
         if (blockId == BLOCK_TORCH || blockId == BLOCK_LANTERN || blockId == BLOCK_FIRE || blockId == BLOCK_CAMPFIRE_LIT) {
-            float torchTemp = mix(3000, 4000, flickerNoise);
+            float torchTemp = mix(1600, 3400, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 

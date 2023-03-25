@@ -2,16 +2,17 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 
 /*
 const int shadowcolor0Format = RGBA8;
-const int colortex0Format = RGB8;
-const int colortex1Format = RGB8;
-const int colortex2Format = RGB8;
-const int colortex3Format = RGBA32UI;
-const int colortex4Format = RGB16F;
-const int colortex5Format = RGB8;
-const int colortex6Format = R32F;
-const int colortex7Format = RGB16F;
-const int colortex8Format = RGB8;
-const int colortex9Format = R32F;
+const int colortex0Format  = RGB8;
+const int colortex1Format  = RGB8;
+const int colortex2Format  = RGB8;
+const int colortex3Format  = RGBA32UI;
+const int colortex4Format  = R11F_G11F_B10F;
+const int colortex5Format  = RGB8;
+const int colortex6Format  = R32F;
+const int colortex7Format  = R11F_G11F_B10F;
+const int colortex8Format  = RGB8;
+const int colortex9Format  = R32F;
+const int colortex10Format = RGBA16;
 */
 
 const bool generateShadowMipmap = false;
@@ -63,10 +64,16 @@ const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex9MipmapEnabled = false;
 const bool colortex9Clear = false;
 
+const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex10MipmapEnabled = false;
+const bool colortex10Clear = true;
+
 
 // World Options
 #define ENABLE_WAVING
 #define WATER_REFLECTIONS_ENABLED
+#define ATMOS_VL_SAMPLES 0 // [0 8 12 16 24]
+#define ATMOS_VL_RES 1 // [0 1 2]
 //#define OLD_LIGHTING
 #define FOLIAGE_UP
 
@@ -117,12 +124,15 @@ const bool colortex9Clear = false;
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 100 // [0 10 20 30 40 50 60 70 80 90 100]
-#define DYN_LIGHT_TEMPORAL 0 // [0 2 5]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
-#define DYN_LIGHT_LPV
 #define DYN_LIGHT_TA
+
+// EXPERIMENTAL
+#define DYN_LIGHT_VL
+#define DYN_LIGHT_VL_RT
+//#define DYN_LIGHT_LPV
 
 #define LIGHT_MAX_COUNT 4200000000u
 #define LIGHT_BIN_SIZE3 (LIGHT_BIN_SIZE*LIGHT_BIN_SIZE*LIGHT_BIN_SIZE)
@@ -160,6 +170,8 @@ const bool colortex9Clear = false;
 #define GAMMA 2.2
 
 
+#ifdef WATER_REFLECTIONS_ENABLED
+#endif
 #ifdef DYN_LIGHT_BLUR
 #endif
 
@@ -225,6 +237,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef DYN_LIGHT_REDSTONE_ENABLED
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
+#endif
+#ifdef DYN_LIGHT_VL
 #endif
 #ifdef IRIS_FEATURE_CLEARFIX
 #endif

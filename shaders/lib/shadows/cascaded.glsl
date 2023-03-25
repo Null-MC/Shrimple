@@ -113,16 +113,6 @@ float GetShadowOffsetBias(const in int cascade) {
            -matShadowProjection[2].z);
     }
 
-    bool CascadeContainsProjection(const in vec3 shadowViewPos, const in int cascade) {
-        return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade]))
-            && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade]));
-    }
-
-    bool CascadeIntersectsProjection(const in vec3 shadowViewPos, const in int cascade) {
-        return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
-            && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
-    }
-
     mat4 GetShadowTileProjectionMatrix(const in float cascadeSizes[4], const in int tile, out vec2 shadowViewMin, out vec2 shadowViewMax) {
         float tileSize = cascadeSizes[tile];
         float projectionSize = tileSize * 2.0 + 3.0;
@@ -182,6 +172,24 @@ float GetShadowOffsetBias(const in int cascade) {
     }
 #endif
 
+bool CascadeContainsPosition(const in vec3 shadowViewPos, const in int cascade, const in float padding) {
+    return all(greaterThan(shadowViewPos.xy + padding, cascadeViewMin[cascade]))
+        && all(lessThan(shadowViewPos.xy - padding, cascadeViewMax[cascade]));
+}
+
+bool CascadeIntersectsPosition(const in vec3 shadowViewPos, const in int cascade) {
+    return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
+        && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
+}
+
+int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
+    if (CascadeContainsPosition(shadowViewPos, 0, padding)) return 0;
+    if (CascadeContainsPosition(shadowViewPos, 1, padding)) return 1;
+    if (CascadeContainsPosition(shadowViewPos, 2, padding)) return 2;
+    if (CascadeContainsPosition(shadowViewPos, 3, padding)) return 3;
+    return -1;
+}
+
 #if (defined RENDER_VERTEX || defined RENDER_GEOMETRY) && !defined RENDER_COMPOSITE
     // returns: tile [0-3] or -1 if excluded
     int GetShadowTile(const in mat4 matShadowProjections[4], const in vec3 blockPos) {
@@ -192,7 +200,7 @@ float GetShadowOffsetBias(const in int cascade) {
         //#endif
 
         for (int i = 0; i < max; i++) {
-            if (CascadeContainsProjection(blockPos, i)) return i;
+            if (CascadeContainsPosition(blockPos, i, 1.5)) return i;
         }
 
         //#ifdef SHADOW_CSM_FITRANGE

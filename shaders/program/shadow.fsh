@@ -31,6 +31,13 @@ void main() {
 
 	vec4 color = texture(gtexture, gTexcoord);
 
+	#if SHADOW_COLORS == SHADOW_COLOR_IGNORED
+		if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && color.a < 0.9) {
+			discard;
+			return;
+		}
+	#endif
+	
 	if (renderStage != MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
 		if (color.a < alphaTestRef) {
 			discard;

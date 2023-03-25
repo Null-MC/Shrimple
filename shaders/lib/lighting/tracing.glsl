@@ -73,6 +73,57 @@ vec3 GetLightGlassTint(const in uint blockType) {
     return RGBToLinear(stepTint);
 }
 
+vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
+    vec3 traceRay = endPos - origin;
+    float traceRayLen = length(traceRay);
+    if (traceRayLen < EPSILON) return vec3(1.0);
+
+    vec3 direction = traceRay / traceRayLen;
+    float STEP_COUNT = 16;//ceil(traceRayLen);
+
+    vec3 stepSizes = 1.0 / abs(direction);
+    vec3 stepDir = sign(direction);
+    vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
+
+    float traceRayLen2 = pow2(traceRayLen);
+    vec3 color = vec3(1.0);
+    vec3 currPos = origin;
+    bool hit = false;
+
+    for (int i = 0; i < STEP_COUNT && !hit; i++) {
+        vec3 rayStart = currPos;
+
+        float closestDist = minOf(nextDist);
+        currPos += direction * closestDist;
+        if (dot(currPos - origin, traceRay) > traceRayLen2) break;
+
+        vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
+
+        nextDist -= closestDist;
+        nextDist += stepSizes * stepAxis;
+        
+        vec3 voxelPos = floor(0.5 * (currPos + rayStart));
+
+        ivec3 gridCell, blockCell;
+        if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
+            uint gridIndex = GetSceneLightGridIndex(gridCell);
+            uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+
+            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
+                vec3 glassTint = GetLightGlassTint(blockType);
+                color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
+            }
+            else if (blockType != BLOCKTYPE_EMPTY) {
+                //vec3 rayInv = rcp(currPos - rayStart);
+                hit = true;//TraceHitTest(blockType, rayStart - voxelPos, rayInv);
+                color = vec3(0.0);
+            }
+        }
+    }
+
+    return color;
+}
+
 vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 traceRay = endPos - origin;
     float traceRayLen = length(traceRay);

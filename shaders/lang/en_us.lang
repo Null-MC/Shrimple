@@ -6,6 +6,9 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 
+option.WATER_REFLECTIONS_ENABLED=Water Reflections
+option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
+
 option.ENABLE_WAVING=Waving Plants
 option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
 
@@ -21,6 +24,13 @@ option.FOLIAGE_UP=Upward Normals
 option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
 
 option.END_BRIGHTNESS=End Brightness
+
+option.ATMOS_VL_SAMPLES=Volumetric Lighting
+value.ATMOS_VL_SAMPLES.0=Disabled
+value.ATMOS_VL_SAMPLES.8=Low
+value.ATMOS_VL_SAMPLES.12=Medium
+value.ATMOS_VL_SAMPLES.16=High
+value.ATMOS_VL_SAMPLES.24=Very High
 
 
 screen.MATERIAL_OPTIONS=Materials
@@ -138,10 +148,6 @@ value.DYN_LIGHT_MODE.1=Per-Vertex
 value.DYN_LIGHT_MODE.2=Per-Pixel
 value.DYN_LIGHT_MODE.3=Ray-Traced
 
-option.DYN_LIGHT_COLORS=Color Mode
-value.DYN_LIGHT_COLORS.0=Hard-Coded
-value.DYN_LIGHT_COLORS.1=Resource-Pack
-
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
 suffix.DYN_LIGHT_BRIGHTNESS=%
@@ -152,10 +158,32 @@ option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness
 option.DYN_LIGHT_DIRECTIONAL=Directional
 suffix.DYN_LIGHT_DIRECTIONAL=%
 
+option.DYN_LIGHT_COLORS=Color Mode
+value.DYN_LIGHT_COLORS.0=Hard-Coded
+value.DYN_LIGHT_COLORS.1=Resource-Pack
+
+
+screen.DYNAMIC_LIGHT_TRACE_OPTIONS=Trace Options
+
+option.DYN_LIGHT_RES=Resolution
+value.DYN_LIGHT_RES.0=Full
+value.DYN_LIGHT_RES.1=Half
+value.DYN_LIGHT_RES.2=Quarter
+
+option.DYN_LIGHT_PENUMBRA=Penumbra Size
+option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
+value.DYN_LIGHT_PENUMBRA.0=None
+suffix.DYN_LIGHT_PENUMBRA=%
+
 option.DYN_LIGHT_TINT=Tint Strength
 option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through stained glass.
 suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
+
+option.DYN_LIGHT_VL=Volumetric
+
+
+screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
 
 option.DYN_LIGHT_LAVA=Lava Lighting
 option.DYN_LIGHT_LAVA.comment=Determines how lighting for lava is handled, to avoid heavy performance impacts from large lava lakes/sources.
@@ -170,7 +198,7 @@ value.DYN_LIGHT_REDSTONE.1=Emit
 value.DYN_LIGHT_REDSTONE.2=Trace
 
 
-screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
+screen.DYNAMIC_LIGHT_TRACE_ADVANCED_OPTIONS=Advanced
 
 option.LIGHT_BIN_SIZE=Bin Size
 option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.
@@ -186,22 +214,12 @@ option.DYN_LIGHT_TRACE_METHOD=Trace Method
 value.DYN_LIGHT_TRACE_METHOD.0=DDA
 value.DYN_LIGHT_TRACE_METHOD.1=Ray
 
-option.DYN_LIGHT_PENUMBRA=Penumbra Size
-option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
-value.DYN_LIGHT_PENUMBRA.0=None
-suffix.DYN_LIGHT_PENUMBRA=%
-
 option.DYN_LIGHT_RAY_QUALITY=Ray Quality
 option.DYN_LIGHT_RAY_QUALITY.comment=The quality of ray-traced shadows.
 value.DYN_LIGHT_RAY_QUALITY.1=Low
 value.DYN_LIGHT_RAY_QUALITY.2=Medium
 value.DYN_LIGHT_RAY_QUALITY.4=High
 value.DYN_LIGHT_RAY_QUALITY.8=Very High
-
-option.DYN_LIGHT_RES=Resolution
-value.DYN_LIGHT_RES.0=Full
-value.DYN_LIGHT_RES.1=Half
-value.DYN_LIGHT_RES.2=Quarter
 
 option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.

@@ -53,7 +53,8 @@
 #define BUFFER_LIGHT_TA colortex7
 #define BUFFER_LIGHT_TA_NORMAL colortex8
 #define BUFFER_LIGHT_TA_DEPTH colortex9
-#define TEX_LIGHTMAP colortex10
+#define BUFFER_VL colortex10
+#define TEX_LIGHTMAP colortex11
 #define TEX_LIGHT_NOISE noisetex
 
 

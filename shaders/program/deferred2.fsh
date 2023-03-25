@@ -1,3 +1,4 @@
+#define RENDER_DEFERRED_VL
 #define RENDER_DEFERRED
 #define RENDER_FRAG
 
@@ -7,34 +8,30 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
-uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
-uniform sampler2D BUFFER_FINAL;
-uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform sampler2D BUFFER_DEFERRED_SHADOW;
-uniform usampler2D BUFFER_DEFERRED_DATA;
-uniform sampler2D BUFFER_BLOCKLIGHT;
-uniform sampler2D BUFFER_LIGHT_NORMAL;
-uniform sampler2D BUFFER_LIGHT_DEPTH;
-uniform sampler2D TEX_LIGHTMAP;
 
-#ifdef DYN_LIGHT_TA
-    uniform sampler2D BUFFER_LIGHT_TA;
-    uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
-    uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    uniform sampler2D shadowtex0;
+
+    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        uniform sampler2D shadowtex1;
+    #endif
+
+    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+        uniform sampler2DShadow shadowtex0HW;
+    #endif
+
+    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 uniform int frameCounter;
+uniform float frameTime;
 uniform float frameTimeCounter;
-uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferPreviousProjection;
 uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
-uniform vec3 sunPosition;
-uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;
@@ -42,303 +39,64 @@ uniform float far;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
 
-uniform float blindness;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform mat4 shadowModelView;
+uniform mat4 shadowProjection;
+uniform vec3 shadowLightPosition;
 
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
-#endif
-
-#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
-#include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
-#include "/lib/sampling/bilateral_gaussian.glsl"
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/collisions.glsl"
     #include "/lib/lighting/tracing.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
-#include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic.glsl"
-#include "/lib/post/tonemap.glsl"
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #include "/lib/buffers/shadow.glsl"
 
-vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in vec3 g_sigma) {
-    const float c_halfSamplesX = 2.0;
-    const float c_halfSamplesY = 2.0;
-
-    const float lightBufferScale = exp2(DYN_LIGHT_RES);
-    const float lightBufferScaleInv = rcp(lightBufferScale);
-
-    vec2 viewSize = vec2(viewWidth, viewHeight);
-    vec2 lightBufferSize = viewSize * lightBufferScaleInv;
-    vec2 blendPixelSize = rcp(lightBufferSize);
-    vec2 screenPixelSize = rcp(viewSize);
-
-    float total = 0.0;
-    vec3 accum = vec3(0.0);
-    //vec3 defaultColor;
-    
-    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-        float fy = Gaussian(g_sigma.y, iy);
-
-        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
-            float fx = Gaussian(g_sigma.x, ix);
-
-            //vec2 sampleBlendTex = texcoord - 0.5 * screenPixelSize + (vec2(ix, iy) + 0.5) * blendPixelSize;
-            vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
-            vec3 sampleValue = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
-
-            //if (abs(iy) < EPSILON && abs(ix) < EPSILON) defaultColor = sampleValue;
-
-            //ivec2 iTexLight = ivec2(texcoord * lightBufferSize + sampleTex);
-            vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
-            float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
-
-            // ivec2 iTexLight = ivec2(texcoord * viewSize + sampleTex / lightBufferScale);
-            // float handClipDepth = texelFetch(depthtex2, iTexLight, 0).r;
-            // if (handClipDepth > sampleDepth) {
-            //     sampleDepth = sampleDepth * 2.0 - 1.0;
-            //     sampleDepth /= MC_HAND_DEPTH;
-            //     sampleDepth = sampleDepth * 0.5 + 0.5;
-            // }
-
-            sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
-            sampleDepth = linearizeDepthFast(sampleDepth, near, far);
-            
-            float normalWeight = max(dot(normal, sampleNormal), 0.0);
-            //float fv = Gaussian(g_sigma.z, 10.0*abs(sampleDepth - linearDepth) + 6.0*(1.0 - normalWeight));
-            float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 12.0*(1.0 - normalWeight));
-            
-            float weight = fx*fy*fv;
-            accum += weight * sampleValue;
-            total += weight;
-        }
-    }
-    
-    if (total <= EPSILON) return vec3(0.0);
-    return accum / total;
-}
-
-ivec2 GetTemporalOffset(const in int size) {
-    ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
-    return ivec2(coord.x % size, (coord.y / size) % size);
-}
-
-
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    /* RENDERTARGETS: 0,7,8,9 */
-    layout(location = 0) out vec4 outFinal;
-    layout(location = 1) out vec4 outTA;
-    layout(location = 2) out vec4 outTA_Normal;
-    layout(location = 3) out vec4 outTA_Depth;
-#else
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+        #include "/lib/shadows/cascaded_render.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+        #include "/lib/shadows/basic_render.glsl"
+    #endif
 #endif
 
+#include "/lib/world/volumetric_fog.glsl"
+
+
+/* RENDERTARGETS: 10 */
+layout(location = 0) out vec4 outVL;
+
 void main() {
-    ivec2 iTex = ivec2(gl_FragCoord.xy);
-    float depth = texelFetch(depthtex0, iTex, 0).r;
-    vec3 final;
+    float depth = textureLod(depthtex0, texcoord, 0).r;
 
-    if (depth < 1.0) {
-        vec2 viewSize = vec2(viewWidth, viewHeight);
+    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+    vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
-        vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-
-        vec3 texNormal = vec3(0.0);
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            texNormal = deferredTexture.rgb;
-
-            if (any(greaterThan(texNormal, EPSILON3)))
-                texNormal = normalize(texNormal * 2.0 - 1.0);
-        #endif
-
-        float linearDepth = linearizeDepthFast(depth, near, far);
-
-        #ifdef SHADOW_BLUR
-            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);// / linearDepth;
-                vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
-            #else
-                float shadowSigma = 3.0 / linearDepth;
-                vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
-            #endif
-        #else
-            vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
-        #endif
-
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-        vec3 localNormal = deferredNormal.rgb;
-
-        if (any(greaterThan(localNormal, EPSILON3)))
-            localNormal = normalize(localNormal * 2.0 - 1.0);
-
-        float emission = deferredLighting.a;
-        float sss = deferredNormal.a;
-
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            float depthLinear = linearizeDepthFast(depth, near, far);
-
-            #ifdef DYN_LIGHT_BLUR
-                const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / depthLinear;
-                #if MATERIAL_NORMALS != NORMALMAP_NONE
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, depthLinear, texNormal, lightSigma);
-                #else
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, depthLinear, localNormal, lightSigma);
-                #endif
-            #elif DYN_LIGHT_RES == 0
-                vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
-            #else
-                vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
-            #endif
-
-            #ifdef DYN_LIGHT_TA
-                // Use prev value if downscale depth/normal doesnt match
-                #if DYN_LIGHT_RES > 0
-                    // TODO
-                #endif
-
-
-                vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
-                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-                vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
-
-                vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
-
-                // #ifdef DYN_LIGHT_TA
-                //     vec2 pixelSize = rcp(viewSize);
-
-                //     #if DYN_LIGHT_RES == 2
-                //         uvPrev.xy -= GetTemporalOffset(4) * pixelSize;
-                //     #elif DYN_LIGHT_RES == 1
-                //         uvPrev.xy -= GetTemporalOffset(2) * pixelSize;
-                //     #endif
-                // #endif
-
-                if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
-                    //float lightDepth = textureLod(BUFFER_LIGHT_DEPTH, texcoord, 0).r;
-
-                    float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
-                    //vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
-
-
-                    // vec3 normalPrev = textureLod(BUFFER_LIGHT_NORMAL, uvPrev.xy, 0).rgb;
-                    // float depthPrev = textureLod(BUFFER_LIGHT_DEPTH, uvPrev.xy, 0).r;
-
-                    // if (any(greaterThan(normalPrev, EPSILON3)))
-                    //     normalPrev = normalize(normalPrev * 2.0 - 1.0);
-
-                    // #if MATERIAL_NORMALS != NORMALMAP_NONE
-                    //     float normalWeight = 1.0 - dot(texNormal, normalPrev);
-                    // #else
-                    //     float normalWeight = 1.0 - dot(localNormal.xyz, normalPrev);
-                    // #endif
-
-                    float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
-                    float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
-
-                    if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
-                        //float time = exp(-6.0 * frameTime);
-
-                        vec3 blockLightPrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
-                        //float weight = 0.02;
-
-                        float lum = log(luminance(blockLight));
-                        float lumPrev = log(luminance(blockLightPrev));
-                        //float lumDiff = lum - lumPrev;
-                        //if (lumDiff >  0.2) weight = 0.3;
-                        //if (lumDiff < -0.1) weight = 0.2;
-
-                        float lumDiff = saturate(abs(lum - lumPrev));
-                        float weight = smoothstep(0.0, 0.8, lumDiff)*0.25 + 0.02;
-
-                        blockLight = mix(blockLightPrev, blockLight, weight);
-                    }
-                }
-
-                outTA = vec4(blockLight, 1.0);
-                outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
-                outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
-            #endif
-
-
-            // #ifdef DYN_LIGHT_BLUR
-            //     const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / linearDepth;
-            //     #if MATERIAL_NORMALS != NORMALMAP_NONE
-            //         vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, texNormal, lightSigma);
-            //     #else
-            //         vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
-            //     #endif
-            // #else
-            //     #if DYN_LIGHT_RES == 0
-            //         vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
-            //     #else
-            //         vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
-            //     #endif
-            // #endif
-        #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, texNormal, deferredLighting.x, emission, sss);
-        #else
-            vec3 blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
-            blockLight = RGBToLinear(blockLight);
-        #endif
-
-        vec3 albedo = RGBToLinear(deferredColor);
-        final = GetFinalLighting(albedo, blockLight, deferredShadow, deferredLighting.xy, deferredLighting.z);
-
-        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-        final = mix(final, fogColorFinal, deferredFog.a);
-
-        ApplyPostProcessing(final);
-    }
-    else {
-        #ifdef WORLD_SKY_ENABLED
-            final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-        #else
-            final = RGBToLinear(fogColor) * GetWorldBrightnessF();
-            ApplyPostProcessing(final);
-        #endif
-    }
-
-    outFinal = vec4(final, 1.0);
+    outVL = GetVolumetricLighting(localViewDir, near, min(length(viewPos) - 0.05, far));
 }

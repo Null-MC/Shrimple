@@ -43,10 +43,6 @@ uniform sampler2D lightmap;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
-        uniform sampler2D BUFFER_BLOCKLIGHT_PREV;
-    #endif
-
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
         uniform sampler2D shadowcolor0;
     #endif
@@ -111,14 +107,6 @@ uniform int heldItemId2;
         uniform int heldBlockLightValue2;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
-    #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TEMPORAL > 0
-        uniform mat4 gbufferPreviousModelView;
-        uniform mat4 gbufferPreviousProjection;
-        uniform vec3 previousCameraPosition;
-        uniform float viewWidth;
-        uniform float viewHeight;
     #endif
 #endif
 

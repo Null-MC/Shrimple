@@ -35,12 +35,6 @@ struct LightCellData {
     vec3 sceneViewDown;
     vec3 sceneViewLeft;
 
-    #if DYN_LIGHT_TEMPORAL > 2
-        vec3 lightCameraPosition[4];
-        mat4 gbufferLightModelView[4];
-        mat4 gbufferLightProjection[4];
-    #endif
-
     SceneLightData SceneLights[];
 };
 

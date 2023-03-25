@@ -66,16 +66,15 @@ uniform sampler2D lightmap;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
 
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
+    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        uniform sampler2D shadowtex1;
     #endif
-    
+
+    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+        uniform sampler2DShadow shadowtex0HW;
+    #endif
+
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -93,7 +92,7 @@ uniform sampler2D lightmap;
         uniform vec3 eyePosition;
     #endif
 
-    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == SHADOW_COLOR_ENABLED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
         uniform sampler2D shadowcolor0;
     #endif
 #endif

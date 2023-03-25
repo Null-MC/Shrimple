@@ -1,3 +1,4 @@
+#define RENDER_DEFERRED_VL
 #define RENDER_DEFERRED
 #define RENDER_VERTEX
 

@@ -110,6 +110,14 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
+#if ATMOS_VL_SAMPLES > 0
+    uniform mat4 shadowModelView;
+    //uniform mat4 shadowProjection;
+    //uniform vec3 shadowLightPosition;
+    uniform float near;
+    //uniform float far;
+#endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -165,6 +173,11 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/basic.glsl"
+
+#if ATMOS_VL_SAMPLES > 0
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 
@@ -299,6 +312,11 @@ void main() {
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
+
+    #if ATMOS_VL_SAMPLES > 0
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #endif
 
     ApplyPostProcessing(color.rgb);
     outFinal = color;
