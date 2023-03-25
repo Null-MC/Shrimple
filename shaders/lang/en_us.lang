@@ -6,31 +6,37 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 
-option.WATER_REFLECTIONS_ENABLED=Water Reflections
-option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
-
-option.ENABLE_WAVING=Waving Plants
-option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
-
-option.OVERWORLD_BRIGHTNESS_DAY=Day Brightness
-
-option.OVERWORLD_BRIGHTNESS_NIGHT=Night Brightness
-
-option.OLD_LIGHTING=Old Lighting
-
-option.NETHER_BRIGHTNESS=Nether Brightness
-
-option.FOLIAGE_UP=Upward Normals
-option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
-
-option.END_BRIGHTNESS=End Brightness
-
 option.ATMOS_VL_SAMPLES=Volumetric Lighting
 value.ATMOS_VL_SAMPLES.0=Disabled
 value.ATMOS_VL_SAMPLES.8=Low
 value.ATMOS_VL_SAMPLES.12=Medium
 value.ATMOS_VL_SAMPLES.16=High
 value.ATMOS_VL_SAMPLES.24=Very High
+
+option.ATMOS_VL_DENSITY=Volumetric Density
+value.ATMOS_VL_DENSITY.800=Silent Hill
+
+option.WATER_REFLECTIONS_ENABLED=Water Reflections
+option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
+
+option.ENABLE_WAVING=Waving Plants
+option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
+
+option.OLD_LIGHTING=Old Lighting
+
+option.FOLIAGE_UP=Upward Normals
+option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
+
+
+screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
+
+option.OVERWORLD_BRIGHTNESS_DAY=Day Brightness
+
+option.OVERWORLD_BRIGHTNESS_NIGHT=Night Brightness
+
+option.NETHER_BRIGHTNESS=Nether Brightness
+
+option.END_BRIGHTNESS=End Brightness
 
 
 screen.MATERIAL_OPTIONS=Materials

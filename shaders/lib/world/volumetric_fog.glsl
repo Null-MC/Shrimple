@@ -5,8 +5,8 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    const float scatterF = 0.032;
-    const float extinction = 0.009;
+    const float scatterF = 0.032 * AtmosphereDensityF;
+    const float extinction = 0.009 * AtmosphereDensityF;
 
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;

@@ -73,6 +73,7 @@ const bool colortex10Clear = true;
 #define ENABLE_WAVING
 #define WATER_REFLECTIONS_ENABLED
 #define ATMOS_VL_SAMPLES 0 // [0 8 12 16 24]
+#define ATMOS_VL_DENSITY 100 // [25 50 75 100 125 150 175 200 250 300 400 800]
 #define ATMOS_VL_RES 1 // [0 1 2]
 //#define OLD_LIGHTING
 #define FOLIAGE_UP
@@ -181,6 +182,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
+const float AtmosphereDensityF = ATMOS_VL_DENSITY * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
