@@ -1,7 +1,7 @@
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsDynLightSolidBlock(const in int blockId) {
         if (blockId < 1) return true;
-        return blockId >= 300 && blockId < 500;
+        return blockId >= 300 && blockId < 600;
     }
 #endif
 
