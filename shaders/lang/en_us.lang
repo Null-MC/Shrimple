@@ -16,6 +16,11 @@ value.ATMOS_VL_SAMPLES.24=Very High
 option.ATMOS_VL_DENSITY=Volumetric Density
 value.ATMOS_VL_DENSITY.800=Silent Hill
 
+option.DYN_LIGHT_VL_RES=VL Resolution
+value.DYN_LIGHT_VL_RES.0=Full
+value.DYN_LIGHT_VL_RES.1=Half
+value.DYN_LIGHT_VL_RES.2=Quarter
+
 option.WATER_REFLECTIONS_ENABLED=Water Reflections
 option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
 
