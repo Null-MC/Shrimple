@@ -284,6 +284,7 @@ void main() {
     else {
         #ifdef WORLD_SKY_ENABLED
             final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+            final = RGBToLinear(final);
         #else
             final = RGBToLinear(fogColor) * GetWorldBrightnessF();
         #endif
