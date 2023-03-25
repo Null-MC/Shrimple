@@ -168,6 +168,9 @@ option.DYN_LIGHT_COLORS=Color Mode
 value.DYN_LIGHT_COLORS.0=Hard-Coded
 value.DYN_LIGHT_COLORS.1=Resource-Pack
 
+option.DYN_LIGHT_FALLBACK=Fallback
+option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
+
 
 screen.DYNAMIC_LIGHT_TRACE_OPTIONS=Trace Options
 
@@ -186,7 +189,10 @@ option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through st
 suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
 
-option.DYN_LIGHT_VL=Volumetric
+option.DYN_LIGHT_VL_MODE=Volumetric
+value.DYN_LIGHT_VL_MODE.0=Disabled
+value.DYN_LIGHT_VL_MODE.1=Emission
+value.DYN_LIGHT_VL_MODE.2=Traced
 
 
 screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
@@ -231,10 +237,7 @@ option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
 option.DYN_LIGHT_TA=Temporal Accumulation
-option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
-
-option.DYN_LIGHT_FALLBACK=Fallback
-option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
+option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
 
 
 screen.POST_OPTIONS=Post-Processing

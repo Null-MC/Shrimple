@@ -108,7 +108,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         vec3 traceLocalPos = localStep * (i + dither) + localStart;
 
-        #if defined DYN_LIGHT_VL && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+        #if DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
             uint gridIndex;
             int lightCount = GetSceneLights(traceLocalPos, gridIndex);
 
@@ -124,7 +124,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
                     vec3 lightColor = light.color;
-                    #ifdef DYN_LIGHT_VL_RT
+                    #if DYN_LIGHT_VL_MODE == 2
                         if ((light.data & 1u) == 1u) {
                             vec3 traceOrigin = GetLightGridPosition(light.position);
                             vec3 traceEnd = traceOrigin + 0.99*lightVec;
@@ -140,7 +140,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     accumDiffuse += SampleLight(lightVec, 1.0, light.range) * lightColor;
                 }
 
-                inScattering += 0.06 * accumDiffuse * DynamicLightBrightness;
+                inScattering += 0.04 * accumDiffuse * DynamicLightBrightness;
             }
         #endif
 

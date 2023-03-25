@@ -126,13 +126,13 @@ const bool colortex10Clear = true;
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_RES 1 // [0 1 2]
+#define DYN_LIGHT_VL_MODE 0 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_TA
 
 // EXPERIMENTAL
-#define DYN_LIGHT_VL
-#define DYN_LIGHT_VL_RT
+#define DYN_LIGHT_VL_RES 2 // [0 1 2]
 //#define DYN_LIGHT_LPV
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -239,8 +239,6 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #ifdef DYN_LIGHT_REDSTONE_ENABLED
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
-#endif
-#ifdef DYN_LIGHT_VL
 #endif
 #ifdef IRIS_FEATURE_CLEARFIX
 #endif

@@ -296,7 +296,7 @@ void main() {
         //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
 
         const vec3 vlSigma = vec3(1.2, 1.2, 1.2);
-        vec4 vlScatterTransmit = BilateralGaussianDepthBlurRGBA_5x(texcoord, BUFFER_VL, viewSize * 0.5, depthtex0, viewSize, linearDepth, vlSigma);
+        vec4 vlScatterTransmit = BilateralGaussianDepthBlurRGBA_5x(texcoord, BUFFER_VL, viewSize / exp2(DYN_LIGHT_VL_RES), depthtex0, viewSize, linearDepth, vlSigma);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
