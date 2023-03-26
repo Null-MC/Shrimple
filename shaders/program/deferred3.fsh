@@ -18,7 +18,7 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
+#ifdef VL_BUFFER_ENABLED
     uniform sampler2D BUFFER_VL;
 #endif
 
@@ -155,8 +155,8 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
 }
 
 vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in vec3 g_sigma) {
-    const float c_halfSamplesX = 1.0;
-    const float c_halfSamplesY = 1.0;
+    const float c_halfSamplesX = 2.0;
+    const float c_halfSamplesY = 2.0;
 
     float total = 0.0;
     vec4 accum = vec4(0.0);
@@ -217,6 +217,9 @@ void main() {
     float linearDepth = linearizeDepthFast(depth, near, far);
     vec3 final;
 
+    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+
     if (depth < 1.0) {
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
@@ -244,8 +247,6 @@ void main() {
             vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
         #endif
 
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -331,8 +332,11 @@ void main() {
     #ifdef VL_BUFFER_ENABLED
         //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
 
-        const vec3 vlSigma = vec3(0.9, 0.9, 24.0);
-        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize / exp2(DYN_LIGHT_VL_RES), depthtex0, viewSize, far, vlSigma);
+        const vec3 vlSigma = vec3(0.5, 0.5, 48.0);
+        const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+
+        float maxDist = min(far, length(viewPos));
+        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, maxDist, vlSigma);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

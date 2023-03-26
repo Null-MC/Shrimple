@@ -109,7 +109,7 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
-#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
+#ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     //uniform mat4 shadowProjection;
     //uniform vec3 shadowLightPosition;
@@ -171,7 +171,7 @@ uniform float blindness;
 
 #include "/lib/lighting/basic.glsl"
 
-#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
+#ifdef VL_BUFFER_ENABLED
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 

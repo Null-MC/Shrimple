@@ -129,15 +129,14 @@ const bool colortex10Clear = true;
 
 
 // Volumetric Lighting
-//#define VL_CELESTIAL_ENABLED
-#define DYN_LIGHT_VL_MODE 0 // [0 1 2]
-#define ATMOS_VL_SAMPLES 12 // [8 12 16 24]
-#define ATMOS_VL_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800]
-#define ATMOS_VL_RES 1 // [0 1 2]
+//#define VOLUMETRIC_CELESTIAL
+#define VOLUMETRIC_BLOCK_MODE 0 // [0 1 2]
+#define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
+#define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800]
+#define VOLUMETRIC_RES 1 // [0 1 2]
 
 
 // EXPERIMENTAL
-#define DYN_LIGHT_VL_RES 2 // [0 1 2]
 //#define DYN_LIGHT_LPV
 
 #define LIGHT_MAX_COUNT 4200000000u
@@ -176,14 +175,14 @@ const bool colortex10Clear = true;
 #define GAMMA 2.2
 
 
-#ifdef VL_CELESTIAL_ENABLED
+#ifdef VOLUMETRIC_CELESTIAL
 #endif
 #ifdef WATER_REFLECTIONS_ENABLED
 #endif
 #ifdef DYN_LIGHT_BLUR
 #endif
 
-#if (defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)
+#if (defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)
     #define VL_BUFFER_ENABLED
 #endif
 
@@ -193,7 +192,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
-const float AtmosphereDensityF = ATMOS_VL_DENSITY * 0.01;
+const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;

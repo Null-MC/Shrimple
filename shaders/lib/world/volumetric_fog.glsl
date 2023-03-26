@@ -5,21 +5,21 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    const float scatterF = 0.032 * AtmosphereDensityF;
-    const float extinction = 0.009 * AtmosphereDensityF;
+    const float scatterF = 0.032 * VolumetricDensityF;
+    const float extinction = 0.009 * VolumetricDensityF;
 
     vec3 localStart = localViewDir * (nearDist + 1.0);
     vec3 localEnd = localViewDir * (farDist - 0.2);
     float localRayLength = farDist - nearDist;
 
-    int stepCount = int(ceil((localRayLength / far) * (ATMOS_VL_SAMPLES - 2))) + 2;
+    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
     float inverseStepCountF = rcp(stepCount);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    #if defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
         vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
         vec3 shadowViewStep = (shadowViewEnd - shadowViewStart) * inverseStepCountF;
@@ -59,7 +59,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
     for (int i = 0; i < stepCount; i++) {
         vec3 inScattering = 0.012 * fogColor; //vec3(0.008);
 
-        #if defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             const float sampleBias = 0.0;
 
             float sampleF = 0.0;
@@ -101,7 +101,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         vec3 traceLocalPos = localStep * (i + dither) + localStart;
 
-        #if DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+        #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
             uint gridIndex;
             int lightCount = GetSceneLights(traceLocalPos, gridIndex);
             vec3 blockLightAccum = vec3(0.0);
@@ -116,7 +116,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
 
                     vec3 lightColor = light.color;
-                    #if DYN_LIGHT_VL_MODE == 2
+                    #if VOLUMETRIC_BLOCK_MODE == 2
                         if ((light.data & 1u) == 1u) {
                             vec3 traceOrigin = GetLightGridPosition(light.position);
                             vec3 traceEnd = traceOrigin + 0.99*lightVec;

@@ -10,7 +10,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-#if defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
 
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
@@ -44,7 +44,7 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 shadowLightPosition;
 
-#if DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -56,7 +56,7 @@ uniform vec3 shadowLightPosition;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#if DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
@@ -69,7 +69,7 @@ uniform vec3 shadowLightPosition;
     #include "/lib/lighting/basic.glsl"
 #endif
 
-#if defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

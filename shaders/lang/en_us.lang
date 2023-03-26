@@ -197,26 +197,26 @@ option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended ac
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
 
-option.VL_CELESTIAL_ENABLED=Sun/Moon
+option.VOLUMETRIC_CELESTIAL=Sun/Moon
 
-option.DYN_LIGHT_VL_MODE=Block Light
-value.DYN_LIGHT_VL_MODE.0=Disabled
-value.DYN_LIGHT_VL_MODE.1=Emission
-value.DYN_LIGHT_VL_MODE.2=Traced
+option.VOLUMETRIC_BLOCK_MODE=Block Light
+value.VOLUMETRIC_BLOCK_MODE.0=Disabled
+value.VOLUMETRIC_BLOCK_MODE.1=Emission
+value.VOLUMETRIC_BLOCK_MODE.2=Traced
 
-option.ATMOS_VL_SAMPLES=Volumetric Lighting
-value.ATMOS_VL_SAMPLES.8=Low
-value.ATMOS_VL_SAMPLES.12=Medium
-value.ATMOS_VL_SAMPLES.16=High
-value.ATMOS_VL_SAMPLES.24=Very High
+option.VOLUMETRIC_SAMPLES=Quality
+value.VOLUMETRIC_SAMPLES.8=Low
+value.VOLUMETRIC_SAMPLES.12=Medium
+value.VOLUMETRIC_SAMPLES.16=High
+value.VOLUMETRIC_SAMPLES.24=Very High
 
-option.ATMOS_VL_DENSITY=Volumetric Density
-value.ATMOS_VL_DENSITY.800=Silent Hill
+option.VOLUMETRIC_DENSITY=Density
+value.VOLUMETRIC_DENSITY.800=Silent Hill
 
-option.DYN_LIGHT_VL_RES=VL Resolution
-value.DYN_LIGHT_VL_RES.0=Full
-value.DYN_LIGHT_VL_RES.1=Half
-value.DYN_LIGHT_VL_RES.2=Quarter
+option.VOLUMETRIC_RES=Resolution
+value.VOLUMETRIC_RES.0=Full
+value.VOLUMETRIC_RES.1=Half
+value.VOLUMETRIC_RES.2=Quarter
 
 
 screen.MATERIAL_OPTIONS=Materials
