@@ -120,8 +120,8 @@ vec4 BilateralGaussianDepthBlurRGBA_5x(const in vec2 texcoord, const in sampler2
         }
     }
     
-    if (total <= EPSILON) return vec4(0.0);
-    return accum / total;
+    //if (total <= EPSILON) return vec4(0.0);
+    return accum / max(total, EPSILON);
 }
 
 vec3 BilateralGaussianDepthBlurRGB_7x(const in vec2 texcoord, const in sampler2D blendSampler, const in float blendTexScale, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in vec3 g_sigma) {

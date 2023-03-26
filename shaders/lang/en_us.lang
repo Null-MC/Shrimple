@@ -6,21 +6,6 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 
-option.ATMOS_VL_SAMPLES=Volumetric Lighting
-value.ATMOS_VL_SAMPLES.0=Disabled
-value.ATMOS_VL_SAMPLES.8=Low
-value.ATMOS_VL_SAMPLES.12=Medium
-value.ATMOS_VL_SAMPLES.16=High
-value.ATMOS_VL_SAMPLES.24=Very High
-
-option.ATMOS_VL_DENSITY=Volumetric Density
-value.ATMOS_VL_DENSITY.800=Silent Hill
-
-option.DYN_LIGHT_VL_RES=VL Resolution
-value.DYN_LIGHT_VL_RES.0=Full
-value.DYN_LIGHT_VL_RES.1=Half
-value.DYN_LIGHT_VL_RES.2=Quarter
-
 option.WATER_REFLECTIONS_ENABLED=Water Reflections
 option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
 
@@ -42,25 +27,6 @@ option.OVERWORLD_BRIGHTNESS_NIGHT=Night Brightness
 option.NETHER_BRIGHTNESS=Nether Brightness
 
 option.END_BRIGHTNESS=End Brightness
-
-
-screen.MATERIAL_OPTIONS=Materials
-
-option.MATERIAL_NORMALS=Normal Mapping
-value.MATERIAL_NORMALS.0=None
-value.MATERIAL_NORMALS.1=OldPBR
-value.MATERIAL_NORMALS.2=LabPBR
-
-option.MATERIAL_EMISSION=Emission
-value.MATERIAL_EMISSION.0=Hard-Coded
-value.MATERIAL_EMISSION.1=OldPBR
-value.MATERIAL_EMISSION.2=LabPBR
-
-option.MATERIAL_SSS=SSS
-option.MATERIAL_SSS.comment=SubSurface Scattering
-value.MATERIAL_SSS.0=None
-value.MATERIAL_SSS.1=Hard-Coded
-value.MATERIAL_SSS.2=LabPBR
 
 
 screen.SHADOW_OPTIONS=Shadows
@@ -151,10 +117,10 @@ option.SHADOW_BLUR=Blur
 option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
 
 
-screen.DYNAMIC_LIGHT_OPTIONS=Dynamic Lights
+screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
 
 option.DYN_LIGHT_MODE=Mode
-value.DYN_LIGHT_MODE.0=None
+value.DYN_LIGHT_MODE.0=Default
 value.DYN_LIGHT_MODE.1=Per-Vertex
 value.DYN_LIGHT_MODE.2=Per-Pixel
 value.DYN_LIGHT_MODE.3=Ray-Traced
@@ -194,11 +160,6 @@ option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through st
 suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
 
-option.DYN_LIGHT_VL_MODE=Volumetric
-value.DYN_LIGHT_VL_MODE.0=Disabled
-value.DYN_LIGHT_VL_MODE.1=Emission
-value.DYN_LIGHT_VL_MODE.2=Traced
-
 
 screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
 
@@ -227,22 +188,54 @@ option.LIGHT_SIZE_XZ=Horizontal Bin Count
 
 option.LIGHT_SIZE_Y=Vertical Bin Count
 
-option.DYN_LIGHT_TRACE_METHOD=Trace Method
-value.DYN_LIGHT_TRACE_METHOD.0=DDA
-value.DYN_LIGHT_TRACE_METHOD.1=Ray
-
-option.DYN_LIGHT_RAY_QUALITY=Ray Quality
-option.DYN_LIGHT_RAY_QUALITY.comment=The quality of ray-traced shadows.
-value.DYN_LIGHT_RAY_QUALITY.1=Low
-value.DYN_LIGHT_RAY_QUALITY.2=Medium
-value.DYN_LIGHT_RAY_QUALITY.4=High
-value.DYN_LIGHT_RAY_QUALITY.8=Very High
-
 option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
 option.DYN_LIGHT_TA=Temporal Accumulation
 option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
+
+
+screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
+
+option.VL_CELESTIAL_ENABLED=Sun/Moon
+
+option.DYN_LIGHT_VL_MODE=Block Light
+value.DYN_LIGHT_VL_MODE.0=Disabled
+value.DYN_LIGHT_VL_MODE.1=Emission
+value.DYN_LIGHT_VL_MODE.2=Traced
+
+option.ATMOS_VL_SAMPLES=Volumetric Lighting
+value.ATMOS_VL_SAMPLES.8=Low
+value.ATMOS_VL_SAMPLES.12=Medium
+value.ATMOS_VL_SAMPLES.16=High
+value.ATMOS_VL_SAMPLES.24=Very High
+
+option.ATMOS_VL_DENSITY=Volumetric Density
+value.ATMOS_VL_DENSITY.800=Silent Hill
+
+option.DYN_LIGHT_VL_RES=VL Resolution
+value.DYN_LIGHT_VL_RES.0=Full
+value.DYN_LIGHT_VL_RES.1=Half
+value.DYN_LIGHT_VL_RES.2=Quarter
+
+
+screen.MATERIAL_OPTIONS=Materials
+
+option.MATERIAL_NORMALS=Normal Mapping
+value.MATERIAL_NORMALS.0=None
+value.MATERIAL_NORMALS.1=OldPBR
+value.MATERIAL_NORMALS.2=LabPBR
+
+option.MATERIAL_EMISSION=Emission
+value.MATERIAL_EMISSION.0=Hard-Coded
+value.MATERIAL_EMISSION.1=OldPBR
+value.MATERIAL_EMISSION.2=LabPBR
+
+option.MATERIAL_SSS=SSS
+option.MATERIAL_SSS.comment=SubSurface Scattering
+value.MATERIAL_SSS.0=None
+value.MATERIAL_SSS.1=Hard-Coded
+value.MATERIAL_SSS.2=LabPBR
 
 
 screen.POST_OPTIONS=Post-Processing

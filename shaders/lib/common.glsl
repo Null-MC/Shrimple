@@ -72,9 +72,6 @@ const bool colortex10Clear = true;
 // World Options
 #define ENABLE_WAVING
 #define WATER_REFLECTIONS_ENABLED
-#define ATMOS_VL_SAMPLES 0 // [0 8 12 16 24]
-#define ATMOS_VL_DENSITY 100 // [25 50 75 100 125 150 175 200 250 300 400 800]
-#define ATMOS_VL_RES 1 // [0 1 2]
 //#define OLD_LIGHTING
 #define FOLIAGE_UP
 
@@ -109,7 +106,7 @@ const bool colortex10Clear = true;
 // Dynamic Lighting
 #define DYN_LIGHT_MODE 1 // [0 1 2 3]
 #define DYN_LIGHT_COLORS 0 // [0 1]
-#define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
+#define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 500 600 800]
 #define DYN_LIGHT_DIRECTIONAL 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_LAVA 1 // [0 1 2]
@@ -126,10 +123,18 @@ const bool colortex10Clear = true;
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_RES 1 // [0 1 2]
-#define DYN_LIGHT_VL_MODE 0 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_TA
+
+
+// Volumetric Lighting
+//#define VL_CELESTIAL_ENABLED
+#define DYN_LIGHT_VL_MODE 0 // [0 1 2]
+#define ATMOS_VL_SAMPLES 12 // [8 12 16 24]
+#define ATMOS_VL_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800]
+#define ATMOS_VL_RES 1 // [0 1 2]
+
 
 // EXPERIMENTAL
 #define DYN_LIGHT_VL_RES 2 // [0 1 2]
@@ -171,9 +176,15 @@ const bool colortex10Clear = true;
 #define GAMMA 2.2
 
 
+#ifdef VL_CELESTIAL_ENABLED
+#endif
 #ifdef WATER_REFLECTIONS_ENABLED
 #endif
 #ifdef DYN_LIGHT_BLUR
+#endif
+
+#if (defined VL_CELESTIAL_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (DYN_LIGHT_VL_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)
+    #define VL_BUFFER_ENABLED
 #endif
 
 

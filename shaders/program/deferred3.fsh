@@ -18,7 +18,7 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if ATMOS_VL_SAMPLES > 0
+#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
     uniform sampler2D BUFFER_VL;
 #endif
 
@@ -152,6 +152,44 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
     
     if (total <= EPSILON) return vec3(0.0);
     return accum / total;
+}
+
+vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in vec3 g_sigma) {
+    const float c_halfSamplesX = 1.0;
+    const float c_halfSamplesY = 1.0;
+
+    float total = 0.0;
+    vec4 accum = vec4(0.0);
+
+    vec2 blendPixelSize = rcp(blendTexSize);
+    //vec2 blendTexcoord = texcoord * blendTexSize;
+    vec2 depthTexcoord = texcoord * depthTexSize;
+    
+    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
+        float fy = Gaussian(g_sigma.y, iy);
+
+        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
+            float fx = Gaussian(g_sigma.x, ix);
+            
+            vec2 sampleTex = vec2(ix, iy);
+
+            vec2 texBlend = texcoord + sampleTex * blendPixelSize;
+            vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
+
+            ivec2 iTexDepth = ivec2(depthTexcoord + sampleTex);
+            float sampleDepth = texelFetch(depthSampler, iTexDepth, 0).r;
+            float sampleLinearDepth = linearizeDepthFast(sampleDepth, near, far);
+                        
+            float fv = Gaussian(g_sigma.z, abs(sampleLinearDepth - linearDepth));
+            
+            float weight = fx*fy*fv;
+            accum += weight * sampleValue;
+            total += weight;
+        }
+    }
+    
+    //if (total <= EPSILON) return vec4(0.0);
+    return accum / max(total, EPSILON);
 }
 
 ivec2 GetTemporalOffset(const in int size) {
@@ -290,13 +328,11 @@ void main() {
         #endif
     }
 
-    #if ATMOS_VL_SAMPLES > 0
-        // vec3 localViewDir = normalize(localPos);
-        // GetVolumetricLighting(localViewDir, near, min(length(viewPos) - 0.05, far));
+    #ifdef VL_BUFFER_ENABLED
         //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
 
-        const vec3 vlSigma = vec3(1.2, 1.2, 1.2);
-        vec4 vlScatterTransmit = BilateralGaussianDepthBlurRGBA_5x(texcoord, BUFFER_VL, viewSize / exp2(DYN_LIGHT_VL_RES), depthtex0, viewSize, linearDepth, vlSigma);
+        const vec3 vlSigma = vec3(0.9, 0.9, 24.0);
+        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize / exp2(DYN_LIGHT_VL_RES), depthtex0, viewSize, far, vlSigma);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

@@ -42,10 +42,10 @@ void main() {
 
     color *= 1.0 - blindness;
 
-    #if ATMOS_VL_SAMPLES == 0
-        ApplyPostProcessing(color);
-    #else
+    #ifdef VL_BUFFER_ENABLED
         color = LinearToRGB(color);
+    #else
+        ApplyPostProcessing(color);
     #endif
 
     color += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;

@@ -109,7 +109,7 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
-#if ATMOS_VL_SAMPLES > 0
+#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
     uniform mat4 shadowModelView;
     //uniform mat4 shadowProjection;
     //uniform vec3 shadowLightPosition;
@@ -171,7 +171,7 @@ uniform float blindness;
 
 #include "/lib/lighting/basic.glsl"
 
-#if ATMOS_VL_SAMPLES > 0
+#if defined VL_CELESTIAL_ENABLED || DYN_LIGHT_VL_MODE != 0
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 
@@ -240,7 +240,7 @@ void main() {
 
     ApplyFog(color, vLocalPos);
 
-    #if ATMOS_VL_SAMPLES > 0
+    #ifdef VL_BUFFER_ENABLED
         vec3 localViewDir = normalize(vLocalPos);
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
