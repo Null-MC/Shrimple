@@ -38,6 +38,7 @@ uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
+uniform float near;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -95,6 +96,10 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
+#ifdef VL_BUFFER_ENABLED
+    uniform mat4 shadowModelView;
+#endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -145,6 +150,11 @@ uniform sampler2D lightmap;
 #endif
 
 #include "/lib/lighting/basic.glsl"
+
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 
@@ -184,6 +194,12 @@ void main() {
     color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
+
+    #ifdef VL_BUFFER_ENABLED
+        vec3 localViewDir = normalize(vLocalPos);
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #endif
 
     ApplyPostProcessing(color.rgb);
     outFinal = color;
