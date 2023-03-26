@@ -112,10 +112,8 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    //uniform mat4 shadowProjection;
-    //uniform vec3 shadowLightPosition;
+    uniform ivec2 eyeBrightnessSmooth;
     uniform float near;
-    //uniform float far;
 #endif
 
 #include "/lib/sampling/noise.glsl"

@@ -90,6 +90,7 @@ uniform float blindness;
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
+    uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/sampling/noise.glsl"

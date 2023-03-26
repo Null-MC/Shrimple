@@ -58,7 +58,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i < stepCount; i++) {
-        vec3 inScattering = 0.012 * fogColor; //vec3(0.008);
+        vec3 inScattering = 0.012 * fogColor * (eyeBrightnessSmooth.y / 240.0); //vec3(0.008);
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             const float sampleBias = 0.0;

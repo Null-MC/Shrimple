@@ -111,6 +111,7 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
+    uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/sampling/depth.glsl"

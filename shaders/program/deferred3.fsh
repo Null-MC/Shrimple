@@ -335,7 +335,7 @@ void main() {
         //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
 
         #if VOLUMETRIC_RES == 2
-            const vec3 vlSigma = vec3(0.5, 0.5, 48.0);
+            const vec3 vlSigma = vec3(1.8, 1.8, 48.0);
         #elif VOLUMETRIC_RES == 1
             const vec3 vlSigma = vec3(1.8, 1.8, 24.0);
         #else

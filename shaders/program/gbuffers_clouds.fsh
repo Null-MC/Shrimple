@@ -76,6 +76,7 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
+    uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 skyColor;
     uniform vec3 fogColor;
 #endif
