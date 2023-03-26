@@ -9,8 +9,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
     const float extinction = 0.009 * VolumetricDensityF;
 
     vec3 localStart = localViewDir * (nearDist + 1.0);
-    vec3 localEnd = localViewDir * (farDist - 0.2);
-    float localRayLength = farDist - nearDist;
+    vec3 localEnd = localViewDir * (farDist - 1.0);
+    float localRayLength = max(farDist - nearDist - 2.0, 0.0);
+    if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
     int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
     float inverseStepCountF = rcp(stepCount);

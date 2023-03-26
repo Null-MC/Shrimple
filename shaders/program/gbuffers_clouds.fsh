@@ -39,6 +39,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
+uniform float near;
 uniform float far;
 
 uniform float fogStart;
@@ -73,15 +74,16 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
-// #if MC_VERSION >= 11700
-//     uniform float alphaTestRef;
-// #endif
+#ifdef VL_BUFFER_ENABLED
+    uniform mat4 shadowModelView;
+    uniform vec3 skyColor;
+    uniform vec3 fogColor;
+#endif
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
-//#include "/lib/world/fog.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -115,6 +117,11 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/basic.glsl"
+
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 
@@ -152,6 +159,12 @@ void main() {
     float newWidth = (fogEnd - fogStart) * 4.0;
     float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
     final.a *= fade;
+
+    #ifdef VL_BUFFER_ENABLED
+        vec3 localViewDir = normalize(vLocalPos);
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos), far));
+        final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #endif
 
     ApplyPostProcessing(final.rgb);
     outFinal = final;

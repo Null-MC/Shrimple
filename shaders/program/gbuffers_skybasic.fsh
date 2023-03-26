@@ -26,7 +26,7 @@ uniform float blindness;
 
 
 /* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outColor0;
+layout(location = 0) out vec4 outFinal;
 
 void main() {
     vec3 clipPos = vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight) * 2.0 - 1.0, 1.0);
@@ -50,5 +50,5 @@ void main() {
 
     color += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
     
-    outColor0 = vec4(color, 1.0);
+    outFinal = vec4(color, 1.0);
 }
