@@ -90,6 +90,7 @@ uniform vec3 cameraPosition;
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/items.glsl"
         #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
@@ -99,6 +100,7 @@ uniform vec3 cameraPosition;
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
 

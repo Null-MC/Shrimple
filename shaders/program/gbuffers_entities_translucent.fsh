@@ -111,10 +111,6 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    //uniform mat4 shadowProjection;
-    //uniform vec3 shadowLightPosition;
-    //uniform float near;
-    //uniform float far;
 #endif
 
 #include "/lib/sampling/depth.glsl"
@@ -150,6 +146,7 @@ uniform float blindness;
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
 #endif
 
@@ -160,6 +157,7 @@ uniform float blindness;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
 #include "/lib/material/emission.glsl"

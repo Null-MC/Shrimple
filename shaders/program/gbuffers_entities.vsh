@@ -17,25 +17,25 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
-	in vec4 at_tangent;
+    in vec4 at_tangent;
 
-	out vec3 vLocalTangent;
-	out float vTangentW;
+    out vec3 vLocalTangent;
+    out float vTangentW;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		out vec3 shadowPos[4];
-		flat out int shadowTile;
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		out vec3 shadowPos;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        out vec3 shadowPos[4];
+        flat out int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        out vec3 shadowPos;
+    #endif
 #endif
 
 uniform sampler2D lightmap;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	uniform sampler2D noisetex;
+    uniform sampler2D noisetex;
 #endif
 
 uniform float frameTimeCounter;
@@ -46,17 +46,17 @@ uniform vec4 entityColor;
 uniform int entityId;
 
 #ifdef WORLD_SHADOW_ENABLED
-	uniform mat4 shadowModelView;
-	uniform mat4 shadowProjection;
-	uniform vec3 shadowLightPosition;
-	uniform float far;
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
+    uniform vec3 shadowLightPosition;
+    uniform float far;
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		attribute vec3 at_midBlock;
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        attribute vec3 at_midBlock;
 
-		uniform mat4 gbufferProjection;
-		uniform float near;
-	#endif
+        uniform mat4 gbufferProjection;
+        uniform float near;
+    #endif
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
@@ -74,27 +74,27 @@ uniform int entityId;
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		#include "/lib/shadows/cascaded.glsl"
-	#else
-		#include "/lib/shadows/basic.glsl"
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+    #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
-#endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-	#include "/lib/buffers/lighting.glsl"
-	#include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-	#include "/lib/lighting/dynamic_blocks.glsl"
-#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
+    #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-	#include "/lib/lighting/dynamic_entities.glsl"
+    #include "/lib/lighting/dynamic_entities.glsl"
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -105,11 +105,11 @@ uniform int entityId;
 
 
 void main() {
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	glcolor = gl_Color;
-	
-	BasicVertex();
+    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    glcolor = gl_Color;
+    
+    BasicVertex();
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();

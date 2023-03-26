@@ -112,6 +112,7 @@ uniform float blindness;
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
 #endif
 
@@ -122,6 +123,7 @@ uniform float blindness;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

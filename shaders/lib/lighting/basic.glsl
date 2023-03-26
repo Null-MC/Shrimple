@@ -129,14 +129,14 @@
 
             vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
-                vec3 lightColor = GetSceneBlockLightColor(heldItemId, noiseSample);
+                vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        float lightSize = GetSceneBlockLightSize(heldItemId);
+                        float lightSize = GetSceneItemLightSize(heldItemId);
                         ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     #endif
 
@@ -161,14 +161,14 @@
 
             vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
-                vec3 lightColor = GetSceneBlockLightColor(heldItemId2, noiseSample);
+                vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        float lightSize = GetSceneBlockLightSize(heldItemId);
+                        float lightSize = GetSceneItemLightSize(heldItemId);
                         ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     #endif
 
@@ -311,12 +311,13 @@
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 #ifdef RENDER_ENTITIES
                     vec4 light = GetSceneEntityLightColor(entityId);
-                    //vBlockLight += light.rgb * (light.a / 15.0);
                     vBlockLight += vec3(light.a / 15.0);
+                #elif defined RENDER_HAND
+                    // TODO: change ID depending on hand
+                    float lightRange = GetSceneItemLightRange(heldItemId);
+                    vBlockLight += vec3(lightRange / 15.0);
                 #elif defined RENDER_TERRAIN || defined RENDER_WATER
-                    //vec3 lightColor = GetSceneBlockLightColor(vBlockId, vec2(1.0));
                     float lightRange = GetSceneBlockEmission(vBlockId);
-                    //vBlockLight += lightColor * (lightRange / 15.0);
                     vBlockLight += vec3(lightRange);
                 #endif
             #else

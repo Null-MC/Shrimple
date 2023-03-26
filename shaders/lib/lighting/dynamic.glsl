@@ -110,7 +110,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         ivec2 uv = GetSceneLightUV(gridIndex, gridLightIndex);
         imageStore(imgSceneLights, uv, uvec4(lightIndex));
 
-        #ifdef LIGHT_COLOR_NEIGHBORS
+        #ifdef DYN_LIGHT_POPULATE_NEIGHBORS
             float neighborRange = light.range;//max(range - 1.5, 0.0);
 
             vec3 neighborGridPosMin = GetLightGridPosition(light.position - neighborRange);

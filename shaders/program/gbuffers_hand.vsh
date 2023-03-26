@@ -34,7 +34,7 @@ out vec3 vBlockLight;
 
 uniform sampler2D lightmap;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
 	uniform sampler2D noisetex;
 #endif
 
@@ -57,7 +57,7 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -79,12 +79,20 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    #include "/lib/items.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE

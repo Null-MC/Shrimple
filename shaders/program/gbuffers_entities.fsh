@@ -155,8 +155,10 @@ uniform int entityId;
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
         #include "/lib/lighting/dynamic.glsl"
         #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
 

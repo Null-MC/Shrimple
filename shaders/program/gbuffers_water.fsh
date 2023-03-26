@@ -158,7 +158,9 @@ uniform float blindness;
 
 //#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 //#endif
 
 #include "/lib/material/emission.glsl"

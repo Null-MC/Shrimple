@@ -129,6 +129,7 @@ uniform sampler2D lightmap;
         #include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
         #include "/lib/lighting/dynamic.glsl"
     #endif
 
@@ -139,6 +140,7 @@ uniform sampler2D lightmap;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
 

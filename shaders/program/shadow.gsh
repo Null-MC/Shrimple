@@ -22,7 +22,7 @@ out vec4 gColor;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
+    #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
         uniform sampler2D gtexture;
     #endif
 
@@ -61,8 +61,10 @@ uniform float far;
     #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
+    
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_entities.glsl"
@@ -78,7 +80,7 @@ void main() {
             vec3 lightOrigin = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
             lightOrigin = floor(cameraPosition + lightOrigin) + 0.5 - cameraPosition;
 
-            #if DYN_LIGHT_COLORS == DYN_LIGHT_COLOR_RP
+            #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
                 vec3 lightColor = vec3(0.0);
                 float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
                 if (lightRange > EPSILON) lightColor = RGBToLinear(textureLod(gtexture, vTexcoord[0], 3).rgb);

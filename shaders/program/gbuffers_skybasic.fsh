@@ -5,7 +5,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 starData; //rgb = star color, a = flag for weather or not this pixel is a star.
+in vec4 starData;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;

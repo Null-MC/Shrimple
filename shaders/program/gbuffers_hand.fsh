@@ -140,16 +140,20 @@ uniform float viewWidth;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/blocks.glsl"
+    #include "/lib/items.glsl"
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+    #endif
+
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+    //#include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
-
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"

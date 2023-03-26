@@ -59,12 +59,20 @@ uniform vec3 shadowLightPosition;
 #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/collisions.glsl"
     #include "/lib/lighting/tracing.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
+
+    #ifdef VOLUMETRIC_HANDLIGHT
+        #include "/lib/items.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
+    #endif
 
     #include "/lib/lighting/basic.glsl"
 #endif

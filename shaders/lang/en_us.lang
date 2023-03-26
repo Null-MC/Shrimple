@@ -135,9 +135,9 @@ option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness
 option.DYN_LIGHT_DIRECTIONAL=Directional
 suffix.DYN_LIGHT_DIRECTIONAL=%
 
-option.DYN_LIGHT_COLORS=Color Mode
-value.DYN_LIGHT_COLORS.0=Hard-Coded
-value.DYN_LIGHT_COLORS.1=Resource-Pack
+option.DYN_LIGHT_COLOR_MODE=Color Mode
+value.DYN_LIGHT_COLOR_MODE.0=Hard-Coded
+value.DYN_LIGHT_COLOR_MODE.1=Resource-Pack
 
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
@@ -202,7 +202,8 @@ option.VOLUMETRIC_CELESTIAL=Sun/Moon
 option.VOLUMETRIC_BLOCK_MODE=Block Light
 value.VOLUMETRIC_BLOCK_MODE.0=Disabled
 value.VOLUMETRIC_BLOCK_MODE.1=Emission
-value.VOLUMETRIC_BLOCK_MODE.2=Traced
+value.VOLUMETRIC_BLOCK_MODE.2=Trace Fast
+value.VOLUMETRIC_BLOCK_MODE.3=Trace Full
 
 option.VOLUMETRIC_SAMPLES=Quality
 value.VOLUMETRIC_SAMPLES.8=Low

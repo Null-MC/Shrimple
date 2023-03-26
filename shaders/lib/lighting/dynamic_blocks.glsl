@@ -5,22 +5,6 @@
     }
 #endif
 
-#ifdef DYN_LIGHT_FLICKER
-    vec2 GetDynLightNoise(const in vec3 blockLocalPos) {
-        float time = frameTimeCounter / 3600.0;
-        vec3 worldPos = cameraPosition + blockLocalPos;
-
-        vec3 texPos = fract(worldPos.xzy * vec3(0.04, 0.04, 0.08));
-        texPos.z += 200.0 * time;
-
-        return texture(TEX_LIGHT_NOISE, vec2(0.3, 0.6)*texPos.y + texPos.xz).rg;
-    }
-
-    float GetDynLightFlickerNoise(const in vec2 noiseSample) {
-        return (1.0 - noiseSample.g) * (1.0 - pow2(noiseSample.r));
-    }
-#endif
-
 float GetBlockSSS(const in int blockId) {
     float sss = 0.0;
 
@@ -91,17 +75,14 @@ float GetBlockSSS(const in int blockId) {
 
 vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
+
     switch (blockId) {
         case BLOCK_AMETHYST_CLUSTER:
         case BLOCK_AMETHYST_BUD_LARGE:
         case BLOCK_AMETHYST_BUD_MEDIUM:
-        case ITEM_AMETHYST_CLUSTER:
-        case ITEM_AMETHYST_BUD_LARGE:
-        case ITEM_AMETHYST_BUD_MEDIUM:
             lightColor = vec3(0.447, 0.188, 0.758);
             break;
         case BLOCK_BEACON:
-        case ITEM_BEACON:
             lightColor = vec3(1.0, 1.0, 1.0);
             break;
         case BLOCK_BLAST_FURNACE_LIT_N:
@@ -121,15 +102,12 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.758, 0.553, 0.239);
             break;
         case BLOCK_CAVEVINE_BERRIES:
-        case ITEM_GLOW_BERRIES:
             lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
             break;
         case BLOCK_CRYING_OBSIDIAN:
-        case ITEM_CRYING_OBSIDIAN:
             lightColor = vec3(0.390, 0.065, 0.646);
             break;
         case BLOCK_END_ROD:
-        case ITEM_END_ROD:
             lightColor = vec3(0.957, 0.929, 0.875);
             break;
         case BLOCK_CAMPFIRE_LIT:
@@ -143,22 +121,18 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.697, 0.654, 0.458);
             break;
         case BLOCK_GLOWSTONE:
-        case ITEM_GLOWSTONE:
             lightColor = vec3(0.652, 0.583, 0.275);
             break;
         case BLOCK_GLOW_LICHEN:
-        case ITEM_GLOW_LICHEN:
             lightColor = vec3(0.173, 0.374, 0.252);
             break;
         case BLOCK_JACK_O_LANTERN_N:
         case BLOCK_JACK_O_LANTERN_E:
         case BLOCK_JACK_O_LANTERN_S:
         case BLOCK_JACK_O_LANTERN_W:
-        case ITEM_JACK_O_LANTERN:
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
         case BLOCK_LANTERN:
-        case ITEM_LANTERN:
             lightColor = vec3(0.906, 0.737, 0.451);
             break;
         case BLOCK_LIGHTING_ROD_POWERED:
@@ -169,18 +143,15 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.804, 0.424, 0.149);
             break;
         case BLOCK_MAGMA:
-        case ITEM_MAGMA:
             lightColor = vec3(0.747, 0.323, 0.110);
             break;
         case BLOCK_NETHER_PORTAL:
             lightColor = vec3(0.502, 0.165, 0.831);
             break;
         case BLOCK_FROGLIGHT_OCHRE:
-        case ITEM_FROGLIGHT_OCHRE:
             lightColor = vec3(0.768, 0.648, 0.108);
             break;
         case BLOCK_FROGLIGHT_PEARLESCENT:
-        case ITEM_FROGLIGHT_PEARLESCENT:
             lightColor = vec3(0.737, 0.435, 0.658);
             break;
         case BLOCK_REDSTONE_LAMP_LIT:
@@ -205,7 +176,6 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_REDSTONE_WIRE_14:
         case BLOCK_REDSTONE_WIRE_15:
         case BLOCK_RAIL_POWERED:
-        case ITEM_REDSTONE_TORCH:
             lightColor = vec3(0.697, 0.130, 0.051);
             break;
         case BLOCK_RESPAWN_ANCHOR_4:
@@ -215,11 +185,9 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.390, 0.065, 0.646);
             break;
         case BLOCK_SCULK_CATALYST:
-        case ITEM_SCULK_CATALYST:
             lightColor = vec3(0.510, 0.831, 0.851);
             break;
         case BLOCK_SEA_LANTERN:
-        case ITEM_SEA_LANTERN:
             lightColor = vec3(0.498, 0.894, 0.834);
             break;
         case BLOCK_SEA_PICKLE_WET_1:
@@ -229,7 +197,6 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
             lightColor = vec3(0.283, 0.394, 0.212);
             break;
         case BLOCK_SHROOMLIGHT:
-        case ITEM_SHROOMLIGHT:
             lightColor = vec3(0.848, 0.469, 0.205);
             break;
         case BLOCK_SMOKER_LIT_N:
@@ -242,25 +209,21 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_SOUL_TORCH:
         case BLOCK_SOUL_CAMPFIRE_LIT:
         case BLOCK_SOUL_FIRE:
-        case ITEM_SOUL_LANTERN:
-        case ITEM_SOUL_TORCH:
             lightColor = vec3(0.203, 0.725, 0.758);
             break;
         case BLOCK_TORCH:
-        case ITEM_TORCH:
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
         case BLOCK_FROGLIGHT_VERDANT:
-        case ITEM_FROGLIGHT_VERDANT:
             lightColor = vec3(0.463, 0.763, 0.409);
             break;
     }
-
+    
     lightColor = RGBToLinear(lightColor);
 
     #ifdef DYN_LIGHT_FLICKER
         // TODO: optimize branching
-        //vec2 noiseSample = GetDynLightNoise(blockLocalPos);
+        //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
         if (blockId == BLOCK_TORCH || blockId == BLOCK_LANTERN || blockId == BLOCK_FIRE || blockId == BLOCK_CAMPFIRE_LIT) {
@@ -289,11 +252,9 @@ float GetSceneBlockLightRange(const in int blockId) {
 
     switch (blockId) {
         case BLOCK_AMETHYST_CLUSTER:
-        case ITEM_AMETHYST_CLUSTER:
             lightRange = 5.0;
             break;
         case BLOCK_BEACON:
-        case ITEM_BEACON:
             lightRange = 15.0;
             break;
         case BLOCK_BLAST_FURNACE_LIT_N:
@@ -321,15 +282,12 @@ float GetSceneBlockLightRange(const in int blockId) {
             lightRange = 3.0;
             break;
         case BLOCK_CAVEVINE_BERRIES:
-        case ITEM_GLOW_BERRIES:
             lightRange = 14.0;
             break;
         case BLOCK_CRYING_OBSIDIAN:
-        case ITEM_CRYING_OBSIDIAN:
             lightRange = 10.0;
             break;
         case BLOCK_END_ROD:
-        case ITEM_END_ROD:
             lightRange = 14.0;
             break;
         case BLOCK_CAMPFIRE_LIT:
@@ -343,58 +301,48 @@ float GetSceneBlockLightRange(const in int blockId) {
             lightRange = 6.0;
             break;
         case BLOCK_GLOWSTONE:
-        case ITEM_GLOWSTONE:
             lightRange = 15.0;
             break;
         case BLOCK_GLOW_LICHEN:
-        case ITEM_GLOW_LICHEN:
             lightRange = 7.0;
             break;
         case BLOCK_JACK_O_LANTERN_N:
         case BLOCK_JACK_O_LANTERN_E:
         case BLOCK_JACK_O_LANTERN_S:
         case BLOCK_JACK_O_LANTERN_W:
-        case ITEM_JACK_O_LANTERN:
             lightRange = 15.0;
             break;
         case BLOCK_LANTERN:
-        case ITEM_LANTERN:
             lightRange = 12.0;
             break;
         case BLOCK_LIGHTING_ROD_POWERED:
             lightRange = 8.0;
             break;
         case BLOCK_AMETHYST_BUD_LARGE:
-        case ITEM_AMETHYST_BUD_LARGE:
             lightRange = 4.0;
             break;
         case BLOCK_LAVA_CAULDRON:
             lightRange = 15.0;
             break;
         case BLOCK_MAGMA:
-        case ITEM_MAGMA:
             lightRange = 3.0;
             break;
         case BLOCK_AMETHYST_BUD_MEDIUM:
-        case ITEM_AMETHYST_BUD_MEDIUM:
             lightRange = 2.0;
             break;
         case BLOCK_NETHER_PORTAL:
             lightRange = 11.0;
             break;
         case BLOCK_FROGLIGHT_OCHRE:
-        case ITEM_FROGLIGHT_OCHRE:
             lightRange = 15.0;
             break;
         case BLOCK_FROGLIGHT_PEARLESCENT:
-        case ITEM_FROGLIGHT_PEARLESCENT:
             lightRange = 15.0;
             break;
         case BLOCK_REDSTONE_LAMP_LIT:
             lightRange = 15.0;
             break;
         case BLOCK_REDSTONE_TORCH_LIT:
-        case ITEM_REDSTONE_TORCH:
             lightRange = 7.0;
             break;
         case BLOCK_RESPAWN_ANCHOR_4:
@@ -410,11 +358,9 @@ float GetSceneBlockLightRange(const in int blockId) {
             lightRange = 3.0;
             break;
         case BLOCK_SCULK_CATALYST:
-        case ITEM_SCULK_CATALYST:
             lightRange = 6.0;
             break;
         case BLOCK_SEA_LANTERN:
-        case ITEM_SEA_LANTERN:
             lightRange = 15.0;
             break;
         case BLOCK_SEA_PICKLE_WET_1:
@@ -430,7 +376,6 @@ float GetSceneBlockLightRange(const in int blockId) {
             lightRange = 15.0;
             break;
         case BLOCK_SHROOMLIGHT:
-        case ITEM_SHROOMLIGHT:
             lightRange = 15.0;
             break;
         case BLOCK_SMOKER_LIT_N:
@@ -442,19 +387,15 @@ float GetSceneBlockLightRange(const in int blockId) {
         case BLOCK_SOUL_CAMPFIRE_LIT:
         case BLOCK_SOUL_FIRE:
         case BLOCK_SOUL_LANTERN:
-        case ITEM_SOUL_LANTERN:
             lightRange = 12.0;
             break;
         case BLOCK_SOUL_TORCH:
-        case ITEM_SOUL_TORCH:
             lightRange = 12.0;
             break;
         case BLOCK_TORCH:
-        case ITEM_TORCH:
             lightRange = 12.0;
             break;
         case BLOCK_FROGLIGHT_VERDANT:
-        case ITEM_FROGLIGHT_VERDANT:
             lightRange = 15.0;
             break;
 
@@ -1308,7 +1249,7 @@ float GetSceneBlockLightSize(const in int blockId) {
         if (lightRange > EPSILON) {
             vec2 noiseSample = vec2(0.0);
             #ifdef DYN_LIGHT_FLICKER
-                noiseSample = GetDynLightNoise(blockLocalPos);
+                noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
             #endif
 
             float flicker = 0.0;
@@ -1322,11 +1263,9 @@ float GetSceneBlockLightSize(const in int blockId) {
 
             switch (blockId) {
                 case BLOCK_AMETHYST_CLUSTER:
-                case ITEM_AMETHYST_CLUSTER:
                     glow = 0.2;
                     break;
                 case BLOCK_BEACON:
-                case ITEM_BEACON:
                     break;
                 case BLOCK_BLAST_FURNACE_LIT_N:
                 case BLOCK_BLAST_FURNACE_LIT_E:
@@ -1353,14 +1292,11 @@ float GetSceneBlockLightSize(const in int blockId) {
                     flicker = 0.14;
                     break;
                 case BLOCK_CAVEVINE_BERRIES:
-                case ITEM_GLOW_BERRIES:
                     break;
                 case BLOCK_CRYING_OBSIDIAN:
-                case ITEM_CRYING_OBSIDIAN:
                     glow = 0.3;
                     break;
                 case BLOCK_END_ROD:
-                case ITEM_END_ROD:
                     break;
                 case BLOCK_FIRE:
                     lightOffset = vec3(0.0, -0.3, 0.0);
@@ -1373,15 +1309,10 @@ float GetSceneBlockLightSize(const in int blockId) {
                     lightOffset = vec3(0.0, -0.2, 0.0);
                     break;
                 case BLOCK_GLOWSTONE:
-                case ITEM_GLOWSTONE:
                     glow = 0.4;
                     break;
                 case BLOCK_GLOW_LICHEN:
-                case ITEM_GLOW_LICHEN:
                     glow = 0.2;
-                    break;
-                case ITEM_JACK_O_LANTERN:
-                    flicker = 0.3;
                     break;
                 case BLOCK_JACK_O_LANTERN_N:
                     lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
@@ -1406,7 +1337,6 @@ float GetSceneBlockLightSize(const in int blockId) {
                     flicker = 0.3;
                     break;
                 case BLOCK_LANTERN:
-                case ITEM_LANTERN:
                     lightOffset = vec3(0.0, -0.25, 0.0);
                     flicker = 0.05;
                     break;
@@ -1414,7 +1344,6 @@ float GetSceneBlockLightSize(const in int blockId) {
                     flicker = 0.8;
                     break;
                 case BLOCK_AMETHYST_BUD_LARGE:
-                case ITEM_AMETHYST_BUD_LARGE:
                     glow = 0.2;
                     break;
                 case BLOCK_LAVA:
@@ -1429,28 +1358,23 @@ float GetSceneBlockLightSize(const in int blockId) {
                     glow = 0.4;
                     break;
                 case BLOCK_MAGMA:
-                case ITEM_MAGMA:
                     glow = 0.2;
                     break;
                 case BLOCK_AMETHYST_BUD_MEDIUM:
-                case ITEM_AMETHYST_BUD_MEDIUM:
                     glow = 0.2;
                     break;
                 case BLOCK_NETHER_PORTAL:
                     glow = 0.8;
                     break;
                 case BLOCK_FROGLIGHT_OCHRE:
-                case ITEM_FROGLIGHT_OCHRE:
                     glow = 0.2;
                     break;
                 case BLOCK_FROGLIGHT_PEARLESCENT:
-                case ITEM_FROGLIGHT_PEARLESCENT:
                     glow = 0.2;
                     break;
                 case BLOCK_REDSTONE_LAMP_LIT:
                     break;
                 case BLOCK_REDSTONE_TORCH_LIT:
-                case ITEM_REDSTONE_TORCH:
                     break;
                 case BLOCK_RESPAWN_ANCHOR_4:
                     lightOffset = vec3(0.0, 0.4, 0.0);
@@ -1469,11 +1393,9 @@ float GetSceneBlockLightSize(const in int blockId) {
                     glow = 0.6;
                     break;
                 case BLOCK_SCULK_CATALYST:
-                case ITEM_SCULK_CATALYST:
                     lightOffset = vec3(0.0, 0.4, 0.0);
                     break;
                 case BLOCK_SEA_LANTERN:
-                case ITEM_SEA_LANTERN:
                     glow = 0.4;
                     break;
                 case BLOCK_SEA_PICKLE_WET_1:
@@ -1483,7 +1405,6 @@ float GetSceneBlockLightSize(const in int blockId) {
                     glow = 0.9;
                     break;
                 case BLOCK_SHROOMLIGHT:
-                case ITEM_SHROOMLIGHT:
                     glow = 0.6;
                     break;
                 case BLOCK_SMOKER_LIT_N:
@@ -1494,21 +1415,17 @@ float GetSceneBlockLightSize(const in int blockId) {
                     break;
                 case BLOCK_SOUL_FIRE:
                 case BLOCK_SOUL_LANTERN:
-                case ITEM_SOUL_LANTERN:
                     lightOffset = vec3(0.0, -0.25, 0.0);
                     flicker = 0.1;
                     break;
                 case BLOCK_SOUL_TORCH:
-                case ITEM_SOUL_TORCH:
                     flicker = 0.1;
                     break;
                 case BLOCK_TORCH:
-                case ITEM_TORCH:
                     lightOffset = vec3(0.0, 0.4, 0.0);
                     flicker = 0.4;
                     break;
                 case BLOCK_FROGLIGHT_VERDANT:
-                case ITEM_FROGLIGHT_VERDANT:
                     glow = 0.2;
                     break;
             }
@@ -1582,7 +1499,7 @@ float GetSceneBlockLightSize(const in int blockId) {
         if (lightRange > EPSILON) {
             vec2 noiseSample = vec2(0.0);
             #ifdef DYN_LIGHT_FLICKER
-                noiseSample = GetDynLightNoise(blockLocalPos);
+                noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
             #endif
 
             lightColor = GetSceneBlockLightColor(blockId, noiseSample);

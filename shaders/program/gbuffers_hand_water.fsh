@@ -150,8 +150,13 @@ uniform int heldItemId2;
     #endif
 #endif
 
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+    //#include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
+#endif
+
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 

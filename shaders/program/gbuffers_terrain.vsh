@@ -73,6 +73,7 @@ uniform vec3 cameraPosition;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
 	#include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -94,6 +95,7 @@ uniform vec3 cameraPosition;
 
 	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
 		#include "/lib/lighting/dynamic_blocks.glsl"
+	    #include "/lib/lighting/dynamic_items.glsl"
 	#endif
 #endif
 
