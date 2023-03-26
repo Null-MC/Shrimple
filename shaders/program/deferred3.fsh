@@ -156,7 +156,7 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
     return accum / total;
 }
 
-vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in vec3 g_sigma) {
+vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depth, const in vec2 g_sigma) {
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
@@ -164,11 +164,12 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
     vec4 accum = vec4(0.0);
 
     vec2 blendPixelSize = rcp(blendTexSize);
+    vec2 depthPixelSize = rcp(depthTexSize);
     //vec2 blendTexcoord = texcoord * blendTexSize;
     vec2 depthTexcoord = texcoord * depthTexSize;
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-        float fy = Gaussian(g_sigma.y, iy);
+        float fy = Gaussian(g_sigma.x, iy);
 
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
@@ -178,11 +179,12 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             vec2 texBlend = texcoord + sampleTex * blendPixelSize;
             vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
 
-            ivec2 iTexDepth = ivec2(depthTexcoord + sampleTex);
-            float sampleDepth = texelFetch(depthSampler, iTexDepth, 0).r;
-            float sampleLinearDepth = linearizeDepthFast(sampleDepth, near, far);
+            //ivec2 iTexDepth = ivec2(depthTexcoord + sampleTex);
+            vec2 texDepth = texcoord + sampleTex * depthPixelSize;
+            float sampleDepth = textureLod(depthSampler, texDepth, 0).r;
+            //float sampleLinearDepth = linearizeDepthFast(sampleDepth, near, far);
                         
-            float fv = Gaussian(g_sigma.z, abs(sampleLinearDepth - linearDepth));
+            float fv = Gaussian(g_sigma.y, abs(sampleDepth - depth));
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;
@@ -261,14 +263,14 @@ void main() {
         float sss = deferredNormal.a;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            float depthLinear = linearizeDepthFast(depth, near, far);
+            //float depthLinear = linearizeDepthFast(depth, near, far);
 
             #ifdef DYN_LIGHT_BLUR
                 const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / depthLinear;
                 #if MATERIAL_NORMALS != NORMALMAP_NONE
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, depthLinear, texNormal, lightSigma);
+                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, texNormal, lightSigma);
                 #else
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, depthLinear, localNormal, lightSigma);
+                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
                 #endif
             #elif DYN_LIGHT_RES == 0
                 vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
@@ -335,17 +337,16 @@ void main() {
         //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
 
         #if VOLUMETRIC_RES == 2
-            const vec3 vlSigma = vec3(1.8, 1.8, 48.0);
+            const vec2 vlSigma = vec2(1.0, 0.00001);
         #elif VOLUMETRIC_RES == 1
-            const vec3 vlSigma = vec3(1.8, 1.8, 24.0);
+            const vec2 vlSigma = vec2(2.0, 0.00002);
         #else
-            const vec3 vlSigma = vec3(0.5, 0.5, 48.0);
+            const vec2 vlSigma = vec2(1.2, 0.00002);
         #endif
 
         const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-        float maxDist = min(far, length(viewPos));
-        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, maxDist, vlSigma);
+        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

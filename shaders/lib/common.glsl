@@ -143,7 +143,7 @@ const bool colortex10Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 

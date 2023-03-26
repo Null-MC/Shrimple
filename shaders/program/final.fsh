@@ -23,6 +23,8 @@ uniform float viewHeight;
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_TEXTURE
 	uniform usampler2D BUFFER_DEFERRED_DATA;
+#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
+	uniform sampler2D BUFFER_VL;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 	uniform sampler2D BUFFER_BLOCKLIGHT;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
@@ -62,6 +64,8 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_TEXTURE
 		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
 		vec3 color = unpackUnorm4x8(deferredData.a).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
+		vec3 color = textureLod(BUFFER_VL, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 		vec3 color = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR

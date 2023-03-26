@@ -258,8 +258,9 @@ value.DEBUG_VIEW.3=Deferred Light
 value.DEBUG_VIEW.4=Deferred Shadow
 value.DEBUG_VIEW.5=Deferred Fog
 value.DEBUG_VIEW.6=Deferred Texture
-value.DEBUG_VIEW.7=Deferred BlockLight
-value.DEBUG_VIEW.8=Shadow Color
+value.DEBUG_VIEW.7=Deferred VL
+value.DEBUG_VIEW.8=Deferred BlockLight
+value.DEBUG_VIEW.9=Shadow Color
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
