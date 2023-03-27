@@ -403,7 +403,8 @@
 
             vec3 ambientLight = skyLight;
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_DEFERRED
-                vec2 lmFinal = pow3(lmcoord - (0.5/16.0)) + (0.5/16.0);
+                //vec2 lmFinal = pow3(lmcoord - (0.5/16.0)) + (0.5/16.0);
+                vec2 lmFinal = lmcoord;
                 ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
                 ambientLight = RGBToLinear(ambientLight);
             #endif

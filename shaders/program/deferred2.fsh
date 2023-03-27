@@ -45,7 +45,7 @@ uniform mat4 shadowProjection;
 uniform vec3 shadowLightPosition;
 uniform ivec2 eyeBrightnessSmooth;
 
-#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -57,7 +57,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 

@@ -102,7 +102,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         vec3 traceLocalPos = localStep * (i + dither) + localStart;
 
-        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO
+        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             uint gridIndex;
             int lightCount = GetSceneLights(traceLocalPos, gridIndex);
             vec3 blockLightAccum = vec3(0.0);
@@ -112,12 +112,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     SceneLightData light = GetSceneLight(gridIndex, i);
 
                     vec3 lightVec = traceLocalPos - light.position;
-                    uint traceFace = 1u << GetLightMaskFace(lightVec);
-                    if ((light.data & traceFace) == traceFace) continue;
                     if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
-
+                    
                     vec3 lightColor = light.color;
-                    #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT
+                    #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                        uint traceFace = 1u << GetLightMaskFace(lightVec);
+                        if ((light.data & traceFace) == traceFace) continue;
+
                         if ((light.data & 1u) == 1u) {
                             vec3 traceOrigin = GetLightGridPosition(light.position);
                             vec3 traceEnd = traceOrigin + 0.99*lightVec;
