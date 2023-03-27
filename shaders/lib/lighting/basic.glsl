@@ -384,7 +384,10 @@
             return blockLight;
         }
 
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in vec2 lmcoord, const in float occlusion) {
+        vec3 GetFinalLighting(in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in vec2 lmcoord, const in float occlusion) {
+            // weather darkening
+            
+
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
                     vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;

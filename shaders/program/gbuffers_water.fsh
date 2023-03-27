@@ -113,6 +113,7 @@ uniform float blindness;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
+    uniform float rainStrength;
     uniform float near;
 #endif
 

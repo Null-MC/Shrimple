@@ -105,6 +105,7 @@ uniform int heldItemId2;
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
+        uniform float rainStrength;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif

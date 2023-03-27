@@ -5,8 +5,8 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    const float scatterF = 0.024 * VolumetricDensityF;
-    const float extinction = 0.002 * VolumetricDensityF;
+    float scatterF = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
+    float extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
 
     vec3 localStart = localViewDir * (nearDist + 1.0);
     vec3 localEnd = localViewDir * (farDist - 1.0);
@@ -48,8 +48,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         vec3 skyLightColor = skyColor + 0.02;
 
-        float phaseForward = ComputeVolumetricScattering(VoL, 0.56);
-        float phaseBack = ComputeVolumetricScattering(VoL, -0.36);
+        float phaseForward = ComputeVolumetricScattering(VoL, mix(0.46, 0.26, rainStrength));
+        float phaseBack = ComputeVolumetricScattering(VoL, -mix(0.36, 0.16, rainStrength));
         float phase = mix(phaseBack, phaseForward, 0.7);
     #endif
 

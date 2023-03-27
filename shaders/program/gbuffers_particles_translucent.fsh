@@ -99,6 +99,7 @@ uniform sampler2D lightmap;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
+    uniform float rainStrength;
 #endif
 
 #include "/lib/sampling/noise.glsl"

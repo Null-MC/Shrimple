@@ -86,6 +86,7 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
+    uniform float rainStrength;
 #endif
 
 #if MC_VERSION >= 11700
