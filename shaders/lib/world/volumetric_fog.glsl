@@ -20,6 +20,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
+    float G_Forward = mix(0.46, 0.26, rainStrength);
+    float G_Back =   -mix(0.36, 0.16, rainStrength);
+    const float G_mix = 0.7;
+
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
         vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
@@ -48,9 +52,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         vec3 skyLightColor = skyColor + 0.02;
 
-        float phaseForward = ComputeVolumetricScattering(VoL, mix(0.46, 0.26, rainStrength));
-        float phaseBack = ComputeVolumetricScattering(VoL, -mix(0.36, 0.16, rainStrength));
-        float phase = mix(phaseBack, phaseForward, 0.7);
+        float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
+        float skyPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
+        float skyPhase = mix(skyPhaseBack, skyPhaseForward, G_mix);
     #endif
 
     float localStepLength = localRayLength * inverseStepCountF;
@@ -97,7 +101,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                 }
             #endif
 
-            inScattering += phase * sampleF * sampleColor;
+            inScattering += skyPhase * sampleF * sampleColor;
         #endif
 
         vec3 traceLocalPos = localStep * (i + dither) + localStart;
@@ -133,14 +137,23 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         }
                     #endif
 
-                    //float lightVoL = dot(normalize(-lightVec), localViewDir);
-                    //float lightPhase = ComputeVolumetricScattering(lightVoL,  0.99);
+                    //float lightPhase = 1.0;
+                    // #ifdef IS_IRIS
+                    //     if (!firstPersonCamera) {
+                            float lightVoL = dot(normalize(-lightVec), localViewDir);
+                            float lightPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
+                            float lightPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
+                            float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+                            //float lightPhase = ComputeVolumetricScattering(lightVoL,  0.99);
+                    //     }
+                    // #endif
 
-                    blockLightAccum += 0.08 * SampleLight(lightVec, 1.0, light.range) * lightColor;// * lightPhase;
+                    blockLightAccum += SampleLight(lightVec, 1.0, light.range) * lightColor * lightPhase;
                 }
             }
 
-            #ifdef VOLUMETRIC_HANDLIGHT
+            //#ifdef VOLUMETRIC_HANDLIGHT
+            if (!firstPersonCamera) {
                 vec2 noiseSample = GetDynLightNoise(vec3(0.0));
 
                 if (heldBlockLightValue > 0) {
@@ -192,7 +205,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         blockLightAccum += 0.02 * SampleLight(lightVec, 1.0, heldBlockLightValue2) * lightColor;
                     }
                 }
-            #endif
+            }
+            //#endif
 
             inScattering += blockLightAccum * DynamicLightBrightness;
         #endif
