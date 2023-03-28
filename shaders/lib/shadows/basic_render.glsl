@@ -1,32 +1,10 @@
 float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {
     #if SHADOW_COLORS == 0
-        //for normal shadows, only consider the closest thing to the sun,
-        //regardless of whether or not it's opaque.
         return texture(shadowtex0, shadowPos + offset).r;
     #else
-        //for invisible and colored shadows, first check the closest OPAQUE thing to the sun.
         return texture(shadowtex1, shadowPos + offset).r;
     #endif
 }
-
-// returns: [0] when depth occluded, [1] otherwise
-// float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float bias) {
-//     #ifdef SHADOW_ENABLE_HWCOMP
-//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-//             return texture(shadowtex0HW, shadowPos + vec3(offset, -bias)).r;
-//         #else
-//             return texture(shadow, shadowPos + vec3(offset, -bias)).r;
-//         #endif
-//     #else
-//         #if SHADOW_COLORS == SHADOW_COLOR_IGNORED
-//             float texDepth = texture(shadowtex1, shadowPos.xy + offset).r;
-//         #else
-//             float texDepth = texture(shadowtex0, shadowPos.xy + offset).r;
-//         #endif
-
-//         return step(shadowPos.z - bias, texDepth);
-//     #endif
-// }
 
 // returns: [0] when depth occluded, [1] otherwise
 float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float bias) {
@@ -37,7 +15,6 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         return step(shadowPos.z - bias, texDepth);
     #endif
 }
-
 
 #if SHADOW_FILTER != 0
     // PCF

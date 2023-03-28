@@ -29,15 +29,17 @@ uniform int fogMode;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/post/tonemap.glsl"
 
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    /* RENDERTARGETS: 1,2 */
-    layout(location = 0) out uvec3 outDeferredPre;
-    layout(location = 1) out uvec2 outDeferredPost;
+#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    /* RENDERTARGETS: 1,2,3 */
+    layout(location = 0) out vec4 outDeferredColor;
+    layout(location = 1) out vec4 outDeferredShadow;
+    layout(location = 2) out uvec4 outDeferredData;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -46,22 +48,26 @@ uniform int fogMode;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+
         float fogF = GetVanillaFogFactor(vLocalPos);
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
-        uvec3 deferredPre;
-        deferredPre.r = packUnorm4x8(color);
-        deferredPre.g = packUnorm4x8(vec4(vec3(0.0), 1.0));
-        deferredPre.b = packUnorm4x8(vec4(1.0));
+        outDeferredColor = color;
+        outDeferredShadow = vec4(1.0);
 
-        uvec2 deferredPost;
-        deferredPost.r = packUnorm4x8(vec4(1.0));
-        deferredPost.g = packUnorm4x8(vec4(fogColorFinal, fogF));
+        uvec4 deferredData = uvec4(0);
+        deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
+        deferredData.g = packUnorm4x8(vec4(vec2(15.5/16.0), 1.0, 1.0));
+        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
-        outDeferredPre = deferredPre;
-        outDeferredPost = deferredPost;
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
+        #endif
+        
+        outDeferredData = deferredData;
     #else
         color.rgb = RGBToLinear(color.rgb);
 
