@@ -226,6 +226,7 @@ void main() {
 
     float sss = GetMaterialSSS(vBlockId, atlasCoord);
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
+    vec2 lmFinal = lmcoord;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -240,7 +241,12 @@ void main() {
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
                 shadowColor = GetFinalShadowColor(sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor(sss));
+                float shadowF = GetFinalShadowFactor(sss);
+                shadowColor = vec3(shadowF);
+
+                lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
+                lmFinal.y = max(lmFinal.y, shadowF);
+                lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
             #endif
         }
     #endif
@@ -305,7 +311,7 @@ void main() {
 
         uvec4 deferredData = uvec4(0);
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
 
         #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -316,11 +322,11 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
+            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmFinal, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

@@ -51,8 +51,9 @@ value.MATERIAL_SSS.2=LabPBR
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
 
 option.MATERIAL_PARALLAX=Mode
+option.MATERIAL_PARALLAX.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
 value.MATERIAL_PARALLAX.0=OFF
-value.MATERIAL_PARALLAX.1=Enabled
+value.MATERIAL_PARALLAX.1=Standard
 value.MATERIAL_PARALLAX.2=Smooth
 value.MATERIAL_PARALLAX.3=Sharp
 
@@ -63,6 +64,9 @@ option.MATERIAL_PARALLAX_SAMPLES=Samples
 
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Shadow Samples
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
+
+option.MATERIAL_PARALLAX_DISTANCE=Distance
+option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from the camera to render POM.
 
 
 screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
