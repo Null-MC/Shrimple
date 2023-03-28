@@ -425,9 +425,12 @@
 
             vec3 ambientLight = skyLight;
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_DEFERRED
-                //vec2 lmFinal = pow3(lmcoord - (0.5/16.0)) + (0.5/16.0);
-                ambientLight = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
-                ambientLight = 0.16 * RGBToLinear(ambientLight);
+                vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+                lmFinal.x *= 0.16;
+                lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
+
+                ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                ambientLight = RGBToLinear(ambientLight);
             #endif
 
             float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
