@@ -277,30 +277,30 @@ void main() {
             vec3 reflectDir = reflect(localViewDir, texNormal);
             vec3 reflectColor = GetFogColor(reflectDir.y) * vec3(0.7, 0.8, 1.0);
 
-            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
-            float F = 1.0 - NoVmax;//F_schlick(NoVmax, 0.02, 1.0);
+            float NoV = abs(dot(texNormal, -localViewDir));
+            float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
             color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
             color.a = max(color.a, F);
         }
         else {
             #if MATERIAL_NORMALS != NORMALMAP_NONE
-                float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+                float NoV = abs(dot(texNormal, -localViewDir));
             #else
-                float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+                float NoV = abs(dot(localNormal, -localViewDir));
             #endif
 
-            float F = F_schlick(NoVmax, 0.04, 1.0);
+            float F = F_schlick(NoV, 0.04, 1.0);
             color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
         }
     #else
         #if MATERIAL_NORMALS != NORMALMAP_NONE
-            float NoVmax = max(dot(texNormal, -localViewDir), 0.0);
+            float NoV = abs(dot(texNormal, -localViewDir));
         #else
-            float NoVmax = max(dot(localNormal, -localViewDir), 0.0);
+            float NoV = abs(dot(localNormal, -localViewDir));
         #endif
 
-        float F = F_schlick(NoVmax, 0.04, 1.0);
+        float F = F_schlick(NoV, 0.04, 1.0);
         color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
     #endif
 
