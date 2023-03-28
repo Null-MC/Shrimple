@@ -72,16 +72,6 @@ uniform float blindness;
 uniform int heldItemId;
 uniform int heldItemId2;
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
-#endif
-
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -105,10 +95,23 @@ uniform int heldItemId2;
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
-        uniform float rainStrength;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
+#endif
+
+#ifdef VL_BUFFER_ENABLED
+    uniform float rainStrength;
+#endif
+
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
 #endif
 
 #include "/lib/sampling/depth.glsl"

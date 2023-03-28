@@ -164,7 +164,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
                         vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
-                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT
+                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                             vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                             vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
@@ -189,7 +189,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
                         vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
-                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT
+                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                             vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                             vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
