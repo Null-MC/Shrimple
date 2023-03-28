@@ -80,31 +80,6 @@ float GetShadowOffsetBias(const in int cascade) {
         matProj[2][2] = -(zFar + zNear) / (zFar - zNear);
         matProj[3][2] = -(2.0 * zFar * zNear) / (zFar - zNear);
     }
-
-    void GetFrustumMinMax(const in mat4 matProjection, out vec3 clipMin, out vec3 clipMax) {
-        vec3 frustum[8] = vec3[](
-            vec3(-1.0, -1.0, -1.0),
-            vec3( 1.0, -1.0, -1.0),
-            vec3(-1.0,  1.0, -1.0),
-            vec3( 1.0,  1.0, -1.0),
-            vec3(-1.0, -1.0,  1.0),
-            vec3( 1.0, -1.0,  1.0),
-            vec3(-1.0,  1.0,  1.0),
-            vec3( 1.0,  1.0,  1.0));
-
-        for (int i = 0; i < 8; i++) {
-            vec3 shadowClipPos = unproject(matProjection * vec4(frustum[i], 1.0));
-
-            if (i == 0) {
-                clipMin = shadowClipPos;
-                clipMax = shadowClipPos;
-            }
-            else {
-                clipMin = min(clipMin, shadowClipPos);
-                clipMax = max(clipMax, shadowClipPos);
-            }
-        }
-    }
     
     vec3 GetCascadePaddedFrustumClipBounds(const in mat4 matShadowProjection, const in float padding) {
         return 1.0 + padding * vec3(

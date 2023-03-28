@@ -63,6 +63,10 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef VL_BUFFER_ENABLED
+    uniform float rainStrength;
+#endif
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif

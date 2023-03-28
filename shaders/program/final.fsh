@@ -18,7 +18,7 @@ uniform float viewHeight;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform sampler2D BUFFER_DEFERRED_SHADOW;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_TEXTURE
@@ -55,11 +55,10 @@ void main() {
 		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
 		vec3 color = unpackUnorm4x8(deferredData.g).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
-		vec3 color = unpackUnorm4x8(deferredData.b).rgb;
+		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
 		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
-		vec4 fog = unpackUnorm4x8(deferredData.a);
+		vec4 fog = unpackUnorm4x8(deferredData.b);
 		vec3 color = fog.rgb * fog.a;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_TEXTURE
 		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);

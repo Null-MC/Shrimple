@@ -120,7 +120,7 @@ uniform sampler2D lightmap;
         #include "/lib/shadows/basic_render.glsl"
     #endif
     
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

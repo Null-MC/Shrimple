@@ -22,6 +22,16 @@ flat in int vBlockId;
     in float vTangentW;
 #endif
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    in vec2 vLocalCoord;
+    in vec3 tanViewPos;
+    flat in mat2 atlasBounds;
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+        in vec3 tanLightPos;
+    #endif
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -42,8 +52,34 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-uniform vec3 sunPosition;
+#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+    uniform sampler2D shadowcolor0;
+#endif
+
+#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+    uniform sampler2D lightmap;
+#endif
+
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
 uniform vec3 upPosition;
+uniform vec3 skyColor;
+uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+#endif
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    uniform ivec2 atlasSize;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
@@ -64,26 +100,6 @@ uniform vec3 upPosition;
     #endif
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-    uniform sampler2D shadowcolor0;
-#endif
-
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform sampler2D lightmap;
-#endif
-
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
-
 #if AF_SAMPLES > 1
     uniform float viewWidth;
     uniform float viewHeight;
@@ -97,10 +113,7 @@ uniform int fogMode;
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
     uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelView;
-    //uniform mat4 gbufferModelViewInverse;
     uniform vec3 cameraPosition;
-    //uniform float far;
 
     uniform float blindness;
 
@@ -136,7 +149,7 @@ uniform int fogMode;
         #include "/lib/shadows/basic_render.glsl"
     #endif
 
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -149,6 +162,11 @@ uniform int fogMode;
 #include "/lib/lighting/dynamic_blocks.glsl"
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/linear.glsl"
+    #include "/lib/material/parallax.glsl"
+#endif
 
 #if !(defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
@@ -172,7 +190,26 @@ uniform int fogMode;
 #endif
 
 void main() {
-    vec4 color = texture(gtexture, texcoord);
+    vec2 atlasCoord = texcoord;
+    
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        mat2 dFdXY = mat2(dFdx(atlasCoord), dFdy(atlasCoord));
+
+        bool skipParallax = false;
+        float viewDist = length(vPos);
+
+        float texDepth = 1.0;
+        vec3 traceCoordDepth = vec3(1.0);
+        vec3 tanViewDir = normalize(tanViewPos);
+
+        if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
+            atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+        }
+
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    #else
+        vec4 color = texture(gtexture, texcoord);
+    #endif
 
     if (color.a < alphaTestRef) {
         discard;
@@ -185,8 +222,8 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    float sss = GetMaterialSSS(vBlockId, texcoord);
-    float emission = GetMaterialEmission(vBlockId, texcoord);
+    float sss = GetMaterialSSS(vBlockId, atlasCoord);
+    float emission = GetMaterialEmission(vBlockId, atlasCoord);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -207,9 +244,34 @@ void main() {
     #endif
 
     vec3 texNormal = vec3(0.0);
+    float parallaxShadow = 1.0;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
+        texNormal = GetMaterialNormal(atlasCoord);
+
+        #if MATERIAL_PARALLAX != PARALLAX_NONE
+            #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                float dO = max(texDepth - traceCoordDepth.z, 0.0);
+
+                if (dO >= 0.5 / 255.0) {
+                    #ifdef PARALLAX_USE_TEXELFETCH
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, traceCoordDepth.z, tanViewDir);
+                    #else
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                    #endif
+                }
+            #endif
+
+            #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
+                if (traceCoordDepth.z + EPSILON < 1.0) {
+                    vec3 tanLightDir = normalize(tanLightPos);
+                    shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                }
+            #endif
+        #endif
+
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
+        mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+        texNormal = matLocalTBN * texNormal;
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

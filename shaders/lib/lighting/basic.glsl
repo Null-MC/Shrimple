@@ -1,4 +1,27 @@
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    // float G(const in float NoV, const in float k) {
+    //     return rcp(NoV * (1.0 - k) + k);
+    // }
+
+    // float GGX(vec3 N, vec3 V, vec3 L, float roughness, float F0) {
+    //     vec3 H = normalize(V + L);
+    //     float NoL = saturate(dot(N, L));
+    //     float NoV = saturate(dot(N, V));
+    //     float NoH = saturate(dot(N, H));
+    //     float LoH = saturate(dot(L, H));
+
+    //     float alpha = pow2(roughness);
+    //     float a2 = pow2(alpha);
+    //     float k = alpha * 0.5;
+
+    //     float denom = pow2(NoH) * (a2 - 1.0) + 1.0;
+    //     float D = a2 / (PI * denom * denom);
+
+    //     float F = F0 + (1.0 - F0) * pow(1.0 - LoH, 5.0);
+
+    //     return NoL * D * F * G(NoL, k) * G(NoV, k);
+    // }
+
     float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
         float NoL = 1.0;
 
@@ -332,11 +355,7 @@
 #ifdef RENDER_FRAG
     #if defined RENDER_GBUFFER && !defined RENDER_CLOUDS
         vec4 GetColor() {
-            #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
-                vec4 color = textureAnisotropic(gtexture, texcoord);
-            #else
-                vec4 color = texture(gtexture, texcoord);
-            #endif
+            vec4 color = texture(gtexture, texcoord);
 
             #ifndef RENDER_TRANSLUCENT
                 if (color.a < alphaTestRef) {
@@ -412,8 +431,10 @@
                 ambientLight = RGBToLinear(ambientLight);
             #endif
 
-            vec3 ambient = albedo * ambientLight * occlusion * ShadowBrightnessF;
-            vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - ShadowBrightnessF));
+            float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
+
+            vec3 ambient = albedo * ambientLight * occlusion * shadowingF;
+            vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - shadowingF));
             return ambient + diffuse;
         }
     //#endif

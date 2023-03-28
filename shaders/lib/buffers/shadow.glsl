@@ -7,6 +7,11 @@
     vec2 pcfDiskOffset[32];     // 256
     vec2 pcssDiskOffset[32];    // 256
 
+    #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        vec2 shadowViewBoundsMin;
+        vec2 shadowViewBoundsMax;
+    #endif
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         float cascadeSize[4];           // 16
         vec2 shadowProjectionSize[4];   // 32

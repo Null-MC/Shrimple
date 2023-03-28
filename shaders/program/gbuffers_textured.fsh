@@ -29,39 +29,6 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
-
-uniform mat4 gbufferModelView;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
-
-uniform int frameCounter;
-uniform float frameTimeCounter;
-//uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
-uniform vec3 upPosition;
-//uniform float far;
-
-uniform float blindness;
-
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
-#endif
-
 uniform sampler2D lightmap;
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -74,7 +41,32 @@ uniform sampler2D lightmap;
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         uniform sampler2DShadow shadowtex0HW;
     #endif
+#endif
 
+uniform int frameCounter;
+uniform float frameTimeCounter;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
+uniform vec3 upPosition;
+uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+uniform float blindness;
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 skyColor;
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
+#ifdef WORLD_SHADOW_ENABLED
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -95,6 +87,16 @@ uniform sampler2D lightmap;
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == SHADOW_COLOR_ENABLED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
         uniform sampler2D shadowcolor0;
     #endif
+#endif
+
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -122,7 +124,7 @@ uniform sampler2D lightmap;
         #include "/lib/shadows/basic_render.glsl"
     #endif
     
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

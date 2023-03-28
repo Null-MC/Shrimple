@@ -137,7 +137,7 @@ uniform float blindness;
         #include "/lib/shadows/basic_render.glsl"
     #endif
 
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #include "/lib/entities.glsl"
@@ -219,8 +219,11 @@ void main() {
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
+        texNormal = GetMaterialNormal(texcoord);
+
         vec3 localTangent = normalize(vLocalTangent);
-        texNormal = GetMaterialNormal(texcoord, localNormal, localTangent);
+        mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+        texNormal *= matLocalTBN;
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);

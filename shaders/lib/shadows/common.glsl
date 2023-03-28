@@ -1,57 +1,24 @@
-#if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-    vec3 GetFinalShadowColor(const in float sss) {
-        vec3 shadowColor = vec3(1.0);
+void GetFrustumMinMax(const in mat4 matProjection, out vec3 clipMin, out vec3 clipMax) {
+    vec3 frustum[8] = vec3[](
+        vec3(-1.0, -1.0, -1.0),
+        vec3( 1.0, -1.0, -1.0),
+        vec3(-1.0,  1.0, -1.0),
+        vec3( 1.0,  1.0, -1.0),
+        vec3(-1.0, -1.0,  1.0),
+        vec3( 1.0, -1.0,  1.0),
+        vec3(-1.0,  1.0,  1.0),
+        vec3( 1.0,  1.0,  1.0));
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
+    for (int i = 0; i < 8; i++) {
+        vec3 shadowClipPos = unproject(matProjection * vec4(frustum[i], 1.0));
 
-                if (tile >= 0)
-                    shadowColor = GetShadowColor(shadowPos[tile], tile);
-            #else
-                float bias = sss * (1.5 / 256.0);
-                shadowColor = GetShadowColor(shadowPos, bias);
-            #endif
-        #endif
-
-        // #if MATERIAL_SSS != SSS_NONE
-        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
-        // #else
-        //     shadowColor *= max(NoL, 0.0);
-        // #endif
-
-        return shadowColor;
+        if (i == 0) {
+            clipMin = shadowClipPos;
+            clipMax = shadowClipPos;
+        }
+        else {
+            clipMin = min(clipMin, shadowClipPos);
+            clipMax = max(clipMax, shadowClipPos);
+        }
     }
-
-    vec3 GetFinalShadowColor() {
-        return GetFinalShadowColor(0.0);
-    }
-#else
-    float GetFinalShadowFactor(const in float sss) {
-        float shadow = 1.0;
-
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
-
-                if (tile >= 0)
-                    shadow = GetShadowFactor(shadowPos[tile], tile);
-            #else
-                float bias = sss * (1.5 / 256.0);
-                shadow = GetShadowFactor(shadowPos, bias);
-            #endif
-        #endif
-
-        // #if MATERIAL_SSS != SSS_NONE
-        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
-        // #else
-        //     shadowColor *= max(NoL, 0.0);
-        // #endif
-
-        return shadow;
-    }
-
-    float GetFinalShadowFactor() {
-        return GetFinalShadowFactor(0.0);
-    }
-#endif
+}

@@ -111,7 +111,7 @@ uniform float blindness;
         #include "/lib/shadows/basic_render.glsl"
     #endif
 
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE

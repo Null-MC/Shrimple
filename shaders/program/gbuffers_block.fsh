@@ -119,7 +119,7 @@ uniform float far;
         #include "/lib/shadows/basic_render.glsl"
     #endif
     
-    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common_render.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED

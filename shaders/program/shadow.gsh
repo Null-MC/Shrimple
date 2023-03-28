@@ -101,12 +101,8 @@ void main() {
         vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            bool intersects = true;
-            //vec3 shadowClipPos = (shadowProjection * vec4(originShadowViewPos, 1.0)).xyz;
-
-            // TODO: shadow culling needs different frustum tests
-
-            if (!intersects) return;
+            if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
+             || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

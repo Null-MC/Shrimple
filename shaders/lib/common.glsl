@@ -80,6 +80,11 @@ const bool colortex10Clear = true;
 #define MATERIAL_NORMALS 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
 #define MATERIAL_SSS 0 // [0 1 2]
+#define MATERIAL_PARALLAX 0 // [0 1 2 3]
+#define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
+#define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
+#define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
+#define MATERIAL_PARALLAX_DISTANCE 40
 
 
 // Shadow Options
@@ -189,6 +194,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
+const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;
 const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
