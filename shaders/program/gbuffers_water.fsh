@@ -57,7 +57,6 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
 uniform vec3 skyColor;
@@ -72,14 +71,9 @@ uniform int fogMode;
 
 uniform float blindness;
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -113,8 +107,17 @@ uniform float blindness;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
-    uniform float rainStrength;
     uniform float near;
+#endif
+
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -155,12 +158,10 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
-//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
-//#endif
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/flicker.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -303,14 +304,6 @@ void main() {
         float F = F_schlick(NoV, 0.04, 1.0);
         color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
     #endif
-
-    // #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    //     float emission = GetSceneBlockEmission(vBlockId);
-    //     float sss = GetBlockSSS(vBlockId);
-    // #else
-    //     const float emission = 0.0;
-    //     const float sss = 0.0;
-    // #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
     color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord, glcolor.a);

@@ -73,6 +73,7 @@ uniform int entityId;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
+    #include "/lib/shadows/common.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"

@@ -21,7 +21,6 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
-    //uniform mat4 shadowModelView;
     uniform float near;
     uniform float far;
 #endif

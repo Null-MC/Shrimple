@@ -37,7 +37,6 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousProjection;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
@@ -54,6 +53,11 @@ uniform int fogMode;
 
 uniform float blindness;
 
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
@@ -61,10 +65,6 @@ uniform float blindness;
     uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
-#endif
-
-#ifdef VL_BUFFER_ENABLED
-    uniform float rainStrength;
 #endif
 
 #if MC_VERSION >= 11700
@@ -117,7 +117,6 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
 
     float total = 0.0;
     vec3 accum = vec3(0.0);
-    //vec3 defaultColor;
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.y, iy);
@@ -125,29 +124,16 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
 
-            //vec2 sampleBlendTex = texcoord - 0.5 * screenPixelSize + (vec2(ix, iy) + 0.5) * blendPixelSize;
             vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
             vec3 sampleValue = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
 
-            //if (abs(iy) < EPSILON && abs(ix) < EPSILON) defaultColor = sampleValue;
-
-            //ivec2 iTexLight = ivec2(texcoord * lightBufferSize + sampleTex);
             vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
             float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
-
-            // ivec2 iTexLight = ivec2(texcoord * viewSize + sampleTex / lightBufferScale);
-            // float handClipDepth = texelFetch(depthtex2, iTexLight, 0).r;
-            // if (handClipDepth > sampleDepth) {
-            //     sampleDepth = sampleDepth * 2.0 - 1.0;
-            //     sampleDepth /= MC_HAND_DEPTH;
-            //     sampleDepth = sampleDepth * 0.5 + 0.5;
-            // }
 
             sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
             sampleDepth = linearizeDepthFast(sampleDepth, near, far);
             
             float normalWeight = max(dot(normal, sampleNormal), 0.0);
-            //float fv = Gaussian(g_sigma.z, 10.0*abs(sampleDepth - linearDepth) + 6.0*(1.0 - normalWeight));
             float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 12.0*(1.0 - normalWeight));
             
             float weight = fx*fy*fv;
@@ -169,7 +155,6 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
 
     vec2 blendPixelSize = rcp(blendTexSize);
     vec2 depthPixelSize = rcp(depthTexSize);
-    //vec2 blendTexcoord = texcoord * blendTexSize;
     vec2 depthTexcoord = texcoord * depthTexSize;
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
@@ -183,10 +168,8 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             vec2 texBlend = texcoord + sampleTex * blendPixelSize;
             vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
 
-            //ivec2 iTexDepth = ivec2(depthTexcoord + sampleTex);
             vec2 texDepth = texcoord + sampleTex * depthPixelSize;
             float sampleDepth = textureLod(depthSampler, texDepth, 0).r;
-            //float sampleLinearDepth = linearizeDepthFast(sampleDepth, near, far);
                         
             float fv = Gaussian(g_sigma.y, abs(sampleDepth - depth));
             
@@ -196,7 +179,6 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
         }
     }
     
-    //if (total <= EPSILON) return vec4(0.0);
     return accum / max(total, EPSILON);
 }
 
@@ -267,10 +249,8 @@ void main() {
         float sss = deferredNormal.a;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            //float depthLinear = linearizeDepthFast(depth, near, far);
-
             #ifdef DYN_LIGHT_BLUR
-                const vec3 lightSigma = vec3(1.2, 1.2, 0.2);// / depthLinear;
+                const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
                 #if MATERIAL_NORMALS != NORMALMAP_NONE
                     vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, texNormal, lightSigma);
                 #else

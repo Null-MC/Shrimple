@@ -33,24 +33,6 @@ in vec3 vBlockLight;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform vec3 sunPosition;
-uniform vec3 upPosition;
-uniform vec3 skyColor;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
-
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform float viewWidth;
-
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
 #endif
@@ -70,7 +52,31 @@ uniform float viewWidth;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-    
+#endif
+
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 upPosition;
+uniform vec3 skyColor;
+uniform float far;
+
+uniform vec3 fogColor;
+uniform float fogDensity;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+uniform int fogMode;
+
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform float viewWidth;
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
+#ifdef WORLD_SHADOW_ENABLED
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -87,10 +93,7 @@ uniform float viewWidth;
 
     uniform int frameCounter;
     uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelView;
-    //uniform mat4 gbufferModelViewInverse;
     uniform vec3 cameraPosition;
-    //uniform float far;
 
     uniform float blindness;
 
@@ -151,7 +154,6 @@ uniform float viewWidth;
 
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
-    //#include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 

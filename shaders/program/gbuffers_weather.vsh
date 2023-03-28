@@ -45,21 +45,13 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-// #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-//     uniform int heldItemId;
-//     uniform int heldItemId2;
-//     uniform int heldBlockLightValue;
-//     uniform int heldBlockLightValue2;
-//     uniform bool firstPersonCamera;
-//     uniform vec3 eyePosition;
-// #endif
-
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/noise.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
+	#include "/lib/shadows/common.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 		#include "/lib/shadows/cascaded.glsl"
@@ -67,22 +59,6 @@ uniform vec3 cameraPosition;
 		#include "/lib/shadows/basic.glsl"
 	#endif
 #endif
-
-// #ifdef IRIS_FEATURE_SSBO
-// 	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-// 		#include "/lib/items.glsl"
-// 		#include "/lib/lighting/blackbody.glsl"
-// 	#endif
-
-// 	// #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-// 	// 	#include "/lib/buffers/lighting.glsl"
-// 	// 	#include "/lib/lighting/dynamic.glsl"
-// 	// #endif
-
-// 	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-// 		#include "/lib/lighting/dynamic_blocks.glsl"
-// 	#endif
-// #endif
 
 #include "/lib/lighting/basic.glsl"
 
@@ -92,6 +68,5 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	glcolor = gl_Color;
 
-	//gl_Position = ftransform();
 	BasicVertex();
 }

@@ -60,6 +60,19 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
+#ifdef WORLD_SHADOW_ENABLED
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
+
+    #ifdef SHADOW_ENABLE_HWCOMP
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex0HW;
+        #else
+            uniform sampler2DShadow shadow;
+        #endif
+    #endif
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 upPosition;
@@ -75,6 +88,7 @@ uniform int fogMode;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform float rainStrength;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -82,32 +96,11 @@ uniform int fogMode;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-    
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-#endif
-
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
 #endif
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
@@ -127,9 +120,18 @@ uniform int fogMode;
     #endif
 #endif
 
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
-//#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"

@@ -78,6 +78,7 @@ uniform vec3 cameraPosition;
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
+    #include "/lib/shadows/common.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"
@@ -128,11 +129,8 @@ void main() {
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
-            // basic texture to determine how shallow/far away from the shore the water is
             physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-            // transform gl_Vertex (since it is the raw mesh, i.e. not transformed yet)
             vec4 finalPosition = vec4(gl_Vertex.x, gl_Vertex.y + physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime), gl_Vertex.z, gl_Vertex.w);
-            // pass this to the fragment shader to fetch the texture there for per fragment normals
             physics_localPosition = finalPosition.xyz;
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);

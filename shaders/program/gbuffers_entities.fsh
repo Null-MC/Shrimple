@@ -41,10 +41,30 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
+#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+    uniform sampler2D shadowcolor0;
+#endif
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+    uniform sampler2D lightmap;
+#endif
+
+#ifdef WORLD_SHADOW_ENABLED
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
+
+    #ifdef SHADOW_ENABLE_HWCOMP
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex0HW;
+        #else
+            uniform sampler2DShadow shadow;
+        #endif
+    #endif
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
@@ -59,19 +79,22 @@ uniform int fogMode;
 uniform vec4 entityColor;
 uniform int entityId;
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-    uniform sampler2D shadowcolor0;
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
+#ifdef WORLD_SHADOW_ENABLED
+    uniform vec3 shadowLightPosition;
+
+    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+        uniform mat4 shadowProjection;
+    #endif
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform sampler2D lightmap;
-
     uniform int frameCounter;
     uniform float frameTimeCounter;
-    //uniform mat4 gbufferModelView;
-    //uniform mat4 gbufferModelViewInverse;
-    //uniform vec3 cameraPosition;
-    //uniform float far;
 
     uniform float blindness;
 
@@ -93,25 +116,6 @@ uniform int entityId;
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
-#endif
-
-#ifdef WORLD_SHADOW_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-
-    uniform vec3 shadowLightPosition;
-
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -148,7 +152,6 @@ uniform int entityId;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     #include "/lib/sampling/depth.glsl"
-    //#include "/lib/sampling/noise.glsl"
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 

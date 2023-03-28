@@ -137,22 +137,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         }
                     #endif
 
-                    //float lightPhase = 1.0;
-                    // #ifdef IS_IRIS
-                    //     if (!firstPersonCamera) {
-                            float lightVoL = dot(normalize(-lightVec), localViewDir);
-                            float lightPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
-                            float lightPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
-                            float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
-                            //float lightPhase = ComputeVolumetricScattering(lightVoL,  0.99);
-                    //     }
-                    // #endif
+                    float lightVoL = dot(normalize(-lightVec), localViewDir);
+                    float lightPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
+                    float lightPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
+                    float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                     blockLightAccum += SampleLight(lightVec, 1.0, light.range) * lightColor * lightPhase;
                 }
             }
 
-            //#ifdef VOLUMETRIC_HANDLIGHT
             if (!firstPersonCamera) {
                 vec2 noiseSample = GetDynLightNoise(vec3(0.0));
 
@@ -206,7 +199,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     }
                 }
             }
-            //#endif
 
             inScattering += blockLightAccum * DynamicLightBrightness;
         #endif

@@ -29,13 +29,26 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+uniform sampler2D lightmap;
+
+#ifdef WORLD_SHADOW_ENABLED
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
+
+    #ifdef SHADOW_ENABLE_HWCOMP
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex0HW;
+        #else
+            uniform sampler2DShadow shadow;
+        #endif
+    #endif
+#endif
 
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float near;
@@ -50,30 +63,12 @@ uniform int fogMode;
 
 uniform float blindness;
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
 #endif
-
-#if MC_VERSION >= 11700
-    uniform float alphaTestRef;
-#endif
-
-uniform sampler2D lightmap;
 
 #ifdef WORLD_SHADOW_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-    
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -99,9 +94,19 @@ uniform sampler2D lightmap;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
-    uniform float rainStrength;
 #endif
 
+#if AF_SAMPLES > 1
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform vec4 spriteBounds;
+#endif
+
+#if MC_VERSION >= 11700
+    uniform float alphaTestRef;
+#endif
+
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -111,10 +116,6 @@ uniform sampler2D lightmap;
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
-
-#include "/lib/sampling/depth.glsl"
-//#include "/lib/sampling/noise.glsl"
-//#include "/lib/sampling/ign.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -171,8 +172,6 @@ void main() {
         return;
     }
 
-    //color.rgb *= glcolor.rgb;
-    //vec3 localNormal = normalize(vLocalNormal);
     color.rgb = RGBToLinear(color.rgb);
 
     vec3 blockLight = vBlockLight;

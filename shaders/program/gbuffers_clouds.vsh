@@ -46,6 +46,7 @@ uniform vec3 cameraPosition;
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
+    #include "/lib/shadows/common.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"
@@ -58,11 +59,7 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    //gl_Position = ftransform();
     vColor = gl_Color;
-
-    //vec3 viewPos = (gl_ModelViewMatrix * vec4(gl_Vertex.x, 0.0, gl_Vertex.z, 1.0)).xyz;
-    //vDist = length(viewPos);
 
     BasicVertex();
 }

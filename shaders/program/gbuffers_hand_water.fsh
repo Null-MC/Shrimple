@@ -53,7 +53,6 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float near;
@@ -71,6 +70,11 @@ uniform float blindness;
 
 uniform int heldItemId;
 uniform int heldItemId2;
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
@@ -98,10 +102,6 @@ uniform int heldItemId2;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
-#endif
-
-#ifdef VL_BUFFER_ENABLED
-    uniform float rainStrength;
 #endif
 
 #if AF_SAMPLES > 1
@@ -157,7 +157,6 @@ uniform int heldItemId2;
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
-    //#include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
