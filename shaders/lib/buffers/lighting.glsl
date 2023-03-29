@@ -35,11 +35,7 @@ struct LightCellData {
     vec3 sceneViewDown;
     vec3 sceneViewLeft;
 
-    #ifndef MC_GL_VENDOR_NVIDIA
-        SceneLightData SceneLights[LIGHT_MAX_COUNT];
-    #else
-        SceneLightData SceneLights[];
-    #endif
+    SceneLightData SceneLights[];
 };
 
 #if defined RENDER_BEGIN || defined RENDER_SHADOW
