@@ -160,8 +160,14 @@ uniform int fogMode;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/flicker.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
+#endif
+
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
@@ -197,12 +203,20 @@ void main() {
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         mat2 dFdXY = mat2(dFdx(atlasCoord), dFdy(atlasCoord));
 
+        //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
+        //bool isMissingTangent = any(isnan(vLocalTangent));
+
         bool skipParallax = false;
-        float viewDist = length(vPos);
+        #ifdef RENDER_ENTITIES
+            if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
+        #else
+            if (vBlockId == BLOCK_LAVA) skipParallax = true;
+        #endif
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
+        float viewDist = length(vPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -257,24 +271,26 @@ void main() {
         texNormal = GetMaterialNormal(atlasCoord);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
-            #if MATERIAL_PARALLAX == PARALLAX_SHARP
-                float dO = max(texDepth - traceCoordDepth.z, 0.0);
+            if (!skipParallax) {
+                #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                    float dO = max(texDepth - traceCoordDepth.z, 0.0);
 
-                if (dO >= 0.5 / 255.0) {
-                    #ifdef PARALLAX_USE_TEXELFETCH
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, traceCoordDepth.z, tanViewDir);
-                    #else
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-                    #endif
-                }
-            #endif
+                    if (dO >= 0.5 / 255.0) {
+                        #ifdef PARALLAX_USE_TEXELFETCH
+                            texNormal = GetParallaxSlopeNormal(atlasCoord, traceCoordDepth.z, tanViewDir);
+                        #else
+                            texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        #endif
+                    }
+                #endif
 
-            #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
-                if (traceCoordDepth.z + EPSILON < 1.0) {
-                    vec3 tanLightDir = normalize(tanLightPos);
-                    shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
-                }
-            #endif
+                #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
+                    if (traceCoordDepth.z + EPSILON < 1.0) {
+                        vec3 tanLightDir = normalize(tanLightPos);
+                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                    }
+                #endif
+            }
         #endif
 
         vec3 localTangent = normalize(vLocalTangent);
