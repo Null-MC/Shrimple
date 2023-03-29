@@ -146,7 +146,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);
         if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-            gridIndex = -1u;
+            gridIndex = DYN_LIGHT_GRID_MAX;
             return 0;
         }
 

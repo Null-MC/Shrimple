@@ -111,7 +111,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             int lightCount = GetSceneLights(traceLocalPos, gridIndex);
             vec3 blockLightAccum = vec3(0.0);
 
-            if (gridIndex != -1u) {
+            if (gridIndex != DYN_LIGHT_GRID_MAX) {
                 for (int i = 0; i < lightCount; i++) {
                     SceneLightData light = GetSceneLight(gridIndex, i);
 

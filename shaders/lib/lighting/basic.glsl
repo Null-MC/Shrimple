@@ -64,7 +64,7 @@
         vec3 lightFragPos = localPos + 0.06 * localNormal;
         int lightCount = GetSceneLights(lightFragPos, gridIndex);
 
-        if (gridIndex != -1u) {
+        if (gridIndex != DYN_LIGHT_GRID_MAX) {
             #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
                 bool hasGeoNormal = false;
             #else

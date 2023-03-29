@@ -176,6 +176,12 @@ const bool colortex10Clear = true;
     #define DYN_LIGHT_IMG_SIZE 2048
 #endif
 
+#ifdef MC_GL_VENDOR_INTEL
+    #define DYN_LIGHT_GRID_MAX -1u
+#else
+    #define DYN_LIGHT_GRID_MAX uint(-1)
+#endif
+
 
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
