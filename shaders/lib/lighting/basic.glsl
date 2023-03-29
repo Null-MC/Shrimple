@@ -435,7 +435,7 @@
 
             float shadowingF = 1.0;
             #ifdef WORLD_SKY_ENABLED
-                float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
+                shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
             #endif
 
             vec3 ambient = albedo * ambientLight * occlusion * shadowingF;
