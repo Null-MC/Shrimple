@@ -35,7 +35,11 @@ struct LightCellData {
     vec3 sceneViewDown;
     vec3 sceneViewLeft;
 
-    SceneLightData SceneLights[];
+    #ifndef MC_GL_VENDOR_NVIDIA
+        SceneLightData SceneLights[LIGHT_MAX_COUNT];
+    #else
+        SceneLightData SceneLights[];
+    #endif
 };
 
 #if defined RENDER_BEGIN || defined RENDER_SHADOW
@@ -44,7 +48,11 @@ struct LightCellData {
     layout(std430, binding = 2) readonly buffer localLightingData
 #endif
 {
-    LightCellData[] SceneLightMaps;
+    #ifndef MC_GL_VENDOR_NVIDIA
+        LightCellData[(LIGHT_SIZE_XZ*LIGHT_SIZE_XZ*LIGHT_SIZE_Y)] SceneLightMaps;
+    #else
+        LightCellData[] SceneLightMaps;
+    #endif
 };
 
 #ifdef RENDER_SHADOW
