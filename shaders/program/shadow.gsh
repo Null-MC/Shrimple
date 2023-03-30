@@ -69,6 +69,7 @@ uniform float far;
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_entities.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
 #endif
 
 
@@ -81,20 +82,37 @@ void main() {
             vec3 lightOrigin = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
             lightOrigin = floor(cameraPosition + lightOrigin) + 0.5 - cameraPosition;
 
-            #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
-                vec3 lightColor = vec3(0.0);
-                float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
-                if (lightRange > EPSILON) lightColor = RGBToLinear(textureLod(gtexture, vTexcoord[0], 3).rgb);
-                AddSceneBlockLight(vBlockId[0], lightOrigin, lightColor, lightRange);
-            #else
-                AddSceneBlockLight(vBlockId[0], lightOrigin);
-            #endif
+            // #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
+            //     vec3 lightColor = vec3(0.0);
+            //     float lightRange = GetSceneBlockLightLevel(vBlockId[0]);
+            //     if (lightRange > EPSILON) lightColor = RGBToLinear(textureLod(gtexture, vTexcoord[0], 3).rgb);
+            //     AddSceneBlockLight(vBlockId[0], lightOrigin, lightColor, lightRange);
+            // #else
+            //     AddSceneBlockLight(vBlockId[0], lightOrigin);
+            // #endif
+
+            ivec3 gridCell, blockCell;
+            vec3 gridPos = GetLightGridPosition(lightOrigin);
+            if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
+            uint gridIndex = GetSceneLightGridIndex(gridCell);
+
+            uint lightType = GetLightType(vBlockId[0]);
+
+            if (lightType > 0) {
+                SetSceneLightMask(blockCell, gridIndex, lightType);
+            }
+            else {
+                uint blockType = GetBlockType(vBlockId[0]);
+                SetSceneBlockMask(blockCell, gridIndex, blockType);
+            }
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             if (entityId == ENTITY_LIGHTNING_BOLT) return;
 
-            vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
-            if (light.a > EPSILON) AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
+            // vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
+            // if (light.a > EPSILON) {
+            //     AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
+            // }
         }
     #endif
 

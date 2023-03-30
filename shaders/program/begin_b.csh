@@ -24,11 +24,13 @@ void main() {
         SceneLightMaps[gridIndex].LightCount = 0u;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            for (int i = 0; i < (LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32); i++)
-                SceneLightMaps[gridIndex].Mask[i] = 0u;
+            for (int i = 0; i < (LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32); i++) {
+                SceneLightMaps[gridIndex].BlockMask[i] = 0u;
+                SceneLightMaps[gridIndex].LightMask[i] = 0u;
+            }
         #else
             for (int i = 0; i < (LIGHT_BIN_SIZE3/32); i++)
-                SceneLightMaps[gridIndex].Mask[i] = 0u;
+                SceneLightMaps[gridIndex].LightMask[i] = 0u;
         #endif
     #endif
 }

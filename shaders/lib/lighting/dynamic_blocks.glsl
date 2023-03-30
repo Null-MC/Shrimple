@@ -1306,269 +1306,269 @@ float GetSceneBlockLightSize(const in int blockId) {
         return lightData;
     }
 
-    void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
-        vec3 lightOffset = vec3(0.0);
-        vec3 lightColorFinal = lightColor;
+    // void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos, const in vec3 lightColor, const in float lightRange) {
+    //     vec3 lightOffset = vec3(0.0);
+    //     vec3 lightColorFinal = lightColor;
         
-        if (lightRange > EPSILON) {
-            vec2 noiseSample = vec2(0.0);
-            #ifdef DYN_LIGHT_FLICKER
-                noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
-            #endif
+    //     if (lightRange > EPSILON) {
+    //         vec2 noiseSample = vec2(0.0);
+    //         #ifdef DYN_LIGHT_FLICKER
+    //             noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
+    //         #endif
 
-            float flicker = 0.0;
-            //float pulse = 0.0;
-            float glow = 0.0;
+    //         float flicker = 0.0;
+    //         //float pulse = 0.0;
+    //         float glow = 0.0;
 
-            #ifdef DYN_LIGHT_FLICKER
-                float time = frameTimeCounter / 3600.0;
-                float flickerNoise = GetDynLightFlickerNoise(noiseSample);
-            #endif
+    //         #ifdef DYN_LIGHT_FLICKER
+    //             float time = frameTimeCounter / 3600.0;
+    //             float flickerNoise = GetDynLightFlickerNoise(noiseSample);
+    //         #endif
 
-            switch (blockId) {
-                case BLOCK_AMETHYST_CLUSTER:
-                    glow = 0.2;
-                    break;
-                case BLOCK_BEACON:
-                    break;
-                case BLOCK_BLAST_FURNACE_LIT_N:
-                case BLOCK_BLAST_FURNACE_LIT_E:
-                case BLOCK_BLAST_FURNACE_LIT_S:
-                case BLOCK_BLAST_FURNACE_LIT_W:
-                    lightOffset = vec3(0.0, -0.4, 0.0);
-                    break;
-                case BLOCK_BREWING_STAND:
-                    break;
-                case BLOCK_CANDLES_LIT_1:
-                    flicker = 0.14;
-                    break;
-                case BLOCK_CANDLES_LIT_2:
-                    flicker = 0.14;
-                    break;
-                case BLOCK_CANDLES_LIT_3:
-                    flicker = 0.14;
-                    break;
-                case BLOCK_CANDLES_LIT_4:
-                    flicker = 0.14;
-                    break;
-                case BLOCK_CANDLE_CAKE_LIT:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    flicker = 0.14;
-                    break;
-                case BLOCK_CAVEVINE_BERRIES:
-                    break;
-                case BLOCK_CRYING_OBSIDIAN:
-                    glow = 0.3;
-                    break;
-                case BLOCK_END_ROD:
-                    break;
-                case BLOCK_FIRE:
-                    lightOffset = vec3(0.0, -0.3, 0.0);
-                    flicker = 0.5;
-                    break;
-                case BLOCK_FURNACE_LIT_N:
-                case BLOCK_FURNACE_LIT_E:
-                case BLOCK_FURNACE_LIT_S:
-                case BLOCK_FURNACE_LIT_W:
-                    lightOffset = vec3(0.0, -0.2, 0.0);
-                    break;
-                case BLOCK_GLOWSTONE:
-                    glow = 0.4;
-                    break;
-                case BLOCK_GLOW_LICHEN:
-                    glow = 0.2;
-                    break;
-                case BLOCK_JACK_O_LANTERN_N:
-                    lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
-                    flicker = 0.3;
-                    break;
-                case BLOCK_JACK_O_LANTERN_E:
-                    #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
-                    #endif
-                    flicker = 0.3;
-                    break;
-                case BLOCK_JACK_O_LANTERN_S:
-                    #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
-                    #endif
-                    flicker = 0.3;
-                    break;
-                case BLOCK_JACK_O_LANTERN_W:
-                    #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
-                    #endif
-                    flicker = 0.3;
-                    break;
-                case BLOCK_LANTERN:
-                    lightOffset = vec3(0.0, -0.25, 0.0);
-                    flicker = 0.05;
-                    break;
-                case BLOCK_LIGHTING_ROD_POWERED:
-                    flicker = 0.8;
-                    break;
-                case BLOCK_AMETHYST_BUD_LARGE:
-                    glow = 0.2;
-                    break;
-                case BLOCK_LAVA:
-                    glow = 0.4;
-                    break;
-                case BLOCK_LAVA_CAULDRON:
-                    #if DYN_LIGHT_PENUMBRA > 0
-                        lightOffset = vec3(0.0, 0.4, 0.0);
-                    #else
-                        lightOffset = vec3(0.0, 0.2, 0.0);
-                    #endif
-                    glow = 0.4;
-                    break;
-                case BLOCK_MAGMA:
-                    glow = 0.2;
-                    break;
-                case BLOCK_AMETHYST_BUD_MEDIUM:
-                    glow = 0.2;
-                    break;
-                case BLOCK_NETHER_PORTAL:
-                    glow = 0.8;
-                    break;
-                case BLOCK_FROGLIGHT_OCHRE:
-                    glow = 0.2;
-                    break;
-                case BLOCK_FROGLIGHT_PEARLESCENT:
-                    glow = 0.2;
-                    break;
-                case BLOCK_REDSTONE_LAMP_LIT:
-                    break;
-                case BLOCK_REDSTONE_TORCH_LIT:
-                    break;
-                case BLOCK_RESPAWN_ANCHOR_4:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    glow = 0.6;
-                    break;
-                case BLOCK_RESPAWN_ANCHOR_3:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    glow = 0.6;
-                    break;
-                case BLOCK_RESPAWN_ANCHOR_2:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    glow = 0.6;
-                    break;
-                case BLOCK_RESPAWN_ANCHOR_1:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    glow = 0.6;
-                    break;
-                case BLOCK_SCULK_CATALYST:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    break;
-                case BLOCK_SEA_LANTERN:
-                    glow = 0.4;
-                    break;
-                case BLOCK_SEA_PICKLE_WET_1:
-                case BLOCK_SEA_PICKLE_WET_2:
-                case BLOCK_SEA_PICKLE_WET_3:
-                case BLOCK_SEA_PICKLE_WET_4:
-                    glow = 0.9;
-                    break;
-                case BLOCK_SHROOMLIGHT:
-                    glow = 0.6;
-                    break;
-                case BLOCK_SMOKER_LIT_N:
-                case BLOCK_SMOKER_LIT_E:
-                case BLOCK_SMOKER_LIT_S:
-                case BLOCK_SMOKER_LIT_W:
-                    lightOffset = vec3(0.0, -0.3, 0.0);
-                    break;
-                case BLOCK_SOUL_FIRE:
-                case BLOCK_SOUL_LANTERN:
-                    lightOffset = vec3(0.0, -0.25, 0.0);
-                    flicker = 0.1;
-                    break;
-                case BLOCK_SOUL_TORCH:
-                    flicker = 0.1;
-                    break;
-                case BLOCK_TORCH:
-                    lightOffset = vec3(0.0, 0.4, 0.0);
-                    flicker = 0.4;
-                    break;
-                case BLOCK_FROGLIGHT_VERDANT:
-                    glow = 0.2;
-                    break;
-            }
+    //         switch (blockId) {
+    //             case BLOCK_AMETHYST_CLUSTER:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_BEACON:
+    //                 break;
+    //             case BLOCK_BLAST_FURNACE_LIT_N:
+    //             case BLOCK_BLAST_FURNACE_LIT_E:
+    //             case BLOCK_BLAST_FURNACE_LIT_S:
+    //             case BLOCK_BLAST_FURNACE_LIT_W:
+    //                 lightOffset = vec3(0.0, -0.4, 0.0);
+    //                 break;
+    //             case BLOCK_BREWING_STAND:
+    //                 break;
+    //             case BLOCK_CANDLES_LIT_1:
+    //                 flicker = 0.14;
+    //                 break;
+    //             case BLOCK_CANDLES_LIT_2:
+    //                 flicker = 0.14;
+    //                 break;
+    //             case BLOCK_CANDLES_LIT_3:
+    //                 flicker = 0.14;
+    //                 break;
+    //             case BLOCK_CANDLES_LIT_4:
+    //                 flicker = 0.14;
+    //                 break;
+    //             case BLOCK_CANDLE_CAKE_LIT:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 flicker = 0.14;
+    //                 break;
+    //             case BLOCK_CAVEVINE_BERRIES:
+    //                 break;
+    //             case BLOCK_CRYING_OBSIDIAN:
+    //                 glow = 0.3;
+    //                 break;
+    //             case BLOCK_END_ROD:
+    //                 break;
+    //             case BLOCK_FIRE:
+    //                 lightOffset = vec3(0.0, -0.3, 0.0);
+    //                 flicker = 0.5;
+    //                 break;
+    //             case BLOCK_FURNACE_LIT_N:
+    //             case BLOCK_FURNACE_LIT_E:
+    //             case BLOCK_FURNACE_LIT_S:
+    //             case BLOCK_FURNACE_LIT_W:
+    //                 lightOffset = vec3(0.0, -0.2, 0.0);
+    //                 break;
+    //             case BLOCK_GLOWSTONE:
+    //                 glow = 0.4;
+    //                 break;
+    //             case BLOCK_GLOW_LICHEN:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_JACK_O_LANTERN_N:
+    //                 lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
+    //                 flicker = 0.3;
+    //                 break;
+    //             case BLOCK_JACK_O_LANTERN_E:
+    //                 #if DYN_LIGHT_PENUMBRA > 0
+    //                     lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+    //                 #endif
+    //                 flicker = 0.3;
+    //                 break;
+    //             case BLOCK_JACK_O_LANTERN_S:
+    //                 #if DYN_LIGHT_PENUMBRA > 0
+    //                     lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
+    //                 #endif
+    //                 flicker = 0.3;
+    //                 break;
+    //             case BLOCK_JACK_O_LANTERN_W:
+    //                 #if DYN_LIGHT_PENUMBRA > 0
+    //                     lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+    //                 #endif
+    //                 flicker = 0.3;
+    //                 break;
+    //             case BLOCK_LANTERN:
+    //                 lightOffset = vec3(0.0, -0.25, 0.0);
+    //                 flicker = 0.05;
+    //                 break;
+    //             case BLOCK_LIGHTING_ROD_POWERED:
+    //                 flicker = 0.8;
+    //                 break;
+    //             case BLOCK_AMETHYST_BUD_LARGE:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_LAVA:
+    //                 glow = 0.4;
+    //                 break;
+    //             case BLOCK_LAVA_CAULDRON:
+    //                 #if DYN_LIGHT_PENUMBRA > 0
+    //                     lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 #else
+    //                     lightOffset = vec3(0.0, 0.2, 0.0);
+    //                 #endif
+    //                 glow = 0.4;
+    //                 break;
+    //             case BLOCK_MAGMA:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_AMETHYST_BUD_MEDIUM:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_NETHER_PORTAL:
+    //                 glow = 0.8;
+    //                 break;
+    //             case BLOCK_FROGLIGHT_OCHRE:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_FROGLIGHT_PEARLESCENT:
+    //                 glow = 0.2;
+    //                 break;
+    //             case BLOCK_REDSTONE_LAMP_LIT:
+    //                 break;
+    //             case BLOCK_REDSTONE_TORCH_LIT:
+    //                 break;
+    //             case BLOCK_RESPAWN_ANCHOR_4:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 glow = 0.6;
+    //                 break;
+    //             case BLOCK_RESPAWN_ANCHOR_3:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 glow = 0.6;
+    //                 break;
+    //             case BLOCK_RESPAWN_ANCHOR_2:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 glow = 0.6;
+    //                 break;
+    //             case BLOCK_RESPAWN_ANCHOR_1:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 glow = 0.6;
+    //                 break;
+    //             case BLOCK_SCULK_CATALYST:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 break;
+    //             case BLOCK_SEA_LANTERN:
+    //                 glow = 0.4;
+    //                 break;
+    //             case BLOCK_SEA_PICKLE_WET_1:
+    //             case BLOCK_SEA_PICKLE_WET_2:
+    //             case BLOCK_SEA_PICKLE_WET_3:
+    //             case BLOCK_SEA_PICKLE_WET_4:
+    //                 glow = 0.9;
+    //                 break;
+    //             case BLOCK_SHROOMLIGHT:
+    //                 glow = 0.6;
+    //                 break;
+    //             case BLOCK_SMOKER_LIT_N:
+    //             case BLOCK_SMOKER_LIT_E:
+    //             case BLOCK_SMOKER_LIT_S:
+    //             case BLOCK_SMOKER_LIT_W:
+    //                 lightOffset = vec3(0.0, -0.3, 0.0);
+    //                 break;
+    //             case BLOCK_SOUL_FIRE:
+    //             case BLOCK_SOUL_LANTERN:
+    //                 lightOffset = vec3(0.0, -0.25, 0.0);
+    //                 flicker = 0.1;
+    //                 break;
+    //             case BLOCK_SOUL_TORCH:
+    //                 flicker = 0.1;
+    //                 break;
+    //             case BLOCK_TORCH:
+    //                 lightOffset = vec3(0.0, 0.4, 0.0);
+    //                 flicker = 0.4;
+    //                 break;
+    //             case BLOCK_FROGLIGHT_VERDANT:
+    //                 glow = 0.2;
+    //                 break;
+    //         }
             
-            // if (blockId == BLOCK_TORCH) {
-            //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
-            //     //texPos.z += 2.0 * time;
+    //         // if (blockId == BLOCK_TORCH) {
+    //         //     //vec3 texPos = worldPos.xzy * vec3(0.04, 0.04, 0.02);
+    //         //     //texPos.z += 2.0 * time;
 
-            //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
+    //         //     //vec2 s = texture(TEX_CLOUD_NOISE, texPos).rg;
 
-            //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
-            //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
-            // }
+    //         //     //lightOffset = 0.08 * hash44(vec4(worldPos * 0.04, 2.0 * time)).xyz - 0.04;
+    //         //     //lightOffset = 0.12 * hash44(vec4(worldPos * 0.04, 4.0 * time)).xyz - 0.06;
+    //         // }
 
-            #ifdef DYN_LIGHT_FLICKER
-                if (flicker > EPSILON) {
-                    lightColorFinal.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
-                }
+    //         #ifdef DYN_LIGHT_FLICKER
+    //             if (flicker > EPSILON) {
+    //                 lightColorFinal.rgb *= 1.0 - flicker * (1.0 - flickerNoise);
+    //             }
 
-                if (glow > EPSILON) {
-                    float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
-                    lightColorFinal.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
-                }
-            #endif
-        }
+    //             if (glow > EPSILON) {
+    //                 float cycle = sin(fract(time * 1000.0) * TAU) * 0.5 + 0.5;
+    //                 lightColorFinal.rgb *= 1.0 - glow * smoothstep(0.0, 1.0, noiseSample.r);
+    //             }
+    //         #endif
+    //     }
 
-        if (lightRange > EPSILON) {
-            atomicAdd(SceneLightMaxCount, 1u);
+    //     if (lightRange > EPSILON) {
+    //         atomicAdd(SceneLightMaxCount, 1u);
 
-            #ifdef DYN_LIGHT_FRUSTUM_TEST
-                vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
-                bool intersects = true;
+    //         #ifdef DYN_LIGHT_FRUSTUM_TEST
+    //             vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+    //             bool intersects = true;
 
-                float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-                if (lightViewPos.z > maxRange) intersects = false;
-                else if (lightViewPos.z < -far - maxRange) intersects = false;
-                else {
-                    if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
-                    if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
-                    if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
-                    if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
-                }
+    //             float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+    //             if (lightViewPos.z > maxRange) intersects = false;
+    //             else if (lightViewPos.z < -far - maxRange) intersects = false;
+    //             else {
+    //                 if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
+    //                 if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
+    //                 if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
+    //                 if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
+    //             }
 
-                if (!intersects) return;
-            #endif
+    //             if (!intersects) return;
+    //         #endif
 
-            float lightSize = GetSceneBlockLightSize(blockId);
-            uint lightData = BuildBlockLightMask(blockId, lightSize);
-            SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightData);
+    //         float lightSize = GetSceneBlockLightSize(blockId);
+    //         uint lightData = BuildBlockLightMask(blockId, lightSize);
+    //         SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColorFinal, lightData);
 
-            AddSceneLight(light);
-        }
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            else if (IsDynLightSolidBlock(blockId)) {
-                ivec3 gridCell, blockCell;
-                vec3 gridPos = GetLightGridPosition(blockLocalPos);
+    //         AddSceneLight(light);
+    //     }
+    //     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    //         else if (IsDynLightSolidBlock(blockId)) {
+    //             ivec3 gridCell, blockCell;
+    //             vec3 gridPos = GetLightGridPosition(blockLocalPos);
                 
-                if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-                    uint gridIndex = GetSceneLightGridIndex(gridCell);
-                    uint blockType = GetBlockType(blockId);
-                    SetSceneBlockMask(blockCell, gridIndex, blockType);
-                }
-            }
-        #endif
-    }
+    //             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+    //                 uint gridIndex = GetSceneLightGridIndex(gridCell);
+    //                 uint blockType = GetBlockType(blockId);
+    //                 SetSceneBlockMask(blockCell, gridIndex, blockType);
+    //             }
+    //         }
+    //     #endif
+    // }
 
-    void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
-        float lightRange = GetSceneBlockLightLevel(blockId);
-        vec3 lightColor = vec3(0.0);
+    // void AddSceneBlockLight(const in int blockId, const in vec3 blockLocalPos) {
+    //     float lightRange = GetSceneBlockLightLevel(blockId);
+    //     vec3 lightColor = vec3(0.0);
 
-        if (lightRange > EPSILON) {
-            vec2 noiseSample = vec2(0.0);
-            #ifdef DYN_LIGHT_FLICKER
-                noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
-            #endif
+    //     if (lightRange > EPSILON) {
+    //         vec2 noiseSample = vec2(0.0);
+    //         #ifdef DYN_LIGHT_FLICKER
+    //             noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
+    //         #endif
 
-            lightColor = GetSceneBlockLightColor(blockId, noiseSample);
-        }
+    //         lightColor = GetSceneBlockLightColor(blockId, noiseSample);
+    //     }
 
-        AddSceneBlockLight(blockId, blockLocalPos, lightColor, lightRange);
-    }
+    //     AddSceneBlockLight(blockId, blockLocalPos, lightColor, lightRange);
+    // }
 #endif
