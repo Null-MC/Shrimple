@@ -38,6 +38,7 @@ uniform int entityId;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/items.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/lighting/dynamic_entities.glsl"
 #endif
@@ -50,6 +51,9 @@ void main() {
     int blockId = int(mc_Entity.x + 0.5);
 
     vOriginPos = gl_Vertex.xyz + at_midBlock / 64.0;
+
+    //if (blockId >= BLOCK_LIGHT_1 && blockId <= BLOCK_LIGHT_15) vOriginPos += 0.25;
+
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 

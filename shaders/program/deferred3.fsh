@@ -284,8 +284,8 @@ void main() {
                         float lum = log(luminance(blockLight));
                         float lumPrev = log(luminance(blockLightPrev));
 
-                        float lumDiff = saturate(abs(lum - lumPrev));
-                        float weight = smoothstep(0.0, 0.8, lumDiff)*0.25 + 0.02;
+                        float lumDiff = saturate(0.3 * abs(lum - lumPrev));
+                        float weight = 0.4*pow(lumDiff, 2.0) + 0.0001;
 
                         blockLight = mix(blockLightPrev, blockLight, weight);
                     }

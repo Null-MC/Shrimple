@@ -77,11 +77,16 @@
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
                 vec3 lightPos = light.position;
+                vec3 lightColor = light.color;
+
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                         float size = ((light.data >> 8u) & 31u) / 31.0;
                         size *= 0.5 * DynamicLightPenumbraF;
-                        ApplyLightPenumbraOffset(lightPos, size);
+
+                        vec3 offset = GetLightPenumbraOffset() * size;
+                        lightColor *= max(1.0 - 2.0*dot(offset, offset), 0.0);
+                        lightPos += offset;
                     #endif
 
                     vec3 lightVec = lightFragPos - lightPos;
@@ -92,7 +97,6 @@
                     vec3 lightVec = lightFragPos - lightPos;
                 #endif
 
-                vec3 lightColor = light.color;
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                     if ((light.data & 1u) == 1u) {
                         vec3 traceOrigin = GetLightGridPosition(lightPos);
@@ -160,7 +164,10 @@
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
                         float lightSize = GetSceneItemLightSize(heldItemId);
-                        ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                        //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                        vec3 offset = GetLightPenumbraOffset();
+                        lightColor *= 1.0 - length(offset);
+                        traceOrigin += offset * lightSize * 0.5;
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -191,8 +198,11 @@
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
-                        float lightSize = GetSceneItemLightSize(heldItemId);
-                        ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                        float lightSize = GetSceneItemLightSize(heldItemId2);
+                        //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                        vec3 offset = GetLightPenumbraOffset();
+                        lightColor *= 1.0 - length(offset);
+                        traceOrigin += offset * lightSize * 0.5;
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -337,7 +347,7 @@
                     vBlockLight += vec3(light.a / 15.0);
                 #elif defined RENDER_HAND
                     // TODO: change ID depending on hand
-                    float lightRange = GetSceneItemLightRange(heldItemId);
+                    float lightRange = heldBlockLightValue;//GetSceneItemLightRange(heldItemId);
                     vBlockLight += vec3(lightRange / 15.0);
                 #elif defined RENDER_TERRAIN || defined RENDER_WATER
                     float lightRange = GetSceneBlockEmission(vBlockId);

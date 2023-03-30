@@ -135,6 +135,23 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         case BLOCK_LANTERN:
             lightColor = vec3(0.906, 0.737, 0.451);
             break;
+        case BLOCK_LIGHT_1:
+        case BLOCK_LIGHT_2:
+        case BLOCK_LIGHT_3:
+        case BLOCK_LIGHT_4:
+        case BLOCK_LIGHT_5:
+        case BLOCK_LIGHT_6:
+        case BLOCK_LIGHT_7:
+        case BLOCK_LIGHT_8:
+        case BLOCK_LIGHT_9:
+        case BLOCK_LIGHT_10:
+        case BLOCK_LIGHT_11:
+        case BLOCK_LIGHT_12:
+        case BLOCK_LIGHT_13:
+        case BLOCK_LIGHT_14:
+        case BLOCK_LIGHT_15:
+            lightColor = vec3(1.0);
+            break;
         case BLOCK_LIGHTING_ROD_POWERED:
             lightColor = vec3(0.870, 0.956, 0.975);
             break;
@@ -315,14 +332,61 @@ float GetSceneBlockLightRange(const in int blockId) {
         case BLOCK_LANTERN:
             lightRange = 12.0;
             break;
+        case BLOCK_LAVA_CAULDRON:
+            lightRange = 15.0;
+            break;
         case BLOCK_LIGHTING_ROD_POWERED:
             lightRange = 8.0;
             break;
-        case BLOCK_AMETHYST_BUD_LARGE:
+
+        case BLOCK_LIGHT_1:
+            lightRange = 1.0;
+            break;
+        case BLOCK_LIGHT_2:
+            lightRange = 2.0;
+            break;
+        case BLOCK_LIGHT_3:
+            lightRange = 3.0;
+            break;
+        case BLOCK_LIGHT_4:
             lightRange = 4.0;
             break;
-        case BLOCK_LAVA_CAULDRON:
+        case BLOCK_LIGHT_5:
+            lightRange = 5.0;
+            break;
+        case BLOCK_LIGHT_6:
+            lightRange = 6.0;
+            break;
+        case BLOCK_LIGHT_7:
+            lightRange = 7.0;
+            break;
+        case BLOCK_LIGHT_8:
+            lightRange = 8.0;
+            break;
+        case BLOCK_LIGHT_9:
+            lightRange = 9.0;
+            break;
+        case BLOCK_LIGHT_10:
+            lightRange = 10.0;
+            break;
+        case BLOCK_LIGHT_11:
+            lightRange = 11.0;
+            break;
+        case BLOCK_LIGHT_12:
+            lightRange = 12.0;
+            break;
+        case BLOCK_LIGHT_13:
+            lightRange = 13.0;
+            break;
+        case BLOCK_LIGHT_14:
+            lightRange = 14.0;
+            break;
+        case BLOCK_LIGHT_15:
             lightRange = 15.0;
+            break;
+
+        case BLOCK_AMETHYST_BUD_LARGE:
+            lightRange = 4.0;
             break;
         case BLOCK_MAGMA:
             lightRange = 3.0;

@@ -31,6 +31,9 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         case ITEM_LANTERN:
             lightColor = vec3(0.906, 0.737, 0.451);
             break;
+        case ITEM_LIGHT:
+            lightColor = vec3(1.0);
+            break;
         case ITEM_MAGMA:
             lightColor = vec3(0.747, 0.323, 0.110);
             break;
