@@ -44,11 +44,7 @@ struct LightCellData {
     layout(std430, binding = 2) readonly buffer localLightingData
 #endif
 {
-    #ifndef MC_GL_VENDOR_NVIDIA
-        LightCellData[(LIGHT_SIZE_XZ*LIGHT_SIZE_XZ*LIGHT_SIZE_Y)] SceneLightMaps;
-    #else
-        LightCellData[] SceneLightMaps;
-    #endif
+    LightCellData SceneLightMaps[];
 };
 
 #ifdef RENDER_SHADOW
