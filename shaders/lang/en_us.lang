@@ -128,7 +128,7 @@ value.DYN_LIGHT_REDSTONE.1=Emit
 value.DYN_LIGHT_REDSTONE.2=Trace
 
 
-screen.DYNAMIC_LIGHT_TRACE_ADVANCED_OPTIONS=Advanced
+screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
 
 option.LIGHT_BIN_SIZE=Bin Size
 option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.

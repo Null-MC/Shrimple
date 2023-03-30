@@ -285,16 +285,9 @@ void main() {
             color.a = max(color.a, F);
         }
         else {
-            #if MATERIAL_NORMALS != NORMALMAP_NONE
-                float NoV = abs(dot(texNormal, -localViewDir));
-            #else
-                float NoV = abs(dot(localNormal, -localViewDir));
-            #endif
+    #endif
 
-            float F = F_schlick(NoV, 0.04, 1.0);
-            color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
-        }
-    #else
+    if (color.a > (0.5/255.0)) {
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             float NoV = abs(dot(texNormal, -localViewDir));
         #else
@@ -303,6 +296,10 @@ void main() {
 
         float F = F_schlick(NoV, 0.04, 1.0);
         color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
+    }
+
+    #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
+        }
     #endif
 
     vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
