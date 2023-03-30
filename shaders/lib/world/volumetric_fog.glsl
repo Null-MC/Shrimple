@@ -5,8 +5,13 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    float scatterF = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
-    float extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
+    float scatterF = 0.032 * VolumetricDensityF;
+    float extinction = 0.004 * VolumetricDensityF;
+
+    #ifdef WORLD_SKY_ENABLED
+        scatterF = mix(scatterF, 0.096, rainStrength) * VolumetricDensityF;
+        extinction = mix(extinction, 0.012, rainStrength) * VolumetricDensityF;
+    #endif
 
     vec3 localStart = localViewDir * (nearDist + 1.0);
     vec3 localEnd = localViewDir * (farDist - 1.0);
@@ -20,8 +25,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    float G_Forward = mix(0.46, 0.26, rainStrength);
-    float G_Back =   -mix(0.36, 0.16, rainStrength);
+    float G_Forward = 0.46;
+    float G_Back = 0.36;
+    #ifdef WORLD_SKY_ENABLED
+        G_Forward = mix(G_Forward, 0.26, rainStrength);
+        G_Back = mix(G_Back, 0.16, rainStrength);
+    #endif
+
     const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -53,7 +63,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         vec3 skyLightColor = skyColor + 0.02;
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
-        float skyPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
+        float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
         float skyPhase = mix(skyPhaseBack, skyPhaseForward, G_mix);
     #endif
 
@@ -138,8 +148,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     #endif
 
                     float lightVoL = dot(normalize(-lightVec), localViewDir);
-                    float lightPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
-                    float lightPhaseBack = ComputeVolumetricScattering(VoL, G_Back);
+                    float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
+                    float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
                     float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                     blockLightAccum += SampleLight(lightVec, 1.0, light.range) * lightColor * lightPhase;
