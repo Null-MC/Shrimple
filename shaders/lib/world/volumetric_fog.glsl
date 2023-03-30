@@ -5,12 +5,12 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    float scatterF = 0.032 * VolumetricDensityF;
-    float extinction = 0.004 * VolumetricDensityF;
-
     #ifdef WORLD_SKY_ENABLED
-        scatterF = mix(scatterF, 0.096, rainStrength) * VolumetricDensityF;
-        extinction = mix(extinction, 0.012, rainStrength) * VolumetricDensityF;
+        float scatterF = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
+        float extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
+    #else
+        float scatterF = 0.016 * VolumetricDensityF;
+        float extinction = 0.016 * VolumetricDensityF;
     #endif
 
     vec3 localStart = localViewDir * (nearDist + 1.0);
@@ -25,14 +25,17 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    float G_Forward = 0.46;
-    float G_Back = 0.36;
     #ifdef WORLD_SKY_ENABLED
-        G_Forward = mix(G_Forward, 0.26, rainStrength);
-        G_Back = mix(G_Back, 0.16, rainStrength);
+        const float ambient = 0.012;
+        float G_Forward = mix(0.46, 0.26, rainStrength);
+        float G_Back = mix(0.36, 0.16, rainStrength);
+        const float G_mix = 0.7;
+    #else
+        const float ambient = 0.14;
+        float G_Forward = 0.6;
+        float G_Back = 0.5;
+        const float G_mix = 0.5;
     #endif
-
-    const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
@@ -72,7 +75,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i < stepCount; i++) {
-        vec3 inScattering = 0.012 * fogColor * (eyeBrightnessSmooth.y / 240.0); //vec3(0.008);
+        vec3 inScattering = ambient * fogColor;
+
+        #ifdef WORLD_SKY_ENABLED
+            inScattering *= (eyeBrightnessSmooth.y / 240.0); //vec3(0.008);
+        #endif
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             const float sampleBias = 0.0;
@@ -156,61 +163,71 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                 }
             }
 
-            if (!firstPersonCamera) {
-                vec2 noiseSample = GetDynLightNoise(vec3(0.0));
+            // if (!firstPersonCamera) {
+            //     vec2 noiseSample = GetDynLightNoise(vec3(0.0));
 
-                if (heldBlockLightValue > 0) {
-                    vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
-                    if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+            //     if (heldBlockLightValue > 0) {
+            //         vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
+            //         if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
-                    vec3 lightVec = lightLocalPos - traceLocalPos;
-                    if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
-                        vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
+            //         vec3 lightVec = lightLocalPos - traceLocalPos;
+            //         if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
+            //             vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
-                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                            vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                            vec3 traceEnd = traceOrigin - 0.99*lightVec;
+            //             #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            //                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
+            //                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                            #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                                lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
-                            #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
-                                lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue);
-                            #else
-                                lightColor *= TraceDDA_fast(traceEnd, traceOrigin, heldBlockLightValue);
-                            #endif
-                        #endif
+            //                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+            //                     lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
+            //                 #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
+            //                     lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue);
+            //                 #else
+            //                     lightColor *= TraceDDA_fast(traceEnd, traceOrigin, heldBlockLightValue);
+            //                 #endif
+            //             #endif
 
-                        blockLightAccum += 0.02 * SampleLight(lightVec, 1.0, heldBlockLightValue) * lightColor;
-                    }
-                }
+            //             float lightVoL = dot(normalize(lightVec), localViewDir);
+            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
+            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
+            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
-                if (heldBlockLightValue2 > 0) {
-                    vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
-                    if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+            //             blockLightAccum += SampleLight(lightVec, 1.0, heldBlockLightValue) * lightColor * lightPhase;
+            //         }
+            //     }
 
-                    vec3 lightVec = lightLocalPos - traceLocalPos;
-                    if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
-                        vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
+            //     if (heldBlockLightValue2 > 0) {
+            //         vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
+            //         if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
-                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                            vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                            vec3 traceEnd = traceOrigin - 0.99*lightVec;
+            //         vec3 lightVec = lightLocalPos - traceLocalPos;
+            //         if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
+            //             vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
-                            #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                                lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
-                            #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
-                                lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue2);
-                            #else
-                                lightColor *= TraceDDA_fast(traceEnd, traceOrigin, heldBlockLightValue2);
-                            #endif
-                        #endif
+            //             #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            //                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
+            //                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
+
+            //                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+            //                     lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
+            //                 #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
+            //                     lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue2);
+            //                 #else
+            //                     lightColor *= TraceDDA_fast(traceEnd, traceOrigin, heldBlockLightValue2);
+            //                 #endif
+            //             #endif
+
+            //             float lightVoL = dot(normalize(lightVec), localViewDir);
+            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
+            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
+            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
                         
-                        blockLightAccum += 0.02 * SampleLight(lightVec, 1.0, heldBlockLightValue2) * lightColor;
-                    }
-                }
-            }
+            //             blockLightAccum += SampleLight(lightVec, 1.0, heldBlockLightValue2) * lightColor * lightPhase;
+            //         }
+            //     }
+            // }
 
-            inScattering += blockLightAccum * DynamicLightBrightness;
+            inScattering += 0.3*blockLightAccum * DynamicLightBrightness;
         #endif
 
         inScattering *= scatterF;
