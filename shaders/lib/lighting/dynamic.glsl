@@ -69,7 +69,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return dot(pointDist, pointDist) < pow2(lightRange);
     }
 
-    void SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
+    bool SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -84,7 +84,8 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
             uint bit = 1u << (maskIndex & 31u);
         #endif
 
-        atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
+        uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
+        return (was & bit) == 0u;
     }
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED

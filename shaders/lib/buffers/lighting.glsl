@@ -49,7 +49,7 @@ struct LightCellData {
 };
 
 #ifdef RENDER_SHADOW
-    layout(r32ui) uniform restrict writeonly uimage2D imgSceneLights;
+    layout(r32ui) uniform restrict uimage2D imgSceneLights;
 #else
     layout(r32ui) uniform restrict readonly uimage2D imgSceneLights;
 #endif

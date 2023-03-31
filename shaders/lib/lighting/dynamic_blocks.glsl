@@ -73,10 +73,10 @@ float GetBlockSSS(const in int blockId) {
     return sss;
 }
 
-vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
+vec3 GetSceneBlockLightColor(const in uint lightType, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
 
-    switch (blockId) {
+    switch (lightType) {
         case BLOCK_AMETHYST_CLUSTER:
         case BLOCK_AMETHYST_BUD_LARGE:
         case BLOCK_AMETHYST_BUD_MEDIUM:
@@ -243,19 +243,19 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
         //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
-        if (blockId == BLOCK_TORCH || blockId == BLOCK_LANTERN || blockId == BLOCK_FIRE || blockId == BLOCK_CAMPFIRE_LIT) {
+        if (lightType == BLOCK_TORCH || lightType == BLOCK_LANTERN || lightType == BLOCK_FIRE || lightType == BLOCK_CAMPFIRE_LIT) {
             float torchTemp = mix(1600, 3400, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 
-        if (blockId == BLOCK_SOUL_TORCH || blockId == BLOCK_SOUL_LANTERN || blockId == BLOCK_SOUL_FIRE || blockId == BLOCK_SOUL_CAMPFIRE_LIT) {
+        if (lightType == BLOCK_SOUL_TORCH || lightType == BLOCK_SOUL_LANTERN || lightType == BLOCK_SOUL_FIRE || lightType == BLOCK_SOUL_CAMPFIRE_LIT) {
             float soulTorchTemp = mix(1200, 1800, 1.0 - flickerNoise);
             lightColor = 0.8 * saturate(1.0 - blackbody(soulTorchTemp));
         }
 
-        if (blockId == BLOCK_CANDLES_LIT_1 || blockId == BLOCK_CANDLES_LIT_2
-         || blockId == BLOCK_CANDLES_LIT_3 || blockId == BLOCK_CANDLES_LIT_4
-         || blockId == BLOCK_CANDLE_CAKE_LIT || (blockId >= BLOCK_JACK_O_LANTERN_N && blockId <= BLOCK_JACK_O_LANTERN_W)) {
+        if (lightType == BLOCK_CANDLES_LIT_1 || lightType == BLOCK_CANDLES_LIT_2
+         || lightType == BLOCK_CANDLES_LIT_3 || lightType == BLOCK_CANDLES_LIT_4
+         || lightType == BLOCK_CANDLE_CAKE_LIT || (lightType >= BLOCK_JACK_O_LANTERN_N && lightType <= BLOCK_JACK_O_LANTERN_W)) {
             float candleTemp = mix(2600, 3600, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
@@ -264,10 +264,10 @@ vec3 GetSceneBlockLightColor(const in int blockId, const in vec2 noiseSample) {
     return lightColor;
 }
 
-float GetSceneBlockLightRange(const in int blockId) {
+float GetSceneBlockLightRange(const in uint lightType) {
     float lightRange = 0.0;
 
-    switch (blockId) {
+    switch (lightType) {
         case BLOCK_AMETHYST_CLUSTER:
             lightRange = 5.0;
             break;
@@ -525,36 +525,36 @@ float GetSceneBlockLightRange(const in int blockId) {
     return lightRange;
 }
 
-float GetSceneBlockLightLevel(const in int blockId) {
+float GetSceneBlockLightLevel(const in uint lightType) {
     #if DYN_LIGHT_REDSTONE == 0
-        if (blockId == BLOCK_COMPARATOR_LIT
-         || blockId == BLOCK_REPEATER_LIT
-         || blockId == BLOCK_RAIL_POWERED) return 0.0;
+        if (lightType == BLOCK_COMPARATOR_LIT
+         || lightType == BLOCK_REPEATER_LIT
+         || lightType == BLOCK_RAIL_POWERED) return 0.0;
 
-        if (blockId >= BLOCK_REDSTONE_WIRE_1
-         && blockId <= BLOCK_REDSTONE_WIRE_15) return 0.0;
+        if (lightType >= BLOCK_REDSTONE_WIRE_1
+         && lightType <= BLOCK_REDSTONE_WIRE_15) return 0.0;
     #endif
     
     #if DYN_LIGHT_LAVA == 0
-        if (blockId == BLOCK_LAVA) return 0.0;
+        if (lightType == BLOCK_LAVA) return 0.0;
     #endif
 
-    return GetSceneBlockLightRange(blockId);
+    return GetSceneBlockLightRange(lightType);
 }
 
-float GetSceneBlockEmission(const in int blockId) {
-    float range = GetSceneBlockLightRange(blockId);
+float GetSceneBlockEmission(const in uint lightType) {
+    float range = GetSceneBlockLightRange(lightType);
 
-    if (blockId == BLOCK_LAVA) range *= 2.0;
-    if (blockId == BLOCK_CAVEVINE_BERRIES) range = 0.0;
+    if (lightType == BLOCK_LAVA) range *= 2.0;
+    if (lightType == BLOCK_CAVEVINE_BERRIES) range = 0.0;
 
     return range / 15.0;
 }
 
-float GetSceneBlockLightSize(const in int blockId) {
+float GetSceneBlockLightSize(const in uint lightType) {
     float size = 0.1;
 
-    switch (blockId) {
+    switch (lightType) {
         case BLOCK_CRYING_OBSIDIAN:
         case BLOCK_FIRE:
         case BLOCK_FROGLIGHT_OCHRE:
@@ -605,14 +605,14 @@ float GetSceneBlockLightSize(const in int blockId) {
     }
 
     #if DYN_LIGHT_LAVA != 2
-        if (blockId == BLOCK_LAVA) size = 0.0;
+        if (lightType == BLOCK_LAVA) size = 0.0;
     #endif
 
     #if DYN_LIGHT_REDSTONE != 2
-        if (blockId >= BLOCK_REDSTONE_WIRE_1 && blockId <= BLOCK_REDSTONE_WIRE_15) size = 0.0;
+        if (lightType >= BLOCK_REDSTONE_WIRE_1 && lightType <= BLOCK_REDSTONE_WIRE_15) size = 0.0;
     #endif
 
-    //if (blockId == BLOCK_CAVEVINE_BERRIES) size = 0.4;
+    //if (lightType == BLOCK_CAVEVINE_BERRIES) size = 0.4;
 
     return size;
 }
@@ -1235,13 +1235,13 @@ float GetSceneBlockLightSize(const in int blockId) {
         }
     #endif
 
-    uint BuildBlockLightMask(const in int blockId, const in float lightSize) {
+    uint BuildBlockLightMask(const in uint lightType, const in float lightSize) {
         uint lightData;
 
         // trace
         lightData = lightSize > EPSILON ? 1u : 0u;
 
-        switch (blockId) {
+        switch (lightType) {
             case BLOCK_BEACON:
                 lightData |= 1u << LIGHT_MASK_DOWN;
                 break;
