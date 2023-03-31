@@ -63,12 +63,7 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     }
 #endif
 
-#if defined RENDER_SHADOW
-    bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
-        vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
-        return dot(pointDist, pointDist) < pow2(lightRange);
-    }
-
+#ifdef RENDER_SHADOW
     bool SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
@@ -99,56 +94,11 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
             atomicOr(SceneLightMaps[gridIndex].BlockMask[intIndex], bit);
         }
     #endif
-
-    // void AddSceneLight(const in SceneLightData light) {
-    //     ivec3 gridCell, blockCell;
-    //     vec3 gridPos = GetLightGridPosition(light.position);
-    //     if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
-    //     uint gridIndex = GetSceneLightGridIndex(gridCell);
-
-    //     if (!TrySetSceneLightMask(blockCell, gridIndex)) return;
-
-    //     uint gridLightIndex = atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-    //     if (gridLightIndex >= LIGHT_BIN_MAX_COUNT) return;
-
-    //     uint lightIndex = atomicAdd(SceneLightCount, 1u);
-    //     if (lightIndex >= LIGHT_MAX_COUNT) return;
-
-    //     SceneLights[lightIndex] = light;
-    //     ivec2 uv = GetSceneLightUV(gridIndex, gridLightIndex);
-    //     imageStore(imgSceneLights, uv, uvec4(lightIndex));
-
-    //     #ifdef DYN_LIGHT_POPULATE_NEIGHBORS
-    //         float neighborRange = light.range;//max(range - 1.5, 0.0);
-
-    //         vec3 neighborGridPosMin = GetLightGridPosition(light.position - neighborRange);
-    //         ivec3 neighborGridCellMin = GetSceneLightGridCell(neighborGridPosMin);
-
-    //         vec3 neighborGridPosMax = GetLightGridPosition(light.position + neighborRange);
-    //         ivec3 neighborGridCellMax = GetSceneLightGridCell(neighborGridPosMax);
-
-    //         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-
-    //         ivec3 neighborGridCell;
-    //         for (neighborGridCell.z = neighborGridCellMin.z; neighborGridCell.z <= neighborGridCellMax.z; neighborGridCell.z++) {
-    //             for (neighborGridCell.y = neighborGridCellMin.y; neighborGridCell.y <= neighborGridCellMax.y; neighborGridCell.y++) {
-    //                 for (neighborGridCell.x = neighborGridCellMin.x; neighborGridCell.x <= neighborGridCellMax.x; neighborGridCell.x++) {
-    //                     if (neighborGridCell == gridCell || any(lessThan(neighborGridCell, ivec3(0.0))) || any(greaterThanEqual(neighborGridCell, SceneLightGridSize))) continue;
-
-    //                     vec3 binPos = (neighborGridCell + 0.5) * LIGHT_BIN_SIZE + 0.5 - LightGridCenter - cameraOffset;
-    //                     if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, neighborRange)) continue;
-
-    //                     uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
-    //                     uint neighborLightIndex = atomicAdd(SceneLightMaps[neighborGridIndex].LightCount, 1u);
-    //                     if (neighborLightIndex < LIGHT_BIN_MAX_COUNT) {
-    //                         ivec2 neighborUV = GetSceneLightUV(neighborGridIndex, neighborLightIndex);
-    //                         imageStore(imgSceneLights, neighborUV, uvec4(lightIndex));
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     #endif
-    // }
+#elif defined RENDER_SHADOWCOMP
+    bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
+        vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
+        return dot(pointDist, pointDist) < pow2(lightRange);
+    }
 #elif !defined RENDER_BEGIN
     int GetSceneLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;

@@ -16,6 +16,7 @@
 #define LIGHT_SEA_LANTERN 15u
 #define LIGHT_SOUL_TORCH 16u
 #define LIGHT_TORCH 17u
+#define LIGHT_IGNORED 255u
 
 
 uint GetSceneLightType(const in int blockId) {
@@ -280,7 +281,7 @@ float GetSceneLightSize(const in uint lightType) {
     return size;
 }
 
-#ifdef RENDER_SHADOW
+#ifdef RENDER_SHADOWCOMP
     uint BuildLightMask(const in uint lightType, const in float lightSize) {
         uint lightData;
 

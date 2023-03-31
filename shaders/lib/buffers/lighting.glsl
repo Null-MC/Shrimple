@@ -23,10 +23,12 @@ struct LightCellData {
     #endif
 };
 
-#if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LIGHTS
+#ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 1) buffer globalLightingData
+#elif defined RENDER_BEGIN
+    layout(std430, binding = 1) restrict writeonly buffer globalLightingData
 #else
-    layout(std430, binding = 1) readonly buffer globalLightingData
+    layout(std430, binding = 1) restrict readonly buffer globalLightingData
 #endif
 {
     uint SceneLightCount;
@@ -39,17 +41,21 @@ struct LightCellData {
     SceneLightData SceneLights[];
 };
 
-#if defined RENDER_BEGIN || defined RENDER_SHADOW
-    layout(std430, binding = 2) buffer localLightingData
+#ifdef RENDER_SHADOWCOMP
+    layout(std430, binding = 2) coherent buffer localLightingData
+#elif defined RENDER_BEGIN || defined RENDER_SHADOW
+    layout(std430, binding = 2) restrict writeonly buffer localLightingData
 #else
-    layout(std430, binding = 2) readonly buffer localLightingData
+    layout(std430, binding = 2) restrict readonly buffer localLightingData
 #endif
 {
     LightCellData SceneLightMaps[];
 };
 
-#ifdef RENDER_SHADOW
-    layout(r32ui) uniform restrict uimage2D imgSceneLights;
+#ifdef RENDER_SHADOWCOMP
+    layout(r32ui) uniform coherent uimage2D imgSceneLights;
+#elif defined RENDER_SHADOW
+    layout(r32ui) uniform restrict writeonly uimage2D imgSceneLights;
 #else
     layout(r32ui) uniform restrict readonly uimage2D imgSceneLights;
 #endif

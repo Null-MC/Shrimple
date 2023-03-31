@@ -100,34 +100,30 @@ void main() {
             float lightRange = GetSceneLightLevel(lightType);
 
             bool intersects = true;
-            // #ifdef DYN_LIGHT_FRUSTUM_TEST
-            //     vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
+            #ifdef DYN_LIGHT_FRUSTUM_TEST
+                vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
 
-            //     lightRange = max(lightRange, 1.0);
-            //     //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-            //     if (lightViewPos.z > lightRange) intersects = false;
-            //     else if (lightViewPos.z < -far - lightRange) intersects = false;
-            //     else {
-            //         if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
-            //         if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
-            //         if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
-            //         if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
-            //     }
-            // #endif
+                lightRange = lightRange < EPSILON ? 16.0 : max(lightRange, 1.0);
+                //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+                if (lightViewPos.z > lightRange) intersects = false;
+                else if (lightViewPos.z < -far - lightRange) intersects = false;
+                else {
+                    if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
+                    if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
+                    if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
+                    if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
+                }
+            #endif
 
             if (lightType > 0) {
-                if (intersects) {
-                    if (SetSceneLightMask(blockCell, gridIndex, lightType))
-                        atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-                }
-                else {
-                    // WARN: this is adding for all faces!
-                    //atomicAdd(SceneLightMaxCount, 1u);
+                if (!intersects) lightType = LIGHT_IGNORED;
+
+                if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
+                    if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                    else atomicAdd(SceneLightMaxCount, 1u);
                 }
             }
-            else {
-                //if (!intersects) return;
-
+            else if (intersects) {
                 uint blockType = GetBlockType(vBlockId[0]);
                 SetSceneBlockMask(blockCell, gridIndex, blockType);
             }

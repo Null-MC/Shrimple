@@ -1,4 +1,4 @@
-#define RENDER_SHADOW
+#define RENDER_SHADOWCOMP
 #define RENDER_COMPUTE
 
 #include "/lib/constants.glsl"
@@ -6,7 +6,7 @@
 
 layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
-const ivec3 workGroups = ivec3(64, 16, 64);
+const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform mat4 gbufferModelView;
@@ -41,22 +41,22 @@ void PopulateLocalLists(const in ivec3 gridCell, const in uint gridIndex, const 
                 vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 
                 // TODO: This is probably faster in compute than shadow
-                #ifdef DYN_LIGHT_FRUSTUM_TEST
-                    vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
-                    bool intersects = true;
+                // #ifdef DYN_LIGHT_FRUSTUM_TEST
+                //     vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
+                //     bool intersects = true;
 
-                    float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-                    if (lightViewPos.z > maxRange) intersects = false;
-                    else if (lightViewPos.z < -far - maxRange) intersects = false;
-                    else {
-                        if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
-                        if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
-                        if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
-                        if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
-                    }
+                //     float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+                //     if (lightViewPos.z > maxRange) intersects = false;
+                //     else if (lightViewPos.z < -far - maxRange) intersects = false;
+                //     else {
+                //         if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
+                //         if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
+                //         if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
+                //         if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
+                //     }
 
-                    if (!intersects) continue;
-                #endif
+                //     if (!intersects) continue;
+                // #endif
 
                 vec3 lightOffset = vec3(0.0); // TODO
                 vec2 lightNoise = vec2(0.0); // TODO
@@ -73,7 +73,7 @@ void PopulateLocalLists(const in ivec3 gridCell, const in uint gridIndex, const 
                 ivec2 uv = GetSceneLightUV(gridIndex, lightLocalIndex);
                 imageStore(imgSceneLights, uv, uvec4(lightIndex));
 
-                if (lightLocalIndex++ >= LIGHT_BIN_MAX_COUNT) return;
+                if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
             }
         }
     }
@@ -81,25 +81,27 @@ void PopulateLocalLists(const in ivec3 gridCell, const in uint gridIndex, const 
 
 uint PopulateNeighborLists(const in ivec3 gridCell, const in uint gridIndex, const in vec3 cameraOffset) {
     // populate neighbor lists
-    const float neighborRange = 0.0;
+    const float neighborRange = 8.0;
 
     uint lightLocalIndex = SceneLightMaps[gridIndex].LightCount;
     if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return 0u;
 
-    const int gridSize = int(ceil(neighborRange / LIGHT_BIN_SIZE));
+    const int gridSize = 1;//int(ceil(neighborRange / LIGHT_BIN_SIZE));
     ivec3 neighborGridCellMin = max(gridCell - gridSize, ivec3(0.0));
     ivec3 neighborGridCellMax = min(gridCell + gridSize, SceneLightGridSize);
 
     vec3 binPos = (gridCell + 0.5) * LIGHT_BIN_SIZE - LightGridCenter - cameraOffset;
 
     uint neighborCount = 0u;
-    ivec3 neighborGridCell;
-    for (neighborGridCell.z = neighborGridCellMin.z; neighborGridCell.z <= neighborGridCellMax.z; neighborGridCell.z++) {
-        for (neighborGridCell.y = neighborGridCellMin.y; neighborGridCell.y <= neighborGridCellMax.y; neighborGridCell.y++) {
-            for (neighborGridCell.x = neighborGridCellMin.x; neighborGridCell.x <= neighborGridCellMax.x; neighborGridCell.x++) {
-                if (neighborGridCell == gridCell) continue;
+    ivec3 neighborGridCell = gridCell;
+    for (int x = -1; x <= 1; x++) {
+    //for (neighborGridCell.z = neighborGridCellMin.z; neighborGridCell.z <= neighborGridCellMax.z; neighborGridCell.z++) {
+    //    for (neighborGridCell.y = neighborGridCellMin.y; neighborGridCell.y <= neighborGridCellMax.y; neighborGridCell.y++) {
+    //        for (neighborGridCell.x = neighborGridCellMin.x; neighborGridCell.x <= neighborGridCellMax.x; neighborGridCell.x++) {
+                //if (neighborGridCell == gridCell) continue;
+                if (x == 0) continue;
 
-                uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
+                uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell + ivec3(0, x, 0));
                 uint neighborLightCount = min(SceneLightMaps[neighborGridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
                 
                 for (uint i = 0u; i < neighborLightCount; i++) {
@@ -107,18 +109,17 @@ uint PopulateNeighborLists(const in ivec3 gridCell, const in uint gridIndex, con
                     uint lightGlobalIndex = imageLoad(imgSceneLights, uv).r;
                     SceneLightData light = SceneLights[lightGlobalIndex];
 
-                    if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, light.range)) continue;
+                    //if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, light.range)) continue;
 
                     uv = GetSceneLightUV(gridIndex, lightLocalIndex);
                     imageStore(imgSceneLights, uv, uvec4(lightGlobalIndex));
-                    lightLocalIndex++;
                     neighborCount++;
 
-                    if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT)
+                    if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT)
                         return neighborCount;
                 }
-            }
-        }
+    //        }
+    //    }
     }
 
     return neighborCount;
@@ -139,12 +140,17 @@ void main() {
             PopulateLocalLists(gridCell, gridIndex, cameraOffset);
         }
 
-        memoryBarrier();
+        memoryBarrierBuffer();
+        memoryBarrierImage();
 
         uint neighborCount = PopulateNeighborLists(gridCell, gridIndex, cameraOffset);
 
-        memoryBarrier();
+        memoryBarrierBuffer();
+        memoryBarrierImage();
 
         SceneLightMaps[gridIndex].LightCount += neighborCount;
+        //atomicAdd(SceneLightMaps[gridIndex].LightCount, neighborCount);
+
+        //memoryBarrierBuffer();
     #endif
 }
