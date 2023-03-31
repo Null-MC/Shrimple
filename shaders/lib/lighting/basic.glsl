@@ -62,7 +62,7 @@
     vec3 SampleDynamicLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.06 * localNormal;
-        int lightCount = GetSceneLights(lightFragPos, gridIndex);
+        uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 
         if (gridIndex != DYN_LIGHT_GRID_MAX) {
             #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
@@ -73,7 +73,7 @@
 
             vec3 accumDiffuse = vec3(0.0);
 
-            for (int i = 0; i < lightCount; i++) {
+            for (uint i = 0u; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
 
                 vec3 lightPos = light.position;

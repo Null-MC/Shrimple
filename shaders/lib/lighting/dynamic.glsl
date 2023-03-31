@@ -100,19 +100,19 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         return dot(pointDist, pointDist) < pow2(lightRange);
     }
 #elif !defined RENDER_BEGIN
-    int GetSceneLights(const in vec3 position, out uint gridIndex) {
+    uint GetSceneLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);
         if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
             gridIndex = DYN_LIGHT_GRID_MAX;
-            return 0;
+            return 0u;
         }
 
         gridIndex = GetSceneLightGridIndex(gridCell);
-        return min(int(SceneLightMaps[gridIndex].LightCount), LIGHT_BIN_MAX_COUNT);
+        return min(SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount, LIGHT_BIN_MAX_COUNT);
     }
 
-    SceneLightData GetSceneLight(const in uint gridIndex, const in int binLightIndex) {
+    SceneLightData GetSceneLight(const in uint gridIndex, const in uint binLightIndex) {
         ivec2 uv = GetSceneLightUV(gridIndex, binLightIndex);
         uint globalLightIndex = imageLoad(imgSceneLights, uv).r;
         return SceneLights[globalLightIndex];

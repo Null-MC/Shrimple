@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/shadowcomp.csh"
+#include "/program/shadowcomp2.csh"
