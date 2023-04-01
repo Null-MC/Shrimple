@@ -25,14 +25,6 @@ out vec4 gColor;
     #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
         uniform sampler2D gtexture;
     #endif
-
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        uniform sampler2D noisetex;
-    #endif
-
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        uniform float frameTimeCounter;
-    #endif
 #endif
 
 uniform mat4 gbufferModelView;
@@ -126,7 +118,7 @@ void main() {
                 }
             }
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                else if (intersects) {
+                else if (intersects && IsDynLightSolidBlock(vBlockId[0])) {
                     uint blockType = GetBlockType(vBlockId[0]);
                     SetSceneBlockMask(blockCell, gridIndex, blockType);
                 }

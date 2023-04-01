@@ -9,14 +9,24 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #ifdef DYN_LIGHT_FLICKER
+        uniform sampler2D noisetex;
+
+        uniform float frameTimeCounter;
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform vec3 cameraPosition;
     uniform float far;
 
     #include "/lib/blocks.glsl"
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
+
+    #ifdef DYN_LIGHT_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
+    
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_lights.glsl"
@@ -70,7 +80,11 @@ void main() {
                     // #endif
 
                     vec3 lightOffset = vec3(0.0); // TODO
-                    vec2 lightNoise = vec2(0.0); // TODO
+
+                    vec2 lightNoise = vec2(0.0);
+                    #ifdef DYN_LIGHT_FLICKER
+                        lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                    #endif
 
                     float lightSize = GetSceneLightSize(lightType);
                     vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
