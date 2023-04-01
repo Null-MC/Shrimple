@@ -18,10 +18,8 @@ struct LightCellData {
     uint LightNeighborCount;
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)] BlockMask;
-        uint[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)] LightMask;
-    #else
-        uint[(LIGHT_BIN_SIZE3/32)] LightMask;
     #endif
+    uint[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)] LightMask;
 };
 
 #ifdef RENDER_SHADOWCOMP

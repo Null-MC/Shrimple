@@ -31,6 +31,15 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     return ivec2(z % DYN_LIGHT_IMG_SIZE, z / DYN_LIGHT_IMG_SIZE);
 }
 
+uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
+    uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+    maskIndex *= DYN_LIGHT_MASK_STRIDE;
+    uint intIndex = maskIndex >> 5;
+
+    uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
+    return (bit & 255);
+}
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
@@ -38,15 +47,6 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
         uint intIndex = maskIndex >> 5;
 
         uint bit = SceneLightMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
-        return (bit & 255);
-    }
-
-    uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
-        uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-        maskIndex *= DYN_LIGHT_MASK_STRIDE;
-        uint intIndex = maskIndex >> 5;
-
-        uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
         return (bit & 255);
     }
 
@@ -67,17 +67,17 @@ ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
     bool SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             maskIndex *= DYN_LIGHT_MASK_STRIDE;
-        #endif
+        //#endif
 
         uint intIndex = maskIndex >> 5u;
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             uint bit = lightType << (maskIndex & 31u);
-        #else
-            uint bit = 1u << (maskIndex & 31u);
-        #endif
+        //#else
+        //    uint bit = 1u << (maskIndex & 31u);
+        //#endif
 
         uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
         return (was & bit) == 0u;

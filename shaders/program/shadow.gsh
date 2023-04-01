@@ -125,10 +125,12 @@ void main() {
                     #endif
                 }
             }
-            else if (intersects) {
-                uint blockType = GetBlockType(vBlockId[0]);
-                SetSceneBlockMask(blockCell, gridIndex, blockType);
-            }
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                else if (intersects) {
+                    uint blockType = GetBlockType(vBlockId[0]);
+                    SetSceneBlockMask(blockCell, gridIndex, blockType);
+                }
+            #endif
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             if (entityId == ENTITY_LIGHTNING_BOLT) return;
