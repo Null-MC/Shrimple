@@ -18,21 +18,25 @@ mat3 GetViewTBN(const in vec3 viewNormal, const in vec3 viewTangent) {
 #endif
 
 #ifdef RENDER_FRAG
-    vec3 GetMaterialNormal(const in vec2 texcoord) {
+    bool GetMaterialNormal(const in vec2 texcoord, inout vec3 normal) {
+        bool valid = false;
         #if MATERIAL_NORMALS == NORMALMAP_LAB
             vec3 texNormal = texture(normals, texcoord).rgg;
 
             if (any(greaterThan(texNormal.rg, EPSILON2))) {
-                texNormal.xy = texNormal.xy * 2.0 - 1.0;
-                texNormal.z = sqrt(max(1.0 - dot(texNormal.xy, texNormal.xy), EPSILON));
+                normal.xy = texNormal.xy * 2.0 - 1.0;
+                normal.z = sqrt(max(1.0 - dot(normal.xy, normal.xy), EPSILON));
+                valid = true;
             }
         #elif MATERIAL_NORMALS == NORMALMAP_OLD
             vec3 texNormal = texture(normals, texcoord).rgb;
 
-            if (any(greaterThan(texNormal, EPSILON3)))
-                texNormal = normalize(texNormal * 2.0 - 1.0);
+            if (any(greaterThan(texNormal, EPSILON3))) {
+                normal = normalize(texNormal * 2.0 - 1.0);
+                valid = true;
+            }
         #endif
 
-        return texNormal;
+        return valid;
     }
 #endif

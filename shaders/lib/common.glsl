@@ -129,7 +129,7 @@ const bool colortex10Clear = true;
 //#define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
-#define DYN_LIGHT_TA
+#define DYN_LIGHT_TA 100 // [0 10 20 30 40 50 60 70 80 90 100]
 
 
 // Volumetric Lighting
@@ -206,6 +206,7 @@ const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
+const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 

@@ -13,9 +13,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         float extinction = 0.016 * VolumetricDensityF;
     #endif
 
-    vec3 localStart = localViewDir * (nearDist + 1.0);
-    vec3 localEnd = localViewDir * (farDist - 1.0);
-    float localRayLength = max(farDist - nearDist - 2.0, 0.0);
+    vec3 localStart = localViewDir * (nearDist + 0.1);
+    vec3 localEnd = localViewDir * (farDist - 0.1);
+    float localRayLength = max(farDist - nearDist - 0.2, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
     int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
@@ -142,14 +142,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
                         if ((light.data & 1u) == 1u) {
                             vec3 traceOrigin = GetLightGridPosition(light.position);
-                            vec3 traceEnd = traceOrigin + 0.99*lightVec;
+                            vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
                             #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                                 lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
                             #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
-                                lightColor *= TraceDDA(traceEnd, traceOrigin, light.range);
+                                lightColor *= TraceDDA(traceOrigin, traceEnd, light.range);
                             #else
-                                lightColor *= TraceDDA_fast(traceEnd, traceOrigin, light.range);
+                                lightColor *= TraceDDA_fast(traceOrigin, traceEnd, light.range);
                             #endif
                         }
                     #endif

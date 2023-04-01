@@ -22,7 +22,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_VL;
 #endif
 
-#ifdef DYN_LIGHT_TA
+#if DYN_LIGHT_TA > 0
     uniform sampler2D BUFFER_LIGHT_TA;
     uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
@@ -262,7 +262,7 @@ void main() {
                 vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
             #endif
 
-            #ifdef DYN_LIGHT_TA
+            #if DYN_LIGHT_TA > 0
                 // Use prev value if downscale depth/normal doesnt match
                 #if DYN_LIGHT_RES > 0
                     // TODO
@@ -281,11 +281,15 @@ void main() {
                     if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
                         vec3 blockLightPrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
 
+                        float minWeight = mix(0.006, 0.06, DynamicLightTemporalStrength);
+
                         float lum = log(luminance(blockLight) + EPSILON);
                         float lumPrev = log(luminance(blockLightPrev) + EPSILON);
 
                         float lumDiff = saturate(0.4 * abs(lum - lumPrev));
-                        float weight = 0.24*lumDiff + 0.006;
+                        float weight = 0.24*lumDiff + minWeight;
+
+                        //weight = 1.0 - (1.0 - weight) * DynamicLightTemporalStrength;
 
                         blockLight = mix(blockLightPrev, blockLight, weight);
                     }

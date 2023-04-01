@@ -265,10 +265,11 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = vec3(0.0);
+    vec3 texNormal = localNormal;
     float parallaxShadow = 1.0;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        texNormal = GetMaterialNormal(atlasCoord);
+        //texNormal = vec3(0.0, 0.0, 1.0);
+        bool isValidNormal = GetMaterialNormal(texcoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
@@ -276,11 +277,8 @@ void main() {
                     float dO = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (dO >= 0.5 / 255.0) {
-                        #ifdef PARALLAX_USE_TEXELFETCH
-                            texNormal = GetParallaxSlopeNormal(atlasCoord, traceCoordDepth.z, tanViewDir);
-                        #else
-                            texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-                        #endif
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        isValidNormal = true;
                     }
                 #endif
 
@@ -293,9 +291,11 @@ void main() {
             }
         #endif
 
-        vec3 localTangent = normalize(vLocalTangent);
-        mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
-        texNormal = matLocalTBN * texNormal;
+        if (isValidNormal) {
+            vec3 localTangent = normalize(vLocalTangent);
+            mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+            texNormal = matLocalTBN * texNormal;
+        }
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

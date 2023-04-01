@@ -224,11 +224,11 @@ void main() {
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        texNormal = GetMaterialNormal(texcoord);
-
-        vec3 localTangent = normalize(vLocalTangent);
-        mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
-        texNormal *= matLocalTBN;
+        if (GetMaterialNormal(texcoord, texNormal)) {
+            vec3 localTangent = normalize(vLocalTangent);
+            mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+            texNormal = matLocalTBN * texNormal;
+        }
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
