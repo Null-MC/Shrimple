@@ -125,11 +125,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             uint gridIndex;
-            int lightCount = GetSceneLights(traceLocalPos, gridIndex);
+            uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
             vec3 blockLightAccum = vec3(0.0);
 
             if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                for (int i = 0; i < lightCount; i++) {
+                for (uint i = 0; i < lightCount; i++) {
                     SceneLightData light = GetSceneLight(gridIndex, i);
 
                     vec3 lightVec = traceLocalPos - light.position;

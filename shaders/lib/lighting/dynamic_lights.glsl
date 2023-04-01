@@ -134,6 +134,9 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_CAVEVINE_BERRIES:
             lightType = LIGHT_CAVEVINE_BERRIES;
             break;
+        case BLOCK_COMPARATOR_LIT:
+            lightType = LIGHT_COMPARATOR;
+            break;
         case BLOCK_CRYING_OBSIDIAN:
             lightType = LIGHT_CRYING_OBSIDIAN;
             break;
@@ -203,11 +206,62 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_NETHER_PORTAL:
             lightType = LIGHT_NETHER_PORTAL;
             break;
+        case BLOCK_RAIL_POWERED:
+            lightType = LIGHT_RAIL_POWERED;
+            break;
         case BLOCK_REDSTONE_LAMP_LIT:
             lightType = LIGHT_REDSTONE_LAMP;
             break;
         case BLOCK_REDSTONE_TORCH_LIT:
             lightType = LIGHT_REDSTONE_TORCH;
+            break;
+        case BLOCK_REDSTONE_WIRE_1:
+            lightType = LIGHT_REDSTONE_WIRE_1;
+            break;
+        case BLOCK_REDSTONE_WIRE_2:
+            lightType = LIGHT_REDSTONE_WIRE_2;
+            break;
+        case BLOCK_REDSTONE_WIRE_3:
+            lightType = LIGHT_REDSTONE_WIRE_3;
+            break;
+        case BLOCK_REDSTONE_WIRE_4:
+            lightType = LIGHT_REDSTONE_WIRE_4;
+            break;
+        case BLOCK_REDSTONE_WIRE_5:
+            lightType = LIGHT_REDSTONE_WIRE_5;
+            break;
+        case BLOCK_REDSTONE_WIRE_6:
+            lightType = LIGHT_REDSTONE_WIRE_6;
+            break;
+        case BLOCK_REDSTONE_WIRE_7:
+            lightType = LIGHT_REDSTONE_WIRE_7;
+            break;
+        case BLOCK_REDSTONE_WIRE_8:
+            lightType = LIGHT_REDSTONE_WIRE_8;
+            break;
+        case BLOCK_REDSTONE_WIRE_9:
+            lightType = LIGHT_REDSTONE_WIRE_9;
+            break;
+        case BLOCK_REDSTONE_WIRE_10:
+            lightType = LIGHT_REDSTONE_WIRE_10;
+            break;
+        case BLOCK_REDSTONE_WIRE_11:
+            lightType = LIGHT_REDSTONE_WIRE_11;
+            break;
+        case BLOCK_REDSTONE_WIRE_12:
+            lightType = LIGHT_REDSTONE_WIRE_12;
+            break;
+        case BLOCK_REDSTONE_WIRE_13:
+            lightType = LIGHT_REDSTONE_WIRE_13;
+            break;
+        case BLOCK_REDSTONE_WIRE_14:
+            lightType = LIGHT_REDSTONE_WIRE_14;
+            break;
+        case BLOCK_REDSTONE_WIRE_15:
+            lightType = LIGHT_REDSTONE_WIRE_15;
+            break;
+        case BLOCK_REPEATER_LIT:
+            lightType = LIGHT_REPEATER;
             break;
         case BLOCK_RESPAWN_ANCHOR_1:
             lightType = LIGHT_RESPAWN_ANCHOR_1;
@@ -708,7 +762,7 @@ float GetSceneLightSize(const in uint lightType) {
         case LIGHT_JACK_O_LANTERN_E:
         case LIGHT_JACK_O_LANTERN_S:
         case LIGHT_JACK_O_LANTERN_W:
-        //case LIGHT_RAIL_POWERED:
+        case LIGHT_RAIL_POWERED:
             size = (10.0/16.0);
             break;
         case LIGHT_CANDLES_4:
