@@ -27,8 +27,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     #ifdef WORLD_SKY_ENABLED
         const float ambient = 0.012;
-        float G_Forward = mix(0.46, 0.26, rainStrength);
-        float G_Back = mix(0.36, 0.16, rainStrength);
+        float G_Forward = mix(0.56, 0.26, rainStrength);
+        float G_Back = mix(0.26, 0.16, rainStrength);
         const float G_mix = 0.7;
     #else
         const float ambient = 0.14;
@@ -63,7 +63,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
         float VoL = dot(localLightDir, localViewDir);
 
-        vec3 skyLightColor = skyColor + 0.02;
+        vec3 skyLightColor = 0.8*RGBToLinear(fogColor) + 0.02;
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
@@ -227,7 +227,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             //     }
             // }
 
-            inScattering += 0.3*blockLightAccum * DynamicLightBrightness;
+            inScattering += 0.5*blockLightAccum * DynamicLightBrightness;
         #endif
 
         inScattering *= scatterF;
