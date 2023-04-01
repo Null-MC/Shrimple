@@ -22,6 +22,7 @@ void main() {
         uint gridIndex = GetSceneLightGridIndex(pos);
 
         SceneLightMaps[gridIndex].LightCount = 0u;
+        SceneLightMaps[gridIndex].LightNeighborCount = 0u;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             for (int i = 0; i < (LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32); i++) {

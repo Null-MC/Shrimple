@@ -25,7 +25,7 @@ struct LightCellData {
 };
 
 #ifdef RENDER_SHADOWCOMP
-    layout(std430, binding = 1) restrict buffer globalLightingData
+    layout(std430, binding = 1) buffer globalLightingData
 #elif defined RENDER_BEGIN
     layout(std430, binding = 1) restrict writeonly buffer globalLightingData
 #else
@@ -43,7 +43,7 @@ struct LightCellData {
 };
 
 #ifdef RENDER_SHADOWCOMP
-    layout(std430, binding = 2) restrict buffer localLightingData
+    layout(std430, binding = 2) coherent buffer localLightingData
 #elif defined RENDER_BEGIN || defined RENDER_SHADOW
     layout(std430, binding = 2) restrict writeonly buffer localLightingData
 #else
@@ -54,7 +54,7 @@ struct LightCellData {
 };
 
 #ifdef RENDER_SHADOWCOMP
-    layout(r32ui) uniform restrict uimage2D imgSceneLights;
+    layout(r32ui) uniform coherent uimage2D imgSceneLights;
 #elif defined RENDER_SHADOW
     layout(r32ui) uniform restrict writeonly uimage2D imgSceneLights;
 #else

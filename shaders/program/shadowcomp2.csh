@@ -24,24 +24,24 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 
 uint PopulateNeighborLists(const in ivec3 gridCell, const in uint gridIndex, const in vec3 cameraOffset) {
-    // populate neighbor lists
-    const float neighborRange = 8.0;
-
     uint lightLocalIndex = SceneLightMaps[gridIndex].LightCount;
     if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return 0u;
 
-    const int gridSize = int(ceil(neighborRange / LIGHT_BIN_SIZE));
-    ivec3 neighborGridCellMin = max(gridCell - gridSize, ivec3(0.0));
-    ivec3 neighborGridCellMax = min(gridCell + gridSize, SceneLightGridSize);
+    const int gridSize = 16 / LIGHT_BIN_SIZE;
+    //ivec3 neighborGridCellMin = max(gridCell - gridSize, ivec3(0.0));
+    //ivec3 neighborGridCellMax = min(gridCell + gridSize, SceneLightGridSize);
 
     vec3 binPos = (gridCell + 0.5) * LIGHT_BIN_SIZE - LightGridCenter - cameraOffset;
 
     uint neighborCount = 0u;
-    ivec3 neighborGridCell = gridCell;
-    for (neighborGridCell.z = neighborGridCellMin.z; neighborGridCell.z <= neighborGridCellMax.z; neighborGridCell.z++) {
-        for (neighborGridCell.y = neighborGridCellMin.y; neighborGridCell.y <= neighborGridCellMax.y; neighborGridCell.y++) {
-            for (neighborGridCell.x = neighborGridCellMin.x; neighborGridCell.x <= neighborGridCellMax.x; neighborGridCell.x++) {
-                if (neighborGridCell == gridCell) continue;
+    ivec3 neighborOffset;
+    for (neighborOffset.z = -gridSize; neighborOffset.z <= gridSize; neighborOffset.z++) {
+        for (neighborOffset.y = -gridSize; neighborOffset.y <= gridSize; neighborOffset.y++) {
+            for (neighborOffset.x = -gridSize; neighborOffset.x <= gridSize; neighborOffset.x++) {
+                if (neighborOffset == ivec3(0)) continue;
+
+                ivec3 neighborGridCell = gridCell + neighborOffset;
+                if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, SceneLightGridSize))) continue;
 
                 uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
                 uint neighborLightCount = min(SceneLightMaps[neighborGridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
@@ -79,13 +79,5 @@ void main() {
         uint neighborCount = PopulateNeighborLists(gridCell, gridIndex, cameraOffset);
 
         SceneLightMaps[gridIndex].LightNeighborCount = neighborCount;
-
-        //memoryBarrierBuffer();
-        //memoryBarrierImage();
-
-        //SceneLightMaps[gridIndex].LightCount += neighborCount;
-        //atomicAdd(SceneLightMaps[gridIndex].LightCount, neighborCount);
-
-        //memoryBarrierBuffer();
     #endif
 }

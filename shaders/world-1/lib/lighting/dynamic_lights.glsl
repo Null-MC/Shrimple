@@ -10,27 +10,12 @@
 #define LIGHT_CANDLES_3 9u
 #define LIGHT_CANDLES_4 10u
 #define LIGHT_CAVEVINE_BERRIES 11u
-#define LIGHT_CRYING_OBSIDIAN 12u
-#define LIGHT_END_ROD 13u
-#define LIGHT_CAMPFIRE 14u
-#define LIGHT_FIRE 15u
-#define LIGHT_FURNACE_N 16u
-#define LIGHT_FURNACE_E 17u
-#define LIGHT_FURNACE_S 18u
-#define LIGHT_FURNACE_W 19u
-#define LIGHT_GLOWSTONE 20u
-#define LIGHT_GLOW_LICHEN 21u
-#define LIGHT_JACK_O_LANTERN_N 22u
-#define LIGHT_JACK_O_LANTERN_E 23u
-#define LIGHT_JACK_O_LANTERN_S 24u
-#define LIGHT_JACK_O_LANTERN_W 25u
-#define LIGHT_LANTERN 26u
-#define LIGHT_REDSTONE_LAMP 27u
-#define LIGHT_REDSTONE_TORCH 28u
-#define LIGHT_SEA_LANTERN 29u
-#define LIGHT_SOUL_TORCH 30u
-#define LIGHT_TORCH 31u
-
+#define LIGHT_GLOWSTONE 12u
+#define LIGHT_REDSTONE_LAMP 13u
+#define LIGHT_REDSTONE_TORCH 14u
+#define LIGHT_SEA_LANTERN 15u
+#define LIGHT_SOUL_TORCH 16u
+#define LIGHT_TORCH 17u
 #define LIGHT_IGNORED 255u
 
 
@@ -72,50 +57,8 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_CAVEVINE_BERRIES:
             lightType = LIGHT_CAVEVINE_BERRIES;
             break;
-        case BLOCK_CRYING_OBSIDIAN:
-            lightType = LIGHT_CRYING_OBSIDIAN;
-            break;
-        case BLOCK_END_ROD:
-            lightType = LIGHT_END_ROD;
-            break;
-        case BLOCK_CAMPFIRE_LIT:
-            lightType = LIGHT_CAMPFIRE;
-            break;
-        case BLOCK_FIRE:
-            lightType = LIGHT_FIRE;
-            break;
-        case BLOCK_FURNACE_LIT_N:
-            lightType = LIGHT_FURNACE_N;
-            break;
-        case BLOCK_FURNACE_LIT_E:
-            lightType = LIGHT_FURNACE_E;
-            break;
-        case BLOCK_FURNACE_LIT_S:
-            lightType = LIGHT_FURNACE_S;
-            break;
-        case BLOCK_FURNACE_LIT_W:
-            lightType = LIGHT_FURNACE_W;
-            break;
         case BLOCK_GLOWSTONE:
             lightType = LIGHT_GLOWSTONE;
-            break;
-        case BLOCK_GLOW_LICHEN:
-            lightType = LIGHT_GLOW_LICHEN;
-            break;
-        case BLOCK_JACK_O_LANTERN_N:
-            lightType = LIGHT_JACK_O_LANTERN_N;
-            break;
-        case BLOCK_JACK_O_LANTERN_E:
-            lightType = LIGHT_JACK_O_LANTERN_E;
-            break;
-        case BLOCK_JACK_O_LANTERN_S:
-            lightType = LIGHT_JACK_O_LANTERN_S;
-            break;
-        case BLOCK_JACK_O_LANTERN_W:
-            lightType = LIGHT_JACK_O_LANTERN_W;
-            break;
-        case BLOCK_LANTERN:
-            lightType = LIGHT_LANTERN;
             break;
         case BLOCK_REDSTONE_LAMP_LIT:
             lightType = LIGHT_REDSTONE_LAMP;
@@ -162,36 +105,8 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         case LIGHT_CAVEVINE_BERRIES:
             lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
             break;
-        case LIGHT_CRYING_OBSIDIAN:
-            lightColor = vec3(0.390, 0.065, 0.646);
-            break;
-        case LIGHT_END_ROD:
-            lightColor = vec3(0.957, 0.929, 0.875);
-            break;
-        case LIGHT_CAMPFIRE:
-        case LIGHT_FIRE:
-            lightColor = vec3(0.851, 0.616, 0.239);
-            break;
-        case LIGHT_FURNACE_N:
-        case LIGHT_FURNACE_E:
-        case LIGHT_FURNACE_S:
-        case LIGHT_FURNACE_W:
-            lightColor = vec3(0.697, 0.654, 0.458);
-            break;
         case LIGHT_GLOWSTONE:
             lightColor = vec3(0.652, 0.583, 0.275);
-            break;
-        case LIGHT_GLOW_LICHEN:
-            lightColor = vec3(0.173, 0.374, 0.252);
-            break;
-        case LIGHT_JACK_O_LANTERN_N:
-        case LIGHT_JACK_O_LANTERN_E:
-        case LIGHT_JACK_O_LANTERN_S:
-        case LIGHT_JACK_O_LANTERN_W:
-            lightColor = vec3(0.768, 0.701, 0.325);
-            break;
-        case LIGHT_LANTERN:
-            lightColor = vec3(0.906, 0.737, 0.451);
             break;
         case LIGHT_REDSTONE_LAMP:
             lightColor = vec3(0.953, 0.796, 0.496);
@@ -217,7 +132,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
-        if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+        if (lightType == LIGHT_TORCH || lightType == BLOCK_LANTERN || lightType == BLOCK_FIRE || lightType == BLOCK_CAMPFIRE_LIT) {
             float torchTemp = mix(1600, 3400, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
@@ -229,7 +144,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
 
         if (lightType == LIGHT_CANDLES_1 || lightType == BLOCK_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == BLOCK_CANDLES_4
-         || lightType == BLOCK_CANDLE_CAKE_LIT || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+         || lightType == BLOCK_CANDLE_CAKE_LIT || (lightType >= BLOCK_JACK_O_LANTERN_N && lightType <= BLOCK_JACK_O_LANTERN_W)) {
             float candleTemp = mix(2600, 3600, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
@@ -269,36 +184,8 @@ float GetSceneLightRange(const in uint lightType) {
         case LIGHT_CAVEVINE_BERRIES:
             lightRange = 14.0;
             break;
-        case LIGHT_CRYING_OBSIDIAN:
-            lightRange = 10.0;
-            break;
-        case LIGHT_END_ROD:
-            lightRange = 14.0;
-            break;
-        case LIGHT_CAMPFIRE:
-        case LIGHT_FIRE:
-            lightRange = 15.0;
-            break;
-        case LIGHT_FURNACE_N:
-        case LIGHT_FURNACE_E:
-        case LIGHT_FURNACE_S:
-        case LIGHT_FURNACE_W:
-            lightRange = 6.0;
-            break;
         case LIGHT_GLOWSTONE:
             lightRange = 15.0;
-            break;
-        case LIGHT_GLOW_LICHEN:
-            lightRange = 7.0;
-            break;
-        case LIGHT_JACK_O_LANTERN_N:
-        case LIGHT_JACK_O_LANTERN_E:
-        case LIGHT_JACK_O_LANTERN_S:
-        case LIGHT_JACK_O_LANTERN_W:
-            lightRange = 15.0;
-            break;
-        case LIGHT_LANTERN:
-            lightRange = 12.0;
             break;
         case LIGHT_REDSTONE_LAMP:
             lightRange = 15.0;

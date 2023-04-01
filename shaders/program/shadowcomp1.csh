@@ -36,7 +36,6 @@ void main() {
 
         atomicAdd(SceneLightMaxCount, SceneLightMaps[gridIndex].LightCount);
 
-        //vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         uint lightLocalIndex = 0u;
 
         uint binLightCountMin = min(SceneLightMaps[gridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
@@ -79,7 +78,6 @@ void main() {
                     SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
 
                     uint lightIndex = lightGlobalIndex + lightLocalIndex;
-                    //localLightMap[lightLocalIndex] = lightGlobalIndex;
                     SceneLights[lightIndex] = light;
 
                     ivec2 uv = GetSceneLightUV(gridIndex, lightLocalIndex);
@@ -89,8 +87,5 @@ void main() {
                 }
             }
         }
-
-        //memoryBarrierBuffer();
-        //memoryBarrierImage();
     #endif
 }

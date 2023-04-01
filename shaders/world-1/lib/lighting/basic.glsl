@@ -416,7 +416,6 @@
         vec3 GetFinalLighting(in vec3 albedo, const in vec3 blockLight, const in vec3 shadowColor, const in vec2 lmcoord, const in float occlusion) {
             // weather darkening
             
-            float worldBrightness = GetWorldBrightnessF();
 
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
@@ -425,7 +424,7 @@
                     vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
                 #endif
 
-                skyLight = RGBToLinear(skyLight) * worldBrightness;
+                skyLight = RGBToLinear(skyLight) * GetWorldBrightnessF();
 
                 //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
 
@@ -449,7 +448,7 @@
                 shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
             #endif
 
-            vec3 ambient = albedo * ambientLight * occlusion * shadowingF * worldBrightness;
+            vec3 ambient = albedo * ambientLight * occlusion * shadowingF;
             vec3 diffuse = albedo * (blockLight + skyLight * shadowColor * (1.0 - shadowingF));
             return ambient + diffuse;
         }

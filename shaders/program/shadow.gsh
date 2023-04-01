@@ -120,7 +120,9 @@ void main() {
 
                 if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
                     if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-                    else atomicAdd(SceneLightMaxCount, 1u);
+                    #ifdef DYN_LIGHT_DEBUG_COUNTS
+                        else atomicAdd(SceneLightMaxCount, 1u);
+                    #endif
                 }
             }
             else if (intersects) {
