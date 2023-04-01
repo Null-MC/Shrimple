@@ -281,11 +281,11 @@ void main() {
                     if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
                         vec3 blockLightPrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
 
-                        float lum = log(luminance(blockLight));
-                        float lumPrev = log(luminance(blockLightPrev));
+                        float lum = log(luminance(blockLight) + EPSILON);
+                        float lumPrev = log(luminance(blockLightPrev) + EPSILON);
 
-                        float lumDiff = saturate(0.3 * abs(lum - lumPrev));
-                        float weight = 0.4*pow(lumDiff, 2.0) + 0.0001;
+                        float lumDiff = saturate(0.4 * abs(lum - lumPrev));
+                        float weight = 0.24*lumDiff + 0.006;
 
                         blockLight = mix(blockLightPrev, blockLight, weight);
                     }
