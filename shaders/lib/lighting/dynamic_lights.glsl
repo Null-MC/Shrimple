@@ -849,6 +849,78 @@ float GetSceneLightSize(const in uint lightType) {
     return size;
 }
 
+vec3 GetSceneLightOffset(const in uint lightType) {
+    vec3 lightOffset = vec3(0.0);
+
+    switch (lightType) {
+        case LIGHT_BLAST_FURNACE_N:
+        case LIGHT_BLAST_FURNACE_E:
+        case LIGHT_BLAST_FURNACE_S:
+        case LIGHT_BLAST_FURNACE_W:
+            lightOffset = vec3(0.0, -0.4, 0.0);
+            break;
+        case LIGHT_CANDLE_CAKE:
+            lightOffset = vec3(0.0, 0.4, 0.0);
+            break;
+        case LIGHT_FIRE:
+            lightOffset = vec3(0.0, -0.3, 0.0);
+            break;
+        case LIGHT_FURNACE_N:
+        case LIGHT_FURNACE_E:
+        case LIGHT_FURNACE_S:
+        case LIGHT_FURNACE_W:
+            lightOffset = vec3(0.0, -0.2, 0.0);
+            break;
+        case LIGHT_JACK_O_LANTERN_N:
+            lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
+            break;
+        case LIGHT_JACK_O_LANTERN_E:
+            lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+            break;
+        case LIGHT_JACK_O_LANTERN_S:
+            lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
+            break;
+        case LIGHT_JACK_O_LANTERN_W:
+            lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+            break;
+        case LIGHT_LANTERN:
+            lightOffset = vec3(0.0, -0.25, 0.0);
+            break;
+        case LIGHT_LAVA_CAULDRON:
+            #if DYN_LIGHT_PENUMBRA > 0
+                lightOffset = vec3(0.0, 0.4, 0.0);
+            #else
+                lightOffset = vec3(0.0, 0.2, 0.0);
+            #endif
+            break;
+        case LIGHT_RESPAWN_ANCHOR_1:
+        case LIGHT_RESPAWN_ANCHOR_2:
+        case LIGHT_RESPAWN_ANCHOR_3:
+        case LIGHT_RESPAWN_ANCHOR_4:
+            lightOffset = vec3(0.0, 0.4, 0.0);
+            break;
+        case LIGHT_SCULK_CATALYST:
+            lightOffset = vec3(0.0, 0.4, 0.0);
+            break;
+        case LIGHT_SMOKER_N:
+        case LIGHT_SMOKER_E:
+        case LIGHT_SMOKER_S:
+        case LIGHT_SMOKER_W:
+            lightOffset = vec3(0.0, -0.3, 0.0);
+            break;
+        case LIGHT_SOUL_FIRE:
+        case LIGHT_SOUL_LANTERN:
+            lightOffset = vec3(0.0, -0.25, 0.0);
+            break;
+        case LIGHT_TORCH:
+        case LIGHT_SOUL_TORCH:
+            lightOffset = vec3(0.0, 0.4, 0.0);
+            break;
+    }
+
+    return lightOffset;
+}
+
 #ifdef RENDER_SHADOWCOMP
     uint BuildLightMask(const in uint lightType, const in float lightSize) {
         uint lightData;

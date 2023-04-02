@@ -79,14 +79,13 @@ void main() {
                     //     if (!intersects) continue;
                     // #endif
 
-                    vec3 lightOffset = vec3(0.0); // TODO
-
                     vec2 lightNoise = vec2(0.0);
                     #ifdef DYN_LIGHT_FLICKER
                         lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
                     #endif
 
                     float lightSize = GetSceneLightSize(lightType);
+                    vec3 lightOffset = GetSceneLightOffset(lightType);
                     vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
                     uint lightData = BuildLightMask(lightType, lightSize);
                     SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
