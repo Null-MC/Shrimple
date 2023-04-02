@@ -57,11 +57,11 @@ void main() {
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
-    vVertexId = -1;
+    vVertexId = gl_VertexID;
     if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vVertexId = GetWrappedVertexID(entityId);
-        #endif
+        // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        //     vVertexId = GetWrappedVertexID(entityId);
+        // #endif
     }
     else {
         vBlockId = blockId;

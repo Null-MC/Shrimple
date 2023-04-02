@@ -153,6 +153,7 @@
         if (heldBlockLightValue > 0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
+            //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
 
             vec3 lightVec = lightLocalPos - lightFragPos;
             if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
@@ -162,7 +163,7 @@
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                         float lightSize = GetSceneItemLightSize(heldItemId);
                         //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                         vec3 offset = GetLightPenumbraOffset();
@@ -197,7 +198,7 @@
                     vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                     vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0
+                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                         float lightSize = GetSceneItemLightSize(heldItemId2);
                         //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                         vec3 offset = GetLightPenumbraOffset();

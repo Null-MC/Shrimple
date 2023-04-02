@@ -38,6 +38,10 @@ uniform int entityId;
 uniform float near;
 uniform float far;
 
+// #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//     uniform mat4 shadowModelViewInverse;
+// #endif
+
 #if SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -126,6 +130,20 @@ void main() {
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             if (entityId == ENTITY_LIGHTNING_BOLT) return;
+
+            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                if (entityId == ENTITY_PLAYER) {
+                    for (int i = 0; i < 3; i++) {
+                        if (vVertexId[i] % 600 == 300) {
+                            HandLightPos1 = (shadowModelViewInverse * gl_in[i].gl_Position).xyz;
+                        }
+                    }
+
+                    if (vVertexId[0] == 5) {
+                        HandLightPos2 = (shadowModelViewInverse * gl_in[0].gl_Position).xyz;
+                    }
+                }
+            #endif
 
             // vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
             // if (light.a > EPSILON) {

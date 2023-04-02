@@ -48,6 +48,9 @@ void main() {
             SceneLightCount = 0u;
             SceneLightMaxCount = 0u;
 
+            HandLightPos1 = vec3(0.0);
+            HandLightPos2 = vec3(0.0);
+
             vec3 farClipPos[4];
             farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));
             farClipPos[1] = unproject(gbufferProjectionInverse * vec4( 1.0, -1.0, 1.0, 1.0));

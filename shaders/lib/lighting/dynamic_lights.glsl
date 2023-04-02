@@ -574,7 +574,7 @@ float GetSceneLightRange(const in uint lightType) {
             lightRange = 6.0;
             break;
         case LIGHT_BREWING_STAND:
-            lightRange = 1.0;
+            lightRange = 2.0;
             break;
         case LIGHT_CANDLES_1:
             lightRange = 3.0;
@@ -590,6 +590,9 @@ float GetSceneLightRange(const in uint lightType) {
             break;
         case LIGHT_CAVEVINE_BERRIES:
             lightRange = 14.0;
+            break;
+        case LIGHT_COMPARATOR:
+            lightRange = 7.0;
             break;
         case LIGHT_CRYING_OBSIDIAN:
             lightRange = 10.0;
@@ -650,6 +653,54 @@ float GetSceneLightRange(const in uint lightType) {
             lightRange = 15.0;
             break;
         case LIGHT_REDSTONE_TORCH:
+            lightRange = 7.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_1:
+            lightRange = 1.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_2:
+            lightRange = 1.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_3:
+            lightRange = 2.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_4:
+            lightRange = 2.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_5:
+            lightRange = 3.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_6:
+            lightRange = 3.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_7:
+            lightRange = 4.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_8:
+            lightRange = 4.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_9:
+            lightRange = 5.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_10:
+            lightRange = 5.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_11:
+            lightRange = 6.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_12:
+            lightRange = 6.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_13:
+            lightRange = 7.0;
+            break;
+        case LIGHT_REDSTONE_WIRE_14:
+            lightRange = 7.5;
+            break;
+        case LIGHT_REDSTONE_WIRE_15:
+            lightRange = 8.0;
+            break;
+        case LIGHT_REPEATER:
             lightRange = 7.0;
             break;
         case LIGHT_RESPAWN_ANCHOR_1:

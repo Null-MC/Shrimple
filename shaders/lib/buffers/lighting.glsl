@@ -24,7 +24,7 @@ struct LightCellData {
 
 #ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 1) restrict buffer globalLightingData
-#elif defined RENDER_BEGIN
+#elif defined RENDER_BEGIN || defined RENDER_SHADOW
     layout(std430, binding = 1) restrict writeonly buffer globalLightingData
 #else
     layout(std430, binding = 1) restrict readonly buffer globalLightingData
@@ -32,6 +32,10 @@ struct LightCellData {
 {
     uint SceneLightCount;
     uint SceneLightMaxCount;
+
+    vec3 HandLightPos1;
+    vec3 HandLightPos2;
+
     vec3 sceneViewUp;
     vec3 sceneViewRight;
     vec3 sceneViewDown;
