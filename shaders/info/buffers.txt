@@ -2,17 +2,22 @@ colortex0		RGB8		1.0		final
 
 colortex1		RGB8		1.0		deferred color
 colortex2		RGB8		1.0		deferred shadow
-colortex3		RGB32UI		1.0		deferred data
-									 - R: normal.xyzw (normal, sss)
+colortex3		RGBA32UI	1.0		deferred data
+									 - R: geometry normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
 									 - B: fog.rgba
+									 - A: texture normal
 
-colortex4		RGB11/10F	 *	 	block-light
+colortex4		RGB11/10F	 *	 	block-light diffuse
 colortex5		RGB8		 *		block-light normal
 colortex6		R32F		 *		block-light depth
-colortex7		RGB11/10F	1.0	 	block-light temporal
+colortex7		RGB11/10F	1.0	 	block-light temporal diffuse
 colortex8		RGB8		1.0		block-light temporal normal
 colortex9		R32F		1.0		block-light temporal depth
 colortex10		RGBA16F		1.0		volumetric
 
-colortex11			lightmap
+colortex11		RGB11/10F	 *	 	block-light specular
+colortex12		RGB11/10F	1.0	 	block-light temporal specular
+colortex14		R8			1.0		roughness
+
+colortex13			lightmap

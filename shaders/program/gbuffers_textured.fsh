@@ -167,13 +167,16 @@ void main() {
     //vec3 localNormal = normalize(vLocalNormal);
     color.rgb = RGBToLinear(color.rgb);
 
-    vec3 blockLight = vBlockLight;
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         const vec3 normal = vec3(0.0);
+        const float roughL = 1.0;
         const float emission = 0.0;
         const float sss = 0.0;
 
-        blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, emission, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -185,7 +188,7 @@ void main() {
         #endif
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

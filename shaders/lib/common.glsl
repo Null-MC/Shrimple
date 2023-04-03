@@ -13,6 +13,9 @@ const int colortex7Format  = R11F_G11F_B10F;
 const int colortex8Format  = RGB8;
 const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16;
+const int colortex11Format  = RGB16;
+const int colortex12Format  = RGB16;
+const int colortex14Format  = R8;
 */
 
 const bool generateShadowMipmap = false;
@@ -68,6 +71,18 @@ const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex10MipmapEnabled = false;
 const bool colortex10Clear = true;
 
+const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex11MipmapEnabled = false;
+const bool colortex11Clear = false;
+
+const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex12MipmapEnabled = false;
+const bool colortex12Clear = false;
+
+const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex14MipmapEnabled = false;
+const bool colortex14Clear = true;
+
 
 // World Options
 #define ENABLE_WAVING
@@ -85,6 +100,7 @@ const bool colortex10Clear = true;
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
+#define MATERIAL_SPECULAR
 
 
 // Shadow Options
@@ -148,7 +164,7 @@ const bool colortex10Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 

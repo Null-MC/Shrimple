@@ -205,11 +205,11 @@ void main() {
     #else
         vec3 blockLight = vBlockLight;
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, emission, sss);
+            blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
         #endif
 
         color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, roughL, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

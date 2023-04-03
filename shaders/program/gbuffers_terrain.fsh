@@ -188,10 +188,13 @@ uniform int fogMode;
 
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    /* RENDERTARGETS: 1,2,3 */
+    /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
+    #ifdef MATERIAL_SPECULAR
+        layout(location = 3) out vec4 outDeferredRough;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -240,7 +243,14 @@ void main() {
 
     float sss = GetMaterialSSS(vBlockId, atlasCoord);
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
+    float roughness = 1.0;
+    
     vec2 lmFinal = lmcoord;
+
+    #ifdef MATERIAL_SPECULAR
+        //roughness = textureGrad(specular, atlasCoord, dFdXY[0], dFdXY[1]).r;
+        roughness = texture(specular, atlasCoord).r;
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -325,20 +335,23 @@ void main() {
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
-        uvec4 deferredData = uvec4(0);
+        uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
         deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
-
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
-        #endif
-
+        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
+
+        #ifdef MATERIAL_SPECULAR
+            outDeferredRough = vec4(vec3(roughness), 1.0);
+        #endif
     #else
         vec3 blockLight = vBlockLight;
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmFinal.x, emission, sss);
+            vec3 blockDiffuse = vec3(0.0);
+            vec3 blockSpecular = vec3(0.0);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, emission, sss);
+            blockLight += blockDiffuse;
         #endif
 
         color.rgb = RGBToLinear(color.rgb);

@@ -170,11 +170,17 @@ void main() {
     #endif
 
     const vec3 normal = vec3(0.0);
+    const float roughL = 1.0;
     const float emission = 0.0;
     const float sss = 0.0;
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord, 1.0);
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+
+    const float occlusion = 1.0;
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, occlusion);
 
     ApplyFog(color, vLocalPos);
 

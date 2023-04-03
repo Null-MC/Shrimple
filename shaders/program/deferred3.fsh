@@ -18,6 +18,12 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
+#ifdef MATERIAL_SPECULAR
+    uniform sampler2D BUFFER_ROUGHNESS;
+    uniform sampler2D BUFFER_BLOCK_SPECULAR;
+    uniform sampler2D BUFFER_TA_SPECULAR;
+#endif
+
 #ifdef VL_BUFFER_ENABLED
     uniform sampler2D BUFFER_VL;
 #endif
@@ -103,7 +109,7 @@ uniform float blindness;
 #include "/lib/post/tonemap.glsl"
 
 
-vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in vec3 g_sigma) {
+void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in vec3 g_sigma) {
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
@@ -116,7 +122,8 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
     vec2 screenPixelSize = rcp(viewSize);
 
     float total = 0.0;
-    vec3 accum = vec3(0.0);
+    vec3 accumDiffuse = vec3(0.0);
+    vec3 accumSpecular = vec3(0.0);
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.y, iy);
@@ -125,7 +132,11 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
             float fx = Gaussian(g_sigma.x, ix);
 
             vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
-            vec3 sampleValue = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
+            vec3 sampleDiffuse = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
+
+            #ifdef MATERIAL_SPECULAR
+                vec3 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0).rgb;
+            #endif
 
             vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
             float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
@@ -137,13 +148,21 @@ vec3 BilateralGaussianBlur(const in vec2 texcoord, const in float linearDepth, c
             float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 12.0*(1.0 - normalWeight));
             
             float weight = fx*fy*fv;
-            accum += weight * sampleValue;
+            accumDiffuse += weight * sampleDiffuse;
+
+            #ifdef MATERIAL_SPECULAR
+                accumSpecular += weight * sampleSpecular;
+            #endif
+
             total += weight;
         }
     }
     
-    if (total <= EPSILON) return vec3(0.0);
-    return accum / total;
+    //if (total <= EPSILON) return vec3(0.0);
+    total = max(total, EPSILON);
+
+    blockDiffuse = accumDiffuse / total;
+    blockSpecular = accumSpecular / total;
 }
 
 vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depth, const in vec2 g_sigma) {
@@ -194,6 +213,9 @@ ivec2 GetTemporalOffset(const in int size) {
     layout(location = 1) out vec4 outTA;
     layout(location = 2) out vec4 outTA_Normal;
     layout(location = 3) out vec4 outTA_Depth;
+    #ifdef MATERIAL_SPECULAR
+        layout(location = 4) out vec4 outSpecularTA;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -212,6 +234,7 @@ void main() {
 
     if (depth < 1.0) {
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
@@ -223,6 +246,13 @@ void main() {
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
+        #endif
+
+        #ifdef MATERIAL_SPECULAR
+            float deferredRough = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
+            float roughL = pow(1.0 - deferredRough, 2.0);
+        #else
+            const float roughL = 1.0;
         #endif
 
         #ifdef SHADOW_BLUR
@@ -248,18 +278,30 @@ void main() {
         float emission = deferredLighting.a;
         float sss = deferredNormal.a;
 
+        vec3 blockDiffuse = vec3(0.0);
+        vec3 blockSpecular = vec3(0.0);
+
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             #ifdef DYN_LIGHT_BLUR
                 const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
+
                 #if MATERIAL_NORMALS != NORMALMAP_NONE
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, texNormal, lightSigma);
+                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
                 #else
-                    vec3 blockLight = BilateralGaussianBlur(texcoord, linearDepth, localNormal, lightSigma);
+                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, localNormal, lightSigma);
                 #endif
             #elif DYN_LIGHT_RES == 0
-                vec3 blockLight = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
+                blockDiffuse = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
+
+                #ifdef MATERIAL_SPECULAR
+                    blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
+                #endif
             #else
-                vec3 blockLight = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+                blockDiffuse = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+
+                #ifdef MATERIAL_SPECULAR
+                    blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                #endif
             #endif
 
             #if DYN_LIGHT_TA > 0
@@ -279,35 +321,44 @@ void main() {
                     float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
                     if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
-                        vec3 blockLightPrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
+                        vec3 blockDiffusePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
 
                         float minWeight = mix(0.006, 0.02, DynamicLightTemporalStrength);
 
-                        float lum = log(luminance(blockLight) + EPSILON);
-                        float lumPrev = log(luminance(blockLightPrev) + EPSILON);
+                        float lum = log(luminance(blockDiffuse) + EPSILON);
+                        float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
 
                         float lumDiff = saturate(0.4 * abs(lum - lumPrev));
                         float weight = mix(0.1, 0.04, DynamicLightTemporalStrength)*lumDiff + minWeight;
 
                         //weight = 1.0 - (1.0 - weight) * DynamicLightTemporalStrength;
 
-                        blockLight = mix(blockLightPrev, blockLight, weight);
+                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weight);
+
+                        #ifdef MATERIAL_SPECULAR
+                            vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
+                        #endif
                     }
                 }
 
-                outTA = vec4(blockLight, 1.0);
+                outTA = vec4(blockDiffuse, 1.0);
                 outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
                 outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
+
+                #ifdef MATERIAL_SPECULAR
+                    outSpecularTA = vec4(blockSpecular, 1.0);
+                #endif
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vec3 blockLight = GetFinalBlockLighting(localPos, localNormal, texNormal, deferredLighting.x, emission, sss);
+            vec3 blockDiffuse = GetFinalBlockLighting(localPos, localNormal, texNormal, deferredLighting.x, roughL, emission, sss);
         #else
-            vec3 blockLight = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
-            blockLight = RGBToLinear(blockLight);
+            vec3 blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
+            blockDiffuse = RGBToLinear(blockDiffuse);
         #endif
 
         vec3 albedo = RGBToLinear(deferredColor);
-        final = GetFinalLighting(albedo, blockLight, deferredShadow, deferredLighting.xy, deferredLighting.z);
+        final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);

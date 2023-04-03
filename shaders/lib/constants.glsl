@@ -49,7 +49,8 @@
 #define DEBUG_VIEW_DEFERRED_TEXTURE 6
 #define DEBUG_VIEW_DEFERRED_VL 7
 #define DEBUG_VIEW_BLOCKLIGHT 8
-#define DEBUG_VIEW_SHADOW_COLOR 9
+#define DEBUG_VIEW_BLOCK_SPECULAR 9
+#define DEBUG_VIEW_SHADOW_COLOR 10
 
 #define ENTITY_PHYSICSMOD_SNOW 829925
 
@@ -65,7 +66,10 @@
 #define BUFFER_LIGHT_TA_NORMAL colortex8
 #define BUFFER_LIGHT_TA_DEPTH colortex9
 #define BUFFER_VL colortex10
-#define TEX_LIGHTMAP colortex11
+#define BUFFER_BLOCK_SPECULAR colortex11
+#define BUFFER_TA_SPECULAR colortex12
+#define BUFFER_ROUGHNESS colortex14
+#define TEX_LIGHTMAP colortex13
 #define TEX_LIGHT_NOISE noisetex
 
 

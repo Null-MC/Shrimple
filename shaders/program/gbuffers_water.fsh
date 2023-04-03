@@ -188,6 +188,15 @@ layout(location = 0) out vec4 outFinal;
 
 
 void main() {
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        if (vBlockId == BLOCK_WATER) {
+            if (!gl_FrontFacing && isEyeInWater != 1) {
+                discard;
+                return;
+            }
+        }
+    #endif
+
     #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
         vec4 color = textureAnisotropic(gtexture, texcoord);
     #else
@@ -199,8 +208,11 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    vec3 localViewDir = normalize(vLocalPos);
+
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
+    float roughL = 1.0;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -251,16 +263,10 @@ void main() {
         }
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (vBlockId == BLOCK_WATER) {
-            if (!gl_FrontFacing && isEyeInWater != 1) {
-                discard;
-                return;
-            }
-        }
+    #ifdef MATERIAL_SPECULAR
+        roughL = texture(specular, texcoord).r;
+        roughL = pow(1.0 - roughL, 2.0);
     #endif
-
-    vec3 localViewDir = normalize(vLocalPos);
 
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
         if (vBlockId == BLOCK_WATER) {
@@ -302,8 +308,11 @@ void main() {
         }
     #endif
 
-    vec3 blockLightColor = vBlockLight + GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
-    color.rgb = GetFinalLighting(color.rgb, blockLightColor, shadowColor, lmcoord, glcolor.a);
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
+
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

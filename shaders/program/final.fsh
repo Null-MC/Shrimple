@@ -27,6 +27,8 @@ uniform float viewHeight;
 	uniform sampler2D BUFFER_VL;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 	uniform sampler2D BUFFER_BLOCKLIGHT;
+#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
+	uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 	uniform sampler2D shadowcolor0;
 #endif
@@ -67,6 +69,8 @@ void main() {
 		vec3 color = textureLod(BUFFER_VL, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCKLIGHT
 		vec3 color = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
+		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#else

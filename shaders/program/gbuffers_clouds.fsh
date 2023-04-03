@@ -155,8 +155,18 @@ void main() {
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         const vec3 normal = vec3(0.0);
-        final.rgb += SampleDynamicLighting(vLocalPos, normal, normal, 0.0, vec3(0.0));
-        final.rgb += SampleHandLight(vLocalPos, normal, normal, 0.0);
+        const float roughL = 0.9;
+        const float sss = 0.0;
+
+        // TODO: Is this right?
+        const vec3 blockLightDefault = vec3(0.0);
+
+        vec3 blockDiffuse = vec3(0.0);
+        vec3 blockSpecular = vec3(0.0);
+        SampleDynamicLighting(blockDiffuse, blockSpecular, roughL, vLocalPos, normal, normal, sss, blockLightDefault);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, sss);
+        
+        final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
     #endif
 
     float viewDist = length(vLocalPos);

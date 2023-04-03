@@ -12,6 +12,10 @@ uniform sampler2D noisetex;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
+#ifdef MATERIAL_SPECULAR
+    uniform sampler2D BUFFER_ROUGHNESS;
+#endif
+
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
     uniform sampler2D shadowcolor0;
 #endif
@@ -66,10 +70,13 @@ ivec2 GetTemporalOffset(const in int size) {
 }
 
 
-/* RENDERTARGETS: 4,5,6 */
-layout(location = 0) out vec4 outLight;
+/* RENDERTARGETS: 4,5,6,11 */
+layout(location = 0) out vec4 outDiffuse;
 layout(location = 1) out vec4 outNormal;
 layout(location = 2) out vec4 outDepth;
+#ifdef MATERIAL_SPECULAR
+    layout(location = 3) out vec4 outSpecular;
+#endif
 
 void main() {
     vec2 viewSize = vec2(viewWidth, viewHeight);
@@ -90,7 +97,8 @@ void main() {
     outDepth = vec4(vec3(depth), 1.0);
 
     if (depth < 1.0) {
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(tex2 * viewSize), 0);
+        ivec2 iTex = ivec2(tex2 * viewSize);
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 localNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
@@ -106,16 +114,30 @@ void main() {
                 texNormal = normalize(texNormal * 2.0 - 1.0);
         #endif
 
+        float roughL = 1.0;
+        float emission = deferredLighting.a;
+        float sss = localNormal.w;
+
+        #ifdef MATERIAL_SPECULAR
+            roughL = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
+            roughL = pow(1.0 - roughL, 2.0);
+        #endif
+
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        vec3 blockLight;
-        blockLight = GetFinalBlockLighting(localPos, localNormal.xyz, texNormal, deferredLighting.x, deferredLighting.a, localNormal.w);
-        blockLight += SampleHandLight(localPos, localNormal.xyz, texNormal, localNormal.w);
-        blockLight *= 1.0 - deferredFog.a;
+        vec3 blockDiffuse = vec3(0.0);
+        vec3 blockSpecular = vec3(0.0);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, emission, sss);
+        //SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, roughL, localNormal.w);
+        blockDiffuse *= 1.0 - deferredFog.a;
 
-        outLight = vec4(blockLight, 1.0);
+        outDiffuse = vec4(blockDiffuse, 1.0);
+
+        #ifdef MATERIAL_SPECULAR
+            outSpecular = vec4(blockSpecular, 1.0);
+        #endif
 
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             outNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
@@ -124,7 +146,11 @@ void main() {
         #endif
     }
     else {
-        outLight = vec4(0.0, 0.0, 0.0, 1.0);
+        outDiffuse = vec4(0.0, 0.0, 0.0, 1.0);
         outNormal = vec4(0.0, 0.0, 0.0, 1.0);
+
+        #ifdef MATERIAL_SPECULAR
+            outSpecular = vec4(0.0, 0.0, 0.0, 1.0);
+        #endif
     }
 }
