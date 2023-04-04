@@ -173,19 +173,12 @@ void main() {
     }
 
     color.rgb = RGBToLinear(color.rgb);
-
-    vec3 blockDiffuse = vBlockLight;
-    vec3 blockSpecular = vec3(0.0);
     
+    vec3 localViewDir = normalize(vLocalPos);
+    
+    const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        const vec3 normal = vec3(0.0);
-        const float emission = 0.0;
-        const float sss = 0.0;
-        
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
-    #endif
+    const float sss = 0.0;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -196,12 +189,27 @@ void main() {
         #endif
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, glcolor.a);
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        const float emission = 0.0;
+        
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+    #endif
+
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
+
+    #ifdef WORLD_SKY_ENABLED
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+    #endif
+
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
     #ifdef VL_BUFFER_ENABLED
-        vec3 localViewDir = normalize(vLocalPos);
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif

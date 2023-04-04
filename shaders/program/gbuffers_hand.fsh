@@ -37,7 +37,7 @@ uniform sampler2D noisetex;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
     uniform sampler2D specular;
 #endif
 
@@ -191,6 +191,8 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     float sss, emission;
+    float roughness = 1.0;
+
     if (gl_FragCoord.x > viewWidth / 2) {
         sss = GetMaterialSSS(heldItemId2, texcoord);
         emission = GetMaterialEmission(heldItemId2, texcoord);
@@ -199,6 +201,11 @@ void main() {
         sss = GetMaterialSSS(heldItemId, texcoord);
         emission = GetMaterialEmission(heldItemId, texcoord);
     }
+
+    #ifdef MATERIAL_SPECULAR
+        //roughness = textureGrad(specular, atlasCoord, dFdXY[0], dFdXY[1]).r;
+        roughness = 1.0 - texture(specular, texcoord).r;
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -262,13 +269,25 @@ void main() {
         
         outDeferredData = deferredData;
     #else
-        vec3 blockLight = vBlockLight;
-        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            blockLight += GetFinalBlockLighting(vLocalPos, localNormal, texNormal, lmcoord.x, emission, sss);
+        color.rgb = RGBToLinear(color.rgb);
+        float roughL = pow2(roughness);
+
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
         #endif
 
-        color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, glcolor.a);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        #ifdef WORLD_SKY_ENABLED
+            vec3 localViewDir = normalize(vLocalPos);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, sss);
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

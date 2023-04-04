@@ -151,14 +151,16 @@ uniform float blindness;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-	vec4 color = texture(gtexture, texcoord);
+	vec4 color = texture(gtexture, texcoord) * glcolor;
 
     if (color.a < (1.5/255.0)) {
         discard;
         return;
     }
 
-    color *= glcolor;
+    color.rgb = RGBToLinear(color.rgb);
+
+    vec3 localViewDir = normalize(vLocalPos);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -179,13 +181,19 @@ void main() {
 
     GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
 
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
+
+    #ifdef WORLD_SKY_ENABLED
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+    #endif
+
     const float occlusion = 1.0;
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, occlusion);
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
     #ifdef VL_BUFFER_ENABLED
-        vec3 localViewDir = normalize(vLocalPos);
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif

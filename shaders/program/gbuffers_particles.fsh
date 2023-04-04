@@ -151,10 +151,13 @@ uniform float blindness;
 
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    /* RENDERTARGETS: 1,2,3 */
+    /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
+    #ifdef MATERIAL_SPECULAR
+        layout(location = 3) out vec4 outDeferredRough;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -178,6 +181,7 @@ void main() {
     #endif
 
     const vec3 normal = vec3(0.0);
+    const float roughness = 1.0;
     const float emission = 0.0;
     const float sss = 0.0;
 
@@ -192,24 +196,36 @@ void main() {
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
-        uvec4 deferredData = uvec4(0);
+        uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, sss));
         deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
-
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            deferredData.a = packUnorm4x8(vec4(normal, 1.0));
-        #endif
-
+        deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
+
+        #ifdef MATERIAL_SPECULAR
+            outDeferredRough = vec4(vec3(roughness), 1.0);
+        #endif
     #else
-        vec3 blockLight = vBlockLight;
-        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            blockLight += GetFinalBlockLighting(vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+        color.rgb = RGBToLinear(color.rgb);
+        float roughL = pow2(roughness);
+
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
         #endif
 
-        color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmcoord, roughL, glcolor.a);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        #ifdef WORLD_SKY_ENABLED
+            vec3 localViewDir = normalize(vLocalPos);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

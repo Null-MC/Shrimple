@@ -59,6 +59,10 @@ uniform int fogMode;
 
 uniform float blindness;
 
+#ifdef WORLD_SKY_ENABLED //MATERIAL_SPECULAR
+    uniform vec3 shadowLightPosition;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
@@ -208,7 +212,7 @@ ivec2 GetTemporalOffset(const in int size) {
 
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    /* RENDERTARGETS: 0,7,8,9 */
+    /* RENDERTARGETS: 0,7,8,9,12 */
     layout(location = 0) out vec4 outFinal;
     layout(location = 1) out vec4 outTA;
     layout(location = 2) out vec4 outTA_Normal;
@@ -249,8 +253,8 @@ void main() {
         #endif
 
         #ifdef MATERIAL_SPECULAR
-            float deferredRough = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
-            float roughL = pow(1.0 - deferredRough, 2.0);
+            float deferredRough = 1.0 - texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
+            float roughL = max(pow2(deferredRough), 0.01);
         #else
             const float roughL = 1.0;
         #endif
@@ -357,8 +361,17 @@ void main() {
             blockDiffuse = RGBToLinear(blockDiffuse);
         #endif
 
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        #ifdef WORLD_SKY_ENABLED
+            vec3 localViewDir = -normalize(localPos);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localViewDir, localNormal, texNormal, deferredLighting.y, roughL, sss);
+        #endif
+
         vec3 albedo = RGBToLinear(deferredColor);
-        final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
+        //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
+        final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, deferredLighting.z);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);

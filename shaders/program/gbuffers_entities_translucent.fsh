@@ -37,7 +37,7 @@ uniform sampler2D lightmap;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
     uniform sampler2D specular;
 #endif
 
@@ -201,6 +201,8 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    vec3 localViewDir = normalize(vLocalPos);
+
     float sss = GetMaterialSSS(entityId, texcoord);
     float emission = GetMaterialEmission(entityId, texcoord);
     float roughL = 1.0;
@@ -254,12 +256,18 @@ void main() {
 
     GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, glcolor.a);
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
+
+    #ifdef WORLD_SKY_ENABLED
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, sss);
+    #endif
+
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
     #ifdef VL_BUFFER_ENABLED
-        vec3 localViewDir = normalize(vLocalPos);
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif

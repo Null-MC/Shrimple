@@ -47,6 +47,8 @@ value.MATERIAL_SSS.0=OFF
 value.MATERIAL_SSS.1=Hard-Coded
 value.MATERIAL_SSS.2=LabPBR
 
+option.MATERIAL_SPECULAR=Specular
+
 
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
 

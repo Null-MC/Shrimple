@@ -124,9 +124,9 @@
                 #endif
 
                 vec3 lightDir = normalize(-lightVec);
-                float lightNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
+                float geoNoLm = max(dot(localNormal, lightDir), 0.0);
 
-                if (lightNoLm > EPSILON) {
+                if (geoNoLm > EPSILON) {
                     float lightDist = length(lightVec);
                     float lightAtt = 1.0 - saturate(lightDist / light.range);
                     lightAtt = pow(lightAtt, 5.0);
@@ -142,9 +142,11 @@
                         F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                     #endif
 
-                    blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                    float diffuseNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
+                    blockDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                     #ifdef MATERIAL_SPECULAR
+                        float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                         float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
                         blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
@@ -501,28 +503,68 @@
             #endif
         }
 
-        vec3 GetFinalLighting(in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 shadowColor, const in vec2 lmcoord, const in float roughL, const in float occlusion) {
-            // weather darkening
-            
-            float worldBrightness = GetWorldBrightnessF();
+        #ifdef WORLD_SKY_ENABLED
+            void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float sss) {
+                #ifndef RENDER_CLOUDS
+                    #ifdef RENDER_GBUFFER
+                        vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    #else
+                        vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    #endif
 
-            #ifndef RENDER_CLOUDS
-                #ifdef RENDER_GBUFFER
-                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                    float worldBrightness = GetWorldBrightnessF();
+                    skyLight = RGBToLinear(skyLight) * worldBrightness;
+
+                    //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+
+                    skyLight *= 1.0 - blindness;
                 #else
-                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoord.y), 0).rgb;
+                    const float skyLight = 1.0;
+                #endif
+                
+                vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
+                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                    float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
+                #else
+                    const float diffuseNoL = 1.0;
                 #endif
 
-                skyLight = RGBToLinear(skyLight) * worldBrightness;
+                skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
-                //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+                #if defined MATERIAL_SPECULAR && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                    float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
-                skyLight *= 1.0 - blindness;
-            #else
-                const float skyLight = 1.0;
-            #endif
+                    if (geoNoLm > 0.0) {
+                        const float f0 = 0.04;
 
-            vec3 ambientLight = skyLight;
+                        //vec3 localViewDir = normalize(localPos);
+
+                        vec3 skyH = normalize(localLightDir + localViewDir);
+                        float skyNoLm = max(dot(texNormal, localLightDir), 0.0);
+                        float skyVoHm = max(dot(localViewDir, skyH), 0.0);
+                        float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
+                        float skyNoHm = max(dot(texNormal, skyH), 0.0);
+
+                        float invCosTheta = 1.0 - skyVoHm;
+                        float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+
+                        skySpecular += SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
+                    }
+                #endif
+            }
+        #endif
+
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float occlusion) {
+            // weather darkening
+            
+            //float worldBrightness = GetWorldBrightnessF();
+
+            //float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
+
+            //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
+
+            vec3 ambientLight = vec3(0.0);
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_DEFERRED
                 vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
                 lmFinal.x *= 0.16;
@@ -532,27 +574,7 @@
                 ambientLight = RGBToLinear(ambientLight);
             #endif
 
-            vec3 skyDiffuse = skyLight * shadowColor;
-            vec3 skySpecular = vec3(0.0);
-
-            float shadowingF = 1.0;
-            #ifdef WORLD_SKY_ENABLED
-                shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
-
-                skyDiffuse *= 1.0 - shadowingF;
-
-                #ifdef MATERIAL_SPECULAR
-                    float skyNoVm = 1.0;
-                    float skyNoLm = 1.0;
-                    float skyNoHm = 1.0;
-
-                    float skyF = 1.0;
-
-                    skySpecular = vec3(0.0);//SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL);
-                #endif
-            #endif
-
-            vec3 ambient = albedo * ambientLight * occlusion * shadowingF * worldBrightness;
+            vec3 ambient = albedo * ambientLight * occlusion;// * shadowingF * worldBrightness;
             vec3 diffuse = albedo * (blockDiffuse + skyDiffuse);
             return ambient + diffuse + blockSpecular + skySpecular;
         }

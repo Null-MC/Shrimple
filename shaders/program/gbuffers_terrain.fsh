@@ -48,7 +48,7 @@ uniform sampler2D noisetex;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
     uniform sampler2D specular;
 #endif
 
@@ -249,7 +249,7 @@ void main() {
 
     #ifdef MATERIAL_SPECULAR
         //roughness = textureGrad(specular, atlasCoord, dFdXY[0], dFdXY[1]).r;
-        roughness = texture(specular, atlasCoord).r;
+        roughness = 1.0 - texture(specular, atlasCoord).r;
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -346,16 +346,25 @@ void main() {
             outDeferredRough = vec4(vec3(roughness), 1.0);
         #endif
     #else
-        vec3 blockLight = vBlockLight;
+        color.rgb = RGBToLinear(color.rgb);
+        float roughL = max(pow2(roughness), 0.01);
+        
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            vec3 blockDiffuse = vec3(0.0);
-            vec3 blockSpecular = vec3(0.0);
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, emission, sss);
-            blockLight += blockDiffuse;
         #endif
 
-        color.rgb = RGBToLinear(color.rgb);
-        color.rgb = GetFinalLighting(color.rgb, blockLight, shadowColor, lmFinal, glcolor.a);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        #ifdef WORLD_SKY_ENABLED
+            vec3 localViewDir = normalize(vLocalPos);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, sss);
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

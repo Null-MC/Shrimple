@@ -44,7 +44,7 @@ uniform sampler2D noisetex;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
     uniform sampler2D specular;
 #endif
 
@@ -312,7 +312,14 @@ void main() {
     vec3 blockSpecular = vec3(0.0);
     GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, shadowColor, lmcoord, roughL, glcolor.a);
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
+
+    #ifdef WORLD_SKY_ENABLED
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, sss);
+    #endif
+
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 
