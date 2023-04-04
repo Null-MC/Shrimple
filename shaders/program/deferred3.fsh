@@ -253,7 +253,7 @@ void main() {
         #endif
 
         #ifdef MATERIAL_SPECULAR
-            float deferredRough = 1.0 - texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
+            float deferredRough = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
             float roughL = max(pow2(deferredRough), 0.01);
         #else
             const float roughL = 1.0;

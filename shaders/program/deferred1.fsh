@@ -120,7 +120,7 @@ void main() {
 
         #ifdef MATERIAL_SPECULAR
             roughL = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
-            roughL = pow(1.0 - roughL, 2.0);
+            roughL = pow2(roughL);
         #endif
 
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;

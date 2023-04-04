@@ -214,6 +214,11 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, texcoord);
     float roughL = 1.0;
 
+    #ifdef MATERIAL_SPECULAR
+        roughL = 1.0 - texture(specular, texcoord).r;
+        roughL = pow2(roughL);
+    #endif
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -255,17 +260,14 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
+            roughL = 0.04;
+
             #ifdef PHYSICS_OCEAN
                 texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
             #else
                 texNormal = localNormal;
             #endif
         }
-    #endif
-
-    #ifdef MATERIAL_SPECULAR
-        roughL = texture(specular, texcoord).r;
-        roughL = pow(1.0 - roughL, 2.0);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
