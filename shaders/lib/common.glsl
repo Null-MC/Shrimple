@@ -100,7 +100,7 @@ const bool colortex14Clear = true;
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
-#define MATERIAL_SPECULAR
+//#define MATERIAL_SPECULAR
 
 
 // Shadow Options
@@ -199,6 +199,8 @@ const bool colortex14Clear = true;
 #endif
 
 
+#ifdef MATERIAL_SPECULAR
+#endif
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
 #ifdef WATER_REFLECTIONS_ENABLED
