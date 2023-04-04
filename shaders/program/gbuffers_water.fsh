@@ -208,7 +208,7 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec3 localViewDir = normalize(vLocalPos);
+    vec3 localViewDir = -normalize(vLocalPos);
 
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
@@ -283,10 +283,10 @@ void main() {
                 }
             }
 
-            vec3 reflectDir = reflect(localViewDir, texNormal);
+            vec3 reflectDir = reflect(-localViewDir, texNormal);
             vec3 reflectColor = GetFogColor(reflectDir.y) * vec3(0.7, 0.8, 1.0);
 
-            float NoV = abs(dot(texNormal, -localViewDir));
+            float NoV = abs(dot(texNormal, localViewDir));
             float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
             color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
@@ -297,9 +297,9 @@ void main() {
 
     if (color.a > (0.5/255.0)) {
         #if MATERIAL_NORMALS != NORMALMAP_NONE
-            float NoV = abs(dot(texNormal, -localViewDir));
+            float NoV = abs(dot(texNormal, localViewDir));
         #else
-            float NoV = abs(dot(localNormal, -localViewDir));
+            float NoV = abs(dot(localNormal, localViewDir));
         #endif
 
         float F = F_schlick(NoV, 0.04, 1.0);
