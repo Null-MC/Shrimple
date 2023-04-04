@@ -355,7 +355,7 @@ void main() {
                 #endif
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vec3 blockDiffuse = GetFinalBlockLighting(localPos, localNormal, texNormal, deferredLighting.x, roughL, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, emission, sss);
         #else
             vec3 blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);
