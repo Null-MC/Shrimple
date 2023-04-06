@@ -89,44 +89,45 @@ void main() {
 
             ivec3 gridCell, blockCell;
             vec3 gridPos = GetLightGridPosition(lightOrigin);
-            if (!GetSceneLightGridCell(gridPos, gridCell, blockCell)) return;
-            uint gridIndex = GetSceneLightGridIndex(gridCell);
+            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                uint gridIndex = GetSceneLightGridIndex(gridCell);
 
-            uint lightType = GetSceneLightType(vBlockId[0]);
-            float lightRange = GetSceneLightLevel(lightType);
+                uint lightType = GetSceneLightType(vBlockId[0]);
+                float lightRange = GetSceneLightLevel(lightType);
 
-            bool intersects = true;
-            #ifdef DYN_LIGHT_FRUSTUM_TEST
-                vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
+                bool intersects = true;
+                #ifdef DYN_LIGHT_FRUSTUM_TEST
+                    vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
 
-                lightRange = lightRange < EPSILON ? 16.0 : max(lightRange, 1.0);
-                //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-                if (lightViewPos.z > lightRange) intersects = false;
-                else if (lightViewPos.z < -far - lightRange) intersects = false;
-                else {
-                    if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
-                    if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
-                    if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
-                    if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
+                    lightRange = lightRange < EPSILON ? 16.0 : max(lightRange, 1.0);
+                    //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
+                    if (lightViewPos.z > lightRange) intersects = false;
+                    else if (lightViewPos.z < -far - lightRange) intersects = false;
+                    else {
+                        if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
+                        if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
+                        if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
+                        if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
+                    }
+                #endif
+
+                if (lightType > 0) {
+                    if (!intersects) lightType = LIGHT_IGNORED;
+
+                    if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
+                        if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                        #ifdef DYN_LIGHT_DEBUG_COUNTS
+                            else atomicAdd(SceneLightMaxCount, 1u);
+                        #endif
+                    }
                 }
-            #endif
-
-            if (lightType > 0) {
-                if (!intersects) lightType = LIGHT_IGNORED;
-
-                if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
-                    if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-                    #ifdef DYN_LIGHT_DEBUG_COUNTS
-                        else atomicAdd(SceneLightMaxCount, 1u);
-                    #endif
-                }
+                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    else if (intersects && IsDynLightSolidBlock(vBlockId[0])) {
+                        uint blockType = GetBlockType(vBlockId[0]);
+                        SetSceneBlockMask(blockCell, gridIndex, blockType);
+                    }
+                #endif
             }
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                else if (intersects && IsDynLightSolidBlock(vBlockId[0])) {
-                    uint blockType = GetBlockType(vBlockId[0]);
-                    SetSceneBlockMask(blockCell, gridIndex, blockType);
-                }
-            #endif
         }
         else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             if (entityId == ENTITY_LIGHTNING_BOLT) return;

@@ -575,7 +575,7 @@
                 ambientLight = RGBToLinear(ambientLight);
             #endif
 
-            vec3 ambient = albedo * ambientLight * occlusion;// * shadowingF * worldBrightness;
+            vec3 ambient = albedo * ambientLight * ShadowBrightnessF * occlusion;// * shadowingF * worldBrightness;
             vec3 diffuse = albedo * (blockDiffuse + skyDiffuse);
 
             if (metal_f0 >= 0.5) {
