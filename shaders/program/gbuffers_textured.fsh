@@ -148,6 +148,10 @@ uniform float blindness;
     #endif
 #endif
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
 
@@ -169,6 +173,7 @@ void main() {
 
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
+    const float metal_f0 = 0.04;
     const float sss = 0.0;
     
     vec3 blockDiffuse = vBlockLight;
@@ -186,7 +191,7 @@ void main() {
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         const float emission = 0.0;
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, emission, sss);
     #endif
 
     vec3 skyDiffuse = vec3(0.0);
@@ -194,10 +199,10 @@ void main() {
 
     #ifdef WORLD_SKY_ENABLED
         vec3 localViewDir = normalize(vLocalPos);
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

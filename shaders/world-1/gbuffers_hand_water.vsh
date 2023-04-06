@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "nether.glsl"
-#include "/program/gbuffers_hand_water.vsh"
+#include "/program/gbuffers_hand.vsh"

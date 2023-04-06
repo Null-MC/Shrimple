@@ -15,7 +15,7 @@ const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16;
 const int colortex11Format  = RGB16;
 const int colortex12Format  = RGB16;
-const int colortex14Format  = R8;
+const int colortex14Format  = RG8;
 */
 
 const bool generateShadowMipmap = false;
@@ -174,6 +174,8 @@ const bool colortex14Clear = true;
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
+#define ROUGH_MIN 0.06
+#define METAL_BRIGHTNESS 0.2
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -206,6 +208,10 @@ const bool colortex14Clear = true;
 #ifdef WATER_REFLECTIONS_ENABLED
 #endif
 #ifdef DYN_LIGHT_BLUR
+#endif
+
+#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    #define DEFERRED_BUFFER_ENABLED
 #endif
 
 #if (defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)

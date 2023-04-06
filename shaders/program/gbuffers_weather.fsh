@@ -105,6 +105,10 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -173,23 +177,24 @@ void main() {
 
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
+    const float metal_f0 = 0.04;
     const float emission = 0.0;
     const float sss = 0.0;
 
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);
 
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, emission, sss);
 
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);
 
     #ifdef WORLD_SKY_ENABLED
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
     const float occlusion = 1.0;
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

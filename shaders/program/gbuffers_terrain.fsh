@@ -244,12 +244,15 @@ void main() {
     float sss = GetMaterialSSS(vBlockId, atlasCoord);
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
     float roughness = 1.0;
+    float metal_f0 = 0.04;
     
     vec2 lmFinal = lmcoord;
 
     #ifdef MATERIAL_SPECULAR
         //roughness = textureGrad(specular, atlasCoord, dFdXY[0], dFdXY[1]).r;
-        roughness = 1.0 - texture(specular, atlasCoord).r;
+        vec2 specularMap = texture(specular, atlasCoord).rg;
+        roughness = 1.0 - specularMap.r;
+        metal_f0 = specularMap.g;
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -343,17 +346,17 @@ void main() {
         outDeferredData = deferredData;
 
         #ifdef MATERIAL_SPECULAR
-            outDeferredRough = vec4(vec3(roughness), 1.0);
+            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(pow2(roughness), 0.01);
+        float roughL = max(pow2(roughness), ROUGH_MIN);
         
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, emission, sss);
         #endif
 
         vec3 skyDiffuse = vec3(0.0);
@@ -361,7 +364,7 @@ void main() {
 
         #ifdef WORLD_SKY_ENABLED
             vec3 localViewDir = normalize(vLocalPos);
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, glcolor.a);

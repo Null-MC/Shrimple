@@ -117,6 +117,10 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -193,6 +197,7 @@ void main() {
     const vec3 normal = vec3(0.0);
     const float emission = 0.0;
     const float roughness = 1.0;
+    const float metal_f0 = 0.04;
     const float sss = 0.0;
 
     vec3 shadowColor = vec3(1.0);
@@ -223,7 +228,7 @@ void main() {
         outDeferredData = deferredData;
 
         #ifdef MATERIAL_SPECULAR
-            outDeferredRough = vec4(vec3(roughness), 1.0);
+            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
@@ -233,17 +238,17 @@ void main() {
         vec3 blockSpecular = vec3(0.0);
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, emission, sss);
         #endif
 
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

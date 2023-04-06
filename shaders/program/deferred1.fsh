@@ -115,12 +115,14 @@ void main() {
         #endif
 
         float roughL = 1.0;
+        float metal_f0 = 0.04;
         float emission = deferredLighting.a;
         float sss = localNormal.w;
 
         #ifdef MATERIAL_SPECULAR
-            roughL = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
-            roughL = pow2(roughL);
+            vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
+            roughL = max(pow2(specularMap.r), ROUGH_MIN);
+            metal_f0 = specularMap.g;
         #endif
 
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
@@ -129,7 +131,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, emission, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, emission, sss);
         //SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, roughL, localNormal.w);
         blockDiffuse *= 1.0 - deferredFog.a;
 

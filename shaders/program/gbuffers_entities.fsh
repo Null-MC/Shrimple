@@ -131,6 +131,10 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -148,6 +152,10 @@ uniform float blindness;
 #include "/lib/entities.glsl"
 #include "/lib/lighting/dynamic_entities.glsl"
 #include "/lib/world/physicsmod_snow.glsl"
+
+#ifdef RENDER_TRANSLUCENT
+    #include "/lib/lighting/fresnel.glsl"
+#endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
@@ -231,6 +239,7 @@ void main() {
 
     float sss = GetMaterialSSS(entityId, texcoord);
     float emission = GetMaterialEmission(entityId, texcoord);
+    float metal_f0 = 0.04;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -272,7 +281,9 @@ void main() {
     #endif
 
     #ifdef MATERIAL_SPECULAR
-        float roughness = 1.0 - texture(specular, texcoord).r;
+        vec2 specularMap = texture(specular, texcoord).rg;
+        float roughness = 1.0 - specularMap.r;
+        metal_f0 = specularMap.g;
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
@@ -294,25 +305,38 @@ void main() {
         outDeferredData = deferredData;
 
         #ifdef MATERIAL_SPECULAR
-            outDeferredRough = vec4(vec3(roughness), 1.0);
+            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = pow2(roughness);
+        float roughL = max(pow2(roughness), ROUGH_MIN);
+
+        #ifdef RENDER_TRANSLUCENT
+            if (color.a > (0.5/255.0)) {
+                #if MATERIAL_NORMALS != NORMALMAP_NONE
+                    float NoV = abs(dot(texNormal, localViewDir));
+                #else
+                    float NoV = abs(dot(localNormal, localViewDir));
+                #endif
+
+                float F = F_schlick(NoV, metal_f0, 1.0);
+                color.a += (1.0 - color.a) * F;
+            }
+        #endif
 
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, emission, sss);
 
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

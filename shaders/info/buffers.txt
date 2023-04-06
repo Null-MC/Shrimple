@@ -18,6 +18,6 @@ colortex10		RGBA16F		1.0		volumetric
 
 colortex11		RGB11/10F	 *	 	block-light specular
 colortex12		RGB11/10F	1.0	 	block-light temporal specular
-colortex14		R8			1.0		roughness
+colortex14		RG8			1.0		roughness, metal/f0
 
 colortex13			lightmap

@@ -67,7 +67,7 @@
         return D * G * F;
     }
 
-    void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in float roughL, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float sss, const in vec3 blockLightDefault) {
+    void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.06 * localNormal;
         uint lightCount = GetSceneLights(lightFragPos, gridIndex);
@@ -82,9 +82,12 @@
             #ifdef MATERIAL_SPECULAR
                 vec3 localViewDir = -normalize(localPos);
                 float lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
+                float f0 = GetMaterialF0(metal_f0);
             #endif
 
-            blockDiffuse = vec3(0.0);
+            //blockDiffuse = vec3(0.0);
+            vec3 accumDiffuse = vec3(0.0);
+            vec3 accumSpecular = vec3(0.0);
 
             for (uint i = 0u; i < lightCount; i++) {
                 SceneLightData light = GetSceneLight(gridIndex, i);
@@ -133,8 +136,6 @@
 
                     float F = 0.0;
                     #ifdef MATERIAL_SPECULAR
-                        const float f0 = 0.04;
-
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -143,19 +144,19 @@
                     #endif
 
                     float diffuseNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
-                    blockDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
+                    accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                     #ifdef MATERIAL_SPECULAR
                         float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                         float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
-                        blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                        accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                     #endif
                 }
             }
 
-            blockDiffuse *= DynamicLightBrightness;
-            blockSpecular *= DynamicLightBrightness;
+            accumDiffuse *= DynamicLightBrightness;
+            accumSpecular *= DynamicLightBrightness;
 
             // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
             //     accumDiffuse *= blockLight;
@@ -166,9 +167,12 @@
                 vec3 offsetPos = localPos + LightGridCenter;
                 //vec3 maxSize = SceneLightSize
                 float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 8.0;
-                blockDiffuse = mix(blockLightDefault, blockDiffuse, saturate(fade));
-                blockSpecular = mix(vec3(0.0), blockSpecular, saturate(fade));
+                accumDiffuse = mix(blockLightDefault, blockDiffuse, saturate(fade));
+                accumSpecular = mix(vec3(0.0), blockSpecular, saturate(fade));
             #endif
+
+            blockDiffuse += accumDiffuse;
+            blockSpecular += accumSpecular;
         }
         else {
             #ifdef DYN_LIGHT_FALLBACK
@@ -179,7 +183,7 @@
         }
     }
 
-    void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float roughL, const in float sss) {
+    void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss) {
         vec2 noiseSample = GetDynLightNoise(vec3(0.0));
         vec3 result = vec3(0.0);
 
@@ -190,6 +194,7 @@
         #ifdef MATERIAL_SPECULAR
             vec3 localViewDir = -normalize(fragLocalPos);
             float lightNoVm = max(dot(texNormal, localViewDir), 0.0);
+            float f0 = GetMaterialF0(metal_f0);
         #endif
 
         if (heldBlockLightValue > 0) {
@@ -230,8 +235,6 @@
 
                     float F = 0.0;
                     #ifdef MATERIAL_SPECULAR
-                        const float f0 = 0.04;
-
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -287,8 +290,6 @@
 
                     float F = 0.0;
                     #ifdef MATERIAL_SPECULAR
-                        const float f0 = 0.04;
-
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -427,8 +428,8 @@
 
                 vec3 blockDiffuse = vec3(0.0);
                 vec3 blockSpecular = vec3(0.0);
-                SampleDynamicLighting(blockDiffuse, blockSpecular, roughL, vLocalPos, vLocalNormal, vec3(0.0), sss, blockLightDefault);
-                SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, vLocalNormal, vec3(0.0), roughL, sss);
+                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, vLocalNormal, vec3(0.0), roughL, metal_f0, sss, blockLightDefault);
+                SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, vLocalNormal, vec3(0.0), roughL, metal_f0, sss);
 
                 vBlockLight += blockDiffuse * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
             #endif
@@ -473,7 +474,7 @@
     #endif
 
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
-        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float emission, const in float sss) {
+        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float emission, const in float sss) {
             blockDiffuse += vec3(emission);//vBlockLight;
 
             #ifdef RENDER_GBUFFER
@@ -485,9 +486,9 @@
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                SampleDynamicLighting(blockDiffuse, blockSpecular, roughL, localPos, localNormal, texNormal, sss, blockLightDefault);
+                SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
 
-                SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, sss);
+                SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
                 // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                 //     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
@@ -504,7 +505,7 @@
         }
 
         #ifdef WORLD_SKY_ENABLED
-            void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float sss) {
+            void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
                 #ifndef RENDER_CLOUDS
                     #ifdef RENDER_GBUFFER
                         vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
@@ -536,7 +537,7 @@
                     float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
                     if (geoNoLm > 0.0) {
-                        const float f0 = 0.04;
+                        float f0 = GetMaterialF0(metal_f0);
 
                         //vec3 localViewDir = normalize(localPos);
 
@@ -555,7 +556,7 @@
             }
         #endif
 
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float occlusion) {
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
             // weather darkening
             
             //float worldBrightness = GetWorldBrightnessF();
@@ -576,6 +577,12 @@
 
             vec3 ambient = albedo * ambientLight * occlusion;// * shadowingF * worldBrightness;
             vec3 diffuse = albedo * (blockDiffuse + skyDiffuse);
+
+            if (metal_f0 >= 0.5) {
+                ambient *= METAL_BRIGHTNESS;
+                diffuse *= METAL_BRIGHTNESS;
+            }
+
             return ambient + diffuse + blockSpecular + skySpecular;
         }
     //#endif

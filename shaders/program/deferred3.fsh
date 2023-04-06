@@ -107,6 +107,10 @@ uniform float blindness;
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic.glsl"
@@ -149,7 +153,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             sampleDepth = linearizeDepthFast(sampleDepth, near, far);
             
             float normalWeight = max(dot(normal, sampleNormal), 0.0);
-            float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 12.0*(1.0 - normalWeight));
+            float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
             
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;
@@ -253,10 +257,12 @@ void main() {
         #endif
 
         #ifdef MATERIAL_SPECULAR
-            float deferredRough = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
-            float roughL = max(pow2(deferredRough), 0.1);
+            vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
+            float roughL = max(pow2(deferredRoughMetalF0.r), ROUGH_MIN);
+            float metal_f0 = deferredRoughMetalF0.g;
         #else
             const float roughL = 1.0;
+            //const float metal_f0 = 0.04;
         #endif
 
         #ifdef SHADOW_BLUR
@@ -341,7 +347,15 @@ void main() {
 
                         #ifdef MATERIAL_SPECULAR
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, 0.02);
+
+                            lum = log(luminance(blockSpecular) + EPSILON);
+                            lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
+                            lumDiff = saturate(0.4 * abs(lum - lumPrev));
+
+                            //minWeight = mix(0.02, 0.2, DynamicLightTemporalStrength);
+                            weight = mix(0.2, 0.1, DynamicLightTemporalStrength)*lumDiff + 0.02;
+
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
                         #endif
                     }
                 }
@@ -355,9 +369,9 @@ void main() {
                 #endif
             #endif
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, emission, sss);
         #else
-            vec3 blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
+            blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);
         #endif
 
@@ -366,12 +380,12 @@ void main() {
 
         #ifdef WORLD_SKY_ENABLED
             vec3 localViewDir = -normalize(localPos);
-            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localViewDir, localNormal, texNormal, deferredLighting.y, roughL, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
         #endif
 
         vec3 albedo = RGBToLinear(deferredColor);
         //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
-        final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, deferredLighting.z);
+        final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, deferredLighting.z);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);
