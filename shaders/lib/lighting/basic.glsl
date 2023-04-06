@@ -507,11 +507,11 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
 
-                //#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                     float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
-                //#else
-                //    const float diffuseNoL = 1.0;
-                //#endif
+                #else
+                    const float diffuseNoL = 1.0;
+                #endif
 
                 skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
