@@ -550,12 +550,17 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
             //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
 
             vec3 ambientLight = vec3(0.0);
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_DEFERRED
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
                 lmFinal.x *= 0.16;
                 lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
 
-                ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                #ifdef RENDER_GBUFFER
+                    ambientLight = textureLod(lightmap, lmFinal, 0).rgb;
+                #else
+                    ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                #endif
+
                 ambientLight = RGBToLinear(ambientLight);
             #endif
 
