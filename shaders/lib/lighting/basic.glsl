@@ -145,7 +145,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                 //vec3 maxSize = SceneLightSize
                 float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 8.0;
                 accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
-                accumSpecular = mix(vec3(0.0), blockSpecular, saturate(fade));
+                accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
             #endif
 
             blockDiffuse += accumDiffuse;
