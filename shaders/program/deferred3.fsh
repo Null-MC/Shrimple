@@ -59,13 +59,17 @@ uniform int fogMode;
 
 uniform float blindness;
 
-#ifdef WORLD_SKY_ENABLED //MATERIAL_SPECULAR
+#ifdef WORLD_SKY_ENABLED
     uniform vec3 shadowLightPosition;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+#endif
+
+#if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+    uniform int worldTime;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE

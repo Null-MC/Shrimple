@@ -550,7 +550,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
             //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
 
             vec3 ambientLight = vec3(0.0);
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
                 vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
                 lmFinal.x *= 0.16;
                 lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
