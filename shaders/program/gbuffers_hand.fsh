@@ -119,10 +119,6 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef MATERIAL_SPECULAR
-    #include "/lib/material/specular.glsl"
-#endif
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -162,6 +158,7 @@ uniform float blindness;
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
 
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
@@ -203,9 +200,8 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    float sss, emission;
-    float roughness = 1.0;
-    float metal_f0 = 0.04;
+    float roughness, metal_f0, emission, sss;
+    GetMaterialSpecular(texcoord, roughness, metal_f0);
 
     if (gl_FragCoord.x > viewWidth / 2) {
         sss = GetMaterialSSS(heldItemId2, texcoord);
@@ -215,12 +211,6 @@ void main() {
         sss = GetMaterialSSS(heldItemId, texcoord);
         emission = GetMaterialEmission(heldItemId, texcoord);
     }
-
-    #ifdef MATERIAL_SPECULAR
-        vec2 specularMap = texture(specular, texcoord).rg;
-        roughness = 1.0 - specularMap.r;
-        metal_f0 = specularMap.g;
-    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

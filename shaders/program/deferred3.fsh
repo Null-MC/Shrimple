@@ -262,7 +262,7 @@ void main() {
             float metal_f0 = deferredRoughMetalF0.g;
         #else
             const float roughL = 1.0;
-            //const float metal_f0 = 0.04;
+            const float metal_f0 = 0.04;
         #endif
 
         #ifdef SHADOW_BLUR

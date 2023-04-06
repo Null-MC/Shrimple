@@ -131,10 +131,6 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef MATERIAL_SPECULAR
-    #include "/lib/material/specular.glsl"
-#endif
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -178,6 +174,7 @@ uniform float blindness;
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
@@ -237,9 +234,10 @@ void main() {
 
     vec3 localViewDir = normalize(vLocalPos);
 
+    float roughness, metal_f0;
     float sss = GetMaterialSSS(entityId, texcoord);
     float emission = GetMaterialEmission(entityId, texcoord);
-    float metal_f0 = 0.04;
+    GetMaterialSpecular(texcoord, roughness, metal_f0);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -278,12 +276,6 @@ void main() {
         #endif
     #else
         shadowColor *= max(vLit, 0.0);
-    #endif
-
-    #ifdef MATERIAL_SPECULAR
-        vec2 specularMap = texture(specular, texcoord).rg;
-        float roughness = 1.0 - specularMap.r;
-        metal_f0 = specularMap.g;
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))

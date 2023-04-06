@@ -170,6 +170,7 @@ uniform int fogMode;
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
@@ -241,19 +242,12 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord);
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
-    float roughness = 1.0;
-    float metal_f0 = 0.04;
+    GetMaterialSpecular(atlasCoord, roughness, metal_f0);
     
     vec2 lmFinal = lmcoord;
-
-    #ifdef MATERIAL_SPECULAR
-        //roughness = textureGrad(specular, atlasCoord, dFdXY[0], dFdXY[1]).r;
-        vec2 specularMap = texture(specular, atlasCoord).rg;
-        roughness = 1.0 - specularMap.r;
-        metal_f0 = specularMap.g;
-    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -363,11 +357,11 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
+            vec3 localViewDir = -normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, glcolor.a);
 
         ApplyFog(color, vLocalPos);
 

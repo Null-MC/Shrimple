@@ -1,72 +1,49 @@
+float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
+    float NoL = 1.0;
+
+    #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        if (dot(localNormal, localNormal) > EPSILON)
+            NoL = dot(localNormal, lightDir);
+
+        if (dot(texNormal, texNormal) > EPSILON) {
+            float texNoL = dot(texNormal, lightDir);
+            NoL = min(NoL, texNoL);
+        }
+    #endif
+
+    #if MATERIAL_SSS != SSS_NONE
+        NoL = mix(max(NoL, 0.0), abs(NoL), sss);
+    #else
+        NoL = max(NoL, 0.0);
+    #endif
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+        NoL = mix(1.0, NoL, DynamicLightDirectionalF);
+    #endif
+
+    return NoL;
+}
+
+float SampleLightDiffuse(const in float NoLm, const in float F) {
+    // float lightAtt = 1.0 - saturate(lightDist / lightRange);
+    // lightAtt = pow(lightAtt, 5.0);
+
+    return NoLm * (1.0 - F);
+}
+
+float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {
+    float a = NoHm * roughL;
+    float k = roughL / (1.0 - pow2(NoHm) + pow2(a));
+    float D = min(pow2(k) * rcp(PI), 65504.0);
+
+    float GGX_V = NoLm * (NoVm * (1.0 - roughL) + roughL);
+    float GGX_L = NoVm * (NoLm * (1.0 - roughL) + roughL);
+    float G = saturate(0.5 / (GGX_V + GGX_L));
+
+    return D * G * F;
+}
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    // float G(const in float NoV, const in float k) {
-    //     return rcp(NoV * (1.0 - k) + k);
-    // }
-
-    // float GGX(vec3 N, vec3 V, vec3 L, float roughness, float F0) {
-    //     vec3 H = normalize(V + L);
-    //     float NoL = saturate(dot(N, L));
-    //     float NoV = saturate(dot(N, V));
-    //     float NoH = saturate(dot(N, H));
-    //     float LoH = saturate(dot(L, H));
-
-    //     float alpha = pow2(roughness);
-    //     float a2 = pow2(alpha);
-    //     float k = alpha * 0.5;
-
-    //     float denom = pow2(NoH) * (a2 - 1.0) + 1.0;
-    //     float D = a2 / (PI * denom * denom);
-
-    //     float F = F0 + (1.0 - F0) * pow(1.0 - LoH, 5.0);
-
-    //     return NoL * D * F * G(NoL, k) * G(NoV, k);
-    // }
-
-    float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
-        float NoL = 1.0;
-
-        #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            if (dot(localNormal, localNormal) > EPSILON)
-                NoL = dot(localNormal, lightDir);
-
-            if (dot(texNormal, texNormal) > EPSILON) {
-                float texNoL = dot(texNormal, lightDir);
-                NoL = min(NoL, texNoL);
-            }
-        #endif
-
-        #if MATERIAL_SSS != SSS_NONE
-            NoL = mix(max(NoL, 0.0), abs(NoL), sss);
-        #else
-            NoL = max(NoL, 0.0);
-        #endif
-
-        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-            NoL = mix(1.0, NoL, DynamicLightDirectionalF);
-        #endif
-
-        return NoL;
-    }
-
-    float SampleLightDiffuse(const in float NoLm, const in float F) {
-        // float lightAtt = 1.0 - saturate(lightDist / lightRange);
-        // lightAtt = pow(lightAtt, 5.0);
-
-        return NoLm * (1.0 - F);
-    }
-
-    float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {
-        float a = NoHm * roughL;
-        float k = roughL / (1.0 - pow2(NoHm) + pow2(a));
-        float D = min(pow2(k) * rcp(PI), 65504.0);
-
-        float GGX_V = NoLm * (NoVm * (1.0 - roughL) + roughL);
-        float GGX_L = NoVm * (NoLm * (1.0 - roughL) + roughL);
-        float G = saturate(0.5 / (GGX_V + GGX_L));
-
-        return D * G * F;
-    }
-
     void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
         vec3 lightFragPos = localPos + 0.06 * localNormal;
@@ -425,6 +402,7 @@
                 #endif
 
                 const float roughL = 0.2;
+                const float metal_f0 = 0.04;
 
                 vec3 blockDiffuse = vec3(0.0);
                 vec3 blockSpecular = vec3(0.0);
@@ -523,17 +501,21 @@
                     const float skyLight = 1.0;
                 #endif
                 
-                vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-
-                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                    float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
+                #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
                 #else
-                    const float diffuseNoL = 1.0;
+                    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
+
+                //#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                    float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
+                //#else
+                //    const float diffuseNoL = 1.0;
+                //#endif
 
                 skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
-                #if defined MATERIAL_SPECULAR && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                #ifdef MATERIAL_SPECULAR
                     float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
                     if (geoNoLm > 0.0) {
@@ -578,10 +560,12 @@
             vec3 ambient = albedo * ambientLight * ShadowBrightnessF * occlusion;// * shadowingF * worldBrightness;
             vec3 diffuse = albedo * (blockDiffuse + skyDiffuse);
 
-            if (metal_f0 >= 0.5) {
-                ambient *= METAL_BRIGHTNESS;
-                diffuse *= METAL_BRIGHTNESS;
-            }
+            #ifdef MATERIAL_SPECULAR
+                if (metal_f0 >= 0.5) {
+                    ambient *= METAL_BRIGHTNESS;
+                    diffuse *= METAL_BRIGHTNESS;
+                }
+            #endif
 
             return ambient + diffuse + blockSpecular + skySpecular;
         }

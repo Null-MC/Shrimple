@@ -148,10 +148,6 @@ uniform float blindness;
 
 #include "/lib/lighting/fresnel.glsl"
 
-#ifdef MATERIAL_SPECULAR
-    #include "/lib/material/specular.glsl"
-#endif
-
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
@@ -169,6 +165,7 @@ uniform float blindness;
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
@@ -214,16 +211,13 @@ void main() {
 
     vec3 localViewDir = -normalize(vLocalPos);
 
+    float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
-    float roughL = 1.0;
-    float metal_f0 = 0.04;
+    GetMaterialSpecular(texcoord, roughness, metal_f0);
 
     #ifdef MATERIAL_SPECULAR
-        vec2 specularMap = texture(specular, texcoord).rg;
-        roughL = 1.0 - specularMap.r;
-        roughL = max(pow2(roughL), ROUGH_MIN);
-        metal_f0 = specularMap.g;
+        float roughL = max(pow2(roughness), ROUGH_MIN);
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -334,7 +328,8 @@ void main() {
     ApplyFog(color, vLocalPos);
 
     #ifdef VL_BUFFER_ENABLED
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+        float farMax = min(length(vPos) - 0.05, far);
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, farMax);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
