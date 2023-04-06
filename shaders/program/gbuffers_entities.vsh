@@ -42,8 +42,9 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec4 entityColor;
+
 uniform int entityId;
+uniform vec4 entityColor;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform mat4 shadowModelView;
@@ -68,8 +69,6 @@ uniform int entityId;
     uniform vec3 eyePosition;
 #endif
 
-#include "/lib/blocks.glsl"
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -83,6 +82,7 @@ uniform int entityId;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 

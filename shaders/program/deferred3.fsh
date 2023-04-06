@@ -254,7 +254,7 @@ void main() {
 
         #ifdef MATERIAL_SPECULAR
             float deferredRough = texelFetch(BUFFER_ROUGHNESS, iTex, 0).r;
-            float roughL = max(pow2(deferredRough), 0.01);
+            float roughL = max(pow2(deferredRough), 0.1);
         #else
             const float roughL = 1.0;
         #endif
@@ -341,7 +341,7 @@ void main() {
 
                         #ifdef MATERIAL_SPECULAR
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, 0.02);
                         #endif
                     }
                 }

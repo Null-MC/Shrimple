@@ -98,7 +98,7 @@
                         size *= 0.5 * DynamicLightPenumbraF;
 
                         vec3 offset = GetLightPenumbraOffset() * size;
-                        lightColor *= max(1.0 - 2.0*dot(offset, offset), 0.0);
+                        //lightColor *= max(1.0 - 2.0*dot(offset, offset), 0.0);
                         lightPos += offset;
                     #endif
 

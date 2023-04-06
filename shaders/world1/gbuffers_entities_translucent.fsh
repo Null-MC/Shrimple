@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "end.glsl"
-#include "/program/gbuffers_entities_translucent.fsh"
+#include "/program/gbuffers_entities.fsh"

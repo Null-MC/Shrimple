@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "nether.glsl"
-#include "/program/gbuffers_particles_translucent.vsh"
+#include "/program/gbuffers_particles.vsh"

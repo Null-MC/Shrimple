@@ -31,7 +31,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D gtexture;
-uniform sampler2D noisetex;
+uniform sampler2D lightmap;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
@@ -41,12 +41,8 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-    uniform sampler2D shadowcolor0;
-#endif
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform sampler2D lightmap;
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    uniform sampler2D noisetex;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -62,11 +58,14 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+uniform int frameCounter;
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
+uniform float near;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -76,8 +75,13 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
-uniform vec4 entityColor;
 uniform int entityId;
+uniform vec4 entityColor;
+uniform float blindness;
+
+#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler2D shadowcolor0;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -92,20 +96,18 @@ uniform int entityId;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform int frameCounter;
-    uniform float frameTimeCounter;
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    uniform int heldItemId;
+    uniform int heldItemId2;
+    uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
-    uniform float blindness;
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        uniform int heldItemId;
-        uniform int heldItemId2;
-        uniform int heldBlockLightValue;
-        uniform int heldBlockLightValue2;
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+#ifdef VL_BUFFER_ENABLED
+    uniform mat4 shadowModelView;
+    uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if AF_SAMPLES > 1
@@ -118,6 +120,7 @@ uniform int entityId;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -146,35 +149,42 @@ uniform int entityId;
 #include "/lib/lighting/dynamic_entities.glsl"
 #include "/lib/world/physicsmod_snow.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
-#endif
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    #include "/lib/sampling/depth.glsl"
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+    #include "/lib/lighting/dynamic.glsl"
+#endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-        #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
-        #include "/lib/lighting/dynamic_items.glsl"
-    #endif
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/lighting/collisions.glsl"
+    #include "/lib/lighting/tracing.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    #include "/lib/lighting/basic.glsl"
-    #include "/lib/post/tonemap.glsl"
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    #include "/lib/material/normalmap.glsl"
 #endif
 
+#include "/lib/lighting/basic.glsl"
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
+
+#include "/lib/post/tonemap.glsl"
+
+
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -188,38 +198,45 @@ uniform int entityId;
 #endif
 
 void main() {
-    vec4 color = vec4(1.0);
+    vec4 color;
     if (entityId == ENTITY_PHYSICSMOD_SNOW) {
-        color.rgb = GetSnowColor(vLocalPos + cameraPosition);
+        color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
+        color.a = 1.0;
     }
     else {
         color = texture(gtexture, texcoord);
 
-        if (color.a < alphaTestRef) {
+        #ifdef RENDER_TRANSLUCENT
+            const float alphaThreshold = (1.5/255.0);
+        #else
+            float alphaThreshold = alphaTestRef;
+        #endif
+
+        if (color.a < alphaThreshold) {
             discard;
             return;
         }
 
-        color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
-        color.a = 1.0;
-    }
+        #ifndef RENDER_TRANSLUCENT
+            color.a = 1.0;
+        #endif
 
+        color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+    }
+    
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    vec3 localViewDir = normalize(vLocalPos);
+
     float sss = GetMaterialSSS(entityId, texcoord);
     float emission = GetMaterialEmission(entityId, texcoord);
-    float roughness = 1.0;
-
-    #ifdef MATERIAL_SPECULAR
-        roughness = 1.0 - texture(specular, texcoord).r;
-    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
 
-        float skyGeoNoL = dot(localNormal, localLightDir);
+        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -233,7 +250,7 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = localNormal;
+    vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         if (GetMaterialNormal(texcoord, texNormal)) {
             vec3 localTangent = normalize(vLocalTangent);
@@ -242,12 +259,10 @@ void main() {
         }
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = dot(texNormal, localLightDir);
+            float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
 
             #if MATERIAL_SSS != SSS_NONE
-                skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
-            #else
-                skyTexNoL = max(skyTexNoL, 0.0);
+                skyTexNoL = mix(skyTexNoL, 1.0, sss);
             #endif
 
             shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
@@ -256,7 +271,11 @@ void main() {
         shadowColor *= max(vLit, 0.0);
     #endif
 
-    #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    #ifdef MATERIAL_SPECULAR
+        float roughness = 1.0 - texture(specular, texcoord).r;
+    #endif
+
+    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
@@ -284,21 +303,23 @@ void main() {
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
-        #endif
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, emission, sss);
 
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
         ApplyFog(color, vLocalPos);
+
+        #ifdef VL_BUFFER_ENABLED
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
 
         ApplyPostProcessing(color.rgb);
         outFinal = color;

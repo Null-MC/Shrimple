@@ -27,6 +27,10 @@ in vec3 vBlockLight;
     #endif
 #endif
 
+uniform sampler2D gtexture;
+uniform sampler2D noisetex;
+uniform sampler2D lightmap;
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -40,10 +44,6 @@ in vec3 vBlockLight;
     #endif
 #endif
 
-uniform sampler2D gtexture;
-uniform sampler2D noisetex;
-uniform sampler2D lightmap;
-
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -51,6 +51,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
+uniform float near;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -88,6 +89,11 @@ uniform float blindness;
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
         uniform sampler2D shadowcolor0;
     #endif
+#endif
+
+#ifdef VL_BUFFER_ENABLED
+    uniform mat4 shadowModelView;
+    uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if AF_SAMPLES > 1
@@ -147,10 +153,15 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/basic.glsl"
+
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -166,10 +177,23 @@ uniform float blindness;
 void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    if (color.a < alphaTestRef) {
+    #ifdef RENDER_TRANSLUCENT
+        const float alphaThreshold = (1.5/255.0);
+    #else
+        float alphaThreshold = alphaTestRef;
+    #endif
+
+    if (color.a < alphaThreshold) {
         discard;
         return;
     }
+    
+    vec3 localViewDir = normalize(vLocalPos);
+    
+    const vec3 normal = vec3(0.0);
+    const float emission = 0.0;
+    const float roughness = 1.0;
+    const float sss = 0.0;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -180,19 +204,14 @@ void main() {
         #endif
     #endif
 
-    const vec3 normal = vec3(0.0);
-    const float roughness = 1.0;
-    const float emission = 0.0;
-    const float sss = 0.0;
-
-    #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        color.a = 1.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         fogColorFinal = LinearToRGB(fogColorFinal);
 
+        color.a = 1.0;
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
@@ -213,7 +232,7 @@ void main() {
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, emission, sss);
         #endif
 
@@ -221,13 +240,17 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, glcolor.a);
 
         ApplyFog(color, vLocalPos);
+
+        #ifdef VL_BUFFER_ENABLED
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
 
         ApplyPostProcessing(color.rgb);
         outFinal = color;
