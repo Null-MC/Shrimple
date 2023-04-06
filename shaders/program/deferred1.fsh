@@ -42,6 +42,10 @@ uniform vec3 eyePosition;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#ifdef MATERIAL_SPECULAR
+    #include "/lib/material/specular.glsl"
+#endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
@@ -132,7 +136,6 @@ void main() {
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, emission, sss);
-        //SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, roughL, localNormal.w);
         blockDiffuse *= 1.0 - deferredFog.a;
 
         outDiffuse = vec4(blockDiffuse, 1.0);
