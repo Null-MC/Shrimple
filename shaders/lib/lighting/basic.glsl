@@ -564,17 +564,17 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                 ambientLight = RGBToLinear(ambientLight);
             #endif
 
-            vec3 ambient = albedo * ambientLight * ShadowBrightnessF * occlusion;// * shadowingF * worldBrightness;
-            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse);
+            vec3 diffuse = albedo * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
+            vec3 specular = blockSpecular + skySpecular;
 
             #ifdef MATERIAL_SPECULAR
                 if (metal_f0 >= 0.5) {
-                    ambient *= METAL_BRIGHTNESS;
                     diffuse *= METAL_BRIGHTNESS;
+                    specular *= albedo;
                 }
             #endif
 
-            return ambient + diffuse + blockSpecular + skySpecular;
+            return diffuse + specular;
         }
     //#endif
 #endif
