@@ -52,6 +52,19 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
+    
+    #ifdef SHADOW_ENABLE_HWCOMP
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex0HW;
+        #else
+            uniform sampler2DShadow shadow;
+        #endif
+    #endif
+#endif
+
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -76,23 +89,14 @@ uniform float blindness;
     uniform float rainStrength;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
-    
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-    
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
+#else
+    uniform int worldTime;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -216,9 +220,7 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, texcoord);
     GetMaterialSpecular(texcoord, roughness, metal_f0);
 
-    #ifdef MATERIAL_SPECULAR
-        float roughL = max(pow2(roughness), ROUGH_MIN);
-    #endif
+    float roughL = max(pow2(roughness), ROUGH_MIN);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

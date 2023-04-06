@@ -60,7 +60,7 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -71,6 +71,8 @@ uniform sampler2D noisetex;
             uniform sampler2DShadow shadow;
         #endif
     #endif
+#else
+    uniform int worldTime;
 #endif
 
 uniform mat4 gbufferModelView;

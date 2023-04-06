@@ -90,12 +90,14 @@ uniform float blindness;
     uniform float rainStrength;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
+#else
+    uniform int worldTime;
 #endif
 
 #if AF_SAMPLES > 1

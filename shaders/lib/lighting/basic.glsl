@@ -56,7 +56,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                 bool hasGeoNormal = true;
             #endif
 
-            #ifdef MATERIAL_SPECULAR
+            #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                 vec3 localViewDir = -normalize(localPos);
                 float lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
                 float f0 = GetMaterialF0(metal_f0);
@@ -112,7 +112,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                     lightAtt = pow(lightAtt, 5.0);
 
                     float F = 0.0;
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -123,7 +123,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                     float diffuseNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
                     accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                         float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
@@ -168,7 +168,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
 
         vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
-        #ifdef MATERIAL_SPECULAR
+        #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
             vec3 localViewDir = -normalize(fragLocalPos);
             float lightNoVm = max(dot(texNormal, localViewDir), 0.0);
             float f0 = GetMaterialF0(metal_f0);
@@ -211,7 +211,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                     lightAtt = pow(lightAtt, 5.0);
 
                     float F = 0.0;
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -221,7 +221,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
 
                     blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
                         blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
@@ -266,7 +266,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                     lightAtt = pow(lightAtt, 5.0);
 
                     float F = 0.0;
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -276,7 +276,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
 
                     blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
-                    #ifdef MATERIAL_SPECULAR
+                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
                         float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
                         blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
@@ -504,7 +504,9 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
                 #else
-                    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                    vec3 celestialPos = normalize(sunPosition);
+                    if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
+                    vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
                 #endif
 
                 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE

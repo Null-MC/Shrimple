@@ -54,9 +54,9 @@ flat out int vBlockId;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
 #ifdef WORLD_SHADOW_ENABLED
