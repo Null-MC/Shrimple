@@ -27,14 +27,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     #ifdef WORLD_SKY_ENABLED
         const float ambient = 0.012;
-        float G_Forward = mix(0.56, 0.26, rainStrength);
+        float G_Forward = mix(0.66, 0.26, rainStrength);
         float G_Back = mix(0.26, 0.16, rainStrength);
         const float G_mix = 0.7;
     #else
         const float ambient = 0.14;
-        float G_Forward = 0.6;
-        float G_Back = 0.5;
-        const float G_mix = 0.5;
+        float G_Forward = 0.8;
+        float G_Back = 0.3;
+        const float G_mix = 0.7;
     #endif
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -228,7 +228,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             //     }
             // }
 
-            inScattering += 0.5*blockLightAccum * DynamicLightBrightness;
+            inScattering += blockLightAccum * DynamicLightBrightness;
         #endif
 
         inScattering *= scatterF;

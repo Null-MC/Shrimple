@@ -284,9 +284,9 @@ void main() {
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
                 #if MATERIAL_PARALLAX == PARALLAX_SHARP
-                    float dO = max(texDepth - traceCoordDepth.z, 0.0);
+                    float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
-                    if (dO >= 0.5 / 255.0) {
+                    if (depthDiff >= ParallaxSharpThreshold) {
                         texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
                         isValidNormal = true;
                     }

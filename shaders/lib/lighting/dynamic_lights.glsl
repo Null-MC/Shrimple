@@ -914,7 +914,7 @@ vec3 GetSceneLightOffset(const in uint lightType) {
             break;
         case LIGHT_TORCH:
         case LIGHT_SOUL_TORCH:
-            lightOffset = vec3(0.0, 0.4, 0.0);
+            lightOffset = vec3(0.0, (1.0/16.0), 0.0);
             break;
     }
 

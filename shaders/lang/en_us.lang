@@ -1,5 +1,3 @@
-
-
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.
 
@@ -69,6 +67,10 @@ value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
 
 option.MATERIAL_PARALLAX_DISTANCE=Distance
 option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from the camera to render POM.
+
+option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp Threshold
+option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
+suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
 
 screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
