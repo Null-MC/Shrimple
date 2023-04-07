@@ -65,7 +65,7 @@ void drawHeader(vec2 uv, inout vec3 color) {
     beginText(ivec2(uv * size), ivec2(4, 13));
     text.bgCol = vec4(0);
     printString((_W, _a, _r, _n, _i, _n, _g))
-    endText(color.rgb);
+    endText(color);
 }
 
 void drawTriangle(vec2 uv, inout vec3 color) {
@@ -73,6 +73,12 @@ void drawTriangle(vec2 uv, inout vec3 color) {
     if (clamp(uv, 0.0, 1.0) != uv) return;
    
     uv -= vec2(0.5, 0.8);
+
+    float shadowDist = sdTriangleIsosceles(uv + vec2(-0.1, 0.06), vec2(0.3, -0.6));
+    if (shadowDist < 0.087) {
+        color *= 0.7;
+    }
+
     float dist = sdTriangleIsosceles(uv, vec2(0.3, -0.6));
     if (dist >= 0.087) return;
     
@@ -123,7 +129,7 @@ void drawButton(vec2 uv, inout vec3 color) {
     text.bgCol = vec4(0);
     text.fgCol = vec4(0, 0, 0, 1);
     printString((_N, _o, _t, _space, _O, _K))
-    endText(color.rgb);
+    endText(color);
 }
 
 void drawWarning(inout vec3 color) {
