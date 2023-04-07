@@ -38,7 +38,7 @@ uniform sampler2D lightmap;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -116,6 +116,7 @@ uniform float blindness;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/blocks.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -140,7 +141,6 @@ uniform float blindness;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -172,7 +172,7 @@ uniform float blindness;
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
-    #ifdef MATERIAL_SPECULAR
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 3) out vec4 outDeferredRough;
     #endif
 #else
@@ -203,17 +203,13 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    float roughness, metal_f0, emission, sss;
-    GetMaterialSpecular(texcoord, roughness, metal_f0);
 
-    if (gl_FragCoord.x > viewWidth / 2) {
-        sss = GetMaterialSSS(heldItemId2, texcoord);
-        emission = GetMaterialEmission(heldItemId2, texcoord);
-    }
-    else {
-        sss = GetMaterialSSS(heldItemId, texcoord);
-        emission = GetMaterialEmission(heldItemId, texcoord);
-    }
+    int itemId = (gl_FragCoord.x > viewWidth / 2) ? heldItemId : heldItemId2;
+
+    float roughness, metal_f0, emission, sss;
+    sss = GetMaterialSSS(itemId, texcoord);
+    emission = GetMaterialEmission(itemId, texcoord);
+    GetMaterialSpecular(texcoord, itemId, roughness, metal_f0);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -273,7 +269,7 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else

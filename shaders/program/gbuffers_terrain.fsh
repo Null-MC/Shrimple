@@ -17,7 +17,7 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 flat in int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
 #endif
@@ -44,11 +44,11 @@ flat in int vBlockId;
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -166,6 +166,7 @@ uniform int fogMode;
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
@@ -196,7 +197,7 @@ uniform int fogMode;
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
-    #ifdef MATERIAL_SPECULAR
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 3) out vec4 outDeferredRough;
     #endif
 #else
@@ -248,7 +249,7 @@ void main() {
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord);
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
-    GetMaterialSpecular(atlasCoord, roughness, metal_f0);
+    GetMaterialSpecular(atlasCoord, vBlockId, roughness, metal_f0);
     
     vec2 lmFinal = lmcoord;
 
@@ -342,7 +343,7 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else

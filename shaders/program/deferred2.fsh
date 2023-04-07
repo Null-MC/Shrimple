@@ -69,7 +69,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/collisions.glsl"
     #include "/lib/lighting/tracing.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 
     #ifdef VOLUMETRIC_HANDLIGHT

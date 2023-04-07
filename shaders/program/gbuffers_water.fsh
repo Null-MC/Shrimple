@@ -44,7 +44,7 @@ uniform sampler2D noisetex;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -164,6 +164,7 @@ uniform float blindness;
 
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/flicker.glsl"
+#include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_blocks.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
 
@@ -219,7 +220,7 @@ void main() {
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
-    GetMaterialSpecular(texcoord, roughness, metal_f0);
+    GetMaterialSpecular(texcoord, vBlockId, roughness, metal_f0);
 
     float roughL = max(pow2(roughness), ROUGH_MIN);
 

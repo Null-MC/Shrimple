@@ -63,9 +63,9 @@ uniform float far;
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_entities.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
 #endif
 
 

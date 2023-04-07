@@ -12,7 +12,7 @@ uniform sampler2D noisetex;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     uniform sampler2D BUFFER_ROUGHNESS;
 #endif
 
@@ -41,13 +41,13 @@ uniform vec3 eyePosition;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/blocks.glsl"
 
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
@@ -61,7 +61,7 @@ uniform vec3 eyePosition;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
@@ -79,7 +79,7 @@ ivec2 GetTemporalOffset(const in int size) {
 layout(location = 0) out vec4 outDiffuse;
 layout(location = 1) out vec4 outNormal;
 layout(location = 2) out vec4 outDepth;
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     layout(location = 3) out vec4 outSpecular;
 #endif
 
@@ -124,7 +124,7 @@ void main() {
         float emission = deferredLighting.a;
         float sss = localNormal.w;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
             roughL = max(pow2(specularMap.r), ROUGH_MIN);
             metal_f0 = specularMap.g;
@@ -141,7 +141,7 @@ void main() {
 
         outDiffuse = vec4(blockDiffuse, 1.0);
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outSpecular = vec4(blockSpecular, 1.0);
         #endif
 
@@ -155,7 +155,7 @@ void main() {
         outDiffuse = vec4(0.0, 0.0, 0.0, 1.0);
         outNormal = vec4(0.0, 0.0, 0.0, 1.0);
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outSpecular = vec4(0.0, 0.0, 0.0, 1.0);
         #endif
     }

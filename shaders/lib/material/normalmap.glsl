@@ -13,7 +13,7 @@ mat3 GetViewTBN(const in vec3 viewNormal, const in vec3 viewTangent) {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         vLocalTangent = mat3(gbufferModelViewInverse) * viewTangent;
 
-        vTangentW = at_tangent.w;
+        //vTangentW = at_tangent.w;
     }
 #endif
 

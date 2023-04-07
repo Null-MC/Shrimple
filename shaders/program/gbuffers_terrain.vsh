@@ -13,6 +13,10 @@ in vec3 at_midBlock;
     in vec4 mc_midTexCoord;
 #endif
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+	in vec4 at_tangent;
+#endif
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -25,9 +29,7 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 flat out int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
-	in vec4 at_tangent;
-
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
 	out vec3 vLocalTangent;
 	out float vTangentW;
 #endif
@@ -109,12 +111,14 @@ uniform vec3 cameraPosition;
 	#endif
 
 	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+		#include "/lib/lighting/dynamic_lights.glsl"
 		#include "/lib/lighting/dynamic_blocks.glsl"
 	    #include "/lib/lighting/dynamic_items.glsl"
 	#endif
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#include "/lib/material/emission.glsl"
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
 
@@ -131,6 +135,10 @@ void main() {
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
+    #endif
+
+    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+        vTangentW = at_tangent.w;
     #endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE

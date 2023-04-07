@@ -87,10 +87,9 @@ uniform float blindness;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/blocks.glsl"
 
-#ifdef MATERIAL_SPECULAR
-    #include "/lib/material/specular.glsl"
-#endif
+#include "/lib/material/specular.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -107,7 +106,6 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
@@ -121,7 +119,7 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 

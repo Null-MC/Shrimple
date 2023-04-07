@@ -77,7 +77,7 @@ uniform vec3 cameraPosition;
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

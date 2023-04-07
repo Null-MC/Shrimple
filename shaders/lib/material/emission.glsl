@@ -1,3 +1,13 @@
+float GetSceneBlockEmission(const in int blockId) {
+    uint lightType = GetSceneLightType(blockId);
+    float range = GetSceneLightRange(lightType);
+
+    if (blockId == BLOCK_LAVA) range *= 2.0;
+    if (blockId == BLOCK_CAVEVINE_BERRIES) range = 0.0;
+
+    return range / 15.0;
+}
+
 float GetMaterialEmission(const in int blockId, const in vec2 texcoord) {
     float emission = 0.0;
 

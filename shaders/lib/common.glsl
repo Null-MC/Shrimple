@@ -95,7 +95,7 @@ const bool colortex14Clear = true;
 #define MATERIAL_NORMALS 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
 #define MATERIAL_SSS 0 // [0 1 2]
-//#define MATERIAL_SPECULAR
+#define MATERIAL_SPECULAR 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
@@ -202,8 +202,6 @@ const bool colortex14Clear = true;
 #endif
 
 
-#ifdef MATERIAL_SPECULAR
-#endif
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
 #ifdef WATER_REFLECTIONS_ENABLED

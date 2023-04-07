@@ -18,7 +18,7 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     uniform sampler2D BUFFER_ROUGHNESS;
     uniform sampler2D BUFFER_BLOCK_SPECULAR;
     uniform sampler2D BUFFER_TA_SPECULAR;
@@ -107,11 +107,11 @@ uniform float blindness;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif
 
@@ -147,7 +147,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
             vec3 sampleDiffuse = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
 
-            #ifdef MATERIAL_SPECULAR
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec3 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0).rgb;
             #endif
 
@@ -163,7 +163,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;
 
-            #ifdef MATERIAL_SPECULAR
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
                 accumSpecular += weight * sampleSpecular;
             #endif
 
@@ -224,7 +224,7 @@ ivec2 GetTemporalOffset(const in int size) {
     layout(location = 1) out vec4 outTA;
     layout(location = 2) out vec4 outTA_Normal;
     layout(location = 3) out vec4 outTA_Depth;
-    #ifdef MATERIAL_SPECULAR
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 4) out vec4 outSpecularTA;
     #endif
 #else
@@ -244,13 +244,21 @@ void main() {
     vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 
     if (depth < 1.0) {
+        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
-        vec3 texNormal = vec3(0.0);
+        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+        vec3 localNormal = deferredNormal.rgb;
+
+        if (any(greaterThan(localNormal, EPSILON3)))
+            localNormal = normalize(localNormal * 2.0 - 1.0);
+
+        vec3 texNormal = localNormal;
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
             texNormal = deferredTexture.rgb;
@@ -259,7 +267,7 @@ void main() {
                 texNormal = normalize(texNormal * 2.0 - 1.0);
         #endif
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
             float roughL = max(pow2(deferredRoughMetalF0.r), ROUGH_MIN);
             float metal_f0 = deferredRoughMetalF0.g;
@@ -280,14 +288,6 @@ void main() {
             vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
         #endif
 
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-        vec3 localNormal = deferredNormal.rgb;
-
-        if (any(greaterThan(localNormal, EPSILON3)))
-            localNormal = normalize(localNormal * 2.0 - 1.0);
-
         float emission = deferredLighting.a;
         float sss = deferredNormal.a;
 
@@ -306,13 +306,13 @@ void main() {
             #elif DYN_LIGHT_RES == 0
                 blockDiffuse = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
 
-                #ifdef MATERIAL_SPECULAR
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
                 #endif
             #else
                 blockDiffuse = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
 
-                #ifdef MATERIAL_SPECULAR
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
                 #endif
             #endif
@@ -348,7 +348,7 @@ void main() {
 
                         blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weight);
 
-                        #ifdef MATERIAL_SPECULAR
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
 
                             lum = log(luminance(blockSpecular) + EPSILON);
@@ -367,7 +367,7 @@ void main() {
                 outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
                 outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
 
-                #ifdef MATERIAL_SPECULAR
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     outSpecularTA = vec4(blockSpecular, 1.0);
                 #endif
             #endif
@@ -376,6 +376,8 @@ void main() {
         #else
             blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);
+
+            //GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
         #endif
 
         vec3 skyDiffuse = vec3(0.0);

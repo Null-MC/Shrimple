@@ -104,16 +104,14 @@ uniform float blindness;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/depth.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/blocks.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
-
-#include "/lib/sampling/depth.glsl"
-//#include "/lib/sampling/noise.glsl"
-//#include "/lib/sampling/ign.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -131,7 +129,6 @@ uniform float blindness;
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/blocks.glsl"
         #include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
@@ -145,14 +142,12 @@ uniform float blindness;
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_lights.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
 
-#ifdef MATERIAL_SPECULAR
-    #include "/lib/material/specular.glsl"
-#endif
+#include "/lib/material/specular.glsl"
 
 #include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"

@@ -100,11 +100,13 @@ uniform vec3 cameraPosition;
     #endif
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/dynamic_lights.glsl"
         #include "/lib/lighting/dynamic_blocks.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
 
+#include "/lib/material/emission.glsl"
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif

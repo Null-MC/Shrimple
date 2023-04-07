@@ -37,7 +37,7 @@ uniform sampler2D lightmap;
     uniform sampler2D normals;
 #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || defined MATERIAL_SPECULAR
+#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
 #endif
 
@@ -129,6 +129,7 @@ uniform float blindness;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/blocks.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -157,7 +158,6 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
@@ -171,7 +171,7 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
@@ -198,7 +198,7 @@ uniform float blindness;
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
-    #ifdef MATERIAL_SPECULAR
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 3) out vec4 outDeferredRough;
     #endif
 #else
@@ -241,7 +241,7 @@ void main() {
     float roughness, metal_f0;
     float sss = GetMaterialSSS(entityId, texcoord);
     float emission = GetMaterialEmission(entityId, texcoord);
-    GetMaterialSpecular(texcoord, roughness, metal_f0);
+    GetMaterialSpecular(texcoord, -1, roughness, metal_f0);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -300,7 +300,7 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else

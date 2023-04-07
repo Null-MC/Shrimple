@@ -16,7 +16,7 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
         float prevTexDepth;
     #endif
 
-    float viewDistF = 1.0 - clamp(viewDist / MATERIAL_PARALLAX_DISTANCE, 0.0, 1.0);
+    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_DISTANCE);
     int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
 
     int i;

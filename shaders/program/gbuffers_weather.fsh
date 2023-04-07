@@ -108,7 +108,9 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
-#ifdef MATERIAL_SPECULAR
+#include "/lib/blocks.glsl"
+
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif
 
@@ -127,7 +129,6 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"

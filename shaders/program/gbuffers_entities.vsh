@@ -91,7 +91,7 @@ uniform vec4 entityColor;
         #include "/lib/lighting/dynamic.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_lights.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 

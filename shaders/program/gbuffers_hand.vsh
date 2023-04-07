@@ -88,7 +88,7 @@ uniform vec3 cameraPosition;
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL

@@ -11,7 +11,7 @@
                 bool hasGeoNormal = true;
             #endif
 
-            #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+            #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                 vec3 localViewDir = -normalize(localPos);
                 float lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
                 float f0 = GetMaterialF0(metal_f0);
@@ -64,7 +64,7 @@
                     float lightAtt = GetLightAttenuation(lightVec, light.range);
 
                     float F = 0.0;
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -75,7 +75,7 @@
                     float diffuseNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
                     accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                         float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
@@ -111,7 +111,7 @@
 
         vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
-        #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+        #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
             vec3 localViewDir = -normalize(fragLocalPos);
             float lightNoVm = max(dot(texNormal, localViewDir), 0.0);
             float f0 = GetMaterialF0(metal_f0);
@@ -154,7 +154,7 @@
                     lightAtt = pow(lightAtt, 5.0);
 
                     float F = 0.0;
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -164,7 +164,7 @@
 
                     blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
                         blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
@@ -209,7 +209,7 @@
                     lightAtt = pow(lightAtt, 5.0);
 
                     float F = 0.0;
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         vec3 lightH = normalize(lightDir + localViewDir);
                         float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -219,7 +219,7 @@
 
                     blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
-                    #if defined MATERIAL_SPECULAR && defined RENDER_FRAG
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
                         blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
@@ -453,7 +453,7 @@
 
             skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
-            #ifdef MATERIAL_SPECULAR
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
                 float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
                 if (geoNoLm > 0.0) {
@@ -503,7 +503,7 @@
         vec3 diffuse = albedo * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
         vec3 specular = blockSpecular + skySpecular;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
                 diffuse *= METAL_BRIGHTNESS;
                 specular *= albedo;

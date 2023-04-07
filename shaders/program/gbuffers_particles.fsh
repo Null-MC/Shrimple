@@ -116,11 +116,13 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#include "/lib/blocks.glsl"
+
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef MATERIAL_SPECULAR
+#if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif
 
@@ -140,7 +142,6 @@ uniform float blindness;
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/blocks.glsl"
         #include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/blackbody.glsl"
@@ -154,7 +155,7 @@ uniform float blindness;
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_lights.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
@@ -174,7 +175,7 @@ uniform float blindness;
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
-    #ifdef MATERIAL_SPECULAR
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 3) out vec4 outDeferredRough;
     #endif
 #else
@@ -231,7 +232,7 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef MATERIAL_SPECULAR
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
         #endif
     #else
