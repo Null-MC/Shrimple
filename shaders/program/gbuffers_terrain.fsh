@@ -185,6 +185,7 @@ uniform int fogMode;
         #include "/lib/lighting/dynamic.glsl"
     #endif
 
+    #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/basic.glsl"
     #include "/lib/post/tonemap.glsl"
 #endif

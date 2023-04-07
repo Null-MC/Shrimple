@@ -1,48 +1,3 @@
-float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
-    float NoL = 1.0;
-
-    #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        if (dot(localNormal, localNormal) > EPSILON)
-            NoL = dot(localNormal, lightDir);
-
-        if (dot(texNormal, texNormal) > EPSILON) {
-            float texNoL = dot(texNormal, lightDir);
-            NoL = min(NoL, texNoL);
-        }
-    #endif
-
-    #if MATERIAL_SSS != SSS_NONE
-        NoL = mix(max(NoL, 0.0), abs(NoL), sss);
-    #else
-        NoL = max(NoL, 0.0);
-    #endif
-
-    #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-        NoL = mix(1.0, NoL, DynamicLightDirectionalF);
-    #endif
-
-    return NoL;
-}
-
-float SampleLightDiffuse(const in float NoLm, const in float F) {
-    // float lightAtt = 1.0 - saturate(lightDist / lightRange);
-    // lightAtt = pow(lightAtt, 5.0);
-
-    return NoLm * (1.0 - F);
-}
-
-float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {
-    float a = NoHm * roughL;
-    float k = roughL / (1.0 - pow2(NoHm) + pow2(a));
-    float D = min(pow2(k) * rcp(PI), 65504.0);
-
-    float GGX_V = NoLm * (NoVm * (1.0 - roughL) + roughL);
-    float GGX_L = NoVm * (NoLm * (1.0 - roughL) + roughL);
-    float G = saturate(0.5 / (GGX_V + GGX_L));
-
-    return D * G * F;
-}
-
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
         uint gridIndex;
@@ -107,9 +62,7 @@ float SampleLightSpecular(const in float NoVm, const in float NoLm, const in flo
                 float geoNoLm = max(dot(localNormal, lightDir), 0.0);
 
                 if (geoNoLm > EPSILON) {
-                    float lightDist = length(lightVec);
-                    float lightAtt = 1.0 - saturate(lightDist / light.range);
-                    lightAtt = pow(lightAtt, 5.0);
+                    float lightAtt = GetLightAttenuation(lightVec, light.range);
 
                     float F = 0.0;
                     #if defined MATERIAL_SPECULAR && defined RENDER_FRAG

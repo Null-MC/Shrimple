@@ -162,6 +162,7 @@ uniform float blindness;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
 

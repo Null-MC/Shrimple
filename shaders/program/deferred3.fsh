@@ -117,6 +117,7 @@ uniform float blindness;
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
 

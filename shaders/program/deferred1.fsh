@@ -65,6 +65,7 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

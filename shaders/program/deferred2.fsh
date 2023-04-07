@@ -76,7 +76,8 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 
-    #include "/lib/lighting/basic.glsl"
+    #include "/lib/lighting/sampling.glsl"
+    //#include "/lib/lighting/basic.glsl"
 #endif
 
 #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

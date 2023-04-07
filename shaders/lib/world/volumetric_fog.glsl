@@ -159,7 +159,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                     float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
                     float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
-                    blockLightAccum += SampleLight(lightVec, 1.0, light.range) * lightColor * lightPhase;
+                    float lightAtt = GetLightAttenuation(lightVec, light.range);
+                    blockLightAccum += SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
                 }
             }
 
