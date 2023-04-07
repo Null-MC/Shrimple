@@ -102,6 +102,7 @@ uniform vec4 entityColor;
     #include "/lib/material/normalmap.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

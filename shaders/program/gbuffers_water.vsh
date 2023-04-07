@@ -113,6 +113,7 @@ uniform vec3 cameraPosition;
     #include "/lib/world/physicsmod_ocean.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic.glsl"
 
 
