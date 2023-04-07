@@ -450,6 +450,16 @@ uint GetSceneLightType(const in int blockId) {
             case BLOCK_BUTTON_WALL_W:
                 blockType = BLOCKTYPE_BUTTON_WALL_W;
                 break;
+                
+            case BLOCK_CHORUS_DOWN:
+                blockType = BLOCKTYPE_CHORUS_DOWN;
+                break;
+            case BLOCK_CHORUS_UP_DOWN:
+                blockType = BLOCKTYPE_CHORUS_UP_DOWN;
+                break;
+            case BLOCK_CHORUS_OTHER:
+                blockType = BLOCKTYPE_CHORUS_OTHER;
+                break;
 
             case BLOCK_DOOR_N:
                 blockType = BLOCKTYPE_DOOR_N;
@@ -767,16 +777,6 @@ uint GetSceneLightType(const in int blockId) {
                 break;
             case BLOCK_WALL_TALL_W_E:
                 blockType = BLOCKTYPE_WALL_TALL_W_E;
-                break;
-
-            case BLOCK_CHORUS_DOWN:
-                blockType = BLOCKTYPE_CHORUS_DOWN;
-                break;
-            case BLOCK_CHORUS_UP_DOWN:
-                blockType = BLOCKTYPE_CHORUS_UP_DOWN;
-                break;
-            case BLOCK_CHORUS_OTHER:
-                blockType = BLOCKTYPE_CHORUS_OTHER;
                 break;
         }
 

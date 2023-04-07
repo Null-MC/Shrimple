@@ -2,17 +2,29 @@ float GetBlockRoughness(const in int blockId) {
     float smoothness = 0.0;
 
     switch (blockId) {
+        case BLOCK_IRON_BARS:
+            smoothness = 0.65;
+            break;
+    }
+
+    switch (blockId) {
         case BLOCK_GOLD:
             smoothness = 0.75;
             break;
         case BLOCK_IRON:
             smoothness = 0.65;
             break;
+        case BLOCK_MUD:
+            smoothness = 0.40;
+            break;
         case BLOCK_POLISHED:
             smoothness = 0.60;
             break;
         case BLOCK_QUARTZ:
             smoothness = 0.50;
+            break;
+        case BLOCK_REDSTONE:
+            smoothness = 0.80;
             break;
     }
 
@@ -23,7 +35,14 @@ float GetBlockMetalF0(const in int blockId) {
     float metal_f0 = 0.04;
 
     switch (blockId) {
+        case BLOCK_IRON_BARS:
+            metal_f0 = (230.5/255.0);
+            break;
+    }
+
+    switch (blockId) {
         case BLOCK_GOLD:
+        case BLOCK_REDSTONE:
             metal_f0 = (231.5/255.0);
             break;
         case BLOCK_IRON:
