@@ -1,0 +1,289 @@
+# Provided by Rad1ac
+
+screen.WORLD_OPTIONS=Мир
+screen.WORLD_OPTIONS.comment=Варианты для всего остального.
+
+option.sunPathRotation=Угол солнца
+option.sunPathRotation.comment=Наклон Солнца вдоль оси вращения.
+
+option.WATER_REFLECTIONS_ENABLED=Отражения воды
+option.WATER_REFLECTIONS_ENABLED.comment=При включении вода будет иметь тонкое отражение цвета неба.
+
+option.ENABLE_WAVING=Развевающиеся растения
+option.ENABLE_WAVING.comment=При включении растения будут колебаться, используя искусственный ветер.
+
+option.OLD_LIGHTING=Старое освещение
+
+option.FOLIAGE_UP=Восходящие нормали
+option.FOLIAGE_UP.comment=Растительность будет освещена восходящими нормалами.
+
+
+screen.WORLD_BRIGHTNESS_OPTIONS=Параметры яркости
+
+option.OVERWORLD_BRIGHTNESS_DAY=Яркость дня
+
+option.OVERWORLD_BRIGHTNESS_NIGHT=Ночная яркость
+
+option.NETHER_BRIGHTNESS=Яркость незера
+
+option.END_BRIGHTNESS=Яркость энда
+
+
+screen.MATERIAL_OPTIONS=Поверхности
+
+option.MATERIAL_NORMALS=Normal Mapping
+value.MATERIAL_NORMALS.0=OFF
+value.MATERIAL_NORMALS.1=OldPBR
+value.MATERIAL_NORMALS.2=LabPBR
+
+option.MATERIAL_EMISSION=Свечение
+value.MATERIAL_EMISSION.0=Hard-Coded
+value.MATERIAL_EMISSION.1=OldPBR
+value.MATERIAL_EMISSION.2=LabPBR
+
+option.MATERIAL_SSS=SSS
+option.MATERIAL_SSS.comment=SubSurface Scattering
+value.MATERIAL_SSS.0=OFF
+value.MATERIAL_SSS.1=Hard-Coded
+value.MATERIAL_SSS.2=LabPBR
+
+
+screen.MATERIAL_PARALLAX_OPTIONS=Parallax
+
+option.MATERIAL_PARALLAX=Mode
+option.MATERIAL_PARALLAX.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
+value.MATERIAL_PARALLAX.0=OFF
+value.MATERIAL_PARALLAX.1=Стандарт
+value.MATERIAL_PARALLAX.2=Гладкий
+value.MATERIAL_PARALLAX.3=Острый
+
+option.MATERIAL_PARALLAX_DEPTH=Глубина
+suffix.MATERIAL_PARALLAX_DEPTH=%
+
+option.MATERIAL_PARALLAX_SAMPLES=Samples
+
+option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Shadow Samples
+value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
+
+option.MATERIAL_PARALLAX_DISTANCE=Distance
+option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from the camera to render POM.
+
+
+screen.DYNAMIC_LIGHT_OPTIONS=Освещение блоков
+
+option.DYN_LIGHT_MODE=Mode
+value.DYN_LIGHT_MODE.0=По умолчанию
+value.DYN_LIGHT_MODE.1=Per-Vertex
+value.DYN_LIGHT_MODE.2=Per-Pixel
+value.DYN_LIGHT_MODE.3=Patch-Traced
+
+option.DYN_LIGHT_BRIGHTNESS=Яркость
+option.DYN_LIGHT_BRIGHTNESS.comment=Яркость динамических источников освещения.
+suffix.DYN_LIGHT_BRIGHTNESS=%
+
+option.DYN_LIGHT_FLICKER=Динамический
+option.DYN_LIGHT_FLICKER.comment=Позволяет источникам света иметь динамическую яркость/цвет; как факелы, свечи, огонь и т.д.
+
+option.DYN_LIGHT_DIRECTIONAL=Directional
+suffix.DYN_LIGHT_DIRECTIONAL=%
+
+option.DYN_LIGHT_COLOR_MODE=Режим цвета
+value.DYN_LIGHT_COLOR_MODE.0=Hard-Coded
+value.DYN_LIGHT_COLOR_MODE.1=Resource-Pack
+
+option.DYN_LIGHT_FALLBACK=Fallback
+option.DYN_LIGHT_FALLBACK.comment=При включении цветное освещение будет смешиваться с ванильным освещением на краю границ света. При отключении не будет освещения за пределами света.
+
+
+screen.DYNAMIC_LIGHT_TRACE_OPTIONS=Параметры лучей
+
+option.DYN_LIGHT_RES=Разрешение
+value.DYN_LIGHT_RES.0=Полоное
+value.DYN_LIGHT_RES.1=Средне
+value.DYN_LIGHT_RES.2=Низкое
+
+option.DYN_LIGHT_PENUMBRA=Размер теней
+option.DYN_LIGHT_PENUMBRA.comment=Размер полутени для мягких теней с трассировкой DDA.
+value.DYN_LIGHT_PENUMBRA.0=None
+suffix.DYN_LIGHT_PENUMBRA=%
+
+option.DYN_LIGHT_TINT=Прозрачность оттенка
+option.DYN_LIGHT_TINT.comment=Определяет, насколько сильно свет тонируется через стекло.
+suffix.DYN_LIGHT_TINT=%
+value.DYN_LIGHT_TINT.0=Off
+
+
+screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
+
+option.DYN_LIGHT_LAVA=Освещение лавы
+option.DYN_LIGHT_LAVA.comment=Определяет, как обрабатывается освещение лавы, чтобы избежать сильных воздействий на производительность от крупных лавовых озер / источников.
+value.DYN_LIGHT_LAVA.0=Disable
+value.DYN_LIGHT_LAVA.1=Emit
+value.DYN_LIGHT_LAVA.2=Trace
+
+option.DYN_LIGHT_REDSTONE=Освещение редстоуна
+option.DYN_LIGHT_REDSTONE.comment=Определяет, как обрабатывается освещение компонентов из красного камня, чтобы избежать сильного воздействия на производительность от больших приспособлений.
+value.DYN_LIGHT_REDSTONE.0=Disable
+value.DYN_LIGHT_REDSTONE.1=Emit
+value.DYN_LIGHT_REDSTONE.2=Trace
+
+
+screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Продвинутые настроки
+
+option.LIGHT_BIN_SIZE=Bin Size
+option.LIGHT_BIN_SIZE.comment=Кубический размер в блоках каждого светового BIN. Использование меньших BIN позволит более плотно осветить. Использование больших BIN позволит динамическому освещению применяться на дальних расстояниях от игрока.
+
+option.LIGHT_BIN_MAX_COUNT=Max Bin Lights
+option.LIGHT_BIN_MAX_COUNT.comment=Максимальное количество источников света, которое может вместить каждый BIN.
+
+option.LIGHT_SIZE_XZ=Horizontal Bin Count
+
+option.LIGHT_SIZE_Y=Vertical Bin Count
+
+option.DYN_LIGHT_BLUR=Размытие
+option.DYN_LIGHT_BLUR.comment=Если этот параметр включен, буфер освещения будет иметь послеобрабатывающее гауссовское размытие, применяемое для сглаживания краев/шума.
+
+option.DYN_LIGHT_TA=Temporal Accumulation
+option.DYN_LIGHT_TA.comment=Если этот параметр включен, буфер освещения будет смешиваться между несколькими кадрами, чтобы уменьшить шум мягкой тени.
+
+
+screen.VOLUMETRIC_LIGHT_OPTIONS=Объемное освещение
+
+option.VOLUMETRIC_CELESTIAL=Солнце/Луна
+
+option.VOLUMETRIC_BLOCK_MODE=Освещение блоков
+value.VOLUMETRIC_BLOCK_MODE.0=Disabled
+value.VOLUMETRIC_BLOCK_MODE.1=Emission
+value.VOLUMETRIC_BLOCK_MODE.2=Trace Fast
+value.VOLUMETRIC_BLOCK_MODE.3=Trace Full
+
+option.VOLUMETRIC_SAMPLES=Качество
+value.VOLUMETRIC_SAMPLES.8=Low
+value.VOLUMETRIC_SAMPLES.12=Medium
+value.VOLUMETRIC_SAMPLES.16=High
+value.VOLUMETRIC_SAMPLES.24=Very High
+
+option.VOLUMETRIC_DENSITY=Плотность
+value.VOLUMETRIC_DENSITY.800=Silent Hill
+
+option.VOLUMETRIC_RES=Разрешение
+value.VOLUMETRIC_RES.0=Полное
+value.VOLUMETRIC_RES.1=Средне
+value.VOLUMETRIC_RES.2=Низкое
+
+
+screen.SHADOW_OPTIONS=Тени
+screen.SHADOW_OPTIONS.comment=Параметры теней.
+
+option.SHADOW_TYPE=Тип тени
+option.SHADOW_TYPE.comment=Тип используемого сопоставления теней.
+value.SHADOW_TYPE.0=Никакой
+value.SHADOW_TYPE.1=Основной
+value.SHADOW_TYPE.2=Искажённый
+value.SHADOW_TYPE.3=Cascaded - best
+
+option.shadowMapResolution=Разрешение теней
+option.shadowMapResolution.comment=Разрешение теневой карты. Более высокие цифры означают более точные тени.
+
+option.shadowDistance=Расстояние теней
+option.shadowDistance.comment=Как далеко будут отображаться тени.
+
+option.SHADOW_FILTER=Фильтрация
+option.SHADOW_FILTER.comment=Тип фильтрации для применения к теневой выборке.
+value.SHADOW_FILTER.0=Никакой
+value.SHADOW_FILTER.1=PCF
+value.SHADOW_FILTER.2=PCF+PCSS - best
+
+option.SHADOW_COLORS=Цветная тонировка
+option.SHADOW_COLORS.comment=0: Стекла будут отбрасывать обычные тени. 1: Стекла будут отбрасывать цветные тени. 2: Стекло не отбрасывает никаких теней.
+value.SHADOW_COLORS.0=Disabled
+value.SHADOW_COLORS.1=Enabled
+value.SHADOW_COLORS.2=Ignored
+
+option.SHADOW_BRIGHTNESS=Яркость
+option.SHADOW_BRIGHTNESS.comment=Уровни освещенности умножаются на это число, когда поверхность находится в тени.
+suffix.SHADOW_BRIGHTNESS=%
+
+option.SHADOW_COLOR_BLEND=Смешивание
+option.SHADOW_COLOR_BLEND.comment=Позволяет цветным теням накладывать несколько цветов. В настоящее время разрушается до тех пор, пока Sodium не поддерживает транклюцентно-сортировку.
+
+option.SHADOW_BIAS_SCALE=Шкала смещения
+option.SHADOW_BIAS_SCALE.comment=Увеличьте это, если у вас есть теневые баги. Уменьшите это, если вы получите "peter panning".
+value.SHADOW_BIAS_SCALE.0.1=10%
+value.SHADOW_BIAS_SCALE.0.2=20%
+value.SHADOW_BIAS_SCALE.0.3=30%
+value.SHADOW_BIAS_SCALE.0.4=40%
+value.SHADOW_BIAS_SCALE.0.5=50%
+value.SHADOW_BIAS_SCALE.0.6=60%
+value.SHADOW_BIAS_SCALE.0.7=70%
+value.SHADOW_BIAS_SCALE.0.8=80%
+value.SHADOW_BIAS_SCALE.0.9=90%
+value.SHADOW_BIAS_SCALE.1.0=100%
+value.SHADOW_BIAS_SCALE.1.1=110%
+value.SHADOW_BIAS_SCALE.1.2=120%
+value.SHADOW_BIAS_SCALE.1.3=130%
+value.SHADOW_BIAS_SCALE.1.4=140%
+value.SHADOW_BIAS_SCALE.1.5=150%
+value.SHADOW_BIAS_SCALE.1.6=160%
+value.SHADOW_BIAS_SCALE.1.7=170%
+value.SHADOW_BIAS_SCALE.1.8=180%
+value.SHADOW_BIAS_SCALE.1.9=190%
+value.SHADOW_BIAS_SCALE.2.0=200%
+value.SHADOW_BIAS_SCALE.2.1=210%
+value.SHADOW_BIAS_SCALE.2.2=220%
+value.SHADOW_BIAS_SCALE.2.3=230%
+value.SHADOW_BIAS_SCALE.2.4=240%
+value.SHADOW_BIAS_SCALE.2.5=250%
+
+option.SHADOW_DISTORT_FACTOR=Искажение
+option.SHADOW_DISTORT_FACTOR.comment=Коэффициент искажения для карты теней. Применяется только к искаженным теням.
+
+option.SHADOW_CSM_FITRANGE=Подгонка CSM к теневому диапазону
+option.SHADOW_CSM_FITRANGE.comment=Если этот параметр включен, все, кроме ближайшего каскада, будут масштабированы в соответствии с диапазоном теней.
+
+screen.SHADOW_FILTER_OPTIONS=Фильтрация
+screen.SHADOW_FILTER_OPTIONS.comment=Параметры фильтрации теней.
+
+option.SHADOW_PCF_SIZE=PCF Radius
+option.SHADOW_PCF_SIZE.comment=Радиус размытия тени с использованием шкалы размером с блок.
+
+option.SHADOW_PCF_SAMPLES=PCF Samples
+option.SHADOW_PCF_SAMPLES.comment=Количество samples, используемых при размытии.
+
+option.SHADOW_PCSS_SAMPLES=PCSS Samples
+option.SHADOW_PCSS_SAMPLES.comment=Количество образцов, используемых для определения ширины размытых теней.
+
+option.SHADOW_ENABLE_HWCOMP=Аппаратное ускорение
+option.SHADOW_ENABLE_HWCOMP.comment=Если этот параметр включен, тени будут использовать аппаратную фильтрацию для повышения качества и производительности.
+
+option.SHADOW_BLUR=Размытие
+option.SHADOW_BLUR.comment=Применяет гауссовское размытие к буферу затенения.
+
+
+screen.POST_OPTIONS=Постобработка
+
+option.TONEMAP_ENABLED=Tonemap
+option.TONEMAP_ENABLED.comment=Предотвращает обрезание ярких цветов, полезно для динамического освещения.
+
+option.FXAA_ENABLED=FXAA
+
+
+screen.DEBUG_OPTIONS=Shrimple перевод Rad1ac
+
+option.DEBUG_VIEW=Debug View
+option.DEBUG_VIEW.comment=Настраивает буфер для рисования на экране.
+value.DEBUG_VIEW.0=None
+value.DEBUG_VIEW.1=Deferred Color
+value.DEBUG_VIEW.2=Deferred Normal
+value.DEBUG_VIEW.3=Deferred Light
+value.DEBUG_VIEW.4=Deferred Shadow
+value.DEBUG_VIEW.5=Deferred Fog
+value.DEBUG_VIEW.6=Deferred Texture
+value.DEBUG_VIEW.7=Deferred VL
+value.DEBUG_VIEW.8=Deferred BlockLight
+value.DEBUG_VIEW.9=Shadow Color
+
+option.DYN_LIGHT_DEBUG_COUNTS=Показать количество света
+
+option.IRIS_FEATURE_CLEARFIX=Clear-Fix
+option.IRIS_FEATURE_CLEARFIX.comment=Включите эту опцию при использовании последней версии 1.6 beta 2 с новой функцией очистки.

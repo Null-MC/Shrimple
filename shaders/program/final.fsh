@@ -34,10 +34,10 @@ uniform float viewHeight;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/text.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 	#include "/lib/buffers/lighting.glsl"
-	#include "/lib/text.glsl"
 #endif
 
 #ifdef FXAA_ENABLED
@@ -95,6 +95,17 @@ void main() {
 		printString((_B, _u, _f, _f, _e, _r, _colon, _space, _space));
 		printUnsignedInt(DYN_LIGHT_IMG_SIZE);
 
+		endText(color);
+	#endif
+
+	#if !defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || SHADOW_TYPE == SHADOW_TYPE_CASCADED)
+		if (all(greaterThan(gl_FragCoord.xy, vec2(8.0, 8.0))) && all(lessThanEqual(gl_FragCoord.xy, vec2(620.0, 32.0))))
+			color = mix(color, vec3(0.7, 0.0, 0.0), 0.7);
+
+		beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(8, 14));
+		text.bgCol = vec4(0.0);
+		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
+		printString((_E, _R, _R, _O, _R, _colon, _space, _E, _n, _a, _b, _l, _e, _d, _space, _f, _e, _a, _t, _u, _r, _e, _s, _space, _r, _e, _q, _u, _i, _r, _e, _space, _I, _r, _i, _s, _space, _1, _dot, _6, _space, _o, _r, _space, _l, _a, _t, _e, _r));
 		endText(color);
 	#endif
 
