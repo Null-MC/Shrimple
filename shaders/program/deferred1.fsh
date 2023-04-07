@@ -110,7 +110,7 @@ void main() {
 
         localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
-        vec3 texNormal = vec3(0.0);
+        vec3 texNormal = localNormal.xyz;
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
             texNormal = deferredTexture.xyz;
