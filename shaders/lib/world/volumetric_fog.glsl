@@ -4,14 +4,42 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
-    #ifdef WORLD_SKY_ENABLED
-        float scatterF = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
-        float extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
-    #else
-        float scatterF = 0.016 * VolumetricDensityF;
-        float extinction = 0.016 * VolumetricDensityF;
+void GetVolumetricPhaseFactors(out float ambient, out float G_Forward, out float G_Back) {
+    #ifdef WORLD_WATER_ENABLED
+        if (isEyeInWater == 1) {
+            ambient = 0.012;
+            G_Forward = 0.26;
+            G_Back = 0.16;
+        }
+        else {
     #endif
+        #ifdef WORLD_SKY_ENABLED
+            ambient = 0.012;
+            G_Forward = mix(0.66, 0.26, rainStrength);
+            G_Back = mix(0.36, 0.16, rainStrength);
+        #else
+            ambient = 0.14;
+            G_Forward = 0.8;
+            G_Back = 0.3;
+        #endif
+    #ifdef WORLD_WATER_ENABLED
+        }
+    #endif
+}
+
+void GetVolumetricCoeff(out float scattering, out float extinction) {
+    #ifdef WORLD_SKY_ENABLED
+        scattering = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
+        extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
+    #else
+        scattering = 0.016 * VolumetricDensityF;
+        extinction = 0.016 * VolumetricDensityF;
+    #endif
+}
+
+vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
+    float scatterF, extinction;
+    GetVolumetricCoeff(scatterF, extinction);
 
     vec3 localStart = localViewDir * (nearDist + 0.1);
     vec3 localEnd = localViewDir * (farDist - 0.1);
@@ -25,17 +53,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    #ifdef WORLD_SKY_ENABLED
-        const float ambient = 0.012;
-        float G_Forward = mix(0.66, 0.26, rainStrength);
-        float G_Back = mix(0.26, 0.16, rainStrength);
-        const float G_mix = 0.7;
-    #else
-        const float ambient = 0.14;
-        float G_Forward = 0.8;
-        float G_Back = 0.3;
-        const float G_mix = 0.7;
-    #endif
+    float ambient, G_Forward, G_Back;
+    GetVolumetricPhaseFactors(ambient, G_Forward, G_Back);
+    const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;

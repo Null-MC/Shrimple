@@ -94,6 +94,7 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
+    uniform int isEyeInWater;
 #endif
 
 #if MC_VERSION >= 11700

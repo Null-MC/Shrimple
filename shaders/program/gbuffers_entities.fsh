@@ -110,6 +110,7 @@ uniform float blindness;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
+    uniform int isEyeInWater;
 #endif
 
 #if AF_SAMPLES > 1

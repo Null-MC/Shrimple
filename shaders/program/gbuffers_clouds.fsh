@@ -78,6 +78,7 @@ uniform float blindness;
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
+    uniform int isEyeInWater;
     uniform vec3 skyColor;
     uniform vec3 fogColor;
 #endif

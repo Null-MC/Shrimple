@@ -332,7 +332,7 @@ void main() {
 
     #ifdef VL_BUFFER_ENABLED
         float farMax = min(length(vPos) - 0.05, far);
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, farMax);
+        vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, near, farMax);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

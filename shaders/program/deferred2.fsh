@@ -40,6 +40,7 @@ uniform float far;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float rainStrength;
+uniform int isEyeInWater;
 
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
