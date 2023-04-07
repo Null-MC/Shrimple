@@ -231,7 +231,7 @@ void main() {
 
         vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
     #else
-        vec4 color = texture(gtexture, texcoord);
+        vec4 color = texture(gtexture, atlasCoord);
     #endif
 
     if (color.a < alphaTestRef) {
@@ -279,7 +279,7 @@ void main() {
     float parallaxShadow = 1.0;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         //texNormal = vec3(0.0, 0.0, 1.0);
-        bool isValidNormal = GetMaterialNormal(texcoord, texNormal);
+        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {

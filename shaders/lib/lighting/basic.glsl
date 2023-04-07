@@ -17,7 +17,6 @@
                 float f0 = GetMaterialF0(metal_f0);
             #endif
 
-            //blockDiffuse = vec3(0.0);
             vec3 accumDiffuse = vec3(0.0);
             vec3 accumSpecular = vec3(0.0);
 
@@ -88,14 +87,9 @@
             accumDiffuse *= DynamicLightBrightness;
             accumSpecular *= DynamicLightBrightness;
 
-            // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-            //     accumDiffuse *= blockLight;
-            // #endif
-
             #ifdef DYN_LIGHT_FALLBACK
                 // TODO: shrink to shadow bounds
                 vec3 offsetPos = localPos + LightGridCenter;
-                //vec3 maxSize = SceneLightSize
                 float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 8.0;
                 accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
                 accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
@@ -107,8 +101,6 @@
         else {
             #ifdef DYN_LIGHT_FALLBACK
                 blockDiffuse += blockLightDefault;
-            //#else
-            //    blockDiffuse = vec3(0.0);
             #endif
         }
     }
@@ -116,8 +108,6 @@
     void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss) {
         vec2 noiseSample = GetDynLightNoise(vec3(0.0));
         vec3 result = vec3(0.0);
-
-        //if (heldItemId == 115) return vec3(1.0);
 
         vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
@@ -404,130 +394,122 @@
         }
     #endif
 
-    //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
-        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float emission, const in float sss) {
-            blockDiffuse += vec3(emission);//vBlockLight;
+    void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float emission, const in float sss) {
+        blockDiffuse += vec3(emission);//vBlockLight;
 
-            #ifdef RENDER_GBUFFER
-                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+        #ifdef RENDER_GBUFFER
+            vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+        #else
+            vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+        #endif
+
+        blockLightDefault = RGBToLinear(blockLightDefault);
+
+        #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+            SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
+
+            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+        #else
+            blockDiffuse += blockLightDefault;
+        #endif
+
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED)
+            if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
+        #endif
+    }
+
+    #ifdef WORLD_SKY_ENABLED
+        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
+            #ifndef RENDER_CLOUDS
+                #ifdef RENDER_GBUFFER
+                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                #else
+                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                #endif
+
+                float worldBrightness = GetWorldBrightnessF();
+                skyLight = RGBToLinear(skyLight) * worldBrightness;
+
+                //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+
+                skyLight *= 1.0 - blindness;
             #else
-                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+                const float skyLight = 1.0;
+            #endif
+            
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+            #else
+                vec3 celestialPos = normalize(sunPosition);
+                if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
+                vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
             #endif
 
-            blockLightDefault = RGBToLinear(blockLightDefault);
-
-            #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
-                SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
-
-                SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
-
-                // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-                //     lit *= saturate((lmcoordX - (0.5/16.0)) * (16.0/15.0));
-                // #endif
-
-                //blockLight += lit;
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
             #else
-                blockDiffuse += blockLightDefault;
+                const float diffuseNoL = 1.0;
             #endif
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED)
-                if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
+            skyDiffuse += diffuseNoL * skyLight * shadowColor;
+
+            #ifdef MATERIAL_SPECULAR
+                float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+
+                if (geoNoLm > 0.0) {
+                    float f0 = GetMaterialF0(metal_f0);
+
+                    //vec3 localViewDir = normalize(localPos);
+
+                    vec3 skyH = normalize(localLightDir + localViewDir);
+                    float skyNoLm = max(dot(texNormal, localLightDir), 0.0);
+                    float skyVoHm = max(dot(localViewDir, skyH), 0.0);
+                    float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
+                    float skyNoHm = max(dot(texNormal, skyH), 0.0);
+
+                    float invCosTheta = 1.0 - skyVoHm;
+                    float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+
+                    skySpecular += SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
+                }
             #endif
         }
+    #endif
 
-        #ifdef WORLD_SKY_ENABLED
-            void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
-                #ifndef RENDER_CLOUDS
-                    #ifdef RENDER_GBUFFER
-                        vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
-                    #else
-                        vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
-                    #endif
+    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
+        // weather darkening
+        
+        //float worldBrightness = GetWorldBrightnessF();
 
-                    float worldBrightness = GetWorldBrightnessF();
-                    skyLight = RGBToLinear(skyLight) * worldBrightness;
+        //float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
 
-                    //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+        //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
 
-                    skyLight *= 1.0 - blindness;
-                #else
-                    const float skyLight = 1.0;
-                #endif
-                
-                #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-                #else
-                    vec3 celestialPos = normalize(sunPosition);
-                    if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
-                    vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
-                #endif
+        vec3 ambientLight = vec3(0.0);
+        #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+            vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+            lmFinal.x *= 0.16;
+            lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
 
-                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                    float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
-                #else
-                    const float diffuseNoL = 1.0;
-                #endif
+            #ifdef RENDER_GBUFFER
+                ambientLight = textureLod(lightmap, lmFinal, 0).rgb;
+            #else
+                ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+            #endif
 
-                skyDiffuse += diffuseNoL * skyLight * shadowColor;
+            ambientLight = RGBToLinear(ambientLight);
+        #endif
 
-                #ifdef MATERIAL_SPECULAR
-                    float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+        vec3 diffuse = albedo * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
+        vec3 specular = blockSpecular + skySpecular;
 
-                    if (geoNoLm > 0.0) {
-                        float f0 = GetMaterialF0(metal_f0);
-
-                        //vec3 localViewDir = normalize(localPos);
-
-                        vec3 skyH = normalize(localLightDir + localViewDir);
-                        float skyNoLm = max(dot(texNormal, localLightDir), 0.0);
-                        float skyVoHm = max(dot(localViewDir, skyH), 0.0);
-                        float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-                        float skyNoHm = max(dot(texNormal, skyH), 0.0);
-
-                        float invCosTheta = 1.0 - skyVoHm;
-                        float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-
-                        skySpecular += SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
-                    }
-                #endif
+        #ifdef MATERIAL_SPECULAR
+            if (metal_f0 >= 0.5) {
+                diffuse *= METAL_BRIGHTNESS;
+                specular *= albedo;
             }
         #endif
 
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
-            // weather darkening
-            
-            //float worldBrightness = GetWorldBrightnessF();
-
-            //float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
-
-            //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
-
-            vec3 ambientLight = vec3(0.0);
-            #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-                vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
-                lmFinal.x *= 0.16;
-                lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
-
-                #ifdef RENDER_GBUFFER
-                    ambientLight = textureLod(lightmap, lmFinal, 0).rgb;
-                #else
-                    ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-                #endif
-
-                ambientLight = RGBToLinear(ambientLight);
-            #endif
-
-            vec3 diffuse = albedo * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
-            vec3 specular = blockSpecular + skySpecular;
-
-            #ifdef MATERIAL_SPECULAR
-                if (metal_f0 >= 0.5) {
-                    diffuse *= METAL_BRIGHTNESS;
-                    specular *= albedo;
-                }
-            #endif
-
-            return diffuse + specular;
-        }
-    //#endif
+        return diffuse + specular;
+    }
 #endif

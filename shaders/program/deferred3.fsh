@@ -171,9 +171,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
         }
     }
     
-    //if (total <= EPSILON) return vec3(0.0);
     total = max(total, EPSILON);
-
     blockDiffuse = accumDiffuse / total;
     blockSpecular = accumSpecular / total;
 }
