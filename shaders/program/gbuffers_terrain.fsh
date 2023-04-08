@@ -132,6 +132,7 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"

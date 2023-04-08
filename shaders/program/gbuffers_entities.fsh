@@ -151,7 +151,7 @@ uniform float blindness;
 
 #include "/lib/entities.glsl"
 #include "/lib/lighting/dynamic_entities.glsl"
-#include "/lib/world/physicsmod_snow.glsl"
+#include "/lib/physics_mod/snow.glsl"
 
 #ifdef RENDER_TRANSLUCENT
     #include "/lib/lighting/fresnel.glsl"

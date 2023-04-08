@@ -43,6 +43,7 @@ flat in int vBlockId;
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+uniform sampler2D lightmap;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     uniform sampler2D normals;
@@ -54,10 +55,6 @@ uniform sampler2D noisetex;
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
-#endif
-
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform sampler2D lightmap;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -75,8 +72,10 @@ uniform sampler2D noisetex;
     uniform int worldTime;
 #endif
 
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
@@ -107,12 +106,15 @@ uniform int fogMode;
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
-    uniform float frameTimeCounter;
-    uniform vec3 cameraPosition;
+    //uniform float frameTimeCounter;
+    //uniform vec3 cameraPosition;
 
-    uniform float blindness;
+#endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    //
+#else
+    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
         uniform int heldItemId;
         uniform int heldItemId2;
         uniform int heldBlockLightValue;
@@ -120,6 +122,8 @@ uniform int fogMode;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
+
+    uniform float blindness;
 #endif
 
 #if AF_SAMPLES > 1
@@ -132,6 +136,7 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -163,14 +168,6 @@ uniform int fogMode;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
-#endif
-
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
@@ -180,10 +177,25 @@ uniform int fogMode;
     #include "/lib/material/parallax.glsl"
 #endif
 
-#if !(defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    //
+#else
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/collisions.glsl"
+        #include "/lib/lighting/tracing.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/flicker.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/dynamic_lights.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
     #endif
 
     #include "/lib/lighting/sampling.glsl"
@@ -192,7 +204,7 @@ uniform int fogMode;
 #endif
 
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -235,7 +247,13 @@ void main() {
         vec4 color = texture(gtexture, atlasCoord);
     #endif
 
-    if (color.a < alphaTestRef) {
+    #ifdef RENDER_TRANSLUCENT
+        const float alphaThreshold = (1.5/255.0);
+    #else
+        float alphaThreshold = alphaTestRef;
+    #endif
+
+    if (color.a < alphaThreshold) {
         discard;
         return;
     }
@@ -325,7 +343,7 @@ void main() {
         shadowColor *= 1.2 * pow(skyNoL, 0.8);
     #endif
 
-    #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);

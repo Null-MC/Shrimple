@@ -27,6 +27,12 @@ flat in int vBlockId;
     in float physics_localWaviness;
 #endif
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    in vec2 vLocalCoord;
+    //out vec3 tanViewPos;
+    flat in mat2 atlasBounds;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -124,6 +130,7 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -162,11 +169,13 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/flicker.glsl"
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
+#endif
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -177,7 +186,7 @@ uniform float blindness;
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-    #include "/lib/world/physicsmod_ocean.glsl"
+    #include "/lib/physics_mod/ocean.glsl"
 #endif
 
 #include "/lib/lighting/sampling.glsl"
@@ -269,7 +278,13 @@ void main() {
             metal_f0 = 0.02;
 
             #ifdef PHYSICS_OCEAN
-                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime);
+                vec2 uvOffset;
+                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, uvOffset);
+
+                // TODO: wrap uvOffset with atlasBounds
+                vec2 atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
+                color = texture(gtexture, atlasCoord);
+                color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
             #else
                 texNormal = localNormal;
             #endif

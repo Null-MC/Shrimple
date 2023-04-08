@@ -64,8 +64,8 @@ float physics_waveHeight(vec2 position, int iterations, float factor, float time
     return height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
 }
 
-vec2 physics_waveDirection(vec2 position, int iterations, float time) {
-    position = (position - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
+vec2 physics_waveDirection(const in vec2 position, const in float time, out vec2 uvOffset) {
+    vec2 wavePos = (position - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
 	float iter = 0.0;
     float frequency = PHYSICS_FREQUENCY;
     float speed = PHYSICS_SPEED;
@@ -74,15 +74,15 @@ vec2 physics_waveDirection(vec2 position, int iterations, float time) {
     float modifiedTime = time * PHYSICS_TIME_MULTIPLICATOR;
     vec2 dx = vec2(0.0);
     
-    for (int i = 0; i < iterations; i++) {
+    for (int i = 0; i < physics_iterationsNormal; i++) {
         vec2 direction = vec2(sin(iter), cos(iter));
-        float x = dot(direction, position) * frequency + modifiedTime * speed;
+        float x = dot(direction, wavePos) * frequency + modifiedTime * speed;
         float wave = exp(sin(x) - 1.0);
         float result = wave * cos(x);
         vec2 force = result * weight * direction;
         
         dx += force / pow(weight, PHYSICS_W_DETAIL); 
-        position -= force * PHYSICS_DRAG_MULT;
+        wavePos -= force * PHYSICS_DRAG_MULT;
         iter += PHYSICS_ITER_INC;
         waveSum += weight;
         weight *= PHYSICS_WEIGHT;
@@ -90,11 +90,14 @@ vec2 physics_waveDirection(vec2 position, int iterations, float time) {
         speed *= PHYSICS_SPEED_MULT;
     }
     
+    vec2 worldPos = wavePos / physics_oceanWaveHorizontalScale / PHYSICS_XZ_SCALE;
+    uvOffset = worldPos - position;
+
     return vec2(dx / pow(waveSum, 1.0 - PHYSICS_W_DETAIL));
 }
 
-vec3 physics_waveNormal(vec2 position, float factor, float time) {
-    vec2 wave = -physics_waveDirection(position.xy, physics_iterationsNormal, time);
+vec3 physics_waveNormal(vec2 position, float factor, float time, out vec2 uvOffset) {
+    vec2 wave = -physics_waveDirection(position.xy, time, uvOffset);
     float oceanHeightFactor = physics_oceanHeight / 13.0;
     float totalFactor = oceanHeightFactor * factor;
     vec3 waveNormal = normalize(vec3(wave.x * totalFactor, PHYSICS_NORMAL_STRENGTH, wave.y * totalFactor));

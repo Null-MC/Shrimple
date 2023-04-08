@@ -9,6 +9,10 @@ in vec4 mc_Entity;
 in vec3 vaPosition;
 in vec3 at_midBlock;
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    in vec4 mc_midTexCoord;
+#endif
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -26,6 +30,12 @@ flat out int vBlockId;
 
     out vec3 vLocalTangent;
     out float vTangentW;
+#endif
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    out vec2 vLocalCoord;
+    //out vec3 tanViewPos;
+    flat out mat2 atlasBounds;
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -72,6 +82,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/world/waving.glsl"
 
@@ -114,7 +125,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-    #include "/lib/world/physicsmod_ocean.glsl"
+    #include "/lib/physics_mod/ocean.glsl"
 #endif
 
 #include "/lib/lighting/sampling.glsl"
@@ -144,5 +155,9 @@ void main() {
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
         }
+    #endif
+
+    #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+        GetAtlasBounds(atlasBounds, vLocalCoord);
     #endif
 }
