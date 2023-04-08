@@ -134,6 +134,10 @@ void main() {
         PrepareNormalMap();
     #endif
 
+    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+        vTangentW = at_tangent.w;
+    #endif
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         vec2 coordMid = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
         vec2 coordNMid = texcoord - coordMid;

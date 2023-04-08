@@ -236,7 +236,7 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec3 localViewDir = normalize(vLocalPos);
+    vec3 localViewDir = -normalize(vLocalPos);
 
     float roughness, metal_f0;
     float sss = GetMaterialSSS(entityId, texcoord);
@@ -261,7 +261,7 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = vec3(0.0);
+    vec3 texNormal = localNormal;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         if (GetMaterialNormal(texcoord, texNormal)) {
             vec3 localTangent = normalize(vLocalTangent);
@@ -337,7 +337,7 @@ void main() {
         ApplyFog(color, vLocalPos);
 
         #ifdef VL_BUFFER_ENABLED
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+            vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, near, min(length(vPos) - 0.05, far));
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

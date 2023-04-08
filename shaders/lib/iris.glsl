@@ -2,7 +2,6 @@ const vec3 BACKGROUND_COLOR = vec3(0.824, 0.808, 0.761);
 const vec3 GRADIENT_LEFT = vec3(0.031, 0.133, 0.365);
 const vec3 GRADIENT_RIGHT = vec3(0.718, 0.769, 0.804);
 
-//const float SIZE = 0.3;
 const float MARGIN = 8.0;
 
 
@@ -56,8 +55,7 @@ void drawHeader(vec2 uv, inout vec3 color) {
     vec2 size = vec2(354.0, 18.0);
     uv = (uv - vec2(3.0, 99.0)) / size;
     
-    if (clamp(uv, 0.0, 1.0) != uv)
-        return;
+    if (clamp(uv, 0.0, 1.0) != uv) return;
         
     color = mix(GRADIENT_LEFT, GRADIENT_RIGHT, uv.x);
     drawClose(uv * size, color);
@@ -75,9 +73,8 @@ void drawTriangle(vec2 uv, inout vec3 color) {
     uv -= vec2(0.5, 0.8);
 
     float shadowDist = sdTriangleIsosceles(uv + vec2(-0.1, 0.06), vec2(0.3, -0.6));
-    if (shadowDist < 0.087) {
+    if (shadowDist < 0.087)
         color *= 0.7;
-    }
 
     float dist = sdTriangleIsosceles(uv, vec2(0.3, -0.6));
     if (dist >= 0.087) return;
@@ -88,14 +85,12 @@ void drawTriangle(vec2 uv, inout vec3 color) {
         return;
     }
     
-    if (distance(uv, vec2(0.0, -0.53)) < 0.052) {
+    if (distance(uv, vec2(0.0, -0.53)) < 0.052)
         color = vec3(0, 0, 0);
-    }
     
     uv.y += 0.43;
-    if (sdUnevenCapsule(uv, 0.01, 0.082, 0.2) < 0.0) {
+    if (sdUnevenCapsule(uv, 0.01, 0.082, 0.2) < 0.0)
         color = vec3(0, 0, 0);
-    }
 }
 
 void drawButton(vec2 uv, inout vec3 color) {
@@ -114,9 +109,8 @@ void drawButton(vec2 uv, inout vec3 color) {
         return;
     }
     
-    if (iuv.x == 1 || iuv.y == 18) {
+    if (iuv.x == 1 || iuv.y == 18)
         color *= 1.2;
-    }
     
     if (clamp(uv, vec2(4.0), vec2(61.0, 17.0)) != uv) return;
     
@@ -137,11 +131,8 @@ void drawWarning(inout vec3 color) {
 
     uv -= (vec2(viewWidth, viewHeight)*0.5 - vec2(360.0, 120.0)) * 0.5;
 
-    //uv -= MARGIN;
-    //uv /= vec2(SIZE * 3.0, SIZE);
     if (clamp(uv, vec2(0.0), vec2(360.0, 120.0)) != uv) return;
     
-    //uv *= vec2(360.0, 120.0);
     color = BACKGROUND_COLOR;
     ivec2 iuv = ivec2(uv);
     
@@ -172,13 +163,3 @@ void drawWarning(inout vec3 color) {
     printString((_E, _n, _a, _b, _l, _e, _d, _space, _f, _e, _a, _t, _u, _r, _e, _s, _space, _r, _e, _q, _u, _i, _r, _e, _space, _I, _r, _i, _s, _space, _1, _dot, _6, _space, _o, _r, _space, _l, _a, _t, _e, _r))
     endText(color.rgb);
 }
-
-// void mainImage(out vec4 fragColor, in vec2 fragCoord) {
-//     vec2 uv = fragCoord / iResolution.x;
-    
-//     vec4 color = vec4(0, 0.5, 0.5, 1);
-    
-//     drawWarning(uv, color);
-    
-//     fragColor = color;
-// }

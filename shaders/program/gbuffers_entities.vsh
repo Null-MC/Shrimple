@@ -116,4 +116,8 @@ void main() {
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
     #endif
+
+    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+        vTangentW = at_tangent.w;
+    #endif
 }
