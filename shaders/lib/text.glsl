@@ -114,6 +114,9 @@ const uint _dot   = 0x000010;
 const uint _minus = 0x0000e000;
 const uint _comma = 0x00000220;
 const uint _colon = 0x02000020;
+const uint _under = 0x000007Cu;
+const uint _quote = 0x52800000u;
+const uint _exclaim = 0x21084010u;
 
 const int charWidth   = 5;
 const int charHeight  = 6;
