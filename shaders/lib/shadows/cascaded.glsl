@@ -14,18 +14,22 @@ vec2 GetShadowTilePos(const in int tile) {
 float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
     float bias = 0.0;
 
+    #if SHADOW_FILTER == SHADOW_FILTER_PCF
+        bias += 0.0008 * SHADOW_PCF_SIZE;
+    #endif
+
     switch (cascade) {
         case 0:
-            bias = 0.05;
+            bias += 0.05;
             break;
         case 1:
-            bias = 0.10;
+            bias += 0.10;
             break;
         case 2:
-            bias = 0.20;
+            bias += 0.20;
             break;
         case 3:
-            bias = 0.30;
+            bias += 0.30;
             break;
     }
 
@@ -35,18 +39,22 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
 float GetShadowOffsetBias(const in int cascade) {
     float bias = 0.0;
 
+    #if SHADOW_FILTER == SHADOW_FILTER_PCF
+        bias += 0.000001 * SHADOW_PCF_SIZE;
+    #endif
+
     switch (cascade) {
         case 0:
-            bias = 0.000008;
+            bias += 0.000008;
             break;
         case 1:
-            bias = 0.000032;
+            bias += 0.000032;
             break;
         case 2:
-            bias = 0.000128;
+            bias += 0.000128;
             break;
         case 3:
-            bias = 0.000512;
+            bias += 0.000512;
             break;
     }
 
