@@ -34,7 +34,7 @@ uniform sampler2D lightmap;
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
 
-    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+    #if SHADOW_COLORS != SHADOW_COLOR_DISABLED
         uniform sampler2D shadowtex1;
     #endif
 
