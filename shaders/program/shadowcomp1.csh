@@ -49,7 +49,7 @@ void main() {
         uint lightLocalIndex = 0u;
 
         uint binLightCountMin = min(SceneLightMaps[gridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
-        uint lightGlobalIndex = atomicAdd(SceneLightCount, binLightCountMin);
+        uint lightGlobalOffset = atomicAdd(SceneLightCount, binLightCountMin);
 
         for (int z = 0; z < LIGHT_BIN_SIZE; z++) {
             for (int y = 0; y < LIGHT_BIN_SIZE; y++) {
@@ -87,14 +87,12 @@ void main() {
                     float lightSize = GetSceneLightSize(lightType);
                     vec3 lightOffset = GetSceneLightOffset(lightType);
                     vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
-                    uint lightData = BuildLightMask(lightType, lightSize);
-                    SceneLightData light = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColor, lightData);
+                    uint lightMask = BuildLightMask(lightType, lightSize);
+                    SceneLightData lightData = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColor, lightMask);
 
-                    uint lightIndex = lightGlobalIndex + lightLocalIndex;
-                    SceneLights[lightIndex] = light;
-
-                    ivec2 uv = GetSceneLightUV(gridIndex, lightLocalIndex);
-                    imageStore(imgSceneLights, uv, uvec4(lightIndex));
+                    uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
+                    SceneLights[lightGlobalIndex] = lightData;
+                    SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
                     if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
                 }

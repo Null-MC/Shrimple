@@ -20,6 +20,7 @@ struct LightCellData {
         uint BlockMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
     #endif
     uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
+    uint GlobalLights[LIGHT_BIN_MAX_COUNT];
 };
 
 #ifdef RENDER_SHADOWCOMP
@@ -54,11 +55,3 @@ struct LightCellData {
 {
     LightCellData SceneLightMaps[];
 };
-
-#ifdef RENDER_SHADOWCOMP
-    layout(r32ui) uniform restrict uimage2D imgSceneLights;
-#elif defined RENDER_SHADOW
-    layout(r32ui) uniform restrict writeonly uimage2D imgSceneLights;
-#else
-    layout(r32ui) uniform restrict readonly uimage2D imgSceneLights;
-#endif

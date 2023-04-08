@@ -26,11 +26,6 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     return gridCell.z * (LIGHT_SIZE_Y * LIGHT_SIZE_XZ) + gridCell.y * LIGHT_SIZE_XZ + gridCell.x;
 }
 
-ivec2 GetSceneLightUV(const in uint gridIndex, const in uint gridLightIndex) {
-    uint z = gridIndex * LIGHT_BIN_MAX_COUNT + gridLightIndex;
-    return ivec2(z % DYN_LIGHT_IMG_SIZE, z / DYN_LIGHT_IMG_SIZE);
-}
-
 uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
     uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
     maskIndex *= DYN_LIGHT_MASK_STRIDE;
@@ -66,18 +61,10 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
 #ifdef RENDER_SHADOW
     bool SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-
-        //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            maskIndex *= DYN_LIGHT_MASK_STRIDE;
-        //#endif
+        maskIndex *= DYN_LIGHT_MASK_STRIDE;
 
         uint intIndex = maskIndex >> 5u;
-
-        //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            uint bit = lightType << (maskIndex & 31u);
-        //#else
-        //    uint bit = 1u << (maskIndex & 31u);
-        //#endif
+        uint bit = lightType << (maskIndex & 31u);
 
         uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
         return (was & bit) == 0u;
@@ -113,8 +100,7 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
     }
 
     SceneLightData GetSceneLight(const in uint gridIndex, const in uint binLightIndex) {
-        ivec2 uv = GetSceneLightUV(gridIndex, binLightIndex);
-        uint globalLightIndex = imageLoad(imgSceneLights, uv).r;
-        return SceneLights[globalLightIndex];
+        uint lightGlobalIndex = SceneLightMaps[gridIndex].GlobalLights[binLightIndex];
+        return SceneLights[lightGlobalIndex];
     }
 #endif
