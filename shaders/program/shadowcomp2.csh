@@ -74,5 +74,7 @@ void main() {
         uint neighborCount = PopulateNeighborLists(gridCell, gridIndex, cameraOffset);
 
         SceneLightMaps[gridIndex].LightNeighborCount = neighborCount;
+
+        //memoryBarrierBuffer();
     #endif
 }

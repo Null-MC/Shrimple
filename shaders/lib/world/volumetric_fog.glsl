@@ -144,45 +144,55 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         vec3 traceLocalPos = localStep * (i + dither) + localStart;
 
         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
-            uint gridIndex;
-            uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
             vec3 blockLightAccum = vec3(0.0);
+            uint gridIndex;
 
-            if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                for (uint i = 0; i < lightCount; i++) {
-                    SceneLightData light = GetSceneLight(gridIndex, i);
+            #if defined DYN_LIGHT_LPV && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+                ivec3 gridCell, blockCell;
+                vec3 gridPos = GetLightGridPosition(traceLocalPos);
 
-                    vec3 lightVec = traceLocalPos - light.position;
-                    if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
-                    
-                    vec3 lightColor = light.color;
-                    #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                        uint traceFace = 1u << GetLightMaskFace(lightVec);
-                        if ((light.data & traceFace) == traceFace) continue;
+                vec3 lpvTexcoord = gridPos / vec3(256.0, 64.0, 256.0);
+                if (saturate(lpvTexcoord) == lpvTexcoord)
+                    blockLightAccum = texture(texLPV, lpvTexcoord).rgb;
+            #else
+                uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
 
-                        if ((light.data & 1u) == 1u) {
-                            vec3 traceOrigin = GetLightGridPosition(light.position);
-                            vec3 traceEnd = traceOrigin + 0.999*lightVec;
+                if (gridIndex != DYN_LIGHT_GRID_MAX) {
+                    for (uint i = 0; i < lightCount; i++) {
+                        SceneLightData light = GetSceneLight(gridIndex, i);
 
-                            #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                                lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
-                            #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
-                                lightColor *= TraceDDA(traceOrigin, traceEnd, light.range);
-                            #else
-                                lightColor *= TraceDDA_fast(traceOrigin, traceEnd, light.range);
-                            #endif
-                        }
-                    #endif
+                        vec3 lightVec = traceLocalPos - light.position;
+                        if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                        
+                        vec3 lightColor = light.color;
+                        #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                            uint traceFace = 1u << GetLightMaskFace(lightVec);
+                            if ((light.data & traceFace) == traceFace) continue;
 
-                    float lightVoL = dot(normalize(-lightVec), localViewDir);
-                    float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
-                    float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
-                    float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+                            if ((light.data & 1u) == 1u) {
+                                vec3 traceOrigin = GetLightGridPosition(light.position);
+                                vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
-                    float lightAtt = GetLightAttenuation(lightVec, light.range);
-                    blockLightAccum += SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
+                                #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+                                    lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
+                                #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
+                                    lightColor *= TraceDDA(traceOrigin, traceEnd, light.range);
+                                #else
+                                    lightColor *= TraceDDA_fast(traceOrigin, traceEnd, light.range);
+                                #endif
+                            }
+                        #endif
+
+                        float lightVoL = dot(normalize(-lightVec), localViewDir);
+                        float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
+                        float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
+                        float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+
+                        float lightAtt = GetLightAttenuation(lightVec, light.range);
+                        blockLightAccum += SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
+                    }
                 }
-            }
+            #endif
 
             // if (!firstPersonCamera) {
             //     vec2 noiseSample = GetDynLightNoise(vec3(0.0));

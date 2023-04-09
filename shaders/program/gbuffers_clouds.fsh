@@ -29,6 +29,10 @@ uniform sampler2D lightmap;
     uniform sampler2D noisetex;
 #endif
 
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    uniform sampler3D texLPV;
+#endif
+
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif

@@ -31,6 +31,10 @@ uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
+#if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    uniform sampler3D texLPV;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;

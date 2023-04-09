@@ -36,10 +36,13 @@ uniform int fogMode;
 
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    /* RENDERTARGETS: 1,2,3 */
+    /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        layout(location = 3) out vec4 outDeferredRough;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -58,15 +61,11 @@ void main() {
         outDeferredColor = color;
         outDeferredShadow = vec4(1.0);
 
-        uvec4 deferredData = uvec4(0);
+        uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
         deferredData.g = packUnorm4x8(vec4(vec2(15.5/16.0), 1.0, 1.0));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
-
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
-        #endif
-        
+        deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
         outDeferredData = deferredData;
     #else
         color.rgb = RGBToLinear(color.rgb);

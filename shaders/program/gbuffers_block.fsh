@@ -53,6 +53,10 @@ uniform sampler2D lightmap;
     uniform sampler2D specular;
 #endif
 
+#if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    uniform sampler3D texLPV;
+#endif
+
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
 #endif
@@ -76,6 +80,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform int isEyeInWater;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
@@ -104,11 +109,16 @@ uniform int fogMode;
     #endif
 #endif
 
+#ifdef VL_BUFFER_ENABLED
+    uniform mat4 shadowModelView;
+    uniform ivec2 eyeBrightnessSmooth;
+    uniform float near;
+#endif
+
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
     //uniform float frameTimeCounter;
     //uniform vec3 cameraPosition;
-
 #endif
 
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
@@ -200,6 +210,11 @@ uniform int fogMode;
 
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/basic.glsl"
+
+    #ifdef VL_BUFFER_ENABLED
+        #include "/lib/world/volumetric_fog.glsl"
+    #endif
+
     #include "/lib/post/tonemap.glsl"
 #endif
 
@@ -386,6 +401,12 @@ void main() {
         color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, glcolor.a);
 
         ApplyFog(color, vLocalPos);
+
+        #ifdef VL_BUFFER_ENABLED
+            float farMax = min(length(vPos) - 0.05, far);
+            vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, near, farMax);
+            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
 
         ApplyPostProcessing(color.rgb);
         outFinal = color;

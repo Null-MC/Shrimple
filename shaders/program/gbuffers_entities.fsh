@@ -42,6 +42,10 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
+#if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    uniform sampler3D texLPV;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -337,7 +341,8 @@ void main() {
         ApplyFog(color, vLocalPos);
 
         #ifdef VL_BUFFER_ENABLED
-            vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, near, min(length(vPos) - 0.05, far));
+            float farMax = min(length(vPos) - 0.05, far);
+            vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

@@ -10,6 +10,10 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && defined DYN_LIGHT_LPV
+    uniform sampler3D texLPV;
+#endif
+
 #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
 
