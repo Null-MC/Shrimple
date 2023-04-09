@@ -96,6 +96,11 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             boundsMax = vec3(1.0, (1.0/16.0), 1.0);
             break;
 
+        case BLOCKTYPE_CAULDRON:
+            boundsMin = vec3(0.0, (3.0/16.0), 0.0);
+            boundsMax = vec3(1.0);
+            break;
+
         case BLOCKTYPE_END_PORTAL_FRAME:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0, (13.0/16.0), 1.0);
@@ -498,6 +503,11 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 boundsMax = vec3((9.0/16.0), (14.0/16.0), (9.0/16.0));
                 break;
 
+            case BLOCKTYPE_CAULDRON:
+                boundsMin = vec3(0.0);
+                boundsMax = vec3((4.0/16.0), (3.0/16.0), (4.0/16.0));
+                break;
+
             case BLOCKTYPE_LECTERN:
                 boundsMin = vec3(0.25,         0.0, 0.25);
                 boundsMax = vec3(0.75, (13.0/16.0), 0.75);
@@ -719,6 +729,11 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                     boundsMax = vec3((15.0/16.0), (7.0/16.0), 1.0);
                     break;
 
+                case BLOCKTYPE_CAULDRON:
+                    boundsMin = vec3((12.0/16.0),       0.0 ,       0.0 );
+                    boundsMax = vec3(       1.0 , (3.0/16.0), (4.0/16.0));
+                    break;
+
                 case BLOCKTYPE_STAIRS_BOTTOM_INNER_N_W:
                 case BLOCKTYPE_STAIRS_BOTTOM_OUTER_S_W:
                     boundsMin = vec3(0.0, 0.5, 0.5);
@@ -889,6 +904,11 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 boundsMax = vec3(-1.0);
 
                 switch (blockType) {
+                    case BLOCKTYPE_CAULDRON:
+                        boundsMin = vec3(      0.0 ,       0.0 , (12.0/16.0));
+                        boundsMax = vec3((4.0/16.0), (3.0/16.0),        1.0 );
+                        break;
+
                     case BLOCKTYPE_FENCE_ALL:
                         boundsMin = vec3(0.0, (6.0/16.0), (7.0/16.0));
                         boundsMax = vec3(1.0, (9.0/16.0), (9.0/16.0));
@@ -931,6 +951,11 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                     boundsMax = vec3(-1.0);
 
                     switch (blockType) {
+                        case BLOCKTYPE_CAULDRON:
+                            boundsMin = vec3((12.0/16.0),       0.0 , (12.0/16.0));
+                            boundsMax = vec3(       1.0 , (3.0/16.0),        1.0 );
+                            break;
+
                         case BLOCKTYPE_FENCE_ALL:
                             boundsMin = vec3((7.0/16.0), (12.0/16.0), 0.0);
                             boundsMax = vec3((9.0/16.0), (15.0/16.0), 1.0);

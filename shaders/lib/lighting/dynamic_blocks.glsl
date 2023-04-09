@@ -25,6 +25,7 @@
 #define BLOCKTYPE_CAMPFIRE_W_E 16u
 #define BLOCKTYPE_CANDLE_CAKE 17u
 #define BLOCKTYPE_CARPET 18u
+#define BLOCKTYPE_CAULDRON 200u     // FIX THIS
 #define BLOCKTYPE_END_PORTAL_FRAME 19u
 #define BLOCKTYPE_FLOWER_POT 20u
 #define BLOCKTYPE_GRINDSTONE_FLOOR_N_S 21u
@@ -204,8 +205,6 @@
 #define BLOCKTYPE_STAINED_GLASS_WHITE 183u
 #define BLOCKTYPE_STAINED_GLASS_YELLOW 184u
 
-//#define BLOCKTYPE_LIGHT 255u
-
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsDynLightSolidBlock(const in int blockId) {
@@ -218,7 +217,11 @@
         if (blockId >= BLOCK_JACK_O_LANTERN_N && blockId <= BLOCK_JACK_O_LANTERN_W) result = true;
         if (blockId >= BLOCK_SMOKER_LIT_N && blockId <= BLOCK_SMOKER_LIT_W) result = true;
 
+        if (blockId == BLOCK_FROGLIGHT_OCHRE) result = true;
+        if (blockId == BLOCK_FROGLIGHT_PEARLESCENT) result = true;
+        if (blockId == BLOCK_FROGLIGHT_VERDANT) result = true;
         if (blockId == BLOCK_GLOWSTONE) result = true;
+        if (blockId == BLOCK_LAVA_CAULDRON) result = true;
         if (blockId == BLOCK_REDSTONE_LAMP_LIT) result = true;
         if (blockId == BLOCK_SEA_LANTERN) result = true;
         if (blockId == BLOCK_SHROOMLIGHT) result = true;
@@ -275,6 +278,11 @@
 
             case BLOCK_CARPET:
                 blockType = BLOCKTYPE_CARPET;
+                break;
+
+            case BLOCK_CAULDRON:
+            case BLOCK_LAVA_CAULDRON:
+                blockType = BLOCKTYPE_CAULDRON;
                 break;
 
             case BLOCK_COMPARATOR:
