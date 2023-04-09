@@ -234,7 +234,8 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_JACK_O_LANTERN_W:
             lightType = LIGHT_JACK_O_LANTERN_W;
             break;
-        case BLOCK_LANTERN:
+        case BLOCK_LANTERN_CEIL:
+        case BLOCK_LANTERN_FLOOR:
             lightType = LIGHT_LANTERN;
             break;
         case BLOCK_LIGHTING_ROD_POWERED:
@@ -360,7 +361,8 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_SOUL_FIRE:
             lightType = LIGHT_SOUL_FIRE;
             break;
-        case BLOCK_SOUL_LANTERN:
+        case BLOCK_SOUL_LANTERN_CEIL:
+        case BLOCK_SOUL_LANTERN_FLOOR:
             lightType = LIGHT_SOUL_LANTERN;
             break;
         case BLOCK_SOUL_TORCH:

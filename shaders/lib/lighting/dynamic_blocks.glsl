@@ -37,6 +37,8 @@
 #define BLOCKTYPE_HOPPER_E 27u
 #define BLOCKTYPE_HOPPER_S 28u
 #define BLOCKTYPE_HOPPER_W 29u
+#define BLOCKTYPE_LANTERN_CEIL 201u     // FIX THIS
+#define BLOCKTYPE_LANTERN_FLOOR 202u     // FIX THIS
 #define BLOCKTYPE_LECTERN 30u
 #define BLOCKTYPE_LIGHTNING_ROD_N 31u
 #define BLOCKTYPE_LIGHTNING_ROD_E 32u
@@ -221,6 +223,8 @@
         if (blockId == BLOCK_FROGLIGHT_PEARLESCENT) result = true;
         if (blockId == BLOCK_FROGLIGHT_VERDANT) result = true;
         if (blockId == BLOCK_GLOWSTONE) result = true;
+        if (blockId == BLOCK_LANTERN_CEIL || blockId == BLOCK_SOUL_LANTERN_CEIL) result = true;
+        if (blockId == BLOCK_LANTERN_FLOOR || blockId == BLOCK_SOUL_LANTERN_FLOOR) result = true;
         if (blockId == BLOCK_LAVA_CAULDRON) result = true;
         if (blockId == BLOCK_REDSTONE_LAMP_LIT) result = true;
         if (blockId == BLOCK_SEA_LANTERN) result = true;
@@ -329,6 +333,14 @@
                 break;
             case BLOCK_HOPPER_W:
                 blockType = BLOCKTYPE_HOPPER_W;
+                break;
+            case BLOCK_LANTERN_CEIL:
+            case BLOCK_SOUL_LANTERN_CEIL:
+                blockType = BLOCKTYPE_LANTERN_CEIL;
+                break;
+            case BLOCK_LANTERN_FLOOR:
+            case BLOCK_SOUL_LANTERN_FLOOR:
+                blockType = BLOCKTYPE_LANTERN_FLOOR;
                 break;
             case BLOCK_LECTERN:
                 blockType = BLOCKTYPE_LECTERN;

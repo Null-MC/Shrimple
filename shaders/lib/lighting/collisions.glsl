@@ -137,6 +137,15 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             boundsMax = vec3(1.0);
             break;
 
+        case BLOCKTYPE_LANTERN_CEIL:
+            boundsMin = vec3(( 5.0/16.0), (1.0/16.0), ( 5.0/16.0));
+            boundsMax = vec3((11.0/16.0), (8.0/16.0), (11.0/16.0));
+            break;
+        case BLOCKTYPE_LANTERN_FLOOR:
+            boundsMin = vec3(( 5.0/16.0),       0.0 , ( 5.0/16.0));
+            boundsMax = vec3((11.0/16.0), (7.0/16.0), (11.0/16.0));
+            break;
+
         case BLOCKTYPE_LIGHTNING_ROD_N:
         case BLOCKTYPE_LIGHTNING_ROD_S:
             boundsMin = vec3((7.0/16.0), (7.0/16.0), 0.0);
@@ -506,6 +515,15 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             case BLOCKTYPE_CAULDRON:
                 boundsMin = vec3(0.0);
                 boundsMax = vec3((4.0/16.0), (3.0/16.0), (4.0/16.0));
+                break;
+
+            case BLOCKTYPE_LANTERN_CEIL:
+                boundsMin = vec3(( 6.0/16.0), ( 8.0/16.0), ( 6.0/16.0));
+                boundsMax = vec3((10.0/16.0), (10.0/16.0), (10.0/16.0));
+                break;
+            case BLOCKTYPE_LANTERN_FLOOR:
+                boundsMin = vec3(( 6.0/16.0), (7.0/16.0), ( 6.0/16.0));
+                boundsMax = vec3((10.0/16.0), (9.0/16.0), (10.0/16.0));
                 break;
 
             case BLOCKTYPE_LECTERN:
