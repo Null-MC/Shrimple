@@ -62,6 +62,7 @@ void main() {
         // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         //     vVertexId = GetWrappedVertexID(entityId);
         // #endif
+        vBlockId = -1;
     }
     else {
         vBlockId = blockId;
@@ -70,7 +71,7 @@ void main() {
     vec4 pos = gl_Vertex;
 
     #ifdef ENABLE_WAVING
-        ApplyWavingOffset(pos.xyz, vBlockId);
+        ApplyWavingOffset(pos.xyz, blockId);
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;

@@ -117,6 +117,7 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -140,9 +141,10 @@ uniform float blindness;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/items.glsl"
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/flicker.glsl"
 
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
@@ -153,10 +155,11 @@ uniform float blindness;
         #include "/lib/lighting/tracing.glsl"
     #endif
 
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"

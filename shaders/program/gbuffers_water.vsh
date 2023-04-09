@@ -82,9 +82,12 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/world/waving.glsl"
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    #include "/lib/sampling/atlas.glsl"
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/matrix.glsl"
@@ -98,11 +101,12 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/flicker.glsl"
+
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/items.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
@@ -111,11 +115,12 @@ uniform vec3 cameraPosition;
     #endif
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/lighting/dynamic_lights.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"

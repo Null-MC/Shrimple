@@ -32,6 +32,7 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
+uniform sampler2D noisetex;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     uniform sampler2D normals;
@@ -39,10 +40,6 @@ uniform sampler2D lightmap;
 
 #if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
-#endif
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uniform sampler2D noisetex;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -157,11 +154,12 @@ uniform float blindness;
     #include "/lib/lighting/fresnel.glsl"
 #endif
 
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/flicker.glsl"
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
 #endif
 
@@ -170,8 +168,10 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
 

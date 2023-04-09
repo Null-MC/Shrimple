@@ -6,15 +6,15 @@ const int colortex0Format  = RGB8;
 const int colortex1Format  = RGB8;
 const int colortex2Format  = RGB8;
 const int colortex3Format  = RGBA32UI;
-const int colortex4Format  = RGB16;
+const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGB8;
 const int colortex6Format  = R32F;
-const int colortex7Format  = RGB16;
+const int colortex7Format  = RGB16F;
 const int colortex8Format  = RGB8;
 const int colortex9Format  = R32F;
-const int colortex10Format = RGBA16;
-const int colortex11Format  = RGB16;
-const int colortex12Format  = RGB16;
+const int colortex10Format = RGBA16F;
+const int colortex11Format  = RGB16F;
+const int colortex12Format  = RGB16F;
 const int colortex14Format  = RG8;
 */
 

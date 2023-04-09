@@ -130,7 +130,6 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -138,6 +137,10 @@ uniform float blindness;
 #include "/lib/world/fog.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    #include "/lib/sampling/atlas.glsl"
+#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -169,13 +172,15 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/flicker.glsl"
+
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
