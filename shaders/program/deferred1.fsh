@@ -53,6 +53,7 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
+    #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED

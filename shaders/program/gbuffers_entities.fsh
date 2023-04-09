@@ -158,25 +158,26 @@ uniform float blindness;
     #include "/lib/lighting/fresnel.glsl"
 #endif
 
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/flicker.glsl"
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/items.glsl"
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/items.glsl"
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
+    #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/collisions.glsl"
-    #include "/lib/lighting/tracing.glsl"
-#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/collisions.glsl"
+        #include "/lib/lighting/tracing.glsl"
+    #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/dynamic_items.glsl"
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        //#include "/lib/lighting/dynamic_lights.glsl"
+        #include "/lib/lighting/dynamic_items.glsl"
+    #endif
 #endif
 
 #include "/lib/material/emission.glsl"

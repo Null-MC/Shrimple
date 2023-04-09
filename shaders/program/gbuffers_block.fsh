@@ -190,21 +190,22 @@ uniform int fogMode;
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     //
 #else
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/dynamic.glsl"
-    #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/collisions.glsl"
-        #include "/lib/lighting/tracing.glsl"
-    #endif
-
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/lighting/flicker.glsl"
         #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/dynamic_lights.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/buffers/lighting.glsl"
+            #include "/lib/lighting/dynamic.glsl"
+            #include "/lib/lighting/dynamic_blocks.glsl"
+        #endif
+
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/lighting/collisions.glsl"
+            #include "/lib/lighting/tracing.glsl"
+        #endif
+
+        //#include "/lib/lighting/dynamic_lights.glsl"
         #include "/lib/lighting/dynamic_items.glsl"
     #endif
 

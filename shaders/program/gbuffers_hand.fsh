@@ -154,16 +154,16 @@ uniform float blindness;
         #include "/lib/lighting/dynamic.glsl"
     #endif
 
+    #include "/lib/lighting/dynamic_blocks.glsl"
+
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/collisions.glsl"
         #include "/lib/lighting/tracing.glsl"
     #endif
 
+    //#include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_items.glsl"
 #endif
-
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"

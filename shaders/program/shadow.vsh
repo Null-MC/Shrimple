@@ -52,7 +52,7 @@ void main() {
 
     vOriginPos = gl_Vertex.xyz + at_midBlock / 64.0;
 
-    //if (blockId >= BLOCK_LIGHT_1 && blockId <= BLOCK_LIGHT_15) vOriginPos += 0.25;
+    //if (blockId >= BLOCK_LIGHT_1 && blockId <= BLOCK_LIGHT_15) vOriginPos += 1.0;
 
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
