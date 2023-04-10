@@ -221,11 +221,11 @@ void main() {
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
         bool skipParallax = false;
-        #ifdef RENDER_ENTITIES
-            if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
-        #else
+        //#ifdef RENDER_ENTITIES
+        //    if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
+        //#else
             if (vBlockId == BLOCK_LAVA) skipParallax = true;
-        #endif
+        //#endif
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
@@ -288,9 +288,7 @@ void main() {
     #endif
 
     vec3 texNormal = localNormal;
-    float parallaxShadow = 1.0;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        //texNormal = vec3(0.0, 0.0, 1.0);
         bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE

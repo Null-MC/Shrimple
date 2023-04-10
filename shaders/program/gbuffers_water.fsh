@@ -311,7 +311,29 @@ void main() {
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (GetMaterialNormal(atlasCoord, texNormal)) {
+        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
+
+        #if MATERIAL_PARALLAX != PARALLAX_NONE
+            if (!skipParallax) {
+                #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                    float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
+
+                    if (depthDiff >= ParallaxSharpThreshold) {
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        isValidNormal = true;
+                    }
+                #endif
+
+                #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
+                    if (traceCoordDepth.z + EPSILON < 1.0) {
+                        vec3 tanLightDir = normalize(tanLightPos);
+                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                    }
+                #endif
+            }
+        #endif
+
+        if (isValidNormal) {
             vec3 localTangent = normalize(vLocalTangent);
             mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
             texNormal = matLocalTBN * texNormal;
