@@ -5,6 +5,14 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    in vec4 mc_midTexCoord;
+#endif
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    in vec4 at_tangent;
+#endif
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -17,10 +25,18 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-
     out vec3 vLocalTangent;
     out float vTangentW;
+#endif
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    out vec2 vLocalCoord;
+    out vec3 tanViewPos;
+    flat out mat2 atlasBounds;
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+        out vec3 tanLightPos;
+    #endif
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -68,6 +84,8 @@ uniform vec4 entityColor;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif
+
+#include "/lib/sampling/atlas.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/matrix.glsl"
@@ -119,5 +137,19 @@ void main() {
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
         vTangentW = at_tangent.w;
+    #endif
+
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        GetAtlasBounds(atlasBounds, vLocalCoord);
+
+        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+        vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
+
+        tanViewPos = vPos * matViewTBN;
+
+        #ifdef WORLD_SHADOW_ENABLED
+            tanLightPos = shadowLightPosition * matViewTBN;
+        #endif
     #endif
 }

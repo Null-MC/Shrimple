@@ -219,6 +219,7 @@
         if (blockId >= BLOCK_JACK_O_LANTERN_N && blockId <= BLOCK_JACK_O_LANTERN_W) result = true;
         if (blockId >= BLOCK_SMOKER_LIT_N && blockId <= BLOCK_SMOKER_LIT_W) result = true;
 
+        if (blockId == BLOCK_CANDLE_CAKE_LIT) result = true;
         if (blockId == BLOCK_FROGLIGHT_OCHRE) result = true;
         if (blockId == BLOCK_FROGLIGHT_PEARLESCENT) result = true;
         if (blockId == BLOCK_FROGLIGHT_VERDANT) result = true;
@@ -281,6 +282,7 @@
                 break;
 
             case BLOCK_CANDLE_CAKE:
+            case BLOCK_CANDLE_CAKE_LIT:
                 blockType = BLOCKTYPE_CANDLE_CAKE;
                 break;
 

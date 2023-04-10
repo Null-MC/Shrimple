@@ -173,6 +173,9 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_BREWING_STAND:
             lightType = LIGHT_BREWING_STAND;
             break;
+        case BLOCK_CANDLE_CAKE_LIT:
+            lightType = LIGHT_CANDLE_CAKE;
+            break;
         case BLOCK_CANDLES_LIT_1:
             lightType = LIGHT_CANDLES_1;
             break;
@@ -454,6 +457,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         case LIGHT_CANDLES_2:
         case LIGHT_CANDLES_3:
         case LIGHT_CANDLES_4:
+        case LIGHT_CANDLE_CAKE:
             lightColor = vec3(0.758, 0.553, 0.239);
             break;
         case LIGHT_CAVEVINE_BERRIES:
@@ -615,7 +619,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            float torchTemp = mix(2000, 2400, flickerNoise);
+            float torchTemp = mix(2200, 2600, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 
@@ -627,7 +631,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
          || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            float candleTemp = mix(2600, 3600, flickerNoise);
+            float candleTemp = mix(2000, 2400, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
     #endif
@@ -697,6 +701,7 @@ float GetSceneLightRange(const in uint lightType) {
             lightRange = 2.0;
             break;
         case LIGHT_CANDLES_1:
+        case LIGHT_CANDLE_CAKE:
             lightRange = 3.0;
             break;
         case LIGHT_CANDLES_2:
@@ -972,6 +977,7 @@ float GetSceneLightSize(const in uint lightType) {
             size = (4.0/16.0);
             break;
         case LIGHT_CANDLES_1:
+        case LIGHT_CANDLE_CAKE:
         case LIGHT_REDSTONE_TORCH:
             size = (2.0/16.0);
             break;
