@@ -477,7 +477,14 @@
     #endif
 
     vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
+        vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+        vec3 albedoFinal = albedo;
+
         // weather darkening
+        #ifdef WORLD_SKY_ENABLED
+            //float surfaceWetness = 1.0 - saturate(15.0 * lightCoord.y - 14.0);
+            //albedoFinal = pow(albedoFinal, vec3(1.0 + 0.8*surfaceWetness * wetness));
+        #endif
         
         //float worldBrightness = GetWorldBrightnessF();
 
@@ -487,7 +494,7 @@
 
         vec3 ambientLight = vec3(0.0);
         #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-            vec2 lmFinal = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+            vec2 lmFinal = lightCoord;//saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
             lmFinal.x *= 0.16;
             lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
 
@@ -500,7 +507,7 @@
             ambientLight = RGBToLinear(ambientLight);
         #endif
 
-        vec3 diffuse = albedo * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
+        vec3 diffuse = albedoFinal * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
         vec3 specular = blockSpecular + skySpecular;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE

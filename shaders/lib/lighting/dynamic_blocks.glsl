@@ -212,7 +212,7 @@
     bool IsDynLightSolidBlock(const in int blockId) {
         bool result = false;
         if (blockId < 1 || blockId >= 1000) result = true;
-        if (blockId >= 300 && blockId < 600) result = true;
+        if (blockId >= 400 && blockId < 700) result = true;
 
         if (blockId >= BLOCK_BLAST_FURNACE_LIT_N && blockId <= BLOCK_BLAST_FURNACE_LIT_W) result = true;
         if (blockId >= BLOCK_FURNACE_LIT_N && blockId <= BLOCK_FURNACE_LIT_W) result = true;
