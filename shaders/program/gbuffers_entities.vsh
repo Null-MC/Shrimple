@@ -16,7 +16,7 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 out vec3 vBlockLight;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
 
     out vec3 vLocalTangent;
