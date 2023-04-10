@@ -318,6 +318,8 @@ float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
 vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}
 vec3 saturate(const in vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}
 
+float length2(const in vec3 vec) {return dot(vec, vec);}
+
 float minOf(const in vec2 vec) {return min(vec[0], vec[1]);}
 float minOf(const in vec3 vec) {return min(min(vec[0], vec[1]), vec[2]);}
 float minOf(const in vec4 vec) {return min(min(vec[0], vec[1]), min(vec[2], vec[3]));}

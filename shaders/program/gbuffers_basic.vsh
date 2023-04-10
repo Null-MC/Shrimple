@@ -7,10 +7,44 @@
 
 out vec2 lmcoord;
 out vec2 texcoord;
-out vec4 glcolor;
+flat out vec4 glcolor;
 out vec3 vLocalPos;
 
+#ifdef WORLD_SHADOW_ENABLED
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        out vec3 shadowPos[4];
+        flat out int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        out vec3 shadowPos;
+    #endif
+#endif
+
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+
+#ifdef WORLD_SHADOW_ENABLED
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
+    uniform vec3 shadowLightPosition;
+    uniform float far;
+
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        uniform mat4 gbufferProjection;
+        uniform float near;
+    #endif
+#endif
+
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #include "/lib/matrix.glsl"
+    #include "/lib/buffers/shadow.glsl"
+    #include "/lib/shadows/common.glsl"
+
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+    #endif
+#endif
 
 
 void main() {
@@ -21,4 +55,16 @@ void main() {
 
     vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
     vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            shadowTile = -1;
+        #endif
+
+        vec3 localNormal = normalize(gl_NormalMatrix * gl_Normal);
+        localNormal = mat3(gbufferModelViewInverse) * localNormal;
+
+        const float geoNoL = 1.0;
+        ApplyShadows(vLocalPos, localNormal, geoNoL);
+    #endif
 }

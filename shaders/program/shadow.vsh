@@ -31,8 +31,9 @@ uniform int entityId;
     uniform float far;
 #endif
 
+#include "/lib/blocks.glsl"
+
 #ifdef WORLD_WAVING_ENABLED
-    #include "/lib/blocks.glsl"
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
 #endif

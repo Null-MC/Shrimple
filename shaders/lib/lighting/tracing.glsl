@@ -147,7 +147,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     #ifdef DYN_LIGHT_PLAYER_SHADOW
         // TODO: entity tracing
         vec3 playerPos = vec3(0.0);
-        if (!firstPersonCamera) playerPos += cameraPosition - eyePosition;
+        if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
+        playerPos = GetLightGridPosition(playerPos);
     #endif
 
     #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
@@ -159,7 +160,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
 
         float closestDist = minOf(nextDist);
         currPos += direction * closestDist;
-        if (dot(currPos - origin, traceRay) > traceRayLen2) break;
+        if (length2(currPos - origin) > traceRayLen2) break;
 
         vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
@@ -205,9 +206,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
 
         #ifdef DYN_LIGHT_PLAYER_SHADOW
             vec3 playerOffset = voxelPos - playerPos;
-            //if (dot(playerOffset, playerOffset) < 4.0) {
-                vec3 boundsMin = vec3(0.0);
-                vec3 boundsMax = vec3(1.0, 2.0, 1.0);
+            if (!hit && dot(playerOffset, playerOffset) < _pow2(2.0)) {
+                vec3 boundsMin = vec3(-0.3, -2.0, -0.3);
+                vec3 boundsMax = vec3( 0.3,  0.0,  0.3);
 
                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                     hit = BoxPointTest(boundsMin, boundsMax, rayStart - playerPos);
@@ -215,7 +216,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                     vec3 rayInv = rcp(currPos - rayStart);
                     hit = BoxRayTest(boundsMin, boundsMax, rayStart - playerPos, rayInv);
                 #endif
-            //}
+            }
         #endif
     }
 

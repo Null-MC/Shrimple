@@ -10,6 +10,11 @@ vec3 GetLightGridPosition(const in vec3 position) {
     return position + LightGridCenter + cameraOffset;
 }
 
+// vec3 GetLightLocalPosition(const in vec3 gridPos) {
+//     vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+//     return gridPos - LightGridCenter - cameraOffset;
+// }
+
 ivec3 GetSceneLightGridCell(const in vec3 gridPos) {
     return ivec3(floor(gridPos / LIGHT_BIN_SIZE + 0.001));
 }
