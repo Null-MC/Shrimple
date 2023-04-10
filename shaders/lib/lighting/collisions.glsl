@@ -474,7 +474,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             break;
     }
 
-    #if DYN_LIGHT_TRACE_METHOD == 1
+    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
         bool hit = BoxPointTest(boundsMin, boundsMax, rayStart);
     #else
         bool hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -723,7 +723,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                 break;
         }
 
-        #if DYN_LIGHT_TRACE_METHOD == 1
+        #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
             hit = BoxPointTest(boundsMin, boundsMax, rayStart);
         #else
             hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -913,7 +913,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                     break;
             }
 
-            #if DYN_LIGHT_TRACE_METHOD == 1
+            #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                 hit = BoxPointTest(boundsMin, boundsMax, rayStart);
             #else
                 hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -959,7 +959,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                         break;
                 }
 
-                #if DYN_LIGHT_TRACE_METHOD == 1
+                #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                     hit = BoxPointTest(boundsMin, boundsMax, rayStart);
                 #else
                     hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
@@ -1006,7 +1006,7 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
                             break;
                     }
 
-                    #if DYN_LIGHT_TRACE_METHOD == 1
+                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         hit = BoxPointTest(boundsMin, boundsMax, rayStart);
                     #else
                         hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);

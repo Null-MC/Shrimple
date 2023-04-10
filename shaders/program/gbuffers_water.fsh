@@ -143,6 +143,7 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/tbn.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"

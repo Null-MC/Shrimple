@@ -228,6 +228,7 @@
         if (blockId == BLOCK_LANTERN_FLOOR || blockId == BLOCK_SOUL_LANTERN_FLOOR) result = true;
         if (blockId == BLOCK_LAVA_CAULDRON) result = true;
         if (blockId == BLOCK_REDSTONE_LAMP_LIT) result = true;
+        if (blockId == BLOCK_SCULK_CATALYST) result = true;
         if (blockId == BLOCK_SEA_LANTERN) result = true;
         if (blockId == BLOCK_SHROOMLIGHT) result = true;
 

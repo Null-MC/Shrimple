@@ -148,6 +148,7 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_POPULATE_NEIGHBORS
 //#define DYN_LIGHT_FRUSTUM_TEST
+//#define DYN_LIGHT_PLAYER_SHADOW
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_TA 100 // [0 10 20 30 40 50 60 70 80 90 100]

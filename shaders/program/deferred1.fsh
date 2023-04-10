@@ -89,7 +89,7 @@ void main() {
     const int resScale = int(exp2(DYN_LIGHT_RES));
 
     vec2 tex2 = texcoord;
-    #if DYN_LIGHT_TA > 0
+    #if DYN_LIGHT_TA > 0 && DYN_LIGHT_PENUMBRA > 0
         vec2 pixelSize = rcp(viewSize);
 
         #if DYN_LIGHT_RES == 2

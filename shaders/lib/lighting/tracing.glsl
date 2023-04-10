@@ -144,6 +144,12 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 currPos = origin;
     bool hit = false;
 
+    #ifdef DYN_LIGHT_PLAYER_SHADOW
+        // TODO: entity tracing
+        vec3 playerPos = vec3(0.0);
+        if (!firstPersonCamera) playerPos += cameraPosition - eyePosition;
+    #endif
+
     #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
         uint blockTypeLast;
     #endif
@@ -185,7 +191,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                 if (blockType != BLOCKTYPE_EMPTY) {
                     vec3 rayInv = rcp(currPos - rayStart);
                     hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
-                    if (hit) color = vec3(0.0);
+                    //if (hit) color = vec3(0.0);
                 }
 
             #if DYN_LIGHT_TINT_MODE != LIGHT_TINT_NONE
@@ -196,8 +202,24 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                 blockTypeLast = blockType;
             #endif
         }
+
+        #ifdef DYN_LIGHT_PLAYER_SHADOW
+            vec3 playerOffset = voxelPos - playerPos;
+            //if (dot(playerOffset, playerOffset) < 4.0) {
+                vec3 boundsMin = vec3(0.0);
+                vec3 boundsMax = vec3(1.0, 2.0, 1.0);
+
+                #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+                    hit = BoxPointTest(boundsMin, boundsMax, rayStart - playerPos);
+                #else
+                    vec3 rayInv = rcp(currPos - rayStart);
+                    hit = BoxRayTest(boundsMin, boundsMax, rayStart - playerPos, rayInv);
+                #endif
+            //}
+        #endif
     }
 
+    if (hit) color = vec3(0.0);
     return color;
 }
 

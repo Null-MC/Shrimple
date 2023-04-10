@@ -85,6 +85,7 @@ uniform vec4 entityColor;
     uniform vec3 eyePosition;
 #endif
 
+#include "/lib/tbn.glsl"
 #include "/lib/sampling/atlas.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
