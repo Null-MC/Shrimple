@@ -13,6 +13,10 @@ in vec3 at_midBlock;
     in vec4 mc_midTexCoord;
 #endif
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    in vec4 at_tangent;
+#endif
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -26,16 +30,18 @@ out vec3 vBlockLight;
 flat out int vBlockId;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-
     out vec3 vLocalTangent;
     out float vTangentW;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     out vec2 vLocalCoord;
-    //out vec3 tanViewPos;
+    out vec3 tanViewPos;
     flat out mat2 atlasBounds;
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+        out vec3 tanLightPos;
+    #endif
 #endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
@@ -152,6 +158,22 @@ void main() {
         vTangentW = at_tangent.w;
     #endif
 
+    #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+        GetAtlasBounds(atlasBounds, vLocalCoord);
+    #endif
+
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+        vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
+
+        tanViewPos = vPos * matViewTBN;
+
+        #ifdef WORLD_SHADOW_ENABLED
+            tanLightPos = shadowLightPosition * matViewTBN;
+        #endif
+    #endif
+
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
             physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
@@ -160,9 +182,5 @@ void main() {
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
         }
-    #endif
-
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
-        GetAtlasBounds(atlasBounds, vLocalCoord);
     #endif
 }

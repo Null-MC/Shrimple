@@ -17,7 +17,7 @@ in vec3 vLocalNormal;
 in vec3 vBlockLight;
 flat in int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
 #endif
@@ -29,8 +29,12 @@ flat in int vBlockId;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     in vec2 vLocalCoord;
-    //out vec3 tanViewPos;
+    in vec3 tanViewPos;
     flat in mat2 atlasBounds;
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+        in vec3 tanLightPos;
+    #endif
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -46,7 +50,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     uniform sampler2D normals;
 #endif
 
@@ -93,6 +97,10 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    uniform ivec2 atlasSize;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -195,6 +203,11 @@ uniform float blindness;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/linear.glsl"
+    #include "/lib/material/parallax.glsl"
+#endif
+
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
@@ -219,6 +232,7 @@ layout(location = 0) out vec4 outFinal;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
+    vec2 atlasCoord = texcoord;
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
@@ -229,11 +243,36 @@ void main() {
         }
     #endif
 
-    #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
-        vec4 color = textureAnisotropic(gtexture, texcoord);
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
+        //bool isMissingTangent = any(isnan(vLocalTangent));
+
+        bool skipParallax = false;
+        //#ifdef RENDER_ENTITIES
+        //    if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
+        //#else
+            if (vBlockId == BLOCK_LAVA) skipParallax = true;
+        //#endif
+
+        float texDepth = 1.0;
+        vec3 traceCoordDepth = vec3(1.0);
+        vec3 tanViewDir = normalize(tanViewPos);
+        float viewDist = length(vPos);
+
+        if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
+            atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+        }
+
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
     #else
-        vec4 color = texture(gtexture, texcoord);
+        vec4 color = texture(gtexture, atlasCoord);
     #endif
+
+    // #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
+    //     vec4 color = textureAnisotropic(gtexture, texcoord);
+    // #else
+    //     vec4 color = texture(gtexture, texcoord);
+    // #endif
 
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
@@ -248,9 +287,9 @@ void main() {
     vec3 localViewDir = -normalize(vLocalPos);
 
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vBlockId, texcoord);
-    float emission = GetMaterialEmission(vBlockId, texcoord);
-    GetMaterialSpecular(texcoord, vBlockId, roughness, metal_f0);
+    float sss = GetMaterialSSS(vBlockId, atlasCoord);
+    float emission = GetMaterialEmission(vBlockId, atlasCoord);
+    GetMaterialSpecular(atlasCoord, vBlockId, roughness, metal_f0);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -272,7 +311,7 @@ void main() {
 
     vec3 texNormal = vec3(0.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (GetMaterialNormal(texcoord, texNormal)) {
+        if (GetMaterialNormal(atlasCoord, texNormal)) {
             vec3 localTangent = normalize(vLocalTangent);
             mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
             texNormal = matLocalTBN * texNormal;
@@ -347,7 +386,7 @@ void main() {
         }
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-            float porosity = GetMaterialPorosity(texcoord, dFdXY, _pow2(roughness), metal_f0);
+            float porosity = GetMaterialPorosity(atlasCoord, dFdXY, _pow2(roughness), metal_f0);
             ApplySkyWetness(color.rgb, roughness, porosity, localNormal, texNormal, lmcoord.y);
         #endif
 
