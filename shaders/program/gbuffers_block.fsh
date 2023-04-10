@@ -95,6 +95,7 @@ uniform int fogMode;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+    uniform float wetness;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE

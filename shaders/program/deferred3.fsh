@@ -61,7 +61,7 @@ uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 shadowLightPosition;
-    uniform float wetness;
+    //uniform float wetness;
 #endif
 
 #ifdef WORLD_SKY_ENABLED

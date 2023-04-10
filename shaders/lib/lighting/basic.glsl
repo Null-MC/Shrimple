@@ -480,11 +480,11 @@
         vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
         vec3 albedoFinal = albedo;
 
-        // weather darkening
-        #ifdef WORLD_SKY_ENABLED
-            //float surfaceWetness = 1.0 - saturate(15.0 * lightCoord.y - 14.0);
-            //albedoFinal = pow(albedoFinal, vec3(1.0 + 0.8*surfaceWetness * wetness));
-        #endif
+        // // weather darkening
+        // #if defined WORLD_SKY_ENABLED && (defined RENDER_TERRAIN || defined RENDER_WATER || defined RENDER_BLOCK)
+        //     float surfaceWetness = max(15.0 * lightCoord.y - 14.0, 0.0);
+        //     albedoFinal *= 0.0;//pow(albedoFinal, vec3(1.0 + 3.6*surfaceWetness));
+        // #endif
         
         //float worldBrightness = GetWorldBrightnessF();
 

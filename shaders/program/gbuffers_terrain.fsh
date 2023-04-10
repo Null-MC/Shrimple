@@ -91,6 +91,7 @@ uniform int fogMode;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+    uniform float wetness;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -324,6 +325,24 @@ void main() {
         #endif
 
         shadowColor *= 1.2 * pow(skyNoL, 0.8);
+    #endif
+
+    // weather darkening
+    #ifdef WORLD_SKY_ENABLED
+        float skyLightCoord = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
+        float surfaceWetness = max(15.0 * skyLightCoord - 14.0, 0.0) * wetness;
+
+        surfaceWetness *= localNormal.y * 0.5 + 0.5;
+
+        #if MATERIAL_NORMALS != NORMALMAP_NONE
+            surfaceWetness *= texNormal.y * 0.5 + 0.5;
+        #endif
+
+        color.rgb = pow(color.rgb, vec3(1.0 + 0.8*surfaceWetness));
+
+        float _roughL = max(pow2(roughness), ROUGH_MIN);
+        _roughL = mix(_roughL, 0.1, surfaceWetness);
+        roughness = sqrt(max(_roughL, EPSILON));
     #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
