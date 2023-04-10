@@ -31,6 +31,8 @@
 #define LIGHT_CAVEVINE_BERRIES 30u
 #define LIGHT_COMPARATOR 31u
 #define LIGHT_CRYING_OBSIDIAN 32u
+#define LIGHT_DIAMOND_BLOCK 113u   // FIX THIS
+#define LIGHT_EMERALD_BLOCK 111u   // FIX THIS
 #define LIGHT_END_ROD 33u
 #define LIGHT_CAMPFIRE 34u
 #define LIGHT_FIRE 35u
@@ -45,6 +47,7 @@
 #define LIGHT_JACK_O_LANTERN_S 44u
 #define LIGHT_JACK_O_LANTERN_W 45u
 #define LIGHT_LANTERN 46u
+#define LIGHT_LAPIS_BLOCK 112u   // FIX THIS
 #define LIGHT_LIGHTING_ROD 47u
 #define LIGHT_LAVA 48u
 #define LIGHT_LAVA_CAULDRON 49u
@@ -54,6 +57,7 @@
 #define LIGHT_FROGLIGHT_PEARLESCENT 53u
 #define LIGHT_FROGLIGHT_VERDANT 54u
 #define LIGHT_RAIL_POWERED 55u
+#define LIGHT_REDSTONE_BLOCK 110u   // FIX THIS
 #define LIGHT_REDSTONE_LAMP 56u
 #define LIGHT_REDSTONE_TORCH 57u
 #define LIGHT_REDSTONE_WIRE_1 58u
@@ -92,6 +96,10 @@
 #define LIGHT_SOUL_CAMPFIRE 91u
 #define LIGHT_SOUL_FIRE 92u
 #define LIGHT_TORCH 93u
+
+#define LIGHT_CONCRETE_BLUE 100u
+#define LIGHT_CONCRETE_GREEN 101u
+#define LIGHT_CONCRETE_RED 102u
 
 #define LIGHT_IGNORED 255u
 
@@ -375,6 +383,37 @@ uint GetSceneLightType(const in int blockId) {
             break;
     }
 
+    #ifdef DYN_LIGHT_CONCRETE
+        switch (blockId) {
+            case BLOCK_CONCRETE_BLUE:
+                lightType = LIGHT_CONCRETE_BLUE;
+                break;
+            case BLOCK_CONCRETE_GREEN:
+                lightType = LIGHT_CONCRETE_GREEN;
+                break;
+            case BLOCK_CONCRETE_RED:
+                lightType = LIGHT_CONCRETE_RED;
+                break;
+        }
+    #endif
+
+    #ifdef DYN_LIGHT_OREBLOCKS
+        switch (blockId) {
+            case BLOCK_DIAMOND:
+                lightType = LIGHT_DIAMOND_BLOCK;
+                break;
+            case BLOCK_EMERALD:
+                lightType = LIGHT_EMERALD_BLOCK;
+                break;
+            case BLOCK_LAPIS:
+                lightType = LIGHT_LAPIS_BLOCK;
+                break;
+            case BLOCK_REDSTONE:
+                lightType = LIGHT_REDSTONE_BLOCK;
+                break;
+        }
+    #endif
+
     return lightType;
 }
 
@@ -536,6 +575,37 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
             lightColor = vec3(0.768, 0.701, 0.325);
             break;
     }
+
+    #ifdef DYN_LIGHT_CONCRETE
+        switch (lightType) {
+            case LIGHT_CONCRETE_BLUE:
+                lightColor = vec3(0.222, 0.235, 0.828);
+                break;
+            case LIGHT_CONCRETE_GREEN:
+                lightColor = vec3(0.574, 0.753, 0.207);
+                break;
+            case LIGHT_CONCRETE_RED:
+                lightColor = vec3(0.869, 0.169, 0.169);
+                break;
+        }
+    #endif
+
+    #ifdef DYN_LIGHT_OREBLOCKS
+        switch (lightType) {
+            case LIGHT_DIAMOND_BLOCK:
+                lightColor = vec3(0.489, 0.960, 0.912);
+                break;
+            case LIGHT_EMERALD_BLOCK:
+                lightColor = vec3(0.235, 0.859, 0.435);
+                break;
+            case LIGHT_LAPIS_BLOCK:
+                lightColor = vec3(0.180, 0.427, 0.813);
+                break;
+            case LIGHT_REDSTONE_BLOCK:
+                lightColor = vec3(0.980, 0.143, 0.026);
+                break;
+        }
+    #endif
     
     lightColor = RGBToLinear(lightColor);
 
@@ -804,6 +874,27 @@ float GetSceneLightRange(const in uint lightType) {
             lightRange = 12.0;
             break;
     }
+
+    #ifdef DYN_LIGHT_CONCRETE
+        switch (lightType) {
+            case LIGHT_CONCRETE_BLUE:
+            case LIGHT_CONCRETE_GREEN:
+            case LIGHT_CONCRETE_RED:
+                lightRange = 8.0;
+                break;
+        }
+    #endif
+
+    #ifdef DYN_LIGHT_OREBLOCKS
+        switch (lightType) {
+            case LIGHT_DIAMOND_BLOCK:
+            case LIGHT_EMERALD_BLOCK:
+            case LIGHT_LAPIS_BLOCK:
+            case LIGHT_REDSTONE_BLOCK:
+                lightRange = 12.0;
+                break;
+        }
+    #endif
 
     return lightRange;
 }

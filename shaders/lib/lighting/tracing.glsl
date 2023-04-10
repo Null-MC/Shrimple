@@ -2,14 +2,17 @@ vec3 GetLightGlassTint(const in uint blockType) {
     vec3 stepTint = vec3(1.0);
 
     switch (blockType) {
-        case BLOCKTYPE_AMETHYST:
-            stepTint = vec3(0.707, 0.526, 0.944);
-            break;
         case BLOCKTYPE_DIAMOND:
             stepTint = vec3(0.427, 0.969, 0.910);
             break;
         case BLOCKTYPE_EMERALD:
             stepTint = vec3(0.153, 0.804, 0.349);
+            break;
+    }
+
+    switch (blockType) {
+        case BLOCKTYPE_AMETHYST:
+            stepTint = vec3(0.707, 0.526, 0.944);
             break;
         case BLOCKTYPE_HONEY:
             stepTint = vec3(0.984, 0.733, 0.251);

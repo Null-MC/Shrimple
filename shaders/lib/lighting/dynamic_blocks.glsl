@@ -230,6 +230,10 @@
         if (blockId == BLOCK_SEA_LANTERN) result = true;
         if (blockId == BLOCK_SHROOMLIGHT) result = true;
 
+        if (blockId == BLOCK_CONCRETE_BLUE || blockId == BLOCK_CONCRETE_GREEN || blockId == BLOCK_CONCRETE_RED) result = true;
+
+        if (blockId == BLOCK_DIAMOND || blockId == BLOCK_EMERALD || blockId == BLOCK_LAPIS || blockId == BLOCK_REDSTONE) result = true;
+
         return result;
     }
 #endif

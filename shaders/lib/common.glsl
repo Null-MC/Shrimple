@@ -168,6 +168,8 @@ const bool colortex14Clear = true;
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
+//#define DYN_LIGHT_CONCRETE
+//#define DYN_LIGHT_OREBLOCKS
 
 
 // INTERNAL SETTINGS
@@ -207,6 +209,10 @@ const bool colortex14Clear = true;
 #ifdef WATER_REFLECTIONS_ENABLED
 #endif
 #ifdef DYN_LIGHT_BLUR
+#endif
+#ifdef DYN_LIGHT_CONCRETE
+#endif
+#ifdef DYN_LIGHT_OREBLOCKS
 #endif
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
