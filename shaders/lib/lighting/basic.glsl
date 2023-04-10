@@ -504,11 +504,19 @@
                 ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             #endif
 
-            ambientLight = RGBToLinear(ambientLight);
+            ambientLight = RGBToLinear(ambientLight) * ShadowBrightnessF;
+
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                ambientLight *= occlusion;
+            #endif
         #endif
 
-        vec3 diffuse = albedoFinal * (ambientLight * ShadowBrightnessF * occlusion + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
+        vec3 diffuse = albedoFinal * (ambientLight + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
         vec3 specular = blockSpecular + skySpecular;
+
+        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+            diffuse *= occlusion;
+        #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {

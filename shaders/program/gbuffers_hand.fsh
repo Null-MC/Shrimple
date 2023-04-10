@@ -207,9 +207,10 @@ void main() {
 
     color.rgb *= glcolor.rgb;
 
+    const float occlusion = 1.0; // glcolor.a
+
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
-
 
     int itemId = (gl_FragCoord.x > viewWidth / 2) ? heldItemId : heldItemId2;
 
@@ -271,7 +272,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
@@ -298,7 +299,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

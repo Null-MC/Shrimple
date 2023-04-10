@@ -278,6 +278,11 @@ void main() {
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
 
+    float occlusion = 1.0;
+    #ifdef WORLD_AO_ENABLED
+        occlusion = glcolor.a;
+    #endif
+
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
@@ -373,7 +378,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, occlusion + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
@@ -400,7 +405,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

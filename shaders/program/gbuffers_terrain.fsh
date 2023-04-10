@@ -246,13 +246,13 @@ void main() {
         return;
     }
 
+    color.rgb *= glcolor.rgb;
+    color.a = 1.0;
+
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
         occlusion = glcolor.a;
     #endif
-
-    color.rgb *= glcolor.rgb;
-    color.a = 1.0;
 
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;

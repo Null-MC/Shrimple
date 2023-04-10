@@ -237,6 +237,11 @@ void main() {
 
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
+    float occlusion = 1.0;
+    #ifdef WORLD_AO_ENABLED
+        occlusion = glcolor.a;
+    #endif
+
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
@@ -363,7 +368,7 @@ void main() {
         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
     ApplyFog(color, vLocalPos);
 
