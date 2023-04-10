@@ -84,7 +84,7 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
 #elif defined RENDER_SHADOWCOMP
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
-        return dot(pointDist, pointDist) < pow2(lightRange);
+        return dot(pointDist, pointDist) < _pow2(lightRange);
     }
 #elif !defined RENDER_BEGIN
     uint GetSceneLights(const in vec3 position, out uint gridIndex) {

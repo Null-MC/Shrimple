@@ -127,7 +127,7 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            roughL = max(pow2(specularMap.r), ROUGH_MIN);
+            roughL = max(_pow2(specularMap.r), ROUGH_MIN);
             metal_f0 = specularMap.g;
         #endif
 

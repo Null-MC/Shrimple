@@ -242,7 +242,7 @@ void main() {
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = pow2(roughness);
+        float roughL = _pow2(roughness);
 
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);

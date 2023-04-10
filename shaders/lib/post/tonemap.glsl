@@ -11,7 +11,7 @@ void setLuminance(inout vec3 color, const in float targetLuminance) {
 
 vec3 tonemap_ReinhardExtendedLuminance(in vec3 color, const in float maxWhiteLuma) {
     float luma_old = luminance(color);
-    float numerator = luma_old * (1.0 + luma_old / pow2(maxWhiteLuma));
+    float numerator = luma_old * (1.0 + luma_old / _pow2(maxWhiteLuma));
     float luma_new = numerator / (1.0 + luma_old);
     setLuminance(color, luma_new);
     return color;

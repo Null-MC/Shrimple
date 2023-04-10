@@ -4,11 +4,16 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 
+option.WORLD_WETNESS_ENABLED=Wetness
+option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
+
+option.WORLD_WAVING_ENABLED=Waving Plants
+option.WORLD_WAVING_ENABLED.comment=When enabled, plants will wave using artificial wind.
+
 option.WATER_REFLECTIONS_ENABLED=Water Reflections
 option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
 
-option.ENABLE_WAVING=Waving Plants
-option.ENABLE_WAVING.comment=When enabled, plants will wave using artificial wind.
+option.WORLD_AO_ENABLED=Ambient Occlusion
 
 option.OLD_LIGHTING=Old Lighting
 
@@ -44,6 +49,12 @@ option.MATERIAL_SSS.comment=SubSurface Scattering
 value.MATERIAL_SSS.0=OFF
 value.MATERIAL_SSS.1=Integrated
 value.MATERIAL_SSS.2=Lab-PBR
+
+option.MATERIAL_POROSITY=Porosity
+option.MATERIAL_POROSITY.comment=Describes the surfaces ability to absorb water.
+value.MATERIAL_POROSITY.0=OFF
+value.MATERIAL_POROSITY.1=Integrated
+value.MATERIAL_POROSITY.2=Lab-PBR
 
 option.MATERIAL_SPECULAR=Specular
 value.MATERIAL_SPECULAR.0=OFF
@@ -114,6 +125,11 @@ option.DYN_LIGHT_PENUMBRA=Penumbra Size
 option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
 value.DYN_LIGHT_PENUMBRA.0=None
 suffix.DYN_LIGHT_PENUMBRA=%
+
+option.DYN_LIGHT_TINT_MODE=Tint Mode
+value.DYN_LIGHT_TINT_MODE.0=None
+value.DYN_LIGHT_TINT_MODE.1=Basic
+value.DYN_LIGHT_TINT_MODE.2=Absorb
 
 option.DYN_LIGHT_TINT=Tint Strength
 option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through stained glass.

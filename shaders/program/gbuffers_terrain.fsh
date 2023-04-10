@@ -144,6 +144,11 @@ uniform int fogMode;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
+#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+    #include "/lib/material/porosity.glsl"
+    #include "/lib/world/wetness.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -208,11 +213,10 @@ uniform int fogMode;
 #endif
 
 void main() {
+    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     vec2 atlasCoord = texcoord;
     
     #if MATERIAL_PARALLAX != PARALLAX_NONE
-        mat2 dFdXY = mat2(dFdx(atlasCoord), dFdy(atlasCoord));
-
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
@@ -242,6 +246,11 @@ void main() {
         return;
     }
 
+    float occlusion = 1.0;
+    #ifdef WORLD_AO_ENABLED
+        occlusion = glcolor.a;
+    #endif
+
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
 
@@ -253,7 +262,7 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, atlasCoord);
     GetMaterialSpecular(atlasCoord, vBlockId, roughness, metal_f0);
     
-    vec2 lmFinal = lmcoord;
+    //vec2 lmFinal = lmcoord;
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -327,22 +336,9 @@ void main() {
         shadowColor *= 1.2 * pow(skyNoL, 0.8);
     #endif
 
-    // weather darkening
-    #ifdef WORLD_SKY_ENABLED
-        float skyLightCoord = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-        float surfaceWetness = max(15.0 * skyLightCoord - 14.0, 0.0) * wetness;
-
-        surfaceWetness *= localNormal.y * 0.5 + 0.5;
-
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            surfaceWetness *= texNormal.y * 0.5 + 0.5;
-        #endif
-
-        color.rgb = pow(color.rgb, vec3(1.0 + 0.8*surfaceWetness));
-
-        float _roughL = max(pow2(roughness), ROUGH_MIN);
-        _roughL = mix(_roughL, 0.1, surfaceWetness);
-        roughness = sqrt(max(_roughL, EPSILON));
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, _pow2(roughness), metal_f0);
+        ApplySkyWetness(color.rgb, roughness, porosity, localNormal, texNormal, lmcoord.y);
     #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -358,7 +354,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
@@ -368,13 +364,13 @@ void main() {
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(pow2(roughness), ROUGH_MIN);
+        float roughL = max(_pow2(roughness), ROUGH_MIN);
         
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, emission, sss);
         #endif
 
         vec3 skyDiffuse = vec3(0.0);
@@ -382,10 +378,10 @@ void main() {
 
         #ifdef WORLD_SKY_ENABLED
             vec3 localViewDir = -normalize(vLocalPos);
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

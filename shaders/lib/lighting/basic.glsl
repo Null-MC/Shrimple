@@ -39,7 +39,7 @@
                     vec3 lightVec = lightFragPos - lightPos;
                     uint traceFace = 1u << GetLightMaskFace(lightVec);
                     if ((light.data & traceFace) == traceFace) continue;
-                    if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                    if (dot(lightVec, lightVec) >= _pow2(light.range)) continue;
                 #else
                     vec3 lightVec = lightFragPos - lightPos;
                 #endif
@@ -123,7 +123,7 @@
             //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
 
             vec3 lightVec = lightLocalPos - lightFragPos;
-            if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
+            if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue)) {
                 vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
@@ -178,7 +178,7 @@
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             vec3 lightVec = lightLocalPos - lightFragPos;
-            if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
+            if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue2)) {
                 vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
@@ -290,7 +290,7 @@
         #if defined RENDER_TERRAIN || defined RENDER_WATER
             vBlockId = int(mc_Entity.x + 0.5);
 
-            #ifdef ENABLE_WAVING
+            #ifdef WORLD_WAVING_ENABLED
                 ApplyWavingOffset(pos.xyz, vBlockId);
             #endif
         #endif

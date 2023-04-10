@@ -36,8 +36,8 @@ float SampleLightDiffuse(const in float NoLm, const in float F) {
 
 float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {
     float a = NoHm * roughL;
-    float k = roughL / (1.0 - pow2(NoHm) + pow2(a));
-    float D = min(pow2(k) * rcp(PI), 65504.0);
+    float k = roughL / (1.0 - _pow2(NoHm) + _pow2(a));
+    float D = min(_pow2(k) * rcp(PI), 65504.0);
 
     float GGX_V = NoLm * (NoVm * (1.0 - roughL) + roughL);
     float GGX_L = NoVm * (NoLm * (1.0 - roughL) + roughL);

@@ -85,7 +85,9 @@ const bool colortex14Clear = true;
 
 
 // World Options
-#define ENABLE_WAVING
+#define WORLD_WETNESS_ENABLED
+#define WORLD_WAVING_ENABLED
+#define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
 //#define OLD_LIGHTING
 #define FOLIAGE_UP
@@ -102,6 +104,7 @@ const bool colortex14Clear = true;
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
+#define MATERIAL_POROSITY 0 // [0 1 2]
 
 
 // Shadow Options
@@ -133,6 +136,7 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_LAVA 1 // [0 1 2]
 #define DYN_LIGHT_REDSTONE 1 // [0 1 2]
+#define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_RES 1 // [0 1 2]
@@ -204,6 +208,10 @@ const bool colortex14Clear = true;
 #endif
 
 
+#ifdef WORLD_WETNESS_ENABLED
+#endif
+#ifdef WORLD_AO_ENABLED
+#endif
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
 #ifdef WATER_REFLECTIONS_ENABLED
@@ -296,15 +304,13 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 
 #define rcp(x) (1.0 / (x))
 
-#define pow2(x) (x*x)
+#define _pow2(x) (x*x)
+#define _pow3(x) (x*x*x)
 
-float pow4(const in float x) {
-    float x2 = pow2(x);
-    return pow2(x2);
-}
-
-float pow3(const in float x) {float x2 = x*x; return x * x2;}
-vec2  pow3(const in vec2  x) {vec2  x2 = x*x; return x * x2;}
+uint pow3(const in uint x) {return x*x*x;}
+float pow3(const in float x) {return x*x*x;}
+vec2  pow3(const in vec2  x) {return x*x*x;}
+float pow4(const in float x) {float x2 = _pow2(x); return _pow2(x2);}
 float pow5(const in float x) {return x * pow4(x);}
 
 float saturate(const in float x) {return clamp(x, 0.0, 1.0);}

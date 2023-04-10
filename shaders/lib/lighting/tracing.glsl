@@ -88,7 +88,7 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 stepDir = sign(direction);
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
-    float traceRayLen2 = pow2(traceRayLen);
+    float traceRayLen2 = _pow2(traceRayLen);
     vec3 color = vec3(1.0);
     vec3 currPos = origin;
     bool hit = false;
@@ -139,10 +139,14 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 stepDir = sign(direction);
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
-    float traceRayLen2 = pow2(traceRayLen);
+    float traceRayLen2 = _pow2(traceRayLen);
     vec3 color = vec3(1.0);
     vec3 currPos = origin;
     bool hit = false;
+
+    #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
+        uint blockTypeLast;
+    #endif
 
     for (int i = 0; i < STEP_COUNT && !hit; i++) {
         vec3 rayStart = currPos;
@@ -163,15 +167,34 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
-                vec3 glassTint = GetLightGlassTint(blockType);
-                color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
-            }
-            else if (blockType != BLOCKTYPE_EMPTY) {
-                vec3 rayInv = rcp(currPos - rayStart);
-                hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
-                if (hit) color = vec3(0.0);
-            }
+            #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_ABSORB
+                if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
+                    vec3 glassTint = GetLightGlassTint(blockType);
+                    color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
+                }
+                else {
+            #elif DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
+                if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+                    vec3 glassTint = GetLightGlassTint(blockType) * DynamicLightTintF;
+                    glassTint += max(1.0 - DynamicLightTintF, 0.0);
+                    color *= glassTint;
+                }
+                else {
+            #endif
+
+                if (blockType != BLOCKTYPE_EMPTY) {
+                    vec3 rayInv = rcp(currPos - rayStart);
+                    hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
+                    if (hit) color = vec3(0.0);
+                }
+
+            #if DYN_LIGHT_TINT_MODE != LIGHT_TINT_NONE
+                }
+            #endif
+
+            #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
+                blockTypeLast = blockType;
+            #endif
         }
     }
 

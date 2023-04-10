@@ -271,7 +271,7 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            float roughL = max(pow2(deferredRoughMetalF0.r), ROUGH_MIN);
+            float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
             float metal_f0 = deferredRoughMetalF0.g;
         #else
             const float roughL = 1.0;

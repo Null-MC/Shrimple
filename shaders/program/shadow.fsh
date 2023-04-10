@@ -50,7 +50,7 @@ void main() {
 	#ifdef SHADOW_COLOR_BLEND
 		color.rgb = RGBToLinear(color.rgb);
 
-		color.rgb = mix(color.rgb, vec3(1.0), pow2(color.a));
+		color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
 
 		color.rgb = LinearToRGB(color.rgb);
 	#endif

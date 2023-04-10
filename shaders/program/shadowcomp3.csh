@@ -52,7 +52,7 @@ void main() {
 
                         vec3 lightColor = light.color;
                         vec3 lightVec = blockLocalPos - light.position;
-                        if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                        if (dot(lightVec, lightVec) >= _pow2(light.range)) continue;
 
                         //lightColor *= TraceDDA_fast(light.position, blockLocalPos, light.range);
 

@@ -151,6 +151,11 @@ uniform float blindness;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
+#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+    #include "/lib/material/porosity.glsl"
+    #include "/lib/world/wetness.glsl"
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
@@ -213,6 +218,8 @@ layout(location = 0) out vec4 outFinal;
 
 
 void main() {
+    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
+
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
             if (!gl_FrontFacing && isEyeInWater != 1) {
@@ -239,8 +246,6 @@ void main() {
     float sss = GetMaterialSSS(vBlockId, texcoord);
     float emission = GetMaterialEmission(vBlockId, texcoord);
     GetMaterialSpecular(texcoord, vBlockId, roughness, metal_f0);
-
-    float roughL = max(pow2(roughness), ROUGH_MIN);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -283,7 +288,7 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
-            roughL = 0.04;
+            roughness = 0.08;
             metal_f0 = 0.02;
 
             #ifdef PHYSICS_OCEAN
@@ -325,20 +330,27 @@ void main() {
         else {
     #endif
 
-    if (color.a > (0.5/255.0)) {
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            float NoV = abs(dot(texNormal, localViewDir));
-        #else
-            float NoV = abs(dot(localNormal, localViewDir));
-        #endif
+        if (color.a > (0.5/255.0)) {
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
+                float NoV = abs(dot(texNormal, localViewDir));
+            #else
+                float NoV = abs(dot(localNormal, localViewDir));
+            #endif
 
-        float F = F_schlick(NoV, metal_f0, 1.0);
-        color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
-    }
+            float F = F_schlick(NoV, metal_f0, 1.0);
+            color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
+        }
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+            float porosity = GetMaterialPorosity(texcoord, dFdXY, _pow2(roughness), metal_f0);
+            ApplySkyWetness(color.rgb, roughness, porosity, localNormal, texNormal, lmcoord.y);
+        #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
         }
     #endif
+
+    float roughL = max(_pow2(roughness), ROUGH_MIN);
 
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);

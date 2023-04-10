@@ -9,6 +9,6 @@
     }
 
     float GetDynLightFlickerNoise(const in vec2 noiseSample) {
-        return (1.0 - noiseSample.g) * (1.0 - pow2(noiseSample.r));
+        return (1.0 - noiseSample.g) * (1.0 - _pow2(noiseSample.r));
     }
 //#endif

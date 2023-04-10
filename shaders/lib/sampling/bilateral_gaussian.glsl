@@ -1,9 +1,9 @@
 float Gaussian(const in float sigma, const in float x) {
-    return exp(-pow2(x) / (2.0 * pow2(sigma)));
+    return exp(-_pow2(x) / (2.0 * _pow2(sigma)));
 }
 
 float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in float g_sigmaV) {
-    //float g_sigmaV = 0.03 * pow2(sigmaV) + 0.1;
+    //float g_sigmaV = 0.03 * _pow2(sigmaV) + 0.1;
 
     float g_sigmaX = 3.0;
     float g_sigmaY = 3.0;
@@ -44,7 +44,7 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in sampler2D b
 }
 
 vec3 BilateralGaussianDepthBlurRGB_5x(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in vec3 g_sigma) {
-    //float g_sigmaV = 0.03 * pow2(sigmaV) + 0.1;
+    //float g_sigmaV = 0.03 * _pow2(sigmaV) + 0.1;
 
     //float g_sigmaX = 3.0;
     //float g_sigmaY = 3.0;

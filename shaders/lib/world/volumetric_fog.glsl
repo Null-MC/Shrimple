@@ -1,5 +1,5 @@
 float ComputeVolumetricScattering(const in float VoL, const in float G_scattering) {
-    float G_scattering2 = pow2(G_scattering);
+    float G_scattering2 = _pow2(G_scattering);
 
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
@@ -162,7 +162,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         SceneLightData light = GetSceneLight(gridIndex, i);
 
                         vec3 lightVec = traceLocalPos - light.position;
-                        if (dot(lightVec, lightVec) >= pow2(light.range)) continue;
+                        if (dot(lightVec, lightVec) >= _pow2(light.range)) continue;
                         
                         vec3 lightColor = light.color;
                         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -202,7 +202,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             //         if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             //         vec3 lightVec = lightLocalPos - traceLocalPos;
-            //         if (dot(lightVec, lightVec) < pow2(heldBlockLightValue)) {
+            //         if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue)) {
             //             vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
             //             #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -232,7 +232,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             //         if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             //         vec3 lightVec = lightLocalPos - traceLocalPos;
-            //         if (dot(lightVec, lightVec) < pow2(heldBlockLightValue2)) {
+            //         if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue2)) {
             //             vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
             //             #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED

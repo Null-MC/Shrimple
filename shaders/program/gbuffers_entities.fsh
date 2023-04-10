@@ -310,7 +310,7 @@ void main() {
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(pow2(roughness), ROUGH_MIN);
+        float roughL = max(_pow2(roughness), ROUGH_MIN);
 
         #ifdef RENDER_TRANSLUCENT
             if (color.a > (0.5/255.0)) {

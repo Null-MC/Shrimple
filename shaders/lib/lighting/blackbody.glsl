@@ -1,6 +1,6 @@
 // temp: in degrees Kelvin
 vec3 blackbody(const in float temp) {
-    float temp2 = pow2(temp);
+    float temp2 = _pow2(temp);
 
     float u = (0.860117757 + 1.54118254e-4 * temp + 1.28641212e-7 * temp2) 
             / (1.0 + 8.42420235e-4 * temp + 7.08145163e-7 * temp2);

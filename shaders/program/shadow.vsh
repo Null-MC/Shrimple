@@ -31,7 +31,7 @@ uniform int entityId;
     uniform float far;
 #endif
 
-#ifdef ENABLE_WAVING
+#ifdef WORLD_WAVING_ENABLED
     #include "/lib/blocks.glsl"
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
@@ -71,7 +71,7 @@ void main() {
 
     vec4 pos = gl_Vertex;
 
-    #ifdef ENABLE_WAVING
+    #ifdef WORLD_WAVING_ENABLED
         ApplyWavingOffset(pos.xyz, blockId);
     #endif
 
