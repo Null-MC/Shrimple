@@ -122,7 +122,7 @@ uniform vec3 cameraPosition;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
 

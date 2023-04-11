@@ -222,11 +222,7 @@ void main() {
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
         bool skipParallax = false;
-        //#ifdef RENDER_ENTITIES
-        //    if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
-        //#else
-            if (vBlockId == BLOCK_LAVA) skipParallax = true;
-        //#endif
+        if (vBlockId == BLOCK_LAVA) skipParallax = true;
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
@@ -236,11 +232,9 @@ void main() {
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
-
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-    #else
-        vec4 color = texture(gtexture, atlasCoord);
     #endif
+
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
     if (color.a < alphaTestRef) {
         discard;

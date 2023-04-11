@@ -9,7 +9,6 @@ bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 raySta
     float rmax = minOf(tmax);
 
     return !isinf(rmin) && rmax >= max(rmin, 0.0);
-    //return rmax >= rmin;
 }
 
 bool BoxPointTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 point) {
@@ -30,11 +29,9 @@ bool CylinderRayTest(const in vec3 rayOrigin, const in vec3 rayVec, const in flo
     h = sqrt(h);
     float t = (-k1 - h) / k2;
 
-    // body
     float y = rayOrigin.y + t*rayDir.y;
     if (y > -height && y < height) return t > 0.0 && t < rayLen;
     
-    // caps
     t = (((y < 0.0) ? -height : height) - rayOrigin.y) / rayDir.y;
     if (abs(k1 + k2*t) < h) return t > 0.0 && t < rayLen;
 
