@@ -152,6 +152,7 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_TA 100 // [0 10 20 30 40 50 60 70 80 90 100]
+#define DYN_LIGHT_RANGE 100 // [20 40 60 80 100 120 140 160 180 200 250 300 400]
 
 
 // Volumetric Lighting
@@ -170,7 +171,7 @@ const bool colortex14Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 //#define DYN_LIGHT_CONCRETE
@@ -246,6 +247,7 @@ const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
+const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 

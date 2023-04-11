@@ -901,7 +901,7 @@ float GetSceneLightRange(const in uint lightType) {
         }
     #endif
 
-    return lightRange;
+    return lightRange * DynamicLightRangeF;
 }
 
 float GetSceneLightLevel(const in uint lightType) {

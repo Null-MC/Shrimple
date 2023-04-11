@@ -20,7 +20,7 @@ float GetSkyWetness(const in vec3 localPos, const in vec3 localNormal, const in 
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness) {
-    albedo = pow(albedo, vec3(1.0 + 2.2 * skyWetness * porosity));
+    albedo = pow(albedo, vec3(1.0 + 1.4 * skyWetness * porosity));
 
     float surfaceWetness = saturate(1.8 * skyWetness - porosity);
 

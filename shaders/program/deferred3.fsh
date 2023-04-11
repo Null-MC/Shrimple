@@ -13,7 +13,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
-uniform sampler2D BUFFER_BLOCKLIGHT;
+uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
@@ -149,7 +149,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             float fx = Gaussian(g_sigma.x, ix);
 
             vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
-            vec3 sampleDiffuse = textureLod(BUFFER_BLOCKLIGHT, sampleBlendTex, 0).rgb;
+            vec3 sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, sampleBlendTex, 0).rgb;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec3 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0).rgb;
@@ -316,13 +316,13 @@ void main() {
                     BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, localNormal, lightSigma);
                 #endif
             #elif DYN_LIGHT_RES == 0
-                blockDiffuse = texelFetch(BUFFER_BLOCKLIGHT, iTex, 0).rgb;
+                blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
                 #endif
             #else
-                blockDiffuse = textureLod(BUFFER_BLOCKLIGHT, texcoord, 0).rgb;
+                blockDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;

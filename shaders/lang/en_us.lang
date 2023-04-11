@@ -169,6 +169,9 @@ option.LIGHT_SIZE_XZ=Horizontal Bin Count
 
 option.LIGHT_SIZE_Y=Vertical Bin Count
 
+
+screen.DYNAMIC_LIGHT_TRACE_ADVANCED_OPTIONS=Advanced
+
 option.DYN_LIGHT_BLUR=Blur
 option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
@@ -176,6 +179,10 @@ option.DYN_LIGHT_TA=Temporal Accumulation
 option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
 suffix.DYN_LIGHT_TA=%
 value.DYN_LIGHT_TA.0=OFF
+
+option.DYN_LIGHT_RANGE=Range
+option.DYN_LIGHT_RANGE.comment=Adjusts the scale of the range blocks cast light. Warning, increasing can dramatically reduce performance!
+suffix.DYN_LIGHT_RANGE=%
 
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
@@ -305,17 +312,21 @@ option.DEBUG_VIEW=Debug View
 option.DEBUG_VIEW.comment=Configures which buffer to draw to the screen.
 value.DEBUG_VIEW.0=None
 value.DEBUG_VIEW.1=Deferred Color
-value.DEBUG_VIEW.2=Deferred Normal
+value.DEBUG_VIEW.2=Deferred geo-Normal
 value.DEBUG_VIEW.3=Deferred Light
 value.DEBUG_VIEW.4=Deferred Shadow
 value.DEBUG_VIEW.5=Deferred Fog
-value.DEBUG_VIEW.6=Deferred Texture
-value.DEBUG_VIEW.7=Deferred VL
-value.DEBUG_VIEW.8=Deferred Diffuse
-value.DEBUG_VIEW.9=Deferred Specular
-value.DEBUG_VIEW.10=Shadow Color
+value.DEBUG_VIEW.6=Deferred Tex-Normal
+value.DEBUG_VIEW.7=Deferred Rough/Metal
+value.DEBUG_VIEW.8=Deferred VL
+value.DEBUG_VIEW.9=Deferred Diffuse
+value.DEBUG_VIEW.10=Deferred Specular
+value.DEBUG_VIEW.11=Shadow Color
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
-option.IRIS_FEATURE_CLEARFIX=Clear-Fix
-option.IRIS_FEATURE_CLEARFIX.comment=Enable this option when using the latest 1.6 beta 2 that has a new clear feature.
+option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
+option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
+
+option.DYN_LIGHT_CONCRETE=Concrete Lights
+option.DYN_LIGHT_OREBLOCKS.comment=When enabled, colored concrete blocks will emit colored light.
