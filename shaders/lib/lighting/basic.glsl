@@ -491,7 +491,9 @@
             skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                float geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+                float geoNoLm = 1.0;
+                if (any(greaterThan(localNormal, EPSILON3)))
+                    geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
                 if (geoNoLm > 0.0) {
                     float f0 = GetMaterialF0(metal_f0);
@@ -499,10 +501,14 @@
                     //vec3 localViewDir = normalize(localPos);
 
                     vec3 skyH = normalize(localLightDir + localViewDir);
-                    float skyNoLm = max(dot(texNormal, localLightDir), 0.0);
                     float skyVoHm = max(dot(localViewDir, skyH), 0.0);
-                    float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-                    float skyNoHm = max(dot(texNormal, skyH), 0.0);
+
+                    float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
+                    if (any(greaterThan(texNormal, EPSILON3))) {
+                        skyNoLm = max(dot(texNormal, localLightDir), 0.0);
+                        skyNoVm = max(dot(texNormal, localViewDir), 0.0);
+                        skyNoHm = max(dot(texNormal, skyH), 0.0);
+                    }
 
                     float invCosTheta = 1.0 - skyVoHm;
                     float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);

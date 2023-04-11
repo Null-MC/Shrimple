@@ -204,6 +204,7 @@ void main() {
     
     vec3 localViewDir = normalize(vLocalPos);
     
+    const float occlusion = 1.0;
     const vec3 normal = vec3(0.0);
     const float emission = 0.0;
     const float roughness = 1.0;
@@ -232,7 +233,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, glcolor.a + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
@@ -258,7 +259,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
+        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

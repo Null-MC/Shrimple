@@ -139,6 +139,8 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     float total = 0.0;
     vec3 accumDiffuse = vec3(0.0);
     vec3 accumSpecular = vec3(0.0);
+
+    bool hasNormal = any(greaterThan(normal, EPSILON3));
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.y, iy);
@@ -153,13 +155,21 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
                 vec3 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0).rgb;
             #endif
 
-            vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
             float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
 
-            sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
             sampleDepth = linearizeDepthFast(sampleDepth, near, far);
             
-            float normalWeight = max(dot(normal, sampleNormal), 0.0);
+            float normalWeight = 1.0;
+            if (hasNormal) {
+                vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
+
+                if (any(greaterThan(sampleNormal, EPSILON3))) {
+                    sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
+
+                    normalWeight = max(dot(normal, sampleNormal), 0.0);
+                }
+            }
+            
             float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
             
             float weight = fx*fy*fv;

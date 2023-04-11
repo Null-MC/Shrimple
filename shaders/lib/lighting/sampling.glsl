@@ -8,10 +8,10 @@ float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in v
     float NoL = 1.0;
 
     #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        if (dot(localNormal, localNormal) > EPSILON)
+        if (any(greaterThan(localNormal, EPSILON3)))
             NoL = dot(localNormal, lightDir);
 
-        if (dot(texNormal, texNormal) > EPSILON) {
+        if (any(greaterThan(texNormal, EPSILON3))) {
             float texNoL = dot(texNormal, lightDir);
             NoL = min(NoL, texNoL);
         }
