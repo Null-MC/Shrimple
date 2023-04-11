@@ -136,6 +136,11 @@ option.DYN_LIGHT_TINT.comment=Determines how strongly light is tinted through st
 suffix.DYN_LIGHT_TINT=%
 value.DYN_LIGHT_TINT.0=Off
 
+option.DYN_LIGHT_PLAYER_SHADOW=Player Shadow
+value.DYN_LIGHT_PLAYER_SHADOW.0=None
+value.DYN_LIGHT_PLAYER_SHADOW.1=Cuboid
+value.DYN_LIGHT_PLAYER_SHADOW.2=Cylinder
+
 
 screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
 

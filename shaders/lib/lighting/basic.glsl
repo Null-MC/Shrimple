@@ -39,7 +39,9 @@
                     vec3 lightVec = lightFragPos - lightPos;
                     uint traceFace = 1u << GetLightMaskFace(lightVec);
                     if ((light.data & traceFace) == traceFace) continue;
-                    if (dot(lightVec, lightVec) >= _pow2(light.range)) continue;
+
+                    float traceDist2 = length2(lightVec);
+                    if (traceDist2 >= _pow2(light.range)) continue;
                 #else
                     vec3 lightVec = lightFragPos - lightPos;
                 #endif
@@ -48,6 +50,39 @@
                     if ((light.data & 1u) == 1u) {
                         vec3 traceOrigin = GetLightGridPosition(lightPos);
                         vec3 traceEnd = traceOrigin + 0.99*lightVec;
+
+                        #ifdef RENDER_ENTITIES
+                            if (entityId != ENTITY_PLAYER) {
+                        #endif
+
+                            #if DYN_LIGHT_PLAYER_SHADOW != PLAYER_SHADOW_NONE
+                                vec3 playerPos = vec3(0.0, -0.8, 0.0);
+                                if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
+                                playerPos = GetLightGridPosition(playerPos);
+
+                                vec3 playerOffset = traceOrigin - playerPos;
+                                if (length2(playerOffset) < traceDist2) {
+                                    #if DYN_LIGHT_PLAYER_SHADOW == PLAYER_SHADOW_CYLINDER
+                                        bool hit = CylinderRayTest(traceOrigin - playerPos, traceEnd - traceOrigin, 0.36, 1.0);
+                                    #else
+                                        vec3 boundsMin = vec3(-0.36, -1.0, -0.36);
+                                        vec3 boundsMax = vec3( 0.36,  1.0,  0.36);
+
+                                        #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+                                            bool hit = BoxPointTest(boundsMin, boundsMax, rayStart - playerPos);
+                                        #else
+                                            vec3 rayInv = rcp(traceEnd - traceOrigin);
+                                            bool hit = BoxRayTest(boundsMin, boundsMax, traceOrigin - playerPos, rayInv);
+                                        #endif
+                                    #endif
+                                    
+                                    if (hit) lightColor = vec3(0.0);
+                                }
+                            #endif
+
+                        #ifdef RENDER_ENTITIES
+                            }
+                        #endif
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                             lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
@@ -123,7 +158,9 @@
             //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
 
             vec3 lightVec = lightLocalPos - lightFragPos;
-            if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue)) {
+            float traceDist2 = length2(lightVec);
+
+            if (traceDist2 < _pow2(heldBlockLightValue)) {
                 vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
