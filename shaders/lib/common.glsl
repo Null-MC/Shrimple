@@ -145,7 +145,7 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_POPULATE_NEIGHBORS
-//#define DYN_LIGHT_FRUSTUM_TEST
+#define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_PLAYER_SHADOW 2 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 #define DYN_LIGHT_BLUR

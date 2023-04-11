@@ -56,7 +56,7 @@ void main() {
                 for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
                     ivec3 blockCell = ivec3(x, y, z);
                     uint lightType = GetSceneLightMask(blockCell, gridIndex);
-                    if (lightType == LIGHT_NONE) continue;
+                    if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
 
                     float lightRange = GetSceneLightRange(lightType);
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;

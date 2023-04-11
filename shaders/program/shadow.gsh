@@ -76,7 +76,9 @@ void main() {
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
          || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
             vec3 lightOrigin = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
-            lightOrigin = floor(cameraPosition + lightOrigin) + 0.5 - cameraPosition;
+
+            vec3 cf = fract(cameraPosition);
+            vec3 lightGridOrigin = floor(lightOrigin + cf) - cf + 0.5;
 
             // #if DYN_LIGHT_COLOR_MODE == DYN_LIGHT_COLOR_RP
             //     vec3 lightColor = vec3(0.0);
@@ -88,21 +90,21 @@ void main() {
             // #endif
 
             ivec3 gridCell, blockCell;
-            vec3 gridPos = GetLightGridPosition(lightOrigin);
+            vec3 gridPos = GetLightGridPosition(lightGridOrigin);
             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
 
                 uint lightType = GetSceneLightType(vBlockId[0]);
-                float lightRange = GetSceneLightLevel(lightType);
 
                 bool intersects = true;
                 #ifdef DYN_LIGHT_FRUSTUM_TEST
                     vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
+                    //float lightRange = GetSceneLightLevel(lightType);
 
-                    lightRange = lightRange < EPSILON ? 16.0 : max(lightRange, 1.0);
+                    const float lightRange = 17.0 * DynamicLightRangeF;//lightRange + 1.0;
                     //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
                     if (lightViewPos.z > lightRange) intersects = false;
-                    else if (lightViewPos.z < -far - lightRange) intersects = false;
+                    else if (lightViewPos.z < -(far + lightRange)) intersects = false;
                     else {
                         if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
                         if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
