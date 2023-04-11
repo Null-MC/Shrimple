@@ -25,8 +25,10 @@ struct LightCellData {
 
 #ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 1) restrict buffer globalLightingData
-#elif defined RENDER_BEGIN || defined RENDER_SHADOW
+#elif defined RENDER_BEGIN
     layout(std430, binding = 1) restrict writeonly buffer globalLightingData
+#elif defined RENDER_SHADOW
+    layout(std430, binding = 1) restrict buffer globalLightingData
 #else
     layout(std430, binding = 1) restrict readonly buffer globalLightingData
 #endif
