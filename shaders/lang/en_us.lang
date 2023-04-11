@@ -144,11 +144,23 @@ value.DYN_LIGHT_PLAYER_SHADOW.2=Cylinder
 
 screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
 
+option.DYN_LIGHT_GLOW_BERRIES=Glow Berry Vines
+option.DYN_LIGHT_GLOW_BERRIES.comment=Determines how lighting for glow berry vines is handled, to avoid heavy performance impacts from lush caverns.
+value.DYN_LIGHT_GLOW_BERRIES.0=Disable
+value.DYN_LIGHT_GLOW_BERRIES.1=Emit
+value.DYN_LIGHT_GLOW_BERRIES.2=Trace
+
 option.DYN_LIGHT_LAVA=Lava Lighting
 option.DYN_LIGHT_LAVA.comment=Determines how lighting for lava is handled, to avoid heavy performance impacts from large lava lakes/sources.
 value.DYN_LIGHT_LAVA.0=Disable
 value.DYN_LIGHT_LAVA.1=Emit
 value.DYN_LIGHT_LAVA.2=Trace
+
+option.DYN_LIGHT_PORTAL=Portal Lighting
+option.DYN_LIGHT_PORTAL.comment=Determines how lighting for nether portals is handled, to avoid heavy performance impacts from large portals.
+value.DYN_LIGHT_PORTAL.0=Disable
+value.DYN_LIGHT_PORTAL.1=Emit
+value.DYN_LIGHT_PORTAL.2=Trace
 
 option.DYN_LIGHT_REDSTONE=Redstone Lighting
 option.DYN_LIGHT_REDSTONE.comment=Determines how lighting for redstone components is handled, to avoid heavy performance impacts from large contraptions.

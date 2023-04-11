@@ -188,12 +188,6 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_CANDLES_LIT_4:
             lightType = LIGHT_CANDLES_4;
             break;
-        case BLOCK_CAVEVINE_BERRIES:
-            lightType = LIGHT_CAVEVINE_BERRIES;
-            break;
-        case BLOCK_COMPARATOR_LIT:
-            lightType = LIGHT_COMPARATOR;
-            break;
         case BLOCK_CRYING_OBSIDIAN:
             lightType = LIGHT_CRYING_OBSIDIAN;
             break;
@@ -252,74 +246,17 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_LIGHTING_ROD_POWERED:
             lightType = LIGHT_LIGHTING_ROD;
             break;
-        case BLOCK_LAVA:
-            lightType = LIGHT_LAVA;
-            break;
         case BLOCK_LAVA_CAULDRON:
             lightType = LIGHT_LAVA_CAULDRON;
             break;
         case BLOCK_MAGMA:
             lightType = LIGHT_MAGMA;
             break;
-        case BLOCK_NETHER_PORTAL:
-            lightType = LIGHT_NETHER_PORTAL;
-            break;
-        case BLOCK_RAIL_POWERED:
-            lightType = LIGHT_RAIL_POWERED;
-            break;
         case BLOCK_REDSTONE_LAMP_LIT:
             lightType = LIGHT_REDSTONE_LAMP;
             break;
         case BLOCK_REDSTONE_TORCH_LIT:
             lightType = LIGHT_REDSTONE_TORCH;
-            break;
-        case BLOCK_REDSTONE_WIRE_1:
-            lightType = LIGHT_REDSTONE_WIRE_1;
-            break;
-        case BLOCK_REDSTONE_WIRE_2:
-            lightType = LIGHT_REDSTONE_WIRE_2;
-            break;
-        case BLOCK_REDSTONE_WIRE_3:
-            lightType = LIGHT_REDSTONE_WIRE_3;
-            break;
-        case BLOCK_REDSTONE_WIRE_4:
-            lightType = LIGHT_REDSTONE_WIRE_4;
-            break;
-        case BLOCK_REDSTONE_WIRE_5:
-            lightType = LIGHT_REDSTONE_WIRE_5;
-            break;
-        case BLOCK_REDSTONE_WIRE_6:
-            lightType = LIGHT_REDSTONE_WIRE_6;
-            break;
-        case BLOCK_REDSTONE_WIRE_7:
-            lightType = LIGHT_REDSTONE_WIRE_7;
-            break;
-        case BLOCK_REDSTONE_WIRE_8:
-            lightType = LIGHT_REDSTONE_WIRE_8;
-            break;
-        case BLOCK_REDSTONE_WIRE_9:
-            lightType = LIGHT_REDSTONE_WIRE_9;
-            break;
-        case BLOCK_REDSTONE_WIRE_10:
-            lightType = LIGHT_REDSTONE_WIRE_10;
-            break;
-        case BLOCK_REDSTONE_WIRE_11:
-            lightType = LIGHT_REDSTONE_WIRE_11;
-            break;
-        case BLOCK_REDSTONE_WIRE_12:
-            lightType = LIGHT_REDSTONE_WIRE_12;
-            break;
-        case BLOCK_REDSTONE_WIRE_13:
-            lightType = LIGHT_REDSTONE_WIRE_13;
-            break;
-        case BLOCK_REDSTONE_WIRE_14:
-            lightType = LIGHT_REDSTONE_WIRE_14;
-            break;
-        case BLOCK_REDSTONE_WIRE_15:
-            lightType = LIGHT_REDSTONE_WIRE_15;
-            break;
-        case BLOCK_REPEATER_LIT:
-            lightType = LIGHT_REPEATER;
             break;
         case BLOCK_RESPAWN_ANCHOR_1:
             lightType = LIGHT_RESPAWN_ANCHOR_1;
@@ -385,6 +322,77 @@ uint GetSceneLightType(const in int blockId) {
             lightType = LIGHT_TORCH;
             break;
     }
+
+    #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_NONE
+        if (blockId == BLOCK_CAVEVINE_BERRIES) lightType = LIGHT_CAVEVINE_BERRIES;
+    #endif
+
+    #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_NONE
+        if (blockId == BLOCK_LAVA) lightType = LIGHT_LAVA;
+    #endif
+
+    #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_NONE
+        if (blockId == BLOCK_NETHER_PORTAL) lightType = LIGHT_NETHER_PORTAL;
+    #endif
+
+    #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_NONE
+        switch (blockId) {
+            case BLOCK_COMPARATOR_LIT:
+                lightType = LIGHT_COMPARATOR;
+                break;
+            case BLOCK_RAIL_POWERED:
+                lightType = LIGHT_RAIL_POWERED;
+                break;
+            case BLOCK_REDSTONE_WIRE_1:
+                lightType = LIGHT_REDSTONE_WIRE_1;
+                break;
+            case BLOCK_REDSTONE_WIRE_2:
+                lightType = LIGHT_REDSTONE_WIRE_2;
+                break;
+            case BLOCK_REDSTONE_WIRE_3:
+                lightType = LIGHT_REDSTONE_WIRE_3;
+                break;
+            case BLOCK_REDSTONE_WIRE_4:
+                lightType = LIGHT_REDSTONE_WIRE_4;
+                break;
+            case BLOCK_REDSTONE_WIRE_5:
+                lightType = LIGHT_REDSTONE_WIRE_5;
+                break;
+            case BLOCK_REDSTONE_WIRE_6:
+                lightType = LIGHT_REDSTONE_WIRE_6;
+                break;
+            case BLOCK_REDSTONE_WIRE_7:
+                lightType = LIGHT_REDSTONE_WIRE_7;
+                break;
+            case BLOCK_REDSTONE_WIRE_8:
+                lightType = LIGHT_REDSTONE_WIRE_8;
+                break;
+            case BLOCK_REDSTONE_WIRE_9:
+                lightType = LIGHT_REDSTONE_WIRE_9;
+                break;
+            case BLOCK_REDSTONE_WIRE_10:
+                lightType = LIGHT_REDSTONE_WIRE_10;
+                break;
+            case BLOCK_REDSTONE_WIRE_11:
+                lightType = LIGHT_REDSTONE_WIRE_11;
+                break;
+            case BLOCK_REDSTONE_WIRE_12:
+                lightType = LIGHT_REDSTONE_WIRE_12;
+                break;
+            case BLOCK_REDSTONE_WIRE_13:
+                lightType = LIGHT_REDSTONE_WIRE_13;
+                break;
+            case BLOCK_REDSTONE_WIRE_14:
+                lightType = LIGHT_REDSTONE_WIRE_14;
+                break;
+            case BLOCK_REDSTONE_WIRE_15:
+                lightType = LIGHT_REDSTONE_WIRE_15;
+                break;
+            case BLOCK_REPEATER_LIT:
+                lightType = LIGHT_REPEATER;
+                break;
+        }
+    #endif
 
     #ifdef DYN_LIGHT_CONCRETE
         switch (blockId) {
@@ -905,7 +913,7 @@ float GetSceneLightRange(const in uint lightType) {
 }
 
 float GetSceneLightLevel(const in uint lightType) {
-    #if DYN_LIGHT_REDSTONE == 0
+    #if DYN_LIGHT_REDSTONE == DYN_LIGHT_BLOCK_NONE
         if (lightType == LIGHT_COMPARATOR
          || lightType == LIGHT_REPEATER
          || lightType == LIGHT_RAIL_POWERED) return 0.0;
@@ -914,7 +922,7 @@ float GetSceneLightLevel(const in uint lightType) {
          && lightType <= LIGHT_REDSTONE_WIRE_15) return 0.0;
     #endif
     
-    #if DYN_LIGHT_LAVA == 0
+    #if DYN_LIGHT_LAVA == DYN_LIGHT_BLOCK_NONE
         if (lightType == LIGHT_LAVA) return 0.0;
     #endif
 
@@ -982,16 +990,6 @@ float GetSceneLightSize(const in uint lightType) {
             size = (2.0/16.0);
             break;
     }
-
-    #if DYN_LIGHT_LAVA != 2
-        if (lightType == LIGHT_LAVA) size = 0.0;
-    #endif
-
-    #if DYN_LIGHT_REDSTONE != 2
-        if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) size = 0.0;
-    #endif
-
-    //if (lightType == LIGHT_CAVEVINE_BERRIES) size = 0.4;
 
     return size;
 }
@@ -1068,12 +1066,34 @@ vec3 GetSceneLightOffset(const in uint lightType) {
     return lightOffset;
 }
 
+bool GetLightTraced(const in uint lightType) {
+    bool result = true;
+
+    #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
+        if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
+    #endif
+
+    #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
+        if (lightType == LIGHT_LAVA) result = false;
+    #endif
+
+    #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
+        if (lightType == LIGHT_NETHER_PORTAL) result = false;
+    #endif
+
+    #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
+        if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
+    #endif
+
+    return result;
+}
+
 #ifdef RENDER_SHADOWCOMP
     uint BuildLightMask(const in uint lightType, const in float lightSize) {
         uint lightData;
 
         // trace
-        lightData = lightSize > EPSILON ? 1u : 0u;
+        lightData = GetLightTraced(lightType) ? 1u : 0u;
 
         switch (lightType) {
             case LIGHT_BEACON:
