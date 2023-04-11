@@ -77,6 +77,7 @@ uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float far;
@@ -109,7 +110,6 @@ uniform int fogMode;
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
     uniform float frameTimeCounter;
-    uniform vec3 cameraPosition;
 
     uniform float blindness;
 
@@ -133,7 +133,7 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/tbn.glsl"
+#include "/lib/utility/tbn.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -330,8 +330,9 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, _pow2(roughness), metal_f0);
-        ApplySkyWetness(color.rgb, roughness, porosity, localNormal, texNormal, lmcoord.y);
+        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+        float skyWetness = GetSkyWetness(vLocalPos, localNormal, texNormal, lmcoord.y);
+        ApplySkyWetness(color.rgb, roughness, porosity, skyWetness);
     #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)

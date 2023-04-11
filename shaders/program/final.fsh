@@ -34,8 +34,8 @@ uniform float viewHeight;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
-#include "/lib/text.glsl"
-#include "/lib/iris.glsl"
+#include "/lib/utility/text.glsl"
+#include "/lib/utility/iris.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 	#include "/lib/buffers/lighting.glsl"

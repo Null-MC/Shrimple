@@ -83,11 +83,11 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/tbn.glsl"
+#include "/lib/utility/tbn.glsl"
 #include "/lib/sampling/atlas.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/matrix.glsl"
+    #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 	#include "/lib/shadows/common.glsl"
 

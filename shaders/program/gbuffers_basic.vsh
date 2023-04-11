@@ -35,7 +35,7 @@ uniform mat4 gbufferModelViewInverse;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/matrix.glsl"
+    #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
     #include "/lib/shadows/common.glsl"
 

@@ -44,7 +44,7 @@ uniform vec3 cameraPosition;
 #include "/lib/sampling/noise.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED
-    #include "/lib/matrix.glsl"
+    #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
     #include "/lib/shadows/common.glsl"
 

@@ -143,7 +143,7 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/tbn.glsl"
+#include "/lib/utility/tbn.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -409,8 +409,9 @@ void main() {
         }
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-            float porosity = GetMaterialPorosity(atlasCoord, dFdXY, _pow2(roughness), metal_f0);
-            ApplySkyWetness(color.rgb, roughness, porosity, localNormal, texNormal, lmcoord.y);
+            float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+            float skyWetness = GetSkyWetness(vLocalPos, localNormal, texNormal, lmcoord.y);
+            ApplySkyWetness(color.rgb, roughness, porosity, skyWetness);
         #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
