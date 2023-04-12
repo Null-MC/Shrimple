@@ -19,7 +19,7 @@ vec3 tonemap_ReinhardExtendedLuminance(in vec3 color, const in float maxWhiteLum
 
 void ApplyPostProcessing(inout vec3 color) {
     #ifdef TONEMAP_ENABLED
-        color = tonemap_ReinhardExtendedLuminance(color, 1.2);
+        color = tonemap_ReinhardExtendedLuminance(color, 1.5);
     #endif
 
     color = LinearToRGB(color);

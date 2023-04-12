@@ -46,7 +46,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                         uint lightGlobalIndex = SceneLightMaps[neighborGridIndex].GlobalLights[i];
                         SceneLightData light = SceneLights[lightGlobalIndex];
 
-                        if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, light.range)) continue;
+                        if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, light.position, light.range + 0.5)) continue;
 
                         SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
                         neighborCount++;

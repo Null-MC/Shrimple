@@ -20,7 +20,7 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
 
     switch (cascade) {
         case 0:
-            bias += 0.05;
+            bias += 0.06;
             break;
         case 1:
             bias += 0.10;
@@ -40,12 +40,12 @@ float GetShadowOffsetBias(const in int cascade) {
     float bias = 0.0;
 
     #if SHADOW_FILTER == SHADOW_FILTER_PCF
-        bias += 0.000001 * SHADOW_PCF_SIZE;
+        bias += 0.01 * rcp(far * 3.0) * SHADOW_PCF_SIZE;
     #endif
 
     switch (cascade) {
         case 0:
-            bias += 0.000008;
+            bias += 0.000018;
             break;
         case 1:
             bias += 0.000032;

@@ -40,8 +40,12 @@
                     uint traceFace = 1u << GetLightMaskFace(lightVec);
                     if ((light.data & traceFace) == traceFace) continue;
 
+                    float traceRange2 = light.range + 1.0;
+                    traceRange2 = _pow2(traceRange2);
+
                     float traceDist2 = length2(lightVec);
-                    if (traceDist2 >= _pow2(light.range)) continue;
+
+                    if (traceDist2 >= traceRange2) continue;
                 #else
                     vec3 lightVec = lightFragPos - lightPos;
                 #endif
@@ -93,7 +97,8 @@
                 #endif
 
                 vec3 lightDir = normalize(-lightVec);
-                float geoNoLm = max(dot(localNormal, lightDir), 0.0);
+                float geoNoLm = 1.0;
+                if (hasGeoNormal) geoNoLm = max(dot(localNormal, lightDir), 0.0);
 
                 if (geoNoLm > EPSILON) {
                     float lightAtt = GetLightAttenuation(lightVec, light.range);
@@ -435,9 +440,9 @@
         blockDiffuse += vec3(emission);//vBlockLight;
 
         #ifdef RENDER_GBUFFER
-            vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+            vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 0.5/16.0), 0).rgb;
         #else
-            vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 1.0/32.0), 0).rgb;
+            vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 0.5/16.0), 0).rgb;
         #endif
 
         blockLightDefault = RGBToLinear(blockLightDefault);

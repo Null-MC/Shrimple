@@ -101,7 +101,7 @@ void main() {
                     vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
                     //float lightRange = GetSceneLightLevel(lightType);
 
-                    const float lightRange = 17.0 * DynamicLightRangeF;//lightRange + 1.0;
+                    const float lightRange = 16.0 * DynamicLightRangeF + 1.0;//lightRange + 1.0;
                     //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
                     if (lightViewPos.z > lightRange) intersects = false;
                     else if (lightViewPos.z < -(far + lightRange)) intersects = false;
