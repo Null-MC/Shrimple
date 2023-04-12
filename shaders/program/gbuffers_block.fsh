@@ -236,20 +236,19 @@ uniform int fogMode;
 #endif
 
 void main() {
+    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     vec2 atlasCoord = texcoord;
     
     #if MATERIAL_PARALLAX != PARALLAX_NONE
-        mat2 dFdXY = mat2(dFdx(atlasCoord), dFdy(atlasCoord));
-
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
         bool skipParallax = false;
-        #ifdef RENDER_ENTITIES
-            if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
-        #else
-            if (vBlockId == BLOCK_LAVA) skipParallax = true;
-        #endif
+        // #ifdef RENDER_ENTITIES
+        //     if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
+        // #else
+        //     if (vBlockId == BLOCK_LAVA) skipParallax = true;
+        // #endif
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
@@ -259,11 +258,9 @@ void main() {
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
-
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-    #else
-        vec4 color = texture(gtexture, atlasCoord);
     #endif
+
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
     #ifdef RENDER_TRANSLUCENT
         const float alphaThreshold = (1.5/255.0);
@@ -318,10 +315,12 @@ void main() {
     #endif
 
     vec3 texNormal = localNormal;
+    bool isValidNormal = false;
     float parallaxShadow = 1.0;
+
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         //texNormal = vec3(0.0, 0.0, 1.0);
-        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
+        isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
@@ -351,11 +350,15 @@ void main() {
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            float skyNoL = dot(texNormal, localLightDir);
-        #else
-            float skyNoL = dot(localNormal, localLightDir);
-        #endif
+        float skyNoL = 1.0;
+
+        if (isValidNormal) {
+            #if MATERIAL_NORMALS != NORMALMAP_NONE
+                skyNoL = dot(texNormal, localLightDir);
+            #else
+                skyNoL = dot(localNormal, localLightDir);
+            #endif
+        }
 
         #if MATERIAL_SSS != SSS_NONE
             skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
@@ -394,7 +397,7 @@ void main() {
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+        #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, emission, sss);
         #endif
 
