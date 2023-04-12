@@ -5,16 +5,20 @@
         uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 
         if (gridIndex != DYN_LIGHT_GRID_MAX) {
-            #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
-                bool hasGeoNormal = false;
-            #else
-                bool hasGeoNormal = true;
-            #endif
+            // #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
+            //     bool hasGeoNormal = false;
+            // #else
+            //     bool hasGeoNormal = true;
+            // #endif
+            bool hasGeoNormal = any(greaterThan(localNormal, EPSILON3));
+            bool hasTexNormal = any(greaterThan(texNormal, EPSILON3));
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                vec3 localViewDir = -normalize(localPos);
-                float lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
                 float f0 = GetMaterialF0(metal_f0);
+                vec3 localViewDir = -normalize(localPos);
+
+                float lightNoVm = 1.0;
+                if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
             #endif
 
             vec3 accumDiffuse = vec3(0.0);
@@ -151,13 +155,20 @@
 
         vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
+        //bool hasGeoNormal = any(greaterThan(fragLocalNormal, EPSILON3));
+        bool hasTexNormal = any(greaterThan(texNormal, EPSILON3));
+
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-            vec3 localViewDir = -normalize(fragLocalPos);
-            float lightNoVm = max(dot(texNormal, localViewDir), 0.0);
             float f0 = GetMaterialF0(metal_f0);
+            vec3 localViewDir = -normalize(fragLocalPos);
+
+            float lightNoVm = 1.0;
+            if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
         #endif
 
-        if (heldBlockLightValue > 0) {
+        float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
+
+        if (lightRangeR > 0.0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
             //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
@@ -165,7 +176,7 @@
             vec3 lightVec = lightLocalPos - lightFragPos;
             float traceDist2 = length2(lightVec);
 
-            if (traceDist2 < _pow2(heldBlockLightValue)) {
+            if (traceDist2 < _pow2(lightRangeR)) {
                 vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
@@ -181,9 +192,9 @@
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue);
+                        lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeR);
                     #else
-                        lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue);
+                        lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeR);
                     #endif
                 #endif
 
@@ -191,9 +202,7 @@
                 float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
 
                 if (lightNoLm > EPSILON) {
-                    float lightDist = length(lightVec);
-                    float lightAtt = 1.0 - saturate(lightDist / heldBlockLightValue);
-                    lightAtt = pow(lightAtt, 5.0);
+                    float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
 
                     float F = 0.0;
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
@@ -215,12 +224,14 @@
             }
         }
 
-        if (heldBlockLightValue2 > 0) {
+        float lightRangeL = GetSceneItemLightRange(heldItemId2, heldBlockLightValue2);
+
+        if (lightRangeL > 0.0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
 
             vec3 lightVec = lightLocalPos - lightFragPos;
-            if (dot(lightVec, lightVec) < _pow2(heldBlockLightValue2)) {
+            if (dot(lightVec, lightVec) < _pow2(lightRangeL)) {
                 vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
@@ -236,9 +247,9 @@
                     #endif
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightColor *= TraceRay(traceOrigin, traceEnd, heldBlockLightValue2);
+                        lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeL);
                     #else
-                        lightColor *= TraceDDA(traceEnd, traceOrigin, heldBlockLightValue2);
+                        lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeL);
                     #endif
                 #endif
                 
@@ -246,9 +257,7 @@
                 float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
 
                 if (lightNoLm > EPSILON) {
-                    float lightDist = length(lightVec);
-                    float lightAtt = 1.0 - saturate(lightDist / heldBlockLightValue2);
-                    lightAtt = pow(lightAtt, 5.0);
+                    float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
 
                     float F = 0.0;
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG

@@ -67,6 +67,23 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
             break;
     }
 
+    #ifdef DYN_LIGHT_OREBLOCKS
+        switch (itemId) {
+            case ITEM_DIAMOND_BLOCK:
+                lightColor = vec3(0.489, 0.960, 0.912);
+                break;
+            case ITEM_EMERALD_BLOCK:
+                lightColor = vec3(0.235, 0.859, 0.435);
+                break;
+            case ITEM_LAPIS_BLOCK:
+                lightColor = vec3(0.180, 0.427, 0.813);
+                break;
+            case ITEM_REDSTONE_BLOCK:
+                lightColor = vec3(0.980, 0.143, 0.026);
+                break;
+        }
+    #endif
+
     lightColor = RGBToLinear(lightColor);
 
     #ifdef DYN_LIGHT_FLICKER
@@ -93,8 +110,8 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
     return lightColor;
 }
 
-float GetSceneItemLightRange(const in int itemId) {
-    float lightRange = 0.0;
+float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
+    float lightRange = defaultValue;
 
     switch (itemId) {
         case ITEM_AMETHYST_CLUSTER:
@@ -164,6 +181,17 @@ float GetSceneItemLightRange(const in int itemId) {
             lightRange = 15.0;
             break;
     }
+
+    #ifdef DYN_LIGHT_OREBLOCKS
+        switch (itemId) {
+            case ITEM_DIAMOND_BLOCK:
+            case ITEM_EMERALD_BLOCK:
+            case ITEM_LAPIS_BLOCK:
+            case ITEM_REDSTONE_BLOCK:
+                lightRange = 12.0;
+                break;
+        }
+    #endif
 
     return lightRange;
 }
