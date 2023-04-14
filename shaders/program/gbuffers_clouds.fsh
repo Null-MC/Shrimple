@@ -24,10 +24,7 @@ in vec3 vBlockLight;
 #endif
 
 uniform sampler2D lightmap;
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform sampler2D noisetex;
-#endif
+uniform sampler2D noisetex;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
     uniform sampler3D texLPV;
@@ -37,6 +34,7 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowcolor0;
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
@@ -69,14 +67,17 @@ uniform float blindness;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -92,6 +93,7 @@ uniform float blindness;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #include "/lib/material/specular.glsl"
 
@@ -109,11 +111,13 @@ uniform float blindness;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/items.glsl"
-    #include "/lib/buffers/lighting.glsl"
+#ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
+#endif
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 
@@ -121,12 +125,12 @@ uniform float blindness;
         #include "/lib/lighting/collisions.glsl"
         #include "/lib/lighting/tracing.glsl"
     #endif
-
-    //#include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
+#include "/lib/lighting/dynamic_items.glsl"
+
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef VL_BUFFER_ENABLED

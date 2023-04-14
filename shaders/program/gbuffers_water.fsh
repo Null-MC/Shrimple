@@ -118,14 +118,17 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -143,7 +146,6 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/utility/tbn.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -151,6 +153,10 @@ uniform float blindness;
 #include "/lib/world/fog.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/utility/tbn.glsl"
+#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     #include "/lib/sampling/atlas.glsl"
@@ -181,10 +187,12 @@ uniform float blindness;
 
 #include "/lib/lighting/fresnel.glsl"
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
+#endif
 
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
@@ -195,10 +203,10 @@ uniform float blindness;
         #include "/lib/lighting/collisions.glsl"
         #include "/lib/lighting/tracing.glsl"
     #endif
-
-    #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -218,6 +226,7 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef VL_BUFFER_ENABLED

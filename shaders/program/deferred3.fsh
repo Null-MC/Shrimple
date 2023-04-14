@@ -73,14 +73,17 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
@@ -95,10 +98,13 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/buffers/lighting.glsl"
+#ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
+#endif
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
@@ -110,8 +116,9 @@ uniform float blindness;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_items.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
@@ -120,6 +127,7 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
 
@@ -388,6 +396,8 @@ void main() {
         #else
             blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);
+
+            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
             //GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
         #endif

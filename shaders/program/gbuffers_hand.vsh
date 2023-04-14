@@ -49,10 +49,7 @@ out vec3 vBlockLight;
 #endif
 
 uniform sampler2D lightmap;
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-	uniform sampler2D noisetex;
-#endif
+uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -73,18 +70,25 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+//#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/utility/tbn.glsl"
-#include "/lib/sampling/atlas.glsl"
+#include "/lib/items.glsl"
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/atlas.glsl"
+    #include "/lib/utility/tbn.glsl"
+#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
@@ -98,7 +102,7 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+#ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
@@ -109,16 +113,14 @@ uniform vec3 cameraPosition;
     #include "/lib/lighting/dynamic_lights.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX || DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-    #include "/lib/items.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
-#endif
+#include "/lib/lighting/dynamic_items.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

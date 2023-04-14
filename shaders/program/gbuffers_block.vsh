@@ -26,16 +26,16 @@ out vec3 vLocalNormal;
 flat out int vBlockId;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-	in vec4 at_tangent;
+    in vec4 at_tangent;
 
-	out vec3 vLocalTangent;
-	out float vTangentW;
+    out vec3 vLocalTangent;
+    out float vTangentW;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     out vec2 vLocalCoord;
     out vec3 tanViewPos;
-	flat out mat2 atlasBounds;
+    flat out mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         out vec3 tanLightPos;
@@ -43,12 +43,12 @@ flat out int vBlockId;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		out vec3 shadowPos[4];
-		flat out int shadowTile;
-	#elif SHADOW_TYPE != SHADOW_TYPE_NONE
-		out vec3 shadowPos;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        out vec3 shadowPos[4];
+        flat out int shadowTile;
+    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+        out vec3 shadowPos;
+    #endif
 #endif
 
 uniform sampler2D lightmap;
@@ -60,76 +60,80 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
 #ifdef WORLD_SHADOW_ENABLED
-	uniform mat4 shadowModelView;
-	uniform mat4 shadowProjection;
-	uniform vec3 shadowLightPosition;
-	uniform float far;
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
+    uniform vec3 shadowLightPosition;
+    uniform float far;
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		uniform mat4 gbufferProjection;
-		uniform float near;
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        uniform mat4 gbufferProjection;
+        uniform float near;
+    #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/utility/tbn.glsl"
 #include "/lib/sampling/noise.glsl"
-#include "/lib/world/waving.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-	#include "/lib/lighting/blackbody.glsl"
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/atlas.glsl"
+    #include "/lib/utility/tbn.glsl"
+#endif
+
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
-	#include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/common.glsl"
 
-	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-		#include "/lib/shadows/cascaded.glsl"
-	#else
-		#include "/lib/shadows/basic.glsl"
-	#endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded.glsl"
+    #else
+        #include "/lib/shadows/basic.glsl"
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO
-	#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-		#include "/lib/buffers/lighting.glsl"
-		#include "/lib/lighting/dynamic.glsl"
-	#endif
-
-	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-		#include "/lib/lighting/dynamic_lights.glsl"
-		//#include "/lib/lighting/dynamic_blocks.glsl"
-	    #include "/lib/lighting/dynamic_items.glsl"
-	#endif
+    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/dynamic.glsl"
+    #endif
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 
 void main() {
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	glcolor = gl_Color;
+    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    glcolor = gl_Color;
 
-	BasicVertex();
+    BasicVertex();
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();

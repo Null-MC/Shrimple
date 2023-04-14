@@ -49,9 +49,10 @@ out vec3 vBlockLight;
 #endif
 
 uniform sampler2D lightmap;
+uniform sampler2D noisetex;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform sampler2D noisetex;
+    //uniform sampler2D noisetex;
 #endif
 
 uniform float frameTimeCounter;
@@ -76,17 +77,25 @@ uniform vec4 entityColor;
     #endif
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+//#if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
 
-#include "/lib/utility/tbn.glsl"
-#include "/lib/sampling/atlas.glsl"
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
+
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/utility/tbn.glsl"
+    #include "/lib/sampling/atlas.glsl"
+#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
@@ -100,28 +109,31 @@ uniform vec4 entityColor;
     #endif
 #endif
 
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
-    #include "/lib/items.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-        #include "/lib/lighting/dynamic_lights.glsl"
-        #include "/lib/lighting/dynamic_items.glsl"
     #endif
 
     #include "/lib/lighting/dynamic_entities.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

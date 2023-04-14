@@ -60,7 +60,11 @@
 
                             #if DYN_LIGHT_PLAYER_SHADOW != PLAYER_SHADOW_NONE
                                 vec3 playerPos = vec3(0.0, -0.8, 0.0);
-                                if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
+
+                                #ifdef IS_IRIS
+                                    if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
+                                #endif
+
                                 playerPos = GetLightGridPosition(playerPos);
 
                                 vec3 playerOffset = traceOrigin - playerPos;
@@ -142,147 +146,6 @@
                 blockDiffuse += blockLightDefault;
             #endif
         }
-    }
-
-    void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss) {
-        vec2 noiseSample = GetDynLightNoise(vec3(0.0));
-        vec3 result = vec3(0.0);
-
-        vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
-
-        bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
-        bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-            float f0 = GetMaterialF0(metal_f0);
-            vec3 localViewDir = -normalize(fragLocalPos);
-
-            float lightNoVm = 1.0;
-            if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
-        #endif
-
-        float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
-        float geoNoLm;
-
-        if (lightRangeR > 0.0) {
-            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
-            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
-            //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
-
-            vec3 lightVec = lightLocalPos - lightFragPos;
-            float traceDist2 = length2(lightVec);
-
-            if (traceDist2 < _pow2(lightRangeR)) {
-                vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
-
-                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
-
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
-                        float lightSize = GetSceneItemLightSize(heldItemId);
-                        //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
-                        vec3 offset = GetLightPenumbraOffset();
-                        lightColor *= 1.0 - length(offset);
-                        traceOrigin += offset * lightSize * 0.5;
-                    #endif
-
-                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeR);
-                    #else
-                        lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeR);
-                    #endif
-                #endif
-
-                geoNoLm = 1.0;
-                vec3 lightDir = normalize(lightVec);
-                if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
-
-                float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
-
-                if (lightNoLm > EPSILON) {
-                    float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
-
-                    float F = 0.0;
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        vec3 lightH = normalize(lightDir + localViewDir);
-                        float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
-
-                        float invCosTheta = 1.0 - lightVoHm;
-                        F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    #endif
-
-                    blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
-
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        float lightNoHm = max(dot(texNormal, lightH), 0.0);
-
-                        blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
-                    #endif
-                }
-            }
-        }
-
-        float lightRangeL = GetSceneItemLightRange(heldItemId2, heldBlockLightValue2);
-
-        if (lightRangeL > 0.0) {
-            vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
-            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
-
-            vec3 lightVec = lightLocalPos - lightFragPos;
-            if (dot(lightVec, lightVec) < _pow2(lightRangeL)) {
-                vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
-
-                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
-                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
-
-                    #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
-                        float lightSize = GetSceneItemLightSize(heldItemId2);
-                        //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
-                        vec3 offset = GetLightPenumbraOffset();
-                        lightColor *= 1.0 - length(offset);
-                        traceOrigin += offset * lightSize * 0.5;
-                    #endif
-
-                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeL);
-                    #else
-                        lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeL);
-                    #endif
-                #endif
-                
-                geoNoLm = 1.0;
-                vec3 lightDir = normalize(lightVec);
-                if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
-
-                float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
-
-                if (lightNoLm > EPSILON) {
-                    float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
-
-                    float F = 0.0;
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        vec3 lightH = normalize(lightDir + localViewDir);
-                        float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
-
-                        float invCosTheta = 1.0 - lightVoHm;
-                        F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    #endif
-
-                    blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
-
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        float lightNoHm = max(dot(texNormal, lightH), 0.0);
-
-                        blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
-                    #endif
-                }
-            }
-        }
-
-        blockDiffuse *= DynamicLightBrightness;
-        blockSpecular *= DynamicLightBrightness;
     }
 #endif
 
@@ -460,11 +323,11 @@
 
         #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
             SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
-
-            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
         #else
             blockDiffuse += blockLightDefault;
         #endif
+
+        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED)
             if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
@@ -498,11 +361,11 @@
                 vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
             #endif
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                float geoNoLm = 1.0;
-                if (!all(lessThan(abs(localNormal), EPSILON3)))
-                    geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+            float geoNoLm = 1.0;
+            if (!all(lessThan(abs(localNormal), EPSILON3)))
+                geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 float diffuseNoL = GetLightNoL(geoNoLm, texNormal, localLightDir, sss);
             #else
                 const float diffuseNoL = 1.0;

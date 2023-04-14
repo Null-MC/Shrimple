@@ -78,19 +78,29 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
+//#endif
+
+#include "/lib/sampling/noise.glsl"
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
+#if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
+    #include "/lib/world/waving.glsl"
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/utility/tbn.glsl"
-#include "/lib/sampling/noise.glsl"
-#include "/lib/world/waving.glsl"
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/utility/tbn.glsl"
+#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     #include "/lib/sampling/atlas.glsl"
@@ -108,26 +118,24 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/flicker.glsl"
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/items.glsl"
-    #endif
-
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
         #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/dynamic.glsl"
     #endif
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/lighting/dynamic_items.glsl"
+        #include "/lib/lighting/dynamic_blocks.glsl"
     #endif
 #endif
 
 #include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_blocks.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -141,6 +149,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

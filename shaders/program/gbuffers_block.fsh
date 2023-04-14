@@ -125,14 +125,17 @@ uniform int fogMode;
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     //
 #else
-    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+    //#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
         uniform int heldItemId;
         uniform int heldItemId2;
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+
+        #ifdef IS_IRIS
+            uniform bool firstPersonCamera;
+            uniform vec3 eyePosition;
+        #endif
+    //#endif
 
     uniform float blindness;
 #endif
@@ -147,13 +150,16 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/utility/tbn.glsl"
-#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/atlas.glsl"
+    #include "/lib/utility/tbn.glsl"
+#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -180,22 +186,20 @@ uniform int fogMode;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#include "/lib/material/emission.glsl"
-#include "/lib/material/subsurface.glsl"
-#include "/lib/material/specular.glsl"
-
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
+#endif
+
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/flicker.glsl"
+    #include "/lib/lighting/blackbody.glsl"
 #endif
 
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     //
 #else
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/lighting/flicker.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             #include "/lib/buffers/lighting.glsl"
             #include "/lib/lighting/dynamic.glsl"
@@ -206,12 +210,21 @@ uniform int fogMode;
             #include "/lib/lighting/collisions.glsl"
             #include "/lib/lighting/tracing.glsl"
         #endif
-
-        //#include "/lib/lighting/dynamic_lights.glsl"
-        #include "/lib/lighting/dynamic_items.glsl"
     #endif
+#endif
 
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
+
+#include "/lib/material/emission.glsl"
+#include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
+
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    //
+#else
     #include "/lib/lighting/sampling.glsl"
+    #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED

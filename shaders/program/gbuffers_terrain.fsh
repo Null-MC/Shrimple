@@ -113,14 +113,17 @@ uniform int fogMode;
 
     uniform float blindness;
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+    //#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         uniform int heldItemId;
         uniform int heldItemId2;
         uniform int heldBlockLightValue;
         uniform int heldBlockLightValue2;
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+        
+        #ifdef IS_IRIS
+            uniform bool firstPersonCamera;
+            uniform vec3 eyePosition;
+        #endif
+    //#endif
 #endif
 
 #if AF_SAMPLES > 1
@@ -133,16 +136,22 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/utility/tbn.glsl"
-#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    #include "/lib/sampling/atlas.glsl"
+    #include "/lib/utility/tbn.glsl"
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -168,16 +177,17 @@ uniform int fogMode;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -195,6 +205,7 @@ uniform int fogMode;
     #endif
 
     #include "/lib/lighting/sampling.glsl"
+    #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
     #include "/lib/post/tonemap.glsl"
 #endif
@@ -365,6 +376,10 @@ void main() {
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, emission, sss);
+        #endif
+
+        #if (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER)
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
         #endif
 
         vec3 skyDiffuse = vec3(0.0);

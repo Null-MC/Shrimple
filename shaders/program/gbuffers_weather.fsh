@@ -27,10 +27,7 @@ in vec3 vBlockLight;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform sampler2D noisetex;
-#endif
+uniform sampler2D noisetex;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
     uniform sampler3D texLPV;
@@ -87,14 +84,14 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
-#endif
+//#endif
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -113,6 +110,7 @@ uniform float blindness;
 #include "/lib/world/fog.glsl"
 
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
@@ -132,11 +130,13 @@ uniform float blindness;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/items.glsl"
-    #include "/lib/buffers/lighting.glsl"
+#ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
+#endif
+
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
 #endif
@@ -146,11 +146,10 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/dynamic_items.glsl"
-#endif
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef VL_BUFFER_ENABLED

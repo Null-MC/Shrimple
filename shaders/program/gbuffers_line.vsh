@@ -8,6 +8,9 @@
 #define LINE_WIDTH 3.0
 #define VIEW_SCALE 1.0
 
+in vec3 vaPosition;
+in vec3 vaNormal;
+
 out vec2 lmcoord;
 out vec2 texcoord;
 flat out vec4 glcolor;
@@ -21,6 +24,9 @@ out vec3 vLocalPos;
 //         out vec3 shadowPos;
 //     #endif
 // #endif
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 
 //uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
