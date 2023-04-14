@@ -43,7 +43,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     float lightSize = GetSceneItemLightSize(heldItemId);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
-                    lightColor *= 1.0 - length(offset);
+                    //lightColor *= 1.0 - length(offset);
                     traceOrigin += offset * lightSize * 0.5;
                 #endif
 
@@ -104,7 +104,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
-                    lightColor *= 1.0 - length(offset);
+                    //lightColor *= 1.0 - length(offset);
                     traceOrigin += offset * lightSize * 0.5;
                 #endif
 
