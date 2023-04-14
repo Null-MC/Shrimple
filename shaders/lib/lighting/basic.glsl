@@ -5,13 +5,8 @@
         uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 
         if (gridIndex != DYN_LIGHT_GRID_MAX) {
-            // #if defined RENDER_TEXTURED || defined RENDER_PARTICLES
-            //     bool hasGeoNormal = false;
-            // #else
-            //     bool hasGeoNormal = true;
-            // #endif
-            bool hasGeoNormal = any(greaterThan(localNormal, EPSILON3));
-            bool hasTexNormal = any(greaterThan(texNormal, EPSILON3));
+            bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
+            bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                 float f0 = GetMaterialF0(metal_f0);
@@ -116,7 +111,7 @@
                         F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                     #endif
 
-                    float diffuseNoLm = GetLightNoL(localNormal, texNormal, lightDir, sss);
+                    float diffuseNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
                     accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
@@ -155,8 +150,8 @@
 
         vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
 
-        //bool hasGeoNormal = any(greaterThan(fragLocalNormal, EPSILON3));
-        bool hasTexNormal = any(greaterThan(texNormal, EPSILON3));
+        bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
+        bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
             float f0 = GetMaterialF0(metal_f0);
@@ -167,6 +162,7 @@
         #endif
 
         float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
+        float geoNoLm;
 
         if (lightRangeR > 0.0) {
             vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
@@ -198,8 +194,11 @@
                     #endif
                 #endif
 
+                geoNoLm = 1.0;
                 vec3 lightDir = normalize(lightVec);
-                float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
+                if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+
+                float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
 
                 if (lightNoLm > EPSILON) {
                     float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
@@ -253,8 +252,11 @@
                     #endif
                 #endif
                 
+                geoNoLm = 1.0;
                 vec3 lightDir = normalize(lightVec);
-                float lightNoLm = GetLightNoL(fragLocalNormal, texNormal, lightDir, sss);
+                if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+
+                float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
 
                 if (lightNoLm > EPSILON) {
                     float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
@@ -497,7 +499,11 @@
             #endif
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                float diffuseNoL = GetLightNoL(localNormal, texNormal, localLightDir, sss);
+                float geoNoLm = 1.0;
+                if (!all(lessThan(abs(localNormal), EPSILON3)))
+                    geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+
+                float diffuseNoL = GetLightNoL(geoNoLm, texNormal, localLightDir, sss);
             #else
                 const float diffuseNoL = 1.0;
             #endif
@@ -505,9 +511,9 @@
             skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                float geoNoLm = 1.0;
-                if (any(greaterThan(localNormal, EPSILON3)))
-                    geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+                // float geoNoLm = 1.0;
+                // if (any(greaterThan(localNormal, EPSILON3)))
+                //     geoNoLm = max(dot(localNormal, localLightDir), 0.0);
 
                 if (geoNoLm > 0.0) {
                     float f0 = GetMaterialF0(metal_f0);

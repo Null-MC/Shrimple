@@ -109,7 +109,8 @@ void main() {
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
-        localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
+        if (any(greaterThan(localNormal.xyz, EPSILON3)))
+            localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
         vec3 texNormal = localNormal.xyz;
         #if MATERIAL_NORMALS != NORMALMAP_NONE

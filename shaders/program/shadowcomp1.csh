@@ -41,43 +41,66 @@ void main() {
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         
         uint gridIndex = GetSceneLightGridIndex(gridCell);
+        //LightCellData sceneLightMap = SceneLightMaps[gridIndex];
         
-        if (SceneLightMaps[gridIndex].LightCount == 0u) return;
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+            BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
+            for (int i = 0; i < DYN_LIGHT_OCTREE_SIZE; i++)
+                sceneBlockMap.OctreeMask[i] = 0u;
+        #endif
 
-        atomicAdd(SceneLightMaxCount, SceneLightMaps[gridIndex].LightCount);
+        uint lightCount = SceneLightMaps[gridIndex].LightCount;
+        if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
 
-        uint lightLocalIndex = 0u;
-
-        uint binLightCountMin = min(SceneLightMaps[gridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
+        uint binLightCountMin = min(lightCount, LIGHT_BIN_MAX_COUNT);
         uint lightGlobalOffset = atomicAdd(SceneLightCount, binLightCountMin);
 
-        for (int z = 0; z < LIGHT_BIN_SIZE; z++) {
-            for (int y = 0; y < LIGHT_BIN_SIZE; y++) {
-                for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
+        uint lightLocalIndex = 0u;
+        for (int z = 0; z < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; z++) {
+            for (int y = 0; y < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; y++) {
+                for (int x = 0; x < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; x++) {
                     ivec3 blockCell = ivec3(x, y, z);
+
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+                        uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+                        if (blockType != BLOCKTYPE_EMPTY) {
+                            uvec3 nodeMin = uvec3(0);
+                            uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
+                            uvec3 nodePos = uvec3(0);
+
+                            uint nodeBitOffset = 1u;
+
+                            sceneBlockMap.OctreeMask[0] |= 1u;
+
+                            for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS; treeDepth++) {
+                                uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
+                                uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
+
+                                uint nodeSize = uint(exp2(treeDepth));
+                                uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
+                                uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
+
+                                uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
+                                uint nodeArrayIndex = nodeBitIndex / 32u;
+
+                                uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
+                                sceneBlockMap.OctreeMask[nodeArrayIndex] |= nodeMask;
+
+                                nodeBitOffset += uint(pow(8u, treeDepth + 1u));
+
+                                uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
+                                nodeMin += nodeHalfSize * nodeChild;
+                                nodeMax -= nodeHalfSize * (1u - nodeChild);
+                                nodePos = (nodePos + nodeChild) * 2u;
+                            }
+                        }
+                    #endif
+
                     uint lightType = GetSceneLightMask(blockCell, gridIndex);
                     if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
 
                     float lightRange = GetSceneLightRange(lightType);
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
-
-                    // TODO: This is probably faster in compute than shadow
-                    // #ifdef DYN_LIGHT_FRUSTUM_TEST
-                    //     vec3 lightViewPos = (gbufferModelView * vec4(blockLocalPos, 1.0)).xyz;
-                    //     bool intersects = true;
-
-                    //     float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-                    //     if (lightViewPos.z > maxRange) intersects = false;
-                    //     else if (lightViewPos.z < -far - maxRange) intersects = false;
-                    //     else {
-                    //         if (dot(sceneViewUp,   lightViewPos) > maxRange) intersects = false;
-                    //         if (dot(sceneViewDown, lightViewPos) > maxRange) intersects = false;
-                    //         if (dot(sceneViewLeft,  lightViewPos) > maxRange) intersects = false;
-                    //         if (dot(sceneViewRight, lightViewPos) > maxRange) intersects = false;
-                    //     }
-
-                    //     if (!intersects) continue;
-                    // #endif
 
                     vec2 lightNoise = vec2(0.0);
                     #ifdef DYN_LIGHT_FLICKER
@@ -94,9 +117,14 @@ void main() {
                     SceneLights[lightGlobalIndex] = lightData;
                     SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
-                    if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
+                    //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
+                    lightLocalIndex++;
                 }
             }
         }
+
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+            SceneBlockMaps[gridIndex] = sceneBlockMap;
+        #endif
     #endif
 }

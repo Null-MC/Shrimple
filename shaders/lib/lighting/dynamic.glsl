@@ -46,7 +46,7 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
         uint intIndex = maskIndex >> 5;
 
-        uint bit = SceneLightMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
+        uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
         return (bit & 255);
     }
 
@@ -83,7 +83,7 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
             uint intIndex = maskIndex >> 5;
             uint bit = blockType << (maskIndex & 31);
 
-            atomicOr(SceneLightMaps[gridIndex].BlockMask[intIndex], bit);
+            atomicOr(SceneBlockMaps[gridIndex].BlockMask[intIndex], bit);
         }
     #endif
 #elif defined RENDER_SHADOWCOMP

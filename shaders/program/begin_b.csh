@@ -28,7 +28,7 @@ void main() {
             SceneLightMaps[gridIndex].LightMask[i] = 0u;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                SceneLightMaps[gridIndex].BlockMask[i] = 0u;
+                SceneBlockMaps[gridIndex].BlockMask[i] = 0u;
             #endif
         }
     #endif

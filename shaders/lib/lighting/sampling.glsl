@@ -4,16 +4,17 @@ float GetLightAttenuation(const in vec3 lightVec, const in float lightRange) {
     return _pow3(lightAtt);
 }
 
-float GetLightNoL(const in vec3 localNormal, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
+float GetLightNoL(const in float geoNoLm, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
     float NoL = 1.0;
 
     #if DYN_LIGHT_DIRECTIONAL > 0 || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        if (any(greaterThan(localNormal, EPSILON3)))
-            NoL = dot(localNormal, lightDir);
+        NoL = geoNoLm;
+        //if (any(greaterThan(localNormal, EPSILON3)))
+        //    NoL = dot(localNormal, lightDir);
 
         if (any(greaterThan(texNormal, EPSILON3))) {
             float texNoL = dot(texNormal, lightDir);
-            NoL = min(NoL, texNoL);
+            //NoL = min(NoL, texNoL);
         }
     #endif
 

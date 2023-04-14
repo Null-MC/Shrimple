@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "overworld.glsl"
-#include "/program/gbuffers_basic.fsh"
+#include "/program/gbuffers_line.vsh"

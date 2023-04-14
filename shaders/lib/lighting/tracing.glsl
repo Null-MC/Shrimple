@@ -167,6 +167,52 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
+            #ifdef DYN_LIGHT_OCTREE
+                if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
+
+                uvec3 nodeMin = uvec3(0);
+                uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
+                uvec3 nodePos = uvec3(0);
+
+                bool treeHit = true;
+                uint nodeBitOffset = 1u;
+                for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS && treeHit; treeDepth++) {
+                    uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
+                    uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
+
+                    uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
+
+                    uint nodeSize = uint(exp2(treeDepth));
+                    uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
+
+                    uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
+                    uint nodeArrayIndex = nodeBitIndex / 32u;
+
+                    uint depthMask = SceneBlockMaps[gridIndex].OctreeMask[nodeArrayIndex];
+                    uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
+
+                    if ((depthMask & nodeMask) == 0u) {
+                        // TODO: skip
+                        // vec3 nodeMin = ;
+                        // vec3 nodeMax = ;
+                        // for (uint ix = 0u; ix < LIGHT_BIN_SIZE; ix++) {
+                        //     //
+                        // }
+                        treeHit = false;
+                        break;
+                    }
+
+                    nodeBitOffset += uint(pow(8u, treeDepth + 1u));
+
+                    uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
+                    nodeMin += nodeHalfSize * nodeChild;
+                    nodeMax -= nodeHalfSize * (1u - nodeChild);
+                    nodePos = (nodePos + nodeChild) * 2u;
+                }
+
+                if (!treeHit) continue;
+            #endif
+
             #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_ABSORB
                 if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                     vec3 glassTint = GetLightGlassTint(blockType);

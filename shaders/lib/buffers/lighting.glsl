@@ -13,16 +13,6 @@ struct SceneLightData {
     uint data;
 };
 
-struct LightCellData {
-    uint LightCount;
-    uint LightNeighborCount;
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        uint BlockMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
-    #endif
-    uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
-    uint GlobalLights[LIGHT_BIN_MAX_COUNT];
-};
-
 #ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 1) restrict buffer globalLightingData
 #elif defined RENDER_BEGIN
@@ -47,6 +37,13 @@ struct LightCellData {
     SceneLightData SceneLights[];
 };
 
+struct LightCellData {
+    uint LightCount;
+    uint LightNeighborCount;
+    uint GlobalLights[LIGHT_BIN_MAX_COUNT];
+    uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
+};
+
 #ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 2) restrict buffer localLightingData
 #elif defined RENDER_BEGIN || defined RENDER_SHADOW
@@ -57,3 +54,23 @@ struct LightCellData {
 {
     LightCellData SceneLightMaps[];
 };
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    struct BlockCellData {
+        uint BlockMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
+        #ifdef DYN_LIGHT_OCTREE
+            uint OctreeMask[DYN_LIGHT_OCTREE_SIZE];
+        #endif
+    };
+
+    #ifdef RENDER_SHADOWCOMP
+        layout(std430, binding = 3) restrict buffer localBlockData
+    #elif defined RENDER_BEGIN || defined RENDER_SHADOW
+        layout(std430, binding = 3) restrict writeonly buffer localBlockData
+    #else
+        layout(std430, binding = 3) restrict readonly buffer localBlockData
+    #endif
+    {
+        BlockCellData SceneBlockMaps[];
+    };
+#endif

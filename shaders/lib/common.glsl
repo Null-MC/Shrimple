@@ -152,6 +152,10 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_TA 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_RANGE 100 // [20 40 60 80 100 120 140 160 180 200 250 300 400]
 
+//#define DYN_LIGHT_OCTREE
+#define DYN_LIGHT_OCTREE_LEVELS 2u
+#define DYN_LIGHT_OCTREE_SIZE 1u
+
 // Dynamic Light Blocks
 #define DYN_LIGHT_GLOW_BERRIES 1 // [0 1 2]
 #define DYN_LIGHT_LAVA 1 // [0 1 2]
