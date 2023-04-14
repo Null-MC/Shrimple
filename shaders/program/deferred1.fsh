@@ -67,6 +67,7 @@ uniform vec3 eyePosition;
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

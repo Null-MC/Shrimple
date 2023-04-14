@@ -18,6 +18,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
     float geoNoLm;
 
+    vec3 accumDiffuse = vec3(0.0);
+    vec3 accumSpecular = vec3(0.0);
+
     if (lightRangeR > 0.0) {
         vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
 
@@ -69,12 +72,12 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                 #endif
 
-                blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
@@ -130,17 +133,17 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                 #endif
 
-                blockDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    blockSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
     }
 
-    blockDiffuse *= DynamicLightBrightness;
-    blockSpecular *= DynamicLightBrightness;
+    blockDiffuse += accumDiffuse * DynamicLightBrightness;
+    blockSpecular += accumSpecular * DynamicLightBrightness;
 }

@@ -166,6 +166,7 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef VL_BUFFER_ENABLED
