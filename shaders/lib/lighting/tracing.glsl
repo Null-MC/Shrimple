@@ -285,8 +285,10 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
 }
 
 vec3 GetLightPenumbraOffset() {
-    float ign = InterleavedGradientNoise(gl_FragCoord.xy);
-    vec4 noise = hash41(ign + 0.1 * frameCounter);
+    //float ign = InterleavedGradientNoise(gl_FragCoord.xy);
+    //vec4 noise = hash41(ign + 0.33 * frameCounter);
+
+    vec4 noise = hash42(gl_FragCoord.xy + 0.33 * frameCounter);
     vec3 offset = normalize(noise.xyz*2.0 - 1.0);
-    return offset * pow(noise.w, (1.0/3.0));
+    return offset * pow(noise.w, 0.5);
 }
