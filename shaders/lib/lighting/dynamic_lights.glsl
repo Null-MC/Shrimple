@@ -1089,11 +1089,8 @@ bool GetLightTraced(const in uint lightType) {
 }
 
 #ifdef RENDER_SHADOWCOMP
-    uint BuildLightMask(const in uint lightType, const in float lightSize) {
-        uint lightData;
-
-        // trace
-        lightData = GetLightTraced(lightType) ? 1u : 0u;
+    uint BuildLightMask(const in uint lightType) {
+        uint lightData = 0u;
 
         switch (lightType) {
             case LIGHT_BEACON:
@@ -1148,10 +1145,65 @@ bool GetLightTraced(const in uint lightType) {
                 break;
         }
 
+        return lightData;
+    }
+
+    // BuildLightMask
+    uvec4 BuildLightData(const in vec3 position, const in bool traced, const in uint mask, const in float size, const in float range, const in vec3 color) {
+        uvec4 lightData;
+
+        // position
+        lightData.x  = float2half(floatBitsToUint(position.x));
+        lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
+        lightData.y  = float2half(floatBitsToUint(position.z));
+
         // size
-        uint bitSize = uint(saturate(lightSize) * 31.0 + 0.5);
-        lightData |= bitSize << 8u;
+        uint bitSize = uint(clamp(size * 255.0, 0.0, 255.0) + 0.5);
+        lightData.y |= bitSize << 16u;
+
+        // range
+        uint bitRange = uint(clamp(range * 15.0, 0.0, 255.0) + 0.5);
+        lightData.y |= bitRange << 24u;
+
+        // traced
+        lightData.z = traced ? 1u : 0u;
+
+        // mask
+        lightData.z |= mask;
+
+        // color
+        uvec3 bitColor = uvec3(saturate(color) * 255.0 + 0.5);
+        lightData.z |= bitColor.r << 8u;
+        lightData.z |= bitColor.g << 16u;
+        lightData.z |= bitColor.b << 24u;
 
         return lightData;
     }
 #endif
+
+void ParseLightPosition(const in uvec4 data, out vec3 position) {
+    position.x = uintBitsToFloat(half2float(data.x & uint(0xffff)));
+    position.y = uintBitsToFloat(half2float(data.x >> 16u));
+    position.z = uintBitsToFloat(half2float(data.y & uint(0xffff)));
+}
+
+void ParseLightSize(const in uvec4 data, out float size) {
+    size = ((data.y >> 16u) & 255u) / 255.0;
+}
+
+void ParseLightRange(const in uvec4 data, out float range) {
+    range = ((data.y >> 24u) & 255u) / 15.0;
+}
+
+void ParseLightColor(const in uvec4 data, out vec3 color) {
+    color.r = ((data.z >>  8u) & 255u) / 255.0;
+    color.g = ((data.z >> 16u) & 255u) / 255.0;
+    color.b = ((data.z >> 24u) & 255u) / 255.0;
+}
+
+void ParseLightData(const in uvec4 data, out vec3 position, out float size, out float range, out vec3 color) {
+    ParseLightPosition(data, position);
+    ParseLightSize(data, size);
+    ParseLightRange(data, range);
+    ParseLightColor(data, color);
+}

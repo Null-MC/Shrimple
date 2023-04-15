@@ -375,11 +375,11 @@ void main() {
                             lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
                             lumDiff = saturate(0.4 * abs(lum - lumPrev));
 
-                            //minWeight = mix(0.02, 0.2, DynamicLightTemporalStrength);
-                            weight = mix(0.2, 0.1, DynamicLightTemporalStrength)*lumDiff + 0.02;
-                            float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
+                            minWeight = mix(0.008, 0.04, DynamicLightTemporalStrength);
+                            weight = mix(0.2, 0.04, DynamicLightTemporalStrength)*lumDiff + 0.02;
+                            //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
 
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, lumWeight);
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
                         #endif
                     }
                 }

@@ -20,26 +20,28 @@
             vec3 accumSpecular = vec3(0.0);
 
             for (uint i = 0u; i < lightCount; i++) {
-                SceneLightData light = GetSceneLight(gridIndex, i);
+                //uint lightMask;
+                vec3 lightPos, lightColor;
+                //bool lightTraced;
+                float lightSize, lightRange;
+                uvec4 lightData = GetSceneLight(gridIndex, i);
+                ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
-                vec3 lightPos = light.position;
-                vec3 lightColor = light.color;
+                //vec3 lightPos = light.position;
+                //vec3 lightColor = lightColor;
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
-                        float size = ((light.data >> 8u) & 31u) / 31.0;
-                        size *= 0.5 * DynamicLightPenumbraF;
-
-                        vec3 offset = GetLightPenumbraOffset() * size;
+                        vec3 offset = GetLightPenumbraOffset() * lightSize * 0.5 * DynamicLightPenumbraF;
                         //lightColor *= max(1.0 - 2.0*dot(offset, offset), 0.0);
                         lightPos += offset;
                     #endif
 
                     vec3 lightVec = lightFragPos - lightPos;
                     uint traceFace = 1u << GetLightMaskFace(lightVec);
-                    if ((light.data & traceFace) == traceFace) continue;
+                    if ((lightData.z & traceFace) == traceFace) continue;
 
-                    float traceRange2 = light.range + 1.0;
+                    float traceRange2 = lightRange + 1.0;
                     traceRange2 = _pow2(traceRange2);
 
                     float traceDist2 = length2(lightVec);
@@ -50,7 +52,7 @@
                 #endif
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
-                    if ((light.data & 1u) == 1u) {
+                    if ((lightData.z & 1u) == 1u) {
                         vec3 traceOrigin = GetLightGridPosition(lightPos);
                         vec3 traceEnd = traceOrigin + 0.99*lightVec;
 
@@ -92,9 +94,9 @@
                         #endif
 
                         #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                            lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
+                            lightColor *= TraceRay(traceOrigin, traceEnd, lightRange);
                         #else
-                            lightColor *= TraceDDA(traceEnd, traceOrigin, light.range);
+                            lightColor *= TraceDDA(traceEnd, traceOrigin, lightRange);
                         #endif
                     }
                 #endif
@@ -104,7 +106,7 @@
                 if (hasGeoNormal) geoNoLm = max(dot(localNormal, lightDir), 0.0);
 
                 if (geoNoLm > EPSILON) {
-                    float lightAtt = GetLightAttenuation(lightVec, light.range);
+                    float lightAtt = GetLightAttenuation(lightVec, lightRange);
 
                     float F = 0.0;
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
@@ -273,8 +275,8 @@
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 #ifdef RENDER_ENTITIES
-                    vec4 light = GetSceneEntityLightColor(entityId);
-                    vBlockLight += vec3(light.a / 15.0);
+                    vec4 lightColor = GetSceneEntityLightColor(entityId);
+                    vBlockLight += vec3(lightColor.a / 15.0);
                 #elif defined RENDER_HAND
                     // TODO: change ID depending on hand
                     float lightRange = heldBlockLightValue;//GetSceneItemLightRange(heldItemId);

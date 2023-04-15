@@ -6,13 +6,6 @@
 #define LIGHT_MASK_EAST 6u
 
 
-struct SceneLightData {
-    vec3 position;
-    float range;
-    vec3 color;
-    uint data;
-};
-
 #ifdef RENDER_SHADOWCOMP
     layout(std430, binding = 1) restrict buffer globalLightingData
 #elif defined RENDER_BEGIN
@@ -34,7 +27,7 @@ struct SceneLightData {
     vec3 sceneViewDown;
     vec3 sceneViewLeft;
 
-    SceneLightData SceneLights[];
+    uvec4 SceneLights[];
 };
 
 struct LightCellData {

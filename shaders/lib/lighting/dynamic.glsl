@@ -104,7 +104,7 @@ uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         return min(SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount, LIGHT_BIN_MAX_COUNT);
     }
 
-    SceneLightData GetSceneLight(const in uint gridIndex, const in uint binLightIndex) {
+    uvec4 GetSceneLight(const in uint gridIndex, const in uint binLightIndex) {
         uint lightGlobalIndex = SceneLightMaps[gridIndex].GlobalLights[binLightIndex];
         return SceneLights[lightGlobalIndex];
     }

@@ -107,14 +107,16 @@ void main() {
                         lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
                     #endif
 
-                    float lightSize = GetSceneLightSize(lightType);
                     vec3 lightOffset = GetSceneLightOffset(lightType);
+                    float lightSize = GetSceneLightSize(lightType);
                     vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
-                    uint lightMask = BuildLightMask(lightType, lightSize);
-                    SceneLightData lightData = SceneLightData(blockLocalPos + lightOffset, lightRange, lightColor, lightMask);
+                    bool lightTraced = GetLightTraced(lightType);
+                    uint lightMask = BuildLightMask(lightType);
+                    
+                    vec3 lightPos = blockLocalPos + lightOffset;
 
                     uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                    SceneLights[lightGlobalIndex] = lightData;
+                    SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
                     SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
                     //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;

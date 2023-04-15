@@ -82,16 +82,19 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-#ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        uniform int heldItemId;
-        uniform int heldItemId2;
-        uniform int heldBlockLightValue;
-        uniform int heldBlockLightValue2;
+//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    uniform int heldItemId;
+    uniform int heldItemId2;
+    uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
+
+    #ifdef IS_IRIS
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
+//#endif
 
+#ifdef IRIS_FEATURE_SSBO
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
         uniform sampler2D shadowcolor0;
     #endif
@@ -121,6 +124,7 @@ uniform float blindness;
 #include "/lib/world/fog.glsl"
 
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -144,12 +148,14 @@ uniform float blindness;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/items.glsl"
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
         #include "/lib/lighting/dynamic.glsl"
         #include "/lib/lighting/dynamic_blocks.glsl"
     #endif
@@ -158,12 +164,10 @@ uniform float blindness;
         #include "/lib/lighting/collisions.glsl"
         #include "/lib/lighting/tracing.glsl"
     #endif
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        //#include "/lib/lighting/dynamic_lights.glsl"
-        #include "/lib/lighting/dynamic_items.glsl"
-    #endif
 #endif
+
+#include "/lib/lighting/dynamic_lights.glsl"
+#include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"

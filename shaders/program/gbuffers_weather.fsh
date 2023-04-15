@@ -146,6 +146,7 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
+#include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
 
 #include "/lib/lighting/sampling.glsl"
