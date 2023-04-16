@@ -159,26 +159,29 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
                     for (uint i = 0; i < lightCount; i++) {
-                        SceneLightData light = GetSceneLight(gridIndex, i);
+                        uvec4 lightData = GetSceneLight(gridIndex, i);
 
-                        vec3 lightVec = traceLocalPos - light.position;
-                        if (dot(lightVec, lightVec) >= _pow2(light.range)) continue;
+                        vec3 lightPos, lightColor;
+                        float lightSize, lightRange;
+                        ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
+
+                        vec3 lightVec = traceLocalPos - lightPos;
+                        if (dot(lightVec, lightVec) >= _pow2(lightRange)) continue;
                         
-                        vec3 lightColor = light.color;
                         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                             uint traceFace = 1u << GetLightMaskFace(lightVec);
-                            if ((light.data & traceFace) == traceFace) continue;
+                            if ((lightData.z & traceFace) == traceFace) continue;
 
-                            if ((light.data & 1u) == 1u) {
-                                vec3 traceOrigin = GetLightGridPosition(light.position);
+                            if ((lightData.z & 1u) == 1u) {
+                                vec3 traceOrigin = GetLightGridPosition(lightPos);
                                 vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
                                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                                    lightColor *= TraceRay(traceOrigin, traceEnd, light.range);
+                                    lightColor *= TraceRay(traceOrigin, traceEnd, lightRange);
                                 #elif VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_TRACE_FULL
-                                    lightColor *= TraceDDA(traceOrigin, traceEnd, light.range);
+                                    lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
                                 #else
-                                    lightColor *= TraceDDA_fast(traceOrigin, traceEnd, light.range);
+                                    lightColor *= TraceDDA_fast(traceOrigin, traceEnd, lightRange);
                                 #endif
                             }
                         #endif
@@ -188,7 +191,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
                         float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
-                        float lightAtt = GetLightAttenuation(lightVec, light.range);
+                        float lightAtt = GetLightAttenuation(lightVec, lightRange);
                         blockLightAccum += SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
                     }
                 }

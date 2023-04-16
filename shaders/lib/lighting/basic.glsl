@@ -20,15 +20,10 @@
             vec3 accumSpecular = vec3(0.0);
 
             for (uint i = 0u; i < lightCount; i++) {
-                //uint lightMask;
                 vec3 lightPos, lightColor;
-                //bool lightTraced;
                 float lightSize, lightRange;
                 uvec4 lightData = GetSceneLight(gridIndex, i);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
-
-                //vec3 lightPos = light.position;
-                //vec3 lightColor = lightColor;
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT

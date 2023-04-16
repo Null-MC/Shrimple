@@ -183,6 +183,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
+        
         SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss, blockLightDefault);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
         
@@ -192,7 +193,7 @@ void main() {
     float viewDist = length(vLocalPos);
     float newWidth = (fogEnd - fogStart) * 4.0;
     float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
-    final.a = 1.0;// *= fade;
+    final.a *= fade;
 
     #ifdef VL_BUFFER_ENABLED
         vec3 localViewDir = normalize(vLocalPos);
