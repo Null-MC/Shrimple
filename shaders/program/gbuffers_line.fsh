@@ -69,6 +69,7 @@ uniform int fogMode;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/buffers/shadow.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 

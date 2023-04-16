@@ -208,7 +208,7 @@
         #if defined RENDER_TERRAIN || defined RENDER_WATER
             vBlockId = int(mc_Entity.x + 0.5);
 
-            #ifdef WORLD_WAVING_ENABLED
+            #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
                 ApplyWavingOffset(pos.xyz, vBlockId);
             #endif
         #endif
@@ -312,9 +312,7 @@
         }
     #endif
 
-    void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float emission, const in float sss) {
-        blockDiffuse += vec3(emission);//vBlockLight;
-
+    void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
         #ifdef RENDER_GBUFFER
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 0.5/16.0), 0).rgb;
         #else

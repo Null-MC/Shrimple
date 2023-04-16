@@ -13,8 +13,21 @@ const ivec3 workGroups = ivec3(1, 1, 1);
     #include "/lib/buffers/shadow.glsl"
 #endif
 
+mat3 GetSaturationMatrix(const in float saturation) {
+    const vec3 luminance = vec3(0.3086, 0.6094, 0.0820);
+    
+    float oneMinusSat = 1.0 - saturation;
+    vec3 red = vec3(luminance.x * oneMinusSat) + vec3(saturation, 0.0, 0.0);
+    vec3 green = vec3(luminance.y * oneMinusSat) + vec3(0.0, saturation, 0.0);
+    vec3 blue = vec3(luminance.z * oneMinusSat) + vec3(0.0, 0.0, saturation);
+    
+    return mat3(red, green, blue);
+}
+
 
 void main() {
+    matColorPost = GetSaturationMatrix(1.1);
+
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         const float goldenAngle = PI * (3.0 - sqrt(5.0));
         const float PHI = (1.0 + sqrt(5.0)) / 2.0;

@@ -124,7 +124,7 @@ void main() {
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
-        float emission = deferredLighting.a;
+        //float emission = deferredLighting.a;
         float sss = localNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -139,7 +139,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, emission, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, sss);
         blockDiffuse *= 1.0 - deferredFog.a;
 
         outDiffuse = vec4(blockDiffuse, 1.0);

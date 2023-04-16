@@ -431,7 +431,10 @@ void main() {
 
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, emission, sss);
+
+    blockDiffuse += emission * DynamicLightBrightness;
+    
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
 
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);

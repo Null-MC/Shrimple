@@ -22,6 +22,8 @@ void ApplyPostProcessing(inout vec3 color) {
         color = tonemap_ReinhardExtendedLuminance(color, 1.5);
     #endif
 
+    color = matColorPost * color;
+
     color = LinearToRGB(color);
     //color += Bayer16(gl_FragCoord.xy) / 255.0;
 }

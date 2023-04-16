@@ -98,6 +98,8 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
+#include "/lib/buffers/shadow.glsl"
+
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
@@ -392,8 +394,12 @@ void main() {
                     outSpecularTA = vec4(blockSpecular, 1.0);
                 #endif
             #endif
+
+            blockDiffuse += emission * DynamicLightBrightness;
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, emission, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+
+            blockDiffuse += emission * DynamicLightBrightness;
         #else
             blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);

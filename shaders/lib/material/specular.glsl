@@ -17,6 +17,9 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_MUD:
             smoothness = 0.40;
             break;
+        case BLOCK_NETHERRACK:
+            smoothness = 0.36;
+            break;
         case BLOCK_POLISHED:
             smoothness = 0.60;
             break;

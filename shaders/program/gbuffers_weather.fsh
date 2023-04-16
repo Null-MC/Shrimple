@@ -187,13 +187,14 @@ void main() {
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
     const float metal_f0 = 0.04;
-    const float emission = 0.0;
     const float sss = 0.0;
 
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);
 
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, emission, sss);
+    //blockDiffuse += emission * DynamicLightBrightness;
+
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
 
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);

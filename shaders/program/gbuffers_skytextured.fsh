@@ -12,6 +12,7 @@ varying vec4 glcolor;
 uniform sampler2D gtexture;
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/buffers/shadow.glsl"
 #include "/lib/post/tonemap.glsl"
 
 
