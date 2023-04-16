@@ -156,6 +156,12 @@ uniform int fogMode;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"

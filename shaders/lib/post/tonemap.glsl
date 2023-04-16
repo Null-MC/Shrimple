@@ -22,7 +22,13 @@ void ApplyPostProcessing(inout vec3 color) {
         color = tonemap_ReinhardExtendedLuminance(color, 1.5);
     #endif
 
-    color = matColorPost * color;
+    #if POST_SATURATION != 100
+        #ifndef IRIS_FEATURE_SSBO
+            mat3 matColorPost = GetSaturationMatrix(PostSaturationF);
+        #endif
+
+        color = matColorPost * color;
+    #endif
 
     color = LinearToRGB(color);
     //color += Bayer16(gl_FragCoord.xy) / 255.0;

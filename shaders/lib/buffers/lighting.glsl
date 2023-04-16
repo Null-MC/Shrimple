@@ -7,13 +7,13 @@
 
 
 #ifdef RENDER_SHADOWCOMP
-    layout(std430, binding = 1) restrict buffer globalLightingData
+    layout(std430, binding = 2) restrict buffer globalLightingData
 #elif defined RENDER_BEGIN
-    layout(std430, binding = 1) restrict writeonly buffer globalLightingData
+    layout(std430, binding = 2) restrict writeonly buffer globalLightingData
 #elif defined RENDER_SHADOW
-    layout(std430, binding = 1) restrict buffer globalLightingData
+    layout(std430, binding = 2) restrict buffer globalLightingData
 #else
-    layout(std430, binding = 1) restrict readonly buffer globalLightingData
+    layout(std430, binding = 2) restrict readonly buffer globalLightingData
 #endif
 {
     uint SceneLightCount;
@@ -38,11 +38,11 @@ struct LightCellData {
 };
 
 #ifdef RENDER_SHADOWCOMP
-    layout(std430, binding = 2) restrict buffer localLightingData
+    layout(std430, binding = 3) restrict buffer localLightingData
 #elif defined RENDER_BEGIN || defined RENDER_SHADOW
-    layout(std430, binding = 2) restrict writeonly buffer localLightingData
+    layout(std430, binding = 3) restrict writeonly buffer localLightingData
 #else
-    layout(std430, binding = 2) restrict readonly buffer localLightingData
+    layout(std430, binding = 3) restrict readonly buffer localLightingData
 #endif
 {
     LightCellData SceneLightMaps[];
@@ -57,11 +57,11 @@ struct LightCellData {
     };
 
     #ifdef RENDER_SHADOWCOMP
-        layout(std430, binding = 3) restrict buffer localBlockData
+        layout(std430, binding = 4) restrict buffer localBlockData
     #elif defined RENDER_BEGIN || defined RENDER_SHADOW
-        layout(std430, binding = 3) restrict writeonly buffer localBlockData
+        layout(std430, binding = 4) restrict writeonly buffer localBlockData
     #else
-        layout(std430, binding = 3) restrict readonly buffer localBlockData
+        layout(std430, binding = 4) restrict readonly buffer localBlockData
     #endif
     {
         BlockCellData SceneBlockMaps[];

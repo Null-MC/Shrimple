@@ -92,8 +92,15 @@ uniform float blindness;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
 
 #include "/lib/material/specular.glsl"
 
@@ -185,7 +192,7 @@ void main() {
     float viewDist = length(vLocalPos);
     float newWidth = (fogEnd - fogStart) * 4.0;
     float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
-    final.a *= fade;
+    final.a = 1.0;// *= fade;
 
     #ifdef VL_BUFFER_ENABLED
         vec3 localViewDir = normalize(vLocalPos);

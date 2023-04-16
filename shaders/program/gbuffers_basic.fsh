@@ -72,6 +72,12 @@ uniform int fogMode;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 

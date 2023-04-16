@@ -21,8 +21,14 @@ uniform float blindness;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/world/common.glsl"
-#include "/lib/buffers/shadow.glsl"
 #include "/lib/world/fog.glsl"
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 

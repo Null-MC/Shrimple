@@ -112,6 +112,12 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif

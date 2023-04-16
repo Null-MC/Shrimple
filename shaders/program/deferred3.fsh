@@ -98,7 +98,11 @@ uniform float blindness;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#include "/lib/buffers/shadow.glsl"
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"

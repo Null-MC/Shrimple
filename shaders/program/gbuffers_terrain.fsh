@@ -145,6 +145,12 @@ uniform int fogMode;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
@@ -159,9 +165,8 @@ uniform int fogMode;
     #include "/lib/world/wetness.glsl"
 #endif
 
-#include "/lib/buffers/shadow.glsl"
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"
