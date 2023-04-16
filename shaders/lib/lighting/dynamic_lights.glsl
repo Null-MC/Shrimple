@@ -625,22 +625,38 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         // TODO: optimize branching
         //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
+        float blackbodyTemp = 0.0;
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            float torchTemp = mix(2200, 2600, flickerNoise);
-            lightColor = 0.8 * blackbody(torchTemp);
+            blackbodyTemp = mix(2600, 3000, flickerNoise);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            float soulTorchTemp = mix(1200, 1800, 1.0 - flickerNoise);
-            lightColor = 0.8 * saturate(1.0 - blackbody(soulTorchTemp));
+            blackbodyTemp = mix(1200, 1800, 1.0 - flickerNoise);
         }
 
         if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
          || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            float candleTemp = mix(2000, 2400, flickerNoise);
-            lightColor = 0.7 * blackbody(candleTemp);
+            blackbodyTemp = mix(2000, 2400, flickerNoise);
+        }
+
+        vec3 blackbodyColor = vec3(1.0);
+        if (blackbodyTemp > 0.0)
+            blackbodyColor = blackbody(blackbodyTemp);
+
+        if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+            lightColor = 0.8 * blackbodyColor;
+        }
+
+        if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
+            lightColor = 0.8 * saturate(1.0 - blackbodyColor);
+        }
+
+        if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
+         || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
+         || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+            lightColor = 0.7 * blackbodyColor;
         }
     #endif
 

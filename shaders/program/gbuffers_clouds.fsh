@@ -14,6 +14,10 @@ in float vLit;
 in float geoNoL;
 in vec3 vBlockLight;
 
+#ifndef IS_IRIS
+    in vec2 texcoord;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
@@ -25,6 +29,10 @@ in vec3 vBlockLight;
 
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
+
+#ifndef IS_IRIS
+    uniform sampler2D gtexture;
+#endif
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
     uniform sampler3D texLPV;
@@ -159,7 +167,16 @@ float linear_fog_fade(const in float vertexDistance, const in float fogStart, co
 }
 
 void main() {
-    vec4 final = vColor;
+    #ifndef IS_IRIS
+        vec4 final = texture(gtexture, texcoord) * vColor;
+
+        if (final.a < 0.2) {
+            discard;
+            return;
+        }
+    #else
+        vec4 final = vColor;
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -183,7 +200,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        
+
         SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss, blockLightDefault);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
         

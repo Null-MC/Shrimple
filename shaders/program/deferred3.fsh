@@ -263,6 +263,14 @@ void main() {
     vec2 viewSize = vec2(viewWidth, viewHeight);
 
     float depth = texelFetch(depthtex0, iTex, 0).r;
+
+    float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
+    if (handClipDepth > depth) {
+        depth = depth * 2.0 - 1.0;
+        depth /= MC_HAND_DEPTH;
+        depth = depth * 0.5 + 0.5;
+    }
+
     float linearDepth = linearizeDepthFast(depth, near, far);
     vec3 final;
 
@@ -359,33 +367,41 @@ void main() {
                     float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
                     float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
-                    if (abs(depthPrevLinear1 - depthPrevLinear2) < 0.06) {// && normalWeight < 0.06) {
-                        vec3 blockDiffusePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
+                    float depthWeight = 1.0 - saturate(16.0 * abs(depthPrevLinear1 - depthPrevLinear2));
 
-                        float minWeight = mix(0.006, 0.014, DynamicLightTemporalStrength);
+                    float normalWeight = 1.0;
+                    vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
+                    if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
+                        normalPrev = normalize(normalPrev * 2.0 - 1.0);
+                        normalWeight = saturate(0.5 * dot(normalPrev, texNormal) + 0.5);
+                    }
+
+                    if (depthWeight > 0.0 && normalWeight > 0.0) {
+                        vec3 blockDiffusePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
 
                         float lum = log(luminance(blockDiffuse) + EPSILON);
                         float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
 
-                        float lumDiff = saturate(0.4 * abs(lum - lumPrev));
-                        float weight = mix(0.2, 0.04, DynamicLightTemporalStrength)*lumDiff + minWeight;
+                        float lumDiff = min(abs(lum - lumPrev), 1.0);
+                        float lumWeight = 1.0 - lumDiff * mix(0.2, 0.04, DynamicLightTemporalStrength);
 
-                        //weight = 1.0 - (1.0 - weight) * DynamicLightTemporalStrength;
-
-                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weight);
+                        float minWeight = mix(0.014, 0.006, DynamicLightTemporalStrength);
+                        float weightDiffuse = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
+                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weightDiffuse);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
 
                             lum = log(luminance(blockSpecular) + EPSILON);
                             lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
-                            lumDiff = saturate(0.4 * abs(lum - lumPrev));
 
-                            minWeight = mix(0.008, 0.04, DynamicLightTemporalStrength);
-                            weight = mix(0.2, 0.04, DynamicLightTemporalStrength)*lumDiff + 0.02;
+                            lumDiff = min(abs(lum - lumPrev), 0.6);
+                            lumWeight = 1.0 - lumDiff * mix(0.2, 0.16, DynamicLightTemporalStrength);
                             //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
 
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
+                            minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
+                            float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weightSpecular);
                         #endif
                     }
                 }

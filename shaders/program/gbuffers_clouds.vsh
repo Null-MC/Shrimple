@@ -14,6 +14,10 @@ out float vLit;
 out float geoNoL;
 out vec3 vBlockLight;
 
+#ifndef IS_IRIS
+    out vec2 texcoord;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         out vec3 shadowPos[4];
@@ -60,6 +64,10 @@ uniform vec3 cameraPosition;
 
 void main() {
     vColor = gl_Color;
+
+    #ifndef IS_IRIS
+        texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    #endif
 
     BasicVertex();
 }

@@ -49,7 +49,7 @@ void main() {
 
     color *= 1.0 - blindness;
 
-    #ifdef VL_BUFFER_ENABLED
+    #if defined VL_BUFFER_ENABLED || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
         color = LinearToRGB(color);
     #else
         ApplyPostProcessing(color);
