@@ -26,7 +26,7 @@ mat3 GetSaturationMatrix(const in float saturation) {
 
 
 void main() {
-    matColorPost = GetSaturationMatrix(1.1);
+    matColorPost = GetSaturationMatrix(PostSaturationF);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         const float goldenAngle = PI * (3.0 - sqrt(5.0));

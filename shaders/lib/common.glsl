@@ -175,6 +175,7 @@ const bool colortex14Clear = true;
 // Post-Processing
 //#define TONEMAP_ENABLED
 #define FXAA_ENABLED
+#define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define AF_SAMPLES 1
 
 
@@ -250,6 +251,7 @@ const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
+const float PostSaturationF = POST_SATURATION * 0.01;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const vec2 EPSILON2 = vec2(EPSILON);

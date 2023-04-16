@@ -312,6 +312,9 @@ option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
 
 screen.POST_OPTIONS=Post-Processing
 
+option.POST_SATURATION=Saturation
+suffix.POST_SATURATION=%
+
 option.TONEMAP_ENABLED=Tonemap
 option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
 
