@@ -77,6 +77,7 @@
 #define DEBUG_VIEW_BLOCK_DIFFUSE 9
 #define DEBUG_VIEW_BLOCK_SPECULAR 10
 #define DEBUG_VIEW_SHADOW_COLOR 11
+#define DEBUG_VIEW_WHITEWORLD 12
 
 #define ENTITY_PHYSICSMOD_SNOW 829925
 
@@ -94,5 +95,7 @@
 #define BUFFER_BLOCK_SPECULAR colortex11
 #define BUFFER_TA_SPECULAR colortex12
 #define BUFFER_ROUGHNESS colortex14
+
 #define TEX_LIGHTMAP colortex13
+#define TEX_RIPPLES colortex13
 #define TEX_LIGHT_NOISE noisetex

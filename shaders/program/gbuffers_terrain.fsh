@@ -17,10 +17,10 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 flat in int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
-#endif
+//#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec2 vLocalCoord;
@@ -60,6 +60,10 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
+#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+    uniform sampler3D TEX_RIPPLES;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -75,6 +79,7 @@ uniform sampler2D noisetex;
     uniform int worldTime;
 #endif
 
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -109,7 +114,7 @@ uniform int fogMode;
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
-    uniform float frameTimeCounter;
+    //uniform float frameTimeCounter;
 
     uniform float blindness;
 
@@ -155,10 +160,10 @@ uniform int fogMode;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"
-#endif
+//#endif
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
     #include "/lib/material/porosity.glsl"
@@ -179,9 +184,9 @@ uniform int fogMode;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
-#endif
+//#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -232,6 +237,7 @@ uniform int fogMode;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
+    float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
     
     #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -244,7 +250,6 @@ void main() {
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
-        float viewDist = length(vPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -260,6 +265,10 @@ void main() {
 
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
+
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        color.rgb = vec3(WHITEWORLD_VALUE);
+    #endif
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
@@ -299,9 +308,9 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = localNormal;
+    vec3 texNormal = vec3(0.0, 0.0, 1.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
+        GetMaterialNormal(atlasCoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
@@ -310,7 +319,6 @@ void main() {
 
                     if (depthDiff >= ParallaxSharpThreshold) {
                         texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-                        isValidNormal = true;
                     }
                 #endif
 
@@ -322,13 +330,24 @@ void main() {
                 #endif
             }
         #endif
-
-        if (isValidNormal) {
-            vec3 localTangent = normalize(vLocalTangent);
-            mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
-            texNormal = matLocalTBN * texNormal;
-        }
     #endif
+
+    vec3 localTangent = normalize(vLocalTangent);
+    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        vec3 worldPos = vLocalPos + cameraPosition;
+
+        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmcoord.y);
+        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+        ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
+    #endif
+
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE
+        texNormal = normalize(matLocalTBN * texNormal);
+    //#endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -347,9 +366,7 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(vLocalPos, localNormal, texNormal, lmcoord.y);
-        ApplySkyWetness(color.rgb, roughness, porosity, skyWetness);
+        ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
     #endif
 
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)

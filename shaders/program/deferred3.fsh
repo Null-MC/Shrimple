@@ -292,14 +292,14 @@ void main() {
         if (any(greaterThan(localNormal, EPSILON3)))
             localNormal = normalize(localNormal * 2.0 - 1.0);
 
-        vec3 texNormal = localNormal;
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
+        //vec3 texNormal = localNormal;
+        //#if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            texNormal = deferredTexture.rgb;
+            vec3 texNormal = deferredTexture.rgb;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
-        #endif
+        //#endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
@@ -332,11 +332,11 @@ void main() {
             #ifdef DYN_LIGHT_BLUR
                 const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
 
-                #if MATERIAL_NORMALS != NORMALMAP_NONE
+                //#if MATERIAL_NORMALS != NORMALMAP_NONE
                     BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
-                #else
-                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, localNormal, lightSigma);
-                #endif
+                //#else
+                //    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, localNormal, lightSigma);
+                //#endif
             #elif DYN_LIGHT_RES == 0
                 blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 

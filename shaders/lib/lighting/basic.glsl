@@ -316,7 +316,9 @@
 
         blockLightDefault = RGBToLinear(blockLightDefault);
 
-        #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+        #if defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER
+            blockDiffuse += blockLightDefault;
+        #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
             SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
         #else
             blockDiffuse += blockLightDefault;
@@ -333,9 +335,9 @@
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLight = textureLod(lightmap, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    vec3 skyLight = textureLod(lightmap, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #else
-                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(1.0/32.0, lmcoordY), 0).rgb;
+                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #endif
 
                 float worldBrightness = GetWorldBrightnessF();
@@ -347,6 +349,8 @@
             #else
                 const float skyLight = 1.0;
             #endif
+
+            //skyLight *= 1.0 - 0.8*rainStrength;
             
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -391,6 +395,7 @@
                     float invCosTheta = 1.0 - skyVoHm;
                     float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
 
+                    skyLight *= 1.0 - 0.92*rainStrength;
                     skySpecular += SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
                 }
             #endif

@@ -1,3 +1,10 @@
+profile.VANILLA=Vanilla
+profile.SHADOWS=Shadows Only
+profile.LIGHTS_FAST=Lights [Fast]
+profile.LIGHTS_FANCY=Lights [Fancy]
+profile.LIGHTS_RTX=Lights [RTX]
+
+
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.
 
@@ -109,6 +116,9 @@ suffix.DYN_LIGHT_DIRECTIONAL=%
 option.DYN_LIGHT_COLOR_MODE=Color Mode
 value.DYN_LIGHT_COLOR_MODE.0=Hard-Coded
 value.DYN_LIGHT_COLOR_MODE.1=Resource-Pack
+
+option.DYN_LIGHT_WEATHER=Weather
+option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
 
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
@@ -337,6 +347,7 @@ value.DEBUG_VIEW.8=Deferred VL
 value.DEBUG_VIEW.9=Deferred Diffuse
 value.DEBUG_VIEW.10=Deferred Specular
 value.DEBUG_VIEW.11=Shadow Color
+value.DEBUG_VIEW.12=White-World
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

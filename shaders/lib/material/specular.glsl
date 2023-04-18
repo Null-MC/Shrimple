@@ -1,5 +1,5 @@
 float GetBlockRoughness(const in int blockId) {
-    float smoothness = 0.0;
+    float smoothness = 0.1;
 
     switch (blockId) {
         case BLOCK_IRON_BARS:

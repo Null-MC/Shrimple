@@ -372,11 +372,11 @@ void main() {
         float skyNoL = 1.0;
 
         if (isValidNormal) {
-            #if MATERIAL_NORMALS != NORMALMAP_NONE
+            //#if MATERIAL_NORMALS != NORMALMAP_NONE
                 skyNoL = dot(texNormal, localLightDir);
-            #else
-                skyNoL = dot(localNormal, localLightDir);
-            #endif
+            //#else
+            //    skyNoL = dot(localNormal, localLightDir);
+            //#endif
         }
 
         #if MATERIAL_SSS != SSS_NONE

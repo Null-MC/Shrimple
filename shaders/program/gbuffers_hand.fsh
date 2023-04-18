@@ -262,6 +262,10 @@ void main() {
     #endif
 
     color.rgb *= glcolor.rgb;
+    
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        color.rgb = vec3(WHITEWORLD_VALUE);
+    #endif
 
     const float occlusion = 1.0; // glcolor.a
 
@@ -293,7 +297,7 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = vec3(0.0);
+    vec3 texNormal = localNormal;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
 

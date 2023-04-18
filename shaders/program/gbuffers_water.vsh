@@ -13,9 +13,9 @@ in vec3 at_midBlock;
     in vec4 mc_midTexCoord;
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
-#endif
+//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -29,10 +29,10 @@ out vec3 vLocalNormal;
 out vec3 vBlockLight;
 flat out int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     out vec3 vLocalTangent;
     out float vTangentW;
-#endif
+//#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     out vec2 vLocalCoord;
@@ -98,9 +98,9 @@ uniform vec3 cameraPosition;
     #include "/lib/world/waving.glsl"
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
-#endif
+//#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
     #include "/lib/sampling/atlas.glsl"
@@ -140,9 +140,9 @@ uniform vec3 cameraPosition;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
-#endif
+//#endif
 
 #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
     #include "/lib/physics_mod/ocean.glsl"
@@ -160,13 +160,13 @@ void main() {
 
     BasicVertex();
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
-    #endif
+    //#endif
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
         vTangentW = at_tangent.w;
-    #endif
+    //#endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
         GetAtlasBounds(atlasBounds, vLocalCoord);

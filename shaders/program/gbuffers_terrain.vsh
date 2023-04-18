@@ -13,9 +13,9 @@ in vec3 at_midBlock;
     in vec4 mc_midTexCoord;
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
-#endif
+//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -29,10 +29,10 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 flat out int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     out vec3 vLocalTangent;
     out float vTangentW;
-#endif
+//#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     out vec2 vLocalCoord;
@@ -93,10 +93,10 @@ uniform vec3 cameraPosition;
     #include "/lib/world/waving.glsl"
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
     #include "/lib/sampling/atlas.glsl"
-#endif
+//#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -132,9 +132,9 @@ uniform vec3 cameraPosition;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
-#endif
+//#endif
 
 #include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"
@@ -148,13 +148,13 @@ void main() {
 
     BasicVertex();
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE
         PrepareNormalMap();
-    #endif
+    //#endif
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
         vTangentW = at_tangent.w;
-    #endif
+    //#endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         GetAtlasBounds(atlasBounds, vLocalCoord);

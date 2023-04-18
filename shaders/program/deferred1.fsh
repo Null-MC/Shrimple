@@ -123,13 +123,13 @@ void main() {
             localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
         vec3 texNormal = localNormal.xyz;
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
+        //#if MATERIAL_NORMALS != NORMALMAP_NONE
             vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
             texNormal = deferredTexture.xyz;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
-        #endif
+        //#endif
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
@@ -157,11 +157,11 @@ void main() {
             outSpecular = vec4(blockSpecular, 1.0);
         #endif
 
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
+        //#if MATERIAL_NORMALS != NORMALMAP_NONE
             outNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
-        #else
-            outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
-        #endif
+        //#else
+        //    outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
+        //#endif
     }
     else {
         outDiffuse = vec4(0.0, 0.0, 0.0, 1.0);

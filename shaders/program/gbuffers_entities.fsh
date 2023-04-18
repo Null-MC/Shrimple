@@ -295,6 +295,10 @@ void main() {
         color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
     }
 
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        color.rgb = vec3(WHITEWORLD_VALUE);
+    #endif
+
     const float occlusion = 1.0; // glcolor.a
     
     vec3 localNormal = normalize(vLocalNormal);
@@ -395,11 +399,11 @@ void main() {
 
         #ifdef RENDER_TRANSLUCENT
             if (color.a > (0.5/255.0)) {
-                #if MATERIAL_NORMALS != NORMALMAP_NONE
+                //#if MATERIAL_NORMALS != NORMALMAP_NONE
                     float NoV = abs(dot(texNormal, localViewDir));
-                #else
-                    float NoV = abs(dot(localNormal, localViewDir));
-                #endif
+                //#else
+                //    float NoV = abs(dot(localNormal, localViewDir));
+                //#endif
 
                 float F = F_schlick(NoV, metal_f0, 1.0);
                 color.a += (1.0 - color.a) * F;

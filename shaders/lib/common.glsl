@@ -148,6 +148,7 @@ const bool colortex14Clear = true;
 #define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_PLAYER_SHADOW 2 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
+//#define DYN_LIGHT_WEATHER
 #define DYN_LIGHT_BLUR
 #define DYN_LIGHT_TA 50 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_RANGE 100 // [20 40 60 80 100 120 140 160 180 200 250 300 400]
@@ -180,7 +181,7 @@ const bool colortex14Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 //#define DYN_LIGHT_CONCRETE
@@ -194,6 +195,7 @@ const bool colortex14Clear = true;
 #define CSM_PLAYER_ID 0
 #define ROUGH_MIN 0.06
 #define METAL_BRIGHTNESS 0.2
+#define WHITEWORLD_VALUE 0.9
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -218,6 +220,8 @@ const bool colortex14Clear = true;
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
 #ifdef WATER_REFLECTIONS_ENABLED
+#endif
+#ifdef DYN_LIGHT_WEATHER
 #endif
 #ifdef DYN_LIGHT_BLUR
 #endif
@@ -256,6 +260,9 @@ const float PostSaturationF = POST_SATURATION * 0.01;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
+
+const float wetnessHalflife = 3600.0;
+const float drynessHalflife = 60.0;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     const float ShadowNormalBias = (SHADOW_CASCADED_NORMAL_BIAS * SHADOW_BIAS_SCALE);
@@ -320,6 +327,7 @@ float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
 vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}
 vec3 saturate(const in vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}
 
+float length2(const in vec2 vec) {return dot(vec, vec);}
 float length2(const in vec3 vec) {return dot(vec, vec);}
 
 float minOf(const in vec2 vec) {return min(vec[0], vec[1]);}
