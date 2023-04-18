@@ -339,7 +339,7 @@ void main() {
         vec3 worldPos = vLocalPos + cameraPosition;
 
         float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmcoord.y);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmcoord);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
         ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);

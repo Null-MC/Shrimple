@@ -1,6 +1,7 @@
-float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY) {
-    float skyLightCoord = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
-    float skyWetness = max(8.0 * skyLightCoord - 7.0, 0.0);
+float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 texNormal, in vec2 lmcoord) {
+    lmcoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+
+    float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
 
     skyWetness *= smoothstep(0.0, 1.0, wetness);//max(rainStrength, wetness);
 
