@@ -52,6 +52,7 @@ uniform vec3 upPosition;
 uniform float near;
 uniform float far;
 
+uniform int fogShape;
 uniform float fogStart;
 uniform float fogEnd;
 
@@ -207,7 +208,10 @@ void main() {
         final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
     #endif
 
-    float viewDist = length(vLocalPos);
+    vec3 fogPos = vLocalPos;
+    if (fogShape == 1) fogPos.y = 0.0;
+
+    float viewDist = length(fogPos);
     float newWidth = (fogEnd - fogStart) * 4.0;
     float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
     final.a *= fade;

@@ -15,9 +15,6 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 t
         skyWetness *= smoothstep(-0.2, 0.5, texNormal.y);
     #endif
 
-    // WARN: changing local to world broke everything
-    //vec3 worldPos = localPos + cameraPosition;
-
     #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
         worldPos = floor(worldPos * 16.0) / 16.0;
     #endif
@@ -38,7 +35,6 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
 }
 
 void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float viewDist, const in float puddleF) {
-    //vec3 worldPos = vLocalPos + cameraPosition;
     float rippleTime = frameTimeCounter / 0.72;
 
     #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
@@ -58,14 +54,10 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float 
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
-    //float puddle = smoothstep(0.26, 0.42, skyWetness - 0.4*porosity);
-
     float saturation = max(1.6 * skyWetness, puddleF) * porosity;
     albedo = pow(albedo, vec3(1.0 + saturation));
 
     float surfaceWetness = saturate(max(skyWetness - 0.3*porosity, puddleF));
-
-    //texNormal = mix(texNormal, geoNormal, puddleF);
 
     float _roughL = max(_pow2(roughness), ROUGH_MIN);
     _roughL = mix(_roughL, 0.1, surfaceWetness);

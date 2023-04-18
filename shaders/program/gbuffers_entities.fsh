@@ -259,7 +259,7 @@ void main() {
 
     vec4 color;
     if (entityId == ENTITY_PHYSICSMOD_SNOW) {
-        color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
+        color.rgb = vec3(1.0, 0.0, 0.0);//GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
         color.a = 1.0;
     }
     else {
@@ -424,7 +424,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

@@ -210,7 +210,7 @@ void main() {
     #endif
 
     const float occlusion = 1.0;
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
     ApplyFog(color, vLocalPos);
 

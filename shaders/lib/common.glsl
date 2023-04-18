@@ -97,15 +97,15 @@ const bool colortex14Clear = true;
 // Material Options
 #define MATERIAL_NORMALS 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
-#define MATERIAL_SSS 0 // [0 1 2]
-#define MATERIAL_SPECULAR 0 // [0 1 2 3]
+#define MATERIAL_SSS 1 // [0 1 2]
+#define MATERIAL_SPECULAR 1 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
-#define MATERIAL_POROSITY 0 // [0 1 2]
+#define MATERIAL_POROSITY 1 // [0 1 2]
 
 
 // Shadow Options
@@ -170,7 +170,7 @@ const bool colortex14Clear = true;
 #define VOLUMETRIC_BLOCK_MODE 0 // [0 1 2 3]
 #define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
 #define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800]
-#define VOLUMETRIC_RES 1 // [0 1 2]
+#define VOLUMETRIC_RES 0 // [0 1 2]
 //#define VOLUMETRIC_HANDLIGHT
 
 
@@ -197,6 +197,7 @@ const bool colortex14Clear = true;
 #define ROUGH_MIN 0.06
 #define METAL_BRIGHTNESS 0.2
 #define WHITEWORLD_VALUE 0.9
+#define AMBIENT_FANCY
 
 #define PI 3.1415926538
 #define TAU 6.2831853076

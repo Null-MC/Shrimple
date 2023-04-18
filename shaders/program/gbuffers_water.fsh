@@ -150,14 +150,15 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -466,7 +467,7 @@ void main() {
         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+    color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
     ApplyFog(color, vLocalPos);
 

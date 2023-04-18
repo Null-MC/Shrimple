@@ -141,14 +141,15 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -349,6 +350,8 @@ void main() {
         texNormal = normalize(matLocalTBN * texNormal);
     //#endif
 
+    if (IsFoliageBlock(vBlockId)) texNormal = vec3(0.0, 1.0, 0.0);
+
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if MATERIAL_NORMALS != NORMALMAP_NONE
             float skyNoL = dot(texNormal, localLightDir);
@@ -415,7 +418,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

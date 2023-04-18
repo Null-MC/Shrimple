@@ -20,10 +20,31 @@
             vec3 accumSpecular = vec3(0.0);
 
             for (uint i = 0u; i < lightCount; i++) {
-                vec3 lightPos, lightColor;
-                float lightSize, lightRange;
-                uvec4 lightData = GetSceneLight(gridIndex, i);
-                ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
+                vec3 lightPos, lightColor, lightVec;
+                float lightSize, lightRange, traceDist2;
+                uvec4 lightData;
+
+                //bool hasLight = false;
+                //for (uint i2 = 0u; i2 < 16u; i2++) {
+                    lightData = GetSceneLight(gridIndex, i);
+                    ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
+
+                    float traceRange2 = lightRange + 1.0;
+                    traceRange2 = _pow2(traceRange2);
+
+                    lightVec = lightFragPos - lightPos;
+                    traceDist2 = length2(lightVec);
+
+                    if (traceDist2 >= traceRange2) {
+                        //i++;
+                        continue;
+                    }
+
+                    //hasLight = true;
+                    //break;
+                //}
+
+                //if (!hasLight) continue;
 
                 lightColor = RGBToLinear(lightColor);
 
@@ -34,18 +55,18 @@
                         lightPos += offset;
                     #endif
 
-                    vec3 lightVec = lightFragPos - lightPos;
+                    lightVec = lightFragPos - lightPos;
                     uint traceFace = 1u << GetLightMaskFace(lightVec);
                     if ((lightData.z & traceFace) == traceFace) continue;
 
-                    float traceRange2 = lightRange + 1.0;
-                    traceRange2 = _pow2(traceRange2);
+                    //float traceRange2 = lightRange + 1.0;
+                    //traceRange2 = _pow2(traceRange2);
 
-                    float traceDist2 = length2(lightVec);
+                    //float traceDist2 = length2(lightVec);
 
-                    if (traceDist2 >= traceRange2) continue;
-                #else
-                    vec3 lightVec = lightFragPos - lightPos;
+                    //if (traceDist2 >= traceRange2) continue;
+                //#else
+                //    vec3 lightVec = lightFragPos - lightPos;
                 #endif
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
@@ -149,56 +170,6 @@
 #endif
 
 #ifdef RENDER_VERTEX
-    #if defined RENDER_TERRAIN || defined RENDER_WATER
-        bool IsFoliageBlock(const in int blockId) {
-            bool result = false;
-
-            switch (blockId) {
-                case BLOCK_LEAVES:
-                
-                case BLOCK_ALLIUM:
-                case BLOCK_AZURE_BLUET:
-                case BLOCK_BEETROOTS:
-                case BLOCK_BLUE_ORCHID:
-                case BLOCK_CARROTS:
-                case BLOCK_CAVE_VINE:
-                case BLOCK_CAVEVINE_BERRIES:
-                case BLOCK_CORNFLOWER:
-                case BLOCK_DANDELION:
-                case BLOCK_FERN:
-                case BLOCK_GRASS:
-                case BLOCK_KELP:
-                case BLOCK_LARGE_FERN_LOWER:
-                case BLOCK_LARGE_FERN_UPPER:
-                case BLOCK_LILAC_LOWER:
-                case BLOCK_LILAC_UPPER:
-                case BLOCK_LILY_OF_THE_VALLEY:
-                case BLOCK_OXEYE_DAISY:
-                case BLOCK_PEONY_LOWER:
-                case BLOCK_PEONY_UPPER:
-                case BLOCK_POPPY:
-                case BLOCK_POTATOES:
-                case BLOCK_ROSE_BUSH_LOWER:
-                case BLOCK_ROSE_BUSH_UPPER:
-                case BLOCK_SAPLING:
-                case BLOCK_SEAGRASS:
-                case BLOCK_SUGAR_CANE:
-                case BLOCK_SUNFLOWER_LOWER:
-                case BLOCK_SUNFLOWER_UPPER:
-                case BLOCK_SWEET_BERRY_BUSH:
-                case BLOCK_TALL_GRASS_LOWER:
-                case BLOCK_TALL_GRASS_UPPER:
-                case BLOCK_TULIP:
-                case BLOCK_WHEAT:
-                case BLOCK_WITHER_ROSE:
-                    result = true;
-                    break;
-            }
-
-            return result;
-        }
-    #endif
-
     void BasicVertex() {
         vec4 pos = gl_Vertex;
 
@@ -227,11 +198,6 @@
             geoNoL = dot(lightDir, vNormal);
 
             vLit = geoNoL;
-
-            #if defined RENDER_TERRAIN && defined FOLIAGE_UP
-                if (IsFoliageBlock(vBlockId))
-                    vLit = dot(lightDir, gbufferModelView[1].xyz);
-            #endif
         #else
             geoNoL = 1.0;
             vLit = 1.0;
@@ -404,7 +370,7 @@
         }
     #endif
 
-    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
+    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
         vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
         vec3 albedoFinal = albedo;
 
@@ -422,21 +388,31 @@
 
         vec3 ambientLight = vec3(0.0);
         #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+            #ifdef AMBIENT_FANCY
+                ambientLight = 0.7 * fogColor;
+
+                float upF = localNormal.y;
+                ambientLight = mix(ambientLight, skyColor, upF * 0.5 + 0.5);
+                ambientLight *= 0.4 + 0.6 * min(upF + 1.0, 1.0);
+            #else
+                ambientLight = vec3(1.0);
+            #endif
+
             vec2 lmFinal = lightCoord;//saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
             lmFinal.x *= 0.16;
             lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
 
             #ifdef RENDER_GBUFFER
-                ambientLight = textureLod(lightmap, lmFinal, 0).rgb;
+                vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
             #else
-                ambientLight = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             #endif
 
-            ambientLight = RGBToLinear(ambientLight) * ShadowBrightnessF;
+            ambientLight *= RGBToLinear(lightmapColor) * ShadowBrightnessF;
+        #endif
 
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                ambientLight *= occlusion;
-            #endif
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            ambientLight *= occlusion;
         #endif
 
         vec3 diffuse = albedoFinal * (ambientLight + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
