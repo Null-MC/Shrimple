@@ -619,7 +619,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         }
     #endif
     
-    lightColor = RGBToLinear(lightColor);
+    //lightColor = RGBToLinear(lightColor);
 
     #ifdef DYN_LIGHT_FLICKER
         // TODO: optimize branching
@@ -628,7 +628,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         float blackbodyTemp = 0.0;
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            blackbodyTemp = mix(2600, 3000, flickerNoise);
+            blackbodyTemp = mix(2400, 3000, flickerNoise);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
@@ -646,17 +646,17 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
             blackbodyColor = blackbody(blackbodyTemp);
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            lightColor = 0.8 * blackbodyColor;
+            lightColor = LinearToRGB(0.8 * blackbodyColor);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            lightColor = 0.8 * saturate(1.0 - blackbodyColor);
+            lightColor = LinearToRGB(0.8 * saturate(1.0 - blackbodyColor));
         }
 
         if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
          || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            lightColor = 0.7 * blackbodyColor;
+            lightColor = LinearToRGB(0.7 * blackbodyColor);
         }
     #endif
 

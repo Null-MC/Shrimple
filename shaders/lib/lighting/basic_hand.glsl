@@ -39,6 +39,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         if (traceDist2 < _pow2(lightRangeR)) {
             vec3 lightColor = GetSceneItemLightColor(heldItemId, noiseSample);
 
+            //lightColor = RGBToLinear(lightColor);
+
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
@@ -99,6 +101,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         vec3 lightVec = lightLocalPos - lightFragPos;
         if (dot(lightVec, lightVec) < _pow2(lightRangeL)) {
             vec3 lightColor = GetSceneItemLightColor(heldItemId2, noiseSample);
+
+            //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);

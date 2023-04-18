@@ -92,7 +92,7 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
         if (itemId == ITEM_TORCH || itemId == ITEM_LANTERN) {
-            float torchTemp = mix(1600, 3400, flickerNoise);
+            float torchTemp = mix(2400, 3000, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 
@@ -102,7 +102,7 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         }
 
         if (itemId == ITEM_JACK_O_LANTERN) {
-            float candleTemp = mix(2600, 3600, flickerNoise);
+            float candleTemp = mix(2000, 2400, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
     #endif

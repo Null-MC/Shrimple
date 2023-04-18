@@ -25,6 +25,8 @@
                 uvec4 lightData = GetSceneLight(gridIndex, i);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
+                lightColor = RGBToLinear(lightColor);
+
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                         vec3 offset = GetLightPenumbraOffset() * lightSize * 0.5 * DynamicLightPenumbraF;
