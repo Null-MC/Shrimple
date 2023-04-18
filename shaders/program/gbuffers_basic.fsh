@@ -149,7 +149,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, 1.0, 1.0));
+        deferredData.g = packUnorm4x8(vec4(lmcoord, 1.0, 0.0));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;

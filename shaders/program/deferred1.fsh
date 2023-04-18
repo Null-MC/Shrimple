@@ -102,13 +102,13 @@ void main() {
     #endif
 
     float depth = textureLod(depthtex0, tex2, 0).r;
-
     float handClipDepth = textureLod(depthtex2, tex2, 0).r;
-    if (handClipDepth > depth) {
-        depth = depth * 2.0 - 1.0;
-        depth /= MC_HAND_DEPTH;
-        depth = depth * 0.5 + 0.5;
-    }
+    
+    // if (handClipDepth > depth) {
+    //     depth = depth * 2.0 - 1.0;
+    //     depth /= MC_HAND_DEPTH;
+    //     depth = depth * 0.5 + 0.5;
+    // }
 
     outDepth = vec4(vec3(depth), 1.0);
 

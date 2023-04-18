@@ -263,13 +263,14 @@ void main() {
     vec2 viewSize = vec2(viewWidth, viewHeight);
 
     float depth = texelFetch(depthtex0, iTex, 0).r;
-
     float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
-    if (handClipDepth > depth) {
-        depth = depth * 2.0 - 1.0;
-        depth /= MC_HAND_DEPTH;
-        depth = depth * 0.5 + 0.5;
-    }
+    bool isHand = handClipDepth > depth;
+
+    // if (isHand) {
+    //     depth = depth * 2.0 - 1.0;
+    //     depth /= MC_HAND_DEPTH;
+    //     depth = depth * 0.5 + 0.5;
+    // }
 
     float linearDepth = linearizeDepthFast(depth, near, far);
     vec3 final;

@@ -161,8 +161,8 @@ bool CascadeContainsPosition(const in vec3 shadowViewPos, const in int cascade, 
 }
 
 bool CascadeIntersectsPosition(const in vec3 shadowViewPos, const in int cascade) {
-    return all(greaterThan(shadowViewPos.xy + 1.5, cascadeViewMin[cascade]))
-        && all(lessThan(shadowViewPos.xy - 1.5, cascadeViewMax[cascade]));
+    return all(greaterThan(shadowViewPos.xy + 3.0, cascadeViewMin[cascade]))
+        && all(lessThan(shadowViewPos.xy - 3.0, cascadeViewMax[cascade]));
 }
 
 int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {

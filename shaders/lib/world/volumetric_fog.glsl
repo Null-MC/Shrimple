@@ -102,7 +102,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         #endif
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            const float sampleBias = 0.0;
+            const float sampleBias = 0.0002;
 
             float sampleF = 0.0;
             vec3 sampleColor = skyLightColor;
@@ -111,7 +111,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                 vec3 shadowViewPos = shadowViewStep * (i + dither) + shadowViewStart;
                 vec3 traceShadowClipPos = vec3(0.0);
 
-                int cascade = GetShadowCascade(shadowViewPos, -1.0);
+                int cascade = GetShadowCascade(shadowViewPos, -2.0);
                 
                 if (cascade >= 0) {
                     traceShadowClipPos = shadowClipStart[cascade] + (i + dither) * shadowClipStep[cascade];
