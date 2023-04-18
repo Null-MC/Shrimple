@@ -89,6 +89,7 @@ const bool colortex14Clear = true;
 #define WORLD_WAVING_ENABLED
 #define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
+#define WORLD_WETNESS_PUDDLES 2 // [0 1 2]
 //#define OLD_LIGHTING
 #define FOLIAGE_UP
 

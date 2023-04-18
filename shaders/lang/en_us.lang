@@ -14,6 +14,11 @@ option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
 
+option.WORLD_WETNESS_PUDDLES=Puddles
+value.WORLD_WETNESS_PUDDLES.0=OFF
+value.WORLD_WETNESS_PUDDLES.1=Pixel
+value.WORLD_WETNESS_PUDDLES.2=Fancy
+
 option.WORLD_WAVING_ENABLED=Waving Plants
 option.WORLD_WAVING_ENABLED.comment=When enabled, plants will wave using artificial wind.
 

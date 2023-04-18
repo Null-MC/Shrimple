@@ -1,4 +1,4 @@
-float GetSkyWetness(const in vec3 worldPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY) {
+float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY) {
     float skyLightCoord = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
     float skyWetness = max(8.0 * skyLightCoord - 7.0, 0.0);
 
@@ -17,7 +17,7 @@ float GetSkyWetness(const in vec3 worldPos, const in vec3 localNormal, const in 
     // WARN: changing local to world broke everything
     //vec3 worldPos = localPos + cameraPosition;
 
-    #ifdef WORLD_PUDDLES_PIXELATED
+    #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
         worldPos = floor(worldPos * 16.0) / 16.0;
     #endif
     
@@ -29,12 +29,20 @@ float GetSkyWetness(const in vec3 worldPos, const in vec3 localNormal, const in 
 }
 
 float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
-    return smoothstep(0.1, 0.6, skyWetness - 0.3*porosity);
+    #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+        return smoothstep(0.1, 0.6, skyWetness - 0.3*porosity);
+    #else
+        return 0.0;
+    #endif
 }
 
-void ApplyWetnessRipples(inout vec3 texNormal, const in vec3 worldPos, const in float viewDist, const in float puddleF) {
+void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float viewDist, const in float puddleF) {
     //vec3 worldPos = vLocalPos + cameraPosition;
     float rippleTime = frameTimeCounter / 0.72;
+
+    #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
+        worldPos = floor(worldPos * 32.0) / 32.0;
+    #endif
 
     vec3 rippleNormal;
     vec2 rippleTex = worldPos.xz * 0.3;
@@ -45,7 +53,7 @@ void ApplyWetnessRipples(inout vec3 texNormal, const in vec3 worldPos, const in 
     rippleNormal = normalize(rippleNormal);
 
     rippleNormal = mix(vec3(0.0, 0.0, 1.0), rippleNormal, puddleF * rainStrength);
-    texNormal = mix(texNormal, rippleNormal, puddleF);
+    texNormal = mix(texNormal, rippleNormal, _pow2(puddleF));
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
