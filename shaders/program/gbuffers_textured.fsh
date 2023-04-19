@@ -178,9 +178,9 @@ void main() {
     //vec3 localNormal = normalize(vLocalNormal);
     color.rgb = RGBToLinear(color.rgb);
 
-    #ifdef RENDER_TEXTURED_LIT
-        color.rgb = vec3(1.0, 0.0, 0.0);
-    #endif
+    // #ifdef RENDER_TEXTURED_LIT
+    //     color.rgb = vec3(1.0, 0.0, 0.0);
+    // #endif
 
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;

@@ -70,7 +70,7 @@ float GetMaterialSSS(const in int blockId, const in vec2 texcoord) {
     float sss = 0.0;
 
     #ifdef RENDER_ENTITIES
-        //if (entityId == ENTITY_PHYSICSMOD_SNOW) return 0.8;
+        if (entityId == ENTITY_PHYSICSMOD_SNOW) return 0.8;
     #endif
 
     #if MATERIAL_SSS == SSS_LABPBR

@@ -258,7 +258,8 @@ void main() {
 
     vec4 color;
     if (entityId == ENTITY_PHYSICSMOD_SNOW) {
-        color.rgb = vec3(1.0, 0.0, 0.0);//GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
+        color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
+        //color.rgb = vec3(1.0, 0.0, 0.0);
         color.a = 1.0;
     }
     else {
