@@ -9,7 +9,7 @@ in vec4 mc_Entity;
 in vec3 vaPosition;
 in vec3 at_midBlock;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     in vec4 mc_midTexCoord;
 #endif
 
@@ -33,7 +33,7 @@ flat out int vBlockId;
     out float vTangentW;
 //#endif
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     out vec2 vLocalCoord;
     out vec3 tanViewPos;
     flat out mat2 atlasBounds;
@@ -77,31 +77,27 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IS_IRIS
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
-#include "/lib/sampling/noise.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#include "/lib/sampling/noise.glsl"
+#include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
     #include "/lib/world/waving.glsl"
 #endif
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/utility/tbn.glsl"
-//#endif
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     #include "/lib/sampling/atlas.glsl"
 #endif
 
@@ -143,8 +139,12 @@ uniform vec3 cameraPosition;
     #include "/lib/material/normalmap.glsl"
 //#endif
 
-#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-    #include "/lib/physics_mod/ocean.glsl"
+#ifdef WORLD_WATER_ENABLED
+    #ifdef PHYSICS_OCEAN
+        #include "/lib/physics_mod/ocean.glsl"
+    #elif defined WORLD_WATER_WAVES_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
 #endif
 
 #include "/lib/lighting/sampling.glsl"
@@ -167,7 +167,7 @@ void main() {
         vTangentW = at_tangent.w;
     //#endif
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
         GetAtlasBounds(atlasBounds, vLocalCoord);
     #endif
 
@@ -183,11 +183,17 @@ void main() {
         #endif
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+    #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
-            physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-            vec4 finalPosition = vec4(gl_Vertex.x, gl_Vertex.y + physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime), gl_Vertex.z, gl_Vertex.w);
-            physics_localPosition = finalPosition.xyz;
+            vec4 finalPosition = gl_Vertex;
+
+            #ifdef PHYSICS_OCEAN
+                physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
+                finalPosition.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+                physics_localPosition = finalPosition.xyz;
+            #elif defined WORLD_WATER_WAVES_ENABLED
+                finalPosition.y += water_waveHeight(vLocalPos.xz + cameraPosition.xz) - 0.06;
+            #endif
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
         }

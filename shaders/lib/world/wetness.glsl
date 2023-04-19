@@ -34,6 +34,11 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
     #endif
 }
 
+void ApplyWetnessPuddles(inout vec3 texNormal, const in float puddleF) {
+    texNormal = mix(texNormal, vec3(0.0, 0.0, 1.0), puddleF);
+    texNormal = normalize(texNormal);
+}
+
 void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float viewDist, const in float puddleF) {
     float rippleTime = frameTimeCounter / 0.72;
 
@@ -49,8 +54,18 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float 
     rippleNormal.z *= viewDist;
     rippleNormal = normalize(rippleNormal);
 
-    rippleNormal = mix(vec3(0.0, 0.0, 1.0), rippleNormal, puddleF * rainStrength);
-    texNormal = mix(texNormal, rippleNormal, _pow2(puddleF));
+    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+        if (vBlockId == BLOCK_WATER) {
+            texNormal += rippleNormal.xzy * _pow2(puddleF) * rainStrength;
+        }
+        else {
+    #endif
+            texNormal = mix(texNormal, rippleNormal, _pow2(puddleF) * rainStrength);
+    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+        }
+    #endif
+
+    texNormal = normalize(texNormal);
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {

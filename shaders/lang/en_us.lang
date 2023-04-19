@@ -19,6 +19,8 @@ value.WORLD_WETNESS_PUDDLES.0=OFF
 value.WORLD_WETNESS_PUDDLES.1=Pixel
 value.WORLD_WETNESS_PUDDLES.2=Fancy
 
+option.WORLD_WATER_WAVES_ENABLED=Water Waves
+
 option.WORLD_WAVING_ENABLED=Waving Plants
 option.WORLD_WAVING_ENABLED.comment=When enabled, plants will wave using artificial wind.
 

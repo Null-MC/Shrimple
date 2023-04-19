@@ -342,6 +342,7 @@ void main() {
         float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmcoord);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
+        ApplyWetnessPuddles(texNormal, puddleF);
         ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
     #endif
 

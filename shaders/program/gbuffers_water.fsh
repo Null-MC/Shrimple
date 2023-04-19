@@ -26,7 +26,7 @@ flat in int vBlockId;
     in float physics_localWaviness;
 #endif
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     in vec2 vLocalCoord;
     in vec3 tanViewPos;
     flat in mat2 atlasBounds;
@@ -159,22 +159,20 @@ uniform float blindness;
 #include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"
 
+#include "/lib/utility/tbn.glsl"
+
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #else
     #include "/lib/post/saturation.glsl"
 #endif
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/utility/tbn.glsl"
-//#endif
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE || (defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN)
+#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     #include "/lib/sampling/atlas.glsl"
-#endif
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -232,8 +230,12 @@ uniform float blindness;
     #include "/lib/material/normalmap.glsl"
 //#endif
 
-#if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-    #include "/lib/physics_mod/ocean.glsl"
+#ifdef WORLD_WATER_ENABLED
+    #ifdef PHYSICS_OCEAN
+        #include "/lib/physics_mod/ocean.glsl"
+    #elif defined WORLD_WATER_WAVES_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
 #endif
 
 #include "/lib/lighting/sampling.glsl"
@@ -253,8 +255,11 @@ layout(location = 0) out vec4 outFinal;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
+    vec3 worldPos = vLocalPos + cameraPosition;
+    vec3 texNormal = vec3(0.0, 0.0, 1.0);
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
+    bool skipParallax = false;
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
@@ -265,11 +270,34 @@ void main() {
         }
     #endif
 
+    #ifdef WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            skipParallax = true;
+
+            #ifdef PHYSICS_OCEAN
+                vec2 uvOffset;
+                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, uvOffset);
+
+                // TODO: wrap uvOffset with atlasBounds
+                atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
+                //color = texture(gtexture, atlasCoord);
+                //color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+            #elif defined WORLD_WATER_WAVES_ENABLED
+                vec2 uvOffset;
+                texNormal = water_waveNormal(worldPos.xz, uvOffset);
+
+                atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
+                //color = texture(gtexture, atlasCoord);
+                //color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+            #endif
+        }
+    #endif
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
-        bool skipParallax = false;
+        //bool skipParallax = false;
         //#ifdef RENDER_ENTITIES
         //    if (entityId == ENTITY_ITEM_FRAME || entityId == ENTITY_PHYSICSMOD_SNOW) skipParallax = true;
         //#else
@@ -334,9 +362,9 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = vec3(0.0, 0.0, 1.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        GetMaterialNormal(atlasCoord, texNormal);
+        if (vBlockId != BLOCK_WATER)
+            GetMaterialNormal(atlasCoord, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
@@ -358,19 +386,40 @@ void main() {
         #endif
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        vec3 worldPos = vLocalPos + cameraPosition;
+    #ifdef WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            //puddleF = 1.0;
+            roughness = 0.08;
+            metal_f0 = 0.02;
 
+            #ifdef PHYSICS_OCEAN
+                //vec2 uvOffset;
+                //texNormal = waveNormal;
+            #elif defined WORLD_WATER_WAVES_ENABLED
+                //vec2 uvOffset;
+                //texNormal = waveNormal;
+            #endif
+        }
+    #endif
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
         float skyWetness = GetSkyWetness(worldPos, localNormal, texNormal, lmcoord);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+        if (vBlockId != BLOCK_WATER)
+            ApplyWetnessPuddles(texNormal, puddleF);
 
         ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
     #endif
 
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
-    texNormal = matLocalTBN * texNormal;
+
+    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+    if (vBlockId != BLOCK_WATER)
+    #endif
+        texNormal = matLocalTBN * texNormal;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -384,26 +433,6 @@ void main() {
         #endif
     #else
         //shadowColor *= max(vLit, 0.0);
-    #endif
-
-    #ifdef WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER) {
-            //puddleF = 1.0;
-            roughness = 0.08;
-            metal_f0 = 0.02;
-
-            #ifdef PHYSICS_OCEAN
-                vec2 uvOffset;
-                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, uvOffset);
-
-                // TODO: wrap uvOffset with atlasBounds
-                vec2 atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
-                color = texture(gtexture, atlasCoord);
-                color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
-            //#else
-            //    texNormal = localNormal;
-            #endif
-        }
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
@@ -467,6 +496,9 @@ void main() {
     #endif
 
     color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+
+    vec3 specular = blockSpecular + skySpecular;
+    color.a = min(color.a + luminance(specular), 1.0);
 
     ApplyFog(color, vLocalPos);
 
