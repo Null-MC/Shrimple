@@ -260,6 +260,7 @@ void main() {
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
     bool skipParallax = false;
+    vec2 waterUvOffset;
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
@@ -275,20 +276,13 @@ void main() {
             skipParallax = true;
 
             #ifdef PHYSICS_OCEAN
-                vec2 uvOffset;
-                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, uvOffset);
+                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, waterUvOffset);
 
-                // TODO: wrap uvOffset with atlasBounds
-                atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
-                //color = texture(gtexture, atlasCoord);
-                //color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+                atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
             #elif defined WORLD_WATER_WAVES_ENABLED
-                vec2 uvOffset;
-                texNormal = water_waveNormal(worldPos.xz, uvOffset);
+                texNormal = water_waveNormal(worldPos.xz, waterUvOffset);
 
-                atlasCoord = GetAtlasCoord(vLocalCoord + uvOffset);
-                //color = texture(gtexture, atlasCoord);
-                //color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+                atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
             #endif
         }
     #endif
@@ -410,7 +404,9 @@ void main() {
         if (vBlockId != BLOCK_WATER)
             ApplyWetnessPuddles(texNormal, puddleF);
 
-        ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
+        vec3 waterWorldPos = worldPos;
+        waterWorldPos.xz += waterUvOffset;
+        ApplyWetnessRipples(texNormal, waterWorldPos, viewDist, puddleF);
     #endif
 
     vec3 localTangent = normalize(vLocalTangent);
