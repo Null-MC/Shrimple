@@ -10,7 +10,6 @@
 out vec3 vPos;
 out vec3 vLocalPos;
 out vec4 vColor;
-out float vLit;
 out float geoNoL;
 out vec3 vBlockLight;
 

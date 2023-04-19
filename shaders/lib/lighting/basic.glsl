@@ -196,11 +196,8 @@
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
             vec3 lightDir = normalize(shadowLightPosition);
             geoNoL = dot(lightDir, vNormal);
-
-            vLit = geoNoL;
         #else
             geoNoL = 1.0;
-            vLit = 1.0;
         #endif
 
         vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
@@ -328,12 +325,12 @@
                 vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
             #endif
 
-            float geoNoLm = 1.0;
+            float geoNoL = 1.0;
             if (!all(lessThan(abs(localNormal), EPSILON3)))
-                geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+                geoNoL = dot(localNormal, localLightDir);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                float diffuseNoL = GetLightNoL(geoNoLm, texNormal, localLightDir, sss);
+            #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+                float diffuseNoL = GetLightNoL(geoNoL, texNormal, localLightDir, sss);
             #else
                 const float diffuseNoL = 1.0;
             #endif
@@ -341,11 +338,11 @@
             skyDiffuse += diffuseNoL * skyLight * shadowColor;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                // float geoNoLm = 1.0;
+                // float geoNoL = 1.0;
                 // if (any(greaterThan(localNormal, EPSILON3)))
-                //     geoNoLm = max(dot(localNormal, localLightDir), 0.0);
+                //     geoNoL = max(dot(localNormal, localLightDir), 0.0);
 
-                if (geoNoLm > 0.0) {
+                if (geoNoL > EPSILON) {
                     float f0 = GetMaterialF0(metal_f0);
 
                     //vec3 localViewDir = normalize(localPos);
@@ -409,11 +406,13 @@
             #endif
 
             ambientLight *= RGBToLinear(lightmapColor) * ShadowBrightnessF;
-        #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             ambientLight *= occlusion;
         #endif
+
+        //#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        //    ambientLight *= occlusion;
+        //#endif
 
         vec3 diffuse = albedoFinal * (ambientLight + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
         vec3 specular = blockSpecular + skySpecular;

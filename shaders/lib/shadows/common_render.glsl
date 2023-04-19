@@ -9,7 +9,8 @@
                 if (tile >= 0)
                     shadowColor = GetShadowColor(shadowPos[tile], tile);
             #else
-                float bias = sss * (1.5 / 256.0);
+                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+                float bias = dither * sss * (1.5 / 256.0);
                 shadowColor = GetShadowColor(shadowPos, bias);
             #endif
         #endif

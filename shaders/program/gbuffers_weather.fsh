@@ -12,7 +12,6 @@ in vec2 texcoord;
 in vec4 glcolor;
 in float geoNoL;
 in vec3 vPos;
-in float vLit;
 in vec3 vLocalPos;
 in vec3 vBlockLight;
 

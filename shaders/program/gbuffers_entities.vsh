@@ -19,7 +19,6 @@ out vec4 glcolor;
 out vec3 vPos;
 out vec3 vNormal;
 out float geoNoL;
-out float vLit;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
 out vec3 vBlockLight;

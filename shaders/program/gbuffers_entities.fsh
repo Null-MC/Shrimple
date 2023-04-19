@@ -11,7 +11,6 @@ in vec4 glcolor;
 in vec3 vPos;
 in vec3 vNormal;
 in float geoNoL;
-in float vLit;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
@@ -369,7 +368,7 @@ void main() {
             shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
         #endif
     #else
-        shadowColor *= max(vLit, 0.0);
+        //shadowColor *= max(vLit, 0.0);
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))

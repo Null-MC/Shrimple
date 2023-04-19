@@ -10,7 +10,6 @@
 in vec3 vPos;
 in vec3 vLocalPos;
 in vec4 vColor;
-in float vLit;
 in float geoNoL;
 in vec3 vBlockLight;
 
