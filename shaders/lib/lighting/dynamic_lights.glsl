@@ -645,18 +645,20 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         if (blackbodyTemp > 0.0)
             blackbodyColor = blackbody(blackbodyTemp);
 
+        float flickerBrightness = 0.6 + 0.4 * flickerNoise;
+
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            lightColor = LinearToRGB((0.4 + 0.4 * flickerNoise) * blackbodyColor);
+            lightColor = LinearToRGB(flickerBrightness * blackbodyColor);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            lightColor = LinearToRGB(0.8 * saturate(1.0 - blackbodyColor));
+            lightColor = LinearToRGB(flickerBrightness * saturate(1.0 - blackbodyColor));
         }
 
         if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
          || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            lightColor = LinearToRGB(0.7 * blackbodyColor);
+            lightColor = LinearToRGB(0.4 * flickerBrightness * blackbodyColor);
         }
     #endif
 

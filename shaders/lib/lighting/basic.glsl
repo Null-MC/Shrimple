@@ -390,11 +390,11 @@
         vec3 ambientLight = vec3(0.0);
         #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
             #ifdef AMBIENT_FANCY
-                ambientLight = 0.7 * fogColor;
+                ambientLight = fogColor;
 
                 float upF = localNormal.y;
                 ambientLight = mix(ambientLight, skyColor, upF * 0.5 + 0.5);
-                ambientLight *= 0.4 + 0.6 * min(upF + 1.0, 1.0);
+                ambientLight *= 0.34 + 0.66 * min(upF + 1.0, 1.0);
             #else
                 ambientLight = vec3(1.0);
             #endif
