@@ -244,6 +244,7 @@ ivec2 GetTemporalOffset(const in int size) {
 }
 
 
+#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     /* RENDERTARGETS: 0,7,8,9,12 */
     layout(location = 0) out vec4 outFinal;
@@ -477,3 +478,15 @@ void main() {
 
     outFinal = vec4(final, 1.0);
 }
+#else
+    // Pass-through for world-specific flags not working in shader.properties
+    
+    uniform sampler2D colortex0;
+
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+
+    void main() {
+        outFinal = texture(colortex0, texcoord);
+    }
+#endif
