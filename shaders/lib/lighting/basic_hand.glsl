@@ -20,7 +20,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     #endif
 
     float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
-    float geoNoLm;
+    float geoNoL;
 
     vec3 accumDiffuse = vec3(0.0);
     vec3 accumSpecular = vec3(0.0);
@@ -60,11 +60,11 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #endif
             #endif
 
-            geoNoLm = 1.0;
+            geoNoL = 1.0;
             vec3 lightDir = normalize(lightVec);
-            if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+            if (hasGeoNormal) geoNoL = dot(fragLocalNormal, lightDir);
 
-            float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
+            float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
@@ -83,7 +83,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
@@ -123,11 +123,11 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #endif
             #endif
             
-            geoNoLm = 1.0;
+            geoNoL = 1.0;
             vec3 lightDir = normalize(lightVec);
-            if (hasGeoNormal) geoNoLm = max(dot(fragLocalNormal, lightDir), 0.0);
+            if (hasGeoNormal) geoNoL = dot(fragLocalNormal, lightDir);
 
-            float lightNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
+            float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
@@ -146,7 +146,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }

@@ -137,16 +137,13 @@
                         F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                     #endif
 
-                    //float diffuseNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
                     accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        //if (geoNoL > EPSILON) {
-                            float lightNoLm = max(dot(texNormal, lightDir), 0.0);
-                            float lightNoHm = max(dot(texNormal, lightH), EPSILON);
+                        float lightNoLm = max(dot(texNormal, lightDir), 0.0);
+                        float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
-                            accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
-                        //}
+                        accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                     #endif
                 }
             }
