@@ -120,10 +120,12 @@
                 #endif
 
                 vec3 lightDir = normalize(-lightVec);
-                float geoNoLm = 1.0;
-                if (hasGeoNormal) geoNoLm = max(dot(localNormal, lightDir), 0.0);
+                float geoNoL = 1.0;
+                if (hasGeoNormal) geoNoL = dot(localNormal, lightDir);
 
-                if (geoNoLm > EPSILON) {
+                float diffuseNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
+
+                if (diffuseNoLm > EPSILON) {
                     float lightAtt = GetLightAttenuation(lightVec, lightRange);
 
                     float F = 0.0;
@@ -135,14 +137,16 @@
                         F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                     #endif
 
-                    float diffuseNoLm = GetLightNoL(geoNoLm, texNormal, lightDir, sss);
+                    //float diffuseNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
                     accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                        float lightNoLm = max(dot(texNormal, lightDir), 0.0);
-                        float lightNoHm = max(dot(texNormal, lightH), EPSILON);
+                        //if (geoNoL > EPSILON) {
+                            float lightNoLm = max(dot(texNormal, lightDir), 0.0);
+                            float lightNoHm = max(dot(texNormal, lightH), EPSILON);
 
-                        accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                            accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                        //}
                     #endif
                 }
             }
@@ -342,7 +346,7 @@
                 // if (any(greaterThan(localNormal, EPSILON3)))
                 //     geoNoL = max(dot(localNormal, localLightDir), 0.0);
 
-                if (geoNoL > EPSILON) {
+                //if (geoNoL > EPSILON) {
                     float f0 = GetMaterialF0(metal_f0);
 
                     //vec3 localViewDir = normalize(localPos);
@@ -361,8 +365,8 @@
                     float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
 
                     skyLight *= 1.0 - 0.92*rainStrength;
-                    skySpecular += SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
-                }
+                    skySpecular += max(geoNoL, 0.0) * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
+                //}
             #endif
         }
     #endif

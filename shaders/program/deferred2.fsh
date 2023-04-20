@@ -112,7 +112,8 @@ void main() {
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
     vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-    vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
+    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
+    vec3 localViewDir = normalize(localPos);
     outVL = GetVolumetricLighting(localViewDir, near, min(length(viewPos) - 0.05, far));
 }

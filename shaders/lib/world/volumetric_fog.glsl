@@ -94,34 +94,41 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
     #endif
 
     float localStepLength = localRayLength * inverseStepCountF;
+    float sampleTransmittance = exp(-extinction * localStepLength);
+    float extinctionInv = rcp(extinction);
 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
-    for (int i = 0; i < stepCount; i++) {
+    for (int i = 0; i <= stepCount; i++) {
         vec3 inScattering = ambient * fogColor;
+
+        float iStep = i;// + dither;
+        if (i < stepCount) iStep += dither;
 
         #ifdef WORLD_SKY_ENABLED
             inScattering *= (eyeBrightnessSmooth.y / 240.0); //vec3(0.008);
         #endif
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            const float sampleBias = 0.0002;
-
             float sampleF = 0.0;
             vec3 sampleColor = skyLightColor;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                vec3 shadowViewPos = shadowViewStep * (i + dither) + shadowViewStart;
-                vec3 traceShadowClipPos = vec3(0.0);
+                float sampleBias = 0.01 / (far * 3.0);
 
-                int cascade = GetShadowCascade(shadowViewPos, -2.0);
+                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+                vec3 traceShadowClipPos = vec3(-1.0);
+
+                int cascade = GetShadowCascade(shadowViewPos, 3.0);
                 
                 if (cascade >= 0) {
-                    traceShadowClipPos = shadowClipStart[cascade] + (i + dither) * shadowClipStep[cascade];
+                    traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
                     sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                 }
             #else
-                vec3 traceShadowClipPos = shadowClipStep * (i + dither) + shadowClipStart;
+                const float sampleBias = 0.01 / 256.0;
+
+                vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
@@ -144,7 +151,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             inScattering += skyPhase * sampleF * sampleColor;
         #endif
 
-        vec3 traceLocalPos = localStep * (i + dither) + localStart;
+        vec3 traceLocalPos = localStep * iStep + localStart;
 
         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             vec3 blockLightAccum = vec3(0.0);
@@ -161,15 +168,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                 uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                    for (uint i = 0; i < lightCount; i++) {
-                        uvec4 lightData = GetSceneLight(gridIndex, i);
+                    for (uint l = 0; l < lightCount; l++) {
+                        uvec4 lightData = GetSceneLight(gridIndex, l);
 
                         vec3 lightPos, lightColor;
                         float lightSize, lightRange;
                         ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
                         vec3 lightVec = traceLocalPos - lightPos;
-                        if (dot(lightVec, lightVec) >= _pow2(lightRange)) continue;
+                        if (length2(lightVec) >= _pow2(lightRange)) continue;
                         
                         #if VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                             uint traceFace = 1u << GetLightMaskFace(lightVec);
@@ -195,7 +202,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                         float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
+                        blockLightAccum += 0.3 * SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
                     }
                 }
             #endif
@@ -269,8 +276,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
 
         inScattering *= scatterF;
 
-        float sampleTransmittance = exp(-extinction * localStepLength);
-        vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) / extinction;
+        //float sampleTransmittance = exp(-extinction * localStepLength);
+        vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) * extinctionInv;
 
         scattering += scatteringIntegral * transmittance;
         transmittance *= sampleTransmittance;
