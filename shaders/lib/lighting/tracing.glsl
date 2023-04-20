@@ -133,7 +133,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     vec3 direction = traceRay / traceRayLen;
-    float STEP_COUNT = 16;//ceil(traceRayLen);
+    float STEP_COUNT = 24;//ceil(traceRayLen);
 
     vec3 stepSizes = 1.0 / abs(direction);
     vec3 stepDir = sign(direction);

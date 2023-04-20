@@ -119,7 +119,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
                 vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
                 vec3 traceShadowClipPos = vec3(-1.0);
 
-                int cascade = GetShadowCascade(shadowViewPos, 3.0);
+                int cascade = GetShadowCascade(shadowViewPos, -0.01);
                 
                 if (cascade >= 0) {
                     traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
