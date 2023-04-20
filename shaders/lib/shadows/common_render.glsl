@@ -3,14 +3,18 @@
         vec3 shadowColor = vec3(1.0);
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float bias = dither * sss;
+
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
-                if (tile >= 0)
-                    shadowColor = GetShadowColor(shadowPos[tile], tile);
+                if (tile >= 0) {
+                    bias *= (1.5 / (far * 3.0));
+                    shadowColor = GetShadowColor(shadowPos[tile], tile, bias);
+                }
             #else
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-                float bias = dither * sss * (1.5 / 256.0);
+                bias *= (1.5 / 256.0);
                 shadowColor = GetShadowColor(shadowPos, bias);
             #endif
         #endif

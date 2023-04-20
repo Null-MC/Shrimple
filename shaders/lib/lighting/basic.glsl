@@ -29,7 +29,7 @@
                     lightData = GetSceneLight(gridIndex, i);
                     ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
-                    float traceRange2 = lightRange + 1.0;
+                    float traceRange2 = lightRange + 0.5;
                     traceRange2 = _pow2(traceRange2);
 
                     lightVec = lightFragPos - lightPos;

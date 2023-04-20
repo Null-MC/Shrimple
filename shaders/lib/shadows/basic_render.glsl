@@ -168,7 +168,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     // Unfiltered
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
         vec3 GetShadowColor(const in vec3 shadowPos, const in float bias) {
-            float offsetBias = GetShadowOffsetBias();
+            float offsetBias = GetShadowOffsetBias() + bias;
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
             if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);

@@ -83,9 +83,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
         vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
         float VoL = dot(localLightDir, localViewDir);
 
-        const vec3 sunColorUp = vec3(1.0);
+        const vec3 skyColorDay = vec3(0.965, 0.901, 0.725);
+        const vec3 skyColorNight = vec3(0.965, 0.901, 0.725);
         const vec3 sunColorHorizon = vec3(0.975, 0.654, 0.160);
-        vec3 skyLightColor = mix(sunColorHorizon, sunColorUp, abs(localLightDir.y));
+        vec3 skyLightColor = mix(skyColorNight, skyColorDay, localLightDir.y * 0.5 + 0.5);
+        skyLightColor = mix(sunColorHorizon, skyLightColor, abs(localLightDir.y));
         skyLightColor = (skyLightColor + 0.02) * RGBToLinear(fogColor);
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);

@@ -92,17 +92,17 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
 
         if (itemId == ITEM_TORCH || itemId == ITEM_LANTERN) {
-            float torchTemp = mix(2400, 3000, flickerNoise);
+            float torchTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
             lightColor = 0.8 * blackbody(torchTemp);
         }
 
         if (itemId == ITEM_SOUL_TORCH || itemId == ITEM_SOUL_LANTERN) {
-            float soulTorchTemp = mix(1200, 1800, 1.0 - flickerNoise);
+            float soulTorchTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
             lightColor = 0.8 * saturate(1.0 - blackbody(soulTorchTemp));
         }
 
         if (itemId == ITEM_JACK_O_LANTERN) {
-            float candleTemp = mix(2000, 2400, flickerNoise);
+            float candleTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
             lightColor = 0.7 * blackbody(candleTemp);
         }
     #endif

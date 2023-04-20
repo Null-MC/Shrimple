@@ -628,17 +628,17 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
         float blackbodyTemp = 0.0;
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            blackbodyTemp = mix(2400, 3000, flickerNoise);
+            blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            blackbodyTemp = mix(1200, 1800, 1.0 - flickerNoise);
+            blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
         }
 
         if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
          || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
          || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            blackbodyTemp = mix(2000, 2400, flickerNoise);
+            blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
         }
 
         vec3 blackbodyColor = vec3(1.0);
@@ -646,7 +646,7 @@ vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
             blackbodyColor = blackbody(blackbodyTemp);
 
         if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            lightColor = LinearToRGB(0.8 * blackbodyColor);
+            lightColor = LinearToRGB((0.4 + 0.4 * flickerNoise) * blackbodyColor);
         }
 
         if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {

@@ -198,6 +198,10 @@ option.LIGHT_SIZE_XZ=Horizontal Bin Count
 
 option.LIGHT_SIZE_Y=Vertical Bin Count
 
+option.DYN_LIGHT_RANGE=Range
+option.DYN_LIGHT_RANGE.comment=Adjusts the scale of the range blocks cast light. Warning, increasing can dramatically reduce performance!
+suffix.DYN_LIGHT_RANGE=%
+
 
 screen.DYNAMIC_LIGHT_TRACE_ADVANCED_OPTIONS=Advanced
 
@@ -208,10 +212,6 @@ option.DYN_LIGHT_TA=Temporal Accumulation
 option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
 suffix.DYN_LIGHT_TA=%
 value.DYN_LIGHT_TA.0=OFF
-
-option.DYN_LIGHT_RANGE=Range
-option.DYN_LIGHT_RANGE.comment=Adjusts the scale of the range blocks cast light. Warning, increasing can dramatically reduce performance!
-suffix.DYN_LIGHT_RANGE=%
 
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting

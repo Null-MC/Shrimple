@@ -121,19 +121,19 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     }
 
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
+        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade, const in float bias) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowOffsetBias(cascade);
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
             // blocker search
-            float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
+            float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, offsetBias);
 
             if (blockerDistance <= 0.0) {
                 //float depthOpaque = textureLod(shadowtex1, shadowPos.xy, 0).r;
-                //if (shadowPos.z - bias > depthOpaque) return vec3(0.0);
+                //if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);
 
                 float depthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
-                if (shadowPos.z - bias < depthTrans) return vec3(1.0);
+                if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
 
                 vec4 shadowColor = textureLod(shadowcolor0, shadowPos.xy, 0);
                 shadowColor.rgb = RGBToLinear(shadowColor.rgb);
@@ -144,20 +144,20 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             }
 
             pixelRadius *= min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
-            return GetShadowing_PCF(shadowPos, pixelRadius, bias);
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
+        float GetShadowFactor(const in vec3 shadowPos, const in int cascade, const in float bias) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowOffsetBias(cascade);
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
-            float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, bias);
+            float blockerDistance = FindBlockerDistance(shadowPos, pixelRadius, offsetBias);
             if (blockerDistance <= 0.0) return 1.0;
 
             //bias *= 1.0 + 20.0 * blockerDistance;
 
             pixelRadius *= min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
-            float shadow = GetShadowing_PCF(shadowPos, pixelRadius, bias);
+            float shadow = GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
             //return 1.0 - shadow;
             return 1.0 - smoothstep(0.0, 1.0, shadow);
         }
@@ -165,31 +165,31 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 #elif SHADOW_FILTER == 1
     // PCF
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
+        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade, const in float bias) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowOffsetBias(cascade);
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
-            return GetShadowing_PCF(shadowPos, pixelRadius, bias);
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
+        float GetShadowFactor(const in vec3 shadowPos, const in int cascade, const in float bias) {
             vec2 pixelRadius = GetPixelRadius(ShadowPCFSize, cascade);
-            float bias = GetShadowOffsetBias(cascade);
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
-            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, bias);
+            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #endif
 #elif SHADOW_FILTER == 0
     // Unfiltered
     #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
-            float bias = GetShadowOffsetBias(cascade);
+        vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade, const in float bias) {
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
-            if (shadowPos.z - bias > depthOpaque) return vec3(0.0);
+            if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);
 
             float depthTrans = texture(shadowtex0, shadowPos.xy).r;
-            if (shadowPos.z - bias < depthTrans) return vec3(1.0);
+            if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
 
             vec4 shadowColor = texture(shadowcolor0, shadowPos.xy);
             shadowColor.rgb = RGBToLinear(shadowColor.rgb);
@@ -199,9 +199,9 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return shadowColor.rgb;
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in int cascade) {
-            float bias = GetShadowOffsetBias(cascade);
-            return CompareDepth(shadowPos, vec2(0.0), bias);
+        float GetShadowFactor(const in vec3 shadowPos, const in int cascade, const in float bias) {
+            float offsetBias = GetShadowOffsetBias(cascade) + bias;
+            return CompareDepth(shadowPos, vec2(0.0), offsetBias);
         }
     #endif
 #endif
