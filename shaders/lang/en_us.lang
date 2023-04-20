@@ -31,9 +31,6 @@ option.WORLD_AO_ENABLED=Ambient Occlusion
 
 option.OLD_LIGHTING=Old Lighting
 
-option.FOLIAGE_UP=Upward Normals
-option.FOLIAGE_UP.comment=Vegetation will be lit with upward normals.
-
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
 

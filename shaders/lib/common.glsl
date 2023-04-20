@@ -92,7 +92,6 @@ const bool colortex14Clear = true;
 #define WATER_REFLECTIONS_ENABLED
 #define WORLD_WETNESS_PUDDLES 2 // [0 1 2]
 //#define OLD_LIGHTING
-#define FOLIAGE_UP
 
 
 // Material Options
@@ -309,8 +308,6 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #endif
 
 #ifdef OLD_LIGHTING
-#endif
-#ifdef FOLIAGE_UP
 #endif
 #ifdef SHADOW_BLUR
 #endif
