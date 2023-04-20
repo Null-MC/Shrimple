@@ -19,12 +19,6 @@
             #endif
         #endif
 
-        // #if MATERIAL_SSS != SSS_NONE
-        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
-        // #else
-        //     shadowColor *= max(NoL, 0.0);
-        // #endif
-
         return shadowColor;
     }
 
@@ -33,25 +27,23 @@
     }
 #else
     float GetFinalShadowFactor(const in float sss) {
+        float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+        float bias = dither * sss;
         float shadow = 1.0;
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
-                if (tile >= 0)
-                    shadow = GetShadowFactor(shadowPos[tile], tile);
+                if (tile >= 0) {
+                    bias *= (1.5 / (far * 3.0));
+                    shadow = GetShadowFactor(shadowPos[tile], tile, bias);
+                }
             #else
-                float bias = sss * (1.5 / 256.0);
+                bias *= (1.5 / 256.0);
                 shadow = GetShadowFactor(shadowPos, bias);
             #endif
         #endif
-
-        // #if MATERIAL_SSS != SSS_NONE
-        //     shadowColor *= mix(max(NoL, 0.0), abs(NoL), sss);
-        // #else
-        //     shadowColor *= max(NoL, 0.0);
-        // #endif
 
         return shadow;
     }

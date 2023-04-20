@@ -393,8 +393,8 @@
                 ambientLight = fogColor;
 
                 float upF = localNormal.y;
-                ambientLight = mix(ambientLight, skyColor, upF * 0.5 + 0.5);
-                ambientLight *= 0.34 + 0.66 * min(upF + 1.0, 1.0);
+                ambientLight = mix(ambientLight, skyColor, localNormal.y * 0.5 + 0.5);
+                ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             #else
                 ambientLight = vec3(1.0);
             #endif
@@ -409,21 +409,19 @@
                 vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             #endif
 
-            ambientLight *= RGBToLinear(lightmapColor) * ShadowBrightnessF;
+            ambientLight *= RGBToLinear(lightmapColor);
+            //ambientLight *= ShadowBrightnessF;
 
-            ambientLight *= occlusion;
+            vec3 diffuse = albedoFinal * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
+        #else
+            vec3 diffuse = albedoFinal * (blockDiffuse + skyDiffuse) * occlusion;
         #endif
 
-        //#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        //    ambientLight *= occlusion;
-        //#endif
-
-        vec3 diffuse = albedoFinal * (ambientLight + blockDiffuse + skyDiffuse);// * shadowingF * worldBrightness;
         vec3 specular = blockSpecular + skySpecular;
 
-        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-            diffuse *= occlusion;
-        #endif
+        // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+        //     diffuse *= occlusion;
+        // #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {

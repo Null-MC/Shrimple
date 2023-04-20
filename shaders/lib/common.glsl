@@ -198,7 +198,7 @@ const bool colortex14Clear = true;
 #define ROUGH_MIN 0.06
 #define METAL_BRIGHTNESS 0.2
 #define WHITEWORLD_VALUE 0.9
-#define AMBIENT_FANCY
+//#define AMBIENT_FANCY
 
 #define PI 3.1415926538
 #define TAU 6.2831853076

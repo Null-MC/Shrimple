@@ -384,9 +384,9 @@ void main() {
                         float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
 
                         float lumDiff = min(abs(lum - lumPrev), 1.0);
-                        float lumWeight = 1.0 - lumDiff * mix(0.2, 0.04, DynamicLightTemporalStrength);
+                        float lumWeight = 1.0 - lumDiff * mix(0.3, 0.04, DynamicLightTemporalStrength);
 
-                        float minWeight = mix(0.014, 0.006, DynamicLightTemporalStrength);
+                        float minWeight = mix(0.02, 0.006, DynamicLightTemporalStrength);
                         float weightDiffuse = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
                         blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weightDiffuse);
 
