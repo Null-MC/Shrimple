@@ -353,7 +353,7 @@
                     float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
                     float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
-                    if (any(greaterThan(texNormal, EPSILON3))) {
+                    if (!all(lessThan(abs(texNormal), EPSILON3))) {
                         skyNoLm = max(dot(texNormal, localLightDir), 0.0);
                         skyNoVm = max(dot(texNormal, localViewDir), 0.0);
                         skyNoHm = max(dot(texNormal, skyH), 0.0);
@@ -363,7 +363,7 @@
                     float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
 
                     skyLight *= 1.0 - 0.92*rainStrength;
-                    
+
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
                 //}
