@@ -26,7 +26,7 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     float speed = WATER_SPEED;
     float weight = skyLight;
     float height = 0.0;
-    float waveSum = EPSILON;
+    float waveSum = 0.0;
     
     for (int i = 0; i < WATER_ITERATIONS_VERTEX; i++) {
         vec2 direction = vec2(sin(iter), cos(iter));
@@ -44,6 +44,7 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
         speed *= WATER_SPEED_MULT;
     }
     
+    if (waveSum < EPSILON) return 0.0;
     return ((height / waveSum) - 0.6 * step(EPSILON, skyLight)) * WATER_WAVE_HEIGHT * skyLight;
 }
 
@@ -56,7 +57,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     float frequency = WATER_FREQUENCY;
     float speed = WATER_SPEED;
     float weight = skyLight;
-    float waveSum = EPSILON;
+    float waveSum = 0.0;
     vec2 dx = vec2(0.0);
     
     for (int i = 0; i < WATER_ITERATIONS_FRAGMENT; i++) {
@@ -77,6 +78,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     
     uvOffset = (wavePos / WATER_XZ_SCALE) - worldPos;
 
+    if (waveSum < EPSILON) return vec2(0.0);
     return vec2(dx / pow(waveSum, 1.0 - WATER_DETAIL));
 }
 
