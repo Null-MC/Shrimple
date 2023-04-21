@@ -142,8 +142,9 @@
                     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                         float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                         float lightNoHm = max(dot(texNormal, lightH), EPSILON);
+                        float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
 
-                        accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                        accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                     #endif
                 }
             }
@@ -362,7 +363,9 @@
                     float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
 
                     skyLight *= 1.0 - 0.92*rainStrength;
-                    skySpecular += max(geoNoL, 0.0) * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
+                    
+                    float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
+                    skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
                 //}
             #endif
         }
