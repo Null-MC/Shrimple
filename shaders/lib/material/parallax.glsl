@@ -1,4 +1,4 @@
-vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
     vec2 stepCoord = tanViewDir.xy * ParallaxDepthF / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
     const float stepDepth = rcp(MATERIAL_PARALLAX_SAMPLES);
 
@@ -10,6 +10,8 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
     float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_DISTANCE);
     int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
 
+    stepCoord.y *= atlasBounds[1].x / atlasBounds[1].y;
+
     int i;
     texDepth = 1.0;
     float depthDist = 1.0;
@@ -18,7 +20,7 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
             prevTexDepth = texDepth;
         #endif
 
-        vec2 localTraceCoord = vLocalCoord - i * stepCoord;
+        vec2 localTraceCoord = texcoord - i * stepCoord;
 
         #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
             //vec2 traceAtlasCoord = GetAtlasCoord(localCoord - i * stepCoord);
@@ -50,9 +52,9 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
     //traceDepth.z = 1.0 - pI * stepDepth;
 
     #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
-        vec2 currentTraceOffset = vLocalCoord - i * stepCoord;
+        vec2 currentTraceOffset = texcoord - i * stepCoord;
         float currentTraceDepth = 1.0 - i * stepDepth;
-        vec2 prevTraceOffset = vLocalCoord - pI * stepCoord;
+        vec2 prevTraceOffset = texcoord - pI * stepCoord;
         float prevTraceDepth = 1.0 - pI * stepDepth;
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
@@ -63,7 +65,7 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
     #else
         // shadow_tex.xy = prevTraceOffset;
         // shadow_tex.z = prevTraceDepth;
-        traceDepth.xy = vLocalCoord - pI * stepCoord;
+        traceDepth.xy = texcoord - pI * stepCoord;
         traceDepth.z = 1.0 - pI * stepDepth;
     #endif
 
@@ -72,8 +74,12 @@ vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in fl
         //return i == 1 ? texcoord : GetAtlasCoord(traceDepth.xy);
         return GetAtlasCoord(traceDepth.xy);
     #else
-        return GetAtlasCoord(vLocalCoord - i * stepCoord);
+        return GetAtlasCoord(texcoord - i * stepCoord);
     #endif
+}
+
+vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+    return GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceDepth);
 }
 
 float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in vec3 tanLightDir) {

@@ -252,11 +252,12 @@ void main() {
         vec3 tanViewDir = normalize(tanViewPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    //vec4 color = texture(gtexture, atlasCoord);
 
     if (color.a < alphaTestRef) {
         discard;
