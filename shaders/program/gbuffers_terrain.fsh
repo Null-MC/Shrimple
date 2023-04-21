@@ -292,7 +292,8 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
+        localLightDir = normalize(localLightDir);
 
         float skyGeoNoL = dot(localNormal, localLightDir);
 
@@ -355,7 +356,7 @@ void main() {
         texNormal = normalize(matLocalTBN * texNormal);
     //#endif
 
-    if (IsFoliageBlock(vBlockId)) texNormal = vec3(0.0, 1.0, 0.0);
+    //if (IsFoliageBlock(vBlockId)) texNormal = vec3(0.0, 1.0, 0.0);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if MATERIAL_NORMALS != NORMALMAP_NONE

@@ -127,15 +127,15 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
     return color;
 }
 
+#define DDA_MAX_STEP 24
+
 vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     vec3 traceRay = endPos - origin;
     float traceRayLen = length(traceRay);
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     vec3 direction = traceRay / traceRayLen;
-    float STEP_COUNT = 24;//ceil(traceRayLen);
-
-    vec3 stepSizes = 1.0 / abs(direction);
+    vec3 stepSizes = rcp(abs(direction));
     vec3 stepDir = sign(direction);
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
@@ -148,7 +148,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
         uint blockTypeLast;
     #endif
 
-    for (int i = 0; i < STEP_COUNT && !hit; i++) {
+    for (int i = 0; i < DDA_MAX_STEP && !hit; i++) {
         vec3 rayStart = currPos;
 
         float closestDist = minOf(nextDist);
@@ -161,6 +161,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
         nextDist += stepSizes * stepAxis;
         
         vec3 voxelPos = floor(0.5 * (currPos + rayStart));
+
+        //if (ivec3(voxelPos) == ivec3(endPos + EPSILON)) break;
 
         ivec3 gridCell, blockCell;
         if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
