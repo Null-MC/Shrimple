@@ -8,7 +8,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
     #endif
 
     float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_DISTANCE);
-    int maxSampleCount = 0;//int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
+    int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
 
     vec2 localSize = atlasSize * atlasBounds[1];
     if (all(greaterThan(localSize, EPSILON2)))
@@ -71,7 +71,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         traceDepth.z = 1.0 - pI * stepDepth;
     #endif
 
-    return GetAtlasCoord(texcoord);
+    //return GetAtlasCoord(localCoord - i * stepCoord);
     #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
         //return i == 1 ? texcoord : GetAtlasCoord(traceDepth.xy);
         return GetAtlasCoord(traceDepth.xy);

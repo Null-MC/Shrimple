@@ -254,14 +254,11 @@ void main() {
         vec3 tanViewDir = normalize(tanViewPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            //atlasCoord = GetLocalCoord(atlasCoord);
-            atlasCoord = GetAtlasCoord(vLocalCoord);
-            //atlasCoord = GetParallaxCoord(atlasCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-    //vec4 color = textureLod(gtexture, atlasCoord, 0);
 
     if (color.a < alphaTestRef) {
         discard;
@@ -288,8 +285,6 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
     
-    //vec2 lmFinal = lmcoord;
-
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
@@ -352,11 +347,7 @@ void main() {
         ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
     #endif
 
-    //#if MATERIAL_NORMALS != NORMALMAP_NONE
-        texNormal = normalize(matLocalTBN * texNormal);
-    //#endif
-
-    //if (IsFoliageBlock(vBlockId)) texNormal = vec3(0.0, 1.0, 0.0);
+    texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if MATERIAL_NORMALS != NORMALMAP_NONE

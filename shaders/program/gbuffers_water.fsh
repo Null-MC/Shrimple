@@ -272,13 +272,20 @@ void main() {
     #endif
 
     #ifdef WORLD_WATER_ENABLED
+        float oceanFoam = 0.0;
+
         if (vBlockId == BLOCK_WATER) {
             skipParallax = true;
 
             #ifdef PHYSICS_OCEAN
-                texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, waterUvOffset);
+                //texNormal = physics_waveNormal(physics_localPosition.xz, physics_localWaviness, physics_gameTime, waterUvOffset);
+                WavePixelData wave = physics_wavePixel(physics_localPosition.xz, physics_localWaviness, physics_iterationsNormal, physics_gameTime);
+                waterUvOffset = wave.worldPos - physics_localPosition.xz;
+                texNormal = wave.normal;
+                oceanFoam = wave.foam;
 
-                atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
+                // WARN: This doesn't work cause broken midCoord
+                //atlasCoord = GetAtlasCoord(vLocalCoord);
             #elif defined WORLD_WATER_WAVES_ENABLED
                 float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
                 texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
@@ -317,6 +324,11 @@ void main() {
     // #endif
 
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+
+    #ifdef WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER)
+            color.rgb = mix(color.rgb, vec3(0.9), oceanFoam);
+    #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = vec3(WHITEWORLD_VALUE);
