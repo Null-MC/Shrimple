@@ -304,13 +304,11 @@ void main() {
         vec3 tanViewDir = normalize(tanViewPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
-
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-    #else
-        vec4 color = texture(gtexture, atlasCoord);
     #endif
+
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
     // #if AF_SAMPLES > 1 && defined IRIS_ANISOTROPIC_FILTERING_ENABLED
     //     vec4 color = textureAnisotropic(gtexture, texcoord);
@@ -335,15 +333,20 @@ void main() {
     vec3 localViewDir = -normalize(vLocalPos);
 
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vBlockId, atlasCoord);
-    float emission = GetMaterialEmission(vBlockId, atlasCoord);
-    GetMaterialSpecular(atlasCoord, vBlockId, roughness, metal_f0);
+    float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
+    float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
+    GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
+    #ifdef TRANSLUCENT_SSS_ENABLED
+        sss = max(sss, 1.0 - color.a);
+    #endif
+    
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
+        localLightDir = normalize(localLightDir);
 
-        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
+        float skyGeoNoL = dot(localNormal, localLightDir);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -359,7 +362,7 @@ void main() {
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         if (vBlockId != BLOCK_WATER)
-            GetMaterialNormal(atlasCoord, texNormal);
+            GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {

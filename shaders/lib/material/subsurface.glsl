@@ -67,7 +67,7 @@ float GetBlockSSS(const in int blockId) {
 }
 
 #ifdef RENDER_FRAG
-    float GetMaterialSSS(const in int blockId, const in vec2 texcoord) {
+    float GetMaterialSSS(const in int blockId, const in vec2 texcoord, const in mat2 dFdXY) {
         float sss = 0.0;
 
         #ifdef RENDER_ENTITIES
@@ -75,7 +75,7 @@ float GetBlockSSS(const in int blockId) {
         #endif
 
         #if MATERIAL_SSS == SSS_LABPBR
-            sss = texture(specular, texcoord).b;
+            sss = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).b;
             sss = max(sss - 0.25, 0.0) / 0.75;
         #elif MATERIAL_SSS == SSS_DEFAULT
             #if defined RENDER_TERRAIN || defined RENDER_WATER

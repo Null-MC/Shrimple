@@ -240,7 +240,7 @@ void main() {
         float viewDist = length(vPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
@@ -275,15 +275,20 @@ void main() {
     int itemId = (gl_FragCoord.x > viewWidth / 2) ? heldItemId : heldItemId2;
 
     float roughness, metal_f0, emission, sss;
-    sss = GetMaterialSSS(itemId, atlasCoord);
-    emission = GetMaterialEmission(itemId, atlasCoord);
-    GetMaterialSpecular(atlasCoord, itemId, roughness, metal_f0);
+    sss = GetMaterialSSS(itemId, atlasCoord, dFdXY);
+    emission = GetMaterialEmission(itemId, atlasCoord, dFdXY);
+    GetMaterialSpecular(itemId, atlasCoord, dFdXY, roughness, metal_f0);
+
+    #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
+        sss = max(sss, 1.0 - color.a);
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
+        localLightDir = normalize(localLightDir);
 
-        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
+        float skyGeoNoL = dot(localNormal, localLightDir);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -299,7 +304,7 @@ void main() {
 
     vec3 texNormal = localNormal;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
+        bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {

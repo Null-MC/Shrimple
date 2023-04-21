@@ -8,6 +8,13 @@ uniform vec3 fogColor;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/world/common.glsl"
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#else
+    #include "/lib/post/saturation.glsl"
+#endif
+
 #include "/lib/post/tonemap.glsl"
 
 

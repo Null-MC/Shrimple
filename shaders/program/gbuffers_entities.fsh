@@ -270,7 +270,7 @@ void main() {
             float viewDist = length(vPos);
 
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-                atlasCoord = GetParallaxCoord(dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+                atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
 
         #endif
@@ -307,15 +307,20 @@ void main() {
     vec3 localViewDir = -normalize(vLocalPos);
 
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(entityId, atlasCoord);
-    float emission = GetMaterialEmission(entityId, atlasCoord);
-    GetMaterialSpecular(atlasCoord, -1, roughness, metal_f0);
+    float sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
+    float emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
+    GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
+
+    #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
+        sss = max(sss, 1.0 - color.a);
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0));
+        localLightDir = normalize(localLightDir);
 
-        float skyGeoNoL = max(dot(localNormal, localLightDir), 0.0);
+        float skyGeoNoL = dot(localNormal, localLightDir);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -331,7 +336,7 @@ void main() {
 
     vec3 texNormal = localNormal;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        bool isValidNormal = GetMaterialNormal(atlasCoord, texNormal);
+        bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
@@ -360,7 +365,7 @@ void main() {
         }
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
+            float skyTexNoL = dot(texNormal, localLightDir);
 
             #if MATERIAL_SSS != SSS_NONE
                 skyTexNoL = mix(skyTexNoL, 1.0, sss);
