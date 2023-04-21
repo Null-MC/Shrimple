@@ -314,7 +314,7 @@
 
                 skyLight *= 1.0 - blindness;
             #else
-                const float skyLight = 1.0;
+                float skyLight = 1.0;
             #endif
 
             //skyLight *= 1.0 - 0.8*rainStrength;

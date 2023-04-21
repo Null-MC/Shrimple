@@ -192,7 +192,8 @@ void main() {
                 finalPosition.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
                 physics_localPosition = finalPosition.xyz;
             #elif defined WORLD_WATER_WAVES_ENABLED
-                finalPosition.y += water_waveHeight(vLocalPos.xz + cameraPosition.xz) - 0.06;
+                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
+                finalPosition.y += water_waveHeight(vLocalPos.xz + cameraPosition.xz, skyLight);
             #endif
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);

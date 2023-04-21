@@ -5,9 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 mc_midTexCoord;
-#endif
+//#endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
@@ -28,10 +28,11 @@ out vec3 vBlockLight;
     out float vTangentW;
 #endif
 
+flat out mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     out vec2 vLocalCoord;
     out vec3 tanViewPos;
-    flat out mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         out vec3 tanLightPos;

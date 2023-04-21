@@ -60,21 +60,23 @@ float GetMaterialF0(const in float metal_f0) {
     return metal_f0 > 0.5 ? 0.96 : 0.04;
 }
 
-void GetMaterialSpecular(const in vec2 texcoord, const in int blockId, out float roughness, out float metal_f0) {
-    #ifdef RENDER_ENTITIES
-        if (entityId == ENTITY_PHYSICSMOD_SNOW) {
-            roughness = 0.5;
-            metal_f0 = 0.02;
-            return;
-        }
-    #endif
+#if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined RENDER_TEXTURED)
+    void GetMaterialSpecular(const in vec2 texcoord, const in int blockId, out float roughness, out float metal_f0) {
+        #ifdef RENDER_ENTITIES
+            if (entityId == ENTITY_PHYSICSMOD_SNOW) {
+                roughness = 0.5;
+                metal_f0 = 0.02;
+                return;
+            }
+        #endif
 
-    #if MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
-        vec2 specularMap = texture(specular, texcoord).rg;
-        roughness = 1.0 - specularMap.r;
-        metal_f0 = specularMap.g;
-    #else
-        roughness = GetBlockRoughness(blockId);
-        metal_f0 = GetBlockMetalF0(blockId);
-    #endif
-}
+        #if MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
+            vec2 specularMap = texture(specular, texcoord).rg;
+            roughness = 1.0 - specularMap.r;
+            metal_f0 = specularMap.g;
+        #else
+            roughness = GetBlockRoughness(blockId);
+            metal_f0 = GetBlockMetalF0(blockId);
+        #endif
+    }
+#endif

@@ -20,10 +20,11 @@ in vec3 vBlockLight;
     in float vTangentW;
 #endif
 
+flat in mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec2 vLocalCoord;
     in vec3 tanViewPos;
-    flat in mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         in vec3 tanLightPos;

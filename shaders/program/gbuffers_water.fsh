@@ -260,7 +260,7 @@ void main() {
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
     bool skipParallax = false;
-    vec2 waterUvOffset;
+    vec2 waterUvOffset = vec2(0.0);
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
@@ -280,7 +280,8 @@ void main() {
 
                 atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
             #elif defined WORLD_WATER_WAVES_ENABLED
-                texNormal = water_waveNormal(worldPos.xz, waterUvOffset);
+                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
+                texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
 
                 atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
             #endif

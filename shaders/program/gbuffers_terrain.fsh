@@ -21,10 +21,11 @@ flat in int vBlockId;
     in float vTangentW;
 //#endif
 
+flat in mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec2 vLocalCoord;
     in vec3 tanViewPos;
-    flat in mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         in vec3 tanLightPos;
@@ -78,6 +79,8 @@ uniform sampler2D noisetex;
     uniform int worldTime;
 #endif
 
+uniform ivec2 atlasSize;
+
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -100,7 +103,6 @@ uniform int fogMode;
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
-    uniform ivec2 atlasSize;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED

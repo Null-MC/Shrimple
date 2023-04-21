@@ -9,9 +9,9 @@ in vec4 mc_Entity;
 in vec3 vaPosition;
 in vec3 at_midBlock;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 mc_midTexCoord;
-#endif
+//#endif
 
 //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
@@ -33,10 +33,11 @@ flat out int vBlockId;
     out float vTangentW;
 //#endif
 
+flat out mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     out vec2 vLocalCoord;
     out vec3 tanViewPos;
-    flat out mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         out vec3 tanLightPos;

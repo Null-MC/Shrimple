@@ -20,10 +20,11 @@ in vec3 vBlockLight;
     in float vTangentW;
 #endif
 
+flat in mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec2 vLocalCoord;
     in vec3 tanViewPos;
-    flat in mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         in vec3 tanLightPos;
@@ -256,10 +257,9 @@ void main() {
         bool skipParallax = false;
     #endif
 
-    vec4 color;
+    vec4 color = vec4(0.0);
     if (entityId == ENTITY_PHYSICSMOD_SNOW) {
         color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
-        //color.rgb = vec3(1.0, 0.0, 0.0);
         color.a = 1.0;
     }
     else {
