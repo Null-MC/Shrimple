@@ -20,10 +20,10 @@ in vec3 vBlockLight;
     in float vTangentW;
 #endif
 
+in vec2 vLocalCoord;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec2 vLocalCoord;
     in vec3 tanViewPos;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -69,6 +69,8 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+uniform ivec2 atlasSize;
+
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -92,10 +94,6 @@ uniform float blindness;
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
-#endif
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    uniform ivec2 atlasSize;
 #endif
 
 #ifdef WORLD_SKY_ENABLED

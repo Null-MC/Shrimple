@@ -20,10 +20,10 @@ in vec3 vBlockLight;
     in float vTangentW;
 #endif
 
+in vec2 vLocalCoord;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec2 vLocalCoord;
     in vec3 tanViewPos;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -73,6 +73,8 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
+uniform ivec2 atlasSize;
+
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -101,10 +103,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 uniform float blindness;
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    uniform ivec2 atlasSize;
-#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;

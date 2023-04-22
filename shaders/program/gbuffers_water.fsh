@@ -82,6 +82,8 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+uniform ivec2 atlasSize;
+
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -100,10 +102,6 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    uniform ivec2 atlasSize;
-#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;

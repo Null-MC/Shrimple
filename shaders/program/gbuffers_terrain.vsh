@@ -5,17 +5,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 mc_Entity;
-in vec3 vaPosition;
+in vec4 at_tangent;
 in vec3 at_midBlock;
-
-//#if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 mc_midTexCoord;
-//#endif
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-//#endif
+in vec4 mc_Entity;
+in vec4 mc_midTexCoord;
+in vec3 vaPosition;
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -25,18 +19,15 @@ out vec3 vNormal;
 out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
+out vec2 vLocalCoord;
 out vec3 vLocalNormal;
+out vec3 vLocalTangent;
+out float vTangentW;
 flat out int vBlockId;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 vLocalTangent;
-    out float vTangentW;
-//#endif
 
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec2 vLocalCoord;
     out vec3 tanViewPos;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -148,17 +139,13 @@ void main() {
 
     BasicVertex();
 
-    //#if MATERIAL_NORMALS != NORMALMAP_NONE
-        PrepareNormalMap();
-    //#endif
+    PrepareNormalMap();
 
-    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-        vTangentW = at_tangent.w;
-    //#endif
+    vTangentW = at_tangent.w;
+
+    GetAtlasBounds(atlasBounds, vLocalCoord);
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
-        GetAtlasBounds(atlasBounds, vLocalCoord);
-
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);

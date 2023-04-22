@@ -33,10 +33,10 @@ flat out int vBlockId;
     out float vTangentW;
 #endif
 
+out vec2 vLocalCoord;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec2 vLocalCoord;
     out vec3 tanViewPos;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -145,15 +145,9 @@ void main() {
         vTangentW = at_tangent.w;
     #endif
 
+    GetAtlasBounds(atlasBounds, vLocalCoord);
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
-        vec2 coordMid = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
-        vec2 coordNMid = texcoord - coordMid;
-
-        atlasBounds[0] = min(texcoord, coordMid - coordNMid);
-        atlasBounds[1] = abs(coordNMid) * 2.0;
-
-        vLocalCoord = sign(coordNMid) * 0.5 + 0.5;
-
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
