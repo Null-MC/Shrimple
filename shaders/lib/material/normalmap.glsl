@@ -75,7 +75,7 @@
             vec3 aX = vec3(1.0, 0.0, dX * MaterialNormalStrengthF);
             vec3 aY = vec3(0.0, 1.0, dY * MaterialNormalStrengthF);
 
-            normal = cross(aX, aY);
+            normal = normalize(cross(aX, aY));
             valid = true;
         #endif
 

@@ -320,11 +320,12 @@
             //skyLight *= 1.0 - 0.8*rainStrength;
             
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
+                localLightDir = normalize(localLightDir);
             #else
                 vec3 celestialPos = normalize(sunPosition);
                 if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
-                vec3 localLightDir = mat3(gbufferModelViewInverse) * celestialPos;
+                vec3 localLightDir = (gbufferModelViewInverse * vec4(celestialPos, 1.0)).xyz;
             #endif
 
             float geoNoL = 1.0;

@@ -6,16 +6,13 @@
 #include "/lib/common.glsl"
 
 in vec4 mc_Entity;
-in vec3 vaPosition;
 in vec3 at_midBlock;
+in vec4 at_tangent;
+in vec3 vaPosition;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     in vec4 mc_midTexCoord;
 #endif
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -25,13 +22,10 @@ out vec3 vNormal;
 out float geoNoL;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
+out vec3 vLocalTangent;
 out vec3 vBlockLight;
+out float vTangentW;
 flat out int vBlockId;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 vLocalTangent;
-    out float vTangentW;
-//#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
     out vec2 vLocalCoord;
@@ -135,9 +129,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
-//#endif
+#include "/lib/material/normalmap.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN

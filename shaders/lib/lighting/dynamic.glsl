@@ -31,24 +31,28 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     return gridCell.z * (LIGHT_SIZE_Y * LIGHT_SIZE_XZ) + gridCell.y * LIGHT_SIZE_XZ + gridCell.x;
 }
 
-uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
-    uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-    maskIndex *= DYN_LIGHT_MASK_STRIDE;
-    uint intIndex = maskIndex >> 5;
-
-    uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
-    return (bit & 255);
-}
-
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
+#ifdef RENDER_SHADOWCOMP
+    uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
         uint intIndex = maskIndex >> 5;
 
-        uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
+        uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
         return (bit & 255);
     }
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #ifndef RENDER_BEGIN
+        uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
+            uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+            maskIndex *= DYN_LIGHT_MASK_STRIDE;
+            uint intIndex = maskIndex >> 5;
+
+            uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
+            return (bit & 255);
+        }
+    #endif
 
     uint GetLightMaskFace(const in vec3 normal) {
         vec3 normalAbs = abs(normal);

@@ -350,11 +350,7 @@ void main() {
     texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if MATERIAL_NORMALS != NORMALMAP_NONE
-            float skyNoL = dot(texNormal, localLightDir);
-        #else
-            float skyNoL = dot(localNormal, localLightDir);
-        #endif
+        float skyNoL = dot(texNormal, localLightDir);
 
         #if MATERIAL_SSS != SSS_NONE
             skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);

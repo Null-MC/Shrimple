@@ -38,18 +38,32 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform bool firstPersonCamera;
 uniform vec3 eyePosition;
+uniform vec3 upPosition;
+
+uniform float blindness;
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
+#if defined WORLD_SHADOW_ENABLED
+    uniform vec3 shadowLightPosition;
+#endif
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/world/common.glsl"
+
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/specular.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/items.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
@@ -122,18 +136,14 @@ void main() {
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
             localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
 
-        vec3 texNormal = localNormal.xyz;
-        //#if MATERIAL_NORMALS != NORMALMAP_NONE
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            texNormal = deferredTexture.xyz;
+        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+        vec3 texNormal = deferredTexture.xyz;
 
-            if (any(greaterThan(texNormal, EPSILON3)))
-                texNormal = normalize(texNormal * 2.0 - 1.0);
-        //#endif
+        if (any(greaterThan(texNormal, EPSILON3)))
+            texNormal = normalize(texNormal * 2.0 - 1.0);
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
-        //float emission = deferredLighting.a;
         float sss = localNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -151,17 +161,15 @@ void main() {
         GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, sss);
         blockDiffuse *= 1.0 - deferredFog.a;
 
+        if (!all(lessThan(abs(texNormal), EPSILON3)))
+            texNormal = texNormal * 0.5 + 0.5;
+
         outDiffuse = vec4(blockDiffuse, 1.0);
+        outNormal = vec4(texNormal, 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outSpecular = vec4(blockSpecular, 1.0);
         #endif
-
-        //#if MATERIAL_NORMALS != NORMALMAP_NONE
-            outNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
-        //#else
-        //    outNormal = vec4(localNormal.xyz * 0.5 + 0.5, 1.0);
-        //#endif
     }
     else {
         outDiffuse = vec4(0.0, 0.0, 0.0, 1.0);

@@ -111,17 +111,16 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IS_IRIS
+    uniform int currentRenderedItemId;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -366,13 +365,15 @@ void main() {
             float skyTexNoL = dot(texNormal, localLightDir);
 
             #if MATERIAL_SSS != SSS_NONE
-                skyTexNoL = mix(skyTexNoL, 1.0, sss);
+                skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
+            #else
+                skyTexNoL = max(skyTexNoL, 0.0);
             #endif
 
-            shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+            shadowColor *= 1.2 * pow(max(skyTexNoL, 0.0), 0.8);
         #endif
-    #else
-        //shadowColor *= max(vLit, 0.0);
+    //#else
+    //    shadowColor *= max(vLit, 0.0);
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
@@ -402,11 +403,7 @@ void main() {
 
         #ifdef RENDER_TRANSLUCENT
             if (color.a > (0.5/255.0)) {
-                //#if MATERIAL_NORMALS != NORMALMAP_NONE
-                    float NoV = abs(dot(texNormal, localViewDir));
-                //#else
-                //    float NoV = abs(dot(localNormal, localViewDir));
-                //#endif
+                float NoV = abs(dot(texNormal, localViewDir));
 
                 float F = F_schlick(NoV, metal_f0, 1.0);
                 color.a += (1.0 - color.a) * F;

@@ -368,23 +368,19 @@ void main() {
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        float skyNoL = 1.0;
+        float skyTexNoL = 1.0;
 
         if (isValidNormal) {
-            //#if MATERIAL_NORMALS != NORMALMAP_NONE
-                skyNoL = dot(texNormal, localLightDir);
-            //#else
-            //    skyNoL = dot(localNormal, localLightDir);
-            //#endif
+            skyTexNoL = dot(texNormal, localLightDir);
         }
 
         #if MATERIAL_SSS != SSS_NONE
-            skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
+            skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
         #else
-            skyNoL = max(skyNoL, 0.0);
+            skyTexNoL = max(skyTexNoL, 0.0);
         #endif
 
-        shadowColor *= 1.2 * pow(skyNoL, 0.8);
+        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))

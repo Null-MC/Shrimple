@@ -6,16 +6,13 @@
 #include "/lib/common.glsl"
 
 in vec4 mc_Entity;
-in vec3 vaPosition;
 in vec3 at_midBlock;
+in vec4 mc_midTexCoord;
+in vec3 vaPosition;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
 #endif
-
-//#if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 mc_midTexCoord;
-//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -73,24 +70,23 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IS_IRIS
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/atlas.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"
 #endif
 

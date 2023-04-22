@@ -78,6 +78,21 @@ float GetBlockRoughness(const in int blockId) {
     return 1.0 - smoothness;
 }
 
+float GetItemRoughness(const in int itemId) {
+    float smoothness = GetBlockRoughness(itemId);
+
+    switch (itemId) {
+        case ITEM_GOLD_ARMOR:
+            smoothness = 0.75;
+            break;
+        case ITEM_IRON_ARMOR:
+            smoothness = 0.65;
+            break;
+    }
+
+    return 1.0 - smoothness;
+}
+
 float GetBlockMetalF0(const in int blockId) {
     float metal_f0 = 0.04;
 
@@ -120,12 +135,30 @@ float GetBlockMetalF0(const in int blockId) {
     return metal_f0;
 }
 
+float GetItemMetalF0(const in int itemId) {
+    float metal_f0 = GetBlockMetalF0(itemId);
+
+    switch (itemId) {
+        case ITEM_GOLD_ARMOR:
+            metal_f0 = (231.5/255.0);
+            break;
+        case ITEM_IRON_ARMOR:
+            metal_f0 = (230.5/255.0);
+            break;
+    }
+
+    return metal_f0;
+}
+
 float GetMaterialF0(const in float metal_f0) {
     return metal_f0 > 0.5 ? 0.96 : 0.04;
 }
 
 #if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined RENDER_TEXTURED)
     void GetMaterialSpecular(const in int blockId, const in vec2 texcoord, const in mat2 dFdXY, out float roughness, out float metal_f0) {
+        roughness = 1.0;
+        metal_f0 = 0.04;
+
         #ifdef RENDER_ENTITIES
             if (entityId == ENTITY_PHYSICSMOD_SNOW) {
                 roughness = 0.5;
@@ -139,14 +172,16 @@ float GetMaterialF0(const in float metal_f0) {
             roughness = 1.0 - specularMap.r;
             metal_f0 = specularMap.g;
         #elif defined RENDER_ENTITIES
-            roughness = 1.0;
-            metal_f0 = 0.04;
-
             switch (entityId) {
                 case ENTITY_IRON_GOLEM:
                     roughness = 0.6;
                     metal_f0 = (230.5/255.0);
                     break;
+            }
+
+            if (currentRenderedItemId > 0) {
+                roughness = GetItemRoughness(currentRenderedItemId);
+                metal_f0 = GetItemMetalF0(currentRenderedItemId);
             }
         #else
             roughness = GetBlockRoughness(blockId);
