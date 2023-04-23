@@ -311,7 +311,8 @@ void main() {
 
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+        if (vBlockId != BLOCK_LAVA)
+            GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {

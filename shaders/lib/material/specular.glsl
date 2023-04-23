@@ -55,7 +55,7 @@ float GetBlockRoughness(const in int blockId) {
             smoothness = 0.40;
             break;
         case BLOCK_NETHERRACK:
-            smoothness = 0.36;
+            smoothness = 0.26;
             break;
         case BLOCK_ICE:
         case BLOCK_BLUE_ICE:

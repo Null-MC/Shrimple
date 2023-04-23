@@ -23,10 +23,11 @@ flat in int vBlockId;
     in float physics_localWaviness;
 #endif
 
+in vec2 vLocalCoord;
+flat in mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
-    in vec2 vLocalCoord;
     in vec3 tanViewPos;
-    flat in mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         in vec3 tanLightPos;
@@ -147,11 +148,11 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"
-
 #include "/lib/utility/tbn.glsl"
 
 #if AF_SAMPLES > 1
@@ -162,10 +163,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/scene.glsl"
 #else
     #include "/lib/post/saturation.glsl"
-#endif
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
-    #include "/lib/sampling/atlas.glsl"
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

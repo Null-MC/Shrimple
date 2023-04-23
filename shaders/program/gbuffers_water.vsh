@@ -5,14 +5,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 mc_Entity;
 in vec3 at_midBlock;
 in vec4 at_tangent;
+in vec4 mc_Entity;
+in vec4 mc_midTexCoord;
 in vec3 vaPosition;
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
-    in vec4 mc_midTexCoord;
-#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -27,10 +24,11 @@ out vec3 vBlockLight;
 out float vTangentW;
 flat out int vBlockId;
 
+out vec2 vLocalCoord;
+flat out mat2 atlasBounds;
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
-    out vec2 vLocalCoord;
     out vec3 tanViewPos;
-    flat out mat2 atlasBounds;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         out vec3 tanLightPos;
@@ -85,14 +83,11 @@ uniform int heldBlockLightValue2;
 #include "/lib/items.glsl"
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
     #include "/lib/world/waving.glsl"
-#endif
-
-#if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
-    #include "/lib/sampling/atlas.glsl"
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED

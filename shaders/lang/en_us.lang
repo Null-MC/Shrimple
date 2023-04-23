@@ -24,12 +24,12 @@ option.WORLD_WATER_WAVES_ENABLED=Water Waves
 option.WORLD_WAVING_ENABLED=Waving Plants
 option.WORLD_WAVING_ENABLED.comment=When enabled, plants will wave using artificial wind.
 
-option.WATER_REFLECTIONS_ENABLED=Water Reflections
-option.WATER_REFLECTIONS_ENABLED.comment=When enabled, water will have a subtle reflection of the sky color.
+option.WORLD_AMBIENT_MODE=Ambient Lighting
+value.WORLD_AMBIENT_MODE.0=OFF
+value.WORLD_AMBIENT_MODE.1=Basic
+value.WORLD_AMBIENT_MODE.2=Fancy
 
 option.WORLD_AO_ENABLED=Ambient Occlusion
-
-option.OLD_LIGHTING=Old Lighting
 
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options

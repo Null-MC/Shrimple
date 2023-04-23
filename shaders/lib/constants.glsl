@@ -1,3 +1,7 @@
+#define AMBIENT_NONE 0
+#define AMBIENT_DEFAULT 1
+#define AMBIENT_FANCY 2
+
 #define PUDDLES_NONE 0
 #define PUDDLES_PIXEL 1
 #define PUDDLES_FANCY 2

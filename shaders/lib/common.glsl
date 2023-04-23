@@ -88,10 +88,10 @@ const bool colortex14Clear = true;
 #define WORLD_WETNESS_ENABLED
 #define WORLD_WAVING_ENABLED
 #define WORLD_WATER_WAVES_ENABLED
+#define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
 #define WORLD_WETNESS_PUDDLES 2 // [0 1 2]
-//#define OLD_LIGHTING
 
 
 // Material Options
@@ -201,7 +201,6 @@ const bool colortex14Clear = true;
 #define METAL_BRIGHTNESS 0.2
 #define WHITEWORLD_VALUE 0.9
 #define TRANSLUCENT_SSS_ENABLED
-#define AMBIENT_FANCY
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -243,6 +242,16 @@ const bool colortex14Clear = true;
 #ifdef DYN_LIGHT_CONCRETE
 #endif
 #ifdef DYN_LIGHT_OREBLOCKS
+#endif
+#ifdef SHADOW_BLUR
+#endif
+#ifdef SHADOW_COLOR_BLEND
+#endif
+#ifdef DYN_LIGHT_LAVA_ENABLED
+#endif
+#ifdef DYN_LIGHT_REDSTONE_ENABLED
+#endif
+#ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -310,19 +319,6 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 
 #if MC_VERSION < 11700
     const float alphaTestRef = 0.1;
-#endif
-
-#ifdef OLD_LIGHTING
-#endif
-#ifdef SHADOW_BLUR
-#endif
-#ifdef SHADOW_COLOR_BLEND
-#endif
-#ifdef DYN_LIGHT_LAVA_ENABLED
-#endif
-#ifdef DYN_LIGHT_REDSTONE_ENABLED
-#endif
-#ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
 
 
