@@ -54,14 +54,14 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float 
     rippleNormal.z *= viewDist;
     rippleNormal = normalize(rippleNormal);
 
-    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
             texNormal += rippleNormal.xzy * _pow2(puddleF) * rainStrength;
         }
         else {
     #endif
             texNormal = mix(texNormal, rippleNormal, _pow2(puddleF) * rainStrength);
-    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         }
     #endif
 

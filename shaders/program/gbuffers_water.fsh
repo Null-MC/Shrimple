@@ -221,7 +221,7 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif defined WORLD_WATER_WAVES_ENABLED
+    #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
         #include "/lib/world/water.glsl"
     #endif
 #endif
@@ -269,17 +269,17 @@ void main() {
             skipParallax = true;
 
             #ifdef PHYSICS_OCEAN
-            float waviness = max(physics_localWaviness, 0.02);
+                float waviness = max(physics_localWaviness, 0.02);
                 WavePixelData wave = physics_wavePixel(physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
                 waterUvOffset = wave.worldPos - physics_localPosition.xz;
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
-
-                atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
-            #elif defined WORLD_WATER_WAVES_ENABLED
+            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
                 float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
                 texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
+            #endif
 
+            #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES == WATER_WAVES_FANCY
                 atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
             #endif
         }
@@ -398,7 +398,7 @@ void main() {
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
 
-    #if defined WORLD_WATER_WAVES_ENABLED || defined PHYSICS_OCEAN
+    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
     if (vBlockId != BLOCK_WATER)
     #endif
         texNormal = matLocalTBN * texNormal;

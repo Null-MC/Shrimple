@@ -136,7 +136,7 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif defined WORLD_WATER_WAVES_ENABLED
+    #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
         #include "/lib/world/water.glsl"
     #endif
 #endif
@@ -167,7 +167,7 @@ void main() {
         #endif
     #endif
 
-    #ifdef WORLD_WATER_ENABLED
+    #if defined WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
             vec4 finalPosition = gl_Vertex;
 
@@ -175,7 +175,7 @@ void main() {
                 physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
                 finalPosition.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
                 physics_localPosition = finalPosition.xyz;
-            #elif defined WORLD_WATER_WAVES_ENABLED
+            #elif WORLD_WATER_WAVES == WATER_WAVES_FANCY
                 float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
                 finalPosition.y += water_waveHeight(vLocalPos.xz + cameraPosition.xz, skyLight);
             #endif

@@ -87,7 +87,7 @@ const bool colortex14Clear = true;
 // World Options
 #define WORLD_WETNESS_ENABLED
 #define WORLD_WAVING_ENABLED
-#define WORLD_WATER_WAVES_ENABLED
+#define WORLD_WATER_WAVES 2 // [0 1 2]
 #define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
@@ -227,8 +227,6 @@ const bool colortex14Clear = true;
 
 
 #ifdef WORLD_WETNESS_ENABLED
-#endif
-#ifdef WORLD_WATER_WAVES_ENABLED
 #endif
 #ifdef WORLD_AO_ENABLED
 #endif
