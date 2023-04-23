@@ -16,10 +16,10 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 flat in int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
-#endif
+//#endif
 
 in vec2 vLocalCoord;
 flat in mat2 atlasBounds;

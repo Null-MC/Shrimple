@@ -10,9 +10,9 @@ in vec3 at_midBlock;
 in vec4 mc_midTexCoord;
 in vec3 vaPosition;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     in vec4 at_tangent;
-#endif
+//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -25,10 +25,10 @@ out vec3 vLocalPos;
 out vec3 vLocalNormal;
 flat out int vBlockId;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     out vec3 vLocalTangent;
     out float vTangentW;
-#endif
+//#endif
 
 out vec2 vLocalCoord;
 flat out mat2 atlasBounds;
@@ -141,9 +141,9 @@ void main() {
         PrepareNormalMap();
     #endif
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
         vTangentW = at_tangent.w;
-    #endif
+    //#endif
 
     GetAtlasBounds(atlasBounds, vLocalCoord);
 

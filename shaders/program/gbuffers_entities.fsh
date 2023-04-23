@@ -15,10 +15,10 @@ in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
+//#if MATERIAL_NORMALS != NORMALMAP_NONE
     in vec3 vLocalTangent;
     in float vTangentW;
-#endif
+//#endif
 
 in vec2 vLocalCoord;
 flat in mat2 atlasBounds;
