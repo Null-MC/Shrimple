@@ -334,7 +334,7 @@ void main() {
         #endif
     #endif
 
-    float texOcclusion = max(texNormal.z, 0.0);
+    float texOcclusion = max(texNormal.z, 0.1);
     occlusion *= _pow2(texOcclusion);
 
     vec3 localTangent = normalize(vLocalTangent);
