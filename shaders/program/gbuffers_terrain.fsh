@@ -334,8 +334,13 @@ void main() {
         #endif
     #endif
 
-    float texOcclusion = max(texNormal.z, 0.1);
-    occlusion *= _pow2(texOcclusion);
+    #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+        occlusion *= _pow2(texOcclusion);
+    #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
+        float texOcclusion = max(texNormal.z, 0.1);
+        occlusion *= _pow2(texOcclusion);
+    #endif
 
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);

@@ -68,6 +68,12 @@ value.MATERIAL_SPECULAR.1=Integrated
 value.MATERIAL_SPECULAR.2=Old-PBR
 value.MATERIAL_SPECULAR.3=Lab-PBR
 
+option.MATERIAL_OCCLUSION=Occlusion
+option.MATERIAL_OCCLUSION.comment=Describes how much ambient lighting is occluded by the surface.
+value.MATERIAL_OCCLUSION.0=OFF
+value.MATERIAL_OCCLUSION.1=Integrated
+value.MATERIAL_OCCLUSION.2=Lab-PBR
+
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
 
