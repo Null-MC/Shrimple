@@ -279,6 +279,6 @@
             }
         #endif
 
-        return diffuse + specular;
+        return diffuse + specular * occlusion;
     }
 #endif
