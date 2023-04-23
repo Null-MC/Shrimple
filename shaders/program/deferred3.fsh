@@ -109,6 +109,10 @@ uniform float blindness;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
+#if MATERIAL_SPECULAR != SPECULAR_NONE
+    #include "/lib/material/specular.glsl"
+#endif
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
@@ -120,19 +124,17 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/dynamic/sampling.glsl"
 #endif
 
 #include "/lib/lighting/dynamic_items.glsl"
 
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    #include "/lib/material/specular.glsl"
-#endif
-
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"

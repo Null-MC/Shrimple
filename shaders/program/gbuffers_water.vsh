@@ -125,11 +125,18 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/sampling.glsl"
 
 #include "/lib/material/emission.glsl"
+#include "/lib/material/normalmap.glsl"
 #include "/lib/material/subsurface.glsl"
 
-#include "/lib/material/normalmap.glsl"
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+    #include "/lib/lighting/dynamic/sampling.glsl"
+#endif
+
+#include "/lib/lighting/basic_hand.glsl"
+#include "/lib/lighting/basic.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
@@ -138,10 +145,6 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/water.glsl"
     #endif
 #endif
-
-#include "/lib/lighting/sampling.glsl"
-#include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
 
 
 void main() {

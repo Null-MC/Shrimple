@@ -15,6 +15,7 @@ vec3 GetLightGlassTint(const in uint blockType) {
             stepTint = vec3(0.707, 0.526, 0.944);
             break;
         case BLOCKTYPE_HONEY:
+        case BLOCK_HONEYCOMB:
             stepTint = vec3(0.984, 0.733, 0.251);
             break;
         case BLOCKTYPE_SLIME:

@@ -45,6 +45,7 @@ uniform float blindness;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+    uniform vec3 skyColor;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED
@@ -64,11 +65,15 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #ifdef DYN_LIGHT_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
+
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_items.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -76,12 +81,13 @@ uniform float blindness;
     #include "/lib/lighting/tracing.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic_items.glsl"
+    #include "/lib/lighting/dynamic/sampling.glsl"
 #endif
 
-#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 

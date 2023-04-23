@@ -44,6 +44,10 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_GOLD:
             smoothness = 0.75;
             break;
+        case BLOCK_HONEY:
+        case BLOCK_HONEYCOMB:
+            smoothness = 0.60;
+            break;
         case BLOCK_IRON:
             smoothness = 0.65;
             break;
@@ -53,6 +57,7 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_NETHERRACK:
             smoothness = 0.36;
             break;
+        case BLOCK_ICE:
         case BLOCK_BLUE_ICE:
         case BLOCK_PACKED_ICE:
             smoothness = 0.75;
@@ -68,7 +73,14 @@ float GetBlockRoughness(const in int blockId) {
             smoothness = 0.80;
             break;
         case BLOCK_SNOW:
-            smoothness = 0.45;
+        case BLOCK_SNOW_LAYERS_1:
+        case BLOCK_SNOW_LAYERS_2:
+        case BLOCK_SNOW_LAYERS_3:
+        case BLOCK_SNOW_LAYERS_4:
+        case BLOCK_SNOW_LAYERS_5:
+        case BLOCK_SNOW_LAYERS_6:
+        case BLOCK_SNOW_LAYERS_7:
+            smoothness = 0.55;
             break;
     }
 

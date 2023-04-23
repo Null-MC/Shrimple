@@ -132,7 +132,7 @@ uniform float blindness;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
@@ -145,8 +145,12 @@ uniform float blindness;
 
 #include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
-
 #include "/lib/lighting/sampling.glsl"
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/dynamic/sampling.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 

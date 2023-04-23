@@ -428,775 +428,777 @@ uint GetSceneLightType(const in int blockId) {
     return lightType;
 }
 
-vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
-    vec3 lightColor = vec3(0.0);
+#if !(defined RENDER_SHADOW || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS)
+    vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
+        vec3 lightColor = vec3(0.0);
 
-    switch (lightType) {
-        case LIGHT_BLOCK_1:
-        case LIGHT_BLOCK_2:
-        case LIGHT_BLOCK_3:
-        case LIGHT_BLOCK_4:
-        case LIGHT_BLOCK_5:
-        case LIGHT_BLOCK_6:
-        case LIGHT_BLOCK_7:
-        case LIGHT_BLOCK_8:
-        case LIGHT_BLOCK_9:
-        case LIGHT_BLOCK_10:
-        case LIGHT_BLOCK_11:
-        case LIGHT_BLOCK_12:
-        case LIGHT_BLOCK_13:
-        case LIGHT_BLOCK_14:
-        case LIGHT_BLOCK_15:
-            lightColor = vec3(0.9);
-            break;
-        case LIGHT_BEACON:
-            lightColor = vec3(1.0);
-            break;
-        case LIGHT_BLAST_FURNACE_N:
-        case LIGHT_BLAST_FURNACE_E:
-        case LIGHT_BLAST_FURNACE_S:
-        case LIGHT_BLAST_FURNACE_W:
-            lightColor = vec3(0.697, 0.654, 0.458);
-            break;
-        case LIGHT_BREWING_STAND:
-            lightColor = vec3(0.636, 0.509, 0.179);
-            break;
-        case LIGHT_CANDLES_1:
-        case LIGHT_CANDLES_2:
-        case LIGHT_CANDLES_3:
-        case LIGHT_CANDLES_4:
-        case LIGHT_CANDLE_CAKE:
-            lightColor = vec3(0.758, 0.553, 0.239);
-            break;
-        case LIGHT_CAVEVINE_BERRIES:
-            lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
-            break;
-        case LIGHT_CRYING_OBSIDIAN:
-            lightColor = vec3(0.390, 0.065, 0.646);
-            break;
-        case LIGHT_END_ROD:
-            lightColor = vec3(0.957, 0.929, 0.875);
-            break;
-        case LIGHT_CAMPFIRE:
-        case LIGHT_FIRE:
-            lightColor = vec3(0.851, 0.616, 0.239);
-            break;
-        case LIGHT_FROGLIGHT_OCHRE:
-            lightColor = vec3(0.768, 0.648, 0.108);
-            break;
-        case LIGHT_FROGLIGHT_PEARLESCENT:
-            lightColor = vec3(0.737, 0.435, 0.658);
-            break;
-        case LIGHT_FROGLIGHT_VERDANT:
-            lightColor = vec3(0.463, 0.763, 0.409);
-            break;
-        case LIGHT_FURNACE_N:
-        case LIGHT_FURNACE_E:
-        case LIGHT_FURNACE_S:
-        case LIGHT_FURNACE_W:
-            lightColor = vec3(0.697, 0.654, 0.458);
-            break;
-        case LIGHT_GLOWSTONE:
-            lightColor = vec3(0.652, 0.583, 0.275);
-            break;
-        case LIGHT_GLOW_LICHEN:
-            lightColor = 0.8*vec3(0.173, 0.374, 0.252);
-            break;
-        case LIGHT_JACK_O_LANTERN_N:
-        case LIGHT_JACK_O_LANTERN_E:
-        case LIGHT_JACK_O_LANTERN_S:
-        case LIGHT_JACK_O_LANTERN_W:
-            lightColor = vec3(0.768, 0.701, 0.325);
-            break;
-        case LIGHT_LANTERN:
-            lightColor = vec3(0.906, 0.737, 0.451);
-            break;
-        case LIGHT_LIGHTING_ROD:
-            lightColor = vec3(0.870, 0.956, 0.975);
-            break;
-        case LIGHT_LAVA:
-        case LIGHT_LAVA_CAULDRON:
-            lightColor = vec3(0.804, 0.424, 0.149);
-            break;
-        case LIGHT_MAGMA:
-            lightColor = vec3(0.747, 0.323, 0.110);
-            break;
-        case LIGHT_NETHER_PORTAL:
-            lightColor = vec3(0.502, 0.165, 0.831);
-            break;
-        case LIGHT_REDSTONE_LAMP:
-            lightColor = vec3(0.953, 0.796, 0.496);
-            break;
-        case LIGHT_REDSTONE_TORCH:
-            lightColor = vec3(0.697, 0.130, 0.051);
-            break;
-        case LIGHT_COMPARATOR:
-        case LIGHT_REPEATER:
-        case LIGHT_REDSTONE_WIRE_1:
-        case LIGHT_REDSTONE_WIRE_2:
-        case LIGHT_REDSTONE_WIRE_3:
-        case LIGHT_REDSTONE_WIRE_4:
-        case LIGHT_REDSTONE_WIRE_5:
-        case LIGHT_REDSTONE_WIRE_6:
-        case LIGHT_REDSTONE_WIRE_7:
-        case LIGHT_REDSTONE_WIRE_8:
-        case LIGHT_REDSTONE_WIRE_9:
-        case LIGHT_REDSTONE_WIRE_10:
-        case LIGHT_REDSTONE_WIRE_11:
-        case LIGHT_REDSTONE_WIRE_12:
-        case LIGHT_REDSTONE_WIRE_13:
-        case LIGHT_REDSTONE_WIRE_14:
-        case LIGHT_REDSTONE_WIRE_15:
-        case LIGHT_RAIL_POWERED:
-            lightColor = vec3(0.697, 0.130, 0.051);
-            break;
-        case LIGHT_RESPAWN_ANCHOR_4:
-        case LIGHT_RESPAWN_ANCHOR_3:
-        case LIGHT_RESPAWN_ANCHOR_2:
-        case LIGHT_RESPAWN_ANCHOR_1:
-            lightColor = vec3(0.390, 0.065, 0.646);
-            break;
-        case LIGHT_SCULK_CATALYST:
-            lightColor = vec3(0.510, 0.831, 0.851);
-            break;
-        case LIGHT_SEA_LANTERN:
-            lightColor = vec3(0.498, 0.894, 0.834);
-            break;
-        case LIGHT_SEA_PICKLE_1:
-        case LIGHT_SEA_PICKLE_2:
-        case LIGHT_SEA_PICKLE_3:
-        case LIGHT_SEA_PICKLE_4:
-            lightColor = vec3(0.283, 0.394, 0.212);
-            break;
-        case LIGHT_SHROOMLIGHT:
-            lightColor = vec3(0.848, 0.469, 0.205);
-            break;
-        case LIGHT_SMOKER_N:
-        case LIGHT_SMOKER_E:
-        case LIGHT_SMOKER_S:
-        case LIGHT_SMOKER_W:
-            lightColor = vec3(0.697, 0.654, 0.458);
-            break;
-        case LIGHT_SOUL_LANTERN:
-        case LIGHT_SOUL_TORCH:
-        case LIGHT_SOUL_CAMPFIRE:
-        case LIGHT_SOUL_FIRE:
-            lightColor = vec3(0.203, 0.725, 0.758);
-            break;
-        case LIGHT_TORCH:
-            lightColor = vec3(0.768, 0.701, 0.325);
-            break;
+        switch (lightType) {
+            case LIGHT_BLOCK_1:
+            case LIGHT_BLOCK_2:
+            case LIGHT_BLOCK_3:
+            case LIGHT_BLOCK_4:
+            case LIGHT_BLOCK_5:
+            case LIGHT_BLOCK_6:
+            case LIGHT_BLOCK_7:
+            case LIGHT_BLOCK_8:
+            case LIGHT_BLOCK_9:
+            case LIGHT_BLOCK_10:
+            case LIGHT_BLOCK_11:
+            case LIGHT_BLOCK_12:
+            case LIGHT_BLOCK_13:
+            case LIGHT_BLOCK_14:
+            case LIGHT_BLOCK_15:
+                lightColor = vec3(0.9);
+                break;
+            case LIGHT_BEACON:
+                lightColor = vec3(1.0);
+                break;
+            case LIGHT_BLAST_FURNACE_N:
+            case LIGHT_BLAST_FURNACE_E:
+            case LIGHT_BLAST_FURNACE_S:
+            case LIGHT_BLAST_FURNACE_W:
+                lightColor = vec3(0.697, 0.654, 0.458);
+                break;
+            case LIGHT_BREWING_STAND:
+                lightColor = vec3(0.636, 0.509, 0.179);
+                break;
+            case LIGHT_CANDLES_1:
+            case LIGHT_CANDLES_2:
+            case LIGHT_CANDLES_3:
+            case LIGHT_CANDLES_4:
+            case LIGHT_CANDLE_CAKE:
+                lightColor = vec3(0.758, 0.553, 0.239);
+                break;
+            case LIGHT_CAVEVINE_BERRIES:
+                lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
+                break;
+            case LIGHT_CRYING_OBSIDIAN:
+                lightColor = vec3(0.390, 0.065, 0.646);
+                break;
+            case LIGHT_END_ROD:
+                lightColor = vec3(0.957, 0.929, 0.875);
+                break;
+            case LIGHT_CAMPFIRE:
+            case LIGHT_FIRE:
+                lightColor = vec3(0.851, 0.616, 0.239);
+                break;
+            case LIGHT_FROGLIGHT_OCHRE:
+                lightColor = vec3(0.768, 0.648, 0.108);
+                break;
+            case LIGHT_FROGLIGHT_PEARLESCENT:
+                lightColor = vec3(0.737, 0.435, 0.658);
+                break;
+            case LIGHT_FROGLIGHT_VERDANT:
+                lightColor = vec3(0.463, 0.763, 0.409);
+                break;
+            case LIGHT_FURNACE_N:
+            case LIGHT_FURNACE_E:
+            case LIGHT_FURNACE_S:
+            case LIGHT_FURNACE_W:
+                lightColor = vec3(0.697, 0.654, 0.458);
+                break;
+            case LIGHT_GLOWSTONE:
+                lightColor = vec3(0.652, 0.583, 0.275);
+                break;
+            case LIGHT_GLOW_LICHEN:
+                lightColor = 0.8*vec3(0.173, 0.374, 0.252);
+                break;
+            case LIGHT_JACK_O_LANTERN_N:
+            case LIGHT_JACK_O_LANTERN_E:
+            case LIGHT_JACK_O_LANTERN_S:
+            case LIGHT_JACK_O_LANTERN_W:
+                lightColor = vec3(0.768, 0.701, 0.325);
+                break;
+            case LIGHT_LANTERN:
+                lightColor = vec3(0.906, 0.737, 0.451);
+                break;
+            case LIGHT_LIGHTING_ROD:
+                lightColor = vec3(0.870, 0.956, 0.975);
+                break;
+            case LIGHT_LAVA:
+            case LIGHT_LAVA_CAULDRON:
+                lightColor = vec3(0.804, 0.424, 0.149);
+                break;
+            case LIGHT_MAGMA:
+                lightColor = vec3(0.747, 0.323, 0.110);
+                break;
+            case LIGHT_NETHER_PORTAL:
+                lightColor = vec3(0.502, 0.165, 0.831);
+                break;
+            case LIGHT_REDSTONE_LAMP:
+                lightColor = vec3(0.953, 0.796, 0.496);
+                break;
+            case LIGHT_REDSTONE_TORCH:
+                lightColor = vec3(0.697, 0.130, 0.051);
+                break;
+            case LIGHT_COMPARATOR:
+            case LIGHT_REPEATER:
+            case LIGHT_REDSTONE_WIRE_1:
+            case LIGHT_REDSTONE_WIRE_2:
+            case LIGHT_REDSTONE_WIRE_3:
+            case LIGHT_REDSTONE_WIRE_4:
+            case LIGHT_REDSTONE_WIRE_5:
+            case LIGHT_REDSTONE_WIRE_6:
+            case LIGHT_REDSTONE_WIRE_7:
+            case LIGHT_REDSTONE_WIRE_8:
+            case LIGHT_REDSTONE_WIRE_9:
+            case LIGHT_REDSTONE_WIRE_10:
+            case LIGHT_REDSTONE_WIRE_11:
+            case LIGHT_REDSTONE_WIRE_12:
+            case LIGHT_REDSTONE_WIRE_13:
+            case LIGHT_REDSTONE_WIRE_14:
+            case LIGHT_REDSTONE_WIRE_15:
+            case LIGHT_RAIL_POWERED:
+                lightColor = vec3(0.697, 0.130, 0.051);
+                break;
+            case LIGHT_RESPAWN_ANCHOR_4:
+            case LIGHT_RESPAWN_ANCHOR_3:
+            case LIGHT_RESPAWN_ANCHOR_2:
+            case LIGHT_RESPAWN_ANCHOR_1:
+                lightColor = vec3(0.390, 0.065, 0.646);
+                break;
+            case LIGHT_SCULK_CATALYST:
+                lightColor = vec3(0.510, 0.831, 0.851);
+                break;
+            case LIGHT_SEA_LANTERN:
+                lightColor = vec3(0.498, 0.894, 0.834);
+                break;
+            case LIGHT_SEA_PICKLE_1:
+            case LIGHT_SEA_PICKLE_2:
+            case LIGHT_SEA_PICKLE_3:
+            case LIGHT_SEA_PICKLE_4:
+                lightColor = vec3(0.283, 0.394, 0.212);
+                break;
+            case LIGHT_SHROOMLIGHT:
+                lightColor = vec3(0.848, 0.469, 0.205);
+                break;
+            case LIGHT_SMOKER_N:
+            case LIGHT_SMOKER_E:
+            case LIGHT_SMOKER_S:
+            case LIGHT_SMOKER_W:
+                lightColor = vec3(0.697, 0.654, 0.458);
+                break;
+            case LIGHT_SOUL_LANTERN:
+            case LIGHT_SOUL_TORCH:
+            case LIGHT_SOUL_CAMPFIRE:
+            case LIGHT_SOUL_FIRE:
+                lightColor = vec3(0.203, 0.725, 0.758);
+                break;
+            case LIGHT_TORCH:
+                lightColor = vec3(0.768, 0.701, 0.325);
+                break;
+        }
+
+        #ifdef DYN_LIGHT_CONCRETE
+            switch (lightType) {
+                case LIGHT_CONCRETE_BLUE:
+                    lightColor = vec3(0.222, 0.235, 0.828);
+                    break;
+                case LIGHT_CONCRETE_GREEN:
+                    lightColor = vec3(0.574, 0.753, 0.207);
+                    break;
+                case LIGHT_CONCRETE_RED:
+                    lightColor = vec3(0.869, 0.169, 0.169);
+                    break;
+            }
+        #endif
+
+        #ifdef DYN_LIGHT_OREBLOCKS
+            switch (lightType) {
+                case LIGHT_DIAMOND_BLOCK:
+                    lightColor = vec3(0.489, 0.960, 0.912);
+                    break;
+                case LIGHT_EMERALD_BLOCK:
+                    lightColor = vec3(0.235, 0.859, 0.435);
+                    break;
+                case LIGHT_LAPIS_BLOCK:
+                    lightColor = vec3(0.180, 0.427, 0.813);
+                    break;
+                case LIGHT_REDSTONE_BLOCK:
+                    lightColor = vec3(0.980, 0.143, 0.026);
+                    break;
+            }
+        #endif
+        
+        //lightColor = RGBToLinear(lightColor);
+
+        #ifdef DYN_LIGHT_FLICKER
+            // TODO: optimize branching
+            //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
+            float flickerNoise = GetDynLightFlickerNoise(noiseSample);
+            float blackbodyTemp = 0.0;
+
+            if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+                blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
+            }
+
+            if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
+                blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
+            }
+
+            if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
+             || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
+             || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+                blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
+            }
+
+            vec3 blackbodyColor = vec3(1.0);
+            if (blackbodyTemp > 0.0)
+                blackbodyColor = blackbody(blackbodyTemp);
+
+            float flickerBrightness = 0.6 + 0.4 * flickerNoise;
+
+            if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+                lightColor = LinearToRGB(flickerBrightness * blackbodyColor);
+            }
+
+            if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
+                lightColor = LinearToRGB(flickerBrightness * saturate(1.0 - blackbodyColor));
+            }
+
+            if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
+             || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
+             || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+                lightColor = LinearToRGB(0.4 * flickerBrightness * blackbodyColor);
+            }
+        #endif
+
+        return lightColor;
     }
 
-    #ifdef DYN_LIGHT_CONCRETE
+    float GetSceneLightRange(const in uint lightType) {
+        float lightRange = 0.0;
+
         switch (lightType) {
-            case LIGHT_CONCRETE_BLUE:
-                lightColor = vec3(0.222, 0.235, 0.828);
+            case LIGHT_BLOCK_1:
+                lightRange = 1.0;
                 break;
-            case LIGHT_CONCRETE_GREEN:
-                lightColor = vec3(0.574, 0.753, 0.207);
+            case LIGHT_BLOCK_2:
+                lightRange = 2.0;
                 break;
-            case LIGHT_CONCRETE_RED:
-                lightColor = vec3(0.869, 0.169, 0.169);
+            case LIGHT_BLOCK_3:
+                lightRange = 3.0;
                 break;
-        }
-    #endif
-
-    #ifdef DYN_LIGHT_OREBLOCKS
-        switch (lightType) {
-            case LIGHT_DIAMOND_BLOCK:
-                lightColor = vec3(0.489, 0.960, 0.912);
+            case LIGHT_BLOCK_4:
+                lightRange = 4.0;
                 break;
-            case LIGHT_EMERALD_BLOCK:
-                lightColor = vec3(0.235, 0.859, 0.435);
+            case LIGHT_BLOCK_5:
+                lightRange = 5.0;
                 break;
-            case LIGHT_LAPIS_BLOCK:
-                lightColor = vec3(0.180, 0.427, 0.813);
+            case LIGHT_BLOCK_6:
+                lightRange = 6.0;
                 break;
-            case LIGHT_REDSTONE_BLOCK:
-                lightColor = vec3(0.980, 0.143, 0.026);
+            case LIGHT_BLOCK_7:
+                lightRange = 7.0;
                 break;
-        }
-    #endif
-    
-    //lightColor = RGBToLinear(lightColor);
-
-    #ifdef DYN_LIGHT_FLICKER
-        // TODO: optimize branching
-        //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
-        float flickerNoise = GetDynLightFlickerNoise(noiseSample);
-        float blackbodyTemp = 0.0;
-
-        if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
-        }
-
-        if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
-        }
-
-        if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-         || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
-         || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
-        }
-
-        vec3 blackbodyColor = vec3(1.0);
-        if (blackbodyTemp > 0.0)
-            blackbodyColor = blackbody(blackbodyTemp);
-
-        float flickerBrightness = 0.6 + 0.4 * flickerNoise;
-
-        if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
-            lightColor = LinearToRGB(flickerBrightness * blackbodyColor);
-        }
-
-        if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
-            lightColor = LinearToRGB(flickerBrightness * saturate(1.0 - blackbodyColor));
-        }
-
-        if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-         || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
-         || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
-            lightColor = LinearToRGB(0.4 * flickerBrightness * blackbodyColor);
-        }
-    #endif
-
-    return lightColor;
-}
-
-float GetSceneLightRange(const in uint lightType) {
-    float lightRange = 0.0;
-
-    switch (lightType) {
-        case LIGHT_BLOCK_1:
-            lightRange = 1.0;
-            break;
-        case LIGHT_BLOCK_2:
-            lightRange = 2.0;
-            break;
-        case LIGHT_BLOCK_3:
-            lightRange = 3.0;
-            break;
-        case LIGHT_BLOCK_4:
-            lightRange = 4.0;
-            break;
-        case LIGHT_BLOCK_5:
-            lightRange = 5.0;
-            break;
-        case LIGHT_BLOCK_6:
-            lightRange = 6.0;
-            break;
-        case LIGHT_BLOCK_7:
-            lightRange = 7.0;
-            break;
-        case LIGHT_BLOCK_8:
-            lightRange = 8.0;
-            break;
-        case LIGHT_BLOCK_9:
-            lightRange = 9.0;
-            break;
-        case LIGHT_BLOCK_10:
-            lightRange = 10.0;
-            break;
-        case LIGHT_BLOCK_11:
-            lightRange = 11.0;
-            break;
-        case LIGHT_BLOCK_12:
-            lightRange = 12.0;
-            break;
-        case LIGHT_BLOCK_13:
-            lightRange = 13.0;
-            break;
-        case LIGHT_BLOCK_14:
-            lightRange = 14.0;
-            break;
-        case LIGHT_BLOCK_15:
-            lightRange = 15.0;
-            break;
-        case LIGHT_BEACON:
-            lightRange = 15.0;
-            break;
-        case LIGHT_BLAST_FURNACE_N:
-        case LIGHT_BLAST_FURNACE_E:
-        case LIGHT_BLAST_FURNACE_S:
-        case LIGHT_BLAST_FURNACE_W:
-            lightRange = 6.0;
-            break;
-        case LIGHT_BREWING_STAND:
-            lightRange = 2.0;
-            break;
-        case LIGHT_CANDLES_1:
-        case LIGHT_CANDLE_CAKE:
-            lightRange = 3.0;
-            break;
-        case LIGHT_CANDLES_2:
-            lightRange = 6.0;
-            break;
-        case LIGHT_CANDLES_3:
-            lightRange = 9.0;
-            break;
-        case LIGHT_CANDLES_4:
-            lightRange = 12.0;
-            break;
-        case LIGHT_CAVEVINE_BERRIES:
-            lightRange = 14.0;
-            break;
-        case LIGHT_COMPARATOR:
-            lightRange = 7.0;
-            break;
-        case LIGHT_CRYING_OBSIDIAN:
-            lightRange = 10.0;
-            break;
-        case LIGHT_END_ROD:
-            lightRange = 14.0;
-            break;
-        case LIGHT_CAMPFIRE:
-        case LIGHT_FIRE:
-            lightRange = 15.0;
-            break;
-        case LIGHT_FROGLIGHT_OCHRE:
-            lightRange = 15.0;
-            break;
-        case LIGHT_FROGLIGHT_PEARLESCENT:
-            lightRange = 15.0;
-            break;
-        case LIGHT_FROGLIGHT_VERDANT:
-            lightRange = 15.0;
-            break;
-        case LIGHT_FURNACE_N:
-        case LIGHT_FURNACE_E:
-        case LIGHT_FURNACE_S:
-        case LIGHT_FURNACE_W:
-            lightRange = 6.0;
-            break;
-        case LIGHT_GLOWSTONE:
-            lightRange = 15.0;
-            break;
-        case LIGHT_GLOW_LICHEN:
-            lightRange = 7.0;
-            break;
-        case LIGHT_JACK_O_LANTERN_N:
-        case LIGHT_JACK_O_LANTERN_E:
-        case LIGHT_JACK_O_LANTERN_S:
-        case LIGHT_JACK_O_LANTERN_W:
-            lightRange = 15.0;
-            break;
-        case LIGHT_LANTERN:
-            lightRange = 12.0;
-            break;
-        case LIGHT_LAVA:
-            lightRange = 8.0;
-            break;
-        case LIGHT_LAVA_CAULDRON:
-            lightRange = 15.0;
-            break;
-        case LIGHT_LIGHTING_ROD:
-            lightRange = 8.0;
-            break;
-        case LIGHT_MAGMA:
-            lightRange = 3.0;
-            break;
-        case LIGHT_NETHER_PORTAL:
-            lightRange = 11.0;
-            break;
-        case LIGHT_REDSTONE_LAMP:
-            lightRange = 15.0;
-            break;
-        case LIGHT_REDSTONE_TORCH:
-            lightRange = 7.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_1:
-            lightRange = 1.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_2:
-            lightRange = 1.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_3:
-            lightRange = 2.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_4:
-            lightRange = 2.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_5:
-            lightRange = 3.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_6:
-            lightRange = 3.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_7:
-            lightRange = 4.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_8:
-            lightRange = 4.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_9:
-            lightRange = 5.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_10:
-            lightRange = 5.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_11:
-            lightRange = 6.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_12:
-            lightRange = 6.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_13:
-            lightRange = 7.0;
-            break;
-        case LIGHT_REDSTONE_WIRE_14:
-            lightRange = 7.5;
-            break;
-        case LIGHT_REDSTONE_WIRE_15:
-            lightRange = 8.0;
-            break;
-        case LIGHT_REPEATER:
-            lightRange = 7.0;
-            break;
-        case LIGHT_RESPAWN_ANCHOR_1:
-            lightRange = 3.0;
-            break;
-        case LIGHT_RESPAWN_ANCHOR_2:
-            lightRange = 7.0;
-            break;
-        case LIGHT_RESPAWN_ANCHOR_3:
-            lightRange = 11.0;
-            break;
-        case LIGHT_RESPAWN_ANCHOR_4:
-            lightRange = 15.0;
-            break;
-        case LIGHT_SCULK_CATALYST:
-            lightRange = 6.0;
-            break;
-        case LIGHT_SEA_LANTERN:
-            lightRange = 15.0;
-            break;
-        case LIGHT_SEA_PICKLE_1:
-            lightRange = 6.0;
-            break;
-        case LIGHT_SEA_PICKLE_2:
-            lightRange = 9.0;
-            break;
-        case LIGHT_SEA_PICKLE_3:
-            lightRange = 12.0;
-            break;
-        case LIGHT_SEA_PICKLE_4:
-            lightRange = 15.0;
-            break;
-        case LIGHT_SHROOMLIGHT:
-            lightRange = 15.0;
-            break;
-        case LIGHT_SMOKER_N:
-        case LIGHT_SMOKER_E:
-        case LIGHT_SMOKER_S:
-        case LIGHT_SMOKER_W:
-            lightRange = 6.0;
-            break;
-        case LIGHT_SOUL_CAMPFIRE:
-        case LIGHT_SOUL_FIRE:
-        case LIGHT_SOUL_LANTERN:
-            lightRange = 12.0;
-            break;
-        case LIGHT_SOUL_TORCH:
-            lightRange = 10.0;
-            break;
-        case LIGHT_TORCH:
-            lightRange = 12.0;
-            break;
-    }
-
-    #ifdef DYN_LIGHT_CONCRETE
-        switch (lightType) {
-            case LIGHT_CONCRETE_BLUE:
-            case LIGHT_CONCRETE_GREEN:
-            case LIGHT_CONCRETE_RED:
+            case LIGHT_BLOCK_8:
                 lightRange = 8.0;
                 break;
-        }
-    #endif
-
-    #ifdef DYN_LIGHT_OREBLOCKS
-        switch (lightType) {
-            case LIGHT_DIAMOND_BLOCK:
-            case LIGHT_EMERALD_BLOCK:
-            case LIGHT_LAPIS_BLOCK:
-            case LIGHT_REDSTONE_BLOCK:
+            case LIGHT_BLOCK_9:
+                lightRange = 9.0;
+                break;
+            case LIGHT_BLOCK_10:
+                lightRange = 10.0;
+                break;
+            case LIGHT_BLOCK_11:
+                lightRange = 11.0;
+                break;
+            case LIGHT_BLOCK_12:
+                lightRange = 12.0;
+                break;
+            case LIGHT_BLOCK_13:
+                lightRange = 13.0;
+                break;
+            case LIGHT_BLOCK_14:
+                lightRange = 14.0;
+                break;
+            case LIGHT_BLOCK_15:
+                lightRange = 15.0;
+                break;
+            case LIGHT_BEACON:
+                lightRange = 15.0;
+                break;
+            case LIGHT_BLAST_FURNACE_N:
+            case LIGHT_BLAST_FURNACE_E:
+            case LIGHT_BLAST_FURNACE_S:
+            case LIGHT_BLAST_FURNACE_W:
+                lightRange = 6.0;
+                break;
+            case LIGHT_BREWING_STAND:
+                lightRange = 2.0;
+                break;
+            case LIGHT_CANDLES_1:
+            case LIGHT_CANDLE_CAKE:
+                lightRange = 3.0;
+                break;
+            case LIGHT_CANDLES_2:
+                lightRange = 6.0;
+                break;
+            case LIGHT_CANDLES_3:
+                lightRange = 9.0;
+                break;
+            case LIGHT_CANDLES_4:
+                lightRange = 12.0;
+                break;
+            case LIGHT_CAVEVINE_BERRIES:
+                lightRange = 14.0;
+                break;
+            case LIGHT_COMPARATOR:
+                lightRange = 7.0;
+                break;
+            case LIGHT_CRYING_OBSIDIAN:
+                lightRange = 10.0;
+                break;
+            case LIGHT_END_ROD:
+                lightRange = 14.0;
+                break;
+            case LIGHT_CAMPFIRE:
+            case LIGHT_FIRE:
+                lightRange = 15.0;
+                break;
+            case LIGHT_FROGLIGHT_OCHRE:
+                lightRange = 15.0;
+                break;
+            case LIGHT_FROGLIGHT_PEARLESCENT:
+                lightRange = 15.0;
+                break;
+            case LIGHT_FROGLIGHT_VERDANT:
+                lightRange = 15.0;
+                break;
+            case LIGHT_FURNACE_N:
+            case LIGHT_FURNACE_E:
+            case LIGHT_FURNACE_S:
+            case LIGHT_FURNACE_W:
+                lightRange = 6.0;
+                break;
+            case LIGHT_GLOWSTONE:
+                lightRange = 15.0;
+                break;
+            case LIGHT_GLOW_LICHEN:
+                lightRange = 7.0;
+                break;
+            case LIGHT_JACK_O_LANTERN_N:
+            case LIGHT_JACK_O_LANTERN_E:
+            case LIGHT_JACK_O_LANTERN_S:
+            case LIGHT_JACK_O_LANTERN_W:
+                lightRange = 15.0;
+                break;
+            case LIGHT_LANTERN:
+                lightRange = 12.0;
+                break;
+            case LIGHT_LAVA:
+                lightRange = 8.0;
+                break;
+            case LIGHT_LAVA_CAULDRON:
+                lightRange = 15.0;
+                break;
+            case LIGHT_LIGHTING_ROD:
+                lightRange = 8.0;
+                break;
+            case LIGHT_MAGMA:
+                lightRange = 3.0;
+                break;
+            case LIGHT_NETHER_PORTAL:
+                lightRange = 11.0;
+                break;
+            case LIGHT_REDSTONE_LAMP:
+                lightRange = 15.0;
+                break;
+            case LIGHT_REDSTONE_TORCH:
+                lightRange = 7.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_1:
+                lightRange = 1.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_2:
+                lightRange = 1.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_3:
+                lightRange = 2.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_4:
+                lightRange = 2.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_5:
+                lightRange = 3.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_6:
+                lightRange = 3.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_7:
+                lightRange = 4.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_8:
+                lightRange = 4.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_9:
+                lightRange = 5.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_10:
+                lightRange = 5.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_11:
+                lightRange = 6.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_12:
+                lightRange = 6.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_13:
+                lightRange = 7.0;
+                break;
+            case LIGHT_REDSTONE_WIRE_14:
+                lightRange = 7.5;
+                break;
+            case LIGHT_REDSTONE_WIRE_15:
+                lightRange = 8.0;
+                break;
+            case LIGHT_REPEATER:
+                lightRange = 7.0;
+                break;
+            case LIGHT_RESPAWN_ANCHOR_1:
+                lightRange = 3.0;
+                break;
+            case LIGHT_RESPAWN_ANCHOR_2:
+                lightRange = 7.0;
+                break;
+            case LIGHT_RESPAWN_ANCHOR_3:
+                lightRange = 11.0;
+                break;
+            case LIGHT_RESPAWN_ANCHOR_4:
+                lightRange = 15.0;
+                break;
+            case LIGHT_SCULK_CATALYST:
+                lightRange = 6.0;
+                break;
+            case LIGHT_SEA_LANTERN:
+                lightRange = 15.0;
+                break;
+            case LIGHT_SEA_PICKLE_1:
+                lightRange = 6.0;
+                break;
+            case LIGHT_SEA_PICKLE_2:
+                lightRange = 9.0;
+                break;
+            case LIGHT_SEA_PICKLE_3:
+                lightRange = 12.0;
+                break;
+            case LIGHT_SEA_PICKLE_4:
+                lightRange = 15.0;
+                break;
+            case LIGHT_SHROOMLIGHT:
+                lightRange = 15.0;
+                break;
+            case LIGHT_SMOKER_N:
+            case LIGHT_SMOKER_E:
+            case LIGHT_SMOKER_S:
+            case LIGHT_SMOKER_W:
+                lightRange = 6.0;
+                break;
+            case LIGHT_SOUL_CAMPFIRE:
+            case LIGHT_SOUL_FIRE:
+            case LIGHT_SOUL_LANTERN:
+                lightRange = 12.0;
+                break;
+            case LIGHT_SOUL_TORCH:
+                lightRange = 10.0;
+                break;
+            case LIGHT_TORCH:
                 lightRange = 12.0;
                 break;
         }
-    #endif
 
-    return lightRange * DynamicLightRangeF;
-}
+        #ifdef DYN_LIGHT_CONCRETE
+            switch (lightType) {
+                case LIGHT_CONCRETE_BLUE:
+                case LIGHT_CONCRETE_GREEN:
+                case LIGHT_CONCRETE_RED:
+                    lightRange = 8.0;
+                    break;
+            }
+        #endif
 
-float GetSceneLightLevel(const in uint lightType) {
-    #if DYN_LIGHT_REDSTONE == DYN_LIGHT_BLOCK_NONE
-        if (lightType == LIGHT_COMPARATOR
-         || lightType == LIGHT_REPEATER
-         || lightType == LIGHT_RAIL_POWERED) return 0.0;
+        #ifdef DYN_LIGHT_OREBLOCKS
+            switch (lightType) {
+                case LIGHT_DIAMOND_BLOCK:
+                case LIGHT_EMERALD_BLOCK:
+                case LIGHT_LAPIS_BLOCK:
+                case LIGHT_REDSTONE_BLOCK:
+                    lightRange = 12.0;
+                    break;
+            }
+        #endif
 
-        if (lightType >= LIGHT_REDSTONE_WIRE_1
-         && lightType <= LIGHT_REDSTONE_WIRE_15) return 0.0;
-    #endif
-    
-    #if DYN_LIGHT_LAVA == DYN_LIGHT_BLOCK_NONE
-        if (lightType == LIGHT_LAVA) return 0.0;
-    #endif
-
-    return GetSceneLightRange(lightType);
-}
-
-// float GetSceneBlockEmission(const in uint lightType) {
-//     float range = GetSceneBlockLightRange(lightType);
-
-//     if (lightType == BLOCK_LAVA) range *= 2.0;
-//     if (lightType == BLOCK_CAVEVINE_BERRIES) range = 0.0;
-
-//     return range / 15.0;
-// }
-
-float GetSceneLightSize(const in uint lightType) {
-    float size = (1.0/16.0);
-
-    switch (lightType) {
-        case LIGHT_CRYING_OBSIDIAN:
-        case LIGHT_FIRE:
-        case LIGHT_FROGLIGHT_OCHRE:
-        case LIGHT_FROGLIGHT_PEARLESCENT:
-        case LIGHT_FROGLIGHT_VERDANT:
-        case LIGHT_GLOWSTONE:
-        case LIGHT_LAVA:
-        case LIGHT_MAGMA:
-        case LIGHT_SOUL_FIRE:
-            size = (16.0/16.0);
-            break;
-        case LIGHT_LAVA_CAULDRON:
-        case LIGHT_SEA_LANTERN:
-        case LIGHT_REDSTONE_LAMP:
-            size = (14.0/16.0);
-            break;
-        case LIGHT_CAMPFIRE:
-        case LIGHT_SOUL_CAMPFIRE:
-            size = (12.0/16.0);
-            break;
-        case LIGHT_BEACON:
-        case LIGHT_JACK_O_LANTERN_N:
-        case LIGHT_JACK_O_LANTERN_E:
-        case LIGHT_JACK_O_LANTERN_S:
-        case LIGHT_JACK_O_LANTERN_W:
-        case LIGHT_RAIL_POWERED:
-            size = (10.0/16.0);
-            break;
-        case LIGHT_CANDLES_4:
-        case LIGHT_END_ROD:
-            size = (8.0/16.0);
-            break;
-        case LIGHT_CANDLES_3:
-        case LIGHT_LANTERN:
-        case LIGHT_SOUL_LANTERN:
-            size = (6.0/16.0);
-            break;
-        case LIGHT_CANDLES_2:
-        case LIGHT_TORCH:
-        case LIGHT_SOUL_TORCH:
-            size = (4.0/16.0);
-            break;
-        case LIGHT_CANDLES_1:
-        case LIGHT_CANDLE_CAKE:
-        case LIGHT_REDSTONE_TORCH:
-            size = (2.0/16.0);
-            break;
+        return lightRange * DynamicLightRangeF;
     }
 
-    return size;
-}
+    float GetSceneLightLevel(const in uint lightType) {
+        #if DYN_LIGHT_REDSTONE == DYN_LIGHT_BLOCK_NONE
+            if (lightType == LIGHT_COMPARATOR
+             || lightType == LIGHT_REPEATER
+             || lightType == LIGHT_RAIL_POWERED) return 0.0;
 
-vec3 GetSceneLightOffset(const in uint lightType) {
-    vec3 lightOffset = vec3(0.0);
+            if (lightType >= LIGHT_REDSTONE_WIRE_1
+             && lightType <= LIGHT_REDSTONE_WIRE_15) return 0.0;
+        #endif
+        
+        #if DYN_LIGHT_LAVA == DYN_LIGHT_BLOCK_NONE
+            if (lightType == LIGHT_LAVA) return 0.0;
+        #endif
 
-    switch (lightType) {
-        case LIGHT_BLAST_FURNACE_N:
-        case LIGHT_BLAST_FURNACE_E:
-        case LIGHT_BLAST_FURNACE_S:
-        case LIGHT_BLAST_FURNACE_W:
-            lightOffset = vec3(0.0, -0.4, 0.0);
-            break;
-        case LIGHT_CANDLE_CAKE:
-            lightOffset = vec3(0.0, 0.4, 0.0);
-            break;
-        case LIGHT_FIRE:
-            lightOffset = vec3(0.0, -0.3, 0.0);
-            break;
-        case LIGHT_FURNACE_N:
-        case LIGHT_FURNACE_E:
-        case LIGHT_FURNACE_S:
-        case LIGHT_FURNACE_W:
-            lightOffset = vec3(0.0, -0.2, 0.0);
-            break;
-        case LIGHT_JACK_O_LANTERN_N:
-            lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
-            break;
-        case LIGHT_JACK_O_LANTERN_E:
-            lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
-            break;
-        case LIGHT_JACK_O_LANTERN_S:
-            lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
-            break;
-        case LIGHT_JACK_O_LANTERN_W:
-            lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
-            break;
-        case LIGHT_LANTERN:
-            lightOffset = vec3(0.0, -0.2, 0.0);
-            break;
-        case LIGHT_LAVA_CAULDRON:
-            #if DYN_LIGHT_PENUMBRA > 0
-                lightOffset = vec3(0.0, 0.4, 0.0);
-            #else
-                lightOffset = vec3(0.0, 0.2, 0.0);
-            #endif
-            break;
-        case LIGHT_RESPAWN_ANCHOR_1:
-        case LIGHT_RESPAWN_ANCHOR_2:
-        case LIGHT_RESPAWN_ANCHOR_3:
-        case LIGHT_RESPAWN_ANCHOR_4:
-            lightOffset = vec3(0.0, 0.4, 0.0);
-            break;
-        case LIGHT_SCULK_CATALYST:
-            lightOffset = vec3(0.0, 0.4, 0.0);
-            break;
-        case LIGHT_SMOKER_N:
-        case LIGHT_SMOKER_E:
-        case LIGHT_SMOKER_S:
-        case LIGHT_SMOKER_W:
-            lightOffset = vec3(0.0, -0.3, 0.0);
-            break;
-        case LIGHT_SOUL_FIRE:
-        case LIGHT_SOUL_LANTERN:
-            lightOffset = vec3(0.0, -0.25, 0.0);
-            break;
-        case LIGHT_TORCH:
-        case LIGHT_SOUL_TORCH:
-            lightOffset = vec3(0.0, (1.0/16.0), 0.0);
-            break;
+        return GetSceneLightRange(lightType);
     }
 
-    return lightOffset;
-}
+    // float GetSceneBlockEmission(const in uint lightType) {
+    //     float range = GetSceneBlockLightRange(lightType);
 
-bool GetLightTraced(const in uint lightType) {
-    bool result = true;
+    //     if (lightType == BLOCK_LAVA) range *= 2.0;
+    //     if (lightType == BLOCK_CAVEVINE_BERRIES) range = 0.0;
 
-    #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
-    #endif
+    //     return range / 15.0;
+    // }
 
-    #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_LAVA) result = false;
-    #endif
-
-    #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_NETHER_PORTAL) result = false;
-    #endif
-
-    #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
-        if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
-    #endif
-
-    return result;
-}
-
-#ifdef RENDER_SHADOWCOMP
-    uint BuildLightMask(const in uint lightType) {
-        uint lightData = 0u;
+    float GetSceneLightSize(const in uint lightType) {
+        float size = (1.0/16.0);
 
         switch (lightType) {
-            case LIGHT_BEACON:
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                break;
-            case LIGHT_JACK_O_LANTERN_N:
-            case LIGHT_FURNACE_N:
-            case LIGHT_BLAST_FURNACE_N:
-            case LIGHT_SMOKER_N:
-                lightData |= 1u << LIGHT_MASK_UP;
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                lightData |= 1u << LIGHT_MASK_SOUTH;
-                lightData |= 1u << LIGHT_MASK_WEST;
-                lightData |= 1u << LIGHT_MASK_EAST;
-                break;
-            case LIGHT_JACK_O_LANTERN_E:
-            case LIGHT_FURNACE_E:
-            case LIGHT_BLAST_FURNACE_E:
-            case LIGHT_SMOKER_E:
-                lightData |= 1u << LIGHT_MASK_UP;
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                lightData |= 1u << LIGHT_MASK_NORTH;
-                lightData |= 1u << LIGHT_MASK_SOUTH;
-                lightData |= 1u << LIGHT_MASK_WEST;
-                break;
-            case LIGHT_JACK_O_LANTERN_S:
-            case LIGHT_FURNACE_S:
-            case LIGHT_BLAST_FURNACE_S:
-            case LIGHT_SMOKER_S:
-                lightData |= 1u << LIGHT_MASK_UP;
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                lightData |= 1u << LIGHT_MASK_NORTH;
-                lightData |= 1u << LIGHT_MASK_WEST;
-                lightData |= 1u << LIGHT_MASK_EAST;
-                break;
-            case LIGHT_JACK_O_LANTERN_W:
-            case LIGHT_FURNACE_W:
-            case LIGHT_BLAST_FURNACE_W:
-            case LIGHT_SMOKER_W:
-                lightData |= 1u << LIGHT_MASK_UP;
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                lightData |= 1u << LIGHT_MASK_NORTH;
-                lightData |= 1u << LIGHT_MASK_SOUTH;
-                lightData |= 1u << LIGHT_MASK_EAST;
+            case LIGHT_CRYING_OBSIDIAN:
+            case LIGHT_FIRE:
+            case LIGHT_FROGLIGHT_OCHRE:
+            case LIGHT_FROGLIGHT_PEARLESCENT:
+            case LIGHT_FROGLIGHT_VERDANT:
+            case LIGHT_GLOWSTONE:
+            case LIGHT_LAVA:
+            case LIGHT_MAGMA:
+            case LIGHT_SOUL_FIRE:
+                size = (16.0/16.0);
                 break;
             case LIGHT_LAVA_CAULDRON:
-                lightData |= 1u << LIGHT_MASK_DOWN;
-                lightData |= 1u << LIGHT_MASK_NORTH;
-                lightData |= 1u << LIGHT_MASK_SOUTH;
-                lightData |= 1u << LIGHT_MASK_WEST;
-                lightData |= 1u << LIGHT_MASK_EAST;
+            case LIGHT_SEA_LANTERN:
+            case LIGHT_REDSTONE_LAMP:
+                size = (14.0/16.0);
+                break;
+            case LIGHT_CAMPFIRE:
+            case LIGHT_SOUL_CAMPFIRE:
+                size = (12.0/16.0);
+                break;
+            case LIGHT_BEACON:
+            case LIGHT_JACK_O_LANTERN_N:
+            case LIGHT_JACK_O_LANTERN_E:
+            case LIGHT_JACK_O_LANTERN_S:
+            case LIGHT_JACK_O_LANTERN_W:
+            case LIGHT_RAIL_POWERED:
+                size = (10.0/16.0);
+                break;
+            case LIGHT_CANDLES_4:
+            case LIGHT_END_ROD:
+                size = (8.0/16.0);
+                break;
+            case LIGHT_CANDLES_3:
+            case LIGHT_LANTERN:
+            case LIGHT_SOUL_LANTERN:
+                size = (6.0/16.0);
+                break;
+            case LIGHT_CANDLES_2:
+            case LIGHT_TORCH:
+            case LIGHT_SOUL_TORCH:
+                size = (4.0/16.0);
+                break;
+            case LIGHT_CANDLES_1:
+            case LIGHT_CANDLE_CAKE:
+            case LIGHT_REDSTONE_TORCH:
+                size = (2.0/16.0);
                 break;
         }
 
-        return lightData;
+        return size;
     }
 
-    // BuildLightMask
-    uvec4 BuildLightData(const in vec3 position, const in bool traced, const in uint mask, const in float size, const in float range, const in vec3 color) {
-        uvec4 lightData;
+    vec3 GetSceneLightOffset(const in uint lightType) {
+        vec3 lightOffset = vec3(0.0);
 
-        // position
-        lightData.x  = float2half(floatBitsToUint(position.x));
-        lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
-        lightData.y  = float2half(floatBitsToUint(position.z));
+        switch (lightType) {
+            case LIGHT_BLAST_FURNACE_N:
+            case LIGHT_BLAST_FURNACE_E:
+            case LIGHT_BLAST_FURNACE_S:
+            case LIGHT_BLAST_FURNACE_W:
+                lightOffset = vec3(0.0, -0.4, 0.0);
+                break;
+            case LIGHT_CANDLE_CAKE:
+                lightOffset = vec3(0.0, 0.4, 0.0);
+                break;
+            case LIGHT_FIRE:
+                lightOffset = vec3(0.0, -0.3, 0.0);
+                break;
+            case LIGHT_FURNACE_N:
+            case LIGHT_FURNACE_E:
+            case LIGHT_FURNACE_S:
+            case LIGHT_FURNACE_W:
+                lightOffset = vec3(0.0, -0.2, 0.0);
+                break;
+            case LIGHT_JACK_O_LANTERN_N:
+                lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
+                break;
+            case LIGHT_JACK_O_LANTERN_E:
+                lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+                break;
+            case LIGHT_JACK_O_LANTERN_S:
+                lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
+                break;
+            case LIGHT_JACK_O_LANTERN_W:
+                lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+                break;
+            case LIGHT_LANTERN:
+                lightOffset = vec3(0.0, -0.2, 0.0);
+                break;
+            case LIGHT_LAVA_CAULDRON:
+                #if DYN_LIGHT_PENUMBRA > 0
+                    lightOffset = vec3(0.0, 0.4, 0.0);
+                #else
+                    lightOffset = vec3(0.0, 0.2, 0.0);
+                #endif
+                break;
+            case LIGHT_RESPAWN_ANCHOR_1:
+            case LIGHT_RESPAWN_ANCHOR_2:
+            case LIGHT_RESPAWN_ANCHOR_3:
+            case LIGHT_RESPAWN_ANCHOR_4:
+                lightOffset = vec3(0.0, 0.4, 0.0);
+                break;
+            case LIGHT_SCULK_CATALYST:
+                lightOffset = vec3(0.0, 0.4, 0.0);
+                break;
+            case LIGHT_SMOKER_N:
+            case LIGHT_SMOKER_E:
+            case LIGHT_SMOKER_S:
+            case LIGHT_SMOKER_W:
+                lightOffset = vec3(0.0, -0.3, 0.0);
+                break;
+            case LIGHT_SOUL_FIRE:
+            case LIGHT_SOUL_LANTERN:
+                lightOffset = vec3(0.0, -0.25, 0.0);
+                break;
+            case LIGHT_TORCH:
+            case LIGHT_SOUL_TORCH:
+                lightOffset = vec3(0.0, (1.0/16.0), 0.0);
+                break;
+        }
 
-        // size
-        uint bitSize = uint(clamp(size * 255.0, 0.0, 255.0) + 0.5);
-        lightData.y |= bitSize << 16u;
-
-        // range
-        uint bitRange = uint(clamp(range * 15.0, 0.0, 255.0) + 0.5);
-        lightData.y |= bitRange << 24u;
-
-        // traced
-        lightData.z = traced ? 1u : 0u;
-
-        // mask
-        lightData.z |= mask;
-
-        // color
-        uvec3 bitColor = uvec3(saturate(color) * 255.0 + 0.5);
-        lightData.z |= bitColor.r << 8u;
-        lightData.z |= bitColor.g << 16u;
-        lightData.z |= bitColor.b << 24u;
-
-        return lightData;
+        return lightOffset;
     }
+
+    bool GetLightTraced(const in uint lightType) {
+        bool result = true;
+
+        #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
+        #endif
+
+        #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_LAVA) result = false;
+        #endif
+
+        #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_NETHER_PORTAL) result = false;
+        #endif
+
+        #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
+            if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
+        #endif
+
+        return result;
+    }
+
+    #ifdef RENDER_SHADOWCOMP
+        uint BuildLightMask(const in uint lightType) {
+            uint lightData = 0u;
+
+            switch (lightType) {
+                case LIGHT_BEACON:
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    break;
+                case LIGHT_JACK_O_LANTERN_N:
+                case LIGHT_FURNACE_N:
+                case LIGHT_BLAST_FURNACE_N:
+                case LIGHT_SMOKER_N:
+                    lightData |= 1u << LIGHT_MASK_UP;
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    lightData |= 1u << LIGHT_MASK_SOUTH;
+                    lightData |= 1u << LIGHT_MASK_WEST;
+                    lightData |= 1u << LIGHT_MASK_EAST;
+                    break;
+                case LIGHT_JACK_O_LANTERN_E:
+                case LIGHT_FURNACE_E:
+                case LIGHT_BLAST_FURNACE_E:
+                case LIGHT_SMOKER_E:
+                    lightData |= 1u << LIGHT_MASK_UP;
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    lightData |= 1u << LIGHT_MASK_NORTH;
+                    lightData |= 1u << LIGHT_MASK_SOUTH;
+                    lightData |= 1u << LIGHT_MASK_WEST;
+                    break;
+                case LIGHT_JACK_O_LANTERN_S:
+                case LIGHT_FURNACE_S:
+                case LIGHT_BLAST_FURNACE_S:
+                case LIGHT_SMOKER_S:
+                    lightData |= 1u << LIGHT_MASK_UP;
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    lightData |= 1u << LIGHT_MASK_NORTH;
+                    lightData |= 1u << LIGHT_MASK_WEST;
+                    lightData |= 1u << LIGHT_MASK_EAST;
+                    break;
+                case LIGHT_JACK_O_LANTERN_W:
+                case LIGHT_FURNACE_W:
+                case LIGHT_BLAST_FURNACE_W:
+                case LIGHT_SMOKER_W:
+                    lightData |= 1u << LIGHT_MASK_UP;
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    lightData |= 1u << LIGHT_MASK_NORTH;
+                    lightData |= 1u << LIGHT_MASK_SOUTH;
+                    lightData |= 1u << LIGHT_MASK_EAST;
+                    break;
+                case LIGHT_LAVA_CAULDRON:
+                    lightData |= 1u << LIGHT_MASK_DOWN;
+                    lightData |= 1u << LIGHT_MASK_NORTH;
+                    lightData |= 1u << LIGHT_MASK_SOUTH;
+                    lightData |= 1u << LIGHT_MASK_WEST;
+                    lightData |= 1u << LIGHT_MASK_EAST;
+                    break;
+            }
+
+            return lightData;
+        }
+
+        // BuildLightMask
+        uvec4 BuildLightData(const in vec3 position, const in bool traced, const in uint mask, const in float size, const in float range, const in vec3 color) {
+            uvec4 lightData;
+
+            // position
+            lightData.x  = float2half(floatBitsToUint(position.x));
+            lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
+            lightData.y  = float2half(floatBitsToUint(position.z));
+
+            // size
+            uint bitSize = uint(clamp(size * 255.0, 0.0, 255.0) + 0.5);
+            lightData.y |= bitSize << 16u;
+
+            // range
+            uint bitRange = uint(clamp(range * 15.0, 0.0, 255.0) + 0.5);
+            lightData.y |= bitRange << 24u;
+
+            // traced
+            lightData.z = traced ? 1u : 0u;
+
+            // mask
+            lightData.z |= mask;
+
+            // color
+            uvec3 bitColor = uvec3(saturate(color) * 255.0 + 0.5);
+            lightData.z |= bitColor.r << 8u;
+            lightData.z |= bitColor.g << 16u;
+            lightData.z |= bitColor.b << 24u;
+
+            return lightData;
+        }
+    #endif
 #endif
 
 void ParseLightPosition(const in uvec4 data, out vec3 position) {

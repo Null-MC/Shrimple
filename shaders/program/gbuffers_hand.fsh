@@ -192,19 +192,24 @@ uniform float blindness;
 
 #include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
-
-#include "/lib/material/emission.glsl"
-#include "/lib/material/subsurface.glsl"
-#include "/lib/material/specular.glsl"
+#include "/lib/lighting/sampling.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
 
-#include "/lib/lighting/sampling.glsl"
+#include "/lib/material/emission.glsl"
+#include "/lib/material/subsurface.glsl"
+#include "/lib/material/specular.glsl"
+
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+    #include "/lib/lighting/dynamic/sampling.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+
 #include "/lib/post/tonemap.glsl"
 
 

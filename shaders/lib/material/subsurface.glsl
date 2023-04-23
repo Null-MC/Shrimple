@@ -41,12 +41,21 @@ float GetBlockSSS(const in int blockId) {
         case BLOCK_LILAC_UPPER:
         case BLOCK_LILY_OF_THE_VALLEY:
         case BLOCK_OXEYE_DAISY:
+        case BLOCK_PACKED_ICE:
         case BLOCK_PEONY_LOWER:
         case BLOCK_PEONY_UPPER:
         case BLOCK_POPPY:
         case BLOCK_POTATOES:
         case BLOCK_ROSE_BUSH_LOWER:
         case BLOCK_ROSE_BUSH_UPPER:
+        case BLOCK_SNOW:
+        case BLOCK_SNOW_LAYERS_1:
+        case BLOCK_SNOW_LAYERS_2:
+        case BLOCK_SNOW_LAYERS_3:
+        case BLOCK_SNOW_LAYERS_4:
+        case BLOCK_SNOW_LAYERS_5:
+        case BLOCK_SNOW_LAYERS_6:
+        case BLOCK_SNOW_LAYERS_7:
         case BLOCK_SPORE_BLOSSOM:
         case BLOCK_SUNFLOWER_LOWER:
         case BLOCK_SUNFLOWER_UPPER:
@@ -58,7 +67,8 @@ float GetBlockSSS(const in int blockId) {
         case BLOCK_GRASS:
         case BLOCK_TALL_GRASS_UPPER:
         case BLOCK_TALL_GRASS_LOWER:
-        case BLOCK_SNOW:
+        case BLOCK_HONEY:
+        case BLOCK_HONEYCOMB:
             sss = 0.8;
             break;
     }

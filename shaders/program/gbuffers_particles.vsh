@@ -27,6 +27,7 @@ out vec3 vLocalNormal;
 #endif
 
 uniform sampler2D lightmap;
+uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -48,8 +49,6 @@ uniform vec3 cameraPosition;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform sampler2D noisetex;
-
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -70,13 +69,21 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
+#include "/lib/lighting/sampling.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/dynamic/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

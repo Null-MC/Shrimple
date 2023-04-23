@@ -99,6 +99,10 @@ uniform int heldBlockLightValue2;
 	#endif
 #endif
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+    #include "/lib/material/normalmap.glsl"
+#endif
+
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
@@ -111,12 +115,12 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/sampling.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+    #include "/lib/lighting/dynamic/sampling.glsl"
 #endif
 
-#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 

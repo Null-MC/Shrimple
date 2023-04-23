@@ -78,6 +78,7 @@ uniform sampler2D lightmap;
 
 uniform ivec2 atlasSize;
 
+uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -114,26 +115,18 @@ uniform int fogMode;
     uniform float near;
 #endif
 
-#if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
-    uniform int frameCounter;
-    //uniform float frameTimeCounter;
-    //uniform vec3 cameraPosition;
-#endif
-
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
     //
 #else
-    //#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-        uniform int heldItemId;
-        uniform int heldItemId2;
-        uniform int heldBlockLightValue;
-        uniform int heldBlockLightValue2;
+    uniform int heldItemId;
+    uniform int heldItemId2;
+    uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
 
-        #ifdef IS_IRIS
-            uniform bool firstPersonCamera;
-            uniform vec3 eyePosition;
-        #endif
-    //#endif
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
 
     uniform float blindness;
 #endif
@@ -150,6 +143,7 @@ uniform int fogMode;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
@@ -228,6 +222,11 @@ uniform int fogMode;
     //
 #else
     #include "/lib/lighting/sampling.glsl"
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/dynamic/sampling.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 

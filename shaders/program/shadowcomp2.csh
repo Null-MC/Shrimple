@@ -1,3 +1,4 @@
+#define RENDER_SHADOWCOMP_LIGHT_NEIGHBORS
 #define RENDER_SHADOWCOMP
 #define RENDER_COMPUTE
 
@@ -14,11 +15,12 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform float far;
 
     #include "/lib/blocks.glsl"
+
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
+    //#include "/lib/lighting/blackbody.glsl"
+    //#include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    //#include "/lib/lighting/dynamic_blocks.glsl"
     #include "/lib/lighting/dynamic_lights.glsl"
 
 

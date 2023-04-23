@@ -70,13 +70,22 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#include "/lib/lighting/sampling.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
+
+    #ifdef DYN_LIGHT_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
+
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/dynamic/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

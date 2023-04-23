@@ -119,15 +119,16 @@ uniform vec3 cameraPosition;
 
 #include "/lib/lighting/dynamic_lights.glsl"
 #include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/sampling.glsl"
 
 #include "/lib/material/emission.glsl"
+#include "/lib/material/normalmap.glsl"
 #include "/lib/material/subsurface.glsl"
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
-//#endif
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
+    #include "/lib/lighting/dynamic/sampling.glsl"
+#endif
 
-#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
