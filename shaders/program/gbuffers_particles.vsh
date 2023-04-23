@@ -81,9 +81,9 @@ uniform vec3 cameraPosition;
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
-    #include "/lib/lighting/dynamic/sampling.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic.glsl"

@@ -110,15 +110,15 @@ uniform int heldBlockLightValue2;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/lights.glsl"
 #endif
 
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/lighting/dynamic/sampling.glsl"
+    #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"

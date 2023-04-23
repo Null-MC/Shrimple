@@ -218,23 +218,28 @@
         vec3 ambientLight = vec3(0.0);
         #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
             #ifdef AMBIENT_FANCY
+                vec3 localSunDir = (gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz;
+                localSunDir = normalize(localSunDir);
+
                 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
                     localLightDir = normalize(localLightDir);
                 #else
-                    vec3 celestialPos = normalize(sunPosition);
-                    if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
-                    vec3 localLightDir = (gbufferModelViewInverse * vec4(celestialPos, 1.0)).xyz;
+                    vec3 localLightDir = localSunDir;//(gbufferModelViewInverse * vec4(celestialPos, 1.0)).xyz;
+                    if (worldTime > 12000 && worldTime < 24000) localLightDir = -localLightDir;
                 #endif
 
                 //ambientLight = fogColor;
 
                 //float upF = localNormal.y;
                 //ambientLight = skyColor;//mix(ambientLight, skyColor, localNormal.y * 0.5 + 0.5);
-                vec3 skyLightColor = vec3(1.0, 0.7, 0.2);
+                vec3 sunLightColor = vec3(1.0, 0.7, 0.2);
+                vec3 moonLightColor = vec3(0.1, 0.1, 0.4);
+                vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDir.y * 0.5 + 0.5);
 
                 float skyLightNoL = max(dot(localNormal, localLightDir), 0.0);
-                ambientLight = mix(skyColor, skyLightColor, skyLightNoL * 0.4 + 0.5);
+                //ambientLight = mix(skyColor, skyLightColor, skyLightNoL * 0.4 + 0.5);
+                ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
 
                 ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             #else

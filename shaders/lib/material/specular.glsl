@@ -95,9 +95,11 @@ float GetItemRoughness(const in int itemId) {
 
     switch (itemId) {
         case ITEM_GOLD_ARMOR:
+        case ITEM_GOLD_SWORD:
             smoothness = 0.75;
             break;
         case ITEM_IRON_ARMOR:
+        case ITEM_IRON_SWORD:
             smoothness = 0.65;
             break;
     }
@@ -152,9 +154,11 @@ float GetItemMetalF0(const in int itemId) {
 
     switch (itemId) {
         case ITEM_GOLD_ARMOR:
+        case ITEM_GOLD_SWORD:
             metal_f0 = (231.5/255.0);
             break;
         case ITEM_IRON_ARMOR:
+        case ITEM_IRON_SWORD:
             metal_f0 = (230.5/255.0);
             break;
     }
@@ -195,6 +199,9 @@ float GetMaterialF0(const in float metal_f0) {
                 roughness = GetItemRoughness(currentRenderedItemId);
                 metal_f0 = GetItemMetalF0(currentRenderedItemId);
             }
+        // #elif defined RENDER_HAND
+        //     roughness = GetItemRoughness(heldItemId);
+        //     metal_f0 = GetItemMetalF0(heldItemId);
         #else
             roughness = GetBlockRoughness(blockId);
             metal_f0 = GetBlockMetalF0(blockId);

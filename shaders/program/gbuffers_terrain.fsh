@@ -196,11 +196,11 @@ uniform int fogMode;
 #endif
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
 #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
@@ -214,7 +214,7 @@ uniform int fogMode;
 #if !(defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/voxel/mask.glsl"
     #endif
 
     #include "/lib/lighting/sampling.glsl"
@@ -332,6 +332,9 @@ void main() {
             }
         #endif
     #endif
+
+    float texOcclusion = max(texNormal.z, 0.0);
+    occlusion *= _pow2(texOcclusion);
 
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);

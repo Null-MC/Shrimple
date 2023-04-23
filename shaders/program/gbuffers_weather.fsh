@@ -142,17 +142,17 @@ uniform float blindness;
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/collisions.glsl"
-    #include "/lib/lighting/tracing.glsl"
+    #include "/lib/lighting/voxel/collisions.glsl"
+    #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 
 #include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/basic_hand.glsl"

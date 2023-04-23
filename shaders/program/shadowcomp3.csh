@@ -18,11 +18,11 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/buffers/volume.glsl"
     
     #include "/lib/lighting/sampling.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/collisions.glsl"
-    #include "/lib/lighting/tracing.glsl"
-    //#include "/lib/lighting/dynamic_blocks.glsl"
-    //#include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/collisions.glsl"
+    #include "/lib/lighting/voxel/tracing.glsl"
+    //#include "/lib/lighting/voxel/blocks.glsl"
+    //#include "/lib/lighting/voxel/lights.glsl"
 #endif
 
 

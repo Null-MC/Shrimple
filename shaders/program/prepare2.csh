@@ -10,7 +10,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 const ivec3 workGroups = ivec3(64, 16, 64);
 
 #include "/lib/buffers/lighting.glsl"
-#include "/lib/lighting/dynamic.glsl"
+#include "/lib/lighting/voxel/mask.glsl"
 
 
 void main() {

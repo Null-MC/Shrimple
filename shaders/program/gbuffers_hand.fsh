@@ -178,20 +178,20 @@ uniform float blindness;
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/dynamic.glsl"
+        #include "/lib/lighting/voxel/mask.glsl"
     #endif
 
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/collisions.glsl"
-        #include "/lib/lighting/tracing.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 
 #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -204,7 +204,7 @@ uniform float blindness;
 #include "/lib/material/specular.glsl"
 
 #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-    #include "/lib/lighting/dynamic/sampling.glsl"
+    #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"

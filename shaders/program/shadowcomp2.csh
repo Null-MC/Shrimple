@@ -19,9 +19,9 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/buffers/lighting.glsl"
     //#include "/lib/lighting/blackbody.glsl"
     //#include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    //#include "/lib/lighting/dynamic_blocks.glsl"
-    #include "/lib/lighting/dynamic_lights.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    //#include "/lib/lighting/dynamic/voxel_blocks.glsl"
+    #include "/lib/lighting/voxel/lights.glsl"
 
 
     uint PopulateNeighborLists(const in ivec3 gridCell, const in uint gridIndex, const in vec3 cameraOffset) {

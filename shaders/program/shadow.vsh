@@ -41,7 +41,7 @@ uniform int entityId;
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/items.glsl"
     #include "/lib/entities.glsl"
-    #include "/lib/lighting/dynamic_entities.glsl"
+    #include "/lib/lighting/voxel/entities.glsl"
 #endif
 
 

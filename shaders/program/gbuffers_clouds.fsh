@@ -58,6 +58,10 @@ uniform float fogEnd;
 uniform float rainStrength;
 uniform float blindness;
 
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 skyColor;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
 
@@ -93,7 +97,7 @@ uniform float blindness;
     uniform ivec2 eyeBrightnessSmooth;
     //uniform float rainStrength;
     uniform int isEyeInWater;
-    uniform vec3 skyColor;
+    //uniform vec3 skyColor;
     uniform vec3 fogColor;
 #endif
 
@@ -134,21 +138,21 @@ uniform float blindness;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/dynamic.glsl"
-    #include "/lib/lighting/dynamic_blocks.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/collisions.glsl"
-        #include "/lib/lighting/tracing.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/dynamic/sampling.glsl"
+    #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"
@@ -182,6 +186,8 @@ void main() {
     #else
         vec4 final = vColor;
     #endif
+
+    final.rgb = RGBToLinear(final.rgb);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -226,6 +232,6 @@ void main() {
         final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
-    //ApplyPostProcessing(final.rgb);
+    ApplyPostProcessing(final.rgb);
     outFinal = final;
 }

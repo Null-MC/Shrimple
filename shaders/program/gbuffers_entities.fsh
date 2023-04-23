@@ -178,7 +178,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/entities.glsl"
-#include "/lib/lighting/dynamic_entities.glsl"
+#include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/physics_mod/snow.glsl"
 
 #ifdef RENDER_TRANSLUCENT
@@ -193,18 +193,18 @@ uniform int heldBlockLightValue2;
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/dynamic.glsl"
-        #include "/lib/lighting/dynamic_blocks.glsl"
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/collisions.glsl"
-        #include "/lib/lighting/tracing.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 #endif
 
-#include "/lib/lighting/dynamic_lights.glsl"
-#include "/lib/lighting/dynamic_items.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
@@ -222,7 +222,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-    #include "/lib/lighting/dynamic/sampling.glsl"
+    #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"
