@@ -40,7 +40,7 @@ float GetShadowOffsetBias(const in int cascade) {
     float bias = 0.0;
 
     #if SHADOW_FILTER == SHADOW_FILTER_PCF
-        bias += 0.01 * rcp(far * 3.0) * SHADOW_PCF_SIZE;
+        bias += 0.001 * rcp(far * 3.0) * SHADOW_PCF_SIZE;
     #endif
 
     switch (cascade) {
