@@ -23,13 +23,5 @@ void main() {
 
         SceneLightMaps[gridIndex].LightCount = 0u;
         SceneLightMaps[gridIndex].LightNeighborCount = 0u;
-
-        for (int i = 0; i < (LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32); i++) {
-            SceneLightMaps[gridIndex].LightMask[i] = 0u;
-
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                SceneBlockMaps[gridIndex].BlockMask[i] = 0u;
-            #endif
-        }
     #endif
 }

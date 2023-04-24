@@ -35,9 +35,13 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     uint GetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
-        uint intIndex = maskIndex >> 5;
 
-        uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
+        //uint intIndex = maskIndex >> 5;
+        uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
+
+        //uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
+        ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+        uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31);
         return (bit & 255);
     }
 #endif
@@ -47,9 +51,12 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
         uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
             maskIndex *= DYN_LIGHT_MASK_STRIDE;
-            uint intIndex = maskIndex >> 5;
 
-            uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
+            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
+
+            //uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
+            ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+            uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
             return (bit & 255);
         }
     #endif
@@ -72,10 +79,13 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
         uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
 
-        uint intIndex = maskIndex >> 5u;
+        //uint intIndex = maskIndex >> 5u;
+        uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
         uint bit = lightType << (maskIndex & 31u);
 
-        uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
+        //uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
+        ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+        uint was = imageAtomicOr(imgLocalLightMask, texcoord, bit);
         return (was & bit) == 0u;
     }
 
@@ -84,10 +94,13 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
             maskIndex *= DYN_LIGHT_MASK_STRIDE;
 
-            uint intIndex = maskIndex >> 5;
+            //uint intIndex = maskIndex >> 5;
+            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
             uint bit = blockType << (maskIndex & 31);
 
-            atomicOr(SceneBlockMaps[gridIndex].BlockMask[intIndex], bit);
+            //atomicOr(SceneBlockMaps[gridIndex].BlockMask[intIndex], bit);
+            ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+            imageAtomicOr(imgLocalBlockMask, texcoord, bit);
         }
     #endif
 #elif defined RENDER_SHADOWCOMP

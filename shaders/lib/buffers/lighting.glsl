@@ -34,7 +34,7 @@ struct LightCellData {
     uint LightCount;
     uint LightNeighborCount;
     uint GlobalLights[LIGHT_BIN_MAX_COUNT];
-    uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
+    //uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
 };
 
 #ifdef RENDER_SHADOWCOMP
@@ -48,22 +48,16 @@ struct LightCellData {
     LightCellData SceneLightMaps[];
 };
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    struct BlockCellData {
-        uint BlockMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
-        #ifdef DYN_LIGHT_OCTREE
-            uint OctreeMask[DYN_LIGHT_OCTREE_SIZE];
-        #endif
-    };
+#if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_SHADOWCOMP
+    layout(r32ui) uniform restrict uimage2D imgLocalLightMask;
+#else
+    layout(r32ui) uniform restrict readonly uimage2D imgLocalLightMask;
+#endif
 
-    #ifdef RENDER_SHADOWCOMP
-        layout(std430, binding = 4) restrict buffer localBlockData
-    #elif defined RENDER_BEGIN || defined RENDER_SHADOW
-        layout(std430, binding = 4) restrict writeonly buffer localBlockData
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_SHADOWCOMP
+        layout(r32ui) uniform restrict uimage2D imgLocalBlockMask;
     #else
-        layout(std430, binding = 4) restrict readonly buffer localBlockData
+        layout(r32ui) uniform restrict readonly uimage2D imgLocalBlockMask;
     #endif
-    {
-        BlockCellData SceneBlockMaps[];
-    };
 #endif
