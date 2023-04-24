@@ -204,6 +204,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#include "/lib/lighting/directional.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/sampling.glsl"
@@ -252,6 +253,7 @@ void main() {
     vec2 atlasCoord = texcoord;
     bool skipParallax = false;
     vec2 waterUvOffset = vec2(0.0);
+    vec2 lmFinal = lmcoord;
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
@@ -275,7 +277,7 @@ void main() {
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
             #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
-                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
+                float skyLight = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
                 texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
             #endif
 
@@ -384,7 +386,7 @@ void main() {
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, texNormal, lmcoord);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, texNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
         if (vBlockId != BLOCK_WATER)
@@ -449,6 +451,11 @@ void main() {
             color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
         }
 
+        #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
+            vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+            ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
+        #endif
+
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
             ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
         #endif
@@ -464,16 +471,16 @@ void main() {
 
     blockDiffuse += emission * DynamicLightBrightness;
     
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, sss);
 
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);
 
     #ifdef WORLD_SKY_ENABLED
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+    color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
 
     vec3 specular = blockSpecular + skySpecular;
     color.a = min(color.a + luminance(specular), 1.0);

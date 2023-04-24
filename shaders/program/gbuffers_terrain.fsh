@@ -199,6 +199,7 @@ uniform int fogMode;
     #include "/lib/lighting/voxel/blocks.glsl"
 #endif
 
+#include "/lib/lighting/directional.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
@@ -241,6 +242,7 @@ void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
+    vec2 lmFinal = lmcoord;
     
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
@@ -349,7 +351,7 @@ void main() {
         vec3 worldPos = vLocalPos + cameraPosition;
 
         float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmcoord);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
         ApplyWetnessPuddles(texNormal, puddleF);
@@ -370,6 +372,11 @@ void main() {
         shadowColor *= 1.2 * pow(skyNoL, 0.8);
     #endif
 
+    #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
+        vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+        ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
+    #endif
+
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
     #endif
@@ -387,7 +394,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
+        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, occlusion + dither, emission));
         deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
@@ -405,7 +412,7 @@ void main() {
         blockDiffuse += emission * DynamicLightBrightness;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, sss);
         #endif
 
         #if (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER)
@@ -417,10 +424,10 @@ void main() {
 
         #ifdef WORLD_SKY_ENABLED
             vec3 localViewDir = -normalize(vLocalPos);
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos);
 

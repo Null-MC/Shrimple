@@ -16,10 +16,7 @@ uniform sampler2D noisetex;
 
 #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
-
-    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-        uniform sampler2D shadowtex1;
-    #endif
+    uniform sampler2D shadowtex1;
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         uniform sampler2DShadow shadowtex0HW;
