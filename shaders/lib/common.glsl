@@ -253,6 +253,8 @@ const bool colortex14Clear = true;
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
+#ifdef DIRECTIONAL_LIGHTMAP
+#endif
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
     #define DEFERRED_BUFFER_ENABLED

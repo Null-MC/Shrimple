@@ -151,6 +151,9 @@ option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied 
 option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
 
+option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
+option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
+
 
 screen.DYNAMIC_LIGHT_TRACE_OPTIONS=Trace Options
 
