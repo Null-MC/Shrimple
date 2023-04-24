@@ -338,7 +338,10 @@ void main() {
 
     vec3 texNormal = localNormal;
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+        bool isValidNormal = false;
+
+        if (entityId != ENTITY_PHYSICSMOD_SNOW)
+            isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             if (!skipParallax) {
