@@ -233,5 +233,8 @@ void main() {
     #endif
 
     ApplyPostProcessing(final.rgb);
+
+    final.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
+    
     outFinal = final;
 }

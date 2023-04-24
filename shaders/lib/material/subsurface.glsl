@@ -2,15 +2,17 @@ float GetBlockSSS(const in int blockId) {
     float sss = 0.0;
 
     switch (blockId) {
-        case BLOCK_BROWN_MUSHROOM:
+        case BLOCK_BROWN_MUSHROOM_PLANT:
         case BLOCK_LILY_PAD:
+        case BLOCK_MUSHROOM_STEM:
         case BLOCK_NETHER_WART:
-        case BLOCK_RED_MUSHROOM:
+        case BLOCK_RED_MUSHROOM_PLANT:
             sss = 0.2;
             break;
         case BLOCK_AZALEA:
         case BLOCK_BIG_DRIPLEAF:
         case BLOCK_BIG_DRIPLEAF_STEM:
+        case BLOCK_BROWN_MUSHROOM:
         case BLOCK_CAVE_VINE:
         case BLOCK_CAVEVINE_BERRIES:
         case BLOCK_FERN:
@@ -18,6 +20,7 @@ float GetBlockSSS(const in int blockId) {
         case BLOCK_LEAVES:
         case BLOCK_LARGE_FERN_LOWER:
         case BLOCK_LARGE_FERN_UPPER:
+        case BLOCK_RED_MUSHROOM:
         case BLOCK_SAPLING:
         case BLOCK_SEAGRASS:
         case BLOCK_SMALL_DRIPLEAF:
