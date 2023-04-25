@@ -36,9 +36,9 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/buffers/lighting.glsl"
-    #endif
+    // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    //     #include "/lib/buffers/lighting.glsl"
+    // #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/shadows/common.glsl"
