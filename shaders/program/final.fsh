@@ -97,8 +97,13 @@ void main() {
 		printString((_T, _o, _t, _a, _l, _colon, _space, _space, _space));
 		printUnsignedInt(SceneLightMaxCount);
 		printLine();
-		printString((_B, _u, _f, _f, _e, _r, _colon, _space, _space));
+		printString((_S, _S, _B, _O, _colon, _space, _space, _space, _space));
+		printUnsignedInt(DYN_LIGHT_SSBO_SIZE);
+		printString((_m, _b));
+		printLine();
+		printString((_C, _U, _colon, _space, _space, _space, _space, _space, _space));
 		printUnsignedInt(DYN_LIGHT_IMG_SIZE);
+		printString((_x));
 
 		endText(color);
 	#endif
