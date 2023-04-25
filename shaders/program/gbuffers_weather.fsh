@@ -151,10 +151,14 @@ uniform float blindness;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
+#include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
-#include "/lib/lighting/sampling.glsl"
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+    #include "/lib/lighting/voxel/sampling.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
