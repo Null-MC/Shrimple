@@ -92,6 +92,7 @@ const bool colortex14Clear = true;
 #define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
 #define WORLD_WETNESS_PUDDLES 2 // [0 1 2]
+#define WORLD_RAIN_OPACITY 50 // [10 20 30 40 50 60 70 80 90 100]
 
 
 // Material Options
@@ -297,6 +298,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
+const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
 const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;

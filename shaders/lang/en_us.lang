@@ -34,6 +34,10 @@ value.WORLD_AMBIENT_MODE.2=Fancy
 
 option.WORLD_AO_ENABLED=Ambient Occlusion
 
+option.WORLD_RAIN_OPACITY=Rain Opacity
+option.WORLD_RAIN_OPACITY.comment=Determines how transparent falling rain particles will be.
+suffix.WORLD_RAIN_OPACITY=%
+
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
 

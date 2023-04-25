@@ -181,6 +181,7 @@ void main() {
     }
 
     color.rgb = RGBToLinear(color.rgb);
+    color.a *= WorldRainOpacityF;
 
     vec3 localViewDir = normalize(vLocalPos);
 
