@@ -27,19 +27,21 @@ void GetVolumetricPhaseFactors(out float ambient, out float G_Forward, out float
     #endif
 }
 
-void GetVolumetricCoeff(out float scattering, out float extinction) {
+void GetVolumetricCoeff(const in vec3 sunDir, out float scattering, out float extinction) {
+    float density = (sunDir.y * -0.8 + 1.0) * VolumetricDensityF;
+
     #ifdef WORLD_SKY_ENABLED
-        scattering = mix(0.032, 0.096, rainStrength) * VolumetricDensityF;
-        extinction = mix(0.004, 0.012, rainStrength) * VolumetricDensityF;
+        scattering = mix(0.032, 0.096, rainStrength) * density;
+        extinction = mix(0.004, 0.012, rainStrength) * density;
     #else
-        scattering = 0.016 * VolumetricDensityF;
-        extinction = 0.016 * VolumetricDensityF;
+        scattering = 0.016 * density;
+        extinction = 0.016 * density;
     #endif
 }
 
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, const in float farDist) {
+vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
     float scatterF, extinction;
-    GetVolumetricCoeff(scatterF, extinction);
+    GetVolumetricCoeff(sunDir, scatterF, extinction);
 
     vec3 localStart = localViewDir * (nearDist + 0.1);
     vec3 localEnd = localViewDir * (farDist - 0.1);
@@ -80,15 +82,17 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in float nearDist, 
             vec3 shadowClipStep = (shadowClipEnd - shadowClipStart) * inverseStepCountF;
         #endif
         
-        vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        vec3 localLightDir = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+
         float VoL = dot(localLightDir, localViewDir);
+        //float sunVoL = dot(localLightDir, localViewDir);
 
         const vec3 skyColorDay = vec3(0.965, 0.901, 0.725);
-        const vec3 skyColorNight = vec3(0.965, 0.901, 0.725);
-        const vec3 sunColorHorizon = vec3(0.975, 0.654, 0.160);
-        vec3 skyLightColor = mix(skyColorNight, skyColorDay, localLightDir.y * 0.5 + 0.5);
-        skyLightColor = mix(sunColorHorizon, skyLightColor, abs(localLightDir.y));
-        skyLightColor = (skyLightColor + 0.02) * RGBToLinear(fogColor);
+        const vec3 skyColorNight = 0.002*vec3(0.616, 0.631, 0.778);
+        const vec3 sunColorHorizon = 0.2*vec3(0.975, 0.654, 0.160);
+        vec3 skyLightColor = mix(skyColorNight, skyColorDay, sunDir.y * 0.5 + 0.5);
+        skyLightColor = mix(sunColorHorizon, skyLightColor, smoothstep(0.0, 0.2, abs(sunDir.y)));
+        skyLightColor = (skyLightColor + 0.02);// * RGBToLinear(fogColor);
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);

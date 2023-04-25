@@ -40,7 +40,6 @@ uniform float far;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
-uniform float rainStrength;
 uniform int isEyeInWater;
 
 uniform mat4 shadowModelView;
@@ -48,42 +47,54 @@ uniform mat4 shadowProjection;
 uniform vec3 shadowLightPosition;
 uniform ivec2 eyeBrightnessSmooth;
 
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 sunPosition;
+    uniform float rainStrength;
+#endif
+
 #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
+
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
 #endif
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
-    #include "/lib/blocks.glsl"
-    //#include "/lib/items.glsl"
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
 
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
+    #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/blocks.glsl"
+        //#include "/lib/items.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/collisions.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
+
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/lighting/voxel/collisions.glsl"
+            #include "/lib/lighting/voxel/tracing.glsl"
+        #endif
+
+        #include "/lib/lighting/voxel/lights.glsl"
+
+        #ifdef VOLUMETRIC_HANDLIGHT
+            #include "/lib/items.glsl"
+            #include "/lib/lighting/voxel/items.glsl"
+        #endif
+
+        #include "/lib/lighting/sampling.glsl"
+        //#include "/lib/lighting/basic.glsl"
     #endif
-
-    #include "/lib/lighting/voxel/lights.glsl"
-
-    #ifdef VOLUMETRIC_HANDLIGHT
-        #include "/lib/items.glsl"
-        #include "/lib/lighting/voxel/items.glsl"
-    #endif
-
-    #include "/lib/lighting/sampling.glsl"
-    //#include "/lib/lighting/basic.glsl"
 #endif
 
 #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -108,9 +119,16 @@ void main() {
     float depth = textureLod(depthtex0, texcoord, 0).r;
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+    #else
+        vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+    #endif
 
     vec3 localViewDir = normalize(localPos);
-    outVL = GetVolumetricLighting(localViewDir, near, min(length(viewPos) - 0.05, far));
+    outVL = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
 }

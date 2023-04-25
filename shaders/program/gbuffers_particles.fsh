@@ -280,7 +280,11 @@ void main() {
         ApplyFog(color, vLocalPos);
 
         #ifdef VL_BUFFER_ENABLED
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos) - 0.05, far));
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            #endif
+
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

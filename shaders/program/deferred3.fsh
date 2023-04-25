@@ -471,6 +471,7 @@ void main() {
         const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
         vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+        vlScatterTransmit.rgb = vlScatterTransmit.rgb / (vlScatterTransmit.rgb + 1.0);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

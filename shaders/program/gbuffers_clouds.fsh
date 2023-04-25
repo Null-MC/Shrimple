@@ -217,8 +217,12 @@ void main() {
     final.a *= fade;
 
     #ifdef VL_BUFFER_ENABLED
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        #endif
+
         vec3 localViewDir = normalize(vLocalPos);
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, near, min(length(vPos), far));
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos), far));
         final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
