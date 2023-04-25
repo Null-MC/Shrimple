@@ -7,15 +7,12 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+out vec2 texcoord;
 out vec3 vPos;
 out vec3 vLocalPos;
 out vec4 vColor;
 out float geoNoL;
 out vec3 vBlockLight;
-
-#ifndef IS_IRIS
-    out vec2 texcoord;
-#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

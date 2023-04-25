@@ -100,6 +100,7 @@ const bool colortex14Clear = true;
 #define MATERIAL_NORMAL_STRENGTH 100 // [50 100 150 200 250 300 350 400 500 600 700 800]
 #define MATERIAL_NORMAL_EDGE 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
+#define MATERIAL_EMISSION_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500]
 #define MATERIAL_SSS 1 // [0 1 2]
 #define MATERIAL_SPECULAR 1 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
@@ -297,6 +298,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
 const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
+const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
 const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
 const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;

@@ -419,11 +419,11 @@ void main() {
                 #endif
             #endif
 
-            blockDiffuse += emission * DynamicLightBrightness;
+            blockDiffuse += emission * MaterialEmissionF;
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
 
-            blockDiffuse += emission * DynamicLightBrightness;
+            blockDiffuse += emission * MaterialEmissionF;
         #else
             blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
             blockDiffuse = RGBToLinear(blockDiffuse);

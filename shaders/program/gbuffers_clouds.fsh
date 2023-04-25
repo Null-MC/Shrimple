@@ -7,15 +7,12 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+in vec2 texcoord;
 in vec3 vPos;
 in vec3 vLocalPos;
 in vec4 vColor;
 in float geoNoL;
 in vec3 vBlockLight;
-
-#ifndef IS_IRIS
-    in vec2 texcoord;
-#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -26,12 +23,9 @@ in vec3 vBlockLight;
     #endif
 #endif
 
+uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
-
-#ifndef IS_IRIS
-    uniform sampler2D gtexture;
-#endif
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
     uniform sampler3D texLPV;
@@ -176,16 +170,12 @@ float linear_fog_fade(const in float vertexDistance, const in float fogStart, co
 }
 
 void main() {
-    #ifndef IS_IRIS
-        vec4 final = texture(gtexture, texcoord) * vColor;
+    vec4 final = texture(gtexture, texcoord) * vColor;
 
-        if (final.a < 0.2) {
-            discard;
-            return;
-        }
-    #else
-        vec4 final = vColor;
-    #endif
+    if (final.a < 0.2) {
+        discard;
+        return;
+    }
 
     final.rgb = RGBToLinear(final.rgb);
 

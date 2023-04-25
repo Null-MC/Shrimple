@@ -48,11 +48,6 @@ option.END_BRIGHTNESS=End Brightness
 
 screen.MATERIAL_OPTIONS=Materials
 
-option.MATERIAL_EMISSION=Emission
-value.MATERIAL_EMISSION.0=Integrated
-value.MATERIAL_EMISSION.1=Old-PBR
-value.MATERIAL_EMISSION.2=Lab-PBR
-
 option.MATERIAL_SSS=SSS
 option.MATERIAL_SSS.comment=SubSurface Scattering
 value.MATERIAL_SSS.0=OFF
@@ -68,8 +63,8 @@ value.MATERIAL_POROSITY.2=Lab-PBR
 option.MATERIAL_SPECULAR=Specular
 value.MATERIAL_SPECULAR.0=OFF
 value.MATERIAL_SPECULAR.1=Integrated
-value.MATERIAL_SPECULAR.2=Old-PBR
-value.MATERIAL_SPECULAR.3=Lab-PBR
+value.MATERIAL_SPECULAR.2=Lab-PBR
+value.MATERIAL_SPECULAR.3=Old-PBR
 
 option.MATERIAL_OCCLUSION=Occlusion
 option.MATERIAL_OCCLUSION.comment=Describes how much ambient lighting is occluded by the surface.
@@ -80,11 +75,11 @@ value.MATERIAL_OCCLUSION.2=Lab-PBR
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
 
-option.MATERIAL_NORMALS=Normal Mapping
+option.MATERIAL_NORMALS=Type
 value.MATERIAL_NORMALS.0=OFF
 value.MATERIAL_NORMALS.1=Integrated
-value.MATERIAL_NORMALS.2=Old-PBR
-value.MATERIAL_NORMALS.3=Lab-PBR
+value.MATERIAL_NORMALS.2=Lab-PBR
+value.MATERIAL_NORMALS.3=Old-PBR
 
 option.MATERIAL_NORMAL_SCALE=Resolution
 suffix.MATERIAL_NORMAL_SCALE=x
@@ -100,7 +95,7 @@ value.MATERIAL_NORMAL_EDGE.2=Low
 
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
 
-option.MATERIAL_PARALLAX=Mode
+option.MATERIAL_PARALLAX=Type
 option.MATERIAL_PARALLAX.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
 value.MATERIAL_PARALLAX.0=OFF
 value.MATERIAL_PARALLAX.1=Standard
@@ -121,6 +116,17 @@ option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
+
+
+screen.MATERIAL_EMISSION_OPTIONS=Emission
+
+option.MATERIAL_EMISSION=Type
+value.MATERIAL_EMISSION.0=Integrated
+value.MATERIAL_EMISSION.1=Lab-PBR
+value.MATERIAL_EMISSION.2=Old-PBR
+
+option.MATERIAL_EMISSION_BRIGHTNESS=Brightness
+suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 
 screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
@@ -386,4 +392,4 @@ option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
 
 option.DYN_LIGHT_CONCRETE=Concrete Lights
-option.DYN_LIGHT_OREBLOCKS.comment=When enabled, colored concrete blocks will emit colored light.
+option.DYN_LIGHT_CONCRETE.comment=When enabled, colored concrete blocks will emit colored light.

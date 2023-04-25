@@ -469,7 +469,7 @@ void main() {
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);
 
-    blockDiffuse += emission * DynamicLightBrightness;
+    blockDiffuse += emission * MaterialEmissionF;
     
     GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, sss);
 

@@ -262,7 +262,7 @@ void main() {
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
-        //blockDiffuse += emission * DynamicLightBrightness;
+        //blockDiffuse += emission * MaterialEmissionF;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);

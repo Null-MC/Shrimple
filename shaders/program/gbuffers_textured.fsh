@@ -205,7 +205,7 @@ void main() {
         #endif
     #endif
 
-    //blockDiffuse += emission * DynamicLightBrightness;
+    //blockDiffuse += emission * MaterialEmissionF;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);

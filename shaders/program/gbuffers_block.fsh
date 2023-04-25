@@ -410,7 +410,7 @@ void main() {
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
         
-        blockDiffuse += emission * DynamicLightBrightness;
+        blockDiffuse += emission * MaterialEmissionF;
 
         #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, sss);
