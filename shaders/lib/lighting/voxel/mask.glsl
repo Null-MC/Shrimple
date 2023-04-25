@@ -40,7 +40,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
         uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
 
         //uint bit = SceneLightMaps[gridIndex].LightMask[intIndex] >> (maskIndex & 31);
-        ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+        ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
         uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31);
         return (bit & 255);
     }
@@ -55,7 +55,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
             uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
 
             //uint bit = SceneBlockMaps[gridIndex].BlockMask[intIndex] >> (maskIndex & 31);
-            ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+            ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
             uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
             return (bit & 255);
         }
@@ -84,7 +84,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
         uint bit = lightType << (maskIndex & 31u);
 
         //uint was = atomicOr(SceneLightMaps[gridIndex].LightMask[intIndex], bit);
-        ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+        ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
         uint was = imageAtomicOr(imgLocalLightMask, texcoord, bit);
         return (was & bit) == 0u;
     }
@@ -99,7 +99,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
             uint bit = blockType << (maskIndex & 31);
 
             //atomicOr(SceneBlockMaps[gridIndex].BlockMask[intIndex], bit);
-            ivec2 texcoord = ivec2(intIndex % 4096, int(intIndex / 4096));
+            ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
             imageAtomicOr(imgLocalBlockMask, texcoord, bit);
         }
     #endif
