@@ -407,6 +407,8 @@ void main() {
         color.rgb = RGBToLinear(color.rgb);
         float roughL = max(_pow2(roughness), ROUGH_MIN);
         
+        vec3 localViewDir = -normalize(vLocalPos);
+        
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
         
@@ -420,7 +422,6 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = -normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
