@@ -34,7 +34,6 @@ struct LightCellData {
     uint LightCount;
     uint LightNeighborCount;
     uint GlobalLights[LIGHT_BIN_MAX_COUNT];
-    //uint LightMask[(LIGHT_BIN_SIZE3*DYN_LIGHT_MASK_STRIDE/32)];
 };
 
 #ifdef RENDER_SHADOWCOMP
