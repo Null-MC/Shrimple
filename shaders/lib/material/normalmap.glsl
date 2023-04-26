@@ -31,9 +31,16 @@
             #endif
 
             vec2 tileSize = atlasBounds[1] * texSize * MATERIAL_NORMAL_SCALE;
-            vec2 texcoordSnapped = floor(vLocalCoord * tileSize) / tileSize;
-
             vec2 tilePixelSize = rcp(tileSize);
+
+            #if MATERIAL_PARALLAX != PARALLAX_NONE
+                vec2 texcoordSnapped = GetLocalCoord(texcoord);
+            #else
+                vec2 texcoordSnapped = vLocalCoord;
+            #endif
+
+            texcoordSnapped = floor(texcoordSnapped * tileSize) / tileSize;
+
             vec2 texcoordX1 = GetAtlasCoord(texcoordSnapped - vec2(tilePixelSize.x, 0.0));
             vec2 texcoordX2 = GetAtlasCoord(texcoordSnapped + vec2(tilePixelSize.x, 0.0));
             vec2 texcoordY1 = GetAtlasCoord(texcoordSnapped - vec2(0.0, tilePixelSize.y));

@@ -57,7 +57,9 @@ void main() {
 
     #ifdef IRIS_FEATURE_SSBO
         if (i == 0) {
-            localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            #ifdef WORLD_SKY_ENABLED
+                localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
 
