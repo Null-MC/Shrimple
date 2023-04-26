@@ -88,9 +88,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //float sunVoL = dot(localLightDir, localViewDir);
 
         const vec3 sunColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
-        const vec3 sunColorHorizon = 0.2*RGBToLinear(vec3(0.813, 0.540, 0.120));
-        const vec3 moonColorHorizon = 0.002*RGBToLinear(vec3(0.616, 0.631, 0.778));
-        const vec3 moonColor = 0.002*RGBToLinear(vec3(0.616, 0.631, 0.778));
+        const vec3 sunColorHorizon = RGBToLinear(vec3(0.813, 0.540, 0.120));
+        const vec3 moonColorHorizon = 0.06*RGBToLinear(vec3(0.717, 0.708, 0.621));
+        const vec3 moonColor = 0.06*RGBToLinear(vec3(0.864, 0.860, 0.823));
 
         //vec3 skyLightColor = mix(skyColorNight, skyColorDay, sunDir.y * 0.5 + 0.5);
         //float sunY = smoothstep(0.0, 0.2, abs(sunDir.y));
