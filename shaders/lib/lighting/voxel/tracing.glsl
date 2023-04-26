@@ -1,21 +1,21 @@
 vec3 GetLightGlassTint(const in uint blockType) {
     vec3 stepTint = vec3(1.0);
 
-    switch (blockType) {
-        case BLOCKTYPE_DIAMOND:
-            stepTint = vec3(0.427, 0.969, 0.910);
-            break;
-        case BLOCKTYPE_EMERALD:
-            stepTint = vec3(0.153, 0.804, 0.349);
-            break;
-    }
+    // switch (blockType) {
+    //     case BLOCKTYPE_DIAMOND:
+    //         stepTint = vec3(0.427, 0.969, 0.910);
+    //         break;
+    //     case BLOCKTYPE_EMERALD:
+    //         stepTint = vec3(0.153, 0.804, 0.349);
+    //         break;
+    // }
 
     switch (blockType) {
-        case BLOCKTYPE_AMETHYST:
-            stepTint = vec3(0.707, 0.526, 0.944);
-            break;
+        // case BLOCKTYPE_AMETHYST:
+        //     stepTint = vec3(0.707, 0.526, 0.944);
+        //     break;
         case BLOCKTYPE_HONEY:
-        case BLOCK_HONEYCOMB:
+        //case BLOCK_HONEYCOMB:
             stepTint = vec3(0.984, 0.733, 0.251);
             break;
         case BLOCKTYPE_SLIME:
@@ -113,7 +113,7 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
+            if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                 vec3 glassTint = GetLightGlassTint(blockType);
                 color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
             }
@@ -217,13 +217,13 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
             #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_ABSORB
-                if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
+                if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
                     vec3 glassTint = GetLightGlassTint(blockType);
                     color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
                 }
                 else {
             #elif DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
-                if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+                if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
                     vec3 glassTint = GetLightGlassTint(blockType) * DynamicLightTintF;
                     glassTint += max(1.0 - DynamicLightTintF, 0.0);
                     color *= glassTint;
@@ -271,7 +271,7 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCKTYPE_AMETHYST && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
+            if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
                 color *= GetLightGlassTint(blockType);
             }
             else if (blockType != BLOCKTYPE_EMPTY) {

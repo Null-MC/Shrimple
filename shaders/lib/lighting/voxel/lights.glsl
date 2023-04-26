@@ -14,88 +14,89 @@
 #define LIGHT_BLOCK_13 13u
 #define LIGHT_BLOCK_14 14u
 #define LIGHT_BLOCK_15 15u
-#define LIGHT_AMETHYST_BUD_LARGE 16u
-#define LIGHT_AMETHYST_BUD_MEDIUM 17u
-#define LIGHT_AMETHYST_CLUSTER 18u
-#define LIGHT_BEACON 19u
-#define LIGHT_BLAST_FURNACE_N 20u
-#define LIGHT_BLAST_FURNACE_E 21u
-#define LIGHT_BLAST_FURNACE_S 22u
-#define LIGHT_BLAST_FURNACE_W 23u
-#define LIGHT_BREWING_STAND 24u
-#define LIGHT_CANDLES_1 25u
-#define LIGHT_CANDLES_2 26u
-#define LIGHT_CANDLES_3 27u
-#define LIGHT_CANDLES_4 28u
-#define LIGHT_CANDLE_CAKE 29u
-#define LIGHT_CAVEVINE_BERRIES 30u
-#define LIGHT_COMPARATOR 31u
-#define LIGHT_CRYING_OBSIDIAN 32u
-#define LIGHT_DIAMOND_BLOCK 113u   // FIX THIS
-#define LIGHT_EMERALD_BLOCK 111u   // FIX THIS
-#define LIGHT_END_ROD 33u
-#define LIGHT_CAMPFIRE 34u
-#define LIGHT_FIRE 35u
-#define LIGHT_FURNACE_N 36u
-#define LIGHT_FURNACE_E 37u
-#define LIGHT_FURNACE_S 38u
-#define LIGHT_FURNACE_W 39u
-#define LIGHT_GLOWSTONE 40u
-#define LIGHT_GLOW_LICHEN 41u
-#define LIGHT_JACK_O_LANTERN_N 42u
-#define LIGHT_JACK_O_LANTERN_E 43u
-#define LIGHT_JACK_O_LANTERN_S 44u
-#define LIGHT_JACK_O_LANTERN_W 45u
-#define LIGHT_LANTERN 46u
-#define LIGHT_LAPIS_BLOCK 112u   // FIX THIS
-#define LIGHT_LIGHTING_ROD 47u
-#define LIGHT_LAVA 48u
-#define LIGHT_LAVA_CAULDRON 49u
-#define LIGHT_MAGMA 50u
-#define LIGHT_NETHER_PORTAL 51u
-#define LIGHT_FROGLIGHT_OCHRE 52u
-#define LIGHT_FROGLIGHT_PEARLESCENT 53u
-#define LIGHT_FROGLIGHT_VERDANT 54u
-#define LIGHT_RAIL_POWERED 55u
-#define LIGHT_REDSTONE_BLOCK 110u   // FIX THIS
-#define LIGHT_REDSTONE_LAMP 56u
-#define LIGHT_REDSTONE_TORCH 57u
-#define LIGHT_REDSTONE_WIRE_1 58u
-#define LIGHT_REDSTONE_WIRE_2 59u
-#define LIGHT_REDSTONE_WIRE_3 60u
-#define LIGHT_REDSTONE_WIRE_4 61u
-#define LIGHT_REDSTONE_WIRE_5 62u
-#define LIGHT_REDSTONE_WIRE_6 63u
-#define LIGHT_REDSTONE_WIRE_7 64u
-#define LIGHT_REDSTONE_WIRE_8 65u
-#define LIGHT_REDSTONE_WIRE_9 66u
-#define LIGHT_REDSTONE_WIRE_10 67u
-#define LIGHT_REDSTONE_WIRE_11 68u
-#define LIGHT_REDSTONE_WIRE_12 69u
-#define LIGHT_REDSTONE_WIRE_13 70u
-#define LIGHT_REDSTONE_WIRE_14 71u
-#define LIGHT_REDSTONE_WIRE_15 72u
-#define LIGHT_REPEATER 73u
-#define LIGHT_RESPAWN_ANCHOR_1 74u
-#define LIGHT_RESPAWN_ANCHOR_2 75u
-#define LIGHT_RESPAWN_ANCHOR_3 76u
-#define LIGHT_RESPAWN_ANCHOR_4 77u
-#define LIGHT_SCULK_CATALYST 78u
-#define LIGHT_SEA_LANTERN 79u
-#define LIGHT_SEA_PICKLE_1 80u
-#define LIGHT_SEA_PICKLE_2 81u
-#define LIGHT_SEA_PICKLE_3 82u
-#define LIGHT_SEA_PICKLE_4 83u
-#define LIGHT_SHROOMLIGHT 84u
-#define LIGHT_SMOKER_N 85u
-#define LIGHT_SMOKER_E 86u
-#define LIGHT_SMOKER_S 87u
-#define LIGHT_SMOKER_W 88u
-#define LIGHT_SOUL_LANTERN 89u
-#define LIGHT_SOUL_TORCH 90u
-#define LIGHT_SOUL_CAMPFIRE 91u
-#define LIGHT_SOUL_FIRE 92u
-#define LIGHT_TORCH 93u
+#define LIGHT_AMETHYST_BLOCK 16u
+#define LIGHT_AMETHYST_BUD_LARGE 17u
+#define LIGHT_AMETHYST_BUD_MEDIUM 18u
+#define LIGHT_AMETHYST_CLUSTER 19u
+#define LIGHT_BEACON 20u
+#define LIGHT_BLAST_FURNACE_N 21u
+#define LIGHT_BLAST_FURNACE_E 22u
+#define LIGHT_BLAST_FURNACE_S 23u
+#define LIGHT_BLAST_FURNACE_W 24u
+#define LIGHT_BREWING_STAND 25u
+#define LIGHT_CANDLES_1 26u
+#define LIGHT_CANDLES_2 27u
+#define LIGHT_CANDLES_3 28u
+#define LIGHT_CANDLES_4 29u
+#define LIGHT_CANDLE_CAKE 30u
+#define LIGHT_CAVEVINE_BERRIES 31u
+#define LIGHT_COMPARATOR 32u
+#define LIGHT_CRYING_OBSIDIAN 33u
+#define LIGHT_DIAMOND_BLOCK 34u
+#define LIGHT_EMERALD_BLOCK 35u
+#define LIGHT_END_ROD 36u
+#define LIGHT_CAMPFIRE 37u
+#define LIGHT_FIRE 38u
+#define LIGHT_FURNACE_N 39u
+#define LIGHT_FURNACE_E 40u
+#define LIGHT_FURNACE_S 41u
+#define LIGHT_FURNACE_W 42u
+#define LIGHT_GLOWSTONE 43u
+#define LIGHT_GLOW_LICHEN 44u
+#define LIGHT_JACK_O_LANTERN_N 45u
+#define LIGHT_JACK_O_LANTERN_E 46u
+#define LIGHT_JACK_O_LANTERN_S 47u
+#define LIGHT_JACK_O_LANTERN_W 48u
+#define LIGHT_LANTERN 49u
+#define LIGHT_LAPIS_BLOCK 50u
+#define LIGHT_LIGHTING_ROD 51u
+#define LIGHT_LAVA 52u
+#define LIGHT_LAVA_CAULDRON 53u
+#define LIGHT_MAGMA 54u
+#define LIGHT_NETHER_PORTAL 55u
+#define LIGHT_FROGLIGHT_OCHRE 56u
+#define LIGHT_FROGLIGHT_PEARLESCENT 57u
+#define LIGHT_FROGLIGHT_VERDANT 58u
+#define LIGHT_RAIL_POWERED 59u
+#define LIGHT_REDSTONE_BLOCK 60u
+#define LIGHT_REDSTONE_LAMP 61u
+#define LIGHT_REDSTONE_TORCH 62u
+#define LIGHT_REDSTONE_WIRE_1 63u
+#define LIGHT_REDSTONE_WIRE_2 64u
+#define LIGHT_REDSTONE_WIRE_3 65u
+#define LIGHT_REDSTONE_WIRE_4 66u
+#define LIGHT_REDSTONE_WIRE_5 67u
+#define LIGHT_REDSTONE_WIRE_6 68u
+#define LIGHT_REDSTONE_WIRE_7 69u
+#define LIGHT_REDSTONE_WIRE_8 70u
+#define LIGHT_REDSTONE_WIRE_9 71u
+#define LIGHT_REDSTONE_WIRE_10 72u
+#define LIGHT_REDSTONE_WIRE_11 73u
+#define LIGHT_REDSTONE_WIRE_12 74u
+#define LIGHT_REDSTONE_WIRE_13 75u
+#define LIGHT_REDSTONE_WIRE_14 76u
+#define LIGHT_REDSTONE_WIRE_15 77u
+#define LIGHT_REPEATER 78u
+#define LIGHT_RESPAWN_ANCHOR_1 79u
+#define LIGHT_RESPAWN_ANCHOR_2 80u
+#define LIGHT_RESPAWN_ANCHOR_3 81u
+#define LIGHT_RESPAWN_ANCHOR_4 82u
+#define LIGHT_SCULK_CATALYST 83u
+#define LIGHT_SEA_LANTERN 84u
+#define LIGHT_SEA_PICKLE_1 85u
+#define LIGHT_SEA_PICKLE_2 86u
+#define LIGHT_SEA_PICKLE_3 87u
+#define LIGHT_SEA_PICKLE_4 88u
+#define LIGHT_SHROOMLIGHT 89u
+#define LIGHT_SMOKER_N 90u
+#define LIGHT_SMOKER_E 91u
+#define LIGHT_SMOKER_S 92u
+#define LIGHT_SMOKER_W 93u
+#define LIGHT_SOUL_LANTERN 94u
+#define LIGHT_SOUL_TORCH 95u
+#define LIGHT_SOUL_CAMPFIRE 96u
+#define LIGHT_SOUL_FIRE 97u
+#define LIGHT_TORCH 98u
 
 #define LIGHT_CONCRETE_BLUE 100u
 #define LIGHT_CONCRETE_GREEN 101u
@@ -155,6 +156,18 @@ uint GetSceneLightType(const in int blockId) {
             lightType = LIGHT_BLOCK_15;
             break;
 
+        case BLOCK_AMETHYST:
+            lightType = LIGHT_AMETHYST_BLOCK;
+            break;
+        case BLOCK_AMETHYST_BUD_LARGE:
+            lightType = LIGHT_AMETHYST_BUD_LARGE;
+            break;
+        case BLOCK_AMETHYST_BUD_MEDIUM:
+            lightType = LIGHT_AMETHYST_BUD_MEDIUM;
+            break;
+        case BLOCK_AMETHYST_CLUSTER:
+            lightType = LIGHT_AMETHYST_CLUSTER;
+            break;
         case BLOCK_BEACON:
             lightType = LIGHT_BEACON;
             break;
@@ -450,6 +463,11 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_BLOCK_15:
                 lightColor = vec3(0.9);
                 break;
+            case LIGHT_AMETHYST_BUD_LARGE:
+            case LIGHT_AMETHYST_BUD_MEDIUM:
+            case LIGHT_AMETHYST_CLUSTER:
+                lightColor = vec3(0.600, 0.439, 0.820);
+                break;
             case LIGHT_BEACON:
                 lightColor = vec3(1.0);
                 break;
@@ -589,22 +607,11 @@ uint GetSceneLightType(const in int blockId) {
                 break;
         }
 
-        #ifdef DYN_LIGHT_CONCRETE
-            switch (lightType) {
-                case LIGHT_CONCRETE_BLUE:
-                    lightColor = vec3(0.222, 0.235, 0.828);
-                    break;
-                case LIGHT_CONCRETE_GREEN:
-                    lightColor = vec3(0.574, 0.753, 0.207);
-                    break;
-                case LIGHT_CONCRETE_RED:
-                    lightColor = vec3(0.869, 0.169, 0.169);
-                    break;
-            }
-        #endif
-
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {
+                case LIGHT_AMETHYST_BLOCK:
+                    lightColor = vec3(0.600, 0.439, 0.820);
+                    break;
                 case LIGHT_DIAMOND_BLOCK:
                     lightColor = vec3(0.489, 0.960, 0.912);
                     break;
@@ -616,6 +623,20 @@ uint GetSceneLightType(const in int blockId) {
                     break;
                 case LIGHT_REDSTONE_BLOCK:
                     lightColor = vec3(0.980, 0.143, 0.026);
+                    break;
+            }
+        #endif
+
+        #ifdef DYN_LIGHT_CONCRETE
+            switch (lightType) {
+                case LIGHT_CONCRETE_BLUE:
+                    lightColor = vec3(0.222, 0.235, 0.828);
+                    break;
+                case LIGHT_CONCRETE_GREEN:
+                    lightColor = vec3(0.574, 0.753, 0.207);
+                    break;
+                case LIGHT_CONCRETE_RED:
+                    lightColor = vec3(0.869, 0.169, 0.169);
                     break;
             }
         #endif
@@ -714,6 +735,15 @@ uint GetSceneLightType(const in int blockId) {
                 break;
             case LIGHT_BLOCK_15:
                 lightRange = 15.0;
+                break;
+            case LIGHT_AMETHYST_BUD_LARGE:
+                lightRange = 4.0;
+                break;
+            case LIGHT_AMETHYST_BUD_MEDIUM:
+                lightRange = 2.0;
+                break;
+            case LIGHT_AMETHYST_CLUSTER:
+                lightRange = 5.0;
                 break;
             case LIGHT_BEACON:
                 lightRange = 15.0;
@@ -919,6 +949,7 @@ uint GetSceneLightType(const in int blockId) {
 
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {
+                case LIGHT_AMETHYST_BLOCK:
                 case LIGHT_DIAMOND_BLOCK:
                 case LIGHT_EMERALD_BLOCK:
                 case LIGHT_LAPIS_BLOCK:
@@ -948,19 +979,12 @@ uint GetSceneLightType(const in int blockId) {
         return GetSceneLightRange(lightType);
     }
 
-    // float GetSceneBlockEmission(const in uint lightType) {
-    //     float range = GetSceneBlockLightRange(lightType);
-
-    //     if (lightType == BLOCK_LAVA) range *= 2.0;
-    //     if (lightType == BLOCK_CAVEVINE_BERRIES) range = 0.0;
-
-    //     return range / 15.0;
-    // }
-
     float GetSceneLightSize(const in uint lightType) {
         float size = (1.0/16.0);
 
         switch (lightType) {
+            case LIGHT_AMETHYST_BLOCK:
+            case LIGHT_AMETHYST_CLUSTER:
             case LIGHT_CRYING_OBSIDIAN:
             case LIGHT_FIRE:
             case LIGHT_FROGLIGHT_OCHRE:
@@ -977,6 +1001,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_REDSTONE_LAMP:
                 size = (14.0/16.0);
                 break;
+            case LIGHT_AMETHYST_BUD_LARGE:
             case LIGHT_CAMPFIRE:
             case LIGHT_SOUL_CAMPFIRE:
                 size = (12.0/16.0);
@@ -993,6 +1018,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_END_ROD:
                 size = (8.0/16.0);
                 break;
+            case LIGHT_AMETHYST_BUD_MEDIUM:
             case LIGHT_CANDLES_3:
             case LIGHT_LANTERN:
             case LIGHT_SOUL_LANTERN:
