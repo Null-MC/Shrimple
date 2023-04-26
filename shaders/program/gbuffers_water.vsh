@@ -79,6 +79,10 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 

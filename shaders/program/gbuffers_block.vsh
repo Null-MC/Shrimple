@@ -5,14 +5,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 mc_Entity;
 in vec3 at_midBlock;
+in vec4 at_tangent;
+in vec4 mc_Entity;
 in vec4 mc_midTexCoord;
 in vec3 vaPosition;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -22,15 +19,11 @@ out vec3 vNormal;
 out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
-out vec3 vLocalNormal;
-flat out int vBlockId;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 vLocalTangent;
-    out float vTangentW;
-//#endif
-
 out vec2 vLocalCoord;
+out vec3 vLocalNormal;
+out vec3 vLocalTangent;
+out float vTangentW;
+flat out int vBlockId;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -85,6 +78,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
@@ -141,9 +138,7 @@ void main() {
         PrepareNormalMap();
     #endif
 
-    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-        vTangentW = at_tangent.w;
-    //#endif
+    vTangentW = at_tangent.w;
 
     GetAtlasBounds(atlasBounds, vLocalCoord);
 

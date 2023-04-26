@@ -52,6 +52,16 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
+#ifdef IS_IRIS
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
@@ -64,30 +74,20 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-    
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
 
-#include "/lib/sampling/noise.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#include "/lib/sampling/noise.glsl"
+#include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
     #include "/lib/world/waving.glsl"
 #endif
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/utility/tbn.glsl"
-    #include "/lib/sampling/atlas.glsl"
-//#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"

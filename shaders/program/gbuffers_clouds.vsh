@@ -40,6 +40,10 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/noise.glsl"
 

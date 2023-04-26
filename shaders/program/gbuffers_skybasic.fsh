@@ -36,7 +36,9 @@ uniform float blindness;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    vec3 clipPos = vec3(gl_FragCoord.xy / vec2(viewWidth, viewHeight) * 2.0 - 1.0, 1.0);
+    vec2 texcoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+    
+    vec3 clipPos = vec3(texcoord * 2.0 - 1.0, 1.0);
     vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
 
     vec3 color;

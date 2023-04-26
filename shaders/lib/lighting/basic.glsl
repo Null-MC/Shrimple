@@ -222,10 +222,9 @@
 
             #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
                 #ifdef WORLD_SKY_ENABLED
-                    vec3 localSunDir = (gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz;
-                    localSunDir = normalize(localSunDir);
-
                     #ifndef IRIS_FEATURE_SSBO
+                        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+
                         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
                         #else
@@ -241,7 +240,7 @@
                     //ambientLight = skyColor;//mix(ambientLight, skyColor, localNormal.y * 0.5 + 0.5);
                     vec3 sunLightColor = vec3(1.0, 0.7, 0.2);
                     vec3 moonLightColor = vec3(0.1, 0.1, 0.4);
-                    vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDir.y * 0.5 + 0.5);
+                    vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDirection.y * 0.5 + 0.5);
 
                     float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
                     //ambientLight = mix(skyColor, skyLightColor, skyLightNoL * 0.4 + 0.5);

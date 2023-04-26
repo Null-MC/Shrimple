@@ -16,47 +16,17 @@ out vec2 texcoord;
 flat out vec4 glcolor;
 out vec3 vLocalPos;
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         out vec3 shadowPos[4];
-//         flat out int shadowTile;
-//     #elif SHADOW_TYPE != SHADOW_TYPE_NONE
-//         out vec3 shadowPos;
-//     #endif
-// #endif
-
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
-//uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
 uniform float viewHeight;
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     uniform mat4 shadowModelView;
-//     uniform mat4 shadowProjection;
-//     uniform vec3 shadowLightPosition;
-//     uniform float far;
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         uniform mat4 gbufferProjection;
-//         uniform float near;
-//     #endif
-// #endif
-
-// #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-//     #include "/lib/utility/matrix.glsl"
-//     #include "/lib/buffers/shadow.glsl"
-//     #include "/lib/shadows/common.glsl"
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         #include "/lib/shadows/cascaded.glsl"
-//     #else
-//         #include "/lib/shadows/basic.glsl"
-//     #endif
-// #endif
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
 
 
 void main() {
@@ -78,6 +48,6 @@ void main() {
     if (gl_VertexID % 2 != 0) lineOffset = -lineOffset;
     gl_Position = vec4((ndc1 + vec3(lineOffset, 0.0)) * linePosStart.w, linePosStart.w);
 
-    vec3 viewPos = (gbufferProjectionInverse * gl_Position).xyz;
-    vLocalPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+    // TODO: Does this need perspective divide?
+    vLocalPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
 }

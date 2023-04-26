@@ -20,12 +20,11 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowModelView;
-        //uniform mat4 gbufferModelViewInverse;
     #endif
 
-    //#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    //    uniform mat4 gbufferProjectionInverse;
-    //#endif
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        uniform mat4 shadowProjection;
+    #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         uniform mat4 gbufferModelView;
@@ -36,10 +35,6 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
-
-    // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    //     #include "/lib/buffers/lighting.glsl"
-    // #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/shadows/common.glsl"
@@ -65,6 +60,10 @@ void main() {
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
 
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+                shadowModelViewProjection = shadowProjection * shadowModelView;
+            #endif
+
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 SceneLightCount = 0u;
                 SceneLightMaxCount = 0u;
@@ -85,11 +84,13 @@ void main() {
             #endif
         }
 
+        memoryBarrierBuffer();
+
         #ifdef WORLD_SHADOW_ENABLED
             #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 if (i == 0) {
                     vec3 clipMin, clipMax;
-                    mat4 matSceneToShadow = shadowModelView * (gbufferModelViewInverse * gbufferProjectionInverse);
+                    mat4 matSceneToShadow = shadowModelView * gbufferModelViewProjectionInverse;
                     GetFrustumMinMax(matSceneToShadow, clipMin, clipMax);
 
                     shadowViewBoundsMin = max(clipMin.xy - 3.0, vec2(-shadowDistance));

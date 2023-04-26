@@ -57,6 +57,10 @@ uniform vec3 cameraPosition;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"

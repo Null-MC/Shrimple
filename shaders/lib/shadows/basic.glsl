@@ -37,8 +37,13 @@ vec3 distort(const in vec3 v) {
         #endif
 
         vec3 offsetLocalPos = localPos + localNormal * viewDist * bias;
-		vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
-		shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
+
+        #ifndef IRIS_FEATURE_SSBO
+			vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
+			shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
+		#else
+			shadowPos = (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
+		#endif
 
 		#if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
 			shadowPos = distort(shadowPos);
