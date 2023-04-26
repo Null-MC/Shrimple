@@ -14,6 +14,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     uniform mat4 gbufferProjectionInverse;
 
     #ifdef WORLD_SKY_ENABLED
+        uniform vec3 shadowLightPosition;
         uniform vec3 sunPosition;
     #endif
 
@@ -59,6 +60,7 @@ void main() {
         if (i == 0) {
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+                localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
             #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;

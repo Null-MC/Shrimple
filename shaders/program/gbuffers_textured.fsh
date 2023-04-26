@@ -180,13 +180,7 @@ void main() {
         return;
     }
 
-    //color.rgb *= glcolor.rgb;
-    //vec3 localNormal = normalize(vLocalNormal);
     color.rgb = RGBToLinear(color.rgb);
-
-    // #ifdef RENDER_TEXTURED_LIT
-    //     color.rgb = vec3(1.0, 0.0, 0.0);
-    // #endif
 
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
@@ -204,8 +198,6 @@ void main() {
             shadowColor = vec3(GetFinalShadowFactor());
         #endif
     #endif
-
-    //blockDiffuse += emission * MaterialEmissionF;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);

@@ -12,15 +12,11 @@ in vec3 vPos;
 in vec3 vNormal;
 in float geoNoL;
 in vec3 vLocalPos;
-in vec3 vLocalNormal;
-in vec3 vBlockLight;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE
-    in vec3 vLocalTangent;
-    in float vTangentW;
-//#endif
-
 in vec2 vLocalCoord;
+in vec3 vLocalNormal;
+in vec3 vLocalTangent;
+in vec3 vBlockLight;
+in float vTangentW;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -69,8 +65,6 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-uniform ivec2 atlasSize;
-
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -91,6 +85,7 @@ uniform int fogMode;
 uniform int entityId;
 uniform vec4 entityColor;
 uniform float blindness;
+uniform ivec2 atlasSize;
 
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
@@ -319,10 +314,11 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-        localLightDir = normalize(localLightDir);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
-        float skyGeoNoL = dot(localNormal, localLightDir);
+        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -370,7 +366,7 @@ void main() {
         }
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = dot(texNormal, localLightDir);
+            float skyTexNoL = dot(texNormal, localSkyLightDirection);
 
             #if MATERIAL_SSS != SSS_NONE
                 skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
@@ -380,8 +376,6 @@ void main() {
 
             shadowColor *= 1.2 * pow(max(skyTexNoL, 0.0), 0.8);
         #endif
-    //#else
-    //    shadowColor *= max(vLit, 0.0);
     #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))

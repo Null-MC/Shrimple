@@ -5,11 +5,8 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+in vec4 at_tangent;
 in vec4 mc_midTexCoord;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec4 at_tangent;
-//#endif
 
 out vec2 lmcoord;
 out vec2 texcoord;
@@ -18,15 +15,11 @@ out vec3 vPos;
 out vec3 vNormal;
 out float geoNoL;
 out vec3 vLocalPos;
-out vec3 vLocalNormal;
-out vec3 vBlockLight;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 vLocalTangent;
-    out float vTangentW;
-//#endif
-
 out vec2 vLocalCoord;
+out vec3 vLocalNormal;
+out vec3 vLocalTangent;
+out vec3 vBlockLight;
+out float vTangentW;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -145,9 +138,7 @@ void main() {
         PrepareNormalMap();
     #endif
 
-    //#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-        vTangentW = at_tangent.w;
-    //#endif
+    vTangentW = at_tangent.w;
 
     GetAtlasBounds(atlasBounds, vLocalCoord);
 

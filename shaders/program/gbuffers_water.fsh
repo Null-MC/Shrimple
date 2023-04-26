@@ -308,7 +308,7 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER)
-            color.rgb = mix(color.rgb, vec3(0.9), oceanFoam);
+            color.rgb = mix(color.rgb, vec3(1.0), oceanFoam);
     #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
@@ -336,10 +336,11 @@ void main() {
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-        localLightDir = normalize(localLightDir);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
-        float skyGeoNoL = dot(localNormal, localLightDir);
+        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -407,7 +408,7 @@ void main() {
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = max(dot(texNormal, localLightDir), 0.0);
+            float skyTexNoL = max(dot(texNormal, localSkyLightDirection), 0.0);
 
             #if MATERIAL_SSS != SSS_NONE
                 skyTexNoL = mix(skyTexNoL, 1.0, sss);

@@ -52,6 +52,10 @@ uniform float blindness;
     uniform vec3 shadowLightPosition;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -159,8 +163,13 @@ void main() {
         #endif
 
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);

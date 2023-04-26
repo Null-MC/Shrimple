@@ -82,23 +82,22 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 shadowClipStep = (shadowClipEnd - shadowClipStart) * inverseStepCountF;
         #endif
         
-        vec3 localLightDir = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
-        float VoL = dot(localLightDir, localViewDir);
-        //float sunVoL = dot(localLightDir, localViewDir);
+        float VoL = dot(localSkyLightDirection, localViewDir);
 
         const vec3 sunColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
         const vec3 sunColorHorizon = RGBToLinear(vec3(0.813, 0.540, 0.120));
         const vec3 moonColorHorizon = 0.06*RGBToLinear(vec3(0.717, 0.708, 0.621));
         const vec3 moonColor = 0.06*RGBToLinear(vec3(0.864, 0.860, 0.823));
 
-        //vec3 skyLightColor = mix(skyColorNight, skyColorDay, sunDir.y * 0.5 + 0.5);
-        //float sunY = smoothstep(0.0, 0.2, abs(sunDir.y));
         vec3 skyLightColor = sunDir.y > 0.0 ? sunColor : moonColor;
         vec3 skyLightHorizonColor = sunDir.y > 0.0 ? sunColorHorizon : moonColorHorizon;
 
         skyLightColor = mix(skyLightHorizonColor, skyLightColor, abs(sunDir.y));
-        skyLightColor = skyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));// * RGBToLinear(fogColor);
+        skyLightColor = skyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
@@ -109,17 +108,21 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float sampleTransmittance = exp(-extinction * localStepLength);
     float extinctionInv = rcp(extinction);
 
+    #ifdef WORLD_SKY_ENABLED
+        float eyeLightLevel = (eyeBrightnessSmooth.y / 240.0);
+    #endif
+
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i <= stepCount; i++) {
         vec3 inScattering = ambient * fogColor;
 
+        #ifdef WORLD_SKY_ENABLED
+            inScattering *= eyeLightLevel;
+        #endif
+
         float iStep = i;// + dither;
         if (i < stepCount) iStep += dither;
-
-        #ifdef WORLD_SKY_ENABLED
-            inScattering *= (eyeBrightnessSmooth.y / 240.0); //vec3(0.008);
-        #endif
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float sampleF = 0.0;
@@ -138,7 +141,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                 }
             #else
-                const float sampleBias = 0.01 / 256.0;
+                const float sampleBias = (0.01 / 256.0);
 
                 vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
                 traceShadowClipPos = distort(traceShadowClipPos);
@@ -288,7 +291,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         inScattering *= scatterF;
 
-        //float sampleTransmittance = exp(-extinction * localStepLength);
         vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) * extinctionInv;
 
         scattering += scatteringIntegral * transmittance;

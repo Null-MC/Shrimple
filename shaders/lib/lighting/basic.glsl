@@ -146,21 +146,22 @@
 
             //skyLight *= 1.0 - 0.8*rainStrength;
             
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-                localLightDir = normalize(localLightDir);
-            #else
-                vec3 celestialPos = normalize(sunPosition);
-                if (worldTime > 12000 && worldTime < 24000) celestialPos = -celestialPos;
-                vec3 localLightDir = (gbufferModelViewInverse * vec4(celestialPos, 1.0)).xyz;
+            #ifndef IRIS_FEATURE_SSBO
+                #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+                #else
+                    vec3 localSkyLightDirection = localSunDirection;
+                    if (worldTime > 12000 && worldTime < 24000)
+                        localSkyLightDirection = -localSkyLightDirection;
+                #endif
             #endif
 
             float geoNoL = 1.0;
             if (!all(lessThan(abs(localNormal), EPSILON3)))
-                geoNoL = dot(localNormal, localLightDir);
+                geoNoL = dot(localNormal, localSkyLightDirection);
 
             #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
-                float diffuseNoL = GetLightNoL(geoNoL, texNormal, localLightDir, sss);
+                float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
             #else
                 const float diffuseNoL = 1.0;
             #endif
@@ -170,19 +171,19 @@
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 // float geoNoL = 1.0;
                 // if (any(greaterThan(localNormal, EPSILON3)))
-                //     geoNoL = max(dot(localNormal, localLightDir), 0.0);
+                //     geoNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
 
                 //if (geoNoL > EPSILON) {
                     float f0 = GetMaterialF0(metal_f0);
 
                     //vec3 localViewDir = normalize(localPos);
 
-                    vec3 skyH = normalize(localLightDir + localViewDir);
+                    vec3 skyH = normalize(localSkyLightDirection + localViewDir);
                     float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
                     float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
                     if (!all(lessThan(abs(texNormal), EPSILON3))) {
-                        skyNoLm = max(dot(texNormal, localLightDir), 0.0);
+                        skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
                         skyNoVm = max(dot(texNormal, localViewDir), 0.0);
                         skyNoHm = max(dot(texNormal, skyH), 0.0);
                     }
@@ -224,12 +225,14 @@
                     vec3 localSunDir = (gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz;
                     localSunDir = normalize(localSunDir);
 
-                    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-                        localLightDir = normalize(localLightDir);
-                    #else
-                        vec3 localLightDir = localSunDir;//(gbufferModelViewInverse * vec4(celestialPos, 1.0)).xyz;
-                        if (worldTime > 12000 && worldTime < 24000) localLightDir = -localLightDir;
+                    #ifndef IRIS_FEATURE_SSBO
+                        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+                        #else
+                            vec3 localSkyLightDirection = localSunDirection;
+                            if (worldTime > 12000 && worldTime < 24000)
+                                localSkyLightDirection = -localSkyLightDirection;
+                        #endif
                     #endif
 
                     //ambientLight = fogColor;
@@ -240,7 +243,7 @@
                     vec3 moonLightColor = vec3(0.1, 0.1, 0.4);
                     vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDir.y * 0.5 + 0.5);
 
-                    float skyLightNoL = max(dot(localNormal, localLightDir), 0.0);
+                    float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
                     //ambientLight = mix(skyColor, skyLightColor, skyLightNoL * 0.4 + 0.5);
                     ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
                 #endif

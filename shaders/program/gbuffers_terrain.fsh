@@ -13,15 +13,12 @@ in vec3 vNormal;
 in float geoNoL;
 in vec3 vBlockLight;
 in vec3 vLocalPos;
-in vec3 vLocalNormal;
-flat in int vBlockId;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec3 vLocalTangent;
-    in float vTangentW;
-//#endif
-
 in vec2 vLocalCoord;
+in vec3 vLocalNormal;
+in vec3 vLocalTangent;
+flat in int vBlockId;
+in float vTangentW;
+
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -102,9 +99,6 @@ uniform int fogMode;
     uniform float wetness;
 #endif
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-#endif
-
 #ifdef WORLD_SHADOW_ENABLED
     uniform vec3 shadowLightPosition;
 
@@ -115,21 +109,18 @@ uniform int fogMode;
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
-    //uniform float frameTimeCounter;
 
     uniform float blindness;
 
-    //#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        uniform int heldItemId;
-        uniform int heldItemId2;
-        uniform int heldBlockLightValue;
-        uniform int heldBlockLightValue2;
-        
-        #ifdef IS_IRIS
-            uniform bool firstPersonCamera;
-            uniform vec3 eyePosition;
-        #endif
-    //#endif
+    uniform int heldItemId;
+    uniform int heldItemId2;
+    uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
+    
+    #ifdef IS_IRIS
+        uniform bool firstPersonCamera;
+        uniform vec3 eyePosition;
+    #endif
 #endif
 
 #if AF_SAMPLES > 1
@@ -186,9 +177,7 @@ uniform int fogMode;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
-//#endif
+#include "/lib/material/normalmap.glsl"
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -289,10 +278,11 @@ void main() {
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-        localLightDir = normalize(localLightDir);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
-        float skyGeoNoL = dot(localNormal, localLightDir);
+        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -361,7 +351,7 @@ void main() {
     texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        float skyNoL = dot(texNormal, localLightDir);
+        float skyNoL = dot(texNormal, localSkyLightDirection);
 
         #if MATERIAL_SSS != SSS_NONE
             skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);

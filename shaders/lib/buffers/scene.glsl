@@ -4,7 +4,8 @@
     layout(std430, binding = 0) readonly buffer sceneData
 #endif
 {
-    vec3 localSunDirection; // 12
+    vec3 localSunDirection;                 // 12
+    vec3 localSkyLightDirection;            // 12
     mat4 gbufferModelViewProjectionInverse; // 64
-    mat3 matColorPost;      // 36
+    mat3 matColorPost;                      // 36
 };

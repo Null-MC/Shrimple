@@ -278,11 +278,15 @@ void main() {
     float linearDepth = linearizeDepthFast(depth, near, far);
     vec3 final;
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-
     if (depth < 1.0) {
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
 
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
@@ -296,14 +300,11 @@ void main() {
         if (any(greaterThan(localNormal, EPSILON3)))
             localNormal = normalize(localNormal * 2.0 - 1.0);
 
-        //vec3 texNormal = localNormal;
-        //#if MATERIAL_NORMALS != NORMALMAP_NONE
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            vec3 texNormal = deferredTexture.rgb;
+        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+        vec3 texNormal = deferredTexture.rgb;
 
-            if (any(greaterThan(texNormal, EPSILON3)))
-                texNormal = normalize(texNormal * 2.0 - 1.0);
-        //#endif
+        if (any(greaterThan(texNormal, EPSILON3)))
+            texNormal = normalize(texNormal * 2.0 - 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
@@ -316,7 +317,7 @@ void main() {
 
         #ifdef SHADOW_BLUR
             #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);// / linearDepth;
+                const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
                 vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
             #else
                 float shadowSigma = 3.0 / linearDepth;
@@ -335,12 +336,7 @@ void main() {
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             #ifdef DYN_LIGHT_BLUR
                 const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
-
-                //#if MATERIAL_NORMALS != NORMALMAP_NONE
-                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
-                //#else
-                //    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, localNormal, lightSigma);
-                //#endif
+                BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
             #elif DYN_LIGHT_RES == 0
                 blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 

@@ -66,6 +66,16 @@ uniform int fogMode;
 
 uniform float blindness;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
+#ifdef IS_IRIS
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
@@ -80,18 +90,6 @@ uniform float blindness;
 #else
     uniform int worldTime;
 #endif
-
-//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE

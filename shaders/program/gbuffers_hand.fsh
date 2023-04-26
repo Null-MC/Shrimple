@@ -288,10 +288,11 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 localLightDir = (gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz;
-        localLightDir = normalize(localLightDir);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
-        float skyGeoNoL = dot(localNormal, localLightDir);
+        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
 
         if (skyGeoNoL < EPSILON && sss < EPSILON) {
             shadowColor = vec3(0.0);
@@ -336,7 +337,7 @@ void main() {
         }
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = dot(texNormal, localLightDir);
+            float skyTexNoL = dot(texNormal, localSkyLightDirection);
 
             #if MATERIAL_SSS != SSS_NONE
                 skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
