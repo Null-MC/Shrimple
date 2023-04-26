@@ -87,12 +87,18 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         float VoL = dot(localLightDir, localViewDir);
         //float sunVoL = dot(localLightDir, localViewDir);
 
-        const vec3 skyColorDay = vec3(0.965, 0.901, 0.725);
-        const vec3 skyColorNight = 0.002*vec3(0.616, 0.631, 0.778);
-        const vec3 sunColorHorizon = 0.2*vec3(0.975, 0.654, 0.160);
-        vec3 skyLightColor = mix(skyColorNight, skyColorDay, sunDir.y * 0.5 + 0.5);
-        skyLightColor = mix(sunColorHorizon, skyLightColor, smoothstep(0.0, 0.2, abs(sunDir.y)));
-        skyLightColor = (skyLightColor + 0.02);// * RGBToLinear(fogColor);
+        const vec3 sunColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
+        const vec3 sunColorHorizon = 0.2*RGBToLinear(vec3(0.813, 0.540, 0.120));
+        const vec3 moonColorHorizon = 0.002*RGBToLinear(vec3(0.616, 0.631, 0.778));
+        const vec3 moonColor = 0.002*RGBToLinear(vec3(0.616, 0.631, 0.778));
+
+        //vec3 skyLightColor = mix(skyColorNight, skyColorDay, sunDir.y * 0.5 + 0.5);
+        //float sunY = smoothstep(0.0, 0.2, abs(sunDir.y));
+        vec3 skyLightColor = sunDir.y > 0.0 ? sunColor : moonColor;
+        vec3 skyLightHorizonColor = sunDir.y > 0.0 ? sunColorHorizon : moonColorHorizon;
+
+        skyLightColor = mix(skyLightHorizonColor, skyLightColor, abs(sunDir.y));
+        skyLightColor = skyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));// * RGBToLinear(fogColor);
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
