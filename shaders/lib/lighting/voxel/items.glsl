@@ -69,6 +69,9 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
 
     #ifdef DYN_LIGHT_OREBLOCKS
         switch (itemId) {
+            case ITEM_AMETHYST_BLOCK:
+                lightColor = vec3(0.600, 0.439, 0.820);
+                break;
             case ITEM_DIAMOND_BLOCK:
                 lightColor = vec3(0.489, 0.960, 0.912);
                 break;
@@ -114,6 +117,12 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
     float lightRange = defaultValue;
 
     switch (itemId) {
+        case ITEM_AMETHYST_BUD_LARGE:
+            lightRange = 4.0;
+            break;
+        case ITEM_AMETHYST_BUD_MEDIUM:
+            lightRange = 2.0;
+            break;
         case ITEM_AMETHYST_CLUSTER:
             lightRange = 5.0;
             break;
@@ -141,14 +150,8 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
         case ITEM_LANTERN:
             lightRange = 12.0;
             break;
-        case ITEM_AMETHYST_BUD_LARGE:
-            lightRange = 4.0;
-            break;
         case ITEM_MAGMA:
             lightRange = 3.0;
-            break;
-        case ITEM_AMETHYST_BUD_MEDIUM:
-            lightRange = 2.0;
             break;
         case ITEM_FROGLIGHT_OCHRE:
             lightRange = 15.0;
@@ -184,6 +187,7 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
 
     #ifdef DYN_LIGHT_OREBLOCKS
         switch (itemId) {
+            case ITEM_AMETHYST_BLOCK:
             case ITEM_DIAMOND_BLOCK:
             case ITEM_EMERALD_BLOCK:
             case ITEM_LAPIS_BLOCK:
@@ -200,6 +204,7 @@ float GetSceneItemLightSize(const in int itemId) {
     float size = 0.1;
 
     switch (itemId) {
+        case ITEM_AMETHYST_BLOCK:
         case ITEM_CRYING_OBSIDIAN:
         case ITEM_FROGLIGHT_OCHRE:
         case ITEM_FROGLIGHT_PEARLESCENT:
@@ -210,12 +215,17 @@ float GetSceneItemLightSize(const in int itemId) {
         case ITEM_SHROOMLIGHT:
             size = 1.0;
             break;
+        case ITEM_AMETHYST_CLUSTER:
+            size = 0.8;
+            break;
+        case ITEM_AMETHYST_BUD_LARGE:
         case ITEM_BEACON:
         case ITEM_JACK_O_LANTERN:
             size = 0.6;
             break;
         case ITEM_END_ROD:
             size = 0.5;
+        case ITEM_AMETHYST_BUD_MEDIUM:
         case ITEM_LANTERN:
         case ITEM_SOUL_LANTERN:
             size = 0.4;
