@@ -327,6 +327,7 @@ void main() {
             vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
         #endif
 
+        float occlusion = deferredLighting.z;
         float emission = deferredLighting.a;
         float sss = deferredNormal.a;
 
@@ -415,19 +416,16 @@ void main() {
                 #endif
             #endif
 
-            blockDiffuse += emission * MaterialEmissionF;
-        #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            //blockDiffuse += emission * MaterialEmissionF;
+        #else
             GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
 
-            blockDiffuse += emission * MaterialEmissionF;
-        #else
-            blockDiffuse = textureLod(TEX_LIGHTMAP, vec2(deferredLighting.x, 1.0/32.0), 0).rgb;
-            blockDiffuse = RGBToLinear(blockDiffuse);
-
-            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
-
-            //GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
+            // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            //     blockDiffuse += emission * MaterialEmissionF;
+            // #endif
         #endif
+
+        blockDiffuse += emission * MaterialEmissionF;
 
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
@@ -439,7 +437,7 @@ void main() {
 
         vec3 albedo = RGBToLinear(deferredColor);
         //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
-        final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, deferredLighting.z);
+        final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, occlusion);
 
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
         final = mix(final, fogColorFinal, deferredFog.a);

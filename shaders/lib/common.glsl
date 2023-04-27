@@ -379,12 +379,20 @@ float minOf(const in vec4 vec) {return min(min(vec[0], vec[1]), min(vec[2], vec[
 float maxOf(const in vec2 vec) {return max(vec[0], vec[1]);}
 float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
+float RGBToLinear(const in float value) {
+    return pow(value, GAMMA);
+}
+
 vec3 RGBToLinear(const in vec3 color) {
 	return pow(color, vec3(GAMMA));
 }
 
+float LinearToRGB(const in float color) {
+	return pow(color, rcp(GAMMA));
+}
+
 vec3 LinearToRGB(const in vec3 color) {
-	return pow(color, vec3(1.0 / GAMMA));
+    return pow(color, vec3(rcp(GAMMA)));
 }
 
 float luminance(const in vec3 color) {

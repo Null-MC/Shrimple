@@ -377,20 +377,20 @@ void main() {
         float fogF = GetVanillaFogFactor(vLocalPos);
 
         vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        fogColorFinal = LinearToRGB(fogColorFinal) + dither;
 
         outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor, 1.0);
+        outDeferredShadow = vec4(shadowColor + dither, 1.0);
 
         uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmFinal + dither, occlusion + dither, emission));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
+        deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
+        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF) + dither);
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
+            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);

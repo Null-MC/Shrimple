@@ -202,22 +202,9 @@
 
     vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
         vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
-        vec3 albedoFinal = albedo;
-
-        // // weather darkening
-        // #if defined WORLD_SKY_ENABLED && (defined RENDER_TERRAIN || defined RENDER_WATER || defined RENDER_BLOCK)
-        //     float surfaceWetness = max(15.0 * lightCoord.y - 14.0, 0.0);
-        //     albedoFinal *= 0.0;//pow(albedoFinal, vec3(1.0 + 3.6*surfaceWetness));
-        // #endif
-        
-        //float worldBrightness = GetWorldBrightnessF();
-
-        //float shadowingF = 1.0 - (1.0 - 0.5 * rainStrength) * (1.0 - ShadowBrightnessF);
-
-        //skyDiffuse += skyNoLm * skyLight * shadowColor;// * (1.0 - shadowingF);
 
         vec3 ambientLight = vec3(0.0);
-        #if (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             ambientLight = vec3(1.0);
 
             #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
@@ -238,8 +225,8 @@
 
                     //float upF = localNormal.y;
                     //ambientLight = skyColor;//mix(ambientLight, skyColor, localNormal.y * 0.5 + 0.5);
-                    vec3 sunLightColor = vec3(1.0, 0.7, 0.2);
-                    vec3 moonLightColor = vec3(0.1, 0.1, 0.4);
+                    const vec3 sunLightColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
+                    const vec3 moonLightColor = RGBToLinear(vec3(0.864, 0.860, 0.823));
                     vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDirection.y * 0.5 + 0.5);
 
                     float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
@@ -247,25 +234,22 @@
                     ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
                 #endif
 
-                ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
+                //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
+            #else
+                ambientLight *= 0.2;
             #endif
 
-            vec2 lmFinal = lightCoord;//saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
-            lmFinal.x *= 0.16;
-            lmFinal = saturate(lmFinal * (15.0/16.0) + (0.5/16.0));
-
             #ifdef RENDER_GBUFFER
-                vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
+                vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
             #else
-                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
             #endif
 
             ambientLight *= RGBToLinear(lightmapColor);
-            //ambientLight *= ShadowBrightnessF;
 
-            vec3 diffuse = albedoFinal * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
-        #else
-            vec3 diffuse = albedoFinal * (blockDiffuse + skyDiffuse) * occlusion;
+            vec3 diffuse = albedo * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
+        #else //if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * occlusion;
         #endif
 
         vec3 specular = blockSpecular + skySpecular;
