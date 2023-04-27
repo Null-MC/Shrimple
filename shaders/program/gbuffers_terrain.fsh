@@ -331,7 +331,7 @@ void main() {
         occlusion *= _pow2(texOcclusion);
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
         float texOcclusion = max(texNormal.z, 0.1);
-        occlusion *= _pow2(texOcclusion);
+        occlusion *= texOcclusion;
     #endif
 
     vec3 localTangent = normalize(vLocalTangent);
