@@ -201,11 +201,20 @@
     #endif
 
     vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
-        vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
+        //vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
 
-        vec3 ambientLight = vec3(0.0);
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            ambientLight = vec3(1.0);
+            //ambientLight = vec3(1.0);
+            vec2 lmFinal = lmcoord;
+            lmFinal.x = (0.5/16.0);
+
+            #ifdef RENDER_GBUFFER
+                vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
+            #else
+                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+            #endif
+
+            vec3 ambientLight = RGBToLinear(lightmapColor);
 
             #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
                 #ifdef WORLD_SKY_ENABLED
@@ -236,20 +245,28 @@
 
                 //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             #else
-                ambientLight *= 0.2;
+                //ambientLight *= 0.6;
             #endif
 
+            // #ifdef RENDER_GBUFFER
+            //     vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
+            // #else
+            //     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
+            // #endif
+
+            // ambientLight *= RGBToLinear(lightmapColor);
+
+            vec3 diffuse = albedo * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
+        #else //if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
             #ifdef RENDER_GBUFFER
                 vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
             #else
                 vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
             #endif
 
-            ambientLight *= RGBToLinear(lightmapColor);
+            vec3 ambientLight = 0.2 * RGBToLinear(lightmapColor);
 
-            vec3 diffuse = albedo * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
-        #else //if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
-            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * occlusion;
+            vec3 diffuse = mix(blockDiffuse + skyDiffuse, ambientLight, ShadowBrightnessF) * albedo * occlusion;
         #endif
 
         vec3 specular = blockSpecular + skySpecular;
