@@ -104,6 +104,23 @@
 
 #define LIGHT_ROSE_QUARTZ_LAMP 110u
 #define LIGHT_STREET_LAMP 111u
+#define LIGHT_SOUL_STREET_LAMP 112u
+#define LIGHT_PAPER_LAMP_BLACK 113u
+#define LIGHT_PAPER_LAMP_BLUE 114u
+#define LIGHT_PAPER_LAMP_BROWN 115u
+#define LIGHT_PAPER_LAMP_CYAN 116u
+#define LIGHT_PAPER_LAMP_GRAY 117u
+#define LIGHT_PAPER_LAMP_GREEN 118u
+#define LIGHT_PAPER_LAMP_LIGHT_BLUE 119u
+#define LIGHT_PAPER_LAMP_LIGHT_GRAY 120u
+#define LIGHT_PAPER_LAMP_LIME 121u
+#define LIGHT_PAPER_LAMP_MAGENTA 122u
+#define LIGHT_PAPER_LAMP_ORANGE 123u
+#define LIGHT_PAPER_LAMP_PINK 124u
+#define LIGHT_PAPER_LAMP_PURPLE 125u
+#define LIGHT_PAPER_LAMP_RED 126u
+#define LIGHT_PAPER_LAMP_WHITE 127u
+#define LIGHT_PAPER_LAMP_YELLOW 128u
 
 #define LIGHT_IGNORED 255u
 
@@ -345,6 +362,57 @@ uint GetSceneLightType(const in int blockId) {
     switch (blockId) {
         case BLOCK_STREET_LAMP_LIT:
             lightType = LIGHT_STREET_LAMP;
+            break;
+        case BLOCK_SOUL_STREET_LAMP_LIT:
+            lightType = LIGHT_SOUL_STREET_LAMP;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_BLACK:
+            lightType = LIGHT_PAPER_LAMP_BLACK;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_BLUE:
+            lightType = LIGHT_PAPER_LAMP_BLUE;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_BROWN:
+            lightType = LIGHT_PAPER_LAMP_BROWN;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_CYAN:
+            lightType = LIGHT_PAPER_LAMP_CYAN;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_GRAY:
+            lightType = LIGHT_PAPER_LAMP_GRAY;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_GREEN:
+            lightType = LIGHT_PAPER_LAMP_GREEN;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_LIGHT_BLUE:
+            lightType = LIGHT_PAPER_LAMP_LIGHT_BLUE;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_LIGHT_GRAY:
+            lightType = LIGHT_PAPER_LAMP_LIGHT_GRAY;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_LIME:
+            lightType = LIGHT_PAPER_LAMP_LIME;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_MAGENTA:
+            lightType = LIGHT_PAPER_LAMP_MAGENTA;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_ORANGE:
+            lightType = LIGHT_PAPER_LAMP_ORANGE;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_PINK:
+            lightType = LIGHT_PAPER_LAMP_PINK;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_PURPLE:
+            lightType = LIGHT_PAPER_LAMP_PURPLE;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_RED:
+            lightType = LIGHT_PAPER_LAMP_RED;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_WHITE:
+            lightType = LIGHT_PAPER_LAMP_WHITE;
+            break;
+        case BLOCK_PAPER_LAMP_LIT_YELLOW:
+            lightType = LIGHT_PAPER_LAMP_YELLOW;
             break;
     }
 
@@ -616,6 +684,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_SOUL_TORCH:
             case LIGHT_SOUL_CAMPFIRE:
             case LIGHT_SOUL_FIRE:
+            case LIGHT_SOUL_STREET_LAMP:
                 lightColor = vec3(0.203, 0.725, 0.758);
                 break;
             case LIGHT_TORCH:
@@ -656,6 +725,57 @@ uint GetSceneLightType(const in int blockId) {
                     break;
             }
         #endif
+
+        switch (lightType) {
+            case LIGHT_PAPER_LAMP_BLACK:
+                lightColor = vec3(0.145, 0.145, 0.145);
+                break;
+            case LIGHT_PAPER_LAMP_BLUE:
+                lightColor = vec3(0.176, 0.329, 0.608);
+                break;
+            case LIGHT_PAPER_LAMP_BROWN:
+                lightColor = vec3(0.600, 0.337, 0.137);
+                break;
+            case LIGHT_PAPER_LAMP_CYAN:
+                lightColor = vec3(0.212, 0.522, 0.522);
+                break;
+            case LIGHT_PAPER_LAMP_GRAY:
+                lightColor = vec3(0.263, 0.263, 0.263);
+                break;
+            case LIGHT_PAPER_LAMP_GREEN:
+                lightColor = vec3(0.306, 0.435, 0.145);
+                break;
+            case LIGHT_PAPER_LAMP_LIGHT_BLUE:
+                lightColor = vec3(0.322, 0.624, 0.890);
+                break;
+            case LIGHT_PAPER_LAMP_LIGHT_GRAY:
+                lightColor = vec3(0.525, 0.525, 0.525);
+                break;
+            case LIGHT_PAPER_LAMP_LIME:
+                lightColor = vec3(0.545, 0.835, 0.192);
+                break;
+            case LIGHT_PAPER_LAMP_MAGENTA:
+                lightColor = vec3(0.773, 0.255, 0.675);
+                break;
+            case LIGHT_PAPER_LAMP_ORANGE:
+                lightColor = vec3(0.882, 0.588, 0.180);
+                break;
+            case LIGHT_PAPER_LAMP_PINK:
+                lightColor = vec3(0.941, 0.490, 0.667);
+                break;
+            case LIGHT_PAPER_LAMP_PURPLE:
+                lightColor = vec3(0.620, 0.306, 0.710);
+                break;
+            case LIGHT_PAPER_LAMP_RED:
+                lightColor = vec3(0.784, 0.243, 0.243);
+                break;
+            case LIGHT_PAPER_LAMP_WHITE:
+                lightColor = vec3(0.875, 0.875, 0.875);
+                break;
+            case LIGHT_PAPER_LAMP_YELLOW:
+                lightColor = vec3(0.867, 0.835, 0.271);
+                break;
+        }
         
         //lightColor = RGBToLinear(lightColor);
 
@@ -668,7 +788,8 @@ uint GetSceneLightType(const in int blockId) {
 
             bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
                 || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
-                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
+                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)
+                || lightType == LIGHT_STREET_LAMP;
 
             bool isSoulFireSource = lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
                 || lightType == LIGHT_SOUL_LANTERN;
@@ -834,7 +955,6 @@ uint GetSceneLightType(const in int blockId) {
                 lightRange = 15.0;
                 break;
             case LIGHT_LANTERN:
-            case LIGHT_STREET_LAMP:
                 lightRange = 12.0;
                 break;
             case LIGHT_LAVA:
@@ -983,6 +1103,32 @@ uint GetSceneLightType(const in int blockId) {
             }
         #endif
 
+        switch (lightType) {
+            case LIGHT_LANTERN:
+            case LIGHT_STREET_LAMP:
+            case LIGHT_SOUL_STREET_LAMP:
+                lightRange = 12.0;
+                break;
+            case LIGHT_PAPER_LAMP_BLACK:
+            case LIGHT_PAPER_LAMP_BLUE:
+            case LIGHT_PAPER_LAMP_BROWN:
+            case LIGHT_PAPER_LAMP_CYAN:
+            case LIGHT_PAPER_LAMP_GRAY:
+            case LIGHT_PAPER_LAMP_GREEN:
+            case LIGHT_PAPER_LAMP_LIGHT_BLUE:
+            case LIGHT_PAPER_LAMP_LIGHT_GRAY:
+            case LIGHT_PAPER_LAMP_LIME:
+            case LIGHT_PAPER_LAMP_MAGENTA:
+            case LIGHT_PAPER_LAMP_ORANGE:
+            case LIGHT_PAPER_LAMP_PINK:
+            case LIGHT_PAPER_LAMP_PURPLE:
+            case LIGHT_PAPER_LAMP_RED:
+            case LIGHT_PAPER_LAMP_WHITE:
+            case LIGHT_PAPER_LAMP_YELLOW:
+                lightRange = 14.0;
+                break;
+        }
+
         return lightRange * DynamicLightRangeF;
     }
 
@@ -1029,6 +1175,22 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_AMETHYST_BUD_LARGE:
             case LIGHT_CAMPFIRE:
             case LIGHT_SOUL_CAMPFIRE:
+            case LIGHT_PAPER_LAMP_BLACK:
+            case LIGHT_PAPER_LAMP_BLUE:
+            case LIGHT_PAPER_LAMP_BROWN:
+            case LIGHT_PAPER_LAMP_CYAN:
+            case LIGHT_PAPER_LAMP_GRAY:
+            case LIGHT_PAPER_LAMP_GREEN:
+            case LIGHT_PAPER_LAMP_LIGHT_BLUE:
+            case LIGHT_PAPER_LAMP_LIGHT_GRAY:
+            case LIGHT_PAPER_LAMP_LIME:
+            case LIGHT_PAPER_LAMP_MAGENTA:
+            case LIGHT_PAPER_LAMP_ORANGE:
+            case LIGHT_PAPER_LAMP_PINK:
+            case LIGHT_PAPER_LAMP_PURPLE:
+            case LIGHT_PAPER_LAMP_RED:
+            case LIGHT_PAPER_LAMP_WHITE:
+            case LIGHT_PAPER_LAMP_YELLOW:
                 size = (12.0/16.0);
                 break;
             case LIGHT_BEACON:
@@ -1048,6 +1210,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_LANTERN:
             case LIGHT_SOUL_LANTERN:
             case LIGHT_STREET_LAMP:
+            case LIGHT_SOUL_STREET_LAMP:
                 size = (6.0/16.0);
                 break;
             case LIGHT_CANDLES_2:
@@ -1136,6 +1299,7 @@ uint GetSceneLightType(const in int blockId) {
 
         switch (lightType) {
             case LIGHT_STREET_LAMP:
+            case LIGHT_SOUL_STREET_LAMP:
                 lightOffset = vec3(0.0, (3.0/8.0), 0.0);
                 break;
         }
