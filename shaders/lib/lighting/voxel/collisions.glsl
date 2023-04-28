@@ -44,9 +44,9 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
 
     switch (blockType) {
         case BLOCKTYPE_SOLID:
-        case BLOCKTYPE_AMETHYST:
-        case BLOCKTYPE_DIAMOND:
-        case BLOCKTYPE_EMERALD:
+        // case BLOCKTYPE_AMETHYST:
+        // case BLOCKTYPE_DIAMOND:
+        // case BLOCKTYPE_EMERALD:
             boundsMin = vec3(0.0);
             boundsMax = vec3(1.0);
             break;

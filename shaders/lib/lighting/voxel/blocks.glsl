@@ -184,9 +184,9 @@
 #define BLOCKTYPE_CHORUS_UP_DOWN 161u
 #define BLOCKTYPE_CHORUS_OTHER 162u
 
-#define BLOCKTYPE_AMETHYST 163u
-#define BLOCKTYPE_DIAMOND 164u
-#define BLOCKTYPE_EMERALD 165u
+//#define BLOCKTYPE_AMETHYST 163u
+//#define BLOCKTYPE_DIAMOND 164u
+//#define BLOCKTYPE_EMERALD 165u
 #define BLOCKTYPE_HONEY 166u
 #define BLOCKTYPE_SLIME 167u
 #define BLOCKTYPE_SNOW 168u
@@ -798,15 +798,15 @@
         }
 
         switch (blockId) {
-            case BLOCK_AMETHYST:
-                blockType = BLOCKTYPE_AMETHYST;
-                break;
-            case BLOCK_DIAMOND:
-                blockType = BLOCKTYPE_DIAMOND;
-                break;
-            case BLOCK_EMERALD:
-                blockType = BLOCKTYPE_EMERALD;
-                break;
+            // case BLOCK_AMETHYST:
+            //     blockType = BLOCKTYPE_AMETHYST;
+            //     break;
+            // case BLOCK_DIAMOND:
+            //     blockType = BLOCKTYPE_DIAMOND;
+            //     break;
+            // case BLOCK_EMERALD:
+            //     blockType = BLOCKTYPE_EMERALD;
+            //     break;
             case BLOCK_HONEY:
                 blockType = BLOCKTYPE_HONEY;
                 break;
