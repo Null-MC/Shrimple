@@ -34,7 +34,7 @@ struct LightCellData {
     uint GlobalLights[LIGHT_BIN_MAX_COUNT];
 };
 
-#ifdef RENDER_SHADOWCOMP || defined RENDER_SHADOW
+#if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
     layout(std430, binding = 3) restrict buffer localLightingData
 #elif defined RENDER_BEGIN
     layout(std430, binding = 3) restrict writeonly buffer localLightingData
