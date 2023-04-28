@@ -74,40 +74,34 @@ uniform float blindness;
     #endif
 #endif
 
-//#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IS_IRIS
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
-    //uniform float rainStrength;
     uniform int isEyeInWater;
-    //uniform vec3 skyColor;
     uniform vec3 fogColor;
 #endif
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
-#endif
 
 #include "/lib/material/specular.glsl"
 
@@ -154,6 +148,10 @@ uniform float blindness;
 
 #ifdef VL_BUFFER_ENABLED
     #include "/lib/world/volumetric_fog.glsl"
+#endif
+
+#ifndef IRIS_FEATURE_SSBO
+    #include "/lib/post/saturation.glsl"
 #endif
 
 #include "/lib/post/tonemap.glsl"

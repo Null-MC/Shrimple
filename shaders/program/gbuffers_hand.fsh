@@ -12,15 +12,11 @@ in vec3 vPos;
 in vec3 vNormal;
 in float geoNoL;
 in vec3 vLocalPos;
-in vec3 vLocalNormal;
-in vec3 vBlockLight;
-
-//#if MATERIAL_NORMALS != NORMALMAP_NONE
-    in vec3 vLocalTangent;
-    in float vTangentW;
-//#endif
-
 in vec2 vLocalCoord;
+in vec3 vLocalNormal;
+in vec3 vLocalTangent;
+in vec3 vBlockLight;
+in float vTangentW;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -129,6 +125,10 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/depth.glsl"
@@ -138,12 +138,6 @@ uniform float blindness;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
-#endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/atlas.glsl"
@@ -187,7 +181,6 @@ uniform float blindness;
         #include "/lib/lighting/voxel/collisions.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
-
 #endif
 
 #include "/lib/lighting/voxel/lights.glsl"
@@ -209,6 +202,10 @@ uniform float blindness;
 
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+
+#ifndef IRIS_FEATURE_SSBO
+    #include "/lib/post/saturation.glsl"
+#endif
 
 #include "/lib/post/tonemap.glsl"
 

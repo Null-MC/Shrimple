@@ -18,14 +18,16 @@ uniform vec3 skyColor;
 
 uniform float blindness;
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
+#ifndef IRIS_FEATURE_SSBO
     #include "/lib/post/saturation.glsl"
 #endif
 

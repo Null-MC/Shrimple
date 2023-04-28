@@ -447,7 +447,7 @@ void main() {
             final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             final = RGBToLinear(final);
         #else
-            final = RGBToLinear(fogColor) * GetWorldBrightnessF();
+            final = RGBToLinear(fogColor) * WorldSkyBrightnessF;
         #endif
     }
 

@@ -6,12 +6,10 @@
 #define LIGHT_MASK_EAST 6u
 
 
-#ifdef RENDER_SHADOWCOMP
+#if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
     layout(std430, binding = 2) restrict buffer globalLightingData
 #elif defined RENDER_BEGIN
     layout(std430, binding = 2) restrict writeonly buffer globalLightingData
-#elif defined RENDER_SHADOW
-    layout(std430, binding = 2) restrict buffer globalLightingData
 #else
     layout(std430, binding = 2) restrict readonly buffer globalLightingData
 #endif
@@ -36,9 +34,9 @@ struct LightCellData {
     uint GlobalLights[LIGHT_BIN_MAX_COUNT];
 };
 
-#ifdef RENDER_SHADOWCOMP
+#ifdef RENDER_SHADOWCOMP || defined RENDER_SHADOW
     layout(std430, binding = 3) restrict buffer localLightingData
-#elif defined RENDER_BEGIN || defined RENDER_SHADOW
+#elif defined RENDER_BEGIN
     layout(std430, binding = 3) restrict writeonly buffer localLightingData
 #else
     layout(std430, binding = 3) restrict readonly buffer localLightingData

@@ -101,6 +101,10 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -112,12 +116,6 @@ uniform float blindness;
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
-#endif
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -165,6 +163,10 @@ uniform float blindness;
 
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+
+#ifndef IRIS_FEATURE_SSBO
+    #include "/lib/post/saturation.glsl"
+#endif
 
 #include "/lib/post/tonemap.glsl"
 

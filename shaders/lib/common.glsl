@@ -296,8 +296,8 @@ const bool colortex14Clear = true;
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
 const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
-const float WorldBrightnessDayF = WORLD_BRIGHTNESS_DAY * 0.01;
-const float WorldBrightnessNightF = WORLD_BRIGHTNESS_NIGHT * 0.01;
+const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
+const float WorldSkyBrightnessF = WORLD_SKY_BRIGHTNESS * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;

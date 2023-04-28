@@ -3,7 +3,7 @@ float fogify(float x, float w) {
 }
 
 vec3 GetFogColor(const in float NoUp) {
-    vec3 fogColorFinal = RGBToLinear(fogColor) * GetWorldBrightnessF();
+    vec3 fogColorFinal = RGBToLinear(fogColor) * WorldSkyBrightnessF;
     
     #ifdef WORLD_SKY_ENABLED
         vec3 skyColorFinal = RGBToLinear(skyColor);

@@ -113,6 +113,10 @@ uniform int heldBlockLightValue2;
     uniform float alphaTestRef;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -122,12 +126,6 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
-#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -182,6 +180,10 @@ uniform int heldBlockLightValue2;
 
 #ifdef VL_BUFFER_ENABLED
     #include "/lib/world/volumetric_fog.glsl"
+#endif
+
+#ifndef IRIS_FEATURE_SSBO
+    #include "/lib/post/saturation.glsl"
 #endif
 
 #include "/lib/post/tonemap.glsl"

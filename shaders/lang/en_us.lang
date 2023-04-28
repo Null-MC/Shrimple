@@ -41,9 +41,7 @@ suffix.WORLD_RAIN_OPACITY=%
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
 
-option.OVERWORLD_BRIGHTNESS_DAY=Day Brightness
-
-option.OVERWORLD_BRIGHTNESS_NIGHT=Night Brightness
+option.OVERWORLD_BRIGHTNESS=Overworld Brightness
 
 option.NETHER_BRIGHTNESS=Nether Brightness
 

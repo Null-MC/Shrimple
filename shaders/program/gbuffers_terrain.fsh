@@ -133,6 +133,10 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
@@ -142,12 +146,6 @@ uniform int fogMode;
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
-#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -210,6 +208,11 @@ uniform int fogMode;
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
+
+    #ifndef IRIS_FEATURE_SSBO
+        #include "/lib/post/saturation.glsl"
+    #endif
+
     #include "/lib/post/tonemap.glsl"
 #endif
 
@@ -330,7 +333,7 @@ void main() {
         float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
         occlusion *= _pow2(texOcclusion);
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
-        float texOcclusion = max(texNormal.z, 0.1);
+        float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
         occlusion *= texOcclusion;
     #endif
 

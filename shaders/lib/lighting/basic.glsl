@@ -134,8 +134,7 @@
                     vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #endif
 
-                float worldBrightness = GetWorldBrightnessF();
-                skyLight = RGBToLinear(skyLight) * worldBrightness;
+                skyLight = RGBToLinear(skyLight) * WorldSkyBrightnessF;
 
                 //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
 
@@ -166,7 +165,7 @@
                 const float diffuseNoL = 1.0;
             #endif
 
-            skyDiffuse += diffuseNoL * skyLight * shadowColor;
+            skyDiffuse += skyLight * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 // float geoNoL = 1.0;
@@ -201,12 +200,10 @@
     #endif
 
     vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
-        //vec2 lightCoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
-
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            //ambientLight = vec3(1.0);
             vec2 lmFinal = lmcoord;
-            lmFinal.x = (0.5/16.0);
+            //lmFinal.x = (0.5/16.0);
+            lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5 + (0.5/16.0);
 
             #ifdef RENDER_GBUFFER
                 vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
@@ -216,64 +213,39 @@
 
             vec3 ambientLight = RGBToLinear(lightmapColor);
 
-            #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
-                #ifdef WORLD_SKY_ENABLED
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            // #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
+            //     #ifdef WORLD_SKY_ENABLED
+            //         #ifndef IRIS_FEATURE_SSBO
+            //             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
 
-                        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-                        #else
-                            vec3 localSkyLightDirection = localSunDirection;
-                            if (worldTime > 12000 && worldTime < 24000)
-                                localSkyLightDirection = -localSkyLightDirection;
-                        #endif
-                    #endif
+            //             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            //                 vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            //             #else
+            //                 vec3 localSkyLightDirection = localSunDirection;
+            //                 if (worldTime > 12000 && worldTime < 24000)
+            //                     localSkyLightDirection = -localSkyLightDirection;
+            //             #endif
+            //         #endif
 
-                    //ambientLight = fogColor;
+            //         const vec3 sunLightColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
+            //         const vec3 moonLightColor = RGBToLinear(vec3(0.864, 0.860, 0.823));
+            //         vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDirection.y * 0.5 + 0.5);
 
-                    //float upF = localNormal.y;
-                    //ambientLight = skyColor;//mix(ambientLight, skyColor, localNormal.y * 0.5 + 0.5);
-                    const vec3 sunLightColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
-                    const vec3 moonLightColor = RGBToLinear(vec3(0.864, 0.860, 0.823));
-                    vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDirection.y * 0.5 + 0.5);
+            //         float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
+            //         ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
+            //     #endif
 
-                    float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
-                    //ambientLight = mix(skyColor, skyLightColor, skyLightNoL * 0.4 + 0.5);
-                    ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
-                #endif
-
-                //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
-            #else
-                //ambientLight *= 0.6;
-            #endif
-
-            // #ifdef RENDER_GBUFFER
-            //     vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
-            // #else
-            //     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
+            //     //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             // #endif
 
-            // ambientLight *= RGBToLinear(lightmapColor);
+            ambientLight *= WorldBrightnessF * _pow2(occlusion);
 
-            vec3 diffuse = albedo * mix(blockDiffuse + skyDiffuse, ambientLight * occlusion, ShadowBrightnessF);
-        #else //if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
-            #ifdef RENDER_GBUFFER
-                vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
-            #else
-                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
-            #endif
-
-            vec3 ambientLight = 0.2 * RGBToLinear(lightmapColor);
-
-            vec3 diffuse = mix(blockDiffuse + skyDiffuse, ambientLight, ShadowBrightnessF) * albedo * occlusion;
+            vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight));
+        #else
+            vec3 diffuse = albedo * pow(blockDiffuse + skyDiffuse, vec3(2.0 - WorldBrightnessF)) * _pow2(occlusion);
         #endif
 
         vec3 specular = blockSpecular + skySpecular;
-
-        // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-        //     diffuse *= occlusion;
-        // #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
