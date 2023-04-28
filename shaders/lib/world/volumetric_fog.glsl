@@ -129,19 +129,18 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 sampleColor = skyLightColor;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                float sampleBias = 0.01 / (far * 3.0);
-
                 vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
                 vec3 traceShadowClipPos = vec3(-1.0);
 
                 int cascade = GetShadowCascade(shadowViewPos, -0.01);
                 
                 if (cascade >= 0) {
+                    float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
                     traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
                     sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                 }
             #else
-                const float sampleBias = (0.01 / 256.0);
+                float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
 
                 vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
                 traceShadowClipPos = distort(traceShadowClipPos);

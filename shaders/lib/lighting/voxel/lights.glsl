@@ -98,9 +98,12 @@
 #define LIGHT_SOUL_FIRE 97u
 #define LIGHT_TORCH 98u
 
-#define LIGHT_CONCRETE_BLUE 100u
-#define LIGHT_CONCRETE_GREEN 101u
-#define LIGHT_CONCRETE_RED 102u
+#define LIGHT_CONCRETE_BLUE 99u
+#define LIGHT_CONCRETE_GREEN 100u
+#define LIGHT_CONCRETE_RED 101u
+
+#define LIGHT_ROSE_QUARTZ_LAMP 110u
+#define LIGHT_STREET_LAMP 111u
 
 #define LIGHT_IGNORED 255u
 
@@ -283,6 +286,9 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_RESPAWN_ANCHOR_4:
             lightType = LIGHT_RESPAWN_ANCHOR_4;
             break;
+        case BLOCK_ROSE_QUARTZ_LAMP_LIT:
+            lightType = LIGHT_ROSE_QUARTZ_LAMP;
+            break;
         case BLOCK_SCULK_CATALYST:
             lightType = LIGHT_SCULK_CATALYST;
             break;
@@ -333,6 +339,12 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_TORCH:
         case BLOCK_TORCH_WALL:
             lightType = LIGHT_TORCH;
+            break;
+    }
+
+    switch (blockId) {
+        case BLOCK_STREET_LAMP_LIT:
+            lightType = LIGHT_STREET_LAMP;
             break;
     }
 
@@ -528,6 +540,7 @@ uint GetSceneLightType(const in int blockId) {
                 lightColor = vec3(0.768, 0.701, 0.325);
                 break;
             case LIGHT_LANTERN:
+            case LIGHT_STREET_LAMP:
                 lightColor = vec3(0.906, 0.737, 0.451);
                 break;
             case LIGHT_LIGHTING_ROD:
@@ -574,6 +587,9 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_RESPAWN_ANCHOR_2:
             case LIGHT_RESPAWN_ANCHOR_1:
                 lightColor = vec3(0.390, 0.065, 0.646);
+                break;
+            case LIGHT_ROSE_QUARTZ_LAMP:
+                lightColor = vec3(0.898, 0.369, 0.459);
                 break;
             case LIGHT_SCULK_CATALYST:
                 lightColor = vec3(0.510, 0.831, 0.851);
@@ -644,22 +660,28 @@ uint GetSceneLightType(const in int blockId) {
         //lightColor = RGBToLinear(lightColor);
 
         #ifdef DYN_LIGHT_FLICKER
-            // TODO: optimize branching
-            //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
             float flickerNoise = GetDynLightFlickerNoise(noiseSample);
             float blackbodyTemp = 0.0;
 
-            if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+            bool isBigFireSource = lightType == LIGHT_TORCH || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
+                || lightType == LIGHT_LANTERN || lightType == LIGHT_STREET_LAMP;
+
+            bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
+                || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
+                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
+
+            bool isSoulFireSource = lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
+                || lightType == LIGHT_SOUL_LANTERN;
+
+            if (isBigFireSource) {
                 blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
             }
 
-            if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
+            if (isSoulFireSource) {
                 blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
             }
 
-            if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-             || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
-             || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+            if (isSmallFireSource) {
                 blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
             }
 
@@ -669,17 +691,15 @@ uint GetSceneLightType(const in int blockId) {
 
             float flickerBrightness = 0.6 + 0.4 * flickerNoise;
 
-            if (lightType == LIGHT_TORCH || lightType == LIGHT_LANTERN || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE) {
+            if (isBigFireSource) {
                 lightColor = LinearToRGB(flickerBrightness * blackbodyColor);
             }
 
-            if (lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE) {
+            if (isSoulFireSource) {
                 lightColor = LinearToRGB(flickerBrightness * saturate(1.0 - blackbodyColor));
             }
 
-            if (lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-             || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4
-             || lightType == LIGHT_CANDLE_CAKE || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)) {
+            if (isSmallFireSource) {
                 lightColor = LinearToRGB(0.4 * flickerBrightness * blackbodyColor);
             }
         #endif
@@ -814,6 +834,7 @@ uint GetSceneLightType(const in int blockId) {
                 lightRange = 15.0;
                 break;
             case LIGHT_LANTERN:
+            case LIGHT_STREET_LAMP:
                 lightRange = 12.0;
                 break;
             case LIGHT_LAVA:
@@ -895,6 +916,9 @@ uint GetSceneLightType(const in int blockId) {
                 lightRange = 11.0;
                 break;
             case LIGHT_RESPAWN_ANCHOR_4:
+                lightRange = 15.0;
+                break;
+            case LIGHT_ROSE_QUARTZ_LAMP:
                 lightRange = 15.0;
                 break;
             case LIGHT_SCULK_CATALYST:
@@ -999,6 +1023,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_LAVA_CAULDRON:
             case LIGHT_SEA_LANTERN:
             case LIGHT_REDSTONE_LAMP:
+            case LIGHT_ROSE_QUARTZ_LAMP:
                 size = (14.0/16.0);
                 break;
             case LIGHT_AMETHYST_BUD_LARGE:
@@ -1022,6 +1047,7 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_CANDLES_3:
             case LIGHT_LANTERN:
             case LIGHT_SOUL_LANTERN:
+            case LIGHT_STREET_LAMP:
                 size = (6.0/16.0);
                 break;
             case LIGHT_CANDLES_2:
@@ -1104,7 +1130,13 @@ uint GetSceneLightType(const in int blockId) {
                 break;
             case LIGHT_TORCH:
             case LIGHT_SOUL_TORCH:
-                lightOffset = vec3(0.0, (1.0/16.0), 0.0);
+                lightOffset = vec3(0.0, (1.0/8.0), 0.0);
+                break;
+        }
+
+        switch (lightType) {
+            case LIGHT_STREET_LAMP:
+                lightOffset = vec3(0.0, (3.0/8.0), 0.0);
                 break;
         }
 
