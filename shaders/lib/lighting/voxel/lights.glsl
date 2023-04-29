@@ -1104,7 +1104,6 @@ uint GetSceneLightType(const in int blockId) {
         #endif
 
         switch (lightType) {
-            case LIGHT_LANTERN:
             case LIGHT_STREET_LAMP:
             case LIGHT_SOUL_STREET_LAMP:
                 lightRange = 12.0;

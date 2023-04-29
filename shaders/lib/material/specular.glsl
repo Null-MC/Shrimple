@@ -1,20 +1,7 @@
 float GetBlockRoughness(const in int blockId) {
     float smoothness = 0.1;
 
-    switch (blockId) {
-        case BLOCK_CHAIN:
-        case BLOCK_IRON_BARS:
-            smoothness = 0.65;
-            break;
-    }
-
-    switch (blockId) {
-        case BLOCK_ANVIL_N_S:
-        case BLOCK_ANVIL_W_E:
-            smoothness = 0.65;
-            break;
-    }
-
+    // 200
     switch (blockId) {
         case BLOCK_AMETHYST:
         case BLOCK_AMETHYST_CLUSTER:
@@ -22,6 +9,58 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_AMETHYST_BUD_SMALL:
             smoothness = 0.8;
             break;
+        case BLOCK_DIAMOND:
+            smoothness = 0.85;
+            break;
+        case BLOCK_EMERALD:
+        case BLOCK_LAPIS:
+            smoothness = 0.70;
+            break;
+        case BLOCK_REDSTONE:
+            smoothness = 0.80;
+            break;
+    }
+
+    // 400
+    switch (blockId) {
+        case BLOCK_ANVIL_N_S:
+        case BLOCK_ANVIL_W_E:
+            smoothness = 0.65;
+            break;
+        case BLOCK_SNOW_LAYERS_1:
+        case BLOCK_SNOW_LAYERS_2:
+        case BLOCK_SNOW_LAYERS_3:
+        case BLOCK_SNOW_LAYERS_4:
+        case BLOCK_SNOW_LAYERS_5:
+        case BLOCK_SNOW_LAYERS_6:
+        case BLOCK_SNOW_LAYERS_7:
+            smoothness = 0.55;
+            break;
+    }
+
+    // 500
+    switch (blockId) {
+        case BLOCK_HONEY:
+            smoothness = 0.60;
+            break;
+        case BLOCK_SNOW:
+            smoothness = 0.55;
+            break;
+    }
+
+    // 700
+    switch (blockId) {
+        case BLOCK_CHAIN:
+        case BLOCK_IRON_BARS:
+            smoothness = 0.65;
+            break;
+        case BLOCK_ICE:
+            smoothness = 0.75;
+            break;
+    }
+
+    // 1000
+    switch (blockId) {
         case BLOCK_COAL:
             smoothness = 0.60;
             break;
@@ -34,17 +73,9 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_COPPER_WEATHERED:
             smoothness = 0.40;
             break;
-        case BLOCK_DIAMOND:
-            smoothness = 0.85;
-            break;
-        case BLOCK_EMERALD:
-        case BLOCK_LAPIS:
-            smoothness = 0.70;
-            break;
         case BLOCK_GOLD:
             smoothness = 0.75;
             break;
-        case BLOCK_HONEY:
         case BLOCK_HONEYCOMB:
             smoothness = 0.60;
             break;
@@ -57,7 +88,6 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_NETHERRACK:
             smoothness = 0.26;
             break;
-        case BLOCK_ICE:
         case BLOCK_BLUE_ICE:
         case BLOCK_PACKED_ICE:
             smoothness = 0.75;
@@ -68,19 +98,6 @@ float GetBlockRoughness(const in int blockId) {
         case BLOCK_PURPUR:
         case BLOCK_QUARTZ:
             smoothness = 0.50;
-            break;
-        case BLOCK_REDSTONE:
-            smoothness = 0.80;
-            break;
-        case BLOCK_SNOW:
-        case BLOCK_SNOW_LAYERS_1:
-        case BLOCK_SNOW_LAYERS_2:
-        case BLOCK_SNOW_LAYERS_3:
-        case BLOCK_SNOW_LAYERS_4:
-        case BLOCK_SNOW_LAYERS_5:
-        case BLOCK_SNOW_LAYERS_6:
-        case BLOCK_SNOW_LAYERS_7:
-            smoothness = 0.55;
             break;
     }
 
@@ -110,17 +127,23 @@ float GetItemRoughness(const in int itemId) {
 float GetBlockMetalF0(const in int blockId) {
     float metal_f0 = 0.04;
 
+    // 700
     switch (blockId) {
         case BLOCK_CHAIN:
         case BLOCK_IRON_BARS:
             metal_f0 = (230.5/255.0);
             break;
+    }
+
+    // 1000
+    switch (blockId) {
         case BLOCK_BLUE_ICE:
         case BLOCK_PACKED_ICE:
             metal_f0 = 0.02;
             break;
     }
 
+    // 400
     switch (blockId) {
         case BLOCK_ANVIL_N_S:
         case BLOCK_ANVIL_W_E:
@@ -128,17 +151,24 @@ float GetBlockMetalF0(const in int blockId) {
             break;
     }
 
+    // 200
     switch (blockId) {
         case BLOCK_DIAMOND:
             metal_f0 = 0.17;
             break;
+        case BLOCK_REDSTONE:
+            metal_f0 = (231.5/255.0);
+            break;
+    }
+
+    // 1000
+    switch (blockId) {
         case BLOCK_COPPER:
         case BLOCK_COPPER_EXPOSED:
         case BLOCK_COPPER_WEATHERED:
             metal_f0 = (234.5/255.0);
             break;
         case BLOCK_GOLD:
-        case BLOCK_REDSTONE:
             metal_f0 = (231.5/255.0);
             break;
         case BLOCK_IRON:
