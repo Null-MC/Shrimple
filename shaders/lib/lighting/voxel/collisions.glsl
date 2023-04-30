@@ -8,6 +8,8 @@ bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 raySta
     float rmin = maxOf(tmin);
     float rmax = minOf(tmax);
 
+    if (rmin >= 1.0) return false;
+
     return !isinf(rmin) && rmax >= max(rmin, 0.0);
 }
 

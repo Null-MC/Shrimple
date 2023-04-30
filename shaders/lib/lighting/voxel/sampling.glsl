@@ -1,6 +1,6 @@
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
     uint gridIndex;
-    vec3 lightFragPos = localPos + 0.06 * localNormal;
+    vec3 lightFragPos = localPos;
     uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 
     if (gridIndex != DYN_LIGHT_GRID_MAX) {
@@ -17,6 +17,10 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         vec3 accumDiffuse = vec3(0.0);
         vec3 accumSpecular = vec3(0.0);
+
+        float viewDist = length(localPos);
+        vec3 traceEnd = GetLightGridPosition(lightFragPos) + localNormal * min(0.002 * viewDist, 0.5);
+        vec3 cameraOffset = fract(cameraPosition);
 
         for (uint i = 0u; i < lightCount; i++) {
             vec3 lightPos, lightColor, lightVec;
@@ -45,33 +49,34 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             //if (!hasLight) continue;
 
+            float pad = 0.5 - clamp(lightSize * 0.5, 0.0, 0.5);
+
+            vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
+            vec3 lightMax = lightMin + 1.0 - 2.0*pad;
+
+            //vec3 diffuseLightPos = lightPos;
+            vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+                vec3 offset = GetLightPenumbraOffset() * lightSize * DynamicLightPenumbraF;
+                diffuseLightPos = clamp(diffuseLightPos + offset, lightMin, lightMax);
+            #endif
+
+            lightVec = lightFragPos - diffuseLightPos;
+            if (abs(lightVec.x) < EPSILON) lightVec.x = EPSILON;
+            if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
+            if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
+
             lightColor = RGBToLinear(lightColor);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
-                    vec3 offset = GetLightPenumbraOffset() * lightSize * 0.5 * DynamicLightPenumbraF;
-                    //lightColor *= max(1.0 - 2.0*dot(offset, offset), 0.0);
-                    lightPos += offset;
-                #endif
-
-                lightVec = lightFragPos - lightPos;
                 uint traceFace = 1u << GetLightMaskFace(lightVec);
                 if ((lightData.z & traceFace) == traceFace) continue;
-
-                //float traceRange2 = lightRange + 1.0;
-                //traceRange2 = _pow2(traceRange2);
-
-                //float traceDist2 = length2(lightVec);
-
-                //if (traceDist2 >= traceRange2) continue;
-            //#else
-            //    vec3 lightVec = lightFragPos - lightPos;
             #endif
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                 if ((lightData.z & 1u) == 1u) {
-                    vec3 traceOrigin = GetLightGridPosition(lightPos);
-                    vec3 traceEnd = traceOrigin + 0.99*lightVec;
+                    vec3 traceOrigin = traceEnd - lightVec;
 
                     #ifdef RENDER_ENTITIES
                         if (entityId != ENTITY_PLAYER) {
@@ -113,7 +118,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, lightRange);
                     #else
-                        lightColor *= TraceDDA(traceEnd, traceOrigin, lightRange);
+                        lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
                     #endif
                 }
             #endif
@@ -139,6 +144,14 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+                    vec3 r = reflect(-localViewDir, texNormal);
+                    vec3 L = lightPos - lightFragPos;
+                    vec3 centerToRay = dot(L, r) * r - L;
+                    vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
+                    vec3 lightDir = normalize(closestPoint);
+
+                    lightH = normalize(lightDir + localViewDir);
+
                     float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                     float lightNoHm = max(dot(texNormal, lightH), EPSILON);
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
@@ -160,7 +173,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         #endif
 
         blockDiffuse += accumDiffuse;
-        blockSpecular += accumSpecular;
+        blockSpecular += accumSpecular * invPI;
     }
     else {
         #ifdef DYN_LIGHT_FALLBACK

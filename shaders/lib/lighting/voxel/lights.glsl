@@ -366,51 +366,67 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_SOUL_STREET_LAMP_LIT:
             lightType = LIGHT_SOUL_STREET_LAMP;
             break;
+        case BLOCK_LAMP_LIT_BLACK:
         case BLOCK_PAPER_LAMP_LIT_BLACK:
             lightType = LIGHT_PAPER_LAMP_BLACK;
             break;
+        case BLOCK_LAMP_LIT_BLUE:
         case BLOCK_PAPER_LAMP_LIT_BLUE:
             lightType = LIGHT_PAPER_LAMP_BLUE;
             break;
+        case BLOCK_LAMP_LIT_BROWN:
         case BLOCK_PAPER_LAMP_LIT_BROWN:
             lightType = LIGHT_PAPER_LAMP_BROWN;
             break;
+        case BLOCK_LAMP_LIT_CYAN:
         case BLOCK_PAPER_LAMP_LIT_CYAN:
             lightType = LIGHT_PAPER_LAMP_CYAN;
             break;
+        case BLOCK_LAMP_LIT_GRAY:
         case BLOCK_PAPER_LAMP_LIT_GRAY:
             lightType = LIGHT_PAPER_LAMP_GRAY;
             break;
+        case BLOCK_LAMP_LIT_GREEN:
         case BLOCK_PAPER_LAMP_LIT_GREEN:
             lightType = LIGHT_PAPER_LAMP_GREEN;
             break;
+        case BLOCK_LAMP_LIT_LIGHT_BLUE:
         case BLOCK_PAPER_LAMP_LIT_LIGHT_BLUE:
             lightType = LIGHT_PAPER_LAMP_LIGHT_BLUE;
             break;
+        case BLOCK_LAMP_LIT_LIGHT_GRAY:
         case BLOCK_PAPER_LAMP_LIT_LIGHT_GRAY:
             lightType = LIGHT_PAPER_LAMP_LIGHT_GRAY;
             break;
+        case BLOCK_LAMP_LIT_LIME:
         case BLOCK_PAPER_LAMP_LIT_LIME:
             lightType = LIGHT_PAPER_LAMP_LIME;
             break;
+        case BLOCK_LAMP_LIT_MAGENTA:
         case BLOCK_PAPER_LAMP_LIT_MAGENTA:
             lightType = LIGHT_PAPER_LAMP_MAGENTA;
             break;
+        case BLOCK_LAMP_LIT_ORANGE:
         case BLOCK_PAPER_LAMP_LIT_ORANGE:
             lightType = LIGHT_PAPER_LAMP_ORANGE;
             break;
+        case BLOCK_LAMP_LIT_PINK:
         case BLOCK_PAPER_LAMP_LIT_PINK:
             lightType = LIGHT_PAPER_LAMP_PINK;
             break;
+        case BLOCK_LAMP_LIT_PURPLE:
         case BLOCK_PAPER_LAMP_LIT_PURPLE:
             lightType = LIGHT_PAPER_LAMP_PURPLE;
             break;
+        case BLOCK_LAMP_LIT_RED:
         case BLOCK_PAPER_LAMP_LIT_RED:
             lightType = LIGHT_PAPER_LAMP_RED;
             break;
+        case BLOCK_LAMP_LIT_WHITE:
         case BLOCK_PAPER_LAMP_LIT_WHITE:
             lightType = LIGHT_PAPER_LAMP_WHITE;
             break;
+        case BLOCK_LAMP_LIT_YELLOW:
         case BLOCK_PAPER_LAMP_LIT_YELLOW:
             lightType = LIGHT_PAPER_LAMP_YELLOW;
             break;
@@ -1162,6 +1178,8 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_GLOWSTONE:
             case LIGHT_LAVA:
             case LIGHT_MAGMA:
+            case LIGHT_NETHER_PORTAL:
+            case LIGHT_SHROOMLIGHT:
             case LIGHT_SOUL_FIRE:
                 size = (16.0/16.0);
                 break;
@@ -1169,11 +1187,19 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_SEA_LANTERN:
             case LIGHT_REDSTONE_LAMP:
             case LIGHT_ROSE_QUARTZ_LAMP:
+            case LIGHT_SMOKER_N:
+            case LIGHT_SMOKER_E:
+            case LIGHT_SMOKER_S:
+            case LIGHT_SMOKER_W:
                 size = (14.0/16.0);
                 break;
             case LIGHT_AMETHYST_BUD_LARGE:
             case LIGHT_CAMPFIRE:
             case LIGHT_SOUL_CAMPFIRE:
+            case LIGHT_FURNACE_N:
+            case LIGHT_FURNACE_E:
+            case LIGHT_FURNACE_S:
+            case LIGHT_FURNACE_W:
             case LIGHT_PAPER_LAMP_BLACK:
             case LIGHT_PAPER_LAMP_BLUE:
             case LIGHT_PAPER_LAMP_BROWN:
@@ -1202,6 +1228,10 @@ uint GetSceneLightType(const in int blockId) {
                 break;
             case LIGHT_CANDLES_4:
             case LIGHT_END_ROD:
+            case LIGHT_BLAST_FURNACE_N:
+            case LIGHT_BLAST_FURNACE_E:
+            case LIGHT_BLAST_FURNACE_S:
+            case LIGHT_BLAST_FURNACE_W:
                 size = (8.0/16.0);
                 break;
             case LIGHT_AMETHYST_BUD_MEDIUM:
@@ -1213,13 +1243,13 @@ uint GetSceneLightType(const in int blockId) {
                 size = (6.0/16.0);
                 break;
             case LIGHT_CANDLES_2:
-            case LIGHT_TORCH:
-            case LIGHT_SOUL_TORCH:
                 size = (4.0/16.0);
                 break;
             case LIGHT_CANDLES_1:
             case LIGHT_CANDLE_CAKE:
             case LIGHT_REDSTONE_TORCH:
+            case LIGHT_SOUL_TORCH:
+            case LIGHT_TORCH:
                 size = (2.0/16.0);
                 break;
         }

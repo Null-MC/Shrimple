@@ -128,44 +128,63 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
     return color;
 }
 
-#define DDA_MAX_STEP 24
+#define DDA_MAX_STEP ((DYN_LIGHT_RANGE/100.0) * 24)
 
 vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
+    //if (ivec3(origin) == ivec3(endPos)) return vec3(1.0);
+
     vec3 traceRay = endPos - origin;
     float traceRayLen = length(traceRay);
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     vec3 direction = traceRay / traceRayLen;
+    if (abs(direction.x) < EPSILON) direction.x = EPSILON;
+    if (abs(direction.y) < EPSILON) direction.y = EPSILON;
+    if (abs(direction.z) < EPSILON) direction.z = EPSILON;
+
     vec3 stepSizes = rcp(abs(direction));
+
     vec3 stepDir = sign(direction);
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
+    ivec3 gridCell, blockCell;
+
     float traceRayLen2 = _pow2(traceRayLen);
     vec3 color = vec3(1.0);
-    vec3 currPos = origin;
+    //vec3 currPos = origin;
+    float currDist2 = 0.0;
     bool hit = false;
 
     #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
         uint blockTypeLast;
     #endif
 
-    for (int i = 0; i < DDA_MAX_STEP && !hit; i++) {
+    float closestDist = minOf(nextDist);
+    vec3 currPos = origin + direction * closestDist;
+
+    vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
+
+    nextDist -= closestDist;
+    nextDist += stepSizes * stepAxis;
+
+    for (int i = 0; i < DDA_MAX_STEP && !hit && currDist2 < traceRayLen2; i++) {
         vec3 rayStart = currPos;
 
         float closestDist = minOf(nextDist);
         currPos += direction * closestDist;
-        if (length2(currPos - origin) > traceRayLen2) break;
+
+        float currLen2 = length2(currPos - origin);
+        if (currLen2 > traceRayLen2) currPos = endPos;
+        
+        vec3 voxelPos = floor(0.5 * (currPos + rayStart));
+
+        if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
 
         vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
         nextDist -= closestDist;
         nextDist += stepSizes * stepAxis;
-        
-        vec3 voxelPos = floor(0.5 * (currPos + rayStart));
 
-        //if (ivec3(voxelPos) == ivec3(endPos + EPSILON)) break;
-
-        ivec3 gridCell, blockCell;
         if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
             uint blockType = GetSceneBlockMask(blockCell, gridIndex);
@@ -232,9 +251,13 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
                 if (blockType != BLOCKTYPE_EMPTY) {
-                    vec3 rayInv = rcp(currPos - rayStart);
+                    vec3 ray = currPos - rayStart;
+                    if (abs(ray.x) < EPSILON) ray.x = EPSILON;
+                    if (abs(ray.y) < EPSILON) ray.y = EPSILON;
+                    if (abs(ray.z) < EPSILON) ray.z = EPSILON;
+
+                    vec3 rayInv = rcp(ray);
                     hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
-                    //if (hit) color = vec3(0.0);
                 }
 
             #if DYN_LIGHT_TINT_MODE != LIGHT_TINT_NONE
@@ -245,6 +268,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                 blockTypeLast = blockType;
             #endif
         }
+
+        currDist2 = length2(currPos - origin);
     }
 
     if (hit) color = vec3(0.0);
@@ -288,10 +313,5 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
 }
 
 vec3 GetLightPenumbraOffset() {
-    //float ign = InterleavedGradientNoise(gl_FragCoord.xy);
-    //vec4 noise = hash41(ign + 0.33 * frameCounter);
-
-    vec4 noise = hash42(gl_FragCoord.xy + 0.33 * frameCounter);
-    vec3 offset = normalize(noise.xyz*2.0 - 1.0);
-    return offset * pow(noise.w, 0.5);
+    return hash32(gl_FragCoord.xy + 0.33 * frameCounter) - 0.5;
 }

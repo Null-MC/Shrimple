@@ -56,7 +56,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                     lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeR);
                 #else
-                    lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeR);
+                    lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeR);
                 #endif
             #endif
 
@@ -119,7 +119,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                     lightColor *= TraceRay(traceOrigin, traceEnd, lightRangeL);
                 #else
-                    lightColor *= TraceDDA(traceEnd, traceOrigin, lightRangeL);
+                    lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeL);
                 #endif
             #endif
             

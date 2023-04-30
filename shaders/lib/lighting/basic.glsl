@@ -242,7 +242,7 @@
 
             vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight));
         #else
-            vec3 diffuse = albedo * pow(blockDiffuse + skyDiffuse, vec3(2.0 - WorldBrightnessF)) * _pow2(occlusion);
+            vec3 diffuse = albedo * (pow(blockDiffuse, vec3(2.0 - WorldBrightnessF)) + pow(skyDiffuse, vec3(2.0 - WorldBrightnessF))) * _pow2(occlusion);
         #endif
 
         vec3 specular = blockSpecular + skySpecular;
