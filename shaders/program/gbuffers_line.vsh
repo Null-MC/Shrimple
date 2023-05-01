@@ -48,6 +48,11 @@ void main() {
     if (gl_VertexID % 2 != 0) lineOffset = -lineOffset;
     gl_Position = vec4((ndc1 + vec3(lineOffset, 0.0)) * linePosStart.w, linePosStart.w);
 
-    // TODO: Does this need perspective divide?
-    vLocalPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
+    #ifdef IS_IRIS
+        // TODO: Does this need perspective divide?
+        vLocalPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
+    #else
+        vLocalPos = (gbufferProjectionInverse * gl_Position).xyz;
+        vLocalPos = (gbufferModelViewInverse * vec4(vLocalPos, 1.0)).xyz;
+    #endif
 }

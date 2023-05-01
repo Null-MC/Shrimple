@@ -1,7 +1,7 @@
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
     uint gridIndex;
-    vec3 lightFragPos = localPos;
-    uint lightCount = GetSceneLights(lightFragPos, gridIndex);
+    vec3 lightFragPos = localPos + localNormal * 0.01;//min(0.002 * viewDist, 0.5);
+    uint lightCount = GetSceneLights(localPos, gridIndex);
 
     if (gridIndex != DYN_LIGHT_GRID_MAX) {
         bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
@@ -19,7 +19,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 accumSpecular = vec3(0.0);
 
         float viewDist = length(localPos);
-        vec3 traceEnd = GetLightGridPosition(lightFragPos) + localNormal * min(0.002 * viewDist, 0.5);
+        vec3 traceEnd = GetLightGridPosition(lightFragPos);
         vec3 cameraOffset = fract(cameraPosition);
 
         for (uint i = 0u; i < lightCount; i++) {
@@ -49,7 +49,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             //if (!hasLight) continue;
 
-            float pad = 0.5 - clamp(lightSize * 0.5, 0.0, 0.5);
+            float pad = 0.5 - clamp(lightSize * 0.5, 0.06, 0.44);
 
             vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
             vec3 lightMax = lightMin + 1.0 - 2.0*pad;

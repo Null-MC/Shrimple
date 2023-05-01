@@ -103,24 +103,29 @@
 #define LIGHT_CONCRETE_RED 101u
 
 #define LIGHT_ROSE_QUARTZ_LAMP 110u
-#define LIGHT_STREET_LAMP 111u
-#define LIGHT_SOUL_STREET_LAMP 112u
-#define LIGHT_PAPER_LAMP_BLACK 113u
-#define LIGHT_PAPER_LAMP_BLUE 114u
-#define LIGHT_PAPER_LAMP_BROWN 115u
-#define LIGHT_PAPER_LAMP_CYAN 116u
-#define LIGHT_PAPER_LAMP_GRAY 117u
-#define LIGHT_PAPER_LAMP_GREEN 118u
-#define LIGHT_PAPER_LAMP_LIGHT_BLUE 119u
-#define LIGHT_PAPER_LAMP_LIGHT_GRAY 120u
-#define LIGHT_PAPER_LAMP_LIME 121u
-#define LIGHT_PAPER_LAMP_MAGENTA 122u
-#define LIGHT_PAPER_LAMP_ORANGE 123u
-#define LIGHT_PAPER_LAMP_PINK 124u
-#define LIGHT_PAPER_LAMP_PURPLE 125u
-#define LIGHT_PAPER_LAMP_RED 126u
-#define LIGHT_PAPER_LAMP_WHITE 127u
-#define LIGHT_PAPER_LAMP_YELLOW 128u
+#define LIGHT_DECO_LAMP_BLUE 111u
+#define LIGHT_DECO_LAMP_GREEN 112u
+#define LIGHT_DECO_LAMP_RED 113u
+#define LIGHT_DECO_LAMP_YELLOW 114u
+
+#define LIGHT_STREET_LAMP 115u
+#define LIGHT_SOUL_STREET_LAMP 116u
+#define LIGHT_PAPER_LAMP_BLACK 117u
+#define LIGHT_PAPER_LAMP_BLUE 118u
+#define LIGHT_PAPER_LAMP_BROWN 119u
+#define LIGHT_PAPER_LAMP_CYAN 120u
+#define LIGHT_PAPER_LAMP_GRAY 121u
+#define LIGHT_PAPER_LAMP_GREEN 122u
+#define LIGHT_PAPER_LAMP_LIGHT_BLUE 123u
+#define LIGHT_PAPER_LAMP_LIGHT_GRAY 124u
+#define LIGHT_PAPER_LAMP_LIME 125u
+#define LIGHT_PAPER_LAMP_MAGENTA 126u
+#define LIGHT_PAPER_LAMP_ORANGE 127u
+#define LIGHT_PAPER_LAMP_PINK 128u
+#define LIGHT_PAPER_LAMP_PURPLE 129u
+#define LIGHT_PAPER_LAMP_RED 130u
+#define LIGHT_PAPER_LAMP_WHITE 131u
+#define LIGHT_PAPER_LAMP_YELLOW 132u
 
 #define LIGHT_IGNORED 255u
 
@@ -303,9 +308,6 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_RESPAWN_ANCHOR_4:
             lightType = LIGHT_RESPAWN_ANCHOR_4;
             break;
-        case BLOCK_ROSE_QUARTZ_LAMP_LIT:
-            lightType = LIGHT_ROSE_QUARTZ_LAMP;
-            break;
         case BLOCK_SCULK_CATALYST:
             lightType = LIGHT_SCULK_CATALYST;
             break;
@@ -356,6 +358,24 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_TORCH:
         case BLOCK_TORCH_WALL:
             lightType = LIGHT_TORCH;
+            break;
+    }
+
+    switch (blockId) {
+        case BLOCK_ROSE_QUARTZ_LAMP_LIT:
+            lightType = LIGHT_ROSE_QUARTZ_LAMP;
+            break;
+        case BLOCK_DECO_LAMP_BLUE_LIT:
+            lightType = LIGHT_DECO_LAMP_BLUE;
+            break;
+        case BLOCK_DECO_LAMP_GREEN_LIT:
+            lightType = LIGHT_DECO_LAMP_GREEN;
+            break;
+        case BLOCK_DECO_LAMP_RED_LIT:
+            lightType = LIGHT_DECO_LAMP_RED;
+            break;
+        case BLOCK_DECO_LAMP_YELLOW_LIT:
+            lightType = LIGHT_DECO_LAMP_YELLOW;
             break;
     }
 
@@ -672,9 +692,6 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_RESPAWN_ANCHOR_1:
                 lightColor = vec3(0.390, 0.065, 0.646);
                 break;
-            case LIGHT_ROSE_QUARTZ_LAMP:
-                lightColor = vec3(0.898, 0.369, 0.459);
-                break;
             case LIGHT_SCULK_CATALYST:
                 lightColor = vec3(0.510, 0.831, 0.851);
                 break;
@@ -741,6 +758,24 @@ uint GetSceneLightType(const in int blockId) {
                     break;
             }
         #endif
+
+        switch (lightType) {
+            case LIGHT_ROSE_QUARTZ_LAMP:
+                lightColor = vec3(0.898, 0.369, 0.459);
+                break;
+            case LIGHT_DECO_LAMP_BLUE:
+                lightColor = vec3(0.176, 0.329, 0.608);
+                break;
+            case LIGHT_DECO_LAMP_GREEN:
+                lightColor = vec3(0.306, 0.435, 0.145);
+                break;
+            case LIGHT_DECO_LAMP_RED:
+                lightColor = vec3(0.784, 0.243, 0.243);
+                break;
+            case LIGHT_DECO_LAMP_YELLOW:
+                lightColor = vec3(0.867, 0.835, 0.271);
+                break;
+        }
 
         switch (lightType) {
             case LIGHT_PAPER_LAMP_BLACK:
@@ -1054,9 +1089,6 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_RESPAWN_ANCHOR_4:
                 lightRange = 15.0;
                 break;
-            case LIGHT_ROSE_QUARTZ_LAMP:
-                lightRange = 15.0;
-                break;
             case LIGHT_SCULK_CATALYST:
                 lightRange = 6.0;
                 break;
@@ -1118,6 +1150,18 @@ uint GetSceneLightType(const in int blockId) {
                     break;
             }
         #endif
+
+        switch (lightType) {
+            case LIGHT_ROSE_QUARTZ_LAMP:
+                lightRange = 15.0;
+                break;
+            case LIGHT_DECO_LAMP_BLUE:
+            case LIGHT_DECO_LAMP_GREEN:
+            case LIGHT_DECO_LAMP_RED:
+            case LIGHT_DECO_LAMP_YELLOW:
+                lightRange = 12.0;
+                break;
+        }
 
         switch (lightType) {
             case LIGHT_STREET_LAMP:

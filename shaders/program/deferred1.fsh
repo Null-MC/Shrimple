@@ -126,7 +126,8 @@ void main() {
     #endif
 
     float depth = textureLod(depthtex0, tex2, 0).r;
-    float handClipDepth = textureLod(depthtex2, tex2, 0).r;
+    //float handClipDepth = textureLod(depthtex2, tex2, 0).r;
+    //bool isHand = handClipDepth > depth;
     
     // if (handClipDepth > depth) {
     //     depth = depth * 2.0 - 1.0;

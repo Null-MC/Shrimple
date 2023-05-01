@@ -71,10 +71,13 @@ uniform float far;
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
-         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
-         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
-         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
+        if (vBlockId[0] >= 0 && (
+            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT ||
+            renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES))
+        {
             vec3 lightOrigin = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
             vec3 cf = fract(cameraPosition);

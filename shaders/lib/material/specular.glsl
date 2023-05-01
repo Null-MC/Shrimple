@@ -225,10 +225,12 @@ float GetMaterialF0(const in float metal_f0) {
                     break;
             }
 
-            if (currentRenderedItemId > 0) {
-                roughness = GetItemRoughness(currentRenderedItemId);
-                metal_f0 = GetItemMetalF0(currentRenderedItemId);
-            }
+            #ifdef IS_IRIS
+                if (currentRenderedItemId > 0) {
+                    roughness = GetItemRoughness(currentRenderedItemId);
+                    metal_f0 = GetItemMetalF0(currentRenderedItemId);
+                }
+            #endif
         // #elif defined RENDER_HAND
         //     roughness = GetItemRoughness(heldItemId);
         //     metal_f0 = GetItemMetalF0(heldItemId);

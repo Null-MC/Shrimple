@@ -98,6 +98,10 @@
 #define BLOCKTYPE_TRIPWIRE_HOOK_W 81u
 
 #define BLOCKTYPE_SLAB_TOP 82u
+#define BLOCKTYPE_SLAB_VERTICAL_N 203u  // FIX THIS
+#define BLOCKTYPE_SLAB_VERTICAL_E 204u  // FIX THIS
+#define BLOCKTYPE_SLAB_VERTICAL_S 205u  // FIX THIS
+#define BLOCKTYPE_SLAB_VERTICAL_W 206u  // FIX THIS
 
 #define BLOCKTYPE_STAIRS_BOTTOM_N 83u
 #define BLOCKTYPE_STAIRS_BOTTOM_E 84u
@@ -206,6 +210,10 @@
 #define BLOCKTYPE_STAINED_GLASS_RED 182u
 #define BLOCKTYPE_STAINED_GLASS_WHITE 183u
 #define BLOCKTYPE_STAINED_GLASS_YELLOW 184u
+
+#define BLOCKTYPE_SHAFT_X 207u
+#define BLOCKTYPE_SHAFT_Y 208u
+#define BLOCKTYPE_SHAFT_Z 209u
 
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -551,10 +559,23 @@
             case BLOCK_SLABS_BOTTOM:
             case BLOCK_SCULK_SENSOR:
             case BLOCK_SCULK_SHRIEKER:
+            case BLOCK_CREATE_SEAT:
                 blockType = BLOCKTYPE_LAYERS_8;
                 break;
             case BLOCK_SLABS_TOP:
                 blockType = BLOCKTYPE_SLAB_TOP;
+                break;
+            case BLOCK_SLABS_VERTICAL_N:
+                blockType = BLOCKTYPE_SLAB_VERTICAL_N;
+                break;
+            case BLOCK_SLABS_VERTICAL_E:
+                blockType = BLOCKTYPE_SLAB_VERTICAL_E;
+                break;
+            case BLOCK_SLABS_VERTICAL_S:
+                blockType = BLOCKTYPE_SLAB_VERTICAL_S;
+                break;
+            case BLOCK_SLABS_VERTICAL_W:
+                blockType = BLOCKTYPE_SLAB_VERTICAL_W;
                 break;
 
             case BLOCK_STAIRS_BOTTOM_N:
@@ -794,6 +815,18 @@
                 break;
             case BLOCK_WALL_TALL_W_E:
                 blockType = BLOCKTYPE_WALL_TALL_W_E;
+                break;
+        }
+
+        switch (blockId) {
+            case BLOCK_CREATE_SHAFT_X:
+                blockType = BLOCKTYPE_SHAFT_X;
+                break;
+            case BLOCK_CREATE_SHAFT_Y:
+                blockType = BLOCKTYPE_SHAFT_Y;
+                break;
+            case BLOCK_CREATE_SHAFT_Z:
+                blockType = BLOCKTYPE_SHAFT_Z;
                 break;
         }
 

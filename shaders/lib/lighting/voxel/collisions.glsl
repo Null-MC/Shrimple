@@ -411,6 +411,36 @@ bool TraceHitTest(const in uint blockType, const in vec3 rayStart, const in vec3
             boundsMax = vec3(1.0);
             break;
 
+        case BLOCKTYPE_SLAB_VERTICAL_N:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(1.0, 1.0, 0.5);
+            break;
+        case BLOCKTYPE_SLAB_VERTICAL_E:
+            boundsMin = vec3(0.5, 0.0, 0.0);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_SLAB_VERTICAL_S:
+            boundsMin = vec3(0.0, 0.0, 0.5);
+            boundsMax = vec3(1.0);
+            break;
+        case BLOCKTYPE_SLAB_VERTICAL_W:
+            boundsMin = vec3(0.0);
+            boundsMax = vec3(0.5, 1.0, 1.0);
+            break;
+
+        case BLOCKTYPE_SHAFT_X:
+            boundsMin = vec3(0.0, ( 6.0/16.0), ( 6.0/16.0));
+            boundsMax = vec3(1.0, (10.0/16.0), (10.0/16.0));
+            break;
+        case BLOCKTYPE_SHAFT_Y:
+            boundsMin = vec3(( 6.0/16.0), 0.0, ( 6.0/16.0));
+            boundsMax = vec3((10.0/16.0), 1.0, (10.0/16.0));
+            break;
+        case BLOCKTYPE_SHAFT_Z:
+            boundsMin = vec3(( 6.0/16.0), ( 6.0/16.0), 0.0);
+            boundsMax = vec3((10.0/16.0), (10.0/16.0), 1.0);
+            break;
+
         case BLOCKTYPE_FENCE_POST:
         case BLOCKTYPE_FENCE_N:
         case BLOCKTYPE_FENCE_E:

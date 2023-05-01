@@ -21,6 +21,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 uniform int renderStage;
+uniform int blockEntityId;
 uniform vec4 entityColor;
 uniform int entityId;
 
@@ -49,14 +50,21 @@ void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vColor = gl_Color;
 
-    int blockId = int(mc_Entity.x + 0.5);
+    int blockId = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
+        ? blockEntityId : int(mc_Entity.x + 0.5);
 
     vOriginPos = gl_Vertex.xyz;
-    if (blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) {
+    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && renderStage != MC_RENDER_STAGE_BLOCK_ENTITIES) {
         vOriginPos += at_midBlock / 64.0;
     }
 
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
+
+    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
+        vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
+        vOriginPos -= 0.05 * geoNormal;
+    }
+
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
     vVertexId = gl_VertexID;
