@@ -1,75 +1,62 @@
-vec3 GetLightGlassTint(const in uint blockType) {
+vec3 GetLightGlassTint(const in uint blockId) {
     vec3 stepTint = vec3(1.0);
 
-    // switch (blockType) {
-    //     case BLOCKTYPE_DIAMOND:
-    //         stepTint = vec3(0.427, 0.969, 0.910);
-    //         break;
-    //     case BLOCKTYPE_EMERALD:
-    //         stepTint = vec3(0.153, 0.804, 0.349);
-    //         break;
-    // }
-
-    switch (blockType) {
-        // case BLOCKTYPE_AMETHYST:
-        //     stepTint = vec3(0.707, 0.526, 0.944);
-        //     break;
-        case BLOCKTYPE_HONEY:
-        //case BLOCK_HONEYCOMB:
+    switch (blockId) {
+        case BLOCK_HONEY:
             stepTint = vec3(0.984, 0.733, 0.251);
             break;
-        case BLOCKTYPE_SLIME:
+        case BLOCK_SLIME:
             stepTint = vec3(0.408, 0.725, 0.329);
             break;
-        case BLOCKTYPE_SNOW:
+        case BLOCK_SNOW:
             stepTint = vec3(0.375, 0.546, 0.621);
             break;
-        case BLOCKTYPE_STAINED_GLASS_BLACK:
+        case BLOCK_STAINED_GLASS_BLACK:
             stepTint = vec3(0.1, 0.1, 0.1);
             break;
-        case BLOCKTYPE_STAINED_GLASS_BLUE:
+        case BLOCK_STAINED_GLASS_BLUE:
             stepTint = vec3(0.1, 0.1, 0.98);
             break;
-        case BLOCKTYPE_STAINED_GLASS_BROWN:
+        case BLOCK_STAINED_GLASS_BROWN:
             stepTint = vec3(0.566, 0.388, 0.148);
             break;
-        case BLOCKTYPE_STAINED_GLASS_CYAN:
+        case BLOCK_STAINED_GLASS_CYAN:
             stepTint = vec3(0.082, 0.533, 0.763);
             break;
-        case BLOCKTYPE_STAINED_GLASS_GRAY:
+        case BLOCK_STAINED_GLASS_GRAY:
             stepTint = vec3(0.4, 0.4, 0.4);
             break;
-        case BLOCKTYPE_STAINED_GLASS_GREEN:
+        case BLOCK_STAINED_GLASS_GREEN:
             stepTint = vec3(0.125, 0.808, 0.081);
             break;
-        case BLOCKTYPE_STAINED_GLASS_LIGHT_BLUE:
+        case BLOCK_STAINED_GLASS_LIGHT_BLUE:
             stepTint = vec3(0.320, 0.685, 0.955);
             break;
-        case BLOCKTYPE_STAINED_GLASS_LIGHT_GRAY:
+        case BLOCK_STAINED_GLASS_LIGHT_GRAY:
             stepTint = vec3(0.7, 0.7, 0.7);
             break;
-        case BLOCKTYPE_STAINED_GLASS_LIME:
+        case BLOCK_STAINED_GLASS_LIME:
             stepTint = vec3(0.633, 0.924, 0.124);
             break;
-        case BLOCKTYPE_STAINED_GLASS_MAGENTA:
+        case BLOCK_STAINED_GLASS_MAGENTA:
             stepTint = vec3(0.698, 0.298, 0.847);
             break;
-        case BLOCKTYPE_STAINED_GLASS_ORANGE:
+        case BLOCK_STAINED_GLASS_ORANGE:
             stepTint = vec3(0.919, 0.586, 0.185);
             break;
-        case BLOCKTYPE_STAINED_GLASS_PINK:
+        case BLOCK_STAINED_GLASS_PINK:
             stepTint = vec3(0.949, 0.274, 0.497);
             break;
-        case BLOCKTYPE_STAINED_GLASS_PURPLE:
+        case BLOCK_STAINED_GLASS_PURPLE:
             stepTint = vec3(0.578, 0.170, 0.904);
             break;
-        case BLOCKTYPE_STAINED_GLASS_RED:
+        case BLOCK_STAINED_GLASS_RED:
             stepTint = vec3(0.999, 0.188, 0.188);
             break;
-        case BLOCKTYPE_STAINED_GLASS_WHITE:
+        case BLOCK_STAINED_GLASS_WHITE:
             stepTint = vec3(0.96, 0.96, 0.96);
             break;
-        case BLOCKTYPE_STAINED_GLASS_YELLOW:
+        case BLOCK_STAINED_GLASS_YELLOW:
             stepTint = vec3(0.965, 0.965, 0.123);
             break;
     }
@@ -111,15 +98,15 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
         ivec3 gridCell, blockCell;
         if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
-                vec3 glassTint = GetLightGlassTint(blockType);
+            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
+                vec3 glassTint = GetLightGlassTint(blockId);
                 color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
             }
-            else if (blockType != BLOCKTYPE_EMPTY) {
+            else if (blockId != BLOCK_EMPTY) {
                 //vec3 rayInv = rcp(currPos - rayStart);
-                hit = true;//TraceHitTest(blockType, rayStart - voxelPos, rayInv);
+                hit = true;//TraceHitTest(blockId, rayStart - voxelPos, rayInv);
                 color = vec3(0.0);
             }
         }
@@ -156,7 +143,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     bool hit = false;
 
     #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
-        uint blockTypeLast;
+        uint blockIdLast;
     #endif
 
     float closestDist = minOf(nextDist);
@@ -187,7 +174,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
 
         if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
 
             #ifdef DYN_LIGHT_OCTREE
                 if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
@@ -236,28 +223,28 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
             #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_ABSORB
-                if (blockType >= BLOCKTYPE_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW) {
-                    vec3 glassTint = GetLightGlassTint(blockType);
+                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
+                    vec3 glassTint = GetLightGlassTint(blockId);
                     color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
                 }
                 else {
             #elif DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
-                if (blockType >= BLOCKTYPE_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
-                    vec3 glassTint = GetLightGlassTint(blockType) * DynamicLightTintF;
+                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW && blockId != blockIdLast) {
+                    vec3 glassTint = GetLightGlassTint(blockId) * DynamicLightTintF;
                     glassTint += max(1.0 - DynamicLightTintF, 0.0);
                     color *= glassTint;
                 }
                 else {
             #endif
 
-                if (blockType != BLOCKTYPE_EMPTY) {
+                if (blockId != BLOCK_EMPTY) {
                     vec3 ray = currPos - rayStart;
                     if (abs(ray.x) < EPSILON) ray.x = EPSILON;
                     if (abs(ray.y) < EPSILON) ray.y = EPSILON;
                     if (abs(ray.z) < EPSILON) ray.z = EPSILON;
 
                     vec3 rayInv = rcp(ray);
-                    hit = TraceHitTest(blockType, rayStart - voxelPos, rayInv);
+                    hit = TraceHitTest(blockId, rayStart - voxelPos, rayInv);
                 }
 
             #if DYN_LIGHT_TINT_MODE != LIGHT_TINT_NONE
@@ -265,7 +252,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
             #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
-                blockTypeLast = blockType;
+                blockIdLast = blockId;
             #endif
         }
 
@@ -287,25 +274,25 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
     vec3 color = vec3(1.0);
     bool hit = false;
     
-    uint blockTypeLast;
+    uint blockIdLast;
     for (int i = 1; i < stepCount && !hit; i++) {
         vec3 gridPos = (i + dither) * stepSize + origin;
         
         ivec3 gridCell, blockCell;
         if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
             uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
 
-            if (blockType >= BLOCK_HONEY && blockType <= BLOCKTYPE_STAINED_GLASS_YELLOW && blockType != blockTypeLast) {
-                color *= GetLightGlassTint(blockType);
+            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW && blockId != blockIdLast) {
+                color *= GetLightGlassTint(blockId);
             }
-            else if (blockType != BLOCKTYPE_EMPTY) {
+            else if (blockId != BLOCK_EMPTY) {
                 vec3 blockPos = fract(gridPos);
-                hit = TraceHitTest(blockType, blockPos, vec3(0.0));
+                hit = TraceHitTest(blockId, blockPos, vec3(0.0));
                 if (hit) color = vec3(0.0);
             }
 
-            blockTypeLast = blockType;
+            blockIdLast = blockId;
         }
     }
 

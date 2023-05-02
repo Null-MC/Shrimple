@@ -35,7 +35,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
 
         ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
         uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31);
-        return (bit & 255);
+        return (bit & 0xFF);
     }
 #endif
 
@@ -43,13 +43,13 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     #if !(defined RENDER_BEGIN || defined RENDER_SHADOW)
         uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-            maskIndex *= DYN_LIGHT_MASK_STRIDE;
+            maskIndex *= DYN_BLOCK_MASK_STRIDE;
 
-            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
+            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
 
             ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
             uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
-            return (bit & 255);
+            return (bit & 0xFFFF);
         }
     #endif
 
@@ -80,12 +80,12 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     }
 
     #if defined RENDER_SHADOW && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        void SetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex, const in uint blockType) {
+        void SetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex, const in uint blockId) {
             uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-            maskIndex *= DYN_LIGHT_MASK_STRIDE;
+            maskIndex *= DYN_BLOCK_MASK_STRIDE;
 
-            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
-            uint bit = blockType << (maskIndex & 31);
+            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
+            uint bit = blockId << (maskIndex & 31);
 
             ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
             imageAtomicOr(imgLocalBlockMask, texcoord, bit);

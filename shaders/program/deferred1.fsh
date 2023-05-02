@@ -140,12 +140,13 @@ void main() {
     if (depth < 1.0) {
         ivec2 iTex = ivec2(tex2 * viewSize);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 localNormal = unpackUnorm4x8(deferredData.r);
+        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
+        vec3 localNormal = deferredNormal.xyz;
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
-            localNormal.xyz = normalize(localNormal.xyz * 2.0 - 1.0);
+            localNormal = normalize(localNormal * 2.0 - 1.0);
 
         vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
         vec3 texNormal = deferredTexture.xyz;
@@ -155,7 +156,7 @@ void main() {
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
-        float sss = localNormal.w;
+        float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
@@ -174,7 +175,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal.xyz, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
         blockDiffuse *= 1.0 - deferredFog.a;
 
         if (!all(lessThan(abs(texNormal), EPSILON3)))

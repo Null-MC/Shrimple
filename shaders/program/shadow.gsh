@@ -128,10 +128,11 @@ void main() {
                 }
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    if (intersects && IsDynLightSolidBlock(vBlockId[0])) {
-                        uint blockType = GetBlockType(vBlockId[0]);
-                        SetSceneBlockMask(blockCell, gridIndex, blockType);
-                    }
+                    int blockId = vBlockId[0];
+                    if (blockId <= 0) blockId = BLOCK_SOLID;
+
+                    if (intersects && IsDynLightSolidBlock(blockId))
+                        SetSceneBlockMask(blockCell, gridIndex, blockId);
                 #endif
             }
         }

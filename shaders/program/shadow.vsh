@@ -54,7 +54,7 @@ void main() {
         ? blockEntityId : int(mc_Entity.x + 0.5);
 
     vOriginPos = gl_Vertex.xyz;
-    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && renderStage != MC_RENDER_STAGE_BLOCK_ENTITIES) {
+    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15)) {
         vOriginPos += at_midBlock / 64.0;
     }
 

@@ -1,7 +1,14 @@
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
     uint gridIndex;
-    vec3 lightFragPos = localPos + localNormal * 0.01;//min(0.002 * viewDist, 0.5);
-    uint lightCount = GetSceneLights(localPos, gridIndex);
+    float viewDist = length(localPos);
+    vec3 localViewDir = -normalize(localPos);
+    float distBiasScale = min(0.001*viewDist, 0.25);
+
+    vec3 lightFragPos = localPos;
+    lightFragPos += distBiasScale*localNormal;
+    lightFragPos += distBiasScale*localViewDir;
+
+    uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 
     if (gridIndex != DYN_LIGHT_GRID_MAX) {
         bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
@@ -9,7 +16,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
             float f0 = GetMaterialF0(metal_f0);
-            vec3 localViewDir = -normalize(localPos);
 
             float lightNoVm = 1.0;
             if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
@@ -18,7 +24,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 accumDiffuse = vec3(0.0);
         vec3 accumSpecular = vec3(0.0);
 
-        float viewDist = length(localPos);
         vec3 traceEnd = GetLightGridPosition(lightFragPos);
         vec3 cameraOffset = fract(cameraPosition);
 

@@ -6,14 +6,19 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         noiseSample = GetDynLightNoise(cameraPosition);
     #endif
 
-    vec3 lightFragPos = fragLocalPos + 0.06 * fragLocalNormal;
+    float viewDist = length(fragLocalPos);
+    vec3 localViewDir = -normalize(fragLocalPos);
+    float distBiasScale = min(0.001*viewDist, 0.25);
+    
+    vec3 lightFragPos = fragLocalPos;
+    lightFragPos += distBiasScale*fragLocalNormal;
+    lightFragPos += distBiasScale*localViewDir;
 
     bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
         float f0 = GetMaterialF0(metal_f0);
-        vec3 localViewDir = -normalize(fragLocalPos);
 
         float lightNoVm = 1.0;
         if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
