@@ -109,6 +109,27 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
             boundsMax = vec3(1.0, (4.0/16.0), (15.0/16.0));
             break;
 
+        case BLOCK_CANDLES_1:
+        case BLOCK_CANDLES_LIT_1:
+            boundsMin = vec3((7.0/16.0),       0.0 , (7.0/16.0));
+            boundsMax = vec3((9.0/16.0), (6.0/16.0), (9.0/16.0));
+            break;
+        case BLOCK_CANDLES_2:
+        case BLOCK_CANDLES_LIT_2:
+            boundsMin = vec3(( 9.0/16.0),       0.0 , (6.0/16.0));
+            boundsMax = vec3((11.0/16.0), (6.0/16.0), (8.0/16.0));
+            break;
+        case BLOCK_CANDLES_3:
+        case BLOCK_CANDLES_LIT_3:
+            boundsMin = vec3(( 8.0/16.0),       0.0 , (6.0/16.0));
+            boundsMax = vec3((10.0/16.0), (6.0/16.0), (8.0/16.0));
+            break;
+        case BLOCK_CANDLES_4:
+        case BLOCK_CANDLES_LIT_4:
+            boundsMin = vec3(( 8.0/16.0),       0.0 , (5.0/16.0));
+            boundsMax = vec3((10.0/16.0), (6.0/16.0), (7.0/16.0));
+            break;
+
         case BLOCK_CAKE:
         case BLOCK_CANDLE_CAKE:
             boundsMin = vec3(( 1.0/16.0), 0.0, ( 1.0/16.0));
@@ -622,8 +643,20 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                 break;
 
             case BLOCK_CANDLE_CAKE:
-                boundsMin = vec3((7.0/16.0),         0.5, (7.0/16.0));
+                boundsMin = vec3((7.0/16.0),        0.5 , (7.0/16.0));
                 boundsMax = vec3((9.0/16.0), (14.0/16.0), (9.0/16.0));
+                break;
+            case BLOCK_CANDLES_2:
+            case BLOCK_CANDLES_LIT_2:
+            case BLOCK_CANDLES_3:
+            case BLOCK_CANDLES_LIT_3:
+                boundsMin = vec3((5.0/16.0),       0.0 , (7.0/16.0));
+                boundsMax = vec3((7.0/16.0), (5.0/16.0), (9.0/16.0));
+                break;
+            case BLOCK_CANDLES_4:
+            case BLOCK_CANDLES_LIT_4:
+                boundsMin = vec3((5.0/16.0),       0.0 , (5.0/16.0));
+                boundsMax = vec3((7.0/16.0), (5.0/16.0), (7.0/16.0));
                 break;
 
             case BLOCK_CAULDRON:
@@ -881,6 +914,17 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                     boundsMax = vec3((15.0/16.0), (7.0/16.0), 1.0);
                     break;
 
+                case BLOCK_CANDLES_3:
+                case BLOCK_CANDLES_LIT_3:
+                    boundsMin = vec3((7.0/16.0),       0.0 , ( 9.0/16.0));
+                    boundsMax = vec3((9.0/16.0), (3.0/16.0), (11.0/16.0));
+                    break;
+                case BLOCK_CANDLES_4:
+                case BLOCK_CANDLES_LIT_4:
+                    boundsMin = vec3(( 9.0/16.0),       0.0 , ( 8.0/16.0));
+                    boundsMax = vec3((11.0/16.0), (5.0/16.0), (10.0/16.0));
+                    break;
+
                 case BLOCK_CAULDRON:
                     boundsMin = vec3((12.0/16.0),       0.0 ,       0.0 );
                     boundsMax = vec3(       1.0 , (3.0/16.0), (4.0/16.0));
@@ -1059,6 +1103,12 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                     case BLOCK_CAULDRON:
                         boundsMin = vec3(      0.0 ,       0.0 , (12.0/16.0));
                         boundsMax = vec3((4.0/16.0), (3.0/16.0),        1.0 );
+                        break;
+
+                    case BLOCK_CANDLES_4:
+                    case BLOCK_CANDLES_LIT_4:
+                        boundsMin = vec3((6.0/16.0),       0.0 , ( 8.0/16.0));
+                        boundsMax = vec3((8.0/16.0), (3.0/16.0), (10.0/16.0));
                         break;
 
                     case BLOCK_FENCE_ALL:

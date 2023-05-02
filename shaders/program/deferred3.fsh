@@ -73,17 +73,16 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-//#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
-//#endif
+#ifdef IS_IRIS
+    uniform bool isSpectator;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;

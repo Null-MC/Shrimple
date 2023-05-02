@@ -52,6 +52,10 @@ uniform float blindness;
     uniform vec3 shadowLightPosition;
 #endif
 
+#ifdef IS_IRIS
+    uniform bool isSpectator;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

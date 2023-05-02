@@ -50,11 +50,14 @@ void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vColor = gl_Color;
 
-    int blockId = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
-        ? blockEntityId : int(mc_Entity.x + 0.5);
+    int blockId = int(mc_Entity.x + 0.5);
+
+    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES)
+        blockId = max(blockEntityId, 0);
 
     vOriginPos = gl_Vertex.xyz;
-    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15)) {
+    //if (blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) {
+    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && renderStage != MC_RENDER_STAGE_BLOCK_ENTITIES) {
         vOriginPos += at_midBlock / 64.0;
     }
 

@@ -5,11 +5,11 @@
         if (blockId >= 400 && blockId < 700) result = true;
 
         if (blockId >= BLOCK_BLAST_FURNACE_LIT_N && blockId <= BLOCK_BLAST_FURNACE_LIT_W) result = true;
+        if (blockId >= BLOCK_CANDLES_LIT_1 && blockId <= BLOCK_CANDLE_CAKE_LIT) result = true;
         if (blockId >= BLOCK_FURNACE_LIT_N && blockId <= BLOCK_FURNACE_LIT_W) result = true;
         if (blockId >= BLOCK_JACK_O_LANTERN_N && blockId <= BLOCK_JACK_O_LANTERN_W) result = true;
         if (blockId >= BLOCK_SMOKER_LIT_N && blockId <= BLOCK_SMOKER_LIT_W) result = true;
-
-        if (blockId == BLOCK_CANDLE_CAKE_LIT) result = true;
+        
         if (blockId == BLOCK_FROGLIGHT_OCHRE) result = true;
         if (blockId == BLOCK_FROGLIGHT_PEARLESCENT) result = true;
         if (blockId == BLOCK_FROGLIGHT_VERDANT) result = true;

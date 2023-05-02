@@ -120,6 +120,7 @@ uniform int fogMode;
     uniform int heldBlockLightValue2;
 
     #ifdef IS_IRIS
+        uniform bool isSpectator;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif

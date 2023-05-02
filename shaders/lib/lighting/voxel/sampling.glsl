@@ -83,6 +83,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 if ((lightData.z & 1u) == 1u) {
                     vec3 traceOrigin = traceEnd - lightVec;
 
+                    if (!isSpectator) {
                     #ifdef RENDER_ENTITIES
                         if (entityId != ENTITY_PLAYER) {
                     #endif
@@ -119,6 +120,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                     #ifdef RENDER_ENTITIES
                         }
                     #endif
+                    }
 
                     #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
                         lightColor *= TraceRay(traceOrigin, traceEnd, lightRange);
