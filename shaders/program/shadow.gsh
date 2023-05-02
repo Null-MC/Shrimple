@@ -41,6 +41,7 @@ uniform float far;
 // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
 //     uniform mat4 shadowModelViewInverse;
 // #endif
+#include "/lib/blocks.glsl"
 
 #if SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
@@ -55,7 +56,6 @@ uniform float far;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/blocks.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
     
