@@ -54,17 +54,26 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             //if (!hasLight) continue;
 
-            float pad = 0.5 - clamp(lightSize * 0.5, 0.06, 0.44);
+            #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                float pad = 0.5 - clamp(lightSize * 0.5, 0.06, 0.44);
 
-            vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
-            vec3 lightMax = lightMin + 1.0 - 2.0*pad;
+                vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
+                vec3 lightMax = lightMin + 1.0 - 2.0*pad;
 
-            //vec3 diffuseLightPos = lightPos;
-            vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
+                //vec3 diffuseLightPos = lightPos;
+                vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
+            #else
+                vec3 diffuseLightPos = lightPos;
+            #endif
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                 vec3 offset = GetLightPenumbraOffset() * lightSize * DynamicLightPenumbraF;
-                diffuseLightPos = clamp(diffuseLightPos + offset, lightMin, lightMax);
+
+                #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                    diffuseLightPos = clamp(diffuseLightPos + offset, lightMin, lightMax);
+                #else
+                    diffuseLightPos += offset;
+                #endif
             #endif
 
             lightVec = lightFragPos - diffuseLightPos;
@@ -151,11 +160,13 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                    vec3 r = reflect(-localViewDir, texNormal);
-                    vec3 L = lightPos - lightFragPos;
-                    vec3 centerToRay = dot(L, r) * r - L;
-                    vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
-                    vec3 lightDir = normalize(closestPoint);
+                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                        vec3 r = reflect(-localViewDir, texNormal);
+                        vec3 L = lightPos - lightFragPos;
+                        vec3 centerToRay = dot(L, r) * r - L;
+                        vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
+                        lightDir = normalize(closestPoint);
+                    #endif
 
                     lightH = normalize(lightDir + localViewDir);
 

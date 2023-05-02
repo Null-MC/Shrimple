@@ -134,10 +134,16 @@ suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
 
 option.DYN_LIGHT_MODE=Mode
+option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. Default uses the vanilla lightmap. Enable ray-tracing for block-light shadows.
 value.DYN_LIGHT_MODE.0=Default
 value.DYN_LIGHT_MODE.1=Per-Vertex
 value.DYN_LIGHT_MODE.2=Per-Pixel
 value.DYN_LIGHT_MODE.3=Ray-Traced
+
+option.DYN_LIGHT_TYPE=Type
+option.DYN_LIGHT_TYPE.comment=Describes the light-source shape. Point lights emit from an infinitely small point. Area lights emit a cubic shaped light with size.
+value.DYN_LIGHT_TYPE.0=Point
+value.DYN_LIGHT_TYPE.1=Area
 
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
