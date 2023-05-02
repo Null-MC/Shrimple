@@ -51,9 +51,14 @@ void main() {
     vColor = gl_Color;
 
     int blockId = int(mc_Entity.x + 0.5);
+    if (blockId <= 0) blockId = BLOCK_SOLID;
 
-    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES)
-        blockId = max(blockEntityId, 0);
+    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
+        blockId = blockEntityId;
+
+        if (blockId == 0xFFFF)
+            blockId = BLOCK_EMPTY;
+    }
 
     vOriginPos = gl_Vertex.xyz;
     //if (blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) {
@@ -75,7 +80,7 @@ void main() {
         // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         //     vVertexId = GetWrappedVertexID(entityId);
         // #endif
-        vBlockId = -1;
+        vBlockId = BLOCK_EMPTY;
     }
     else {
         vBlockId = blockId;

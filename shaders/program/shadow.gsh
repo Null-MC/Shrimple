@@ -71,7 +71,7 @@ uniform float far;
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        if (vBlockId[0] > 0 && vBlockId[0] < 0xFFFF && (
+        if (vBlockId[0] > 0 && (
             renderStage == MC_RENDER_STAGE_TERRAIN_SOLID ||
             renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT ||
             renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED ||
@@ -129,7 +129,7 @@ void main() {
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     int blockId = vBlockId[0];
-                    if (blockId <= 0) blockId = BLOCK_SOLID;
+                    //if (blockId <= 0) blockId = BLOCK_SOLID;
 
                     if (intersects && IsDynLightSolidBlock(blockId))
                         SetSceneBlockMask(blockCell, gridIndex, blockId);
