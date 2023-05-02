@@ -190,8 +190,12 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
         #endif
 
+        #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+            accumSpecular *= invPI;
+        #endif
+
         blockDiffuse += accumDiffuse;
-        blockSpecular += accumSpecular * invPI;
+        blockSpecular += accumSpecular;
     }
     else {
         #ifdef DYN_LIGHT_FALLBACK
