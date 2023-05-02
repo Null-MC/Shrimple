@@ -89,6 +89,18 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
             boundsMax = vec3(1.0,         1.0, (13.0/16.0));
             break;
 
+        case BLOCK_BED_HEAD_N:
+        case BLOCK_BED_HEAD_E:
+        case BLOCK_BED_HEAD_S:
+        case BLOCK_BED_HEAD_W:
+        case BLOCK_BED_FOOT_N:
+        case BLOCK_BED_FOOT_E:
+        case BLOCK_BED_FOOT_S:
+        case BLOCK_BED_FOOT_W:
+            boundsMin = vec3(0.0, (3.0/16.0), 0.0);
+            boundsMax = vec3(1.0, (9.0/16.0), 1.0);
+            break;
+
         case BLOCK_BELL_FLOOR_N_S:
         case BLOCK_BELL_FLOOR_W_E:
             boundsMin = vec3(( 5.0/16.0), ( 6.0/16.0), ( 5.0/16.0));
@@ -627,6 +639,14 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                 boundsMax = vec3(0.75, 0.75, (10.0/16.0));
                 break;
 
+            case BLOCK_BED_HEAD_N:
+            case BLOCK_BED_FOOT_S:
+            case BLOCK_BED_HEAD_W:
+            case BLOCK_BED_FOOT_E:
+                boundsMin = vec3((0.0/16.0), (0.0/16.0), (0.0/16.0));
+                boundsMax = vec3((3.0/16.0), (3.0/16.0), (3.0/16.0));
+                break;
+
             case BLOCK_BELL_FLOOR_N_S:
             case BLOCK_BELL_FLOOR_W_E:
                 boundsMin = vec3(0.25,       0.25, 0.25);
@@ -905,6 +925,14 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                     boundsMax = vec3((14.0/16.0), 0.25, (14.0/16.0));
                     break;
 
+                case BLOCK_BED_HEAD_N:
+                case BLOCK_BED_FOOT_S:
+                case BLOCK_BED_HEAD_E:
+                case BLOCK_BED_FOOT_W:
+                    boundsMin = vec3((13.0/16.0), (0.0/16.0), (0.0/16.0));
+                    boundsMax = vec3((16.0/16.0), (3.0/16.0), (3.0/16.0));
+                    break;
+
                 case BLOCK_CAMPFIRE_N_S:
                     boundsMin = vec3(0.0, (3.0/16.0), (11.0/16.0));
                     boundsMax = vec3(1.0, (7.0/16.0), (15.0/16.0));
@@ -1100,6 +1128,14 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                 boundsMax = vec3(-1.0);
 
                 switch (blockId) {
+                    case BLOCK_BED_FOOT_N:
+                    case BLOCK_BED_HEAD_S:
+                    case BLOCK_BED_HEAD_W:
+                    case BLOCK_BED_FOOT_E:
+                        boundsMin = vec3((0.0/16.0), (0.0/16.0), (13.0/16.0));
+                        boundsMax = vec3((3.0/16.0), (3.0/16.0), (16.0/16.0));
+                        break;
+
                     case BLOCK_CAULDRON:
                         boundsMin = vec3(      0.0 ,       0.0 , (12.0/16.0));
                         boundsMax = vec3((4.0/16.0), (3.0/16.0),        1.0 );
@@ -1153,6 +1189,14 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                     boundsMax = vec3(-1.0);
 
                     switch (blockId) {
+                        case BLOCK_BED_FOOT_N:
+                        case BLOCK_BED_HEAD_S:
+                        case BLOCK_BED_HEAD_E:
+                        case BLOCK_BED_FOOT_W:
+                            boundsMin = vec3((13.0/16.0), (0.0/16.0), (13.0/16.0));
+                            boundsMax = vec3((16.0/16.0), (3.0/16.0), (16.0/16.0));
+                            break;
+
                         case BLOCK_CAULDRON:
                             boundsMin = vec3((12.0/16.0),       0.0 , (12.0/16.0));
                             boundsMax = vec3(       1.0 , (3.0/16.0),        1.0 );
