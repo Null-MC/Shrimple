@@ -28,7 +28,7 @@ layout(location = 0) out vec4 outColor0;
 
 void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
-    color.rgb = RGBToLinear(color.rgb);
+    color.rgb = RGBToLinear(color.rgb) * 2.0;
 
     ApplyPostProcessing(color.rgb);
 

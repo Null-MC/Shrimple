@@ -98,9 +98,9 @@
 #define LIGHT_SOUL_FIRE 97u
 #define LIGHT_TORCH 98u
 
-#define LIGHT_CONCRETE_BLUE 99u
-#define LIGHT_CONCRETE_GREEN 100u
-#define LIGHT_CONCRETE_RED 101u
+// #define LIGHT_CONCRETE_BLUE 99u
+// #define LIGHT_CONCRETE_GREEN 100u
+// #define LIGHT_CONCRETE_RED 101u
 
 #define LIGHT_ROSE_QUARTZ_LAMP 110u
 #define LIGHT_DECO_LAMP_BLUE 111u
@@ -523,20 +523,6 @@ uint GetSceneLightType(const in int blockId) {
         }
     #endif
 
-    #ifdef DYN_LIGHT_CONCRETE
-        switch (blockId) {
-            case BLOCK_CONCRETE_BLUE:
-                lightType = LIGHT_CONCRETE_BLUE;
-                break;
-            case BLOCK_CONCRETE_GREEN:
-                lightType = LIGHT_CONCRETE_GREEN;
-                break;
-            case BLOCK_CONCRETE_RED:
-                lightType = LIGHT_CONCRETE_RED;
-                break;
-        }
-    #endif
-
     #ifdef DYN_LIGHT_OREBLOCKS
         switch (blockId) {
             case BLOCK_DIAMOND:
@@ -741,20 +727,6 @@ uint GetSceneLightType(const in int blockId) {
                     break;
                 case LIGHT_REDSTONE_BLOCK:
                     lightColor = vec3(0.980, 0.143, 0.026);
-                    break;
-            }
-        #endif
-
-        #ifdef DYN_LIGHT_CONCRETE
-            switch (lightType) {
-                case LIGHT_CONCRETE_BLUE:
-                    lightColor = vec3(0.222, 0.235, 0.828);
-                    break;
-                case LIGHT_CONCRETE_GREEN:
-                    lightColor = vec3(0.574, 0.753, 0.207);
-                    break;
-                case LIGHT_CONCRETE_RED:
-                    lightColor = vec3(0.869, 0.169, 0.169);
                     break;
             }
         #endif
@@ -1128,16 +1100,6 @@ uint GetSceneLightType(const in int blockId) {
                 lightRange = 12.0;
                 break;
         }
-
-        #ifdef DYN_LIGHT_CONCRETE
-            switch (lightType) {
-                case LIGHT_CONCRETE_BLUE:
-                case LIGHT_CONCRETE_GREEN:
-                case LIGHT_CONCRETE_RED:
-                    lightRange = 8.0;
-                    break;
-            }
-        #endif
 
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {

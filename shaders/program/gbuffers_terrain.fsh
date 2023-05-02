@@ -347,8 +347,17 @@ void main() {
         float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
-        ApplyWetnessPuddles(texNormal, puddleF);
-        ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
+        #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+            ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
+
+            //float roughPuddleF = smoothstep(0.0, 0.1, puddleF);
+            //roughness = mix(roughness, 0.08, roughPuddleF);
+            //metal_f0 = mix(metal_f0, 0.02, roughPuddleF);
+
+            #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+                ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
+            #endif
+        #endif
     #endif
 
     texNormal = normalize(matLocalTBN * texNormal);

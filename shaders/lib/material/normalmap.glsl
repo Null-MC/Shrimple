@@ -9,7 +9,7 @@
     bool GetMaterialNormal(const in vec2 texcoord, const in mat2 dFdXY, inout vec3 normal) {
         bool valid = false;
         #if MATERIAL_NORMALS == NORMALMAP_LABPBR
-            vec3 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rgg;
+            vec2 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rg;
 
             if (any(greaterThan(texNormal.rg, EPSILON2))) {
                 normal.xy = texNormal.xy * 2.0 - 1.0;

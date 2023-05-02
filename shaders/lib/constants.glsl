@@ -3,8 +3,9 @@
 #define AMBIENT_FANCY 2
 
 #define PUDDLES_NONE 0
-#define PUDDLES_PIXEL 1
-#define PUDDLES_FANCY 2
+#define PUDDLES_BASIC 1
+#define PUDDLES_PIXEL 2
+#define PUDDLES_FANCY 3
 
 #define WATER_WAVES_NONE 0
 #define WATER_WAVES_BASIC 1

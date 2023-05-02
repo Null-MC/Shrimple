@@ -16,8 +16,9 @@ option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more
 
 option.WORLD_WETNESS_PUDDLES=Puddles
 value.WORLD_WETNESS_PUDDLES.0=OFF
-value.WORLD_WETNESS_PUDDLES.1=Pixel
-value.WORLD_WETNESS_PUDDLES.2=Fancy
+value.WORLD_WETNESS_PUDDLES.1=Basic
+value.WORLD_WETNESS_PUDDLES.2=Pixel
+value.WORLD_WETNESS_PUDDLES.3=Fancy
 
 option.WORLD_WATER_WAVES=Water Waves
 value.WORLD_WATER_WAVES.0=None
@@ -398,6 +399,3 @@ option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
-
-option.DYN_LIGHT_CONCRETE=Concrete Lights
-option.DYN_LIGHT_CONCRETE.comment=When enabled, colored concrete blocks will emit colored light.

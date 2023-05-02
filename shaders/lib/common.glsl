@@ -91,7 +91,7 @@ const bool colortex14Clear = true;
 #define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
 #define WATER_REFLECTIONS_ENABLED
-#define WORLD_WETNESS_PUDDLES 2 // [0 1 2]
+#define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_RAIN_OPACITY 50 // [10 20 30 40 50 60 70 80 90 100]
 
 
@@ -192,7 +192,6 @@ const bool colortex14Clear = true;
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
-//#define DYN_LIGHT_CONCRETE
 //#define DYN_LIGHT_OREBLOCKS
 
 
@@ -269,8 +268,6 @@ const bool colortex14Clear = true;
 #endif
 #ifdef DYN_LIGHT_BLUR
 #endif
-#ifdef DYN_LIGHT_CONCRETE
-#endif
 #ifdef DYN_LIGHT_OREBLOCKS
 #endif
 #ifdef SHADOW_BLUR
@@ -321,8 +318,8 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 
-const float wetnessHalflife = 3600.0;
-const float drynessHalflife = 60.0;
+const float wetnessHalflife = 16000.0;
+const float drynessHalflife = 20.0;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     const float ShadowNormalBias = (SHADOW_CASCADED_NORMAL_BIAS * SHADOW_BIAS_SCALE);

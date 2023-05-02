@@ -393,12 +393,16 @@ void main() {
         float skyWetness = GetSkyWetness(worldPos, localNormal, texNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
-        if (vBlockId != BLOCK_WATER)
-            ApplyWetnessPuddles(texNormal, puddleF);
+        #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+            if (vBlockId != BLOCK_WATER)
+                ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
-        vec3 waterWorldPos = worldPos;
-        waterWorldPos.xz += waterUvOffset;
-        ApplyWetnessRipples(texNormal, waterWorldPos, viewDist, puddleF);
+            #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+                vec3 waterWorldPos = worldPos;
+                waterWorldPos.xz += waterUvOffset;
+                ApplyWetnessRipples(texNormal, waterWorldPos, viewDist, puddleF);
+            #endif
+        #endif
     #endif
 
     vec3 localTangent = normalize(vLocalTangent);

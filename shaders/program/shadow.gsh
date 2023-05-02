@@ -161,6 +161,15 @@ void main() {
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        if (
+            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED ||
+            renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+        ) {
+            if (vBlockId[0] == BLOCK_FIRE || vBlockId[0] == BLOCK_SOUL_FIRE) return;
+        }
+
         vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
