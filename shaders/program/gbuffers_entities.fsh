@@ -87,6 +87,11 @@ uniform vec4 entityColor;
 uniform float blindness;
 uniform ivec2 atlasSize;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
 #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -106,10 +111,9 @@ uniform ivec2 atlasSize;
     uniform int worldTime;
 #endif
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
 
 #ifdef IS_IRIS
     uniform int currentRenderedItemId;
@@ -211,7 +215,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#if defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT
+#if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/sampling.glsl"
 
     #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)

@@ -54,6 +54,10 @@ uniform float blindness;
     uniform vec3 shadowLightPosition;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
+
 #ifdef IS_IRIS
     uniform bool isSpectator;
 #endif

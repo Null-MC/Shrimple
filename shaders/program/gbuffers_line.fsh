@@ -55,6 +55,10 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif

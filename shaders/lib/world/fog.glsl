@@ -3,7 +3,13 @@ float fogify(float x, float w) {
 }
 
 vec3 GetFogColor(const in float NoUp) {
-    vec3 fogColorFinal = RGBToLinear(fogColor) * WorldSkyBrightnessF;
+    vec3 fogColorFinal = RGBToLinear(fogColor);
+
+    #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
+        if (isEyeInWater == 1) return fogColorFinal;
+    #endif
+
+    fogColorFinal *= WorldSkyBrightnessF;
     
     #ifdef WORLD_SKY_ENABLED
         vec3 skyColorFinal = RGBToLinear(skyColor);

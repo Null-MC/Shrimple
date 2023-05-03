@@ -57,6 +57,11 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
 uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
@@ -75,10 +80,9 @@ uniform float blindness;
     uniform int worldTime;
 #endif
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
 
 #ifdef IS_IRIS
     uniform bool isSpectator;

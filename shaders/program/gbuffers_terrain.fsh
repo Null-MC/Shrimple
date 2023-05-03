@@ -107,6 +107,10 @@ uniform int fogMode;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
+
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
 
@@ -205,6 +209,7 @@ uniform int fogMode;
         #include "/lib/lighting/voxel/mask.glsl"
     #endif
 
+    #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"

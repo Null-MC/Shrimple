@@ -60,17 +60,18 @@ uniform int fogMode;
 uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
-    uniform vec3 shadowLightPosition;
-    //uniform float wetness;
-#endif
-
-#ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    //uniform float wetness;
 #endif
 
 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
     uniform int worldTime;
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
 #endif
 
 uniform int heldItemId;

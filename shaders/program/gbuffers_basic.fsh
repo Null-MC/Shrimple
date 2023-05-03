@@ -67,6 +67,10 @@ uniform int fogMode;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

@@ -93,12 +93,6 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
-
 uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
@@ -114,6 +108,16 @@ uniform float blindness;
     #endif
 #else
     uniform int worldTime;
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+#endif
+
+#ifdef IS_IRIS
+    uniform bool isSpectator;
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
 #endif
 
 #if AF_SAMPLES > 1
