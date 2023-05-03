@@ -39,6 +39,9 @@ option.WORLD_RAIN_OPACITY=Rain Opacity
 option.WORLD_RAIN_OPACITY.comment=Determines how transparent falling rain particles will be.
 suffix.WORLD_RAIN_OPACITY=%
 
+option.WORLD_SKY_REFLECTIONS=Sky Reflections
+option.WORLD_SKY_REFLECTIONS.comment=Allows the sky to be reflected when specular materials are enabled.
+
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
 

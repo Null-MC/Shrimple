@@ -6,8 +6,8 @@ screen.WORLD_OPTIONS.comment=Варианты для всего остально
 option.sunPathRotation=Угол солнца
 option.sunPathRotation.comment=Наклон Солнца вдоль оси вращения.
 
-option.WATER_REFLECTIONS_ENABLED=Отражения воды
-option.WATER_REFLECTIONS_ENABLED.comment=При включении вода будет иметь тонкое отражение цвета неба.
+option.WORLD_SKY_REFLECTIONS=Отражения воды
+option.WORLD_SKY_REFLECTIONS.comment=При включении вода будет иметь тонкое отражение цвета неба.
 
 option.WORLD_WAVING_ENABLED=Развевающиеся растения
 option.WORLD_WAVING_ENABLED.comment=При включении растения будут колебаться, используя искусственный ветер.

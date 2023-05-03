@@ -21,6 +21,8 @@ float GetBayerValue(const in ivec2 position) {
     return BayerSamples[offset.x][offset.y];
 }
 
-float GetScreenBayerValue() {
-    return GetBayerValue(ivec2(gl_FragCoord.xy));
-}
+#ifndef RENDER_COMPUTE
+    float GetScreenBayerValue() {
+        return GetBayerValue(ivec2(gl_FragCoord.xy));
+    }
+#endif

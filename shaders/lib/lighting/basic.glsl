@@ -23,8 +23,8 @@
         vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-            vec3 lightDir = normalize(shadowLightPosition);
-            geoNoL = dot(lightDir, vNormal);
+            vec3 skyLightDir = normalize(shadowLightPosition);
+            geoNoL = dot(skyLightDir, vNormal);
         #else
             geoNoL = 1.0;
         #endif
@@ -175,14 +175,23 @@
                 //if (geoNoL > EPSILON) {
                     float f0 = GetMaterialF0(metal_f0);
 
-                    //vec3 localViewDir = normalize(localPos);
+                    vec3 localSkyLightDir = localSkyLightDirection;
+                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                        const float skyLightSize = 0.04;
 
-                    vec3 skyH = normalize(localSkyLightDirection + localViewDir);
+                        vec3 r = reflect(-localViewDir, texNormal);
+                        vec3 L = localSkyLightDir;
+                        vec3 centerToRay = dot(L, r) * r - L;
+                        vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+                        localSkyLightDir = normalize(closestPoint);
+                    #endif
+
+                    vec3 skyH = normalize(localSkyLightDir + localViewDir);
                     float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
                     float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
                     if (!all(lessThan(abs(texNormal), EPSILON3))) {
-                        skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+                        skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
                         skyNoVm = max(dot(texNormal, localViewDir), 0.0);
                         skyNoHm = max(dot(texNormal, skyH), 0.0);
                     }
@@ -193,11 +202,15 @@
 
                     skyLightColor *= 1.0 - 0.92*rainStrength;
 
+                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                        skyLightColor *= invPI;
+                    #endif
+
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
                 //}
 
-                #ifdef WORLD_SKY_ENABLED
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
                     vec3 reflectDir = reflect(-localViewDir, texNormal);
                     vec3 reflectColor = GetFogColor(reflectDir.y);
 
@@ -209,7 +222,7 @@
 
                     float skyReflectF = F_schlick(skyNoVm, f0, 1.0);
                     float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
-                    skySpecular += 0.8 * reflectColor * skyReflectF * _pow2(skyLight);
+                    skySpecular += reflectColor * skyReflectF * (1.0 - roughL) * _pow2(skyLight);
                     skyDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif

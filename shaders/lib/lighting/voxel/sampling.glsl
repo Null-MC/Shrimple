@@ -66,7 +66,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 vec3 diffuseLightPos = lightPos;
             #endif
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
                 vec3 offset = GetLightPenumbraOffset() * lightSize * DynamicLightPenumbraF;
 
                 #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA

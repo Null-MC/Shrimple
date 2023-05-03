@@ -91,12 +91,14 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
             imageAtomicOr(imgLocalBlockMask, texcoord, bit);
         }
     #endif
-#elif defined RENDER_SHADOWCOMP
+#elif defined RENDER_SHADOWCOMP && !defined RENDER_SHADOWCOMP_LPV
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
         return dot(pointDist, pointDist) < _pow2(lightRange);
     }
-#elif !defined RENDER_BEGIN
+#endif
+
+#if !defined RENDER_SHADOW && !defined RENDER_BEGIN
     uint GetSceneLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);

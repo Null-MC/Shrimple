@@ -268,8 +268,12 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
     float traceRayLen = length(traceRay);
     if (traceRayLen < EPSILON) return vec3(1.0);
 
+    float dither = 0.0;
+    #ifndef RENDER_COMPUTE
+        dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    #endif
+
     int stepCount = int(0.5 * DYN_LIGHT_RAY_QUALITY * range);
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
     vec3 stepSize = traceRay / stepCount;
     vec3 color = vec3(1.0);
     bool hit = false;
@@ -299,6 +303,8 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
     return color;
 }
 
-vec3 GetLightPenumbraOffset() {
-    return hash32(gl_FragCoord.xy + 0.33 * frameCounter) - 0.5;
-}
+#ifndef RENDER_COMPUTE
+    vec3 GetLightPenumbraOffset() {
+        return hash32(gl_FragCoord.xy + 0.33 * frameCounter) - 0.5;
+    }
+#endif

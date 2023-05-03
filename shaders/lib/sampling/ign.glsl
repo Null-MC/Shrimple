@@ -6,6 +6,8 @@ float InterleavedGradientNoise(const in vec2 p) {
     return fract(magic.z * fract(x));
 }
 
-float InterleavedGradientNoise() {
-    return InterleavedGradientNoise(gl_FragCoord.xy);
-}
+#ifndef RENDER_COMPUTE
+    float InterleavedGradientNoise() {
+        return InterleavedGradientNoise(gl_FragCoord.xy);
+    }
+#endif

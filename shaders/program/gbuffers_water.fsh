@@ -427,7 +427,7 @@ void main() {
     //    shadowColor *= max(vLit, 0.0);
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
+    #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
         if (vBlockId == BLOCK_WATER) {
             if (!gl_FrontFacing) {
                 if (isEyeInWater == 1) {
@@ -468,7 +468,7 @@ void main() {
             ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
         #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WATER_REFLECTIONS_ENABLED
+    #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
         }
     #endif
 

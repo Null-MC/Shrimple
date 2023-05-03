@@ -90,7 +90,7 @@ const bool colortex14Clear = true;
 #define WORLD_WATER_WAVES 1 // [0 1 2]
 #define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
-#define WATER_REFLECTIONS_ENABLED
+#define WORLD_SKY_REFLECTIONS
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_RAIN_OPACITY 50 // [10 20 30 40 50 60 70 80 90 100]
 
@@ -262,7 +262,7 @@ const bool colortex14Clear = true;
 #endif
 #ifdef VOLUMETRIC_CELESTIAL
 #endif
-#ifdef WATER_REFLECTIONS_ENABLED
+#ifdef WORLD_SKY_REFLECTIONS
 #endif
 #ifdef DYN_LIGHT_WEATHER
 #endif

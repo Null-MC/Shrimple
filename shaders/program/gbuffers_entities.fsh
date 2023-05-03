@@ -211,27 +211,29 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#include "/lib/lighting/sampling.glsl"
+#if defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT
+    #include "/lib/lighting/sampling.glsl"
 
-#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-    #include "/lib/lighting/voxel/sampling.glsl"
+    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+        #include "/lib/lighting/voxel/sampling.glsl"
+    #endif
+
+    #include "/lib/lighting/basic_hand.glsl"
+    #include "/lib/lighting/basic.glsl"
+
+    #ifdef VL_BUFFER_ENABLED
+        #include "/lib/world/volumetric_fog.glsl"
+    #endif
+
+    #ifndef IRIS_FEATURE_SSBO
+        #include "/lib/post/saturation.glsl"
+    #endif
+
+    #include "/lib/post/tonemap.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
 
-#ifdef VL_BUFFER_ENABLED
-    #include "/lib/world/volumetric_fog.glsl"
-#endif
-
-#ifndef IRIS_FEATURE_SSBO
-    #include "/lib/post/saturation.glsl"
-#endif
-
-#include "/lib/post/tonemap.glsl"
-
-
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
