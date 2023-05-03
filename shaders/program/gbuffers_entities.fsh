@@ -147,6 +147,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/fog.glsl"
 
 #include "/lib/blocks.glsl"
+#include "/lib/entities.glsl"
 #include "/lib/items.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
@@ -172,13 +173,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#include "/lib/entities.glsl"
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/physics_mod/snow.glsl"
-
-#ifdef RENDER_TRANSLUCENT
-    #include "/lib/lighting/fresnel.glsl"
-#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"

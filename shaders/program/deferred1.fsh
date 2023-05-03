@@ -24,6 +24,7 @@ uniform sampler2D TEX_LIGHTMAP;
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform int frameCounter;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
@@ -39,6 +40,7 @@ uniform int heldBlockLightValue2;
 uniform bool firstPersonCamera;
 uniform vec3 eyePosition;
 uniform vec3 upPosition;
+uniform vec3 fogColor;
 
 uniform float blindness;
 
@@ -64,6 +66,7 @@ uniform float blindness;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/fog.glsl"
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
@@ -89,6 +92,7 @@ uniform float blindness;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED

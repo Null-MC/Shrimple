@@ -167,7 +167,7 @@
 
             skyDiffuse += skyLight * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
 
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
+            #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
                 // float geoNoL = 1.0;
                 // if (any(greaterThan(localNormal, EPSILON3)))
                 //     geoNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
@@ -187,14 +187,30 @@
                         skyNoHm = max(dot(texNormal, skyH), 0.0);
                     }
 
-                    float invCosTheta = 1.0 - skyVoHm;
-                    float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    //float invCosTheta = 1.0 - skyVoHm;
+                    //float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    float skyF = F_schlick(skyVoHm, f0, 1.0);
 
                     skyLight *= 1.0 - 0.92*rainStrength;
 
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
                 //}
+
+                #ifdef WORLD_SKY_ENABLED
+                    vec3 reflectDir = reflect(-localViewDir, texNormal);
+                    vec3 reflectColor = GetFogColor(reflectDir.y);
+
+                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y);
+                    // TODO: multiply by skyLight!
+
+                    //float NoV = abs(dot(texNormal, localViewDir));
+                    //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
+
+                    float skyReflectF = F_schlick(skyNoVm, f0, 1.0);
+                    skySpecular += reflectColor * skyReflectF;
+                    skyDiffuse *= 1.0 - skyReflectF;
+                #endif
             #endif
         }
     #endif

@@ -17,7 +17,7 @@ vec3 GetFogColor(const in vec3 viewDir) {
     return GetFogColor(dot(viewDir, gbufferModelView[1].xyz));
 }
 
-#if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
+#if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED || defined RENDER_DEFERRED)
     float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
         float distFactor = dist >= end ? 1.0 : smoothstep(start, end, dist);
         return saturate(pow(distFactor, density));

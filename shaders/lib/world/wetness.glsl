@@ -64,6 +64,8 @@ void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in 
 }
 
 void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float viewDist, const in float puddleF) {
+    //if (viewDist > 10.0) return;
+
     float rippleTime = frameTimeCounter / 0.72;
 
     #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
@@ -75,16 +77,18 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float 
     rippleNormal.xy = texture(TEX_RIPPLES, vec3(rippleTex, rippleTime)).rg * 2.0 - 1.0;
     rippleNormal.z = sqrt(max(1.0 - length2(rippleNormal.xy), EPSILON));
 
-    rippleNormal.z *= viewDist;
-    rippleNormal = normalize(rippleNormal);
+    float rippleF = 1.0 - min(viewDist * 0.06, 1.0);
+    //rippleNormal = normalize(rippleNormal);
+
+    rippleF *= _pow2(puddleF) * rainStrength;
 
     #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
-            texNormal += rippleNormal.xzy * _pow2(puddleF) * rainStrength;
+            texNormal += rippleNormal.xzy * rippleF;
         }
         else {
     #endif
-            texNormal = mix(texNormal, rippleNormal, _pow2(puddleF) * rainStrength);
+            texNormal = mix(texNormal, rippleNormal, rippleF);
     #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         }
     #endif

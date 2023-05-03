@@ -186,6 +186,7 @@ uniform float blindness;
 
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE

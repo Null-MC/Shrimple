@@ -123,6 +123,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
