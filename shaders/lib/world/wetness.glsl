@@ -32,7 +32,7 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 t
 
 float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
     #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-        return smoothstep(0.6, 0.8, skyWetness - 0.2*_pow2(porosity));
+        return smoothstep(0.6, 0.8, skyWetness - 0.1*_pow2(porosity));
     #else
         return 0.0;
     #endif
@@ -53,7 +53,7 @@ void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in 
 
         if (abs(nX.z - nY.z) > EPSILON) {
             vec3 puddleEdgeNormal = normalize(cross(nY, nX));
-            puddleEdgeNormal = mix(vec3(0.0, 0.0, 1.0), puddleEdgeNormal, _pow2(1.0 - porosity));
+            puddleEdgeNormal = mix(puddleEdgeNormal, vec3(0.0, 0.0, 1.0), _pow2(porosity));
             puddleNormal = normalize(puddleEdgeNormal);
         }
     #endif
