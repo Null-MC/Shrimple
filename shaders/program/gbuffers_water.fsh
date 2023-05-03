@@ -254,6 +254,7 @@ void main() {
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
+    vec2 localCoord = vLocalCoord;
     bool skipParallax = false;
     vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = lmcoord;
@@ -266,6 +267,9 @@ void main() {
             }
         }
     #endif
+
+    vec3 localNormal = normalize(vLocalNormal);
+    if (!gl_FrontFacing) localNormal = -localNormal;
 
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
@@ -285,9 +289,27 @@ void main() {
             #endif
 
             #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES == WATER_WAVES_FANCY
-                atlasCoord = GetAtlasCoord(vLocalCoord + waterUvOffset);
+                localCoord += waterUvOffset;
+                atlasCoord = GetAtlasCoord(localCoord);
             #endif
         }
+    #endif
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        //vec3 worldPos = vLocalPos + cameraPosition;
+
+        float surface_roughness, surface_metal_f0;
+        GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
+
+        float porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+        #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+            vec4 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+            localCoord += rippleNormalStrength.xy * rippleNormalStrength.w * 0.06;
+            atlasCoord = GetAtlasCoord(localCoord);
+        #endif
     #endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -301,7 +323,7 @@ void main() {
         vec3 tanViewDir = normalize(tanViewPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
@@ -322,9 +344,6 @@ void main() {
     #ifdef WORLD_AO_ENABLED
         occlusion = glcolor.a;
     #endif
-
-    vec3 localNormal = normalize(vLocalNormal);
-    if (!gl_FrontFacing) localNormal = -localNormal;
 
     vec3 localViewDir = -normalize(vLocalPos);
 
@@ -389,18 +408,18 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, texNormal, lmFinal);
-        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+        //float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+        //float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+        //float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
             if (vBlockId != BLOCK_WATER)
                 ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                vec3 waterWorldPos = worldPos;
-                waterWorldPos.xz += waterUvOffset;
-                ApplyWetnessRipples(texNormal, waterWorldPos, viewDist, puddleF);
+                //vec3 waterWorldPos = worldPos;
+                //waterWorldPos.xz += waterUvOffset;
+                ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
         #endif
     #endif

@@ -239,8 +239,29 @@ void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     float viewDist = length(vPos);
     vec2 atlasCoord = texcoord;
+    vec2 localCoord = vLocalCoord;
     vec2 lmFinal = lmcoord;
     
+    vec3 localNormal = normalize(vLocalNormal);
+    if (!gl_FrontFacing) localNormal = -localNormal;
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        vec3 worldPos = vLocalPos + cameraPosition;
+
+        float surface_roughness, surface_metal_f0;
+        GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
+
+        float porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+        #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+            vec4 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+            localCoord += rippleNormalStrength.xy * rippleNormalStrength.w * 0.06;
+            atlasCoord = GetAtlasCoord(localCoord);
+        #endif
+    #endif
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
@@ -253,7 +274,7 @@ void main() {
         vec3 tanViewDir = normalize(tanViewPos);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-            atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
@@ -275,9 +296,6 @@ void main() {
     #ifdef WORLD_AO_ENABLED
         occlusion = glcolor.a;
     #endif
-
-    vec3 localNormal = normalize(vLocalNormal);
-    if (!gl_FrontFacing) localNormal = -localNormal;
 
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
@@ -346,25 +364,22 @@ void main() {
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        vec3 worldPos = vLocalPos + cameraPosition;
+        //vec3 worldPos = vLocalPos + cameraPosition;
 
-        float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, matLocalTBN * texNormal, lmFinal);
-        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+        //float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+        //float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+        //float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
             ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
-            //float roughPuddleF = smoothstep(0.0, 0.1, puddleF);
-            //roughness = mix(roughness, 0.08, roughPuddleF);
-            //metal_f0 = mix(metal_f0, 0.02, roughPuddleF);
-
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                ApplyWetnessRipples(texNormal, worldPos, viewDist, puddleF);
+                ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
         #endif
     #endif
 
+    vec3 localViewDir = -normalize(vLocalPos);
     texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -393,7 +408,7 @@ void main() {
 
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        vec3 fogColorFinal = GetFogColor(-localViewDir.y);
         fogColorFinal = LinearToRGB(fogColorFinal) + dither;
 
         outDeferredColor = color;
@@ -430,7 +445,6 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = -normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 

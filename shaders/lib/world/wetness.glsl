@@ -1,4 +1,4 @@
-float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 texNormal, in vec2 lmcoord) {
+float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, in vec2 lmcoord) {
     lmcoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
 
     float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
@@ -11,9 +11,9 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec3 t
 
     skyWetness *= pow(localNormal.y * 0.5 + 0.5, 0.5);
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        //skyWetness *= smoothstep(-0.8, 0.8, texNormal.y);
-    #endif
+    //#if MATERIAL_NORMALS != NORMALMAP_NONE
+    //    //skyWetness *= smoothstep(-0.8, 0.8, texNormal.y);
+    //#endif
 
     #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
         worldPos = floor(worldPos * 16.0) / 16.0;
@@ -63,7 +63,7 @@ void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in 
     texNormal = normalize(texNormal);
 }
 
-void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float viewDist, const in float puddleF) {
+vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float puddleF) {
     //if (viewDist > 10.0) return;
 
     float rippleTime = frameTimeCounter / 0.72;
@@ -82,13 +82,17 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec3 worldPos, const in float 
 
     rippleF *= _pow2(puddleF) * rainStrength;
 
+    return vec4(rippleNormal, rippleF);
+}
+
+void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
     #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
-            texNormal += rippleNormal.xzy * rippleF;
+            texNormal += rippleNormalStrength.xzy * rippleNormalStrength.w;
         }
         else {
     #endif
-            texNormal = mix(texNormal, rippleNormal, rippleF);
+            texNormal = mix(texNormal, rippleNormalStrength.xyz, rippleNormalStrength.w);
     #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
         }
     #endif
