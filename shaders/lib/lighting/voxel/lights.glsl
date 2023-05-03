@@ -682,7 +682,7 @@ uint GetSceneLightType(const in int blockId) {
                 lightColor = vec3(0.510, 0.831, 0.851);
                 break;
             case LIGHT_SEA_LANTERN:
-                lightColor = vec3(0.498, 0.894, 0.834);
+                lightColor = vec3(0.570, 0.780, 0.800);
                 break;
             case LIGHT_SEA_PICKLE_1:
             case LIGHT_SEA_PICKLE_2:

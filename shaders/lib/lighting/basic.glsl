@@ -129,21 +129,21 @@
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLight = textureLod(lightmap, vec2(0.5/16.0, lmcoordY), 0).rgb;
+                    vec3 skyLightColor = textureLod(lightmap, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #else
-                    vec3 skyLight = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
+                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #endif
 
-                skyLight = RGBToLinear(skyLight) * WorldSkyBrightnessF;
+                skyLightColor = RGBToLinear(skyLightColor) * WorldSkyBrightnessF;
 
-                //skyLight = skyLight * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+                //skyLightColor = skyLightColor * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
 
-                skyLight *= 1.0 - blindness;
+                skyLightColor *= 1.0 - blindness;
             #else
-                float skyLight = 1.0;
+                vec3 skyLightColor = vec3(1.0);
             #endif
 
-            //skyLight *= 1.0 - 0.8*rainStrength;
+            //skyLightColor *= 1.0 - 0.8*rainStrength;
             
             #ifndef IRIS_FEATURE_SSBO
                 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -165,7 +165,7 @@
                 const float diffuseNoL = 1.0;
             #endif
 
-            skyDiffuse += skyLight * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
+            skyDiffuse += skyLightColor * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
                 // float geoNoL = 1.0;
@@ -191,10 +191,10 @@
                     //float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
                     float skyF = F_schlick(skyVoHm, f0, 1.0);
 
-                    skyLight *= 1.0 - 0.92*rainStrength;
+                    skyLightColor *= 1.0 - 0.92*rainStrength;
 
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
-                    skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLight * shadowColor;
+                    skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
                 //}
 
                 #ifdef WORLD_SKY_ENABLED
@@ -208,7 +208,8 @@
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
                     float skyReflectF = F_schlick(skyNoVm, f0, 1.0);
-                    skySpecular += reflectColor * skyReflectF;
+                    float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
+                    skySpecular += 0.8 * reflectColor * skyReflectF * _pow2(skyLight);
                     skyDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif
