@@ -104,7 +104,8 @@ void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float po
     float saturation = max(1.6 * skyWetness, puddleF) * pow(porosity, 0.5);
     albedo = pow(albedo, vec3(1.0 + saturation));
 
-    float surfaceWetness = saturate(max(2.0 * skyWetness - porosity, puddleF));
+    float surfaceWetness = saturate(2.0 * skyWetness - porosity);
+    surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));
 
     float _roughL = max(_pow2(roughness), ROUGH_MIN);
     _roughL = mix(_roughL, 0.06, surfaceWetness);
