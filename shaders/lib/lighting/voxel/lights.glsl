@@ -134,6 +134,7 @@ uint GetSceneLightType(const in int blockId) {
     uint lightType = LIGHT_NONE;
     if (blockId < 1) return lightType;
 
+    // 200
     switch (blockId) {
         case BLOCK_LIGHT_1:
             lightType = LIGHT_BLOCK_1;
@@ -211,21 +212,6 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_BREWING_STAND:
             lightType = LIGHT_BREWING_STAND;
             break;
-        case BLOCK_CANDLE_CAKE_LIT:
-            lightType = LIGHT_CANDLE_CAKE;
-            break;
-        case BLOCK_CANDLES_LIT_1:
-            lightType = LIGHT_CANDLES_1;
-            break;
-        case BLOCK_CANDLES_LIT_2:
-            lightType = LIGHT_CANDLES_2;
-            break;
-        case BLOCK_CANDLES_LIT_3:
-            lightType = LIGHT_CANDLES_3;
-            break;
-        case BLOCK_CANDLES_LIT_4:
-            lightType = LIGHT_CANDLES_4;
-            break;
         case BLOCK_CRYING_OBSIDIAN:
             lightType = LIGHT_CRYING_OBSIDIAN;
             break;
@@ -283,9 +269,6 @@ uint GetSceneLightType(const in int blockId) {
             break;
         case BLOCK_LIGHTING_ROD_POWERED:
             lightType = LIGHT_LIGHTING_ROD;
-            break;
-        case BLOCK_LAVA_CAULDRON:
-            lightType = LIGHT_LAVA_CAULDRON;
             break;
         case BLOCK_MAGMA:
             lightType = LIGHT_MAGMA;
@@ -358,6 +341,28 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_TORCH:
         case BLOCK_TORCH_WALL:
             lightType = LIGHT_TORCH;
+            break;
+    }
+
+    // 400
+    switch (blockId) {
+        case BLOCK_CANDLE_CAKE_LIT:
+            lightType = LIGHT_CANDLE_CAKE;
+            break;
+        case BLOCK_CANDLES_LIT_1:
+            lightType = LIGHT_CANDLES_1;
+            break;
+        case BLOCK_CANDLES_LIT_2:
+            lightType = LIGHT_CANDLES_2;
+            break;
+        case BLOCK_CANDLES_LIT_3:
+            lightType = LIGHT_CANDLES_3;
+            break;
+        case BLOCK_CANDLES_LIT_4:
+            lightType = LIGHT_CANDLES_4;
+            break;
+        case BLOCK_CAULDRON_LAVA:
+            lightType = LIGHT_LAVA_CAULDRON;
             break;
     }
 
