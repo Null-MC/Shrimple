@@ -48,7 +48,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float localRayLength = max(farDist - nearDist - 0.2, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
+    int stepCount = VOLUMETRIC_SAMPLES;
+    //int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
     float inverseStepCountF = rcp(stepCount);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
@@ -295,6 +296,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         scattering += scatteringIntegral * transmittance;
         transmittance *= sampleTransmittance;
     }
+
+    scattering = scattering / (scattering + 1.0);
 
     return vec4(scattering, transmittance);
 }

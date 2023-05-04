@@ -430,9 +430,10 @@ void main() {
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
+        vec3 localViewDir = normalize(localPos);
+
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = -normalize(localPos);
-            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
         #endif
 
         vec3 albedo = RGBToLinear(deferredColor);
@@ -441,7 +442,7 @@ void main() {
 
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-        fogColorFinal = GetFogColor(fogColorFinal, -localViewDir.y);
+        fogColorFinal = GetFogColor(fogColorFinal, localViewDir.y);
 
         final = mix(final, fogColorFinal, deferredFog.a);
     }
@@ -467,8 +468,8 @@ void main() {
 
         const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
+        //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
         vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
-        vlScatterTransmit.rgb = vlScatterTransmit.rgb / (vlScatterTransmit.rgb + 1.0);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

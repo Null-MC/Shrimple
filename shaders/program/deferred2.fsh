@@ -130,5 +130,7 @@ void main() {
     #endif
 
     vec3 localViewDir = normalize(localPos);
-    outVL = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+    float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+    vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+    outVL = final + dither;
 }
