@@ -160,8 +160,12 @@ uniform float blindness;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/voxel/sampling.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"

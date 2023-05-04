@@ -208,6 +208,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/sampling.glsl"
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky.glsl"
+#endif
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"

@@ -129,6 +129,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky.glsl"
+#endif
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/sampling.glsl"

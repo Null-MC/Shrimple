@@ -245,6 +245,9 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    bool skipParallax = false;
+    if (vBlockId == BLOCK_LAVA) skipParallax = true;
+
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         vec3 worldPos = vLocalPos + cameraPosition;
 
@@ -258,16 +261,13 @@ void main() {
         #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
             vec4 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
             localCoord += rippleNormalStrength.xy * rippleNormalStrength.w * 0.06;
-            atlasCoord = GetAtlasCoord(localCoord);
+            if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
         #endif
     #endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
-
-        bool skipParallax = false;
-        if (vBlockId == BLOCK_LAVA) skipParallax = true;
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);

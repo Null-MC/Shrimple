@@ -143,6 +143,7 @@
                 vec3 skyLightColor = vec3(1.0);
             #endif
 
+            skyLightColor *= GetSkyLightColor();
             //skyLightColor *= 1.0 - 0.8*rainStrength;
             
             #ifndef IRIS_FEATURE_SSBO

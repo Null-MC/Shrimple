@@ -36,6 +36,10 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/lighting/sky.glsl"
+    #endif
+
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/shadows/common.glsl"
         #include "/lib/buffers/shadow.glsl"
@@ -56,6 +60,7 @@ void main() {
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
                 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+                WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
             #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;

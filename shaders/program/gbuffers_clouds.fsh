@@ -144,6 +144,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
+#include "/lib/lighting/sky.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 

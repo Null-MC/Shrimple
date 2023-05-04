@@ -223,6 +223,10 @@ uniform int fogMode;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/lighting/sky.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
