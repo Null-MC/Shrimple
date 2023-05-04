@@ -246,17 +246,17 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         color.a = 1.0;
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
         uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(normal, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
+        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
 
@@ -285,7 +285,7 @@ void main() {
 
         color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
-        ApplyFog(color, vLocalPos);
+        ApplyFog(color, vLocalPos, localViewDir);
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO

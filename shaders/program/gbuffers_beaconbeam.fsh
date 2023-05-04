@@ -68,8 +68,8 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(1.0);
@@ -77,13 +77,14 @@ void main() {
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
         deferredData.g = packUnorm4x8(vec4(vec2(15.5/16.0), 1.0, 1.0));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
         outDeferredData = deferredData;
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-        ApplyFog(color, vLocalPos);
+        vec3 localViewDir = normalize(vLocalPos);
+        ApplyFog(color, vLocalPos, localViewDir);
 
         ApplyPostProcessing(color.rgb);
 		outFinal = color;

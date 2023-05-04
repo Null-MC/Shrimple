@@ -147,16 +147,16 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(1.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, 1.0, 1.0));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, 1.0, 1.0));
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
     #else
@@ -164,7 +164,8 @@ void main() {
 
 		color.rgb *= texture(lightmap, lmcoord).rgb;// * shadowColor;
 
-        ApplyFog(color, vLocalPos);
+        vec3 localViewDir = normalize(vLocalPos);
+        ApplyFog(color, vLocalPos, localViewDir);
 
         ApplyPostProcessing(color.rgb);
 		outFinal = color;

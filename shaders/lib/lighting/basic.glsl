@@ -165,7 +165,7 @@
                 const float diffuseNoL = 1.0;
             #endif
 
-            skyDiffuse += skyLightColor * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
+            vec3 accumDiffuse = skyLightColor * mix(diffuseNoL * shadowColor, vec3(1.0), ShadowBrightnessF);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
                 // float geoNoL = 1.0;
@@ -211,21 +211,26 @@
                 //}
 
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
-                    vec3 reflectDir = reflect(-localViewDir, texNormal);
-                    vec3 reflectColor = GetFogColor(reflectDir.y);
+                    float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
-                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y);
+                    vec3 fogColorFinal = RGBToLinear(fogColor);
+                    vec3 reflectDir = reflect(-localViewDir, texNormal);
+                    vec3 reflectColor = GetFogColor(fogColorFinal, reflectDir.y);
+
+                    float m = skyLight * 0.3;
+                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
                     // TODO: multiply by skyLight!
 
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-                    float skyReflectF = F_schlick(skyNoVm, f0, 1.0);
-                    float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
-                    skySpecular += reflectColor * skyReflectF * (1.0 - roughL) * _pow2(skyLight);
-                    skyDiffuse *= 1.0 - skyReflectF;
+                    float skyReflectF = 0.6 * F_schlickRough(skyNoVm, f0, roughL);
+                    skySpecular += reflectColor * skyReflectF * _pow2(skyLight);
+                    accumDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif
+
+            skyDiffuse += accumDiffuse;
         }
     #endif
 

@@ -204,28 +204,25 @@ void main() {
     #endif
 
     const vec3 normal = vec3(0.0);
+    const float occlusion = 1.0;
     const float roughL = 1.0;
     const float metal_f0 = 0.04;
     const float sss = 0.0;
 
     vec3 blockDiffuse = vBlockLight;
     vec3 blockSpecular = vec3(0.0);
-
-    //blockDiffuse += emission * MaterialEmissionF;
-
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
-
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);
+
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
 
     #ifdef WORLD_SKY_ENABLED
         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
-    const float occlusion = 1.0;
     color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
-    ApplyFog(color, vLocalPos);
+    ApplyFog(color, vLocalPos, localViewDir);
 
     #ifdef VL_BUFFER_ENABLED
         #ifndef IRIS_FEATURE_SSBO

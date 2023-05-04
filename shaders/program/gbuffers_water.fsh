@@ -345,7 +345,7 @@ void main() {
         occlusion = glcolor.a;
     #endif
 
-    vec3 localViewDir = -normalize(vLocalPos);
+    vec3 localViewDir = normalize(vLocalPos);
 
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
@@ -446,33 +446,34 @@ void main() {
     //    shadowColor *= max(vLit, 0.0);
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
-        if (vBlockId == BLOCK_WATER) {
-            if (!gl_FrontFacing) {
-                if (isEyeInWater == 1) {
-                    localNormal = -localNormal;
-                    texNormal = -texNormal;
-                }
-                else {
-                    discard;
-                    return;
-                }
-            }
+    // #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
+    //     if (vBlockId == BLOCK_WATER) {
+    //         if (!gl_FrontFacing) {
+    //             if (isEyeInWater == 1) {
+    //                 localNormal = -localNormal;
+    //                 texNormal = -texNormal;
+    //             }
+    //             else {
+    //                 discard;
+    //                 return;
+    //             }
+    //         }
 
-            vec3 reflectDir = reflect(-localViewDir, texNormal);
-            vec3 reflectColor = GetFogColor(reflectDir.y) * vec3(0.7, 0.8, 1.0);
+    //         vec3 fogColorFinal = RGBToLinear(fogColor);
+    //         vec3 reflectDir = reflect(localViewDir, texNormal);
+    //         vec3 reflectColor = GetFogColor(fogColorFinal, reflectDir.y) * vec3(0.7, 0.8, 1.0);
 
-            float NoV = abs(dot(texNormal, localViewDir));
-            float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
+    //         float NoV = abs(dot(texNormal, -localViewDir));
+    //         float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-            color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
-            color.a = max(color.a, F);
-        }
-        else {
-    #endif
+    //         color.rgb = mix(color.rgb, reflectColor, F * (1.0 - color.a));
+    //         color.a = max(color.a, F);
+    //     }
+    //     else {
+    // #endif
 
         if (color.a > (0.5/255.0)) {
-            float NoV = abs(dot(texNormal, localViewDir));
+            float NoV = abs(dot(texNormal, -localViewDir));
 
             float F = F_schlick(NoV, metal_f0, 1.0);
             color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
@@ -487,9 +488,9 @@ void main() {
             ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
         #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
-        }
-    #endif
+    // #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_REFLECTIONS
+    //     }
+    // #endif
 
     float roughL = max(_pow2(roughness), ROUGH_MIN);
 
@@ -504,7 +505,7 @@ void main() {
     vec3 skySpecular = vec3(0.0);
 
     #ifdef WORLD_SKY_ENABLED
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
     #endif
 
     color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
@@ -512,7 +513,7 @@ void main() {
     vec3 specular = blockSpecular + skySpecular;
     color.a = min(color.a + luminance(specular), 1.0);
 
-    ApplyFog(color, vLocalPos);
+    ApplyFog(color, vLocalPos, localViewDir);
 
     #ifdef VL_BUFFER_ENABLED
         #ifndef IRIS_FEATURE_SSBO
@@ -520,7 +521,7 @@ void main() {
         #endif
 
         float farMax = min(length(vPos) - 0.05, far);
-        vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, localSunDirection, near, farMax);
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

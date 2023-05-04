@@ -358,16 +358,16 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
         uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion + dither, emission));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
+        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
@@ -389,15 +389,15 @@ void main() {
 
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
+        vec3 localViewDir = normalize(vLocalPos);
 
         #ifdef WORLD_SKY_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
 
-        ApplyFog(color, vLocalPos);
+        ApplyFog(color, vLocalPos, localViewDir);
 
         ApplyPostProcessing(color.rgb);
         outFinal = color;

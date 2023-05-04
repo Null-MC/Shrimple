@@ -1,5 +1,5 @@
 float GetBlockRoughness(const in int blockId) {
-    float smoothness = 0.1;
+    float smoothness = 0.05;
 
     // 200
     switch (blockId) {

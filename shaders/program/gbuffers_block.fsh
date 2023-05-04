@@ -388,8 +388,8 @@ void main() {
 
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        fogColorFinal = LinearToRGB(fogColorFinal);
+        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
+        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
@@ -397,7 +397,7 @@ void main() {
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss));
         deferredData.g = packUnorm4x8(vec4(lmFinal + dither, occlusion + dither, emission));
-        deferredData.b = packUnorm4x8(vec4(fogColorFinal, fogF + dither));
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
@@ -408,7 +408,7 @@ void main() {
         color.rgb = RGBToLinear(color.rgb);
         float roughL = max(_pow2(roughness), ROUGH_MIN);
         
-        vec3 localViewDir = -normalize(vLocalPos);
+        vec3 localViewDir = normalize(vLocalPos);
         
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
@@ -423,12 +423,12 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
 
-        ApplyFog(color, vLocalPos);
+        ApplyFog(color, vLocalPos, localViewDir);
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO
@@ -436,7 +436,7 @@ void main() {
             #endif
 
             float farMax = min(length(vPos) - 0.05, far);
-            vec4 vlScatterTransmit = GetVolumetricLighting(-localViewDir, localSunDirection, near, farMax);
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

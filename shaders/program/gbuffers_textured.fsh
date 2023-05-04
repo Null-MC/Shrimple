@@ -187,16 +187,19 @@ void main() {
     }
 
     color.rgb = RGBToLinear(color.rgb);
+    
+    vec3 shadowColor = vec3(1.0);
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
+    vec3 localViewDir = normalize(vLocalPos);
 
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
     const float metal_f0 = 0.04;
     const float sss = 0.0;
-    
-    vec3 blockDiffuse = vBlockLight;
-    vec3 blockSpecular = vec3(0.0);
 
-    vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
             shadowColor = GetFinalShadowColor();
@@ -209,18 +212,14 @@ void main() {
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
     #endif
 
-    vec3 skyDiffuse = vec3(0.0);
-    vec3 skySpecular = vec3(0.0);
 
     #ifdef WORLD_SKY_ENABLED
-        vec3 localViewDir = normalize(vLocalPos);
         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
     color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, glcolor.a);
 
-    ApplyFog(color, vLocalPos);
-
+    ApplyFog(color, vLocalPos, localViewDir);
     ApplyPostProcessing(color.rgb);
     outFinal = color;
 }

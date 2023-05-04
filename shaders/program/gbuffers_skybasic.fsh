@@ -48,7 +48,9 @@ void main() {
         color = starData.rgb;
     }
     else {
-        color = GetFogColor(normalize(viewPos));
+        vec3 viewDir = normalize(viewPos);
+        vec3 fogColorFinal = RGBToLinear(fogColor);
+        color = GetFogColor(fogColorFinal, viewDir);
     }
 
     color *= 1.0 - blindness;

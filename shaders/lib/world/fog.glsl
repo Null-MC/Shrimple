@@ -2,14 +2,12 @@ float fogify(float x, float w) {
     return w / (x * x + w);
 }
 
-vec3 GetFogColor(const in float NoUp) {
-    vec3 fogColorFinal = RGBToLinear(fogColor);
+vec3 GetFogColor(const in vec3 fogColor, const in float NoUp) {
+    vec3 fogColorFinal = fogColor * WorldSkyBrightnessF;
 
     #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
         if (isEyeInWater == 1) return fogColorFinal;
     #endif
-
-    fogColorFinal *= WorldSkyBrightnessF;
     
     #ifdef WORLD_SKY_ENABLED
         vec3 skyColorFinal = RGBToLinear(skyColor);
@@ -19,8 +17,8 @@ vec3 GetFogColor(const in float NoUp) {
     #endif
 }
 
-vec3 GetFogColor(const in vec3 viewDir) {
-    return GetFogColor(dot(viewDir, gbufferModelView[1].xyz));
+vec3 GetFogColor(const in vec3 fogColor, const in vec3 viewDir) {
+    return GetFogColor(fogColor, dot(viewDir, gbufferModelView[1].xyz));
 }
 
 #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED || defined RENDER_DEFERRED)
@@ -40,9 +38,10 @@ vec3 GetFogColor(const in vec3 viewDir) {
         return GetFogFactor(viewDist, fogStart, fogEnd, 1.0);
     }
 
-    void ApplyFog(inout vec4 color, const in vec3 localPos) {
+    void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewDir) {
         float fogF = GetVanillaFogFactor(localPos);
-        vec3 fogColorFinal = GetFogColor(normalize(localPos).y);
+        vec3 fogColorFinal = RGBToLinear(fogColor);
+        fogColorFinal = GetFogColor(fogColorFinal, localViewDir.y);
         color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
         if (color.a > alphaTestRef)

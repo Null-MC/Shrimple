@@ -94,6 +94,8 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+#include "/lib/world/common.glsl"
+#include "/lib/world/fog.glsl"
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
@@ -134,8 +136,6 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 #include "/lib/post/tonemap.glsl"
@@ -293,7 +293,6 @@ void main() {
 
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec3 localNormal = deferredNormal.rgb;
@@ -440,7 +439,10 @@ void main() {
         //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
         final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, occlusion);
 
+        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+        fogColorFinal = GetFogColor(fogColorFinal, -localViewDir.y);
+
         final = mix(final, fogColorFinal, deferredFog.a);
     }
     else {
