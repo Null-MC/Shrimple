@@ -74,9 +74,13 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/blocks.glsl"
         //#include "/lib/items.glsl"
 
+        #ifdef DYN_LIGHT_FLICKER
+            #include "/lib/lighting/blackbody.glsl"
+            #include "/lib/lighting/flicker.glsl"
+        #endif
+
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
+        #include "/lib/lighting/fresnel.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 

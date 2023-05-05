@@ -250,6 +250,7 @@
             #endif
 
             vec3 ambientLight = RGBToLinear(lightmapColor);
+            ambientLight *= DynamicLightAmbientF * occlusion;
 
             // #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
             //     #ifdef WORLD_SKY_ENABLED
@@ -276,11 +277,9 @@
             //     //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             // #endif
 
-            ambientLight *= WorldBrightnessF * occlusion;
-
             vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight)) * occlusion;
         #else
-            vec3 diffuse = albedo * (pow(blockDiffuse, vec3(2.0 - WorldBrightnessF)) + pow(skyDiffuse, vec3(2.0 - WorldBrightnessF))) * _pow2(occlusion);
+            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * _pow2(occlusion);
         #endif
 
         vec3 specular = blockSpecular + skySpecular;

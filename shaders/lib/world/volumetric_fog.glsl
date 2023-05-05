@@ -209,7 +209,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += 0.3 * SampleLightDiffuse(1.0, 0.0) * lightAtt * lightColor * lightPhase;
+                        blockLightAccum += 0.3 * lightAtt * lightColor * lightPhase;
                     }
                 }
             #endif
