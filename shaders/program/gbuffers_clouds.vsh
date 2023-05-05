@@ -63,11 +63,8 @@ uniform vec3 cameraPosition;
 
 
 void main() {
+    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vColor = gl_Color;
-
-    #ifndef IS_IRIS
-        texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    #endif
 
     BasicVertex();
 }

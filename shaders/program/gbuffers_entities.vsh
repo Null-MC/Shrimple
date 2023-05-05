@@ -115,10 +115,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/entities.glsl"
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE
-    #include "/lib/material/normalmap.glsl"
-#endif
-
+#include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
@@ -139,11 +136,7 @@ void main() {
     
     BasicVertex();
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        PrepareNormalMap();
-    #endif
-
-    vTangentW = at_tangent.w;
+    PrepareNormalMap();
 
     GetAtlasBounds(atlasBounds, vLocalCoord);
 

@@ -156,11 +156,9 @@ void main() {
 
     PrepareNormalMap();
 
-    vTangentW = at_tangent.w;
-
     GetAtlasBounds(atlasBounds, vLocalCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);

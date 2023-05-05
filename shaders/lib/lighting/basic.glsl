@@ -2,9 +2,11 @@
     void BasicVertex() {
         vec4 pos = gl_Vertex;
 
-        #if defined RENDER_TERRAIN || defined RENDER_WATER
+        #if defined RENDER_TERRAIN || defined RENDER_WATER || defined RENDER_BLOCK
             vBlockId = int(mc_Entity.x + 0.5);
+        #endif
 
+        #if defined RENDER_TERRAIN || defined RENDER_WATER
             #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
                 ApplyWavingOffset(pos.xyz, vBlockId);
             #endif

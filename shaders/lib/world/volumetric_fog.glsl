@@ -87,7 +87,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
 
-        float VoL = dot(localSkyLightDirection, localViewDir);
+        float VoL = dot(-localSkyLightDirection, -localViewDir);
 
         vec3 skyLightColor = GetSkyLightColor(sunDir);
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));

@@ -143,8 +143,6 @@ void main() {
 
     PrepareNormalMap();
 
-    vTangentW = at_tangent.w;
-
     GetAtlasBounds(atlasBounds, vLocalCoord);
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE

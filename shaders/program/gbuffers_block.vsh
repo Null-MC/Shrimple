@@ -26,6 +26,9 @@ out float vTangentW;
 flat out int vBlockId;
 flat out mat2 atlasBounds;
 
+#if MATERIAL_NORMALS != NORMALMAP_NONE
+#endif
+
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     out vec3 tanViewPos;
 
@@ -111,10 +114,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/material/normalmap.glsl"
-#endif
-
+#include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
@@ -135,11 +135,7 @@ void main() {
 
     BasicVertex();
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        PrepareNormalMap();
-    #endif
-
-    vTangentW = at_tangent.w;
+    PrepareNormalMap();
 
     GetAtlasBounds(atlasBounds, vLocalCoord);
 
