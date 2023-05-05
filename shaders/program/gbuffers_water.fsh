@@ -241,10 +241,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 
-#ifndef IRIS_FEATURE_SSBO
-    #include "/lib/post/saturation.glsl"
-#endif
-
+#include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
 

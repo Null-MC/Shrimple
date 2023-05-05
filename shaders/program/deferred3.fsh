@@ -133,8 +133,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sky.glsl"
 #endif
 
+#include "/lib/lighting/voxel/lights.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
@@ -142,6 +143,8 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+
+#include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
 
@@ -460,26 +463,28 @@ void main() {
     }
 
     #ifdef VL_BUFFER_ENABLED
-        //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+        #ifdef VOLUMETRIC_BLUR
+            const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-        #if VOLUMETRIC_RES == 2
-            const vec2 vlSigma = vec2(1.0, 0.00001);
-        #elif VOLUMETRIC_RES == 1
-            const vec2 vlSigma = vec2(2.0, 0.00002);
+            #if VOLUMETRIC_RES == 2
+                const vec2 vlSigma = vec2(1.0, 0.00001);
+            #elif VOLUMETRIC_RES == 1
+                const vec2 vlSigma = vec2(2.0, 0.00002);
+            #else
+                const vec2 vlSigma = vec2(1.2, 0.00002);
+            #endif
+
+            vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
         #else
-            const vec2 vlSigma = vec2(1.2, 0.00002);
+            vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
         #endif
 
-        const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-
-        //vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-        vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
     ApplyPostProcessing(final);
 
-    final.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
+    final.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
 
     outFinal = vec4(final, 1.0);
 }

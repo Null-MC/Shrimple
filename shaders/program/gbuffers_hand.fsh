@@ -174,6 +174,8 @@ uniform float blindness;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/flicker.glsl"
 
+#include "/lib/lighting/voxel/lights.glsl"
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/lighting.glsl"
@@ -188,7 +190,6 @@ uniform float blindness;
     #endif
 #endif
 
-#include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
@@ -213,10 +214,7 @@ uniform float blindness;
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
-#ifndef IRIS_FEATURE_SSBO
-    #include "/lib/post/saturation.glsl"
-#endif
-
+#include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
 

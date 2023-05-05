@@ -19,10 +19,10 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
         float f0 = GetMaterialF0(metal_f0);
-
-        float lightNoVm = 1.0;
-        if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
     #endif
+
+    float lightNoVm = 1.0;
+    if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
 
     float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
     float geoNoL;
@@ -74,16 +74,20 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
 
+                vec3 lightH = normalize(lightDir + localViewDir);
+                float lightLoHm = max(dot(lightDir, lightH), 0.0);
+
                 float F = 0.0;
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                    vec3 lightH = normalize(lightDir + localViewDir);
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                    float invCosTheta = 1.0 - lightVoHm;
-                    F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    //float invCosTheta = 1.0 - lightVoHm;
+                    //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    F = F_schlickRough(lightVoHm, f0, roughL);
                 #endif
 
-                accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
@@ -137,16 +141,20 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
 
+                vec3 lightH = normalize(lightDir + localViewDir);
+                float lightLoHm = max(dot(lightDir, lightH), 0.0);
+
                 float F = 0.0;
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                    vec3 lightH = normalize(lightDir + localViewDir);
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                    float invCosTheta = 1.0 - lightVoHm;
-                    F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    //float invCosTheta = 1.0 - lightVoHm;
+                    //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    F = F_schlickRough(lightVoHm, f0, roughL);
                 #endif
 
-                accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
+                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);

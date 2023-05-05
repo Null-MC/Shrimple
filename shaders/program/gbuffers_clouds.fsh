@@ -138,6 +138,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -152,10 +153,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 
-#ifndef IRIS_FEATURE_SSBO
-    #include "/lib/post/saturation.glsl"
-#endif
-
+#include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
 

@@ -90,6 +90,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         float VoL = dot(localSkyLightDirection, localViewDir);
 
         vec3 skyLightColor = GetSkyLightColor(sunDir);
+        skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
@@ -288,7 +289,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         transmittance *= sampleTransmittance;
     }
 
-    scattering = scattering / (scattering + 1.0);
+    scattering /= (scattering + 1.0);
 
     return vec4(scattering, transmittance);
 }

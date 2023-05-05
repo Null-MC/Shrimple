@@ -78,6 +78,7 @@ uniform vec3 cameraPosition;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX

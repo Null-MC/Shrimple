@@ -371,6 +371,12 @@ option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
 
 screen.POST_OPTIONS=Post-Processing
 
+option.POST_BRIGHTNESS=Brightness
+suffix.POST_BRIGHTNESS=%
+
+option.POST_CONTRAST=Contrast
+suffix.POST_CONTRAST=%
+
 option.POST_SATURATION=Saturation
 suffix.POST_SATURATION=%
 

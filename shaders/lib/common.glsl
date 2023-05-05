@@ -178,13 +178,16 @@ const bool colortex14Clear = true;
 #define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
 #define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800]
 #define VOLUMETRIC_RES 0 // [0 1 2]
+#define VOLUMETRIC_BLUR
 //#define VOLUMETRIC_HANDLIGHT
 
 
 // Post-Processing
 //#define TONEMAP_ENABLED
 #define FXAA_ENABLED
+#define POST_BRIGHTNESS 0 // [-100 -90 -80 -70 -60 -50 -40 -30 -25 -20 -15 -10 -8 -6 -4 -2 0 2 4 6 8 10 15 20 25 30 40 50 60 70 80 90 100]
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200]
+#define POST_CONTRAST 100 // [50 60 70 75 80 85 90 92 94 96 98 100 102 104 106 108 110 115 120 125 130 140 150]
 #define AF_SAMPLES 1
 
 
@@ -201,7 +204,7 @@ const bool colortex14Clear = true;
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
 #define ROUGH_MIN 0.06
-#define METAL_BRIGHTNESS 0.2
+#define METAL_BRIGHTNESS 0.1
 #define WHITEWORLD_VALUE 0.9
 #define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
@@ -311,7 +314,9 @@ const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
+const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
+const float PostContrastF = POST_CONTRAST * 0.01;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

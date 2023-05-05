@@ -10,36 +10,8 @@ in vec2 texcoord;
 flat in vec4 glcolor;
 in vec3 vLocalPos;
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         in vec3 shadowPos[4];
-//         flat in int shadowTile;
-//     #elif SHADOW_TYPE != SHADOW_TYPE_NONE
-//         in vec3 shadowPos;
-//     #endif
-// #endif
-
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
-
-// #if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
-//     uniform sampler2D shadowcolor0;
-// #endif
-
-// #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-//     uniform sampler2D shadowtex0;
-//     uniform sampler2D shadowtex1;
-
-//     #ifdef SHADOW_ENABLE_HWCOMP
-//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-//             uniform sampler2DShadow shadowtex0HW;
-//         #else
-//             uniform sampler2DShadow shadow;
-//         #endif
-//     #endif
-// #else
-//     uniform int worldTime;
-// #endif
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -63,14 +35,6 @@ uniform int fogMode;
     uniform float alphaTestRef;
 #endif
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     uniform vec3 shadowLightPosition;
-
-//     #if SHADOW_TYPE != SHADOW_TYPE_NONE
-//         uniform mat4 shadowProjection;
-//     #endif
-// #endif
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -80,24 +44,7 @@ uniform int fogMode;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
-// #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-//     #include "/lib/buffers/shadow.glsl"
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         #include "/lib/shadows/cascaded.glsl"
-//         #include "/lib/shadows/cascaded_render.glsl"
-//     #else
-//         #include "/lib/shadows/basic.glsl"
-//         #include "/lib/shadows/basic_render.glsl"
-//     #endif
-
-//     #include "/lib/shadows/common_render.glsl"
-// #endif
-
-#ifndef IRIS_FEATURE_SSBO
-    #include "/lib/post/saturation.glsl"
-#endif
-
+#include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
 

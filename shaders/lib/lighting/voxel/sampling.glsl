@@ -16,10 +16,10 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
             float f0 = GetMaterialF0(metal_f0);
-
-            float lightNoVm = 1.0;
-            if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
         #endif
+
+        float lightNoVm = 1.0;
+        if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
 
         vec3 accumDiffuse = vec3(0.0);
         vec3 accumSpecular = vec3(0.0);
@@ -148,16 +148,20 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             if (diffuseNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRange);
 
+                vec3 lightH = normalize(lightDir + localViewDir);
+                float lightLoHm = max(dot(lightDir, lightH), 0.0);
+
                 float F = 0.0;
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                    vec3 lightH = normalize(lightDir + localViewDir);
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                    float invCosTheta = 1.0 - lightVoHm;
-                    F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    //float invCosTheta = 1.0 - lightVoHm;
+                    //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
+                    F = F_schlickRough(lightVoHm, f0, roughL);
                 #endif
 
-                accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
+                //accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
+                accumDiffuse += SampleLightDiffuse(lightNoVm, diffuseNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA

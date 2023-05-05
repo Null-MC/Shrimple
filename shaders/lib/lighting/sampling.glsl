@@ -34,8 +34,11 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
     return NoL;
 }
 
-float SampleLightDiffuse(const in float NoLm, const in float F) {
-    return NoLm * (1.0 - F);
+float SampleLightDiffuse(const in float NoV, const in float NoL, const in float LoH, const in float roughL) {
+    float f90 = 0.5 + roughL * _pow2(LoH);
+    float light_scatter = F_schlick(NoL, 1.0, f90);
+    float view_scatter = F_schlick(NoV, 1.0, f90);
+    return light_scatter * view_scatter * NoL;
 }
 
 float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {

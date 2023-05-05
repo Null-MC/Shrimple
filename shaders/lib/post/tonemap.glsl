@@ -22,12 +22,17 @@ void ApplyPostProcessing(inout vec3 color) {
         color = tonemap_ReinhardExtendedLuminance(color, 1.5);
     #endif
 
-    #if POST_SATURATION != 100
-        #ifndef IRIS_FEATURE_SSBO
-            mat3 matColorPost = GetSaturationMatrix(PostSaturationF);
-        #endif
+    #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100
+        #ifdef IRIS_FEATURE_SSBO
+            color = (matColorPost * vec4(color, 1.0)).rgb;
+        #else
+            mat4 matContrast = GetContrastMatrix(PostContrastF);
+            //mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
+            mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
 
-        color = matColorPost * color;
+            color = (matContrast * vec4(color, 1.0)).rgb + PostBrightnessF;
+            color = (matSaturation * vec4(color, 1.0)).rgb;
+        #endif
     #endif
 
     color = LinearToRGB(color);

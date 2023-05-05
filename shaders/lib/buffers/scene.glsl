@@ -8,7 +8,7 @@
     vec3 localSkyLightDirection;            // 12
     vec3 WorldSkyLightColor;                // 12
     mat4 gbufferModelViewProjectionInverse; // 64
-    mat3 matColorPost;                      // 36
+    mat4 matColorPost;                      // 64
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         mat4 shadowModelViewProjection;     // 64

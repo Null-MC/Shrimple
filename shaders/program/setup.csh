@@ -21,7 +21,12 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 void main() {
     #ifdef IRIS_FEATURE_SSBO
-        matColorPost = GetSaturationMatrix(PostSaturationF);
+        mat4 matContrast = GetContrastMatrix(PostContrastF);
+        mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
+        mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
+
+        //matColorPost = matContrast * matBrightness * matSaturation;
+        matColorPost = matSaturation * (matBrightness * matContrast);
     #endif
     
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
