@@ -380,7 +380,7 @@ void main() {
         #endif
     #endif
 
-    vec3 localViewDir = -normalize(vLocalPos);
+    vec3 localViewDir = normalize(vLocalPos);
     texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -409,7 +409,7 @@ void main() {
 
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        //vec3 fogColorFinal = GetFogColor(-localViewDir.y);
+        //vec3 fogColorFinal = GetFogColor(localViewDir.y);
         //fogColorFinal = LinearToRGB(fogColorFinal) + dither;
 
         outDeferredColor = color;
@@ -446,13 +446,16 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
         color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
         ApplyPostProcessing(color.rgb);
+
+        color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
+
         outFinal = color;
     #endif
 }

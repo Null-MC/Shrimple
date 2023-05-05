@@ -188,6 +188,7 @@ const bool colortex14Clear = true;
 #define POST_BRIGHTNESS 0 // [-100 -90 -80 -70 -60 -50 -40 -30 -25 -20 -15 -10 -8 -6 -4 -2 0 2 4 6 8 10 15 20 25 30 40 50 60 70 80 90 100]
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [50 60 70 75 80 85 90 92 94 96 98 100 102 104 106 108 110 115 120 125 130 140 150]
+#define GAMMA_OUT 1.4 // [1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0]
 #define AF_SAMPLES 1
 
 
@@ -396,8 +397,12 @@ float LinearToRGB(const in float color) {
 	return pow(color, rcp(GAMMA));
 }
 
+vec3 LinearToRGB(const in vec3 color, const in float gamma) {
+    return pow(color, vec3(rcp(gamma)));
+}
+
 vec3 LinearToRGB(const in vec3 color) {
-    return pow(color, vec3(rcp(GAMMA)));
+    return LinearToRGB(color, rcp(GAMMA));
 }
 
 float luminance(const in vec3 color) {

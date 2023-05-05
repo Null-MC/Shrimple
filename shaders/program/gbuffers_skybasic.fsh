@@ -52,13 +52,13 @@ void main() {
 
     color *= 1.0 - blindness;
 
-    #if defined VL_BUFFER_ENABLED || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-        color = LinearToRGB(color);
+    #ifdef DEFERRED_BUFFER_ENABLED
+        //color = LinearToRGB(color);
     #else
         ApplyPostProcessing(color);
     #endif
 
-    color += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
+    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
     
     outFinal = vec4(color, 1.0);
 }

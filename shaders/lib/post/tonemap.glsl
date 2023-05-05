@@ -35,6 +35,6 @@ void ApplyPostProcessing(inout vec3 color) {
         #endif
     #endif
 
-    color = LinearToRGB(color);
+    color = LinearToRGB(color, GAMMA_OUT);
     //color += Bayer16(gl_FragCoord.xy) / 255.0;
 }
