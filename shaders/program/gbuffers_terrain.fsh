@@ -355,7 +355,7 @@ void main() {
 
     #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
         float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
-        occlusion *= _pow2(texOcclusion);
+        occlusion *= texOcclusion;
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
         float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
         occlusion *= texOcclusion;

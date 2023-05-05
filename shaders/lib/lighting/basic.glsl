@@ -279,7 +279,7 @@
 
             vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight)) * occlusion;
         #else
-            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * _pow2(occlusion);
+            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * occlusion;
         #endif
 
         vec3 specular = blockSpecular + skySpecular;

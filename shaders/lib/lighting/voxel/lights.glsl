@@ -841,15 +841,15 @@ uint GetSceneLightType(const in int blockId) {
             float flickerBrightness = 0.6 + 0.4 * flickerNoise;
 
             if (isBigFireSource) {
-                lightColor = LinearToRGB(flickerBrightness * blackbodyColor);
+                lightColor = flickerBrightness * blackbodyColor;
             }
 
             if (isSoulFireSource) {
-                lightColor = LinearToRGB(flickerBrightness * saturate(1.0 - blackbodyColor));
+                lightColor = flickerBrightness * saturate(1.0 - blackbodyColor);
             }
 
             if (isSmallFireSource) {
-                lightColor = LinearToRGB(0.4 * flickerBrightness * blackbodyColor);
+                lightColor = 0.4 * flickerBrightness * blackbodyColor;
             }
         #endif
 

@@ -39,32 +39,30 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     }
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #if !(defined RENDER_BEGIN || defined RENDER_SHADOW)
-        uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
-            uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
-            maskIndex *= DYN_BLOCK_MASK_STRIDE;
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_BEGIN || defined RENDER_SHADOW)
+    uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
+        uint maskIndex = (blockCell.z << (lightMaskBitCount * 2)) | (blockCell.y << lightMaskBitCount) | blockCell.x;
+        maskIndex *= DYN_BLOCK_MASK_STRIDE;
 
-            uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
+        uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
 
-            ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
-            uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
-            return (bit & 0xFFFF);
-        }
-    #endif
-
-    uint GetLightMaskFace(const in vec3 normal) {
-        vec3 normalAbs = abs(normal);
-
-        if (normalAbs.y > normalAbs.x && normalAbs.y > normalAbs.z)
-            return normal.y > 0 ? LIGHT_MASK_UP : LIGHT_MASK_DOWN;
-        
-        if (normalAbs.x > normalAbs.z)
-            return normal.x > 0 ? LIGHT_MASK_EAST : LIGHT_MASK_WEST;
-
-        return normal.z > 0 ? LIGHT_MASK_SOUTH : LIGHT_MASK_NORTH;
+        ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
+        uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
+        return (bit & 0xFFFF);
     }
 #endif
+
+uint GetLightMaskFace(const in vec3 normal) {
+    vec3 normalAbs = abs(normal);
+
+    if (normalAbs.y > normalAbs.x && normalAbs.y > normalAbs.z)
+        return normal.y > 0 ? LIGHT_MASK_UP : LIGHT_MASK_DOWN;
+    
+    if (normalAbs.x > normalAbs.z)
+        return normal.x > 0 ? LIGHT_MASK_EAST : LIGHT_MASK_WEST;
+
+    return normal.z > 0 ? LIGHT_MASK_SOUTH : LIGHT_MASK_NORTH;
+}
 
 #ifdef RENDER_SHADOW
     bool SetSceneLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {

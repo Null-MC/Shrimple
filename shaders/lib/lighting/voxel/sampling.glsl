@@ -81,12 +81,10 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
             if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
 
-            lightColor = RGBToLinear(lightColor);
+            //lightColor = RGBToLinear(lightColor);
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                uint traceFace = 1u << GetLightMaskFace(lightVec);
-                if ((lightData.z & traceFace) == traceFace) continue;
-            #endif
+            uint traceFace = 1u << GetLightMaskFace(lightVec);
+            if ((lightData.z & traceFace) == traceFace) continue;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                 if ((lightData.z & 1u) == 1u) {

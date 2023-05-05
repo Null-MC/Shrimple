@@ -9,10 +9,12 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-uniform vec3 cameraPosition;
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform vec3 cameraPosition;
 
-#include "/lib/buffers/lighting.glsl"
-#include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/voxel/mask.glsl"
+#endif
 
 
 void main() {

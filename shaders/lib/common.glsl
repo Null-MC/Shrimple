@@ -216,8 +216,8 @@ const bool colortex14Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define TEMP_FIRE_MIN 2800
-#define TEMP_FIRE_MAX 3200
+#define TEMP_FIRE_MIN 2200
+#define TEMP_FIRE_MAX 2800
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
 #define TEMP_CANDLE_MIN 2000
