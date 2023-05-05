@@ -381,7 +381,7 @@ void main() {
                     vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                     if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                         normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                        normalWeight = saturate(0.5 * dot(normalPrev, texNormal) + 0.5);
+                        normalWeight = dot(normalPrev, texNormal) * 0.5 + 0.5;
                     }
 
                     if (depthWeight > 0.0 && normalWeight > 0.0) {
@@ -404,7 +404,7 @@ void main() {
                             lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
 
                             lumDiff = min(abs(lum - lumPrev), 0.6);
-                            lumWeight = 1.0 - lumDiff * mix(0.2, 0.16, DynamicLightTemporalStrength);
+                            lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
                             //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
 
                             minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
