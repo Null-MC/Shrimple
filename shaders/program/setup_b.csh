@@ -88,6 +88,16 @@ void main() {
             }
         }
 
+        switch (blockId) {
+            case BLOCK_BEACON:
+                shapeCount = 2u;
+                boundsMin[0] = vec3(( 2.0/16.0),       0.0 , ( 2.0/16.0));
+                boundsMax[0] = vec3((14.0/16.0), (3.0/16.0), (14.0/16.0));
+                boundsMin[1] = vec3(( 3.0/16.0), (3.0/16.0), ( 3.0/16.0));
+                boundsMax[1] = vec3((13.0/16.0), (14.0/16.0), (13.0/16.0));
+                break;
+        }
+
         if (blockId >= BLOCK_BED_HEAD_N && blockId <= BLOCK_BED_FOOT_W) {
             boundsMin[0] = vec3(0.0, (3.0/16.0), 0.0);
             boundsMax[0] = vec3(1.0, (9.0/16.0), 1.0);
@@ -155,6 +165,18 @@ void main() {
         }
 
         switch (blockId) {
+            case BLOCK_BREWING_STAND:
+                shapeCount = 4u;
+                boundsMin[0] = vec3(( 7.0/16.0),        0.0 , ( 7.0/16.0));
+                boundsMax[0] = vec3(( 9.0/16.0), (14.0/16.0), ( 9.0/16.0));
+                boundsMin[1] = vec3(( 9.0/16.0),        0.0 , ( 5.0/16.0));
+                boundsMax[1] = vec3((15.0/16.0), ( 2.0/16.0), (11.0/16.0));
+                boundsMin[2] = vec3(( 1.0/16.0),        0.0 , ( 1.0/16.0));
+                boundsMax[2] = vec3(( 7.0/16.0), ( 2.0/16.0), ( 7.0/16.0));
+                boundsMin[3] = vec3(( 1.0/16.0),        0.0 , ( 9.0/16.0));
+                boundsMax[3] = vec3(( 7.0/16.0), ( 2.0/16.0), (15.0/16.0));
+                break;
+
             case BLOCK_CACTUS:
                 shapeCount = 1u;
                 boundsMin[0] = vec3(( 1.0/16.0), 0.0, ( 1.0/16.0));
