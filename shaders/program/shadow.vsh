@@ -75,7 +75,7 @@ void main() {
 
     if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
         vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
-        vOriginPos -= 0.05 * geoNormal;
+        vOriginPos -= 0.1 * geoNormal;
     }
 
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
