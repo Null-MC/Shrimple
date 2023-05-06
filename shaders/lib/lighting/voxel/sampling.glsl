@@ -29,7 +29,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         uint i = 0u;
         uint iStep = 1u;
-        #if DYN_LIGHT_SAMPLE_MAX > 0
+        #if DYN_LIGHT_SAMPLE_MAX > 0 && !defined RENDER_TRANSLUCENT
             uint interleaveCount = uint(ceil(lightCount / float(DYN_LIGHT_SAMPLE_MAX)));
 
             if (interleaveCount > 1u) {
@@ -53,7 +53,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 lightData = GetSceneLight(gridIndex, i);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
-                #if DYN_LIGHT_SAMPLE_MAX > 0
+                #if DYN_LIGHT_SAMPLE_MAX > 0 && !defined RENDER_TRANSLUCENT
                     lightColor *= iStep;
                 #endif
 
