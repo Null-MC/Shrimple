@@ -1052,7 +1052,7 @@ void main() {
                 break;
         }
 
-        if (blockId >= BLOCK_WALL_POST && blockId <= BLOCK_WALL_POST_TALL_S_LOW_N) {
+        if (blockId >= BLOCK_WALL_POST && blockId <= BLOCK_WALL_POST_TALL_W_LOW_E) {
             boundsMin[0] = vec3(0.25, 0.0, 0.25);
             boundsMax[0] = vec3(0.75, 1.0, 0.75);
 
