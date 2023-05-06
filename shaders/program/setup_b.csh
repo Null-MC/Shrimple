@@ -677,227 +677,191 @@ void main() {
                 break;
         }
 
-        switch (blockId) {
-            case BLOCK_STAIRS_BOTTOM_N:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.0);
-                boundsMax[1] = vec3(1.0, 1.0, 0.5);
-                break;
-            case BLOCK_STAIRS_BOTTOM_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.5, 0.5, 0.0);
-                boundsMax[1] = vec3(1.0, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.5);
-                boundsMax[1] = vec3(1.0, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.0);
-                boundsMax[1] = vec3(0.5, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_INNER_N_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.0);
-                boundsMax[1] = vec3(1.0, 1.0, 0.5);
-                boundsMin[2] = vec3(0.0, 0.5, 0.5);
-                boundsMax[2] = vec3(0.5, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_INNER_N_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.0);
-                boundsMax[1] = vec3(1.0, 1.0, 0.5);
-                boundsMin[2] = vec3(0.5, 0.5, 0.5);
-                boundsMax[2] = vec3(1.0, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_INNER_S_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.5);
-                boundsMax[1] = vec3(1.0, 1.0, 1.0);
-                boundsMin[2] = vec3(0.0, 0.5, 0.0);
-                boundsMax[2] = vec3(0.5, 1.0, 0.5);
-                break;
-            case BLOCK_STAIRS_BOTTOM_INNER_S_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.5);
-                boundsMax[1] = vec3(1.0, 1.0, 1.0);
-                boundsMin[2] = vec3(0.5, 0.5, 0.0);
-                boundsMax[2] = vec3(1.0, 1.0, 0.5);
-                break;
-            case BLOCK_STAIRS_BOTTOM_OUTER_N_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.0);
-                boundsMax[1] = vec3(0.5, 1.0, 0.5);
-                break;
-            case BLOCK_STAIRS_BOTTOM_OUTER_N_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.5, 0.5, 0.0);
-                boundsMax[1] = vec3(1.0, 1.0, 0.5);
-                break;
-            case BLOCK_STAIRS_BOTTOM_OUTER_S_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.0, 0.5, 0.5);
-                boundsMax[1] = vec3(0.5, 1.0, 1.0);
-                break;
-            case BLOCK_STAIRS_BOTTOM_OUTER_S_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 0.5, 1.0);
-                boundsMin[1] = vec3(0.5, 0.5, 0.5);
-                boundsMax[1] = vec3(1.0, 1.0, 1.0);
-                break;
+        if (blockId >= BLOCK_SLAB_TOP && blockId <= BLOCK_SLAB_VERTICAL_W) {
+            shapeCount = 1u;
+
+            switch (blockId) {
+                case BLOCK_SLAB_TOP:
+                    boundsMin[0] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[0] = vec3(1.0);
+                    break;
+                case BLOCK_SLAB_BOTTOM:
+                    boundsMin[0] = vec3(0.0);
+                    boundsMax[0] = vec3(1.0, (8.0/16.0), 1.0);
+                    break;
+                case BLOCK_SLAB_VERTICAL_N:
+                    boundsMin[0] = vec3(0.0);
+                    boundsMax[0] = vec3(1.0, 1.0, 0.5);
+                    break;
+                case BLOCK_SLAB_VERTICAL_E:
+                    boundsMin[0] = vec3(0.5, 0.0, 0.0);
+                    boundsMax[0] = vec3(1.0);
+                    break;
+                case BLOCK_SLAB_VERTICAL_S:
+                    boundsMin[0] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[0] = vec3(1.0);
+                    break;
+                case BLOCK_SLAB_VERTICAL_W:
+                    boundsMin[0] = vec3(0.0);
+                    boundsMax[0] = vec3(0.5, 1.0, 1.0);
+                    break;
+            }
         }
 
-        switch (blockId) {
-            case BLOCK_STAIRS_TOP_N:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.0);
-                boundsMax[1] = vec3(1.0, 0.5, 0.5);
-                break;
-            case BLOCK_STAIRS_TOP_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.5, 0.0, 0.0);
-                boundsMax[1] = vec3(1.0, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.5);
-                boundsMax[1] = vec3(1.0, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.0);
-                boundsMax[1] = vec3(0.5, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_INNER_N_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.0);
-                boundsMax[1] = vec3(1.0, 0.5, 0.5);
-                boundsMin[2] = vec3(0.0, 0.0, 0.5);
-                boundsMax[2] = vec3(0.5, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_INNER_N_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.0);
-                boundsMax[1] = vec3(1.0, 0.5, 0.5);
-                boundsMin[2] = vec3(0.5, 0.0, 0.5);
-                boundsMax[2] = vec3(1.0, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_INNER_S_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.5);
-                boundsMax[1] = vec3(1.0, 0.5, 1.0);
-                boundsMin[2] = vec3(0.0, 0.0, 0.0);
-                boundsMax[2] = vec3(0.5, 0.5, 0.5);
-                break;
-            case BLOCK_STAIRS_TOP_INNER_S_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.5);
-                boundsMax[1] = vec3(1.0, 0.5, 1.0);
-                boundsMin[2] = vec3(0.5, 0.0, 0.0);
-                boundsMax[2] = vec3(1.0, 0.5, 0.5);
-                break;
-            case BLOCK_STAIRS_TOP_OUTER_N_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.0);
-                boundsMax[1] = vec3(0.5, 0.5, 0.5);
-                break;
-            case BLOCK_STAIRS_TOP_OUTER_N_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.5, 0.0, 0.0);
-                boundsMax[1] = vec3(1.0, 0.5, 0.5);
-                break;
-            case BLOCK_STAIRS_TOP_OUTER_S_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.0, 0.0, 0.5);
-                boundsMax[1] = vec3(0.5, 0.5, 1.0);
-                break;
-            case BLOCK_STAIRS_TOP_OUTER_S_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                boundsMin[1] = vec3(0.5, 0.0, 0.5);
-                boundsMax[1] = vec3(1.0, 0.5, 1.0);
-                break;
+        if (blockId >= BLOCK_STAIRS_BOTTOM_N && blockId <= BLOCK_STAIRS_BOTTOM_OUTER_S_W) {
+            boundsMin[0] = vec3(0.0);
+            boundsMax[0] = vec3(1.0, 0.5, 1.0);
+
+            switch (blockId) {
+                case BLOCK_STAIRS_BOTTOM_N:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.5);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.5, 0.0);
+                    boundsMax[1] = vec3(1.0, 1.0, 1.0);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.5);
+                    boundsMax[1] = vec3(1.0, 1.0, 1.0);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[1] = vec3(0.5, 1.0, 1.0);
+                    break;
+
+                case BLOCK_STAIRS_BOTTOM_INNER_N_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.5);
+                    boundsMin[2] = vec3(0.0, 0.5, 0.5);
+                    boundsMax[2] = vec3(0.5, 1.0, 1.0);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_INNER_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.5);
+                    boundsMin[2] = vec3(0.5, 0.5, 0.5);
+                    boundsMax[2] = vec3(1.0, 1.0, 1.0);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_INNER_S_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.5);
+                    boundsMax[1] = vec3(1.0, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[2] = vec3(0.5, 1.0, 0.5);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_INNER_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.5);
+                    boundsMax[1] = vec3(1.0, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.5, 0.5, 0.0);
+                    boundsMax[2] = vec3(1.0, 1.0, 0.5);
+                    break;
+
+                case BLOCK_STAIRS_BOTTOM_OUTER_N_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.0);
+                    boundsMax[1] = vec3(0.5, 1.0, 0.5);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_OUTER_N_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.5, 0.0);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.5);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_OUTER_S_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.5, 0.5);
+                    boundsMax[1] = vec3(1.0, 1.0, 1.0);
+                    break;
+                case BLOCK_STAIRS_BOTTOM_OUTER_S_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.5, 0.5);
+                    boundsMax[1] = vec3(0.5, 1.0, 1.0);
+                    break;
+            }
         }
 
-        switch (blockId) {
-            case BLOCK_SLAB_TOP:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.0, 0.5, 0.0);
-                boundsMax[0] = vec3(1.0);
-                break;
-            case BLOCK_SLAB_BOTTOM:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, (8.0/16.0), 1.0);
-                break;
-            case BLOCK_SLAB_VERTICAL_N:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(1.0, 1.0, 0.5);
-                break;
-            case BLOCK_SLAB_VERTICAL_E:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.5, 0.0, 0.0);
-                boundsMax[0] = vec3(1.0);
-                break;
-            case BLOCK_SLAB_VERTICAL_S:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.0, 0.0, 0.5);
-                boundsMax[0] = vec3(1.0);
-                break;
-            case BLOCK_SLAB_VERTICAL_W:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.0);
-                boundsMax[0] = vec3(0.5, 1.0, 1.0);
-                break;
+        if (blockId >= BLOCK_STAIRS_TOP_N && blockId <= BLOCK_STAIRS_TOP_OUTER_S_W) {
+            boundsMin[0] = vec3(0.0, 0.5, 0.0);
+            boundsMax[0] = vec3(1.0);
+
+            switch (blockId) {
+                case BLOCK_STAIRS_TOP_N:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[1] = vec3(1.0, 0.5, 0.5);
+                    break;
+                case BLOCK_STAIRS_TOP_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.0, 0.0);
+                    boundsMax[1] = vec3(1.0, 0.5, 1.0);
+                    break;
+                case BLOCK_STAIRS_TOP_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[1] = vec3(1.0, 0.5, 1.0);
+                    break;
+                case BLOCK_STAIRS_TOP_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.5, 0.5, 1.0);
+                    break;
+
+                case BLOCK_STAIRS_TOP_INNER_N_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[1] = vec3(1.0, 0.5, 0.5);
+                    boundsMin[2] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[2] = vec3(0.5, 0.5, 1.0);
+                    break;
+                case BLOCK_STAIRS_TOP_INNER_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[1] = vec3(1.0, 0.5, 0.5);
+                    boundsMin[2] = vec3(0.5, 0.0, 0.5);
+                    boundsMax[2] = vec3(1.0, 0.5, 1.0);
+                    break;
+                case BLOCK_STAIRS_TOP_INNER_S_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[1] = vec3(1.0, 0.5, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[2] = vec3(0.5, 0.5, 0.5);
+                    break;
+                case BLOCK_STAIRS_TOP_INNER_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[1] = vec3(1.0, 0.5, 1.0);
+                    boundsMin[2] = vec3(0.5, 0.0, 0.0);
+                    boundsMax[2] = vec3(1.0, 0.5, 0.5);
+                    break;
+
+                case BLOCK_STAIRS_TOP_OUTER_N_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.5, 0.5, 0.5);
+                    break;
+                case BLOCK_STAIRS_TOP_OUTER_N_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.0, 0.0);
+                    boundsMax[1] = vec3(1.0, 0.5, 0.5);
+                    break;
+                case BLOCK_STAIRS_TOP_OUTER_S_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.0, 0.5);
+                    boundsMax[1] = vec3(1.0, 0.5, 1.0);
+                    break;
+                case BLOCK_STAIRS_TOP_OUTER_S_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.5);
+                    boundsMax[1] = vec3(0.5, 0.5, 1.0);
+                    break;
+            }
         }
 
         switch (blockId) {
@@ -1088,244 +1052,238 @@ void main() {
                 break;
         }
 
+        if (blockId >= BLOCK_WALL_POST && blockId <= BLOCK_WALL_POST_TALL_S_LOW_N) {
+            boundsMin[0] = vec3(0.25, 0.0, 0.25);
+            boundsMax[0] = vec3(0.75, 1.0, 0.75);
+
+            switch (blockId) {
+                case BLOCK_WALL_POST:
+                    shapeCount = 1u;
+                    break;
+                case BLOCK_WALL_POST_LOW_N:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
+                    break;
+                case BLOCK_WALL_POST_LOW_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.000, 0.3125);
+                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCK_WALL_POST_LOW_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[1] = vec3(0.5, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_N_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCK_WALL_POST_LOW_W_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_N_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[1] = vec3(0.5, 0.875, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[2] = vec3(0.6875, 0.875, 0.5);
+                    break;
+                case BLOCK_WALL_POST_LOW_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
+                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
+                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_S_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.5, 0.000, 0.3125);
+                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.000, 0.5);
+                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCK_WALL_POST_LOW_N_W_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_N_E_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
+                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_W_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
+                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_W_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
+                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_LOW_ALL:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
+                    break;
+                case BLOCK_WALL_POST_TALL_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.5, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    break;
+                case BLOCK_WALL_POST_TALL_W:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_S:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    break;
+                case BLOCK_WALL_POST_TALL_W_E:
+                    shapeCount = 2u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[2] = vec3(0.6875, 1.0, 0.5);
+                    break;
+                case BLOCK_WALL_POST_TALL_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
+                    boundsMin[2] = vec3(0.5, 0.0, 0.3125);
+                    boundsMax[2] = vec3(1.0, 1.0, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_S_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[2] = vec3(0.5, 1.0, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.50, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.00, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.0, 0.5);
+                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_W_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[2] = vec3(0.5, 1.0, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_N_E_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.5, 0.0, 0.3125);
+                    boundsMax[2] = vec3(1.0, 1.0, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_W_N_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[2] = vec3(0.6875, 1.0, 0.5);
+                    break;
+                case BLOCK_WALL_POST_TALL_W_S_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.0, 0.5);
+                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_ALL:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_LOW_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
+                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
+                    boundsMin[2] = vec3(0.3125, 0.000, 0.5);
+                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    break;
+                case BLOCK_WALL_POST_TALL_E_LOW_W:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.5, 0.0, 0.3125);
+                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
+                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    break;
+                case BLOCK_WALL_POST_TALL_S_LOW_N:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
+                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
+                    boundsMax[2] = vec3(0.6875, 0.875, 0.5);
+                    break;
+                case BLOCK_WALL_POST_TALL_W_LOW_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
+                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
+                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
+                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    break;
+            }
+        }
+
         switch (blockId) {
-            case BLOCK_WALL_POST:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                break;
-            case BLOCK_WALL_POST_LOW_N:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 0.5);
-                break;
-            case BLOCK_WALL_POST_LOW_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.5, 0.000, 0.3125);
-                boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCK_WALL_POST_LOW_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[1] = vec3(0.5, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_N_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCK_WALL_POST_LOW_W_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_N_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[1] = vec3(0.5, 0.875, 0.6875);
-                boundsMin[2] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[2] = vec3(0.6875, 0.875, 0.5);
-                break;
-            case BLOCK_WALL_POST_LOW_N_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 0.5);
-                boundsMin[2] = vec3(0.5, 0.000, 0.3125);
-                boundsMax[2] = vec3(1.0, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_S_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[2] = vec3(0.5, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_S_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.5, 0.000, 0.3125);
-                boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                boundsMin[2] = vec3(0.3125, 0.000, 0.5);
-                boundsMax[2] = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCK_WALL_POST_LOW_N_W_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCK_WALL_POST_LOW_N_E_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                break;
-            case BLOCK_WALL_POST_LOW_W_N_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 0.5);
-                boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[2] = vec3(1.0, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_W_S_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[2] = vec3(1.0, 0.875, 0.6875);
-                break;
-            case BLOCK_WALL_POST_LOW_ALL:
-                shapeCount = 2u;
-                // boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                // boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[0] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[0] = vec3(1.0, 0.875, 0.6875);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                break;
-
-            case BLOCK_WALL_POST_TALL_N:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[1] = vec3(0.6875, 1.0, 0.5);
-                break;
-            case BLOCK_WALL_POST_TALL_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.5, 0.0, 0.3125);
-                boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                break;
-            case BLOCK_WALL_POST_TALL_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                break;
-            case BLOCK_WALL_POST_TALL_W:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[1] = vec3(0.5, 1.0, 0.6875);
-                break;
-            case BLOCK_WALL_POST_TALL_N_S:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                break;
-            case BLOCK_WALL_POST_TALL_W_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                break;
-            case BLOCK_WALL_POST_TALL_N_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[1] = vec3(0.5, 1.0, 0.6875);
-                boundsMin[2] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[2] = vec3(0.6875, 1.0, 0.5);
-                break;
-            case BLOCK_WALL_POST_TALL_N_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[1] = vec3(0.6875, 1.0, 0.5);
-                boundsMin[2] = vec3(0.5, 0.0, 0.3125);
-                boundsMax[2] = vec3(1.0, 1.0, 0.6875);
-                break;
-            case BLOCK_WALL_POST_TALL_S_W:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                boundsMin[2] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[2] = vec3(0.5, 1.0, 0.6875);
-                break;
-            case BLOCK_WALL_POST_TALL_S_E:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.50, 0.0, 0.3125);
-                boundsMax[1] = vec3(1.00, 1.0, 0.6875);
-                boundsMin[2] = vec3(0.3125, 0.0, 0.5);
-                boundsMax[2] = vec3(0.6875, 1.0, 1.0);
-                break;
-            case BLOCK_WALL_POST_TALL_N_W_S:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                break;
-            case BLOCK_WALL_POST_TALL_N_E_S:
-                shapeCount = 1u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                break;
-            case BLOCK_WALL_POST_TALL_W_N_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[1] = vec3(0.6875, 1.0, 0.5);
-                break;
-            case BLOCK_WALL_POST_TALL_W_S_E:
-                shapeCount = 2u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                break;
-            case BLOCK_WALL_POST_TALL_ALL:
-                shapeCount = 3u;
-                boundsMin[0] = vec3(0.25, 0.0, 0.25);
-                boundsMax[0] = vec3(0.75, 1.0, 0.75);
-                boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                boundsMin[2] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[2] = vec3(0.6875, 1.0, 1.0);
-                break;
-
             case BLOCK_WALL_LOW_N_S:
                 shapeCount = 1u;
                 boundsMin[0] = vec3(0.3125, 0.0, 0.0);
@@ -1336,6 +1294,14 @@ void main() {
                 boundsMin[0] = vec3(0.0, 0.0, 0.3125);
                 boundsMax[0] = vec3(1.0, (14.0/16.0), 0.6875);
                 break;
+            case BLOCK_WALL_LOW_ALL:
+                shapeCount = 2u;
+                boundsMin[0] = vec3(0.0000, 0.000, 0.3125);
+                boundsMax[0] = vec3(1.0000, 0.875, 0.6875);
+                boundsMin[1] = vec3(0.3125, 0.000, 0.0000);
+                boundsMax[1] = vec3(0.6875, 0.875, 1.0000);
+                break;
+
             case BLOCK_WALL_TALL_N_S:
                 shapeCount = 1u;
                 boundsMin[0] = vec3(0.3125, 0.0, 0.0);
@@ -1345,6 +1311,13 @@ void main() {
                 shapeCount = 1u;
                 boundsMin[0] = vec3(0.0, 0.0, 0.3125);
                 boundsMax[0] = vec3(1.0, 1.0, 0.6875);
+                break;
+            case BLOCK_WALL_TALL_ALL:
+                shapeCount = 2u;
+                boundsMin[0] = vec3(0.0000, 0.0, 0.3125);
+                boundsMax[0] = vec3(1.0000, 1.0, 0.6875);
+                boundsMin[1] = vec3(0.3125, 0.0, 0.0000);
+                boundsMax[1] = vec3(0.6875, 1.0, 1.0000);
                 break;
         }
 

@@ -393,66 +393,82 @@ uint GetSceneLightType(const in int blockId) {
             break;
         case BLOCK_LAMP_LIT_BLACK:
         case BLOCK_PAPER_LAMP_LIT_BLACK:
+        case BLOCK_CEILING_LIGHT_LIT_BLACK:
             lightType = LIGHT_PAPER_LAMP_BLACK;
             break;
         case BLOCK_LAMP_LIT_BLUE:
         case BLOCK_PAPER_LAMP_LIT_BLUE:
+        case BLOCK_CEILING_LIGHT_LIT_BLUE:
             lightType = LIGHT_PAPER_LAMP_BLUE;
             break;
         case BLOCK_LAMP_LIT_BROWN:
         case BLOCK_PAPER_LAMP_LIT_BROWN:
+        case BLOCK_CEILING_LIGHT_LIT_BROWN:
             lightType = LIGHT_PAPER_LAMP_BROWN;
             break;
         case BLOCK_LAMP_LIT_CYAN:
         case BLOCK_PAPER_LAMP_LIT_CYAN:
+        case BLOCK_CEILING_LIGHT_LIT_CYAN:
             lightType = LIGHT_PAPER_LAMP_CYAN;
             break;
         case BLOCK_LAMP_LIT_GRAY:
         case BLOCK_PAPER_LAMP_LIT_GRAY:
+        case BLOCK_CEILING_LIGHT_LIT_GRAY:
             lightType = LIGHT_PAPER_LAMP_GRAY;
             break;
         case BLOCK_LAMP_LIT_GREEN:
         case BLOCK_PAPER_LAMP_LIT_GREEN:
+        case BLOCK_CEILING_LIGHT_LIT_GREEN:
             lightType = LIGHT_PAPER_LAMP_GREEN;
             break;
         case BLOCK_LAMP_LIT_LIGHT_BLUE:
         case BLOCK_PAPER_LAMP_LIT_LIGHT_BLUE:
+        case BLOCK_CEILING_LIGHT_LIT_LIGHT_BLUE:
             lightType = LIGHT_PAPER_LAMP_LIGHT_BLUE;
             break;
         case BLOCK_LAMP_LIT_LIGHT_GRAY:
         case BLOCK_PAPER_LAMP_LIT_LIGHT_GRAY:
+        case BLOCK_CEILING_LIGHT_LIT_LIGHT_GRAY:
             lightType = LIGHT_PAPER_LAMP_LIGHT_GRAY;
             break;
         case BLOCK_LAMP_LIT_LIME:
         case BLOCK_PAPER_LAMP_LIT_LIME:
+        case BLOCK_CEILING_LIGHT_LIT_LIME:
             lightType = LIGHT_PAPER_LAMP_LIME;
             break;
         case BLOCK_LAMP_LIT_MAGENTA:
         case BLOCK_PAPER_LAMP_LIT_MAGENTA:
+        case BLOCK_CEILING_LIGHT_LIT_MAGENTA:
             lightType = LIGHT_PAPER_LAMP_MAGENTA;
             break;
         case BLOCK_LAMP_LIT_ORANGE:
         case BLOCK_PAPER_LAMP_LIT_ORANGE:
+        case BLOCK_CEILING_LIGHT_LIT_ORANGE:
             lightType = LIGHT_PAPER_LAMP_ORANGE;
             break;
         case BLOCK_LAMP_LIT_PINK:
         case BLOCK_PAPER_LAMP_LIT_PINK:
+        case BLOCK_CEILING_LIGHT_LIT_PINK:
             lightType = LIGHT_PAPER_LAMP_PINK;
             break;
         case BLOCK_LAMP_LIT_PURPLE:
         case BLOCK_PAPER_LAMP_LIT_PURPLE:
+        case BLOCK_CEILING_LIGHT_LIT_PURPLE:
             lightType = LIGHT_PAPER_LAMP_PURPLE;
             break;
         case BLOCK_LAMP_LIT_RED:
         case BLOCK_PAPER_LAMP_LIT_RED:
+        case BLOCK_CEILING_LIGHT_LIT_RED:
             lightType = LIGHT_PAPER_LAMP_RED;
             break;
         case BLOCK_LAMP_LIT_WHITE:
         case BLOCK_PAPER_LAMP_LIT_WHITE:
+        case BLOCK_CEILING_LIGHT_LIT_WHITE:
             lightType = LIGHT_PAPER_LAMP_WHITE;
             break;
         case BLOCK_LAMP_LIT_YELLOW:
         case BLOCK_PAPER_LAMP_LIT_YELLOW:
+        case BLOCK_CEILING_LIGHT_LIT_YELLOW:
             lightType = LIGHT_PAPER_LAMP_YELLOW;
             break;
     }

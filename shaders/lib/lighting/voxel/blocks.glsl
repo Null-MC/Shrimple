@@ -1,12 +1,4 @@
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    bool IsTraceEmptyBlock(const in uint blockId) {
-        bool result = true;
-
-
-
-        return result;
-    }
-
     bool IsTraceFullBlock(const in uint blockId) {
         bool result = false;
 
@@ -38,6 +30,14 @@
         if (blockId == BLOCK_ROSE_QUARTZ_LAMP_LIT) result = true;
 
         if (blockId >= 1000) result = true;
+
+        return result;
+    }
+
+    bool IsTraceEmptyBlock(const in uint blockId) {
+        bool result = false;
+
+        if (blockId < 200) return true;
 
         return result;
     }

@@ -147,7 +147,7 @@ void main() {
                     //int blockId = blockId[0];
                     //if (blockId <= 0) blockId = BLOCK_SOLID;
 
-                    if (intersects && IsDynLightSolidBlock(blockId))
+                    if (intersects && !IsTraceEmptyBlock(blockId))
                         SetSceneBlockMask(blockCell, gridIndex, blockId);
                 #endif
             }
