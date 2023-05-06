@@ -99,12 +99,14 @@ void main() {
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (blockId > 0 && (
-            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT ||
-            renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES))
-        {
+            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
+         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
+         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
+         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+        #ifdef DYN_LIGHT_BLOCK_ENTITIES
+         || renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
+        #endif
+        )) {
             //vec3 lightOrigin = vOriginPos;// + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
             vec3 cf = fract(cameraPosition);
