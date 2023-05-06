@@ -27,7 +27,23 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 traceEnd = GetLightGridPosition(lightFragPos);
         vec3 cameraOffset = fract(cameraPosition);
 
-        for (uint i = 0u; i < lightCount; i++) {
+        uint i = 0u;
+        uint iStep = 1u;
+        #if DYN_LIGHT_SAMPLE_MAX > 0
+            uint interleaveCount = uint(ceil(lightCount / float(DYN_LIGHT_SAMPLE_MAX)));
+
+            if (interleaveCount > 1u) {
+                uint offset = 2u * (frameCounter % interleaveCount);
+                if (offset >= interleaveCount)
+                    offset -= interleaveCount - 1u;
+
+                float dither = InterleavedGradientNoise(gl_FragCoord.xy + offset);
+                i = uint(dither * interleaveCount + 0.5);
+                iStep = interleaveCount;
+            }
+        #endif
+
+        for (; i < min(lightCount, LIGHT_BIN_MAX_COUNT); i += iStep) {
             vec3 lightPos, lightColor, lightVec;
             float lightSize, lightRange, traceDist2;
             uvec4 lightData;
@@ -36,6 +52,10 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             //for (uint i2 = 0u; i2 < 16u; i2++) {
                 lightData = GetSceneLight(gridIndex, i);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
+
+                #if DYN_LIGHT_SAMPLE_MAX > 0
+                    lightColor *= iStep;
+                #endif
 
                 float traceRange2 = lightRange + 0.5;
                 traceRange2 = _pow2(traceRange2);

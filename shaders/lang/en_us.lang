@@ -286,6 +286,14 @@ value.DYN_LIGHT_PLAYER_SHADOW.0=None
 value.DYN_LIGHT_PLAYER_SHADOW.1=Cuboid
 value.DYN_LIGHT_PLAYER_SHADOW.2=Cylinder
 
+option.DYN_LIGHT_BLUR=Blur
+option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
+
+option.DYN_LIGHT_TA=Temporal Accumulation
+option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
+suffix.DYN_LIGHT_TA=%
+value.DYN_LIGHT_TA.0=OFF
+
 
 screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
 
@@ -330,16 +338,9 @@ option.DYN_LIGHT_RANGE=Range
 option.DYN_LIGHT_RANGE.comment=Adjusts the scale of the range blocks cast light. Warning, increasing can dramatically reduce performance!
 suffix.DYN_LIGHT_RANGE=%
 
-
-screen.DYNAMIC_LIGHT_TRACE_ADVANCED_OPTIONS=Advanced
-
-option.DYN_LIGHT_BLUR=Blur
-option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
-
-option.DYN_LIGHT_TA=Temporal Accumulation
-option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
-suffix.DYN_LIGHT_TA=%
-value.DYN_LIGHT_TA.0=OFF
+option.DYN_LIGHT_SAMPLE_MAX=Max Sample Count
+option.DYN_LIGHT_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
+value.DYN_LIGHT_SAMPLE_MAX.0=Infinite
 
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
