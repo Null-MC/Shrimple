@@ -8,7 +8,7 @@
         vec3 skyLightColor = sunDir.y > 0.0 ? sunColor : moonColor;
         vec3 skyLightHorizonColor = sunDir.y > 0.0 ? sunColorHorizon : moonColorHorizon;
 
-        float horizonF = smoothstep(0.0, 0.1, abs(sunDir.y));
+        float horizonF = smoothstep(0.0, 0.7, abs(sunDir.y));
         return mix(skyLightHorizonColor, skyLightColor, horizonF);
         //return skyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));
     }
