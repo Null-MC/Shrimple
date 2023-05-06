@@ -41,6 +41,26 @@ bool CylinderRayTest(const in vec3 rayOrigin, const in vec3 rayVec, const in flo
 }
 
 bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 rayInv) {
+    uint shapeCount = CollissionMaps[blockId].Count;
+
+    bool hit = false;
+    for (uint i = 0; i < min(shapeCount, 5u) && !hit; i++) {
+        uvec2 shapeBounds = CollissionMaps[blockId].Bounds[i];
+        vec3 boundsMin = unpackUnorm4x8(shapeBounds.x).xyz;
+        vec3 boundsMax = unpackUnorm4x8(shapeBounds.y).xyz;
+
+        #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
+            hit = BoxPointTest(boundsMin, boundsMax, rayStart);
+        #else
+            hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
+        #endif
+    }
+
+    return hit;
+}
+
+#ifdef IGNORED
+bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 rayInv) {
     vec3 boundsMin = vec3(0.0);
     vec3 boundsMax = vec3(1.0);
 
@@ -1232,7 +1252,6 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                     hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
                 #endif
 
-
                 if (!hit) {
                     boundsMin = vec3(-1.0);
                     boundsMax = vec3(-1.0);
@@ -1253,6 +1272,8 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
                             boundsMax = vec3(       1.0 , (3.0/16.0),        1.0 );
                             break;
                     }
+
+//==============================================================================================================
 
                     // 500
                     switch (blockId) {
@@ -1298,3 +1319,4 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
 
     return hit;
 }
+#endif

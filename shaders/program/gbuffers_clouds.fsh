@@ -131,6 +131,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/blocks.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/collissions.glsl"
         #include "/lib/lighting/voxel/collisions.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif

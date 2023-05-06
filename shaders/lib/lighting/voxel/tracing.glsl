@@ -238,13 +238,16 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
                 if (blockId != BLOCK_EMPTY) {
-                    vec3 ray = currPos - rayStart;
-                    if (abs(ray.x) < EPSILON) ray.x = EPSILON;
-                    if (abs(ray.y) < EPSILON) ray.y = EPSILON;
-                    if (abs(ray.z) < EPSILON) ray.z = EPSILON;
+                    if (blockId == BLOCK_SOLID || IsTraceFullBlock(blockId)) hit = true;
+                    else {
+                        vec3 ray = currPos - rayStart;
+                        if (abs(ray.x) < EPSILON) ray.x = EPSILON;
+                        if (abs(ray.y) < EPSILON) ray.y = EPSILON;
+                        if (abs(ray.z) < EPSILON) ray.z = EPSILON;
 
-                    vec3 rayInv = rcp(ray);
-                    hit = TraceHitTest(blockId, rayStart - voxelPos, rayInv);
+                        vec3 rayInv = rcp(ray);
+                        hit = TraceHitTest(blockId, rayStart - voxelPos, rayInv);
+                    }
                 }
 
             #if DYN_LIGHT_TINT_MODE != LIGHT_TINT_NONE

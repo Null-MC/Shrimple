@@ -1,4 +1,4 @@
-//#define RENDER_SETUP_DISKS
+#define RENDER_SETUP_SCENE
 #define RENDER_SETUP
 #define RENDER_COMPUTE
 
