@@ -28,7 +28,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_VL;
 #endif
 
-#if DYN_LIGHT_TA > 0 && DYN_LIGHT_PENUMBRA > 0
+#if DYN_LIGHT_TA > 0
     uniform sampler2D BUFFER_LIGHT_TA;
     uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
@@ -360,7 +360,7 @@ void main() {
                 #endif
             #endif
 
-            #if DYN_LIGHT_TA > 0 && DYN_LIGHT_PENUMBRA > 0
+            #if DYN_LIGHT_TA > 0
                 // Use prev value if downscale depth/normal doesnt match
                 #if DYN_LIGHT_RES > 0
                     // TODO

@@ -43,14 +43,14 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             }
         #endif
 
-        for (; i < min(lightCount, LIGHT_BIN_MAX_COUNT); i += iStep) {
+        for (; i < min(lightCount, LIGHT_BIN_MAX_COUNT) + iStep - 1; i += iStep) {
             vec3 lightPos, lightColor, lightVec;
             float lightSize, lightRange, traceDist2;
             uvec4 lightData;
 
             //bool hasLight = false;
             //for (uint i2 = 0u; i2 < 16u; i2++) {
-                lightData = GetSceneLight(gridIndex, i);
+                lightData = GetSceneLight(gridIndex, i % lightCount);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
                 #if DYN_LIGHT_SAMPLE_MAX > 0 && !defined RENDER_TRANSLUCENT
