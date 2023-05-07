@@ -30,7 +30,8 @@ void ApplyPostProcessing(inout vec3 color) {
             //mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
             mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
 
-            color = (matContrast * vec4(color, 1.0)).rgb + PostBrightnessF;
+            color *= PostBrightnessF;
+            color = (matContrast * vec4(color, 1.0)).rgb;
             color = (matSaturation * vec4(color, 1.0)).rgb;
         #endif
     #endif

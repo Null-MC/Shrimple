@@ -1,10 +1,15 @@
 #if defined RENDER_SETUP || !defined IRIS_FEATURE_SSBO
     mat4 GetBrightnessMatrix(const in float brightness) {
+        // return mat4(
+        //     1.0, 0.0, 0.0, 0.0,
+        //     0.0, 1.0, 0.0, 0.0,
+        //     0.0, 0.0, 1.0, 0.0,
+        //     vec3(brightness), 1.0);
         return mat4(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            vec3(brightness), 1.0);
+            vec4(brightness, 0.0, 0.0, 0.0),
+            vec4(0.0, brightness, 0.0, 0.0),
+            vec4(0.0, 0.0, brightness, 0.0),
+            vec4(0.0, 0.0, 0.0, 1.0));
     }
 
     mat4 GetContrastMatrix(const in float contrast) {

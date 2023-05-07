@@ -26,7 +26,8 @@ void main() {
         mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
 
         //matColorPost = matContrast * matBrightness * matSaturation;
-        matColorPost = matSaturation * (matBrightness * matContrast);
+        //matColorPost = matSaturation * (matBrightness * matContrast);
+        matColorPost = matSaturation * (matContrast * matBrightness);
     #endif
     
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
