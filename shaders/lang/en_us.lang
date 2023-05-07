@@ -32,18 +32,20 @@ option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
 
 option.WORLD_WETNESS_PUDDLES=Puddles
+option.WORLD_WETNESS_PUDDLES.comment=Describes how rain affects materials.
 value.WORLD_WETNESS_PUDDLES.0=OFF
 value.WORLD_WETNESS_PUDDLES.1=Basic
 value.WORLD_WETNESS_PUDDLES.2=Pixel
 value.WORLD_WETNESS_PUDDLES.3=Fancy
 
 option.WORLD_WATER_WAVES=Water Waves
+option.WORLD_WATER_WAVES.comment=Describes how the surface of water will wave.
 value.WORLD_WATER_WAVES.0=None
 value.WORLD_WATER_WAVES.1=Simple
 value.WORLD_WATER_WAVES.2=Fancy
 
 option.WORLD_WAVING_ENABLED=Waving Plants
-option.WORLD_WAVING_ENABLED.comment=When enabled, plants will wave using artificial wind.
+option.WORLD_WAVING_ENABLED.comment=Allows plants to wave in the wind.
 
 option.WORLD_AMBIENT_MODE=Ambient Lighting
 value.WORLD_AMBIENT_MODE.0=OFF
@@ -51,6 +53,7 @@ value.WORLD_AMBIENT_MODE.1=Basic
 value.WORLD_AMBIENT_MODE.2=Fancy
 
 option.WORLD_AO_ENABLED=Ambient Occlusion
+option.WORLD_AO_ENABLED.comment=Describes how ambient lighting is occluded.
 
 option.WORLD_RAIN_OPACITY=Rain Opacity
 option.WORLD_RAIN_OPACITY.comment=Determines how transparent falling rain particles will be.
@@ -80,40 +83,44 @@ option.END_BRIGHTNESS=End Brightness
 
 screen.MATERIAL_OPTIONS=Materials
 
-option.MATERIAL_SSS=SSS
-option.MATERIAL_SSS.comment=SubSurface Scattering
-value.MATERIAL_SSS.0=OFF
-value.MATERIAL_SSS.1=Integrated
-value.MATERIAL_SSS.2=Lab-PBR
-
-option.MATERIAL_POROSITY=Porosity
-option.MATERIAL_POROSITY.comment=Describes the surfaces ability to absorb water.
-value.MATERIAL_POROSITY.0=OFF
-value.MATERIAL_POROSITY.1=Integrated
-value.MATERIAL_POROSITY.2=Lab-PBR
-
 option.MATERIAL_SPECULAR=Specular
+option.MATERIAL_SPECULAR.comment=Describes how much light is reflected from each pixel of the surface, based on its roughness, metalness, and f0.
 value.MATERIAL_SPECULAR.0=OFF
 value.MATERIAL_SPECULAR.1=Integrated
 value.MATERIAL_SPECULAR.2=Lab-PBR
 value.MATERIAL_SPECULAR.3=Old-PBR
 
+option.MATERIAL_SSS=SSS
+option.MATERIAL_SSS.comment=Describes how much light from each pixel passes into & scatters in the subsurface.
+value.MATERIAL_SSS.0=OFF
+value.MATERIAL_SSS.1=Integrated
+value.MATERIAL_SSS.2=Lab-PBR
+
+option.MATERIAL_POROSITY=Porosity
+option.MATERIAL_POROSITY.comment=Describes how much water is absorbed by each pixel of the surface.
+value.MATERIAL_POROSITY.0=OFF
+value.MATERIAL_POROSITY.1=Integrated
+value.MATERIAL_POROSITY.2=Lab-PBR
+
 option.MATERIAL_OCCLUSION=Occlusion
-option.MATERIAL_OCCLUSION.comment=Describes how much ambient lighting is occluded by the surface.
+option.MATERIAL_OCCLUSION.comment=Describes how much ambient light is occluded from each pixel of the surface.
 value.MATERIAL_OCCLUSION.0=OFF
 value.MATERIAL_OCCLUSION.1=Integrated
 value.MATERIAL_OCCLUSION.2=Lab-PBR
 
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
+screen.MATERIAL_NORMAL_OPTIONS.comment=Describes how each pixel of the surface reacts to directional lighting.
 
 option.MATERIAL_NORMALS=Type
+option.MATERIAL_NORMALS.comment=The type of normal-map data.
 value.MATERIAL_NORMALS.0=OFF
 value.MATERIAL_NORMALS.1=Integrated
 value.MATERIAL_NORMALS.2=Lab-PBR
 value.MATERIAL_NORMALS.3=Old-PBR
 
 option.MATERIAL_NORMAL_SCALE=Resolution
+option.MATERIAL_NORMAL_SCALE.comment=The texture scale which normals are generated at. Only applies to _integrated_ normal-maps.
 value.MATERIAL_NORMAL_SCALE.1=1x
 value.MATERIAL_NORMAL_SCALE.2=2x
 value.MATERIAL_NORMAL_SCALE.4=4x
@@ -121,15 +128,18 @@ value.MATERIAL_NORMAL_SCALE.8=8x
 value.MATERIAL_NORMAL_SCALE.16=16x
 
 option.MATERIAL_NORMAL_STRENGTH=Strength
+option.MATERIAL_NORMAL_STRENGTH.comment=The angular strength of generated normals. Only applies to _integrated_ normal-maps.
 suffix.MATERIAL_NORMAL_STRENGTH=%
 
 option.MATERIAL_NORMAL_EDGE=Edge-Normals
-value.MATERIAL_NORMAL_EDGE.0=Regular
+option.MATERIAL_NORMAL_EDGE.comment=Determines how edges are handled when generating normals. Only applies to _integrated_ normal-maps.
+value.MATERIAL_NORMAL_EDGE.0=Standard
 value.MATERIAL_NORMAL_EDGE.1=High
 value.MATERIAL_NORMAL_EDGE.2=Low
 
 
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
+screen.MATERIAL_PARALLAX_OPTIONS.comment=Describes how the depth of each pixel of the surface is displaced.
 
 option.MATERIAL_PARALLAX=Type
 option.MATERIAL_PARALLAX.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
@@ -155,6 +165,7 @@ suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
 
 screen.MATERIAL_EMISSION_OPTIONS=Emission
+screen.MATERIAL_EMISSION_OPTIONS.comment=Describes how much light is emitted from each pixel of the surface.
 
 option.MATERIAL_EMISSION=Type
 value.MATERIAL_EMISSION.0=Integrated
@@ -244,10 +255,6 @@ option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness
 
 option.DYN_LIGHT_DIRECTIONAL=Directional
 suffix.DYN_LIGHT_DIRECTIONAL=%
-
-option.DYN_LIGHT_COLOR_MODE=Color Mode
-value.DYN_LIGHT_COLOR_MODE.0=Hard-Coded
-value.DYN_LIGHT_COLOR_MODE.1=Resource-Pack
 
 option.DYN_LIGHT_WEATHER=Weather
 option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
@@ -346,12 +353,14 @@ value.DYN_LIGHT_SAMPLE_MAX.0=Infinite
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
 
 option.VOLUMETRIC_CELESTIAL=Sun/Moon
+option.VOLUMETRIC_CELESTIAL.comment=Determines whether volumetric lighting is applied to fog for the sun & moon.
 
 option.VOLUMETRIC_BLOCK_MODE=Block Light
+option.VOLUMETRIC_BLOCK_MODE.comment=Determines whether volumetric lighting is applied to fog for block-based dynamic lighting.
 value.VOLUMETRIC_BLOCK_MODE.0=Disabled
 value.VOLUMETRIC_BLOCK_MODE.1=Emission
-value.VOLUMETRIC_BLOCK_MODE.2=Trace Fast
-value.VOLUMETRIC_BLOCK_MODE.3=Trace Full
+value.VOLUMETRIC_BLOCK_MODE.2=Trace [Fast]
+value.VOLUMETRIC_BLOCK_MODE.3=Trace [Full]
 
 option.VOLUMETRIC_SAMPLES=Quality
 value.VOLUMETRIC_SAMPLES.8=Low
@@ -360,6 +369,7 @@ value.VOLUMETRIC_SAMPLES.16=High
 value.VOLUMETRIC_SAMPLES.24=Very High
 
 option.VOLUMETRIC_DENSITY=Density
+option.VOLUMETRIC_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
 value.VOLUMETRIC_DENSITY.5=5%
 value.VOLUMETRIC_DENSITY.10=10%
 value.VOLUMETRIC_DENSITY.15=15%
@@ -393,37 +403,30 @@ value.VOLUMETRIC_RES.2=Quarter
 screen.SHADOW_OPTIONS=Shadows
 screen.SHADOW_OPTIONS.comment=Options for shadows.
 
-option.SHADOW_TYPE=Shadow Type
+option.SHADOW_TYPE=Type
 option.SHADOW_TYPE.comment=The type of shadow mapping to use.
 value.SHADOW_TYPE.0=None
-value.SHADOW_TYPE.1=Basic
 value.SHADOW_TYPE.2=Distorted
 value.SHADOW_TYPE.3=Cascaded
 
-option.shadowMapResolution=Shadow Resolution
+option.shadowMapResolution=Resolution
 option.shadowMapResolution.comment=Resolution of the shadow map. Higher numbers mean more accurate shadows.
 
-option.shadowDistance=Shadow Distance
+option.shadowDistance=Distance
 option.shadowDistance.comment=How far away shadows will be rendered.
-
-option.SHADOW_FILTER=Filtering
-option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
-value.SHADOW_FILTER.0=None
-value.SHADOW_FILTER.1=PCF
-value.SHADOW_FILTER.2=PCF+PCSS
-
-option.SHADOW_COLORS=Color Tinting
-option.SHADOW_COLORS.comment=0: Stained glass will cast ordinary shadows. 1: Stained glass will cast colored shadows. 2: Stained glass will not cast any shadows.
-value.SHADOW_COLORS.0=Disabled
-value.SHADOW_COLORS.1=Enabled
-value.SHADOW_COLORS.2=Ignored
 
 option.SHADOW_BRIGHTNESS=Brightness
 option.SHADOW_BRIGHTNESS.comment=Light levels are multiplied by this number when the surface is in shadows.
 suffix.SHADOW_BRIGHTNESS=%
 
+option.SHADOW_COLORS=Color Tinting
+option.SHADOW_COLORS.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks. Disabled: Stained glass will cast ordinary shadows. Enabled: Stained glass will cast colored shadows. Ignored: Stained glass will not cast any shadows.
+value.SHADOW_COLORS.0=Disabled
+value.SHADOW_COLORS.1=Enabled
+value.SHADOW_COLORS.2=Ignored
+
 option.SHADOW_COLOR_BLEND=Blending
-option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports tranclucent-sorting.
+option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports translucent-sorting.
 
 option.SHADOW_BIAS_SCALE=Bias Scale
 option.SHADOW_BIAS_SCALE.comment=Increase this if you get shadow acne. Decrease this if you get peter panning.
@@ -454,13 +457,17 @@ value.SHADOW_BIAS_SCALE.2.4=240%
 value.SHADOW_BIAS_SCALE.2.5=250%
 
 option.SHADOW_DISTORT_FACTOR=Distortion
-option.SHADOW_DISTORT_FACTOR.comment=Distortion factor for the shadow map. Applies to distorted shadows only.
+option.SHADOW_DISTORT_FACTOR.comment=The amount of distortion to apply to the shadow map. Applies to distorted shadows only.
 
-option.SHADOW_CSM_FITRANGE=Fit CSM to Shadow Range
-option.SHADOW_CSM_FITRANGE.comment=When enabled, all but the nearest cascade will be scaled to fit the shadow range.
 
 screen.SHADOW_FILTER_OPTIONS=Filtering
 screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.
+
+option.SHADOW_FILTER=Filtering
+option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
+value.SHADOW_FILTER.0=None
+value.SHADOW_FILTER.1=PCF
+value.SHADOW_FILTER.2=PCF+PCSS
 
 option.SHADOW_PCF_SIZE=PCF Radius
 option.SHADOW_PCF_SIZE.comment=The radius of the shadow blurring using a block-sized scale.
@@ -480,21 +487,26 @@ option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
 
 screen.POST_OPTIONS=Post-Processing
 
-option.GAMMA_OUT=Gamma
-
 option.POST_BRIGHTNESS=Brightness
+option.POST_BRIGHTNESS.comment=The brightness of the final image.
 suffix.POST_BRIGHTNESS=%
 
 option.POST_CONTRAST=Contrast
+option.POST_CONTRAST.comment=The contrast of the final image.
 suffix.POST_CONTRAST=%
 
 option.POST_SATURATION=Saturation
+option.POST_SATURATION.comment=The saturation of the final image.
 suffix.POST_SATURATION=%
+
+option.GAMMA_OUT=Gamma
+option.GAMMA_OUT.comment=The gamma curve of the final image.
 
 option.TONEMAP_ENABLED=Tonemap
 option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
 
 option.FXAA_ENABLED=FXAA
+option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
 
 
 screen.DEBUG_OPTIONS=Shrimple
