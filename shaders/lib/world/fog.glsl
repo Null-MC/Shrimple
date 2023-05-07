@@ -10,8 +10,8 @@ vec3 GetFogColor(const in vec3 fogColor, const in float NoUp) {
     #endif
     
     #ifdef WORLD_SKY_ENABLED
-        vec3 skyColorFinal = skyColor;
-        return mix(skyColorFinal, fogColorFinal, fogify(max(NoUp, 0.0), 0.16));
+        //vec3 skyColorFinal = skyColor;
+        return mix(skyColor, fogColorFinal, fogify(max(NoUp, 0.0), 0.16));
     #else
         return fogColorFinal;
     #endif
@@ -40,8 +40,9 @@ vec3 GetFogColor(const in vec3 fogColor, const in vec3 viewDir) {
 
     void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewDir) {
         float fogF = GetVanillaFogFactor(localPos);
-        vec3 fogColorFinal = RGBToLinear(fogColor);
-        fogColorFinal = GetFogColor(fogColorFinal, localViewDir.y);
+        //vec3 fogColorFinal = RGBToLinear(fogColor);
+        vec3 fogColorFinal = GetFogColor(fogColor, localViewDir.y);
+        fogColorFinal = RGBToLinear(fogColorFinal);
         color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
         if (color.a > alphaTestRef)

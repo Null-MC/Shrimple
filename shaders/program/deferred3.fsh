@@ -449,8 +449,9 @@ void main() {
         final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, occlusion);
 
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-        fogColorFinal = GetFogColor(fogColorFinal, localViewDir.y);
+        //vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+        vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
+        fogColorFinal = RGBToLinear(fogColorFinal);
 
         final = mix(final, fogColorFinal, deferredFog.a);
     }
