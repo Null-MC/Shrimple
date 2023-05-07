@@ -10,6 +10,7 @@ in vec3 at_midBlock;
 
 out vec4 vColor;
 out vec2 vTexcoord;
+flat out int vBlockId;
 flat out vec3 vOriginPos;
 
 uniform mat4 shadowModelView;
@@ -26,10 +27,8 @@ uniform vec4 entityColor;
 uniform int entityId;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform float near;
-    //uniform float far;
 #endif
 
 #include "/lib/blocks.glsl"
@@ -47,7 +46,6 @@ uniform int entityId;
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-    //#include "/lib/lighting/voxel/entities.glsl"
 #endif
 
 
@@ -66,27 +64,24 @@ void main() {
     }
 
     vOriginPos = gl_Vertex.xyz;
-    //if (blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) {
     if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && renderStage != MC_RENDER_STAGE_BLOCK_ENTITIES) {
         vOriginPos += at_midBlock / 64.0;
     }
 
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
 
-    // if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
-    //     vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
-    //     vOriginPos -= 0.1 * geoNormal;
-    // }
+    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
+        vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
+        vOriginPos -= 0.05 * geoNormal;
+    }
 
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
     int vertexId = gl_VertexID;
-    if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-        // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        //     vertexId = GetWrappedVertexID(entityId);
-        // #endif
+    if (renderStage == MC_RENDER_STAGE_ENTITIES)
         blockId = BLOCK_EMPTY;
-    }
+
+    vBlockId = blockId;
 
     vec4 pos = gl_Vertex;
 
@@ -96,19 +91,12 @@ void main() {
 
     gl_Position = gl_ModelViewMatrix * pos;
 
-
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (blockId > 0 && (
             renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
-         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
-        #ifdef DYN_LIGHT_BLOCK_ENTITIES
-         || renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
-        #endif
-        )) {
-            //vec3 lightOrigin = vOriginPos;// + vOriginPos[1] + vOriginPos[2]) / 3.0;
-
+         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)) {
             vec3 cf = fract(cameraPosition);
             vec3 lightGridOrigin = floor(vOriginPos + cf) - cf + 0.5;
 
@@ -146,15 +134,12 @@ void main() {
                 }
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    //int blockId = blockId[0];
-                    //if (blockId <= 0) blockId = BLOCK_SOLID;
-
                     if (intersects && !IsTraceEmptyBlock(blockId))
                         SetSceneBlockMask(blockCell, gridIndex, blockId);
                 #endif
             }
         }
-        else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
+        //else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
             //if (entityId == ENTITY_LIGHTNING_BOLT) return;
 
             // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -168,7 +153,7 @@ void main() {
             //         }
             //     }
             // #endif
-        }
+        //}
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
