@@ -46,19 +46,18 @@ void main() {
     }
     else {
         vec3 viewDir = normalize(viewPos);
-        vec3 fogColorFinal = RGBToLinear(fogColor);
-        color = GetFogColor(fogColorFinal, viewDir);
+        float upF = dot(viewDir, gbufferModelView[1].xyz);
+        color = GetFogColor(fogColor, upF);
     }
 
     color *= 1.0 - blindness;
 
-    #ifdef DEFERRED_BUFFER_ENABLED
-        //color = LinearToRGB(color);
-    #else
+    #ifndef DEFERRED_BUFFER_ENABLED
+        color = RGBToLinear(color);
         ApplyPostProcessing(color);
     #endif
 
-    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
+    color += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
     
     outFinal = vec4(color, 1.0);
 }

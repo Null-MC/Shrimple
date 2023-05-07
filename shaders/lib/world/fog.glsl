@@ -10,7 +10,7 @@ vec3 GetFogColor(const in vec3 fogColor, const in float NoUp) {
     #endif
     
     #ifdef WORLD_SKY_ENABLED
-        vec3 skyColorFinal = RGBToLinear(skyColor);
+        vec3 skyColorFinal = skyColor;
         return mix(skyColorFinal, fogColorFinal, fogify(max(NoUp, 0.0), 0.16));
     #else
         return fogColorFinal;

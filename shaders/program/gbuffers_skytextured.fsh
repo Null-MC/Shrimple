@@ -30,7 +30,7 @@ void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
     color.rgb = RGBToLinear(color.rgb) * WorldSkyBrightnessF;
 
-    color.a = length2(color.rgb) / sqrt(3.0);
+    //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;
@@ -39,7 +39,7 @@ void main() {
         ApplyPostProcessing(color.rgb);
     #endif
 
-    color.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
+    color.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
 
     outColor0 = color;
 }
