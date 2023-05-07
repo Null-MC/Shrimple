@@ -16,7 +16,6 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 **\*** Feature only available with [Iris 1.6.0](https://modrinth.com/mod/iris/versions) or later!
 
 ## Known Issues
-- The latest AMD drivers break atomic shader functions. These are required for dynamic/colored/traced lighting. The last known working version of AMD drivers is `22.5.1`.
 - The technique I use for lighting has the advantage of being very fast for few lights, but can also be dead slow with a lot of visible/nearby light sources.
 - Ray-traced block-light volumetrics are known to be incredibly slow. It's more of a cool looking gimmick than meant for gameplay.
 
