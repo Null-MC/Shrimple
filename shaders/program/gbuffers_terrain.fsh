@@ -295,7 +295,7 @@ void main() {
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
-        occlusion = glcolor.a;
+        occlusion = RGBToLinear(glcolor.a);
     #endif
 
     float roughness, metal_f0;

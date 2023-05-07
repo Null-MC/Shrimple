@@ -344,7 +344,7 @@ void main() {
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
-        occlusion = glcolor.a;
+        occlusion = RGBToLinear(glcolor.a);
     #endif
 
     vec3 localViewDir = normalize(vLocalPos);
