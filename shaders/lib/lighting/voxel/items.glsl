@@ -8,6 +8,9 @@ int GetItemBlockId(const in int itemId) {
         case ITEM_AMETHYST_BUD_MEDIUM:
             blockId = BLOCK_AMETHYST_BUD_MEDIUM;
             break;
+        case ITEM_AMETHYST_BUD_SMALL:
+            blockId = BLOCK_AMETHYST_BUD_SMALL;
+            break;
         case ITEM_AMETHYST_CLUSTER:
             blockId = BLOCK_AMETHYST_CLUSTER;
             break;
@@ -204,11 +207,17 @@ int GetItemBlockId(const in int itemId) {
 vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
 
-    int blockId = GetItemBlockId(itemId);
-    if (blockId != BLOCK_EMPTY) {
-        uint lightType = GetSceneLightType(blockId);
-        return GetSceneLightColor(lightType, noiseSample);
-    }
+    #if defined RENDER_HAND && defined IS_IRIS
+        uint lightType = GetSceneLightType(itemId);
+        if (lightType != LIGHT_EMPTY)
+            return GetSceneLightColor(lightType, noiseSample);
+    #else
+        int blockId = GetItemBlockId(itemId);
+        if (blockId != BLOCK_EMPTY) {
+            uint lightType = GetSceneLightType(blockId);
+            return GetSceneLightColor(lightType, noiseSample);
+        }
+    #endif
 
     // switch (itemId) {
     //     case ITEM_AMETHYST_BUD_MEDIUM:
@@ -245,11 +254,17 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
 float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
     float lightRange = defaultValue;
 
-    int blockId = GetItemBlockId(itemId);
-    if (blockId != BLOCK_EMPTY) {
-        uint lightType = GetSceneLightType(blockId);
-        return GetSceneLightRange(lightType);
-    }
+    #if defined RENDER_HAND && defined IS_IRIS
+        uint lightType = GetSceneLightType(itemId);
+        if (lightType != LIGHT_EMPTY)
+            return GetSceneLightRange(lightType);
+    #else
+        int blockId = GetItemBlockId(itemId);
+        if (blockId != BLOCK_EMPTY) {
+            uint lightType = GetSceneLightType(blockId);
+            return GetSceneLightRange(lightType);
+        }
+    #endif
 
     // switch (itemId) {
     //     case ITEM_AMETHYST_BUD_LARGE:

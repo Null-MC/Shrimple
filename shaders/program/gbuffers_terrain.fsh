@@ -294,10 +294,6 @@ void main() {
     #endif
 
     float occlusion = 1.0;
-    #ifdef WORLD_AO_ENABLED
-        occlusion = RGBToLinear(glcolor.a);
-    #endif
-
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
     float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
@@ -325,7 +321,15 @@ void main() {
                 // lmFinal.y = max(lmFinal.y, shadowF);
                 // lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
             #endif
+
+            //occlusion = max(occlusion, min(luminance(shadowColor), 1.0));
         }
+    #endif
+
+    #ifdef WORLD_AO_ENABLED
+        float shadowF = min(luminance(shadowColor), 1.0);
+        occlusion = max(glcolor.a, shadowF);
+        occlusion = RGBToLinear(occlusion);
     #endif
 
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
@@ -449,7 +453,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, roughL, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
         ApplyPostProcessing(color.rgb);

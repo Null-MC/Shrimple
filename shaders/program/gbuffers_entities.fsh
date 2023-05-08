@@ -311,9 +311,15 @@ void main() {
 
     vec3 localViewDir = normalize(vLocalPos);
 
-    float roughness, metal_f0;
-    float sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
+    // int materialId = entityId;
+    // if (currentRenderedItemId > 0) {
+    //     materialId = currentRenderedItemId;
+    //     //color.rgb = vec3(1.0, 0.0, 0.0);
+    // }
+
+    float roughness, metal_f0, sss, emission;
+    sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
+    emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
@@ -434,7 +440,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, roughL, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

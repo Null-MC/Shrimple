@@ -281,7 +281,11 @@ void main() {
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    int itemId = (gl_FragCoord.x > viewWidth / 2) ? heldItemId : heldItemId2;
+    #ifdef IS_IRIS
+        int itemId = currentRenderedItemId;
+    #else
+        int itemId = (gl_FragCoord.x > viewWidth / 2) ? heldItemId : heldItemId2;
+    #endif
 
     float roughness, metal_f0, emission, sss;
     sss = GetMaterialSSS(itemId, atlasCoord, dFdXY);
@@ -398,7 +402,7 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, roughL, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

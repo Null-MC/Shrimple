@@ -237,7 +237,7 @@
         }
     #endif
 
-    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float occlusion) {
+    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion) {
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             vec2 lmFinal = lmcoord;
             //lmFinal.x = (0.5/16.0);
@@ -286,7 +286,7 @@
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
-                diffuse *= METAL_BRIGHTNESS;
+                diffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
                 specular *= albedo;
             }
         #endif
