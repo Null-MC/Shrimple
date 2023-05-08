@@ -298,6 +298,10 @@ void main() {
     float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
     float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
+
+    #ifdef WORLD_AO_ENABLED
+        occlusion = RGBToLinear(glcolor.a);
+    #endif
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -316,20 +320,8 @@ void main() {
             #else
                 float shadowF = GetFinalShadowFactor(sss);
                 shadowColor = vec3(shadowF);
-
-                // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-                // lmFinal.y = max(lmFinal.y, shadowF);
-                // lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
             #endif
-
-            //occlusion = max(occlusion, min(luminance(shadowColor), 1.0));
         }
-    #endif
-
-    #ifdef WORLD_AO_ENABLED
-        float shadowF = min(luminance(shadowColor), 1.0);
-        occlusion = max(glcolor.a, shadowF);
-        occlusion = RGBToLinear(occlusion);
     #endif
 
     vec3 texNormal = vec3(0.0, 0.0, 1.0);

@@ -444,6 +444,9 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
         #endif
 
+        float shadowF = min(luminance(deferredShadow), 1.0);
+        occlusion = max(occlusion, shadowF);
+
         vec3 albedo = RGBToLinear(deferredColor);
         //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
         final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, roughL, occlusion);
