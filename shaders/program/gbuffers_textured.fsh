@@ -222,6 +222,6 @@ void main() {
     color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, roughL, glcolor.a);
 
     ApplyFog(color, vLocalPos, localViewDir);
-    ApplyPostProcessing(color.rgb);
+    //ApplyPostProcessing(color.rgb);
     outFinal = color;
 }

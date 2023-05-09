@@ -1,9 +1,9 @@
-// vec3 tonemap_Tech(const in vec3 color) {
-//     const float c = rcp(TONEMAP_CONTRAST);
-//     vec3 a = color * min(vec3(1.0), 1.0 - exp(-c * color));
-//     a = mix(a, color, color * color);
-//     return a / (a + 0.6);
-// }
+vec3 tonemap_Tech(const in vec3 color, const in float contrast) {
+    const float c = rcp(contrast);
+    vec3 a = color * min(vec3(1.0), 1.0 - exp(-c * color));
+    a = mix(a, color, color * color);
+    return a / (a + 0.6);
+}
 
 void setLuminance(inout vec3 color, const in float targetLuminance) {
     color *= (targetLuminance / luminance(color));
@@ -19,7 +19,8 @@ vec3 tonemap_ReinhardExtendedLuminance(in vec3 color, const in float maxWhiteLum
 
 void ApplyPostProcessing(inout vec3 color) {
     #ifdef TONEMAP_ENABLED
-        color = tonemap_ReinhardExtendedLuminance(color, 1.5);
+        color = tonemap_Tech(color, 1.0);
+        //color = tonemap_ReinhardExtendedLuminance(color, 1.5);
     #endif
 
     #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100

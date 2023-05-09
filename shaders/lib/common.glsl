@@ -2,7 +2,7 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 
 /*
 const int shadowcolor0Format = RGBA8;
-const int colortex0Format  = RGB8;
+const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGB8;
 const int colortex2Format  = RGB8;
 const int colortex3Format  = RGBA32UI;
@@ -16,6 +16,7 @@ const int colortex10Format = RGBA16F;
 const int colortex11Format  = RGB16F;
 const int colortex12Format  = RGB16F;
 const int colortex14Format  = RG8;
+const int colortex15Format  = RGB16F;
 */
 
 const bool generateShadowMipmap = false;
@@ -83,6 +84,10 @@ const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex14MipmapEnabled = false;
 const bool colortex14Clear = true;
 
+const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const bool colortex15MipmapEnabled = false;
+const bool colortex15Clear = true;
+
 
 // World Options
 #define WORLD_WETNESS_ENABLED
@@ -93,6 +98,8 @@ const bool colortex14Clear = true;
 #define WORLD_SKY_REFLECTIONS
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_RAIN_OPACITY 50 // [10 20 30 40 50 60 70 80 90 100]
+#define WORLD_SUN_BRIGHTNESS 300 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
+#define WORLD_MOON_BRIGHTNESS 10 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 
 
 // Material Options
@@ -102,7 +109,7 @@ const bool colortex14Clear = true;
 #define MATERIAL_NORMAL_ROUND 40 // [0 10 20 30 40 50 60 70 80 90 100]
 #define MATERIAL_NORMAL_EDGE 0 // [0 1 2]
 #define MATERIAL_EMISSION 0 // [0 1 2]
-#define MATERIAL_EMISSION_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500]
+#define MATERIAL_EMISSION_BRIGHTNESS 400 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500 550 600 650 700 750 800]
 #define MATERIAL_SSS 1 // [0 1 2]
 #define MATERIAL_SPECULAR 1 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
@@ -193,14 +200,15 @@ const bool colortex14Clear = true;
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.2 3.4 3.6]
-#define AF_SAMPLES 1
+#define POST_BLOOM_STRENGTH 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 //#define DYN_LIGHT_OREBLOCKS
+#define AF_SAMPLES 1
 
 
 // INTERNAL SETTINGS
@@ -305,6 +313,8 @@ const bool colortex14Clear = true;
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
 const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
+const float WorldSunBrightnessF = WORLD_SUN_BRIGHTNESS * 0.01;
+const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.01;
 const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
 const float WorldSkyBrightnessF = WORLD_SKY_BRIGHTNESS * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
@@ -326,6 +336,7 @@ const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
+const float PostBloomStrengthF = POST_BLOOM_STRENGTH * 0.01;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

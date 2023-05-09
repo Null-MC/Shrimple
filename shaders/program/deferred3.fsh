@@ -487,10 +487,6 @@ void main() {
         final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
-    ApplyPostProcessing(final);
-
-    final.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
-
     outFinal = vec4(final, 1.0);
 }
 #else

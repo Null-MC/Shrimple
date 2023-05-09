@@ -52,12 +52,12 @@ void main() {
 
     color *= 1.0 - blindness;
 
-    #ifndef DEFERRED_BUFFER_ENABLED
-        color = RGBToLinear(color);
-        ApplyPostProcessing(color);
-    #endif
+    // #ifndef DEFERRED_BUFFER_ENABLED
+    //     color = RGBToLinear(color);
+    //     ApplyPostProcessing(color);
+    // #endif
 
-    color += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
+    //color += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
     
     outFinal = vec4(color, 1.0);
 }

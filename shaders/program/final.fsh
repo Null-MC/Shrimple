@@ -33,9 +33,12 @@ uniform float viewHeight;
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 	uniform sampler2D shadowcolor0;
+#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
+	uniform sampler2D BUFFER_BLOOM_TILES;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/utility/text.glsl"
 #include "/lib/utility/iris.glsl"
 
@@ -78,6 +81,8 @@ void main() {
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
+		vec3 color = textureLod(BUFFER_BLOOM_TILES, texcoord, 0).rgb;
 	#else
 		#ifdef FXAA_ENABLED
 			vec3 color = FXAA(texcoord);
@@ -85,6 +90,9 @@ void main() {
 			vec3 color = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).rgb;
 		#endif
 	#endif
+
+    //color.rgb += (GetScreenBayerValue() * 2.0 - 1.0) / 255.0;
+    color.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
 
 	#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 		beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewHeight/2 - 24));
@@ -122,8 +130,6 @@ void main() {
 			drawWarning(color);
 		#endif
 	#endif
-
-    //color.rgb += (GetScreenBayerValue() * 2.0 - 1.0) / 255.0;
 
 	/* DRAWBUFFERS:0 */
 	gl_FragData[0] = vec4(color, 1.0);

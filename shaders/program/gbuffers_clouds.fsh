@@ -225,9 +225,9 @@ void main() {
         final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
-    ApplyPostProcessing(final.rgb);
+    //ApplyPostProcessing(final.rgb);
 
-    final.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
+    //final.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 255.0;
     
     outFinal = final;
 }

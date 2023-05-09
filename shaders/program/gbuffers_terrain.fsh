@@ -448,9 +448,9 @@ void main() {
         color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmFinal, metal_f0, roughL, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
-        ApplyPostProcessing(color.rgb);
+        //ApplyPostProcessing(color.rgb);
 
-        color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
+        //color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.5) / 255.0;
 
         outFinal = color;
     #endif

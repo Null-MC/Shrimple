@@ -235,6 +235,5 @@ void main() {
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
-    ApplyPostProcessing(color.rgb);
     outFinal = color;
 }

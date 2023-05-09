@@ -166,7 +166,7 @@ void main() {
         vec3 localViewDir = normalize(vLocalPos);
         ApplyFog(color, vLocalPos, localViewDir);
 
-        ApplyPostProcessing(color.rgb);
+        //ApplyPostProcessing(color.rgb);
 		outFinal = color;
 	#endif
 }

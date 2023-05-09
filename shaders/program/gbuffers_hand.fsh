@@ -406,7 +406,7 @@ void main() {
 
         ApplyFog(color, vLocalPos, localViewDir);
 
-        ApplyPostProcessing(color.rgb);
+        //ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }

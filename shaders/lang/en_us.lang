@@ -528,6 +528,11 @@ option.GAMMA_OUT.comment=The gamma curve of the final image.
 option.TONEMAP_ENABLED=Tonemap
 option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
 
+option.POST_BLOOM_STRENGTH=Bloom
+option.POST_BLOOM_STRENGTH.comment=The amount of bloom to apply to the final scene. Set to zero to disable.
+suffix.POST_BLOOM_STRENGTH=%
+value.POST_BLOOM_STRENGTH.0=OFF
+
 option.FXAA_ENABLED=FXAA
 option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
 
@@ -548,7 +553,8 @@ value.DEBUG_VIEW.8=Deferred VL
 value.DEBUG_VIEW.9=Deferred Diffuse
 value.DEBUG_VIEW.10=Deferred Specular
 value.DEBUG_VIEW.11=Shadow Color
-value.DEBUG_VIEW.12=White-World
+value.DEBUG_VIEW.12=Bloom Tiles
+value.DEBUG_VIEW.13=White-World
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
