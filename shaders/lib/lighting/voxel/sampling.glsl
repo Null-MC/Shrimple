@@ -86,6 +86,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
                 //vec3 diffuseLightPos = lightPos;
                 vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
+
+                lightColor *= 2.0;
             #else
                 vec3 diffuseLightPos = lightPos;
             #endif

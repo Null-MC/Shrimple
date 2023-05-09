@@ -145,7 +145,7 @@ const bool colortex15Clear = true;
 
 // Dynamic Lighting
 #define DYN_LIGHT_MODE 0 // [0 1 2 3]
-#define DYN_LIGHT_TYPE 1 // [0 1]
+#define DYN_LIGHT_TYPE 0 // [0 1]
 #define DYN_LIGHT_COLOR_MODE 0 // [0 1]
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
 #define DYN_LIGHT_DIRECTIONAL 100 // [0 10 20 30 40 50 60 70 80 90 100]
