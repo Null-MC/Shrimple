@@ -165,6 +165,6 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         }
     }
 
-    blockDiffuse += PI * accumDiffuse * DynamicLightBrightness;
+    blockDiffuse += accumDiffuse * DynamicLightBrightness;
     blockSpecular += accumSpecular * DynamicLightBrightness;
 }

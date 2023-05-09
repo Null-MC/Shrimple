@@ -295,7 +295,9 @@ void main() {
                 boundsMin[0] = modelPart( 5,  0,  5);
                 boundsMax[0] = modelPart(10,  6, 10);
                 break;
+        }
 
+        switch (blockId) {
             case BLOCK_GRINDSTONE_FLOOR_N_S:
                 shapeCount = 1u;
                 boundsMin[0] = modelPart( 4,  4,  2);
