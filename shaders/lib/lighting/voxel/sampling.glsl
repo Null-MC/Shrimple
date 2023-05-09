@@ -205,7 +205,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             }
         }
 
-        accumDiffuse *= DynamicLightBrightness;
+        accumDiffuse *= PI * DynamicLightBrightness;
         accumSpecular *= DynamicLightBrightness;
 
         #ifdef DYN_LIGHT_FALLBACK

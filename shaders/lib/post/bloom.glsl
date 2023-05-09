@@ -78,6 +78,8 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 
         vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcOuterBoundsMin;
 
+        srcTex += 0.25 * pixelSize;
+
         vec3 color = vec3(0.0);
         float totalWeight = 0.0;
 

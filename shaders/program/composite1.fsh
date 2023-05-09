@@ -20,7 +20,8 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     const int tile = 0;
-    
+    const float _Threshold = 0.8;
+
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 pixelSize = rcp(viewSize);
 
@@ -32,6 +33,8 @@ void main() {
     vec2 tex = (gl_FragCoord.xy - 0.5) / viewSize;
     tex = clamp(tex, boundsMin, boundsMax);
     tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
+
+    tex += 0.25 * pixelSize;
 
     vec3 color = vec3(0.0);
     float totalWeight = 0.0;
@@ -48,8 +51,6 @@ void main() {
     }
 
     color /= totalWeight;
-
-    const float _Threshold = 1.0;
 
     float brightness = maxOf(color);
     float contribution = max(brightness - _Threshold, 0.0);

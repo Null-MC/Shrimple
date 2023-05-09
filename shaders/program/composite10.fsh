@@ -19,7 +19,7 @@ uniform float viewHeight;
 layout(location = 0) out vec3 outFinal;
 
 void main() {
-    vec3 color = BloomTileUpsample(BUFFER_BLOOM_TILES, 3);
+    vec3 color = BloomTileUpsample(BUFFER_BLOOM_TILES, 4);
 
     outFinal = color;
 }
