@@ -304,8 +304,6 @@ void main() {
         color.rgb = vec3(WHITEWORLD_VALUE);
     #endif
 
-    const float occlusion = 1.0; // glcolor.a
-    
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
@@ -317,10 +315,15 @@ void main() {
     //     //color.rgb = vec3(1.0, 0.0, 0.0);
     // }
 
+    float occlusion = 1.0;
     float roughness, metal_f0, sss, emission;
     sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
     emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
+
+    #ifdef WORLD_AO_ENABLED
+        occlusion = RGBToLinear(glcolor.a);
+    #endif
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
         sss = max(sss, 1.0 - color.a);
@@ -428,13 +431,12 @@ void main() {
 
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
 
         blockDiffuse += emission * MaterialEmissionF;
 
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
-
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);

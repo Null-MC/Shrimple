@@ -427,6 +427,8 @@ void main() {
         
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
 
         blockDiffuse += emission * MaterialEmissionF;
 
@@ -437,9 +439,6 @@ void main() {
         #if (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER)
             SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
         #endif
-
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);

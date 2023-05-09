@@ -277,7 +277,7 @@
             //     //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             // #endif
 
-            vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight)) * occlusion;
+            vec3 diffuse = albedo * (blockDiffuse + (skyDiffuse + ambientLight * occlusion));
         #else
             vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * occlusion;
         #endif
