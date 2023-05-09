@@ -33,23 +33,9 @@ void main() {
     tex = clamp(tex, boundsMin, boundsMax);
     tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
 
-    tex += 0.25 * pixelSize;
+    //tex += 0.25 * pixelSize;
 
-    vec3 color = vec3(0.0);
-    float totalWeight = 0.0;
-
-    for (int iy = -5; iy < 5; iy++) {
-        for (int ix = -5; ix < 5; ix++) {
-            vec2 sampleOffset = vec2(ix, iy);
-            float sampleWeight = pow(1.0 - length(sampleOffset) * 0.125, 6.0);
-
-            vec3 sampleColor = textureLod(BUFFER_FINAL, tex + sampleOffset * pixelSize, 0).rgb;
-            color += sampleWeight * sampleColor;
-            totalWeight += sampleWeight;
-        }
-    }
-
-    color /= totalWeight;
+    vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
 
     float brightness = luminance(color);
     float contribution = max(brightness - PostBloomThresholdF, 0.0);

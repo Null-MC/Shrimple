@@ -58,6 +58,24 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 #endif
 
 #ifdef RENDER_FRAG
+    vec3 BloomBoxSample(const in sampler2D texColor, const in vec2 texcoord, const in vec2 pixelSize) {
+        vec3 color = vec3(0.0);
+        float totalWeight = 0.0;
+
+        for (int iy = -2; iy < 2; iy++) {
+            for (int ix = -2; ix < 2; ix++) {
+                vec2 sampleOffset = vec2(ix, iy);
+                float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
+
+                vec3 sampleColor = textureLod(texColor, texcoord + sampleOffset * pixelSize, 0).rgb;
+                color += sampleWeight * sampleColor;
+                totalWeight += sampleWeight;
+            }
+        }
+
+        return color / totalWeight;
+    }
+
     vec3 BloomTileDownsample(const in sampler2D texSrc, const in int tile) {
         vec2 viewSize = vec2(viewWidth, viewHeight);
         vec2 pixelSize = rcp(viewSize);
@@ -78,23 +96,9 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 
         vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcOuterBoundsMin;
 
-        srcTex += 0.25 * pixelSize;
+        //srcTex += 0.25 * pixelSize;
 
-        vec3 color = vec3(0.0);
-        float totalWeight = 0.0;
-
-        for (int iy = -5; iy < 5; iy++) {
-            for (int ix = -5; ix < 5; ix++) {
-                vec2 sampleOffset = vec2(ix, iy);
-                float sampleWeight = pow(1.0 - length(sampleOffset) * 0.125, 6.0);
-
-                vec3 sampleColor = textureLod(texSrc, srcTex + sampleOffset * pixelSize, 0).rgb;
-                color += sampleWeight * sampleColor;
-                totalWeight += sampleWeight;
-            }
-        }
-
-        color /= totalWeight;
+        vec3 color = BloomBoxSample(texSrc, srcTex, pixelSize);
 
         return max(color, vec3(0.0));
     }
@@ -117,7 +121,7 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 
         vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcBoundsMin;
 
-        srcTex -= pixelSize;
+        srcTex -= 0.5*pixelSize;
 
         vec3 color1 = textureLod(texSrc, srcTex, 0).rgb;
         vec3 color2 = textureLodOffset(texSrc, srcTex, 0, ivec2(1,0)).rgb;
