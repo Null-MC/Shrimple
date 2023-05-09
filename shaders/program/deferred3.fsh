@@ -274,8 +274,10 @@ void main() {
     ivec2 iTex = ivec2(gl_FragCoord.xy);
     vec2 viewSize = vec2(viewWidth, viewHeight);
 
-    float depth = texelFetch(depthtex0, iTex, 0).r;
-    float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
+    //float depth = texelFetch(depthtex0, iTex, 0).r;
+    //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
+    float depth = textureLod(depthtex0, texcoord, 0).r;
+    float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
     bool isHand = handClipDepth > depth;
 
     // if (isHand) {
