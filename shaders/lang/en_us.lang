@@ -528,10 +528,14 @@ option.GAMMA_OUT.comment=The gamma curve of the final image.
 option.TONEMAP_ENABLED=Tonemap
 option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
 
-option.POST_BLOOM_STRENGTH=Bloom
+option.POST_BLOOM_STRENGTH=Bloom Strength
 option.POST_BLOOM_STRENGTH.comment=The amount of bloom to apply to the final scene. Set to zero to disable.
 suffix.POST_BLOOM_STRENGTH=%
 value.POST_BLOOM_STRENGTH.0=OFF
+
+option.POST_BLOOM_THRESHOLD=Bloom Threshold
+option.POST_BLOOM_THRESHOLD.comment=The brightness threshold light needs to exceed to contribute to bloom.
+suffix.POST_BLOOM_THRESHOLD=%
 
 option.FXAA_ENABLED=FXAA
 option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.

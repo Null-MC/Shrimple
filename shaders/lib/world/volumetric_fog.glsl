@@ -28,7 +28,7 @@ void GetVolumetricPhaseFactors(out float ambient, out float G_Forward, out float
 }
 
 void GetVolumetricCoeff(const in vec3 sunDir, out float scattering, out float extinction) {
-    float density = (sunDir.y * -0.8 + 1.0) * VolumetricDensityF;
+    float density = (sunDir.y * -0.6 + 1.0) * VolumetricDensityF;
 
     #ifdef WORLD_SKY_ENABLED
         scattering = mix(0.032, 0.096, rainStrength) * density;

@@ -20,7 +20,6 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     const int tile = 0;
-    const float _Threshold = 0.8;
 
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 pixelSize = rcp(viewSize);
@@ -52,8 +51,8 @@ void main() {
 
     color /= totalWeight;
 
-    float brightness = maxOf(color);
-    float contribution = max(brightness - _Threshold, 0.0);
+    float brightness = luminance(color);
+    float contribution = max(brightness - PostBloomThresholdF, 0.0);
     contribution /= max(brightness, EPSILON);
     color *= contribution;
 
