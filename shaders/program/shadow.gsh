@@ -20,14 +20,16 @@ out vec4 gColor;
 #endif
 
 uniform int renderStage;
+uniform mat4 gbufferModelView;
 uniform vec3 cameraPosition;
+uniform float far;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform mat4 gbufferModelView;
+    //uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
     uniform float near;
-    uniform float far;
+    //uniform float far;
 #endif
 
 #include "/lib/blocks.glsl"

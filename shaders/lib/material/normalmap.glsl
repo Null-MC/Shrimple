@@ -36,10 +36,6 @@
         vec3 texColorY1 = textureGrad(gtexture, texcoordY1, dFdXY[0], dFdXY[1]).rgb;
         vec3 texColorY2 = textureGrad(gtexture, texcoordY2, dFdXY[0], dFdXY[1]).rgb;
 
-        // float texHeightX1 = luminance(RGBToLinear(texColorX1));
-        // float texHeightX2 = luminance(RGBToLinear(texColorX2));
-        // float texHeightY1 = luminance(RGBToLinear(texColorY1));
-        // float texHeightY2 = luminance(RGBToLinear(texColorY2));
         float texHeightX1 = luminance(texColorX1);
         float texHeightX2 = luminance(texColorX2);
         float texHeightY1 = luminance(texColorY1);
@@ -65,9 +61,6 @@
 
         float dX = texHeightX2 - texHeightX1;
         float dY = texHeightY2 - texHeightY1;
-
-        //dX = sign(dX) * step(0.02, abs(dX)) * 0.4;
-        //dY = sign(dY) * step(0.02, abs(dY)) * 0.4;
 
         vec3 aX = vec3(1.0, 0.0, dX * MaterialNormalStrengthF);
         vec3 aY = vec3(0.0, 1.0, dY * MaterialNormalStrengthF);
