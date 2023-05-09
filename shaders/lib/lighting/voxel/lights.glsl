@@ -297,18 +297,6 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_SEA_LANTERN:
             lightType = LIGHT_SEA_LANTERN;
             break;
-        case BLOCK_SEA_PICKLE_WET_1:
-            lightType = LIGHT_SEA_PICKLE_1;
-            break;
-        case BLOCK_SEA_PICKLE_WET_2:
-            lightType = LIGHT_SEA_PICKLE_2;
-            break;
-        case BLOCK_SEA_PICKLE_WET_3:
-            lightType = LIGHT_SEA_PICKLE_3;
-            break;
-        case BLOCK_SEA_PICKLE_WET_4:
-            lightType = LIGHT_SEA_PICKLE_4;
-            break;
         case BLOCK_SHROOMLIGHT:
             lightType = LIGHT_SHROOMLIGHT;
             break;
@@ -483,6 +471,23 @@ uint GetSceneLightType(const in int blockId) {
 
     #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_NONE
         if (blockId == BLOCK_NETHER_PORTAL) lightType = LIGHT_NETHER_PORTAL;
+    #endif
+
+    #if DYN_LIGHT_SEA_PICKLE != DYN_LIGHT_BLOCK_NONE
+        switch (blockId) {
+            case BLOCK_SEA_PICKLE_WET_1:
+                lightType = LIGHT_SEA_PICKLE_1;
+                break;
+            case BLOCK_SEA_PICKLE_WET_2:
+                lightType = LIGHT_SEA_PICKLE_2;
+                break;
+            case BLOCK_SEA_PICKLE_WET_3:
+                lightType = LIGHT_SEA_PICKLE_3;
+                break;
+            case BLOCK_SEA_PICKLE_WET_4:
+                lightType = LIGHT_SEA_PICKLE_4;
+                break;
+        }
     #endif
 
     #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_NONE

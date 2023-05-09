@@ -351,6 +351,12 @@ value.DYN_LIGHT_REDSTONE.0=Disable
 value.DYN_LIGHT_REDSTONE.1=Emit
 value.DYN_LIGHT_REDSTONE.2=Trace
 
+option.DYN_LIGHT_SEA_PICKLE=Sea Pickles
+option.DYN_LIGHT_SEA_PICKLE.comment=Determines how lighting for sea pickles is handled, to avoid heavy performance impacts from large reefs.
+value.DYN_LIGHT_SEA_PICKLE.0=Disable
+value.DYN_LIGHT_SEA_PICKLE.1=Emit
+value.DYN_LIGHT_SEA_PICKLE.2=Trace
+
 
 screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
 

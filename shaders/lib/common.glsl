@@ -177,10 +177,11 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_OCTREE_SIZE 1u
 
 // Dynamic Light Blocks
-#define DYN_LIGHT_GLOW_BERRIES 1 // [0 1 2]
-#define DYN_LIGHT_LAVA 1 // [0 1 2]
-#define DYN_LIGHT_PORTAL 1 // [0 1 2]
-#define DYN_LIGHT_REDSTONE 1 // [0 1 2]
+#define DYN_LIGHT_GLOW_BERRIES 2 // [0 1 2]
+#define DYN_LIGHT_LAVA 2 // [0 1 2]
+#define DYN_LIGHT_PORTAL 2 // [0 1 2]
+#define DYN_LIGHT_REDSTONE 0 // [0 1 2]
+#define DYN_LIGHT_SEA_PICKLE 2 // [0 1 2]
 
 
 // Volumetric Lighting
@@ -296,6 +297,8 @@ const bool colortex15Clear = true;
 #ifdef DYN_LIGHT_LAVA_ENABLED
 #endif
 #ifdef DYN_LIGHT_REDSTONE_ENABLED
+#endif
+#ifdef DYN_LIGHT_SEA_PICKLE
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif

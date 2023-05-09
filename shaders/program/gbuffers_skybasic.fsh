@@ -57,6 +57,8 @@ void main() {
     //     ApplyPostProcessing(color);
     // #endif
 
+    color = RGBToLinear(color);
+
     //color += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
     
     outFinal = vec4(color, 1.0);
