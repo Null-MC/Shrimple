@@ -114,8 +114,18 @@ uniform float blindness;
 
 
 ivec2 GetTemporalOffset(const in int size) {
-    ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
-    return ivec2(coord.x % size, (coord.y / size) % size);
+    ivec2 offset = ivec2(gl_FragCoord.xy + frameCounter);
+    offset = ivec2(mod(offset, ivec2(size))) * 2;
+    
+    if (offset.x >= size) offset.x = offset.x - size + 1;
+    if (offset.y >= size) offset.y = offset.y - size + 1;
+    return offset;
+
+    // int o = ((gl_FragCoord.x + frameCounter) % size) * 2;
+    // if (o >= size) o = o - size + 1;
+
+    // ivec2 coord = ivec2(gl_FragCoord.xy) + o;
+    // return ivec2(coord.x, coord.y / size) % ivec2(size);
 }
 
 
