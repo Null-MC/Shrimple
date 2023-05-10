@@ -38,9 +38,7 @@ uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferPreviousProjection;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
@@ -58,6 +56,11 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+
+#ifndef IRIS_FEATURE_SSBO
+    uniform mat4 gbufferPreviousModelView;
+    uniform mat4 gbufferPreviousProjection;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -368,9 +371,17 @@ void main() {
                 #endif
 
                 vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
-                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-                vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+
+                #ifdef IRIS_FEATURE_SSBO
+                    vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+                #else
+                    vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+                    vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+                #endif
+
                 vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
+
+                float diffuseCounter = 0.0;
 
                 if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
                     float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
@@ -387,36 +398,46 @@ void main() {
                     }
 
                     if (depthWeight > 0.0 && normalWeight > 0.0) {
-                        vec3 blockDiffusePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0).rgb;
+                        vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
+                        vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
+                        diffuseCounter = min(diffuseSamplePrev.a, 80.0);
 
-                        float lum = log(luminance(blockDiffuse) + EPSILON);
-                        float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
+                        diffuseCounter *= normalWeight * depthWeight;
 
-                        float lumDiff = min(abs(lum - lumPrev), 1.0);
-                        float lumWeight = 1.0 - lumDiff * mix(0.3, 0.04, DynamicLightTemporalStrength);
+                        // float lum = log(luminance(blockDiffuse) + EPSILON);
+                        // float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
 
-                        float minWeight = mix(0.02, 0.006, DynamicLightTemporalStrength);
-                        float weightDiffuse = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weightDiffuse);
+                        // float lumDiff = min(abs(lum - lumPrev), 1.0);
+                        // float lumWeight = 1.0 - lumDiff * mix(0.3, 0.04, DynamicLightTemporalStrength);
+
+                        //float lum, lumPrev, lumDiff;
+                        //float colDiff = saturate(dot(blockDiffusePrev, blockDiffuse));
+                        //float lumWeight = 1.0 - colDiff * mix(0.25, 0.02, DynamicLightTemporalStrength);
+
+                        //float minWeight = mix(0.01, 0.004, DynamicLightTemporalStrength);
+                        //float weightDiffuse = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
+                        float weight = rcp(1.0 + diffuseCounter*2.0*DynamicLightTemporalStrength);
+                        
+                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weight);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
 
-                            lum = log(luminance(blockSpecular) + EPSILON);
-                            lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
+                            //lum = log(luminance(blockSpecular) + EPSILON);
+                            //lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
 
-                            lumDiff = min(abs(lum - lumPrev), 0.6);
-                            lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
+                            //lumDiff = min(abs(lum - lumPrev), 0.6);
+                            //lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
                             //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
 
-                            minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
-                            float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weightSpecular);
+                            //minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
+                            //float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
                         #endif
                     }
                 }
 
-                outTA = vec4(blockDiffuse, 1.0);
+                outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
                 outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
                 outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
 

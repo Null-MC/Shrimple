@@ -11,7 +11,9 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
 #ifdef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
+    uniform mat4 gbufferPreviousModelView;
     uniform mat4 gbufferProjectionInverse;
+    uniform mat4 gbufferPreviousProjection;
 
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
@@ -64,6 +66,7 @@ void main() {
             #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
+            gbufferPreviousModelViewProjection = gbufferPreviousProjection * gbufferPreviousModelView;
 
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
                 shadowModelViewProjection = shadowProjection * shadowModelView;
