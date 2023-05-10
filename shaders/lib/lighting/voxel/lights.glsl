@@ -60,72 +60,80 @@
 #define LIGHT_RAIL_POWERED 59u
 #define LIGHT_REDSTONE_BLOCK 60u
 #define LIGHT_REDSTONE_LAMP 61u
-#define LIGHT_REDSTONE_TORCH 62u
-#define LIGHT_REDSTONE_WIRE_1 63u
-#define LIGHT_REDSTONE_WIRE_2 64u
-#define LIGHT_REDSTONE_WIRE_3 65u
-#define LIGHT_REDSTONE_WIRE_4 66u
-#define LIGHT_REDSTONE_WIRE_5 67u
-#define LIGHT_REDSTONE_WIRE_6 68u
-#define LIGHT_REDSTONE_WIRE_7 69u
-#define LIGHT_REDSTONE_WIRE_8 70u
-#define LIGHT_REDSTONE_WIRE_9 71u
-#define LIGHT_REDSTONE_WIRE_10 72u
-#define LIGHT_REDSTONE_WIRE_11 73u
-#define LIGHT_REDSTONE_WIRE_12 74u
-#define LIGHT_REDSTONE_WIRE_13 75u
-#define LIGHT_REDSTONE_WIRE_14 76u
-#define LIGHT_REDSTONE_WIRE_15 77u
-#define LIGHT_REPEATER 78u
-#define LIGHT_RESPAWN_ANCHOR_1 79u
-#define LIGHT_RESPAWN_ANCHOR_2 80u
-#define LIGHT_RESPAWN_ANCHOR_3 81u
-#define LIGHT_RESPAWN_ANCHOR_4 82u
-#define LIGHT_SCULK_CATALYST 83u
-#define LIGHT_SEA_LANTERN 84u
-#define LIGHT_SEA_PICKLE_1 85u
-#define LIGHT_SEA_PICKLE_2 86u
-#define LIGHT_SEA_PICKLE_3 87u
-#define LIGHT_SEA_PICKLE_4 88u
-#define LIGHT_SHROOMLIGHT 89u
-#define LIGHT_SMOKER_N 90u
-#define LIGHT_SMOKER_E 91u
-#define LIGHT_SMOKER_S 92u
-#define LIGHT_SMOKER_W 93u
-#define LIGHT_SOUL_LANTERN 94u
-#define LIGHT_SOUL_TORCH 95u
-#define LIGHT_SOUL_CAMPFIRE 96u
-#define LIGHT_SOUL_FIRE 97u
-#define LIGHT_TORCH 98u
+#define LIGHT_REDSTONE_TORCH_FLOOR 62u
+#define LIGHT_REDSTONE_TORCH_WALL_N 63u
+#define LIGHT_REDSTONE_TORCH_WALL_E 64u
+#define LIGHT_REDSTONE_TORCH_WALL_S 65u
+#define LIGHT_REDSTONE_TORCH_WALL_W 66u
+#define LIGHT_REDSTONE_WIRE_1 67u
+#define LIGHT_REDSTONE_WIRE_2 68u
+#define LIGHT_REDSTONE_WIRE_3 69u
+#define LIGHT_REDSTONE_WIRE_4 70u
+#define LIGHT_REDSTONE_WIRE_5 71u
+#define LIGHT_REDSTONE_WIRE_6 72u
+#define LIGHT_REDSTONE_WIRE_7 73u
+#define LIGHT_REDSTONE_WIRE_8 74u
+#define LIGHT_REDSTONE_WIRE_9 75u
+#define LIGHT_REDSTONE_WIRE_10 76u
+#define LIGHT_REDSTONE_WIRE_11 77u
+#define LIGHT_REDSTONE_WIRE_12 78u
+#define LIGHT_REDSTONE_WIRE_13 79u
+#define LIGHT_REDSTONE_WIRE_14 80u
+#define LIGHT_REDSTONE_WIRE_15 81u
+#define LIGHT_REPEATER 82u
+#define LIGHT_RESPAWN_ANCHOR_1 83u
+#define LIGHT_RESPAWN_ANCHOR_2 84u
+#define LIGHT_RESPAWN_ANCHOR_3 85u
+#define LIGHT_RESPAWN_ANCHOR_4 86u
+#define LIGHT_SCULK_CATALYST 87u
+#define LIGHT_SEA_LANTERN 88u
+#define LIGHT_SEA_PICKLE_1 89u
+#define LIGHT_SEA_PICKLE_2 90u
+#define LIGHT_SEA_PICKLE_3 91u
+#define LIGHT_SEA_PICKLE_4 92u
+#define LIGHT_SHROOMLIGHT 93u
+#define LIGHT_SMOKER_N 94u
+#define LIGHT_SMOKER_E 95u
+#define LIGHT_SMOKER_S 96u
+#define LIGHT_SMOKER_W 97u
+#define LIGHT_SOUL_CAMPFIRE 98u
+#define LIGHT_SOUL_FIRE 99u
+#define LIGHT_SOUL_LANTERN 100u
+#define LIGHT_SOUL_TORCH_FLOOR 101u
+#define LIGHT_SOUL_TORCH_WALL_N 102u
+#define LIGHT_SOUL_TORCH_WALL_E 103u
+#define LIGHT_SOUL_TORCH_WALL_S 104u
+#define LIGHT_SOUL_TORCH_WALL_W 105u
+#define LIGHT_TORCH_FLOOR 106u
+#define LIGHT_TORCH_WALL_N 107u
+#define LIGHT_TORCH_WALL_E 108u
+#define LIGHT_TORCH_WALL_S 109u
+#define LIGHT_TORCH_WALL_W 110u
 
-// #define LIGHT_CONCRETE_BLUE 99u
-// #define LIGHT_CONCRETE_GREEN 100u
-// #define LIGHT_CONCRETE_RED 101u
+#define LIGHT_ROSE_QUARTZ_LAMP 120u
+#define LIGHT_DECO_LAMP_BLUE 121u
+#define LIGHT_DECO_LAMP_GREEN 122u
+#define LIGHT_DECO_LAMP_RED 123u
+#define LIGHT_DECO_LAMP_YELLOW 124u
 
-#define LIGHT_ROSE_QUARTZ_LAMP 110u
-#define LIGHT_DECO_LAMP_BLUE 111u
-#define LIGHT_DECO_LAMP_GREEN 112u
-#define LIGHT_DECO_LAMP_RED 113u
-#define LIGHT_DECO_LAMP_YELLOW 114u
-
-#define LIGHT_STREET_LAMP 115u
-#define LIGHT_SOUL_STREET_LAMP 116u
-#define LIGHT_PAPER_LAMP_BLACK 117u
-#define LIGHT_PAPER_LAMP_BLUE 118u
-#define LIGHT_PAPER_LAMP_BROWN 119u
-#define LIGHT_PAPER_LAMP_CYAN 120u
-#define LIGHT_PAPER_LAMP_GRAY 121u
-#define LIGHT_PAPER_LAMP_GREEN 122u
-#define LIGHT_PAPER_LAMP_LIGHT_BLUE 123u
-#define LIGHT_PAPER_LAMP_LIGHT_GRAY 124u
-#define LIGHT_PAPER_LAMP_LIME 125u
-#define LIGHT_PAPER_LAMP_MAGENTA 126u
-#define LIGHT_PAPER_LAMP_ORANGE 127u
-#define LIGHT_PAPER_LAMP_PINK 128u
-#define LIGHT_PAPER_LAMP_PURPLE 129u
-#define LIGHT_PAPER_LAMP_RED 130u
-#define LIGHT_PAPER_LAMP_WHITE 131u
-#define LIGHT_PAPER_LAMP_YELLOW 132u
+#define LIGHT_STREET_LAMP 125u
+#define LIGHT_SOUL_STREET_LAMP 126u
+#define LIGHT_PAPER_LAMP_BLACK 127u
+#define LIGHT_PAPER_LAMP_BLUE 128u
+#define LIGHT_PAPER_LAMP_BROWN 129u
+#define LIGHT_PAPER_LAMP_CYAN 130u
+#define LIGHT_PAPER_LAMP_GRAY 131u
+#define LIGHT_PAPER_LAMP_GREEN 132u
+#define LIGHT_PAPER_LAMP_LIGHT_BLUE 133u
+#define LIGHT_PAPER_LAMP_LIGHT_GRAY 134u
+#define LIGHT_PAPER_LAMP_LIME 135u
+#define LIGHT_PAPER_LAMP_MAGENTA 136u
+#define LIGHT_PAPER_LAMP_ORANGE 137u
+#define LIGHT_PAPER_LAMP_PINK 138u
+#define LIGHT_PAPER_LAMP_PURPLE 139u
+#define LIGHT_PAPER_LAMP_RED 140u
+#define LIGHT_PAPER_LAMP_WHITE 141u
+#define LIGHT_PAPER_LAMP_YELLOW 142u
 
 #define LIGHT_IGNORED 255u
 
@@ -276,8 +284,20 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_REDSTONE_LAMP_LIT:
             lightType = LIGHT_REDSTONE_LAMP;
             break;
-        case BLOCK_REDSTONE_TORCH_LIT:
-            lightType = LIGHT_REDSTONE_TORCH;
+        case BLOCK_REDSTONE_TORCH_FLOOR_LIT:
+            lightType = LIGHT_REDSTONE_TORCH_FLOOR;
+            break;
+        case BLOCK_REDSTONE_TORCH_WALL_N_LIT:
+            lightType = LIGHT_REDSTONE_TORCH_WALL_N;
+            break;
+        case BLOCK_REDSTONE_TORCH_WALL_E_LIT:
+            lightType = LIGHT_REDSTONE_TORCH_WALL_E;
+            break;
+        case BLOCK_REDSTONE_TORCH_WALL_S_LIT:
+            lightType = LIGHT_REDSTONE_TORCH_WALL_S;
+            break;
+        case BLOCK_REDSTONE_TORCH_WALL_W_LIT:
+            lightType = LIGHT_REDSTONE_TORCH_WALL_W;
             break;
         case BLOCK_RESPAWN_ANCHOR_1:
             lightType = LIGHT_RESPAWN_ANCHOR_1;
@@ -322,13 +342,35 @@ uint GetSceneLightType(const in int blockId) {
         case BLOCK_SOUL_LANTERN_FLOOR:
             lightType = LIGHT_SOUL_LANTERN;
             break;
-        case BLOCK_SOUL_TORCH:
-        case BLOCK_SOUL_TORCH_WALL:
-            lightType = LIGHT_SOUL_TORCH;
+        case BLOCK_SOUL_TORCH_FLOOR:
+            lightType = LIGHT_SOUL_TORCH_FLOOR;
             break;
-        case BLOCK_TORCH:
-        case BLOCK_TORCH_WALL:
-            lightType = LIGHT_TORCH;
+        case BLOCK_SOUL_TORCH_WALL_N:
+            lightType = LIGHT_SOUL_TORCH_WALL_N;
+            break;
+        case BLOCK_SOUL_TORCH_WALL_E:
+            lightType = LIGHT_SOUL_TORCH_WALL_E;
+            break;
+        case BLOCK_SOUL_TORCH_WALL_S:
+            lightType = LIGHT_SOUL_TORCH_WALL_S;
+            break;
+        case BLOCK_SOUL_TORCH_WALL_W:
+            lightType = LIGHT_SOUL_TORCH_WALL_W;
+            break;
+        case BLOCK_TORCH_FLOOR:
+            lightType = LIGHT_TORCH_FLOOR;
+            break;
+        case BLOCK_TORCH_WALL_N:
+            lightType = LIGHT_TORCH_WALL_N;
+            break;
+        case BLOCK_TORCH_WALL_E:
+            lightType = LIGHT_TORCH_WALL_E;
+            break;
+        case BLOCK_TORCH_WALL_S:
+            lightType = LIGHT_TORCH_WALL_S;
+            break;
+        case BLOCK_TORCH_WALL_W:
+            lightType = LIGHT_TORCH_WALL_W;
             break;
     }
 
@@ -675,7 +717,11 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_REDSTONE_LAMP:
                 lightColor = vec3(0.953, 0.796, 0.496);
                 break;
-            case LIGHT_REDSTONE_TORCH:
+            case LIGHT_REDSTONE_TORCH_FLOOR:
+            case LIGHT_REDSTONE_TORCH_WALL_N:
+            case LIGHT_REDSTONE_TORCH_WALL_E:
+            case LIGHT_REDSTONE_TORCH_WALL_S:
+            case LIGHT_REDSTONE_TORCH_WALL_W:
                 lightColor = vec3(0.697, 0.130, 0.051);
                 break;
             case LIGHT_COMPARATOR:
@@ -726,13 +772,21 @@ uint GetSceneLightType(const in int blockId) {
                 lightColor = vec3(0.697, 0.654, 0.458);
                 break;
             case LIGHT_SOUL_LANTERN:
-            case LIGHT_SOUL_TORCH:
+            case LIGHT_SOUL_TORCH_FLOOR:
+            case LIGHT_SOUL_TORCH_WALL_N:
+            case LIGHT_SOUL_TORCH_WALL_E:
+            case LIGHT_SOUL_TORCH_WALL_S:
+            case LIGHT_SOUL_TORCH_WALL_W:
             case LIGHT_SOUL_CAMPFIRE:
             case LIGHT_SOUL_FIRE:
             case LIGHT_SOUL_STREET_LAMP:
                 lightColor = vec3(0.203, 0.725, 0.758);
                 break;
-            case LIGHT_TORCH:
+            case LIGHT_TORCH_FLOOR:
+            case LIGHT_TORCH_WALL_N:
+            case LIGHT_TORCH_WALL_E:
+            case LIGHT_TORCH_WALL_S:
+            case LIGHT_TORCH_WALL_W:
                 lightColor = vec3(0.768, 0.701, 0.325);
                 break;
         }
@@ -832,16 +886,17 @@ uint GetSceneLightType(const in int blockId) {
             float flickerNoise = GetDynLightFlickerNoise(noiseSample);
             float blackbodyTemp = 0.0;
 
-            bool isBigFireSource = lightType == LIGHT_TORCH || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
+            bool isBigFireSource = (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W)
+                || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
                 || lightType == LIGHT_LANTERN || lightType == LIGHT_STREET_LAMP;
 
             bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
                 || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
-                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W)
-                || lightType == LIGHT_STREET_LAMP;
+                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
 
-            bool isSoulFireSource = lightType == LIGHT_SOUL_TORCH || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
-                || lightType == LIGHT_SOUL_LANTERN;
+            bool isSoulFireSource = (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)
+                || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
+                || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_STREET_LAMP;
 
             if (isBigFireSource) {
                 blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
@@ -1024,7 +1079,11 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_REDSTONE_LAMP:
                 lightRange = 15.0;
                 break;
-            case LIGHT_REDSTONE_TORCH:
+            case LIGHT_REDSTONE_TORCH_FLOOR:
+            case LIGHT_REDSTONE_TORCH_WALL_N:
+            case LIGHT_REDSTONE_TORCH_WALL_E:
+            case LIGHT_REDSTONE_TORCH_WALL_S:
+            case LIGHT_REDSTONE_TORCH_WALL_W:
                 lightRange = 7.0;
                 break;
             case LIGHT_REDSTONE_WIRE_1:
@@ -1119,10 +1178,18 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_SOUL_LANTERN:
                 lightRange = 12.0;
                 break;
-            case LIGHT_SOUL_TORCH:
+            case LIGHT_SOUL_TORCH_FLOOR:
+            case LIGHT_SOUL_TORCH_WALL_N:
+            case LIGHT_SOUL_TORCH_WALL_E:
+            case LIGHT_SOUL_TORCH_WALL_S:
+            case LIGHT_SOUL_TORCH_WALL_W:
                 lightRange = 10.0;
                 break;
-            case LIGHT_TORCH:
+            case LIGHT_TORCH_FLOOR:
+            case LIGHT_TORCH_WALL_N:
+            case LIGHT_TORCH_WALL_E:
+            case LIGHT_TORCH_WALL_S:
+            case LIGHT_TORCH_WALL_W:
                 lightRange = 12.0;
                 break;
         }
@@ -1279,12 +1346,15 @@ uint GetSceneLightType(const in int blockId) {
                 break;
             case LIGHT_CANDLES_1:
             case LIGHT_CANDLE_CAKE:
-            case LIGHT_REDSTONE_TORCH:
-            case LIGHT_SOUL_TORCH:
-            case LIGHT_TORCH:
                 size = (2.0/16.0);
                 break;
         }
+
+        if (
+            (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W) ||
+            (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W) ||
+            (lightType >= LIGHT_REDSTONE_TORCH_FLOOR && lightType <= LIGHT_REDSTONE_TORCH_WALL_W)
+        ) size = (2.0/16.0);
 
         return size;
     }
@@ -1352,16 +1422,37 @@ uint GetSceneLightType(const in int blockId) {
             case LIGHT_SOUL_LANTERN:
                 lightOffset = vec3(0.0, -0.25, 0.0);
                 break;
-            case LIGHT_TORCH:
-            case LIGHT_SOUL_TORCH:
-                lightOffset = vec3(0.0, (1.0/8.0), 0.0);
+            case LIGHT_REDSTONE_TORCH_FLOOR:
+            case LIGHT_SOUL_TORCH_FLOOR:
+            case LIGHT_TORCH_FLOOR:
+                lightOffset = modelPart(0, 1, 0);
+                break;
+            case LIGHT_REDSTONE_TORCH_WALL_N:
+            case LIGHT_SOUL_TORCH_WALL_N:
+            case LIGHT_TORCH_WALL_N:
+                lightOffset = modelPart(0, 4.5, 4.5);
+                break;
+            case LIGHT_REDSTONE_TORCH_WALL_E:
+            case LIGHT_SOUL_TORCH_WALL_E:
+            case LIGHT_TORCH_WALL_E:
+                lightOffset = modelPart(-4.5, 4.5, 0);
+                break;
+            case LIGHT_REDSTONE_TORCH_WALL_S:
+            case LIGHT_SOUL_TORCH_WALL_S:
+            case LIGHT_TORCH_WALL_S:
+                lightOffset = modelPart(0, 4.5, -4.5);
+                break;
+            case LIGHT_REDSTONE_TORCH_WALL_W:
+            case LIGHT_SOUL_TORCH_WALL_W:
+            case LIGHT_TORCH_WALL_W:
+                lightOffset = modelPart(4.5, 4.5, 0);
                 break;
         }
 
         switch (lightType) {
             case LIGHT_STREET_LAMP:
             case LIGHT_SOUL_STREET_LAMP:
-                lightOffset = vec3(0.0, (3.0/8.0), 0.0);
+                lightOffset = modelPart(0, 3, 0);
                 break;
         }
 

@@ -389,6 +389,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #define _pow2(x) (x*x)
 #define _pow3(x) (x*x*x)
 
+#define modelPart(x, y, z) (vec3(x, y, z)/16.0)
+
 uint pow3(const in uint x) {return x*x*x;}
 float pow3(const in float x) {return x*x*x;}
 vec2  pow3(const in vec2  x) {return x*x*x;}

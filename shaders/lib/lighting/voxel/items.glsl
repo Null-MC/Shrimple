@@ -54,7 +54,7 @@ int GetItemBlockId(const in int itemId) {
             blockId = BLOCK_MAGMA;
             break;
         case ITEM_REDSTONE_TORCH:
-            blockId = BLOCK_REDSTONE_TORCH;
+            blockId = BLOCK_REDSTONE_TORCH_FLOOR_LIT;
             break;
         case ITEM_SCULK_CATALYST:
             blockId = BLOCK_SCULK_CATALYST;
@@ -69,10 +69,10 @@ int GetItemBlockId(const in int itemId) {
             blockId = BLOCK_SOUL_LANTERN_CEIL;
             break;
         case ITEM_SOUL_TORCH:
-            blockId = BLOCK_SOUL_TORCH;
+            blockId = BLOCK_SOUL_TORCH_FLOOR;
             break;
         case ITEM_TORCH:
-            blockId = BLOCK_TORCH;
+            blockId = BLOCK_TORCH_FLOOR;
             break;
     }
 

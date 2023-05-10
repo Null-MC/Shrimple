@@ -16,8 +16,6 @@ const ivec3 workGroups = ivec3(5, 5, 1);
 #endif
 
 
-#define modelPart(x, y, z) (vec3(x, y, z)/16.0)
-
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint blockId = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 40);
@@ -299,24 +297,83 @@ void main() {
 
         switch (blockId) {
             case BLOCK_GRINDSTONE_FLOOR_N_S:
-                shapeCount = 1u;
+                shapeCount = 5u;
                 boundsMin[0] = modelPart( 4,  4,  2);
                 boundsMax[0] = modelPart(12, 16, 14);
+                boundsMin[1] = modelPart( 2,  0,  6);
+                boundsMax[1] = modelPart( 4,  7, 10);
+                boundsMin[2] = modelPart( 2,  7,  5);
+                boundsMax[2] = modelPart( 4, 13, 11);
+                boundsMin[3] = modelPart(12,  0,  6);
+                boundsMax[3] = modelPart(14,  7, 10);
+                boundsMin[4] = modelPart(12,  7,  5);
+                boundsMax[4] = modelPart(14, 13, 11);
                 break;
             case BLOCK_GRINDSTONE_FLOOR_W_E:
-                shapeCount = 1u;
+                shapeCount = 5u;
                 boundsMin[0] = modelPart( 2,  4,  4);
                 boundsMax[0] = modelPart(14, 16, 12);
+                boundsMin[1] = modelPart( 6,  0,  2);
+                boundsMax[1] = modelPart(10,  7,  4);
+                boundsMin[2] = modelPart( 5,  7,  2);
+                boundsMax[2] = modelPart(11, 13,  4);
+                boundsMin[3] = modelPart( 6,  0, 12);
+                boundsMax[3] = modelPart(10,  7, 14);
+                boundsMin[4] = modelPart( 5,  7, 12);
+                boundsMax[4] = modelPart(11, 13, 14);
                 break;
-            case BLOCK_GRINDSTONE_WALL_N_S:
-                shapeCount = 1u;
+
+            case BLOCK_GRINDSTONE_WALL_N:
+                shapeCount = 5u;
                 boundsMin[0] = modelPart( 4,  2,  2);
                 boundsMax[0] = modelPart(12, 14, 14);
+                boundsMin[1] = modelPart( 2,  6,  9);
+                boundsMax[1] = modelPart( 4, 10, 16);
+                boundsMin[2] = modelPart( 2,  5,  3);
+                boundsMax[2] = modelPart( 4, 11,  9);
+                boundsMin[3] = modelPart(12,  6,  9);
+                boundsMax[3] = modelPart(14, 10, 16);
+                boundsMin[4] = modelPart(12,  5,  3);
+                boundsMax[4] = modelPart(14, 11,  9);
                 break;
-            case BLOCK_GRINDSTONE_WALL_W_E:
-                shapeCount = 1u;
+            case BLOCK_GRINDSTONE_WALL_E:
+                shapeCount = 5u;
                 boundsMin[0] = modelPart( 2,  2,  4);
                 boundsMax[0] = modelPart(14, 14, 12);
+                boundsMin[1] = modelPart( 0,  6,  2);
+                boundsMax[1] = modelPart( 7, 10,  4);
+                boundsMin[2] = modelPart( 7,  5,  2);
+                boundsMax[2] = modelPart(13, 11,  4);
+                boundsMin[3] = modelPart( 0,  6, 12);
+                boundsMax[3] = modelPart( 7, 10, 14);
+                boundsMin[4] = modelPart( 7,  5, 12);
+                boundsMax[4] = modelPart(13, 11, 14);
+                break;
+            case BLOCK_GRINDSTONE_WALL_S:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 4,  2,  2);
+                boundsMax[0] = modelPart(12, 14, 14);
+                boundsMin[1] = modelPart( 2,  6,  0);
+                boundsMax[1] = modelPart( 4, 10,  7);
+                boundsMin[2] = modelPart( 2,  5,  7);
+                boundsMax[2] = modelPart( 4, 11, 13);
+                boundsMin[3] = modelPart(12,  6,  0);
+                boundsMax[3] = modelPart(14, 10,  7);
+                boundsMin[4] = modelPart(12,  5,  7);
+                boundsMax[4] = modelPart(14, 11, 13);
+                break;
+            case BLOCK_GRINDSTONE_WALL_W:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  2,  4);
+                boundsMax[0] = modelPart(14, 14, 12);
+                boundsMin[1] = modelPart( 9,  6,  2);
+                boundsMax[1] = modelPart(16, 10,  4);
+                boundsMin[2] = modelPart( 3,  5,  2);
+                boundsMax[2] = modelPart( 9, 11,  4);
+                boundsMin[3] = modelPart( 9,  6, 12);
+                boundsMax[3] = modelPart(16, 10, 14);
+                boundsMin[4] = modelPart( 3,  5, 12);
+                boundsMax[4] = modelPart( 9, 11, 14);
                 break;
         }
 
