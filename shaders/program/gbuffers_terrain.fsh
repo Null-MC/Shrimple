@@ -184,6 +184,7 @@ uniform int fogMode;
 #endif
 
 #include "/lib/material/normalmap.glsl"
+#include "/lib/lighting/directional.glsl"
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -197,8 +198,6 @@ uniform int fogMode;
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
-
-    #include "/lib/lighting/directional.glsl"
 #endif
 
 #include "/lib/lighting/voxel/lights.glsl"
