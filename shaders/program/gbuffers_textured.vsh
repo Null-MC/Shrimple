@@ -60,6 +60,7 @@ uniform vec3 cameraPosition;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -86,7 +87,7 @@ uniform vec3 cameraPosition;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #include "/lib/buffers/lighting.glsl"
+    //#include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"

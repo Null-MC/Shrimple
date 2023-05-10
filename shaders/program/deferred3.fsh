@@ -89,6 +89,14 @@ uniform int heldBlockLightValue2;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -96,15 +104,6 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bilateral_gaussian.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#else
-    #include "/lib/post/saturation.glsl"
-#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -116,7 +115,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/buffers/lighting.glsl"
+    //#include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 #endif
@@ -463,9 +462,9 @@ void main() {
     else {
         #ifdef WORLD_SKY_ENABLED
             final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-            //final = RGBToLinear(final);
         #else
             final = fogColor * WorldSkyBrightnessF;
+            final = RGBToLinear(final);
         #endif
     }
 

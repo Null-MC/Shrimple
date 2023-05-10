@@ -104,8 +104,12 @@ uniform float blindness;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -114,8 +118,6 @@ uniform float blindness;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -144,7 +146,7 @@ uniform float blindness;
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/lighting.glsl"
+        //#include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
@@ -172,9 +174,6 @@ uniform float blindness;
 
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
-
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -214,7 +213,6 @@ void main() {
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
     #endif
 
-
     #ifdef WORLD_SKY_ENABLED
         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
@@ -222,6 +220,6 @@ void main() {
     color.rgb = GetFinalLighting(color.rgb, normal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, roughL, glcolor.a);
 
     ApplyFog(color, vLocalPos, localViewDir);
-    //ApplyPostProcessing(color.rgb);
+
     outFinal = color;
 }

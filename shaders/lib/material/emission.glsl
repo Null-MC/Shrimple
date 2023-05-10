@@ -1,6 +1,9 @@
 float GetSceneBlockEmission(const in int blockId) {
     uint lightType = GetSceneLightType(blockId);
-    float range = GetSceneLightRange(lightType);
+    //float range = GetSceneLightRange(lightType);
+
+    StaticLightData lightInfo = StaticLightMap[lightType];
+    float range = unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
 
     //if (blockId == BLOCK_LAVA) range *= 2.0;
     //if (blockId == BLOCK_CAVEVINE_BERRIES) range = 0.0;

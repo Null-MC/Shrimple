@@ -22,13 +22,8 @@ uniform float blindness;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#include "/lib/sampling/ign.glsl"
-#include "/lib/sampling/bayer.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -52,14 +47,7 @@ void main() {
 
     color *= 1.0 - blindness;
 
-    // #ifndef DEFERRED_BUFFER_ENABLED
-    //     color = RGBToLinear(color);
-    //     ApplyPostProcessing(color);
-    // #endif
-
     color = RGBToLinear(color);
-
-    //color += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
     
     outFinal = vec4(color, 1.0);
 }

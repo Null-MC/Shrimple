@@ -611,8 +611,57 @@ uint GetSceneLightType(const in int blockId) {
     return lightType;
 }
 
-#if !(defined RENDER_SHADOW || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS)
-    vec3 GetSceneLightColor(const in uint lightType, const in vec2 noiseSample) {
+#if !(defined RENDER_SHADOW || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS) && defined DYN_LIGHT_FLICKER && !defined RENDER_SETUP
+    void ApplyLightFlicker(inout vec3 lightColor, const in uint lightType, const in vec2 noiseSample) {
+        float flickerNoise = GetDynLightFlickerNoise(noiseSample);
+        float blackbodyTemp = 0.0;
+
+        bool isBigFireSource = (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W)
+            || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
+            || lightType == LIGHT_LANTERN || lightType == LIGHT_STREET_LAMP;
+
+        bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
+            || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
+            || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
+
+        bool isSoulFireSource = (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)
+            || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
+            || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_STREET_LAMP;
+
+        if (isBigFireSource) {
+            blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
+        }
+
+        if (isSoulFireSource) {
+            blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
+        }
+
+        if (isSmallFireSource) {
+            blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
+        }
+
+        vec3 blackbodyColor = vec3(1.0);
+        if (blackbodyTemp > 0.0)
+            blackbodyColor = blackbody(blackbodyTemp);
+
+        float flickerBrightness = 0.6 + 0.4 * flickerNoise;
+
+        if (isBigFireSource) {
+            lightColor = flickerBrightness * blackbodyColor;
+        }
+
+        if (isSoulFireSource) {
+            lightColor = flickerBrightness * saturate(1.0 - blackbodyColor);
+        }
+
+        if (isSmallFireSource) {
+            lightColor = 0.4 * flickerBrightness * blackbodyColor;
+        }
+    }
+#endif
+
+#ifdef RENDER_SETUP_STATIC_LIGHT
+    vec3 GetSceneLightColor(const in uint lightType) {
         vec3 lightColor = vec3(0.0);
 
         switch (lightType) {
@@ -880,55 +929,6 @@ uint GetSceneLightType(const in int blockId) {
                 break;
         }
         
-        //lightColor = RGBToLinear(lightColor);
-
-        #ifdef DYN_LIGHT_FLICKER
-            float flickerNoise = GetDynLightFlickerNoise(noiseSample);
-            float blackbodyTemp = 0.0;
-
-            bool isBigFireSource = (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W)
-                || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
-                || lightType == LIGHT_LANTERN || lightType == LIGHT_STREET_LAMP;
-
-            bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-                || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
-                || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
-
-            bool isSoulFireSource = (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)
-                || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
-                || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_STREET_LAMP;
-
-            if (isBigFireSource) {
-                blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
-            }
-
-            if (isSoulFireSource) {
-                blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
-            }
-
-            if (isSmallFireSource) {
-                blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
-            }
-
-            vec3 blackbodyColor = vec3(1.0);
-            if (blackbodyTemp > 0.0)
-                blackbodyColor = blackbody(blackbodyTemp);
-
-            float flickerBrightness = 0.6 + 0.4 * flickerNoise;
-
-            if (isBigFireSource) {
-                lightColor = flickerBrightness * blackbodyColor;
-            }
-
-            if (isSoulFireSource) {
-                lightColor = flickerBrightness * saturate(1.0 - blackbodyColor);
-            }
-
-            if (isSmallFireSource) {
-                lightColor = 0.4 * flickerBrightness * blackbodyColor;
-            }
-        #endif
-
         return lightColor;
     }
 
@@ -1458,6 +1458,7 @@ uint GetSceneLightType(const in int blockId) {
 
         return lightOffset;
     }
+#endif
 
     bool GetLightTraced(const in uint lightType) {
         bool result = true;
@@ -1573,7 +1574,7 @@ uint GetSceneLightType(const in int blockId) {
             return lightData;
         }
     #endif
-#endif
+//#endif
 
 void ParseLightPosition(const in uvec4 data, out vec3 position) {
     position.x = uintBitsToFloat(half2float(data.x & uint(0xffff)));

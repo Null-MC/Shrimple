@@ -99,17 +99,25 @@ void main() {
                     uint lightType = GetSceneLightMask(blockCell, gridIndex);
                     if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
 
-                    float lightRange = GetSceneLightRange(lightType);
+                    StaticLightData lightInfo = StaticLightMap[lightType];
+                    vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;
+                    vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                    float lightRange = lightRangeSize.x * 255.0;
+                    float lightSize = lightRangeSize.y;
+
+                    //float lightRange = GetSceneLightRange(lightType);
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 
                     vec2 lightNoise = vec2(0.0);
                     #ifdef DYN_LIGHT_FLICKER
                         lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    vec3 lightOffset = GetSceneLightOffset(lightType);
-                    float lightSize = GetSceneLightSize(lightType);
-                    vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
+                    //vec3 lightOffset = GetSceneLightOffset(lightType);
+                    //float lightSize = GetSceneLightSize(lightType);
+                    //vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
                     bool lightTraced = GetLightTraced(lightType);
                     uint lightMask = BuildLightMask(lightType);
                     

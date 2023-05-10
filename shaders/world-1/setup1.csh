@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "nether.glsl"
-#include "/program/setup_a.csh"
+#include "/program/setup1.csh"

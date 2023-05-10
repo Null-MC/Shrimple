@@ -139,6 +139,7 @@ uniform int fogMode;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
 #endif
 
 #include "/lib/blocks.glsl"
@@ -155,10 +156,9 @@ uniform int fogMode;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-//#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/sampling/atlas.glsl"
-    #include "/lib/utility/tbn.glsl"
-//#endif
+#include "/lib/lighting/fresnel.glsl"
+#include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
     #include "/lib/material/porosity.glsl"
@@ -190,11 +190,17 @@ uniform int fogMode;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/lighting/voxel/blocks.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/lighting/sampling.glsl"
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
+
+    #include "/lib/lighting/directional.glsl"
 #endif
 
-#include "/lib/lighting/directional.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
@@ -207,23 +213,17 @@ uniform int fogMode;
     #include "/lib/material/parallax.glsl"
 #endif
 
-#if !(defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-        #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #include "/lib/lighting/fresnel.glsl"
-    #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
-
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
 #endif
 
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
+#ifdef DEFERRED_BUFFER_ENABLED
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;

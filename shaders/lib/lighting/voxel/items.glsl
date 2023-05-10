@@ -209,13 +209,27 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
 
     #if defined RENDER_HAND && defined IS_IRIS
         uint lightType = GetSceneLightType(itemId);
-        if (lightType != LIGHT_EMPTY)
-            return GetSceneLightColor(lightType, noiseSample);
+        if (lightType != LIGHT_EMPTY) {
+            //vec3 lightColor = GetSceneLightColor(lightType);
+
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+            ApplyLightFlicker(lightColor, lightType, noiseSample);
+
+            return lightColor;
+        }
     #else
         int blockId = GetItemBlockId(itemId);
         if (blockId != BLOCK_EMPTY) {
             uint lightType = GetSceneLightType(blockId);
-            return GetSceneLightColor(lightType, noiseSample);
+
+            //vec3 lightColor = GetSceneLightColor(lightType);
+
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+            ApplyLightFlicker(lightColor, lightType, noiseSample);
+
+            return lightColor;
         }
     #endif
 
@@ -256,13 +270,21 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
 
     #if defined RENDER_HAND && defined IS_IRIS
         uint lightType = GetSceneLightType(itemId);
-        if (lightType != LIGHT_EMPTY)
-            return GetSceneLightRange(lightType);
+        if (lightType != LIGHT_EMPTY) {
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            return unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+
+            //return GetSceneLightRange(lightType);
+        }
     #else
         int blockId = GetItemBlockId(itemId);
         if (blockId != BLOCK_EMPTY) {
             uint lightType = GetSceneLightType(blockId);
-            return GetSceneLightRange(lightType);
+
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            return unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+
+            //return GetSceneLightRange(lightType);
         }
     #endif
 
@@ -353,11 +375,23 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
 float GetSceneItemLightSize(const in int itemId) {
     float size = 0.1;
 
-    int blockId = GetItemBlockId(itemId);
-    if (blockId != BLOCK_EMPTY) {
-        uint lightType = GetSceneLightType(blockId);
-        return GetSceneLightSize(lightType);
-    }
+    #if defined RENDER_HAND && defined IS_IRIS
+        uint lightType = GetSceneLightType(itemId);
+
+        if (lightType != LIGHT_EMPTY) {
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            return unpackUnorm4x8(lightInfo.RangeSize).y;
+        }
+    #else
+        int blockId = GetItemBlockId(itemId);
+
+        if (blockId != BLOCK_EMPTY) {
+            uint lightType = GetSceneLightType(blockId);
+
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            return unpackUnorm4x8(lightInfo.RangeSize).y;
+        }
+    #endif
 
     // switch (itemId) {
     //     case ITEM_AMETHYST_BLOCK:

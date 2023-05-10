@@ -77,11 +77,12 @@ uniform int heldBlockLightValue2;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
-#include "/lib/sampling/atlas.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/sampling/atlas.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
@@ -108,7 +109,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/entities.glsl"
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-        #include "/lib/buffers/lighting.glsl"
+        //#include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
     #endif
 

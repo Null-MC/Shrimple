@@ -1,8 +1,7 @@
 profile.VANILLA=Vanilla
-profile.SHADOWS=Shadows Only
-profile.LIGHTS_FAST=Lights [Fast]
-profile.LIGHTS_FANCY=Lights [Fancy]
-profile.LIGHTS_RTX=Lights [RTX]
+profile.SHADOWS=Shadows
+profile.LIGHTS_FANCY=Lights
+profile.LIGHTS_RTX=RTX
 
 
 screen.WORLD_OPTIONS=World

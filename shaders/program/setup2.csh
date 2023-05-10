@@ -19,7 +19,7 @@ const ivec3 workGroups = ivec3(5, 5, 1);
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         uint blockId = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 40);
-        if (blockId > 1200) return;
+        if (blockId >= 1200) return;
 
         uint shapeCount = 0u;
         vec3 boundsMin[BLOCK_MASK_PARTS];

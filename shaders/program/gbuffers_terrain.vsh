@@ -76,6 +76,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/lighting.glsl"
 #endif
 
 #include "/lib/blocks.glsl"
@@ -108,7 +109,6 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-        #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
     #endif
 
