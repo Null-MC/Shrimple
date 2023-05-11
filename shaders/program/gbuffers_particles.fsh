@@ -194,9 +194,6 @@ uniform int heldBlockLightValue2;
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/world/volumetric_fog.glsl"
     #endif
-
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -245,7 +242,7 @@ void main() {
         #endif
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    #if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);

@@ -1,4 +1,4 @@
-#if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
+#if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
@@ -47,7 +47,11 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             }
         #endif
 
-        const int MaxSampleCount = min(DYN_LIGHT_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
+        #if DYN_LIGHT_TA > 0
+            const int MaxSampleCount = min(DYN_LIGHT_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
+        #else
+            const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
+        #endif
 
         for (uint i = 0u; i < min(lightCount, MaxSampleCount); i++) {
             vec3 lightPos, lightColor, lightVec;

@@ -245,9 +245,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
-
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outFinal;

@@ -241,7 +241,7 @@ uniform int fogMode;
 #endif
 
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -386,7 +386,7 @@ void main() {
         shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    #if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = GetVanillaFogFactor(vLocalPos);

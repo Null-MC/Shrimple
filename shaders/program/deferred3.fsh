@@ -257,10 +257,9 @@ ivec2 GetTemporalOffset(const in int size) {
 }
 
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+layout(location = 0) out vec4 outFinal;
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
     /* RENDERTARGETS: 0,7,8,9,12 */
-    layout(location = 0) out vec4 outFinal;
     layout(location = 1) out vec4 outTA;
     layout(location = 2) out vec4 outTA_Normal;
     layout(location = 3) out vec4 outTA_Depth;
@@ -269,7 +268,6 @@ ivec2 GetTemporalOffset(const in int size) {
     #endif
 #else
     /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
 #endif
 
 void main() {
@@ -336,7 +334,8 @@ void main() {
                 vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
             #endif
         #else
-            vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
+            //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
+            vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
         #endif
 
         float occlusion = deferredLighting.z;
@@ -365,11 +364,6 @@ void main() {
             #endif
 
             #if DYN_LIGHT_TA > 0
-                // Use prev value if downscale depth/normal doesnt match
-                #if DYN_LIGHT_RES > 0
-                    // TODO
-                #endif
-
                 vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
 
                 #ifdef IRIS_FEATURE_SSBO
@@ -381,7 +375,7 @@ void main() {
 
                 vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 
-                float diffuseCounter = 0.0;
+                float diffuseCounter = 40.0;
 
                 if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
                     float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
@@ -503,15 +497,3 @@ void main() {
 
     outFinal = vec4(final, 1.0);
 }
-#else
-    // Pass-through for world-specific flags not working in shader.properties
-    
-    uniform sampler2D colortex0;
-
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
-
-    void main() {
-        outFinal = texture(colortex0, texcoord);
-    }
-#endif
