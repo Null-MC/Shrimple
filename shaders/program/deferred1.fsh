@@ -106,7 +106,7 @@ uniform float blindness;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/lighting/sky.glsl"
+    #include "/lib/world/sky.glsl"
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"

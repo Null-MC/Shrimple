@@ -165,7 +165,7 @@ uniform float blindness;
 #include "/lib/lighting/sampling.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/lighting/sky.glsl"
+    #include "/lib/world/sky.glsl"
 #endif
 
 #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)

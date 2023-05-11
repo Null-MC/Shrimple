@@ -89,7 +89,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
 
-        vec3 skyLightColor = GetSkyLightColor(sunDir);
+        #ifdef IRIS_FEATURE_SSBO
+            vec3 skyLightColor = WorldSkyLightColor;
+        #else
+            vec3 skyLightColor = GetSkyLightColor(sunDir);
+            //skyLightColor = CalculateSkyLightWeatherColor(skyLightColor);
+        #endif
+
+        skyLightColor *= 1.0 - 0.3 * rainStrength;
+
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);

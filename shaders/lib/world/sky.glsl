@@ -11,6 +11,10 @@
         float horizonF = smoothstep(0.0, 0.7, abs(sunDir.y));
         return mix(skyLightHorizonColor, skyLightColor, horizonF);
     }
+
+    vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
+        return skyLightColor * (1.0 - 0.6*rainStrength);
+    }
 #endif
 
 #ifndef RENDER_BEGIN
@@ -30,4 +34,12 @@
             return CalculateSkyLightColor(localSunDirection);
         #endif
     }
+
+    // vec3 GetSkyLightWeatherColor(const in vec3 skyLightColor) {
+    //     #ifdef IRIS_FEATURE_SSBO
+    //         return WeatherSkyLightColor;
+    //     #else
+    //         return CalculateSkyLightWeatherColor(skyLightColor);
+    //     #endif
+    // }
 #endif

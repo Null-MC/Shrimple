@@ -17,6 +17,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
+        uniform float rainStrength;
         uniform vec3 sunPosition;
     #endif
 
@@ -39,7 +40,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     #include "/lib/buffers/lighting.glsl"
 
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/lighting/sky.glsl"
+        #include "/lib/world/sky.glsl"
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -63,6 +64,7 @@ void main() {
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
                 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
                 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
+                //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
             #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;

@@ -7,6 +7,7 @@
     vec3 localSunDirection;                  // 12
     vec3 localSkyLightDirection;             // 12
     vec3 WorldSkyLightColor;                 // 12
+    //vec3 WeatherSkyLightColor;               // 12
     mat4 gbufferModelViewProjectionInverse;  // 64
     mat4 gbufferPreviousModelViewProjection; // 64
     mat4 matColorPost;                       // 64

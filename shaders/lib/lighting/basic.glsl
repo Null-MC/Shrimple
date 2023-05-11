@@ -145,8 +145,14 @@
                 vec3 skyLightColor = vec3(1.0);
             #endif
 
-            skyLightColor *= GetSkyLightColor();
-            //skyLightColor *= 1.0 - 0.8*rainStrength;
+            #ifdef IRIS_FEATURE_SSBO
+                skyLightColor *= WorldSkyLightColor;
+            #else
+                vec3 worldSkyLightColor = GetSkyLightColor();
+                skyLightColor *= CalculateSkyLightWeatherColor(worldSkyLightColor);
+            #endif
+
+            skyLightColor *= 1.0 - 0.7 * rainStrength;
             
             #ifndef IRIS_FEATURE_SSBO
                 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

@@ -213,7 +213,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/sampling.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/lighting/sky.glsl"
+    #include "/lib/world/sky.glsl"
 #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
