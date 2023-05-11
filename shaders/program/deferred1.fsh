@@ -113,20 +113,55 @@ uniform float blindness;
 #include "/lib/lighting/basic.glsl"
 
 
-ivec2 GetTemporalOffset(const in int size) {
-    ivec2 offset = ivec2(gl_FragCoord.xy + frameCounter);
-    offset = ivec2(mod(offset, ivec2(size))) * 2;
-    
-    if (offset.x >= size) offset.x = offset.x - size + 1;
-    if (offset.y >= size) offset.y = offset.y - size + 1;
-    return offset;
+#if DYN_LIGHT_RES == 1
+    const ivec2 offsetList[4] = ivec2[](
+        ivec2(0, 0),
+        ivec2(1, 0),
+        ivec2(0, 1),
+        ivec2(1, 1));
+#elif DYN_LIGHT_RES == 2
+    const ivec2 offsetList[16] = ivec2[](
+        ivec2(0, 0),
+        ivec2(2, 0),
+        ivec2(0, 2),
+        ivec2(2, 2),
 
-    // int o = ((gl_FragCoord.x + frameCounter) % size) * 2;
-    // if (o >= size) o = o - size + 1;
+        ivec2(1, 0),
+        ivec2(3, 0),
+        ivec2(1, 2),
+        ivec2(3, 2),
 
-    // ivec2 coord = ivec2(gl_FragCoord.xy) + o;
-    // return ivec2(coord.x, coord.y / size) % ivec2(size);
-}
+        ivec2(0, 1),
+        ivec2(1, 1),
+        ivec2(0, 3),
+        ivec2(1, 3),
+
+        ivec2(1, 1),
+        ivec2(3, 1),
+        ivec2(1, 3),
+        ivec2(3, 3));
+#endif
+
+#if DYN_LIGHT_RES != 0
+    ivec2 GetTemporalOffset(const in int size) {
+        int i = int(frameCounter + gl_FragCoord.x + size*gl_FragCoord.y);
+        return offsetList[i % _pow2(size)];
+
+        // ivec2 offset = ivec2(gl_FragCoord.xy + frameCounter);
+        // return offset;
+        // offset = ivec2(mod(offset, ivec2(size))) * 2;
+        
+        // if (offset.x >= size) offset.x = offset.x - size + 1;
+        // if (offset.y >= size) offset.y = offset.y - size + 1;
+        // return offset;
+
+        // int o = ((gl_FragCoord.x + frameCounter) % size) * 2;
+        // if (o >= size) o = o - size + 1;
+
+        // ivec2 coord = ivec2(gl_FragCoord.xy) + o;
+        // return ivec2(coord.x, coord.y / size) % ivec2(size);
+    }
+#endif
 
 
 /* RENDERTARGETS: 4,5,6,11 */

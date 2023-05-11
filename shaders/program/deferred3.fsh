@@ -402,23 +402,12 @@ void main() {
                         vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
                         diffuseCounter = min(diffuseSamplePrev.a, 80.0);
 
-                        diffuseCounter *= normalWeight * depthWeight;
+                        diffuseCounter *= depthWeight;
+                        diffuseCounter *= normalWeight;
 
-                        // float lum = log(luminance(blockDiffuse) + EPSILON);
-                        // float lumPrev = log(luminance(blockDiffusePrev) + EPSILON);
-
-                        // float lumDiff = min(abs(lum - lumPrev), 1.0);
-                        // float lumWeight = 1.0 - lumDiff * mix(0.3, 0.04, DynamicLightTemporalStrength);
-
-                        //float lum, lumPrev, lumDiff;
-                        //float colDiff = saturate(dot(blockDiffusePrev, blockDiffuse));
-                        //float lumWeight = 1.0 - colDiff * mix(0.25, 0.02, DynamicLightTemporalStrength);
-
-                        //float minWeight = mix(0.01, 0.004, DynamicLightTemporalStrength);
-                        //float weightDiffuse = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-                        float weight = rcp(1.0 + diffuseCounter*2.0*DynamicLightTemporalStrength);
-                        
-                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, weight);
+                        float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
+                        float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
+                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, diffuseWeight);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
@@ -432,7 +421,10 @@ void main() {
 
                             //minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
                             //float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, weight);
+
+                            float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
+                            float specularWeight = rcp(diffuseWeightMin + 0.75*diffuseCounter*DynamicLightTemporalStrength);
+                            blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
                         #endif
                     }
                 }
