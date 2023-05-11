@@ -47,7 +47,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             }
         #endif
 
-        #if DYN_LIGHT_TA > 0
+        #if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_TA > 0
             const int MaxSampleCount = min(DYN_LIGHT_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
         #else
             const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
