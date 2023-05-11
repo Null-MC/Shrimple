@@ -3,7 +3,7 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, in vec2 lmcoord
 
     float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
 
-    skyWetness *= smoothstep(0.0, 1.0, wetness);//max(rainStrength, wetness);
+    skyWetness *= smoothstep(0.0, 1.0, skyWetnessSmooth);//max(rainStrength, wetness);
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) return skyWetness;

@@ -105,6 +105,8 @@ uniform float blindness;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
+
+    uniform float skyWetnessSmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -310,7 +312,7 @@ void main() {
 
         #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
             vec4 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
-            localCoord += rippleNormalStrength.xy * rippleNormalStrength.w * 0.06;
+            localCoord += rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
             atlasCoord = GetAtlasCoord(localCoord);
         #endif
     #endif

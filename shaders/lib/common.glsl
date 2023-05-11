@@ -223,6 +223,7 @@ const bool colortex15Clear = true;
 #define WHITEWORLD_VALUE 0.9
 #define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
+#define RIPPLE_STRENGTH 0.03
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
