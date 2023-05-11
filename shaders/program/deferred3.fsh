@@ -394,7 +394,7 @@ void main() {
                     if (depthWeight > 0.0 && normalWeight > 0.0) {
                         vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
                         vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
-                        diffuseCounter = min(diffuseSamplePrev.a, 80.0);
+                        diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
                         diffuseCounter *= depthWeight;
                         diffuseCounter *= normalWeight;

@@ -7,15 +7,8 @@
 
 out vec2 texcoord;
 
-uniform float viewWidth;
-uniform float viewHeight;
-
-#include "/lib/post/bloom.glsl"
-
 
 void main() {
 	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-
-	UpdateTileVertexBounds(BLOOM_TILE_MAX_COUNT-1);
 }
