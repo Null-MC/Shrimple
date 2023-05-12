@@ -334,8 +334,10 @@ void main() {
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
     #ifdef WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER)
+        if (vBlockId == BLOCK_WATER) {
             color.rgb = mix(color.rgb, vec3(1.0), oceanFoam);
+            color.a *= WorldWaterOpacityF;
+        }
     #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
