@@ -258,242 +258,253 @@ ivec2 GetTemporalOffset(const in int size) {
 
 
 layout(location = 0) out vec4 outFinal;
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
-    /* RENDERTARGETS: 0,7,8,9,12 */
-    layout(location = 1) out vec4 outTA;
-    layout(location = 2) out vec4 outTA_Normal;
-    layout(location = 3) out vec4 outTA_Depth;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 4) out vec4 outSpecularTA;
-    #endif
-#else
-    /* RENDERTARGETS: 0 */
-#endif
-
-void main() {
-    ivec2 iTex = ivec2(gl_FragCoord.xy);
-    vec2 viewSize = vec2(viewWidth, viewHeight);
-
-    //float depth = texelFetch(depthtex0, iTex, 0).r;
-    //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
-    float depth = textureLod(depthtex0, texcoord, 0).r;
-    float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
-    bool isHand = handClipDepth > depth;
-
-    // if (isHand) {
-    //     depth = depth * 2.0 - 1.0;
-    //     depth /= MC_HAND_DEPTH;
-    //     depth = depth * 0.5 + 0.5;
-    // }
-
-    float linearDepth = linearizeDepthFast(depth, near, far);
-    vec3 final;
-
-    if (depth < 1.0) {
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-        #else
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-        #endif
-
-        vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-
-        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-        vec3 localNormal = deferredNormal.rgb;
-
-        if (any(greaterThan(localNormal, EPSILON3)))
-            localNormal = normalize(localNormal * 2.0 - 1.0);
-
-        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-        vec3 texNormal = deferredTexture.rgb;
-
-        if (any(greaterThan(texNormal, EPSILON3)))
-            texNormal = normalize(texNormal * 2.0 - 1.0);
-
+#ifdef DEFERRED_BUFFER_ENABLED
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
+        /* RENDERTARGETS: 0,7,8,9,12 */
+        layout(location = 1) out vec4 outTA;
+        layout(location = 2) out vec4 outTA_Normal;
+        layout(location = 3) out vec4 outTA_Depth;
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
-            float metal_f0 = deferredRoughMetalF0.g;
-        #else
-            const float roughL = 1.0;
-            const float metal_f0 = 0.04;
+            layout(location = 4) out vec4 outSpecularTA;
         #endif
-
-        #ifdef SHADOW_BLUR
-            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-                const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
-            #else
-                float shadowSigma = 3.0 / linearDepth;
-                vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
-            #endif
-        #else
-            //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
-            vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
-        #endif
-
-        float occlusion = deferredLighting.z;
-        float emission = deferredLighting.a;
-        float sss = deferredNormal.a;
-
-        vec3 blockDiffuse = vec3(0.0);
-        vec3 blockSpecular = vec3(0.0);
-
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #ifdef DYN_LIGHT_BLUR
-                const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
-                BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
-            #elif DYN_LIGHT_RES == 0
-                blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
-                #endif
-            #else
-                blockDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                #endif
-            #endif
-
-            #if DYN_LIGHT_TA > 0
-                vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
-
-                #ifdef IRIS_FEATURE_SSBO
-                    vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
-                #else
-                    vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-                    vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
-                #endif
-
-                vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
-
-                float diffuseCounter = 40.0;
-
-                if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
-                    float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
-                    float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
-                    float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
-
-                    float depthWeight = 1.0 - saturate(16.0 * abs(depthPrevLinear1 - depthPrevLinear2));
-
-                    float normalWeight = 1.0;
-                    vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
-                    if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
-                        normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                        normalWeight = dot(normalPrev, texNormal) * 0.5 + 0.5;
-                    }
-
-                    if (depthWeight > 0.0 && normalWeight > 0.0) {
-                        vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
-                        vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
-                        diffuseCounter = min(diffuseSamplePrev.a, 256.0);
-
-                        diffuseCounter *= depthWeight;
-                        diffuseCounter *= normalWeight;
-
-                        float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
-                        float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
-                        blockDiffuse = mix(blockDiffusePrev, blockDiffuse, diffuseWeight);
-
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
-
-                            //lum = log(luminance(blockSpecular) + EPSILON);
-                            //lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
-
-                            //lumDiff = min(abs(lum - lumPrev), 0.6);
-                            //lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
-                            //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
-
-                            //minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
-                            //float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-
-                            float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                            float specularWeight = rcp(diffuseWeightMin + 0.75*diffuseCounter*DynamicLightTemporalStrength);
-                            blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
-                        #endif
-                    }
-                }
-
-                outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
-                outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
-                outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    outSpecularTA = vec4(blockSpecular, 1.0);
-                #endif
-            #endif
-
-            //blockDiffuse += emission * MaterialEmissionF;
-        #else
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
-
-            // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //     blockDiffuse += emission * MaterialEmissionF;
-            // #endif
-        #endif
-
-        blockDiffuse += emission * MaterialEmissionF;
-
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
-
-        vec3 localViewDir = normalize(localPos);
-
-        #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
-        #endif
-
-        float shadowF = min(luminance(deferredShadow), 1.0);
-        occlusion = max(occlusion, shadowF);
-
-        vec3 albedo = RGBToLinear(deferredColor);
-        //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
-        final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, roughL, occlusion);
-
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-        //vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-        vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
-        fogColorFinal = RGBToLinear(fogColorFinal);
-
-        final = mix(final, fogColorFinal, deferredFog.a);
-    }
-    else {
-        #ifdef WORLD_SKY_ENABLED
-            final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-        #else
-            final = fogColor * WorldSkyBrightnessF;
-            final = RGBToLinear(final);
-        #endif
-    }
-
-    #ifdef VL_BUFFER_ENABLED
-        #ifdef VOLUMETRIC_BLUR
-            const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-
-            #if VOLUMETRIC_RES == 2
-                const vec2 vlSigma = vec2(1.0, 0.00001);
-            #elif VOLUMETRIC_RES == 1
-                const vec2 vlSigma = vec2(2.0, 0.00002);
-            #else
-                const vec2 vlSigma = vec2(1.2, 0.00002);
-            #endif
-
-            vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
-        #else
-            vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-        #endif
-
-        final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #else
+        /* RENDERTARGETS: 0 */
     #endif
 
-    outFinal = vec4(final, 1.0);
-}
+    void main() {
+        ivec2 iTex = ivec2(gl_FragCoord.xy);
+        vec2 viewSize = vec2(viewWidth, viewHeight);
+
+        //float depth = texelFetch(depthtex0, iTex, 0).r;
+        //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
+        float depth = textureLod(depthtex0, texcoord, 0).r;
+        float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
+        bool isHand = handClipDepth > depth;
+
+        // if (isHand) {
+        //     depth = depth * 2.0 - 1.0;
+        //     depth /= MC_HAND_DEPTH;
+        //     depth = depth * 0.5 + 0.5;
+        // }
+
+        float linearDepth = linearizeDepthFast(depth, near, far);
+        vec3 final;
+
+        if (depth < 1.0) {
+            vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            #else
+                vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            #endif
+
+            vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+
+            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+
+            vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+            vec3 localNormal = deferredNormal.rgb;
+
+            if (any(greaterThan(localNormal, EPSILON3)))
+                localNormal = normalize(localNormal * 2.0 - 1.0);
+
+            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+            vec3 texNormal = deferredTexture.rgb;
+
+            if (any(greaterThan(texNormal, EPSILON3)))
+                texNormal = normalize(texNormal * 2.0 - 1.0);
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
+                float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
+                float metal_f0 = deferredRoughMetalF0.g;
+            #else
+                const float roughL = 1.0;
+                const float metal_f0 = 0.04;
+            #endif
+
+            #ifdef SHADOW_BLUR
+                #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                    const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
+                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
+                #else
+                    float shadowSigma = 3.0 / linearDepth;
+                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
+                #endif
+            #else
+                //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
+                vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            #endif
+
+            float occlusion = deferredLighting.z;
+            float emission = deferredLighting.a;
+            float sss = deferredNormal.a;
+
+            vec3 blockDiffuse = vec3(0.0);
+            vec3 blockSpecular = vec3(0.0);
+
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                #ifdef DYN_LIGHT_BLUR
+                    const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
+                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
+                #elif DYN_LIGHT_RES == 0
+                    blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
+
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
+                    #endif
+                #else
+                    blockDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                    #endif
+                #endif
+
+                #if DYN_LIGHT_TA > 0
+                    vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+
+                    #ifdef IRIS_FEATURE_SSBO
+                        vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+                    #else
+                        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+                        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+                    #endif
+
+                    vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
+
+                    float diffuseCounter = 40.0;
+
+                    if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
+                        float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
+                        float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
+                        float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
+
+                        float depthWeight = 1.0 - saturate(16.0 * abs(depthPrevLinear1 - depthPrevLinear2));
+
+                        float normalWeight = 1.0;
+                        vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
+                        if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
+                            normalPrev = normalize(normalPrev * 2.0 - 1.0);
+                            normalWeight = dot(normalPrev, texNormal) * 0.5 + 0.5;
+                        }
+
+                        if (depthWeight > 0.0 && normalWeight > 0.0) {
+                            vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
+                            vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
+                            diffuseCounter = min(diffuseSamplePrev.a, 256.0);
+
+                            diffuseCounter *= depthWeight;
+                            diffuseCounter *= normalWeight;
+
+                            float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
+                            float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
+                            blockDiffuse = mix(blockDiffusePrev, blockDiffuse, diffuseWeight);
+
+                            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                                vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
+
+                                //lum = log(luminance(blockSpecular) + EPSILON);
+                                //lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
+
+                                //lumDiff = min(abs(lum - lumPrev), 0.6);
+                                //lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
+                                //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
+
+                                //minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
+                                //float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
+
+                                float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
+                                float specularWeight = rcp(diffuseWeightMin + 0.75*diffuseCounter*DynamicLightTemporalStrength);
+                                blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
+                            #endif
+                        }
+                    }
+
+                    outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
+                    outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
+                    outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
+
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        outSpecularTA = vec4(blockSpecular, 1.0);
+                    #endif
+                #endif
+
+                //blockDiffuse += emission * MaterialEmissionF;
+            #else
+                GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+
+                // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                //     blockDiffuse += emission * MaterialEmissionF;
+                // #endif
+            #endif
+
+            blockDiffuse += emission * MaterialEmissionF;
+
+            vec3 skyDiffuse = vec3(0.0);
+            vec3 skySpecular = vec3(0.0);
+
+            vec3 localViewDir = normalize(localPos);
+
+            #ifdef WORLD_SKY_ENABLED
+                GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
+            #endif
+
+            float shadowF = min(luminance(deferredShadow), 1.0);
+            occlusion = max(occlusion, shadowF);
+
+            vec3 albedo = RGBToLinear(deferredColor);
+            //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
+            final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, roughL, occlusion);
+
+            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+            //vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+            vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
+            fogColorFinal = RGBToLinear(fogColorFinal);
+
+            final = mix(final, fogColorFinal, deferredFog.a);
+        }
+        else {
+            #ifdef WORLD_SKY_ENABLED
+                final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+            #else
+                final = fogColor * WorldSkyBrightnessF;
+                final = RGBToLinear(final);
+            #endif
+        }
+
+        #ifdef VL_BUFFER_ENABLED
+            #ifdef VOLUMETRIC_BLUR
+                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+
+                #if VOLUMETRIC_RES == 2
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                #elif VOLUMETRIC_RES == 1
+                    const vec2 vlSigma = vec2(2.0, 0.00002);
+                #else
+                    const vec2 vlSigma = vec2(1.2, 0.00002);
+                #endif
+
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+            #else
+                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+            #endif
+
+            final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        outFinal = vec4(final, 1.0);
+    }
+#else
+    // Pass-through for world-specific flags not working in shader.properties
+    
+    uniform sampler2D colortex0;
+
+
+    void main() {
+        outFinal = texture(colortex0, texcoord);
+    }
+#endif

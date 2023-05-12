@@ -185,7 +185,7 @@
                     float f0 = GetMaterialF0(metal_f0);
 
                     vec3 localSkyLightDir = localSkyLightDirection;
-                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                    //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
                         const float skyLightSize = 0.04;
 
                         vec3 r = reflect(-localViewDir, texNormal);
@@ -193,7 +193,7 @@
                         vec3 centerToRay = dot(L, r) * r - L;
                         vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
                         localSkyLightDir = normalize(closestPoint);
-                    #endif
+                    //#endif
 
                     vec3 skyH = normalize(localSkyLightDir + localViewDir);
                     float skyVoHm = max(dot(localViewDir, skyH), 0.0);
@@ -211,9 +211,9 @@
 
                     skyLightColor *= 1.0 - 0.92*rainStrength;
 
-                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                    //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
                         skyLightColor *= invPI;
-                    #endif
+                    //#endif
 
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
@@ -222,18 +222,18 @@
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
                     float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
-                    vec3 fogColorFinal = RGBToLinear(fogColor);
                     vec3 reflectDir = reflect(-localViewDir, texNormal);
-                    vec3 reflectColor = GetFogColor(fogColorFinal, reflectDir.y);
+                    vec3 reflectColor = GetFogColor(fogColor, reflectDir.y);
+                    reflectColor = RGBToLinear(reflectColor);
 
                     float m = skyLight * 0.3;
-                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
+                    reflectColor *= invPI * smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
                     // TODO: multiply by skyLight!
 
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-                    float skyReflectF = invPI * F_schlickRough(skyNoVm, f0, roughL);
+                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL);
                     skySpecular += reflectColor * skyReflectF * _pow2(skyLight);
                     accumDiffuse *= 1.0 - skyReflectF;
                 #endif
