@@ -68,7 +68,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #endif
 
     vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
-        vec2 shadowProjectionSize = 2.0 / vec2(shadowProjection[0].x, shadowProjection[1].y);
+        vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
 
         #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
             float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);

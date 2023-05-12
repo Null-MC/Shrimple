@@ -19,21 +19,23 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         uniform vec3 shadowLightPosition;
         uniform float rainStrength;
         uniform vec3 sunPosition;
-    #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowModelView;
-    #endif
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            uniform mat4 shadowModelView;
+            uniform vec3 cameraPosition;
+            uniform float far;
+        #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-        uniform mat4 shadowProjection;
-    #endif
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+            uniform mat4 shadowProjection;
+        #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        uniform mat4 gbufferModelView;
-        uniform mat4 gbufferProjection;
-        uniform float near;
-        uniform float far;
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            uniform mat4 gbufferModelView;
+            uniform mat4 gbufferProjection;
+            uniform float near;
+            //uniform float far;
+        #endif
     #endif
 
     #include "/lib/buffers/scene.glsl"
@@ -44,11 +46,11 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/utility/matrix.glsl"
         #include "/lib/shadows/common.glsl"
         #include "/lib/buffers/shadow.glsl"
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/utility/matrix.glsl"
             #include "/lib/shadows/cascaded.glsl"
         #endif
     #endif
@@ -70,8 +72,18 @@ void main() {
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
             gbufferPreviousModelViewProjection = gbufferPreviousProjection * gbufferPreviousModelView;
 
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-                shadowModelViewProjection = shadowProjection * shadowModelView;
+            #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
+                shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);
+
+                #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
+                    shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
+                    shadowProjectionEx[0][0] = 2.0 / (min(shadowDistance, far) * 0.25);
+                    shadowProjectionEx[1][1] = 2.0 / (min(shadowDistance, far) * 0.25);
+                    shadowProjectionEx[2][2] = -2.0 / (2.0 * far);
+                    shadowProjectionEx[2][3] = 0.0;//-(zFar + zNear)/(zFar - zNear);
+
+                    shadowModelViewProjection = shadowProjectionEx * shadowModelViewEx;
+                #endif
             #endif
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -100,7 +112,7 @@ void main() {
             #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 if (i == 0) {
                     vec3 clipMin, clipMax;
-                    mat4 matSceneToShadow = shadowModelView * gbufferModelViewProjectionInverse;
+                    mat4 matSceneToShadow = shadowModelViewEx * gbufferModelViewProjectionInverse;
                     GetFrustumMinMax(matSceneToShadow, clipMin, clipMax);
 
                     shadowViewBoundsMin = max(clipMin.xy - 3.0, vec2(-shadowDistance));

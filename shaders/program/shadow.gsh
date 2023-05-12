@@ -34,6 +34,10 @@ uniform float far;
 
 #include "/lib/blocks.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
@@ -119,7 +123,7 @@ void main() {
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 originShadowViewPos = (shadowModelView * vec4(vOriginPos[0], 1.0)).xyz;
+        vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
             if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
@@ -172,11 +176,13 @@ void main() {
                 gTexcoord = vTexcoord[v];
                 gColor = vColor[v];
 
-                gl_Position = gl_ProjectionMatrix * gl_in[v].gl_Position;
-
-                #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-                    gl_Position.xyz = distort(gl_Position.xyz);
+                #ifdef IRIS_FEATURE_SSBO
+                    gl_Position = shadowProjectionEx * gl_in[v].gl_Position;
+                #else
+                    gl_Position = gl_ProjectionMatrix * gl_in[v].gl_Position;
                 #endif
+
+                gl_Position.xyz = distort(gl_Position.xyz);
 
                 EmitVertex();
             }

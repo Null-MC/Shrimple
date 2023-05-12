@@ -186,10 +186,10 @@
 
                     vec3 localSkyLightDir = localSkyLightDirection;
                     //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                        const float skyLightSize = 0.04;
+                        const float skyLightSize = 0.044;
 
                         vec3 r = reflect(-localViewDir, texNormal);
-                        vec3 L = localSkyLightDir;
+                        vec3 L = localSkyLightDir * 10000.0;
                         vec3 centerToRay = dot(L, r) * r - L;
                         vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
                         localSkyLightDir = normalize(closestPoint);

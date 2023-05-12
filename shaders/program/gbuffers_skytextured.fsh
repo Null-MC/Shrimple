@@ -32,6 +32,8 @@ void main() {
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
+    if (renderStage == MC_RENDER_STAGE_SUN) color.rgb *= 3.0;
+
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;
 

@@ -33,6 +33,10 @@ uniform int entityId;
 
 #include "/lib/blocks.glsl"
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
+
 #ifdef WORLD_WAVING_ENABLED
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
@@ -90,6 +94,9 @@ void main() {
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;
+
+    gl_Position = shadowModelViewInverse * gl_Position;
+    gl_Position = shadowModelViewEx * gl_Position;
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (blockId > 0 && (

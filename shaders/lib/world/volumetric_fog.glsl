@@ -61,8 +61,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
-        vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
+        #ifdef IRIS_FEATURE_SSBO
+            vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
+            vec3 shadowViewEnd = (shadowModelViewEx * vec4(localEnd, 1.0)).xyz;
+        #else
+            vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
+            vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
+        #endif
+
         vec3 shadowViewStep = (shadowViewEnd - shadowViewStart) * inverseStepCountF;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -78,8 +84,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 shadowClipStep[c] = (shadowClipEnd - shadowClipStart[c]) * inverseStepCountF;
             }
         #else
-            vec3 shadowClipStart = (shadowProjection * vec4(shadowViewStart, 1.0)).xyz;
-            vec3 shadowClipEnd = (shadowProjection * vec4(shadowViewEnd, 1.0)).xyz;
+            #ifdef IRIS_FEATURE_SSBO
+                vec3 shadowClipStart = (shadowProjectionEx * vec4(shadowViewStart, 1.0)).xyz;
+                vec3 shadowClipEnd = (shadowProjectionEx * vec4(shadowViewEnd, 1.0)).xyz;
+            #else
+                vec3 shadowClipStart = (shadowProjection * vec4(shadowViewStart, 1.0)).xyz;
+                vec3 shadowClipEnd = (shadowProjection * vec4(shadowViewEnd, 1.0)).xyz;
+            #endif
+
             vec3 shadowClipStep = (shadowClipEnd - shadowClipStart) * inverseStepCountF;
         #endif
         

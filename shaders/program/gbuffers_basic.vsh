@@ -26,6 +26,7 @@ uniform mat4 gbufferModelViewInverse;
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
     uniform vec3 shadowLightPosition;
+    uniform vec3 cameraPosition;
     uniform float far;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

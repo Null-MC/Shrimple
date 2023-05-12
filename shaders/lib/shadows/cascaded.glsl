@@ -118,7 +118,7 @@ float GetShadowOffsetBias(const in int cascade) {
         SetProjectionRange(matSceneProjectionRanged, rangeNear, rangeFar);
 
         mat4 matModelViewProjectionInv = inverse(matSceneProjectionRanged * gbufferModelView);
-        mat4 matSceneToShadow = matShadowProjection * (shadowModelView * matModelViewProjectionInv);
+        mat4 matSceneToShadow = matShadowProjection * (shadowModelViewEx * matModelViewProjectionInv);
 
         vec3 clipMin, clipMax;
         GetFrustumMinMax(matSceneToShadow, clipMin, clipMax);
@@ -200,7 +200,7 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
             float bias = GetShadowNormalBias(i, geoNoL);
             vec3 offsetLocalPos = localPos + localNormal * bias;
 
-            vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
+            vec3 shadowViewPos = (shadowModelViewEx * vec4(offsetLocalPos, 1.0)).xyz;
 
             // convert to shadow screen space
             shadowPos[i] = (cascadeProjection[i] * vec4(shadowViewPos, 1.0)).xyz;
@@ -214,11 +214,11 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
         #elif defined RENDER_TERRAIN || defined RENDER_WATER
             vec3 blockPos = floor(gl_Vertex.xyz + at_midBlock / 64.0 + fract(cameraPosition));
             blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
-            blockPos = (shadowModelView * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
+            blockPos = (shadowModelViewEx * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
         #else
             vec3 blockPos = gl_Vertex.xyz;
             blockPos = floor(blockPos + 0.5);
-            blockPos = (shadowModelView * vec4(blockPos, 1.0)).xyz;
+            blockPos = (shadowModelViewEx * vec4(blockPos, 1.0)).xyz;
         #endif
 
         shadowTile = GetShadowTile(cascadeProjection, blockPos);

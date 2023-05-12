@@ -10,11 +10,11 @@
                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
                 if (tile >= 0) {
-                    bias *= (1.5 / (far * 3.0));
+                    bias *= 1.5 / (3.0 * far);
                     shadowColor = GetShadowColor(shadowPos[tile], tile, bias);
                 }
             #else
-                bias *= (1.5 / 256.0);
+                bias *= 1.5 / (2.0 * far);
                 shadowColor = GetShadowColor(shadowPos, bias);
             #endif
         #endif
@@ -36,11 +36,11 @@
                 int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
 
                 if (tile >= 0) {
-                    bias *= (1.5 / (far * 3.0));
+                    bias *= 1.5 / (3.0 * far);
                     shadow = GetShadowFactor(shadowPos[tile], tile, bias);
                 }
             #else
-                bias *= (1.5 / 256.0);
+                bias *= 1.5 / (2.0 * far);
                 shadow = GetShadowFactor(shadowPos, bias);
             #endif
         #endif
