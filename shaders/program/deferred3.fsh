@@ -496,7 +496,7 @@ layout(location = 0) out vec4 outFinal;
                 #if VOLUMETRIC_RES == 2
                     const vec2 vlSigma = vec2(1.0, 0.00001);
                 #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(2.0, 0.00002);
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
                 #else
                     const vec2 vlSigma = vec2(1.2, 0.00002);
                 #endif
