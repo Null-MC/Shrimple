@@ -12,15 +12,14 @@ uniform sampler2D gtexture;
 
 uniform int renderStage;
 
-#include "/lib/sampling/bayer.glsl"
-#include "/lib/sampling/ign.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
+#include "/lib/sampling/bayer.glsl"
+#include "/lib/sampling/ign.glsl"
+
+#include "/lib/world/sky.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -32,7 +31,17 @@ void main() {
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
-    if (renderStage == MC_RENDER_STAGE_SUN) color.rgb *= 3.0;
+    if (renderStage == MC_RENDER_STAGE_SUN) {
+        #ifdef IRIS_FEATURE_SSBO
+            color.rgb *= WorldSunLightColor;
+        #else
+            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            color.rgb *= GetSkySunColor(localSunDirection);
+        #endif
+
+        //float horizonF = GetSkyHorizonF(localSunDirection.y);
+        color.rgb *= 2.0 * smoothstep(-0.1, 0.1, localSunDirection.y);
+    }
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;

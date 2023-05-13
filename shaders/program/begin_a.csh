@@ -65,6 +65,9 @@ void main() {
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
                 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+
+                WorldSunLightColor = GetSkySunColor(localSunDirection.y);
+                WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
                 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
                 //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
             #endif

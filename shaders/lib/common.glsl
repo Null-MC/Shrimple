@@ -13,7 +13,7 @@ const int colortex7Format  = RGBA16F;
 const int colortex8Format  = RGB8;
 const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16F;
-const int colortex11Format  = RGB16F;
+const int colortex11Format  = RGBA16F;
 const int colortex12Format  = RGB16F;
 const int colortex14Format  = RG8;
 const int colortex15Format  = RGB16F;
@@ -98,7 +98,7 @@ const bool colortex15Clear = true;
 #define WORLD_SKY_REFLECTIONS
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_WATER_OPACITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define WORLD_RAIN_OPACITY 50 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define WORLD_RAIN_OPACITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_SUN_BRIGHTNESS 100 // [10 20 30 40 50 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 #define WORLD_MOON_BRIGHTNESS 100 // [10 20 30 40 50 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 

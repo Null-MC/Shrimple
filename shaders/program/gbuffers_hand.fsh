@@ -403,7 +403,17 @@ void main() {
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, lmcoord, metal_f0, roughL, occlusion);
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                diffuseFinal *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                specularFinal *= color.rgb;
+            }
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, texNormal, diffuseFinal, specularFinal, lmcoord, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

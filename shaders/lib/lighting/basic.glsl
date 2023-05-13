@@ -186,7 +186,7 @@
 
                     vec3 localSkyLightDir = localSkyLightDirection;
                     //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                        const float skyLightSize = 0.044;
+                        const float skyLightSize = 480.0;
 
                         vec3 r = reflect(-localViewDir, texNormal);
                         vec3 L = localSkyLightDir * 10000.0;
@@ -212,7 +212,7 @@
                     skyLightColor *= 1.0 - 0.92*rainStrength;
 
                     //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                        skyLightColor *= invPI;
+                    //    skyLightColor *= invPI;
                     //#endif
 
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
@@ -228,7 +228,6 @@
 
                     float m = skyLight * 0.3;
                     reflectColor *= invPI * smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
-                    // TODO: multiply by skyLight!
 
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
@@ -243,7 +242,7 @@
         }
     #endif
 
-    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 blockDiffuse, const in vec3 blockSpecular, const in vec3 skyDiffuse, const in vec3 skySpecular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion) {
+    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float occlusion) {
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             vec2 lmFinal = lmcoord;
             //lmFinal.x = (0.5/16.0);
@@ -255,8 +254,7 @@
                 vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             #endif
 
-            vec3 ambientLight = RGBToLinear(lightmapColor);
-            ambientLight *= DynamicLightAmbientF * occlusion;
+            vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF;
 
             // #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
             //     #ifdef WORLD_SKY_ENABLED
@@ -283,20 +281,18 @@
             //     //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
             // #endif
 
-            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse + ambientLight);
+            vec3 diffuseFinal = albedo * (diffuse + ambientLight * occlusion);
         #else
-            vec3 diffuse = albedo * (blockDiffuse + skyDiffuse) * occlusion;
+            vec3 diffuseFinal = albedo * diffuse * occlusion;
         #endif
 
-        vec3 specular = blockSpecular + skySpecular;
+        // #if MATERIAL_SPECULAR != SPECULAR_NONE
+        //     if (metal_f0 >= 0.5) {
+        //         diffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+        //         //specular *= albedo;
+        //     }
+        // #endif
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            if (metal_f0 >= 0.5) {
-                diffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
-                specular *= albedo;
-            }
-        #endif
-
-        return diffuse + specular * occlusion;
+        return diffuseFinal + specular * occlusion;
     }
 #endif

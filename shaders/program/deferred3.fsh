@@ -339,6 +339,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
+            vec3 albedo = RGBToLinear(deferredColor);
             float occlusion = deferredLighting.z;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
@@ -394,7 +395,6 @@ layout(location = 0) out vec4 outFinal;
 
                         if (depthWeight > 0.0 && normalWeight > 0.0) {
                             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
-                            vec3 blockDiffusePrev = diffuseSamplePrev.rgb;
                             diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
                             diffuseCounter *= depthWeight;
@@ -402,24 +402,19 @@ layout(location = 0) out vec4 outFinal;
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
-                            blockDiffuse = mix(blockDiffusePrev, blockDiffuse, diffuseWeight);
+                            blockDiffuse = mix(diffuseSamplePrev.rgb, blockDiffuse, diffuseWeight);
 
                             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                                vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
+                                vec4 specularSamplePrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0);
+                                vec3 blockSpecularPrev = specularSamplePrev.rgb;
+                                float metal_f0_prev = specularSamplePrev.a;
 
-                                //lum = log(luminance(blockSpecular) + EPSILON);
-                                //lumPrev = log(luminance(blockSpecularPrev) + EPSILON);
+                                //float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
+                                float specularWeight = rcp(1.0 + 0.1*diffuseCounter*DynamicLightTemporalStrength);
 
-                                //lumDiff = min(abs(lum - lumPrev), 0.6);
-                                //lumWeight = 1.0 - lumDiff * mix(0.6, 0.16, DynamicLightTemporalStrength);
-                                //float lumWeight = 0.8 * (_pow3(lumDiff) + 0.16 * lumDiff);
-
-                                //minWeight = mix(0.04, 0.006, DynamicLightTemporalStrength);
-                                //float weightSpecular = max(1.0 - depthWeight * normalWeight * lumWeight, minWeight);
-
-                                float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                                float specularWeight = rcp(diffuseWeightMin + 0.75*diffuseCounter*DynamicLightTemporalStrength);
                                 blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
+
+                                if (abs(metal_f0 - metal_f0_prev) > (0.5/255.0)) blockSpecular = vec3(0.0);
                             #endif
                         }
                     }
@@ -429,13 +424,20 @@ layout(location = 0) out vec4 outFinal;
                     outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        outSpecularTA = vec4(blockSpecular, 1.0);
+                        outSpecularTA = vec4(blockSpecular, metal_f0);
                     #endif
                 #endif
 
                 //blockDiffuse += emission * MaterialEmissionF;
             #else
                 GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    if (metal_f0 >= 0.5) {
+                        blockDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                        blockSpecular *= albedo;
+                    }
+                #endif
 
                 // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 //     blockDiffuse += emission * MaterialEmissionF;
@@ -453,15 +455,21 @@ layout(location = 0) out vec4 outFinal;
                 GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
             #endif
 
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                if (metal_f0 >= 0.5) {
+                    skyDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                    skySpecular *= albedo;
+                }
+            #endif
+
             float shadowF = min(luminance(deferredShadow), 1.0);
             occlusion = max(occlusion, shadowF);
 
-            vec3 albedo = RGBToLinear(deferredColor);
-            //final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, deferredShadow, deferredLighting.xy, roughL, deferredLighting.z);
-            final = GetFinalLighting(albedo, texNormal, blockDiffuse, blockSpecular, skyDiffuse, skySpecular, deferredLighting.xy, metal_f0, roughL, occlusion);
+            vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+            vec3 specularFinal = blockSpecular + skySpecular;
+            final = GetFinalLighting(albedo, texNormal, diffuseFinal, specularFinal, deferredLighting.xy, occlusion);
 
             vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-            //vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
             vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
             fogColorFinal = RGBToLinear(fogColorFinal);
 

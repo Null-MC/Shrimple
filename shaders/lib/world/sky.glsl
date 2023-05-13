@@ -1,14 +1,28 @@
+vec3 worldSunColor         = vec3(0.889, 0.864, 0.691) * WorldSunBrightnessF;
+vec3 worldSunColorHorizon  = vec3(0.813, 0.540, 0.120) * WorldSunBrightnessF;
+vec3 worldMoonColorHorizon = vec3(0.717, 0.708, 0.621) * WorldMoonBrightnessF;
+vec3 worldMoonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
+
+float GetSkyHorizonF(const in float celestialUpF) {
+    return smoothstep(0.0, 0.7, celestialUpF);
+}
+
+vec3 GetSkySunColor(const in float sunUpF) {
+    float horizonF = GetSkyHorizonF(sunUpF);
+    return mix(worldSunColorHorizon, worldSunColor, horizonF);
+}
+
+vec3 GetSkyMoonColor(const in float moonUpF) {
+    float horizonF = GetSkyHorizonF(moonUpF);
+    return mix(worldMoonColorHorizon, worldMoonColor, horizonF);
+}
+
 #if !defined IRIS_FEATURE_SSBO || defined RENDER_BEGIN
-    vec3 sunColor         = vec3(0.889, 0.864, 0.691) * WorldSunBrightnessF;
-    vec3 sunColorHorizon  = vec3(0.813, 0.540, 0.120) * WorldSunBrightnessF;
-    vec3 moonColorHorizon = vec3(0.717, 0.708, 0.621) * WorldMoonBrightnessF;
-    vec3 moonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
-
     vec3 CalculateSkyLightColor(const in vec3 sunDir) {
-        vec3 skyLightColor = sunDir.y > 0.0 ? sunColor : moonColor;
-        vec3 skyLightHorizonColor = sunDir.y > 0.0 ? sunColorHorizon : moonColorHorizon;
+        vec3 skyLightColor = sunDir.y > 0.0 ? worldSunColor : worldMoonColor;
+        vec3 skyLightHorizonColor = sunDir.y > 0.0 ? worldSunColorHorizon : worldMoonColorHorizon;
 
-        float horizonF = smoothstep(0.0, 0.7, abs(sunDir.y));
+        float horizonF = GetSkyHorizonF(sunDir.y);
         return mix(skyLightHorizonColor, skyLightColor, horizonF);
     }
 

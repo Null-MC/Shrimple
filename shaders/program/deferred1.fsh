@@ -14,6 +14,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
+    uniform sampler2D BUFFER_DEFERRED_COLOR;
     uniform sampler2D BUFFER_ROUGHNESS;
 #endif
 
@@ -239,6 +240,14 @@ void main() {
         vec3 blockSpecular = vec3(0.0);
         GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
         blockDiffuse *= 1.0 - deferredFog.a;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+                blockDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                blockSpecular *= RGBToLinear(deferredAlbedo);
+            }
+        #endif
 
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;

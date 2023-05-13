@@ -8,6 +8,9 @@
 
     vec3 localSunDirection;                  // 12
     vec3 localSkyLightDirection;             // 12
+
+    vec3 WorldSunLightColor;                 // 12
+    vec3 WorldMoonLightColor;                // 12
     vec3 WorldSkyLightColor;                 // 12
     //vec3 WeatherSkyLightColor;             // 12
 
