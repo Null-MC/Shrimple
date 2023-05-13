@@ -256,7 +256,7 @@ void main() {
         outNormal = vec4(texNormal, 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outSpecular = vec4(blockSpecular, 1.0);
+            outSpecular = vec4(blockSpecular, roughL);
         #endif
     }
     else {

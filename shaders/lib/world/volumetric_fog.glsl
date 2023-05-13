@@ -202,6 +202,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         float lightSize, lightRange;
                         ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
+                        lightRange *= VolumetricBlockRangeF;
+
                         vec3 lightVec = traceLocalPos - lightPos;
                         if (length2(lightVec) >= _pow2(lightRange)) continue;
                         
@@ -229,7 +231,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += 0.3 * lightAtt * lightColor * lightPhase;
+                        blockLightAccum += PI * lightAtt * lightColor * lightPhase;
                     }
                 }
             #endif

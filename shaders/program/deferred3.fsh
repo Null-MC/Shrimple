@@ -151,7 +151,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/post/tonemap.glsl"
 
 
-void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in vec3 g_sigma) {
+void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
@@ -179,7 +179,8 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             vec3 sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, sampleBlendTex, 0).rgb;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                vec3 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0).rgb;
+                vec4 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0);
+                sampleSpecular.rgb *= 1.0 - min(8.0 * abs(sampleSpecular.a - roughL), 1.0);
             #endif
 
             float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
@@ -203,7 +204,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
             accumDiffuse += weight * sampleDiffuse;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                accumSpecular += weight * sampleSpecular;
+                accumSpecular += weight * sampleSpecular.rgb;
             #endif
 
             total += weight;
@@ -350,7 +351,7 @@ layout(location = 0) out vec4 outFinal;
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                 #ifdef DYN_LIGHT_BLUR
                     const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
-                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, lightSigma);
+                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, roughL, lightSigma);
                 #elif DYN_LIGHT_RES == 0
                     blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
@@ -364,6 +365,10 @@ layout(location = 0) out vec4 outFinal;
                         blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
                     #endif
                 #endif
+
+                //vec4 specularSample = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0);
+                //blockSpecular = specularSample.rgb;
+                //blockSpecular *= 1.0 - min(10.0 * abs(roughL - specularSample.a), 1.0);
 
                 #if DYN_LIGHT_TA > 0
                     vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
@@ -405,16 +410,16 @@ layout(location = 0) out vec4 outFinal;
                             blockDiffuse = mix(diffuseSamplePrev.rgb, blockDiffuse, diffuseWeight);
 
                             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                                vec4 specularSamplePrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0);
-                                vec3 blockSpecularPrev = specularSamplePrev.rgb;
-                                float metal_f0_prev = specularSamplePrev.a;
+                                vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
+                                //vec3 blockSpecularPrev = specularSamplePrev.rgb;
+                                //float metal_f0_prev = specularSamplePrev.a;
 
                                 //float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                                float specularWeight = rcp(1.0 + 0.1*diffuseCounter*DynamicLightTemporalStrength);
+                                float specularWeight = rcp(1.0 + 0.25*diffuseCounter*DynamicLightTemporalStrength);
 
                                 blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
 
-                                if (abs(metal_f0 - metal_f0_prev) > (0.5/255.0)) blockSpecular = vec3(0.0);
+                                //if (abs(roughL - metal_f0_prev) > (0.5/255.0)) blockSpecular = vec3(0.0);
                             #endif
                         }
                     }
@@ -424,7 +429,7 @@ layout(location = 0) out vec4 outFinal;
                     outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        outSpecularTA = vec4(blockSpecular, metal_f0);
+                        outSpecularTA = vec4(blockSpecular, 1.0);
                     #endif
                 #endif
 
