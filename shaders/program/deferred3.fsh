@@ -252,10 +252,10 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
     return accum / max(total, EPSILON);
 }
 
-ivec2 GetTemporalOffset(const in int size) {
-    ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
-    return ivec2(coord.x % size, (coord.y / size) % size);
-}
+// ivec2 GetTemporalOffset(const in int size) {
+//     ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
+//     return ivec2(coord.x % size, (coord.y / size) % size);
+// }
 
 
 layout(location = 0) out vec4 outFinal;

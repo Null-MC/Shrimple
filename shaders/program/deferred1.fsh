@@ -182,9 +182,9 @@ void main() {
         vec2 pixelSize = rcp(viewSize);
 
         #if DYN_LIGHT_RES == 2
-            tex2 += GetTemporalOffset(4) * pixelSize;
+            tex2 += GetTemporalOffset(4) * pixelSize * 0.25;
         #elif DYN_LIGHT_RES == 1
-            tex2 += GetTemporalOffset(2) * pixelSize;
+            tex2 += GetTemporalOffset(2) * pixelSize * 0.5;
         #endif
     #endif
 
