@@ -38,8 +38,6 @@ void main() {
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(gridCell, SceneLightGridSize))) return;
 
-        //memoryBarrierImage();
-
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         
         uint gridIndex = GetSceneLightGridIndex(gridCell);
