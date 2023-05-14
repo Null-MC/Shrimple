@@ -10,7 +10,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
     vec3 lightFragPos = localPos;
     lightFragPos += distBiasScale*localNormal;
-    lightFragPos += distBiasScale*localViewDir;
+    //lightFragPos += distBiasScale*localViewDir;
 
     uint lightCount = GetSceneLights(lightFragPos, gridIndex);
 

@@ -972,8 +972,8 @@ void main() {
                 break;
             case BLOCK_CREATE_SHAFT_Z:
                 shapeCount = 1u;
-                boundsMin[0] = modelPart( 6.0,  6,  0);
-                boundsMax[0] = modelPart(10.0, 10, 16);
+                boundsMin[0] = modelPart( 6,  6,  0);
+                boundsMax[0] = modelPart(10, 10, 16);
                 break;
         }
 
@@ -1002,32 +1002,32 @@ void main() {
                     break;
                 case BLOCK_FENCE_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3((7.0/16.0), (6.0/16.0), 0.5);
-                    boundsMax[1] = vec3((9.0/16.0), (9.0/16.0), 1.0);
-                    boundsMin[2] = vec3((7.0/16.0), (12.0/16.0), 0.5);
-                    boundsMax[2] = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                    boundsMin[1] = modelPart( 7,  6,  8);
+                    boundsMax[1] = modelPart( 9,  9, 16);
+                    boundsMin[2] = modelPart( 7, 12,  8);
+                    boundsMax[2] = modelPart( 9, 15, 16);
                     break;
                 case BLOCK_FENCE_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, (6.0/16.0), (7.0/16.0));
-                    boundsMax[1] = vec3(0.5, (9.0/16.0), (9.0/16.0));
-                    boundsMin[2] = vec3(0.0, (12.0/16.0), (7.0/16.0));
-                    boundsMax[2] = vec3(0.5, (15.0/16.0), (9.0/16.0));
+                    boundsMin[1] = modelPart( 0,  6,  7);
+                    boundsMax[1] = modelPart( 8,  9,  9);
+                    boundsMin[2] = modelPart( 0, 12,  7);
+                    boundsMax[2] = modelPart( 8, 15,  9);
                     break;
 
                 case BLOCK_FENCE_N_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3((7.0/16.0), (6.0/16.0), 0.0);
-                    boundsMax[1] = vec3((9.0/16.0), (9.0/16.0), 1.0);
-                    boundsMin[2] = vec3((7.0/16.0), (12.0/16.0), 0.0);
-                    boundsMax[2] = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                    boundsMin[1] = modelPart( 7,  6,  0);
+                    boundsMax[1] = modelPart( 9,  9, 16);
+                    boundsMin[2] = modelPart( 7, 12,  0);
+                    boundsMax[2] = modelPart( 9, 15, 16);
                     break;
                 case BLOCK_FENCE_W_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, (6.0/16.0), (7.0/16.0));
-                    boundsMax[1] = vec3(1.0, (9.0/16.0), (9.0/16.0));
-                    boundsMin[2] = vec3(0.0, (12.0/16.0), (7.0/16.0));
-                    boundsMax[2] = vec3(1.0, (15.0/16.0), (9.0/16.0));
+                    boundsMin[1] = modelPart( 0,  6,  7);
+                    boundsMax[1] = modelPart(16,  9,  9);
+                    boundsMin[2] = modelPart( 0, 12,  7);
+                    boundsMax[2] = modelPart(16, 15,  9);
                     break;
 
                 case BLOCK_FENCE_N_W:
@@ -1077,43 +1077,43 @@ void main() {
 
                 case BLOCK_FENCE_W_N_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, (6.0/16.0), (7.0/16.0));
-                    boundsMax[1] = vec3(1.0, (9.0/16.0), (9.0/16.0));
-                    boundsMin[2] = vec3(0.0, (12.0/16.0), (7.0/16.0));
-                    boundsMax[2] = vec3(1.0, (15.0/16.0), (9.0/16.0));
+                    boundsMin[1] = modelPart( 0,  6,  7);
+                    boundsMax[1] = modelPart(16,  9,  9);
+                    boundsMin[2] = modelPart( 0, 12,  7);
+                    boundsMax[2] = modelPart(16, 15,  9);
                     break;
                 case BLOCK_FENCE_W_S_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, (6.0/16.0), (7.0/16.0));
-                    boundsMax[1] = vec3(1.0, (9.0/16.0), (9.0/16.0));
-                    boundsMin[2] = vec3(0.0, (12.0/16.0), (7.0/16.0));
-                    boundsMax[2] = vec3(1.0, (15.0/16.0), (9.0/16.0));
+                    boundsMin[1] = modelPart( 0,  6,  7);
+                    boundsMax[1] = modelPart(16,  9,  9);
+                    boundsMin[2] = modelPart( 0, 12,  7);
+                    boundsMax[2] = modelPart(16, 15,  9);
                     break;
                 case BLOCK_FENCE_N_W_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3((7.0/16.0), (6.0/16.0), 0.0);
-                    boundsMax[1] = vec3((9.0/16.0), (9.0/16.0), 1.0);
-                    boundsMin[2] = vec3((7.0/16.0), (12.0/16.0), 0.0);
-                    boundsMax[2] = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                    boundsMin[1] = modelPart( 7,  6,  0);
+                    boundsMax[1] = modelPart( 9,  9, 16);
+                    boundsMin[2] = modelPart( 7, 12,  0);
+                    boundsMax[2] = modelPart( 9, 15, 16);
                     break;
                 case BLOCK_FENCE_N_E_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3((7.0/16.0), (6.0/16.0), 0.0);
-                    boundsMax[1] = vec3((9.0/16.0), (9.0/16.0), 1.0);
-                    boundsMin[2] = vec3((7.0/16.0), (12.0/16.0), 0.0);
-                    boundsMax[2] = vec3((9.0/16.0), (15.0/16.0), 1.0);
+                    boundsMin[1] = modelPart( 7,  6,  0);
+                    boundsMax[1] = modelPart( 9,  9, 16);
+                    boundsMin[2] = modelPart( 7, 12,  0);
+                    boundsMax[2] = modelPart( 9, 15, 16);
                     break;
 
                 case BLOCK_FENCE_ALL:
                     shapeCount = 5u;
-                    boundsMin[1] = vec3((7.0/16.0), (6.0/16.0), 0.0);
-                    boundsMax[1] = vec3((9.0/16.0), (9.0/16.0), 1.0);
-                    boundsMin[2] = vec3((7.0/16.0), (12.0/16.0), 0.0);
-                    boundsMax[2] = vec3((9.0/16.0), (15.0/16.0), 1.0);
-                    boundsMin[3] = vec3(0.0, (6.0/16.0), (7.0/16.0));
-                    boundsMax[3] = vec3(1.0, (9.0/16.0), (9.0/16.0));
-                    boundsMin[4] = vec3(0.0, (12.0/16.0), (7.0/16.0));
-                    boundsMax[4] = vec3(1.0, (15.0/16.0), (9.0/16.0));
+                    boundsMin[1] = modelPart( 7,  6,  0);
+                    boundsMax[1] = modelPart( 9,  9, 16);
+                    boundsMin[2] = modelPart( 7, 12,  0);
+                    boundsMax[2] = modelPart( 9, 15, 16);
+                    boundsMin[3] = modelPart( 0,  6,  7);
+                    boundsMax[3] = modelPart(16,  9,  9);
+                    boundsMin[4] = modelPart( 0, 12,  7);
+                    boundsMax[4] = modelPart(16, 15,  9);
                     break;
             }
         }
@@ -1147,7 +1147,7 @@ void main() {
                 break;
         }
 
-        if (blockId >= BLOCK_WALL_POST && blockId <= BLOCK_WALL_POST_TALL_W_LOW_E) {
+        if (blockId >= BLOCK_WALL_POST && blockId <= BLOCK_WALL_POST_TALL_S_E_LOW_N_W) {
             boundsMin[0] = modelPart( 4,  0,  4);
             boundsMax[0] = modelPart(12, 16, 12);
 
@@ -1157,223 +1157,283 @@ void main() {
                     break;
                 case BLOCK_WALL_POST_LOW_N:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14,  8);
                     break;
                 case BLOCK_WALL_POST_LOW_E:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.5, 0.000, 0.3125);
-                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 8,  0,  5);
+                    boundsMax[1] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_S:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 14, 16);
                     break;
                 case BLOCK_WALL_POST_LOW_W:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[1] = vec3(0.5, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart( 8, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_N_S:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14, 16);
                     break;
                 case BLOCK_WALL_POST_LOW_W_E:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_N_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[1] = vec3(0.5, 0.875, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[2] = vec3(0.6875, 0.875, 0.5);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart( 8, 14, 11);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 14,  8);
                     break;
                 case BLOCK_WALL_POST_LOW_N_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
-                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
-                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14,  8);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_S_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 14, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_S_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.5, 0.000, 0.3125);
-                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.000, 0.5);
-                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[1] = modelPart( 8,  0,  5);
+                    boundsMax[1] = modelPart(16, 14, 11);
+                    boundsMin[2] = modelPart( 5,  0,  8);
+                    boundsMax[2] = modelPart(11, 14, 16);
                     break;
                 case BLOCK_WALL_POST_LOW_N_W_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_N_E_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
-                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14, 16);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_W_N_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[1] = vec3(0.6875, 0.875, 0.5);
-                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14,  8);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_W_S_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.000, 0.5);
-                    boundsMax[1] = vec3(0.6875, 0.875, 1.0);
-                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 14, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
                     break;
                 case BLOCK_WALL_POST_LOW_ALL:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[1] = vec3(1.0, 0.875, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 14, 11);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 14, 16);
                     break;
 
                 case BLOCK_WALL_POST_TALL_N:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16,  8);
                     break;
                 case BLOCK_WALL_POST_TALL_E:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.5, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 8,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_S:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 16, 16);
                     break;
                 case BLOCK_WALL_POST_TALL_W:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart( 8, 16, 11);
                     break;
 
                 case BLOCK_WALL_POST_TALL_N_S:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16, 16);
                     break;
                 case BLOCK_WALL_POST_TALL_W_E:
                     shapeCount = 2u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
                     break;
 
                 case BLOCK_WALL_POST_TALL_N_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[2] = vec3(0.6875, 1.0, 0.5);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart( 8, 16, 11);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 16,  8);
                     break;
                 case BLOCK_WALL_POST_TALL_N_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
-                    boundsMin[2] = vec3(0.5, 0.0, 0.3125);
-                    boundsMax[2] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16,  8);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 16, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_S_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                    boundsMin[2] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[2] = vec3(0.5, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 16, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_S_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.50, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.00, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.0, 0.5);
-                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[1] = modelPart( 8,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
+                    boundsMin[2] = modelPart( 5,  0,  8);
+                    boundsMax[2] = modelPart(11, 16, 16);
                     break;
 
                 case BLOCK_WALL_POST_TALL_N_W_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                    boundsMin[2] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[2] = vec3(0.5, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 16, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_N_E_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                    boundsMin[2] = vec3(0.5, 0.0, 0.3125);
-                    boundsMax[2] = vec3(1.0, 1.0, 0.6875);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 16, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_W_N_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[2] = vec3(0.6875, 1.0, 0.5);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 16,  8);
                     break;
                 case BLOCK_WALL_POST_TALL_W_S_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.0, 0.5);
-                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
+                    boundsMin[2] = modelPart( 5,  0,  8);
+                    boundsMax[2] = modelPart(11, 16, 16);
                     break;
 
                 case BLOCK_WALL_POST_TALL_ALL:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[2] = vec3(0.6875, 1.0, 1.0);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 16, 16);
                     break;
 
                 case BLOCK_WALL_POST_TALL_N_LOW_S:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.0);
-                    boundsMax[1] = vec3(0.6875, 1.0, 0.5);
-                    boundsMin[2] = vec3(0.3125, 0.000, 0.5);
-                    boundsMax[2] = vec3(0.6875, 0.875, 1.0);
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16,  8);
+                    boundsMin[2] = modelPart( 5,  0,  8);
+                    boundsMax[2] = modelPart(11, 14, 16);
                     break;
                 case BLOCK_WALL_POST_TALL_E_LOW_W:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.5, 0.0, 0.3125);
-                    boundsMax[1] = vec3(1.0, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.0, 0.000, 0.3125);
-                    boundsMax[2] = vec3(0.5, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 8,  0,  5);
+                    boundsMax[1] = modelPart(16, 16, 11);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 14, 11);
                     break;
                 case BLOCK_WALL_POST_TALL_S_LOW_N:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.3125, 0.0, 0.5);
-                    boundsMax[1] = vec3(0.6875, 1.0, 1.0);
-                    boundsMin[2] = vec3(0.3125, 0.000, 0.0);
-                    boundsMax[2] = vec3(0.6875, 0.875, 0.5);
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 14,  8);
                     break;
                 case BLOCK_WALL_POST_TALL_W_LOW_E:
                     shapeCount = 3u;
-                    boundsMin[1] = vec3(0.0, 0.0, 0.3125);
-                    boundsMax[1] = vec3(0.5, 1.0, 0.6875);
-                    boundsMin[2] = vec3(0.5, 0.000, 0.3125);
-                    boundsMax[2] = vec3(1.0, 0.875, 0.6875);
+                    boundsMin[1] = modelPart( 0,  0,  5);
+                    boundsMax[1] = modelPart( 8, 16, 11);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_S_LOW_W_E:
+                    shapeCount = 3u;
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart(16, 14, 11);
+                    break;
+                case BLOCK_WALL_POST_TALL_W_E_LOW_N_S:
+                    shapeCount = 3u;
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 14, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart(16, 16, 11);
+                    break;
+
+                case BLOCK_WALL_POST_TALL_N_W_LOW_S_E:
+                    shapeCount = 5u;
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16,  8);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 16, 11);
+                    boundsMin[3] = modelPart( 5,  0,  8);
+                    boundsMax[3] = modelPart(11, 14, 16);
+                    boundsMin[4] = modelPart( 8,  0,  5);
+                    boundsMax[4] = modelPart(16, 14, 11);
+                    break;
+                case BLOCK_WALL_POST_TALL_N_E_LOW_S_W:
+                    shapeCount = 5u;
+                    boundsMin[1] = modelPart( 5,  0,  0);
+                    boundsMax[1] = modelPart(11, 16,  8);
+                    boundsMin[2] = modelPart( 8,  0,  5);
+                    boundsMax[2] = modelPart(16, 16, 11);
+                    boundsMin[3] = modelPart( 5,  0,  8);
+                    boundsMax[3] = modelPart(11, 14, 16);
+                    boundsMin[4] = modelPart( 0,  0,  5);
+                    boundsMax[4] = modelPart( 8, 14, 11);
+                    break;
+                case BLOCK_WALL_POST_TALL_S_W_LOW_N_E:
+                    shapeCount = 5u;
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 0,  0,  5);
+                    boundsMax[2] = modelPart( 8, 16, 11);
+                    boundsMin[3] = modelPart( 5,  0,  0);
+                    boundsMax[3] = modelPart(11, 14,  8);
+                    boundsMin[4] = modelPart( 8,  0,  5);
+                    boundsMax[4] = modelPart(16, 14, 11);
+                    break;
+                case BLOCK_WALL_POST_TALL_S_E_LOW_N_W:
+                    shapeCount = 5u;
+                    boundsMin[1] = modelPart( 5,  0,  8);
+                    boundsMax[1] = modelPart(11, 16, 16);
+                    boundsMin[2] = modelPart( 5,  0,  0);
+                    boundsMax[2] = modelPart(11, 14,  8);
+                    boundsMin[3] = modelPart( 8,  0,  5);
+                    boundsMax[3] = modelPart(16, 16, 11);
+                    boundsMin[4] = modelPart( 0,  0,  5);
+                    boundsMax[4] = modelPart( 8, 14, 11);
                     break;
             }
         }
@@ -1381,38 +1441,109 @@ void main() {
         switch (blockId) {
             case BLOCK_WALL_LOW_N_S:
                 shapeCount = 1u;
-                boundsMin[0] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[0] = vec3(0.6875, (14.0/16.0), 1.0);
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 14, 16);
                 break;
             case BLOCK_WALL_LOW_W_E:
                 shapeCount = 1u;
-                boundsMin[0] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[0] = vec3(1.0, (14.0/16.0), 0.6875);
+                boundsMin[0] = modelPart( 0,  0,  5);
+                boundsMax[0] = modelPart(16, 14, 11);
+                break;
+            case BLOCK_WALL_LOW_N_W:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 14,  8);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart( 8, 14, 11);
+                break;
+            case BLOCK_WALL_LOW_N_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 14,  8);
+                boundsMin[1] = modelPart( 8,  0,  5);
+                boundsMax[1] = modelPart(16, 14, 11);
+                break;
+            case BLOCK_WALL_LOW_S_W:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  8);
+                boundsMax[0] = modelPart(11, 14, 16);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart( 8, 14, 11);
+                break;
+            case BLOCK_WALL_LOW_S_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  8);
+                boundsMax[0] = modelPart(11, 14, 16);
+                boundsMin[1] = modelPart( 8,  0,  5);
+                boundsMax[1] = modelPart(16, 14, 11);
                 break;
             case BLOCK_WALL_LOW_ALL:
                 shapeCount = 2u;
-                boundsMin[0] = vec3(0.0000, 0.000, 0.3125);
-                boundsMax[0] = vec3(1.0000, 0.875, 0.6875);
-                boundsMin[1] = vec3(0.3125, 0.000, 0.0000);
-                boundsMax[1] = vec3(0.6875, 0.875, 1.0000);
+                boundsMin[0] = modelPart( 0,  0,  5);
+                boundsMax[0] = modelPart(16, 14, 11);
+                boundsMin[1] = modelPart( 5,  0,  0);
+                boundsMax[1] = modelPart(11, 14, 16);
                 break;
 
             case BLOCK_WALL_TALL_N_S:
                 shapeCount = 1u;
-                boundsMin[0] = vec3(0.3125, 0.0, 0.0);
-                boundsMax[0] = vec3(0.6875, 1.0, 1.0);
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 16, 16);
                 break;
             case BLOCK_WALL_TALL_W_E:
                 shapeCount = 1u;
-                boundsMin[0] = vec3(0.0, 0.0, 0.3125);
-                boundsMax[0] = vec3(1.0, 1.0, 0.6875);
+                boundsMin[0] = modelPart( 0,  0,  5);
+                boundsMax[0] = modelPart(16, 16, 11);
+                break;
+            case BLOCK_WALL_TALL_N_W:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 16,  8);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart( 8, 16, 11);
+                break;
+            case BLOCK_WALL_TALL_N_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 16,  8);
+                boundsMin[1] = modelPart( 8,  0,  5);
+                boundsMax[1] = modelPart(16, 16, 11);
+                break;
+            case BLOCK_WALL_TALL_S_W:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  8);
+                boundsMax[0] = modelPart(11, 16, 16);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart( 8, 16, 11);
+                break;
+            case BLOCK_WALL_TALL_S_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  8);
+                boundsMax[0] = modelPart(11, 16, 16);
+                boundsMin[1] = modelPart( 8,  0,  5);
+                boundsMax[1] = modelPart(16, 16, 11);
                 break;
             case BLOCK_WALL_TALL_ALL:
                 shapeCount = 2u;
-                boundsMin[0] = vec3(0.0000, 0.0, 0.3125);
-                boundsMax[0] = vec3(1.0000, 1.0, 0.6875);
-                boundsMin[1] = vec3(0.3125, 0.0, 0.0000);
-                boundsMax[1] = vec3(0.6875, 1.0, 1.0000);
+                boundsMin[0] = modelPart( 0,  0,  5);
+                boundsMax[0] = modelPart(16, 16, 11);
+                boundsMin[1] = modelPart( 5,  0,  0);
+                boundsMax[1] = modelPart(11, 16, 16);
+                break;
+
+            case BLOCK_WALL_TALL_N_S_LOW_W_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 16, 16);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart(16, 14, 11);
+                break;
+            case BLOCK_WALL_TALL_W_E_LOW_N_S:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  0);
+                boundsMax[0] = modelPart(11, 14, 16);
+                boundsMin[1] = modelPart( 0,  0,  5);
+                boundsMax[1] = modelPart(16, 16, 11);
                 break;
         }
 
