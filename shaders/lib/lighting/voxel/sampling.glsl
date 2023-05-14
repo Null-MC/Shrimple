@@ -37,11 +37,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             uint interleaveCount = uint(ceil(lightCount / float(DYN_LIGHT_SAMPLE_MAX)));
 
             if (interleaveCount > 1u) {
-                uint offset = 2u * (frameCounter % interleaveCount);
-                if (offset >= interleaveCount)
-                    offset -= interleaveCount - 1u;
-
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy + offset);
+                float n = hash11(frameTimeCounter);
+                float dither = InterleavedGradientNoise(gl_FragCoord.xy + n*33.33);
                 iOffset = uint(dither * interleaveCount + 0.5);
                 iStep = interleaveCount;
             }
