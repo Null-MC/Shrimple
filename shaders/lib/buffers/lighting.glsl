@@ -55,9 +55,9 @@
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_SHADOWCOMP
-        layout(r32ui) uniform restrict uimage2D imgLocalBlockMask;
+        layout(r16ui) uniform restrict uimage2D imgLocalBlockMask;
     #else
-        layout(r32ui) uniform restrict readonly uimage2D imgLocalBlockMask;
+        layout(r16ui) uniform restrict readonly uimage2D imgLocalBlockMask;
     #endif
 #endif
 
