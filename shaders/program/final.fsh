@@ -99,18 +99,27 @@ void main() {
 
 		text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
 		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
+
 		printString((_V, _i, _s, _i, _b, _l, _e, _colon, _space));
 		printUnsignedInt(SceneLightCount);
 		printLine();
+
 		printString((_T, _o, _t, _a, _l, _colon, _space, _space, _space));
 		printUnsignedInt(SceneLightMaxCount);
 		printLine();
+
 		printString((_S, _S, _B, _O, _colon, _space, _space, _space, _space));
 		printUnsignedInt(DYN_LIGHT_SSBO_SIZE);
 		printString((_m, _b));
 		printLine();
-		printString((_C, _U, _colon, _space, _space, _space, _space, _space, _space));
+
+		printString((_L, _i, _g, _h, _t, _colon, _space, _space, _space));
 		printUnsignedInt(DYN_LIGHT_IMG_SIZE);
+		printString((_x));
+		printLine();
+
+		printString((_B, _l, _o, _c, _k, _colon, _space, _space, _space));
+		printUnsignedInt(DYN_LIGHT_BLOCK_IMG_SIZE);
 		printString((_x));
 
 		endText(color);

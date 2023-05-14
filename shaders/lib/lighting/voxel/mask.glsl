@@ -46,7 +46,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
 
         uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
 
-        ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
+        ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_BLOCK_IMG_SIZE, int(intIndex / DYN_LIGHT_BLOCK_IMG_SIZE));
         uint bit = imageLoad(imgLocalBlockMask, texcoord).r >> (maskIndex & 31);
         return (bit & 0xFFFF);
     }
@@ -85,7 +85,7 @@ uint GetLightMaskFace(const in vec3 normal) {
             uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_BLOCK_MASK_STRIDE / 32) + (maskIndex >> 5);
             uint bit = blockId << (maskIndex & 31);
 
-            ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
+            ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_BLOCK_IMG_SIZE, int(intIndex / DYN_LIGHT_BLOCK_IMG_SIZE));
             imageAtomicOr(imgLocalBlockMask, texcoord, bit);
         }
     #endif

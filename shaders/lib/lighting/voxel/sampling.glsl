@@ -6,7 +6,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     uint gridIndex;
     float viewDist = length(localPos);
     vec3 localViewDir = -normalize(localPos);
-    float distBiasScale = min(0.001*viewDist, 0.25);
+    float distBiasScale = 0.02 + min(0.01*viewDist, 0.2);
 
     vec3 lightFragPos = localPos;
     lightFragPos += distBiasScale*localNormal;
