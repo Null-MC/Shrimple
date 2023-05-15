@@ -138,7 +138,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         if (i < stepCount) iStep += dither;
 
         #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float sampleF = 0.0;
+            float sampleF = 1.0;
             vec3 sampleColor = skyLightColor;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
