@@ -411,7 +411,21 @@ layout(location = 0) out vec4 outFinal;
                         if (depthWeight > 0.0 && normalWeight < 1.0) {
                             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
 
-                            if (HandLightType1 == HandLightTypePrevious1 && HandLightType2 == HandLightTypePrevious2) {
+                            bool hasLightingChanged =
+                                HandLightType1 != HandLightTypePrevious1 ||
+                                HandLightType2 != HandLightTypePrevious2;
+
+                            ivec3 gridCell, blockCell;
+                            vec3 gridPos = GetLightGridPosition(localPos);
+                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                                uint gridIndex = GetSceneLightGridIndex(gridCell);
+                                LightCellData cellData = SceneLightMaps[gridIndex];
+
+                                if (cellData.LightPreviousCount != cellData.LightCount + cellData.LightNeighborCount)
+                                    hasLightingChanged = true;
+                            }
+
+                            if (!hasLightingChanged) {
                                 diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
                                 diffuseCounter *= depthWeight;

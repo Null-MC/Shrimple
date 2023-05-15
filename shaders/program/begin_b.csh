@@ -23,7 +23,12 @@ void main() {
         if (any(greaterThanEqual(pos, SceneLightGridSize))) return;
         uint gridIndex = GetSceneLightGridIndex(pos);
 
-        SceneLightMaps[gridIndex].LightCount = 0u;
-        SceneLightMaps[gridIndex].LightNeighborCount = 0u;
+        LightCellData cellData = SceneLightMaps[gridIndex];
+
+        cellData.LightPreviousCount = cellData.LightCount + cellData.LightNeighborCount;
+        cellData.LightNeighborCount = 0u;
+        cellData.LightCount = 0u;
+
+        SceneLightMaps[gridIndex] = cellData;
     #endif
 }

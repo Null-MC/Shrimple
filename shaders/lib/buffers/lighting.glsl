@@ -32,18 +32,17 @@
     struct LightCellData {
         uint LightCount;
         uint LightNeighborCount;
+        uint LightPreviousCount;
         uint GlobalLights[LIGHT_BIN_MAX_COUNT];
     };
 
-    #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
+    #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW || defined RENDER_BEGIN
         layout(std430, binding = 4) restrict buffer localLightingData
-    #elif defined RENDER_BEGIN
-        layout(std430, binding = 4) restrict writeonly buffer localLightingData
     #else
         layout(std430, binding = 4) restrict readonly buffer localLightingData
     #endif
     {
-        LightCellData SceneLightMaps[];
+        LightCellData SceneLightMaps[];     // 16 * N
     };
 
     #if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_SHADOWCOMP
