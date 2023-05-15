@@ -2,6 +2,12 @@
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
+float InterleavedGradientNoiseTime(const in vec2 pixel) {
+    vec2 p = pixel + frameCounter * 5.588238;
+    float x = dot(p, magic.xy);
+    return fract(magic.z * fract(x));
+}
+
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);
@@ -37,9 +43,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             uint interleaveCount = uint(ceil(lightCount / float(DYN_LIGHT_SAMPLE_MAX)));
 
             if (interleaveCount > 1u) {
-                float n = hash11(frameTimeCounter);
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy + n*33.33);
-                iOffset = uint(dither * interleaveCount + 0.5);
+                float n = InterleavedGradientNoiseTime(gl_FragCoord.xy);
+                iOffset = uint(n * interleaveCount + 0.5);
                 iStep = interleaveCount;
             }
         #endif
