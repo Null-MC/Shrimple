@@ -382,7 +382,7 @@ layout(location = 0) out vec4 outFinal;
 
                     vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 
-                    float diffuseCounter = 40.0;
+                    float diffuseCounter = 0.0;
 
                     if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
                         float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
@@ -410,10 +410,13 @@ layout(location = 0) out vec4 outFinal;
 
                         if (depthWeight > 0.0 && normalWeight < 1.0) {
                             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
-                            diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
-                            diffuseCounter *= depthWeight;
-                            diffuseCounter *= 1.0 - normalWeight;
+                            if (HandLightType1 == HandLightTypePrevious1 && HandLightType2 == HandLightTypePrevious2) {
+                                diffuseCounter = min(diffuseSamplePrev.a, 256.0);
+
+                                diffuseCounter *= depthWeight;
+                                diffuseCounter *= 1.0 - normalWeight;
+                            }
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);

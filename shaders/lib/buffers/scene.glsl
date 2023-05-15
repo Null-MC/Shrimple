@@ -4,6 +4,15 @@
     layout(std430, binding = 0) readonly buffer sceneData
 #endif
 {
+    vec3 HandLightPos1;                      // 12
+    uint HandLightType1;                     //  4
+
+    vec3 HandLightPos2;                      // 12
+    uint HandLightType2;                     //  4
+
+    uint HandLightTypePrevious1;             //  4
+    uint HandLightTypePrevious2;             //  4
+
     mat4 matColorPost;                       // 64
 
     vec3 localSunDirection;                  // 12

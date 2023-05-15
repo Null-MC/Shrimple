@@ -15,6 +15,9 @@ const ivec3 workGroups = ivec3(4, 1, 1);
     uniform mat4 gbufferProjectionInverse;
     uniform mat4 gbufferPreviousProjection;
 
+    uniform int heldItemId;
+    uniform int heldItemId2;
+
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
         uniform float rainStrength;
@@ -62,6 +65,12 @@ void main() {
 
     #ifdef IRIS_FEATURE_SSBO
         if (i == 0) {
+            HandLightTypePrevious1 = HandLightType1;
+            HandLightTypePrevious2 = HandLightType2;
+
+            HandLightType1 = heldItemId;
+            HandLightType2 = heldItemId2;
+
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
                 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);

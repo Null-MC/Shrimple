@@ -18,8 +18,8 @@
         uint SceneLightCount;
         uint SceneLightMaxCount;
 
-        vec3 HandLightPos1;
-        vec3 HandLightPos2;
+        //vec3 HandLightPos1;
+        //vec3 HandLightPos2;
 
         vec3 sceneViewUp;
         vec3 sceneViewRight;
