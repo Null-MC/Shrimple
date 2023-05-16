@@ -369,6 +369,13 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
+    #ifdef WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            metal_f0 = mix(0.02, 0.04, oceanFoam);
+            roughness = mix(0.08, 0.5, oceanFoam);
+        }
+    #endif
+
     #ifdef TRANSLUCENT_SSS_ENABLED
         sss = max(sss, 1.0 - color.a);
     #endif
@@ -415,13 +422,6 @@ void main() {
                 #endif
             }
         #endif
-    #endif
-
-    #ifdef WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER) {
-            roughness = 0.08;
-            metal_f0 = 0.02;
-        }
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
