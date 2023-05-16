@@ -81,7 +81,6 @@ float GetWavingRange(const in int blockId, out uint attachment) {
             range = 0.01;
             break;
         case BLOCK_LARGE_FERN_UPPER:
-        case BLOCK_LEAVES:
         case BLOCK_LILAC_UPPER:
         case BLOCK_PEONY_UPPER:
         case BLOCK_ROSE_BUSH_UPPER:
@@ -90,6 +89,8 @@ float GetWavingRange(const in int blockId, out uint attachment) {
             range = 0.06;
             break;
     }
+
+    if (blockId == BLOCK_LEAVES) range = 0.06;
 
     return range;
 }
