@@ -371,7 +371,8 @@ layout(location = 0) out vec4 outFinal;
                 //blockSpecular *= 1.0 - min(10.0 * abs(roughL - specularSample.a), 1.0);
 
                 #if DYN_LIGHT_TA > 0
-                    vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+                    vec3 cameraOffsetPrevious = cameraPosition - previousCameraPosition;
+                    vec3 localPosPrev = localPos + cameraOffsetPrevious;
 
                     #ifdef IRIS_FEATURE_SSBO
                         vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
@@ -415,22 +416,33 @@ layout(location = 0) out vec4 outFinal;
                                 HandLightType1 != HandLightTypePrevious1 ||
                                 HandLightType2 != HandLightTypePrevious2;
 
-                            ivec3 gridCell, blockCell;
+                            ivec3 gridCell, gridCellPrevious, blockCell;
                             vec3 gridPos = GetLightGridPosition(localPos);
-                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                            vec3 gridPosPrevious = GetLightGridPreviousPosition(localPosPrev);
+
+                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
                                 uint gridIndex = GetSceneLightGridIndex(gridCell);
                                 LightCellData cellData = SceneLightMaps[gridIndex];
 
-                                if (cellData.LightPreviousCount != cellData.LightCount + cellData.LightNeighborCount)
+                                uint gridIndexPrevious = GetSceneLightGridIndex(gridCellPrevious);
+                                LightCellData cellDataPrevious = SceneLightMaps[gridIndexPrevious];
+
+                                if (cellDataPrevious.LightPreviousCount != cellData.LightCount + cellData.LightNeighborCount)
                                     hasLightingChanged = true;
                             }
 
-                            if (!hasLightingChanged) {
-                                diffuseCounter = min(diffuseSamplePrev.a, 256.0);
+                            diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
-                                diffuseCounter *= depthWeight;
-                                diffuseCounter *= 1.0 - normalWeight;
+                            diffuseCounter *= depthWeight;
+                            diffuseCounter *= 1.0 - normalWeight;
+
+                            if (HandLightType1 > 0 || HandLightType2 > 0) {
+                                float cameraSpeed = 10.0 * length(cameraOffsetPrevious);
+                                float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
+                                diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
                             }
+
+                            if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);

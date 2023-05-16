@@ -29,6 +29,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform float near;

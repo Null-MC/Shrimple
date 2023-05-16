@@ -11,6 +11,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform vec3 cameraPosition;
+    uniform vec3 previousCameraPosition;
 
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"

@@ -10,6 +10,13 @@ vec3 GetLightGridPosition(const in vec3 position) {
     return position + LightGridCenter + cameraOffset;
 }
 
+#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED
+    vec3 GetLightGridPreviousPosition(const in vec3 position) {
+        vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+        return position + LightGridCenter + cameraOffset;
+    }
+#endif
+
 ivec3 GetSceneLightGridCell(const in vec3 gridPos) {
     return ivec3(floor(gridPos / LIGHT_BIN_SIZE + 0.001));
 }

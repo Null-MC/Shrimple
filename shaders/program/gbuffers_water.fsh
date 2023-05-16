@@ -87,6 +87,7 @@ uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
 uniform vec3 skyColor;

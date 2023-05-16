@@ -40,6 +40,7 @@ uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform float near;
