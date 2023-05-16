@@ -54,6 +54,10 @@ value.WORLD_AMBIENT_MODE.2=Fancy
 option.WORLD_AO_ENABLED=Ambient Occlusion
 option.WORLD_AO_ENABLED.comment=Describes how ambient lighting is occluded.
 
+option.WORLD_WATER_TEXTURE=Water Surface
+value.WORLD_WATER_TEXTURE.0=Textured
+value.WORLD_WATER_TEXTURE.1=Colored
+
 option.WORLD_WATER_OPACITY=Water Opacity
 option.WORLD_WATER_OPACITY.comment=Determines how transparent water blocks will be.
 value.WORLD_WATER_OPACITY.5=5%
@@ -106,11 +110,11 @@ option.WORLD_SKY_REFLECTIONS.comment=Allows the sky to be reflected when specula
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
 
-option.OVERWORLD_BRIGHTNESS=Overworld Brightness
+option.WORLD_SUN_BRIGHTNESS=Sun Light
+suffix.WORLD_SUN_BRIGHTNESS=%
 
-option.NETHER_BRIGHTNESS=Nether Brightness
-
-option.END_BRIGHTNESS=End Brightness
+option.WORLD_MOON_BRIGHTNESS=Moon Light
+suffix.WORLD_MOON_BRIGHTNESS=%
 
 
 screen.MATERIAL_OPTIONS=Materials

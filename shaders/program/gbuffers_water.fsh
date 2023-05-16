@@ -342,8 +342,14 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
-            color.rgb = mix(color.rgb, vec3(1.0), oceanFoam);
+            #if WORLD_WATER_TEXTURE == WATER_COLORED
+                color.rgb = RGBToLinear(glcolor.rgb);
+                color.a = 1.0;
+            #endif
+
             color.a *= WorldWaterOpacityF;
+
+            color = mix(color, vec4(1.0), oceanFoam);
         }
     #endif
 
@@ -483,12 +489,12 @@ void main() {
     //     else {
     // #endif
 
-        if (color.a > (0.5/255.0)) {
-            float NoV = abs(dot(texNormal, -localViewDir));
+        // if (color.a > (0.5/255.0)) {
+        //     float NoV = abs(dot(texNormal, -localViewDir));
 
-            float F = F_schlick(NoV, metal_f0, 1.0);
-            color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
-        }
+        //     float F = F_schlick(NoV, metal_f0, 1.0);
+        //     color.a = 1.0 - (1.0 - F) * (1.0 - color.a);
+        // }
 
         #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;

@@ -207,7 +207,7 @@
                     reflectColor = RGBToLinear(reflectColor);
 
                     float m = skyLight * 0.3;
-                    reflectColor *= invPI * smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
+                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
 
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
