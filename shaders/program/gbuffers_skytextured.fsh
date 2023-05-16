@@ -11,6 +11,7 @@ varying vec4 glcolor;
 uniform sampler2D gtexture;
 
 uniform int renderStage;
+uniform float rainStrength;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

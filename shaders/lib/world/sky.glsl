@@ -25,11 +25,11 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
         float horizonF = GetSkyHorizonF(sunDir.y);
         return mix(skyLightHorizonColor, skyLightColor, horizonF);
     }
-
-    vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
-        return skyLightColor * (1.0 - 0.6*rainStrength);
-    }
 #endif
+
+vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
+    return skyLightColor * (1.0 - 0.4*rainStrength);
+}
 
 #ifndef RENDER_BEGIN
     vec3 GetSkyLightColor(const in vec3 sunDir) {
