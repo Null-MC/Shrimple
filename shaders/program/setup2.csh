@@ -286,7 +286,74 @@ void main() {
                 boundsMin[4] = modelPart(12,  0, 12);
                 boundsMax[4] = modelPart(16,  3, 16);
                 break;
+        }
 
+        switch (blockId) {
+            case BLOCK_COCOA_0_N:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 6,  7,  1);
+                boundsMax[0] = modelPart(10, 12,  5);
+                break;
+            case BLOCK_COCOA_0_E:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart(11,  7,  6);
+                boundsMax[0] = modelPart(15, 12, 10);
+                break;
+            case BLOCK_COCOA_0_S:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 6,  7, 11);
+                boundsMax[0] = modelPart(10, 12, 15);
+                break;
+            case BLOCK_COCOA_0_W:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 1,  7,  6);
+                boundsMax[0] = modelPart( 5, 12, 10);
+                break;
+
+            case BLOCK_COCOA_1_N:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 5,  5,  1);
+                boundsMax[0] = modelPart(11, 12,  7);
+                break;
+            case BLOCK_COCOA_1_E:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 9,  5,  5);
+                boundsMax[0] = modelPart(15, 12, 11);
+                break;
+            case BLOCK_COCOA_1_S:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 5,  5,  9);
+                boundsMax[0] = modelPart(11, 12, 15);
+                break;
+            case BLOCK_COCOA_1_W:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 1,  5,  5);
+                boundsMax[0] = modelPart( 7, 12, 11);
+                break;
+
+            case BLOCK_COCOA_2_N:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 4,  3,  1);
+                boundsMax[0] = modelPart(12, 12,  9);
+                break;
+            case BLOCK_COCOA_2_E:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 7,  3,  4);
+                boundsMax[0] = modelPart(15, 12, 12);
+                break;
+            case BLOCK_COCOA_2_S:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 4,  3,  7);
+                boundsMax[0] = modelPart(12, 12, 15);
+                break;
+            case BLOCK_COCOA_2_W:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 1,  3,  4);
+                boundsMax[0] = modelPart( 9, 12, 12);
+                break;
+        }
+
+        switch (blockId) {
             case BLOCK_END_PORTAL_FRAME:
                 shapeCount = 1u;
                 boundsMin[0] = modelPart( 0,  0,  0);

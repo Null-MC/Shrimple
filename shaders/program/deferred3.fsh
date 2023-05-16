@@ -35,6 +35,7 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 uniform int frameCounter;
+uniform float frameTime;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -437,7 +438,7 @@ layout(location = 0) out vec4 outFinal;
                             diffuseCounter *= 1.0 - normalWeight;
 
                             if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                float cameraSpeed = 10.0 * length(cameraOffsetPrevious);
+                                float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
                                 float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
                                 diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
                             }

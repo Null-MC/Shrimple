@@ -89,7 +89,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             //if (!hasLight) continue;
 
             #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                float pad = 0.5 - clamp(lightSize * 0.5, 0.06, 0.44);
+                float pad = 0.5 - clamp(lightSize * 0.5, 0.1, 0.4);
 
                 vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
                 vec3 lightMax = lightMin + 1.0 - 2.0*pad;
@@ -97,7 +97,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 //vec3 diffuseLightPos = lightPos;
                 vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
 
-                lightColor *= 2.0;
+                //lightColor *= 2.0;
             #else
                 vec3 diffuseLightPos = lightPos;
             #endif

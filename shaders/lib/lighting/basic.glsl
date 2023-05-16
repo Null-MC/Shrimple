@@ -215,7 +215,7 @@
                     //    skyLightColor *= invPI;
                     //#endif
 
-                    float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
+                    float invGeoNoL = saturate(geoNoL*40.0);
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
                 //}
 
