@@ -18,13 +18,12 @@ out vec3 vPos;
 out vec3 vNormal;
 out float geoNoL;
 out vec3 vLocalPos;
+out vec2 vLocalCoord;
 out vec3 vLocalNormal;
 out vec3 vLocalTangent;
 out vec3 vBlockLight;
 out float vTangentW;
 flat out int vBlockId;
-
-out vec2 vLocalCoord;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
@@ -50,11 +49,11 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-uniform sampler2D noisetex;
+//uniform sampler2D noisetex;
 
+uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -69,10 +68,10 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
+// uniform int heldItemId;
+// uniform int heldItemId2;
+// uniform int heldBlockLightValue;
+// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -85,9 +84,9 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+//#include "/lib/items.glsl"
 
-#include "/lib/sampling/noise.glsl"
+//#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/tbn.glsl"
 
@@ -107,36 +106,29 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-#endif
+// #ifdef DYN_LIGHT_FLICKER
+//     #include "/lib/lighting/blackbody.glsl"
+//     #include "/lib/lighting/flicker.glsl"
+// #endif
 
-#ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-        //#include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
-    #endif
+// #ifdef IRIS_FEATURE_SSBO
+//     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//         #include "/lib/lighting/voxel/blocks.glsl"
+//     #endif
+// #endif
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/lighting/voxel/blocks.glsl"
-    #endif
-#endif
+#include "/lib/lights.glsl"
 
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
+// #include "/lib/lighting/voxel/lights.glsl"
+// #include "/lib/lighting/voxel/items.glsl"
+// #include "/lib/lighting/fresnel.glsl"
+// #include "/lib/lighting/sampling.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
-#include "/lib/material/subsurface.glsl"
+//#include "/lib/material/subsurface.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/lighting/voxel/sampling.glsl"
-#endif
-
-#include "/lib/lighting/basic_hand.glsl"
+//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef WORLD_WATER_ENABLED

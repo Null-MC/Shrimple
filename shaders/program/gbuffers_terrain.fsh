@@ -202,6 +202,7 @@ uniform int fogMode;
     #endif
 #endif
 
+#include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
@@ -450,7 +451,7 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
-                diffuseFinal *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
                 specularFinal *= color.rgb;
             }
         #endif

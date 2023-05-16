@@ -40,9 +40,9 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-uniform sampler2D noisetex;
+//uniform sampler2D noisetex;
 
-uniform float frameTimeCounter;
+//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -64,10 +64,10 @@ uniform vec4 entityColor;
     #endif
 #endif
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
+// uniform int heldItemId;
+// uniform int heldItemId2;
+// uniform int heldBlockLightValue;
+// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -100,33 +100,24 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-#endif
+// #ifdef DYN_LIGHT_FLICKER
+//     #include "/lib/lighting/blackbody.glsl"
+//     #include "/lib/lighting/flicker.glsl"
+// #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
-
-    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-        //#include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
-    #endif
 
     #include "/lib/lighting/voxel/entities.glsl"
 #endif
 
 #include "/lib/material/normalmap.glsl"
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
+// #include "/lib/lighting/voxel/lights.glsl"
+// #include "/lib/lighting/voxel/items.glsl"
+// #include "/lib/lighting/fresnel.glsl"
+// #include "/lib/lighting/sampling.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/lighting/voxel/sampling.glsl"
-#endif
-
-#include "/lib/lighting/basic_hand.glsl"
+//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

@@ -45,17 +45,17 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-uniform sampler2D noisetex;
+//uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
+// uniform int heldItemId;
+// uniform int heldItemId2;
+// uniform int heldBlockLightValue;
+// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -80,7 +80,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+//#include "/lib/items.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
@@ -90,10 +90,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/waving.glsl"
 #endif
 
-#ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-#endif
+// #ifdef DYN_LIGHT_FLICKER
+//     #include "/lib/lighting/blackbody.glsl"
+//     #include "/lib/lighting/flicker.glsl"
+// #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
@@ -107,30 +107,17 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-        #include "/lib/lighting/voxel/mask.glsl"
-    #endif
+#include "/lib/lights.glsl"
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/lighting/voxel/blocks.glsl"
-    #endif
-#endif
-
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
+//#include "/lib/lighting/voxel/items.glsl"
+//#include "/lib/lighting/fresnel.glsl"
+//#include "/lib/lighting/sampling.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
-#include "/lib/material/subsurface.glsl"
+//#include "/lib/material/subsurface.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/lighting/voxel/sampling.glsl"
-#endif
-
-#include "/lib/lighting/basic_hand.glsl"
+//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 

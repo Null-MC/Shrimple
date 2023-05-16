@@ -158,6 +158,7 @@ uniform float blindness;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
+#include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
@@ -229,7 +230,7 @@ void main() {
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         if (metal_f0 >= 0.5) {
-            diffuseFinal *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+            diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
             specularFinal *= color.rgb;
         }
     #endif

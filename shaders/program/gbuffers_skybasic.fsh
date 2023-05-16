@@ -45,9 +45,9 @@ void main() {
         color = GetFogColor(fogColor, upF);
     }
 
-    color *= 1.0 - blindness;
-
     color = RGBToLinear(color);
+
+    color *= 1.0 - blindness;
     
     outFinal = vec4(color, 1.0);
 }

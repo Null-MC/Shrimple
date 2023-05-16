@@ -12,6 +12,7 @@ const ivec3 workGroups = ivec3(2, 2, 1);
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/blocks.glsl"
 
+    #include "/lib/lights.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
 #endif

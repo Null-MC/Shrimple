@@ -87,6 +87,7 @@ uniform float blindness;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
+    #include "/lib/lights.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
@@ -231,7 +232,7 @@ void main() {
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
                 vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-                blockDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
                 blockSpecular *= RGBToLinear(deferredAlbedo);
             }
         #endif

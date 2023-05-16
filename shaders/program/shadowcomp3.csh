@@ -21,6 +21,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     //uniform float far;
 
     #include "/lib/blocks.glsl"
+    #include "/lib/lights.glsl"
 
     #include "/lib/sampling/ign.glsl"
     #include "/lib/sampling/noise.glsl"

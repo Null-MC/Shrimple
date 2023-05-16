@@ -28,7 +28,7 @@ out vec3 vLocalNormal;
 
 uniform sampler2D lightmap;
 
-uniform float frameTimeCounter;
+//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -47,20 +47,9 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    uniform sampler2D noisetex;
-
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    //#include "/lib/buffers/lighting.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -75,24 +64,8 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
-
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX
-    #include "/lib/blocks.glsl"
-    #include "/lib/items.glsl"
-
-    #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
-
-    //#include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
-    #include "/lib/lighting/voxel/sampling.glsl"
-#endif
+//#include "/lib/lighting/fresnel.glsl"
+//#include "/lib/lighting/sampling.glsl"
 
 #include "/lib/lighting/basic.glsl"
 

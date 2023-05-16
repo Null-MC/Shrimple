@@ -46,24 +46,6 @@
             vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
             blockLightDefault = RGBToLinear(blockLightDefault);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && !defined RENDER_BILLBOARD
-                #if defined RENDER_TERRAIN || defined RENDER_WATER
-                    float sss = GetBlockSSS(vBlockId);
-                #else
-                    const float sss = 0.0;
-                #endif
-
-                const float roughL = 0.2;
-                const float metal_f0 = 0.04;
-
-                vec3 blockDiffuse = vec3(0.0);
-                vec3 blockSpecular = vec3(0.0);
-                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, vLocalNormal, vec3(0.0), roughL, metal_f0, sss, blockLightDefault);
-                SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, vLocalNormal, vec3(0.0), roughL, metal_f0, sss);
-
-                vBlockLight += blockDiffuse * saturate((lmcoord.x - (0.5/16.0)) * (16.0/15.0));
-            #endif
-
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 #ifdef RENDER_ENTITIES
                     vec4 lightColor = GetSceneEntityLightColor(entityId);
@@ -114,7 +96,7 @@
 
         #if defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER
             blockDiffuse += blockLightDefault;
-        #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED || (DYN_LIGHT_MODE == DYN_LIGHT_VERTEX && (defined RENDER_WEATHER || defined RENDER_DEFERRED))) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
+        #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS || defined RENDER_COMPOSITE)
             SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
         #else
             blockDiffuse += blockLightDefault;

@@ -137,6 +137,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/sky.glsl"
 #endif
 
+#include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -479,7 +480,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     if (metal_f0 >= 0.5) {
-                        blockDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                        blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
                         blockSpecular *= albedo;
                     }
                 #endif
@@ -502,7 +503,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 if (metal_f0 >= 0.5) {
-                    skyDiffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
+                    skyDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
                     skySpecular *= albedo;
                 }
             #endif
