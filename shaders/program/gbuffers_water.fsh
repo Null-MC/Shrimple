@@ -343,8 +343,8 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                color.rgb = RGBToLinear(glcolor.rgb);
-                color.a = 1.0;
+                color.rgb = 0.4 * RGBToLinear(glcolor.rgb);
+                color.a = 0.7;
             #endif
 
             color.a *= WorldWaterOpacityF;
