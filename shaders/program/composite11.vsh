@@ -14,8 +14,8 @@ uniform float viewHeight;
 
 
 void main() {
-	gl_Position = ftransform();
+ 	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-	UpdateTileVertexBounds(BLOOM_TILE_MAX_COUNT-1);
+	UpdateTileVertexBounds(0);
 }

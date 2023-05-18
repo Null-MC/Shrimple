@@ -249,6 +249,14 @@ uniform int heldBlockLightValue2;
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         layout(location = 3) out vec4 outDeferredRough;
     #endif
+#elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    /* RENDERTARGETS: 1,2,3,14 */
+    layout(location = 0) out vec4 outDeferredColor;
+    layout(location = 1) out vec4 outDeferredShadow;
+    layout(location = 2) out uvec4 outDeferredData;
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        layout(location = 3) out vec4 outDeferredRough;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -400,10 +408,7 @@ void main() {
 
     #if !defined RENDER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
         float fogF = GetVanillaFogFactor(vLocalPos);
-        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         color.a = 1.0;
         outDeferredColor = color;
@@ -418,6 +423,23 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
+        #endif
+    #elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+        float fogF = GetVanillaFogFactor(vLocalPos);
+
+        outDeferredColor = color;
+        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+
+        uvec4 deferredData;
+        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
+        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        outDeferredData = deferredData;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);

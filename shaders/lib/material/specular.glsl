@@ -213,7 +213,7 @@ float GetMaterialF0(const in float metal_f0) {
     return metal_f0 > 0.5 ? 0.96 : 0.04;
 }
 
-#if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_BILLBOARD || defined RENDER_DEFERRED)
+#if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_BILLBOARD || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
     void GetMaterialSpecular(const in int blockId, const in vec2 texcoord, const in mat2 dFdXY, out float roughness, out float metal_f0) {
         roughness = 1.0;
         metal_f0 = 0.04;

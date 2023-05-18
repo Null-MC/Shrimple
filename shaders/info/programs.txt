@@ -1,3 +1,27 @@
-composite1		post bilateral gaussian blur
-composite2		final / debug output
-composite2		final / debug output
+deferred1		opaque deferred block-light tracing
+deferred2		opaque deferred VL tracing
+deferred3		opaque deferred final
+
+composite1		translucent deferred block-light tracing
+composite3		translucent deferred final
+
+composite11		bloom downscale 1/2
+composite12		bloom downscale 1/4
+composite13		bloom downscale 1/8
+composite14		bloom downscale 1/16
+composite15		bloom downscale 1/32
+composite16		bloom downscale 1/64
+composite17		bloom downscale 1/128
+composite18		bloom downscale 1/256
+composite20		bloom upscale 1/128
+composite21		bloom upscale 1/64
+composite22		bloom upscale 1/32
+composite23		bloom upscale 1/16
+composite24		bloom upscale 1/8
+composite25		bloom upscale 1/4
+composite26		bloom upscale 1/2
+composite27		bloom upscale final
+composite30		post-processing
+composite31		[debug] bloom tile merge
+
+final			final / debug output

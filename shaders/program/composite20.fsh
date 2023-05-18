@@ -1,4 +1,4 @@
-#define RENDER_COMPOSITE_POST
+#define RENDER_COMPOSITE_BLOOM
 #define RENDER_COMPOSITE
 #define RENDER_FRAG
 
@@ -7,23 +7,19 @@
 
 in vec2 texcoord;
 
-uniform sampler2D BUFFER_FINAL;
+uniform sampler2D BUFFER_BLOOM_TILES;
 
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#endif
+uniform float viewWidth;
+uniform float viewHeight;
 
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
+#include "/lib/post/bloom.glsl"
 
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 15 */
 layout(location = 0) out vec3 outFinal;
 
 void main() {
-    vec3 color = texelFetch(BUFFER_FINAL, ivec2(gl_FragCoord.xy), 0).rgb;
-
-    ApplyPostProcessing(color);
+    vec3 color = BloomTileUpsample(BUFFER_BLOOM_TILES, BLOOM_TILE_MAX_COUNT);
 
     outFinal = color;
 }

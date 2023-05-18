@@ -1,4 +1,4 @@
-#define RENDER_COMPOSITE_BLOOM
+#define RENDER_COMPOSITE_RT_LIGHT
 #define RENDER_COMPOSITE
 #define RENDER_VERTEX
 
@@ -7,15 +7,8 @@
 
 out vec2 texcoord;
 
-uniform float viewWidth;
-uniform float viewHeight;
-
-#include "/lib/post/bloom.glsl"
-
 
 void main() {
- 	gl_Position = ftransform();
+	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-
-	UpdateTileVertexBounds(0);
 }

@@ -44,7 +44,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             if (interleaveCount > 1u) {
                 float n = InterleavedGradientNoiseTime(gl_FragCoord.xy);
-                iOffset = uint(n * interleaveCount + 0.5);
+                iOffset = uint(n * interleaveCount);
                 iStep = interleaveCount;
             }
         #endif

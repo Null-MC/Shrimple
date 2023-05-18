@@ -149,8 +149,9 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
+#ifdef VOLUMETRIC_CELESTIAL
+    #include "/lib/world/volumetric_blur.glsl"
+#endif
 
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
@@ -217,47 +218,6 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     blockDiffuse = accumDiffuse / total;
     blockSpecular = accumSpecular / total;
 }
-
-vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depth, const in vec2 g_sigma) {
-    const float c_halfSamplesX = 2.0;
-    const float c_halfSamplesY = 2.0;
-
-    float total = 0.0;
-    vec4 accum = vec4(0.0);
-
-    vec2 blendPixelSize = rcp(blendTexSize);
-    vec2 depthPixelSize = rcp(depthTexSize);
-    vec2 depthTexcoord = texcoord * depthTexSize;
-    
-    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-        float fy = Gaussian(g_sigma.x, iy);
-
-        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
-            float fx = Gaussian(g_sigma.x, ix);
-            
-            vec2 sampleTex = vec2(ix, iy);
-
-            vec2 texBlend = texcoord + sampleTex * blendPixelSize;
-            vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
-
-            vec2 texDepth = texcoord + sampleTex * depthPixelSize;
-            float sampleDepth = textureLod(depthSampler, texDepth, 0).r;
-                        
-            float fv = Gaussian(g_sigma.y, abs(sampleDepth - depth));
-            
-            float weight = fx*fy*fv;
-            accum += weight * sampleValue;
-            total += weight;
-        }
-    }
-    
-    return accum / max(total, EPSILON);
-}
-
-// ivec2 GetTemporalOffset(const in int size) {
-//     ivec2 coord = ivec2(gl_FragCoord.xy) + frameCounter;
-//     return ivec2(coord.x % size, (coord.y / size) % size);
-// }
 
 
 layout(location = 0) out vec4 outFinal;
@@ -444,7 +404,7 @@ layout(location = 0) out vec4 outFinal;
                                 diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
                             }
 
-                            if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
+                            if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);

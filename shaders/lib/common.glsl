@@ -3,7 +3,7 @@ const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 
 /*
 const int shadowcolor0Format = RGBA8;
 const int colortex0Format  = RGB16F;
-const int colortex1Format  = RGB8;
+const int colortex1Format  = RGBA8;
 const int colortex2Format  = RGB8;
 const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
@@ -155,7 +155,7 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
-#define DYN_LIGHT_PENUMBRA 40 // [0 10 20 30 40 50 60 70 80 90 100]
+#define DYN_LIGHT_PENUMBRA 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define DYN_LIGHT_RES 1 // [0 1 2]
 #define LIGHT_BIN_MAX_COUNT 64 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
@@ -213,6 +213,7 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_LPV
 //#define DYN_LIGHT_OREBLOCKS
+//#define DEFER_TRANSLUCENT
 #define AF_SAMPLES 1
 
 
@@ -320,6 +321,8 @@ const bool colortex15Clear = true;
 #ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
 #ifdef DIRECTIONAL_LIGHTMAP
+#endif
+#ifdef DEFER_TRANSLUCENT
 #endif
 
 #if (defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)
