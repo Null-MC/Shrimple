@@ -453,10 +453,12 @@ void main() {
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
 
-    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
-    if (vBlockId != BLOCK_WATER)
-    #endif
+    //#if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
+    //if (vBlockId != BLOCK_WATER)
+    //#endif
         texNormal = matLocalTBN * texNormal;
+
+    //if (!gl_FrontFacing) texNormal = -texNormal;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

@@ -86,14 +86,14 @@ vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float
 }
 
 void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
-    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
+    #ifdef PHYSICS_OCEAN
         if (vBlockId == BLOCK_WATER) {
             texNormal += rippleNormalStrength.xzy * rippleNormalStrength.w;
         }
         else {
     #endif
             texNormal = mix(texNormal, rippleNormalStrength.xyz, rippleNormalStrength.w);
-    #if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
+    #ifdef PHYSICS_OCEAN
         }
     #endif
 

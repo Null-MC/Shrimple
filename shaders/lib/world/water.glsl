@@ -85,5 +85,5 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
 vec3 water_waveNormal(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
     float totalFactor = WATER_WAVE_HEIGHT / 13.0;
     vec2 wave = -water_waveDirection(worldPos, skyLight, uvOffset);
-    return normalize(vec3(wave.x * totalFactor, WATER_NORMAL_STRENGTH, wave.y * totalFactor));
+    return normalize(vec3(wave.x * totalFactor, wave.y * totalFactor, WATER_NORMAL_STRENGTH));
 }

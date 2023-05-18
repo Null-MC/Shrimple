@@ -183,8 +183,18 @@ uniform float blindness;
 #include "/lib/post/tonemap.glsl"
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outFinal;
+#if defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    /* RENDERTARGETS: 1,2,3,14 */
+    layout(location = 0) out vec4 outDeferredColor;
+    layout(location = 1) out vec4 outDeferredShadow;
+    layout(location = 2) out uvec4 outDeferredData;
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        layout(location = 3) out vec4 outDeferredRough;
+    #endif
+#else
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+#endif
 
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
@@ -194,10 +204,7 @@ void main() {
         return;
     }
 
-    color.rgb = RGBToLinear(color.rgb);
     color.a *= WorldRainOpacityF;
-
-    vec3 localViewDir = normalize(vLocalPos);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -210,43 +217,68 @@ void main() {
 
     const vec3 normal = vec3(0.0);
     const float occlusion = 1.0;
-    const float roughL = 1.0;
+    const float roughness = 0.6;
     const float metal_f0 = 0.04;
-    const float sss = 0.0;
+    const float emission = 0.0;
+    const float sss = 0.4;
 
-    vec3 blockDiffuse = vBlockLight;
-    vec3 blockSpecular = vec3(0.0);
-    vec3 skyDiffuse = vec3(0.0);
-    vec3 skySpecular = vec3(0.0);
+    #if defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+        float fogF = GetVanillaFogFactor(vLocalPos);
 
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
+        outDeferredColor = color;
+        outDeferredShadow = vec4(shadowColor + dither, 1.0);
 
-    #ifdef WORLD_SKY_ENABLED
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
-    #endif
+        uvec4 deferredData;
+        deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
+        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        deferredData.a = packUnorm4x8(vec4(normal, 1.0));
+        outDeferredData = deferredData;
 
-    vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-    vec3 specularFinal = blockSpecular + skySpecular;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
+        #endif
+    #else
+        color.rgb = RGBToLinear(color.rgb);
+        float roughL = max(_pow2(roughness), ROUGH_MIN);
 
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        if (metal_f0 >= 0.5) {
-            diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            specularFinal *= color.rgb;
-        }
-    #endif
+        vec3 localViewDir = normalize(vLocalPos);
 
-    color.rgb = GetFinalLighting(color.rgb, normal, diffuseFinal, specularFinal, lmcoord, glcolor.a);
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
 
-    ApplyFog(color, vLocalPos, localViewDir);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
 
-    #ifdef VL_BUFFER_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        #ifdef WORLD_SKY_ENABLED
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
-        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-    #endif
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
 
-    outFinal = color;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                specularFinal *= color.rgb;
+            }
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, normal, diffuseFinal, specularFinal, lmcoord, glcolor.a);
+
+        ApplyFog(color, vLocalPos, localViewDir);
+
+        #ifdef VL_BUFFER_ENABLED
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            #endif
+
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
+            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        outFinal = color;
+    #endif
 }
