@@ -404,11 +404,10 @@ void main() {
 
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        //vec3 fogColorFinal = GetFogColor(localViewDir.y);
-        //fogColorFinal = LinearToRGB(fogColorFinal) + dither;
+        if (any(greaterThan(texNormal, EPSILON3)))
+            texNormal = texNormal * 0.5 + 0.5;
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
@@ -417,7 +416,7 @@ void main() {
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        deferredData.a = packUnorm4x8(vec4(texNormal, 1.0));
         outDeferredData = deferredData;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE

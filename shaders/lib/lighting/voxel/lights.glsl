@@ -81,7 +81,7 @@
             case LIGHT_BLAST_FURNACE_E:
             case LIGHT_BLAST_FURNACE_S:
             case LIGHT_BLAST_FURNACE_W:
-                lightColor = vec3(0.697, 0.654, 0.458);
+                lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_BREWING_STAND:
                 lightColor = vec3(0.636, 0.509, 0.179);
@@ -119,7 +119,7 @@
             case LIGHT_FURNACE_E:
             case LIGHT_FURNACE_S:
             case LIGHT_FURNACE_W:
-                lightColor = vec3(0.697, 0.654, 0.458);
+                lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_GLOWSTONE:
                 lightColor = vec3(0.652, 0.583, 0.275);
@@ -205,7 +205,7 @@
             case LIGHT_SMOKER_E:
             case LIGHT_SMOKER_S:
             case LIGHT_SMOKER_W:
-                lightColor = vec3(0.697, 0.654, 0.458);
+                lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_SOUL_LANTERN:
             case LIGHT_SOUL_TORCH_FLOOR:

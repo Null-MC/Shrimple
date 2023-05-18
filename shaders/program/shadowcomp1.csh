@@ -108,6 +108,8 @@ void main() {
                     float lightRange = lightRangeSize.x * 255.0;
                     float lightSize = lightRangeSize.y;
 
+                    lightColor = RGBToLinear(lightColor);
+
                     //float lightRange = GetSceneLightRange(lightType);
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 

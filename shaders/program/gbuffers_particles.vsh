@@ -7,6 +7,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#ifdef MATERIAL_PARTICLES
+    in vec4 at_tangent;
+    in vec4 mc_midTexCoord;
+#endif
+
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
@@ -16,6 +21,14 @@ out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
+
+#ifdef MATERIAL_PARTICLES
+    out vec2 vLocalCoord;
+    out vec3 vLocalTangent;
+    out float vTangentW;
+
+    flat out mat2 atlasBounds;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -64,6 +77,13 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#ifdef MATERIAL_PARTICLES
+    #include "/lib/sampling/atlas.glsl"
+    #include "/lib/utility/tbn.glsl"
+
+    #include "/lib/material/normalmap.glsl"
+#endif
+
 // #ifdef DYN_LIGHT_FLICKER
 //     #include "/lib/lighting/blackbody.glsl"
 //     #include "/lib/lighting/flicker.glsl"
@@ -81,4 +101,10 @@ void main() {
     glcolor = gl_Color;
 
     BasicVertex();
+
+    #ifdef MATERIAL_PARTICLES
+        PrepareNormalMap();
+
+        GetAtlasBounds(atlasBounds, vLocalCoord);
+    #endif
 }

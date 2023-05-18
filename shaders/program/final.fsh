@@ -15,7 +15,7 @@ uniform float viewHeight;
 	uniform sampler2D BUFFER_DEFERRED_COLOR;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_GEO
 	uniform usampler2D BUFFER_DEFERRED_DATA;
-#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
+#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING || DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
 	uniform sampler2D BUFFER_DEFERRED_SHADOW;
@@ -61,7 +61,10 @@ void main() {
 		vec3 color = unpackUnorm4x8(deferredData.r).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
 		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
-		vec3 color = unpackUnorm4x8(deferredData.g).rgb;
+		vec3 color = vec3(unpackUnorm4x8(deferredData.g).rg, 0.0);
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
+		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+		vec3 color = vec3(unpackUnorm4x8(deferredData.g).ba, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
 		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
