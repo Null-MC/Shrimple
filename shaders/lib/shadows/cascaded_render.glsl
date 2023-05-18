@@ -143,7 +143,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 return shadowColor.rgb;
             }
 
-            pixelRadius *= min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
+            pixelRadius *= clamp(blockerDistance * SHADOW_PENUMBRA_SCALE, SHADOW_PENUMBRA_MIN, 1.0);
             return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #else
