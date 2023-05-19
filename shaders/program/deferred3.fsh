@@ -382,7 +382,7 @@ layout(location = 0) out vec4 outFinal;
                             vec3 gridPos = GetLightGridPosition(localPos);
                             vec3 gridPosPrevious = GetLightGridPreviousPosition(localPosPrev);
 
-                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPos, gridCellPrevious, blockCell)) {
+                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
                                 uint gridIndex = GetSceneLightGridIndex(gridCell);
                                 LightCellData cellData = SceneLightMaps[gridIndex];
 
@@ -398,7 +398,7 @@ layout(location = 0) out vec4 outFinal;
                             diffuseCounter *= 1.0 - depthWeight;
                             diffuseCounter *= 1.0 - normalWeight;
 
-                            //if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
+                            if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
                             float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
                             float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
