@@ -113,7 +113,7 @@ float physics_waveHeight(vec2 position, int iterations, float factor, float time
 vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const in float factor, const in float time) {
     float oceanHeightFactor = physics_oceanHeight / 13.0;
     float totalFactor = oceanHeightFactor * factor;
-    vec3 waveNormal = normalize(vec3(direction.x * totalFactor, direction.y * totalFactor, PHYSICS_NORMAL_STRENGTH));
+    vec3 waveNormal = normalize(vec3(direction.y * totalFactor, -direction.x * totalFactor, PHYSICS_NORMAL_STRENGTH));
     
     vec2 eyePosition = position + physics_modelOffset.xz;
     vec2 rippleFetch = (eyePosition + vec2(physics_rippleRange)) / (physics_rippleRange * 2.0);
@@ -126,7 +126,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     
     float normalx = left - right;
     float normaly = top - bottom;
-    vec3 rippleNormal = normalize(vec3(normalx, normaly, 1.0));
+    vec3 rippleNormal = normalize(vec3(normaly, -normalx, 1.0));
     return normalize(mix(waveNormal, rippleNormal, pow(totalEffect, 0.5)));
 }
 
