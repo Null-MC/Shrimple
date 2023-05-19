@@ -9,7 +9,7 @@ const float PHYSICS_WEIGHT = 0.8;
 const float PHYSICS_FREQUENCY_MULT = 1.18;
 const float PHYSICS_SPEED_MULT = 1.07;
 const float PHYSICS_ITER_INC = 12.0;
-const float PHYSICS_NORMAL_STRENGTH = 1.0;
+const float PHYSICS_NORMAL_STRENGTH = 0.25;
 
 // this is the surface detail from the physics options, ranges from 13 to 48 (yeah I know weird)
 uniform int physics_iterationsNormal;
@@ -130,7 +130,11 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     return normalize(mix(waveNormal, rippleNormal, pow(totalEffect, 0.5)));
 }
 
-WavePixelData physics_wavePixel(const in vec2 position, const in float factor, const in float iterations, const in float time) {
+WavePixelData physics_wavePixel(vec2 position, const in float factor, const in float iterations, const in float time) {
+    #if WORLD_WATER_PIXEL > 0
+        position = floor(position * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+    #endif
+
     vec2 wavePos = (position.xy - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
     float iter = 0.0;
     float frequency = PHYSICS_FREQUENCY;

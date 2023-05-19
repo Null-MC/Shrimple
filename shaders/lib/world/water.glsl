@@ -1,19 +1,19 @@
 #define WATER_ITERATIONS_VERTEX 8
-#define WATER_ITERATIONS_FRAGMENT 16
+#define WATER_ITERATIONS_FRAGMENT 24
 
 const float WATER_TIME_MULTIPLICATOR = 4.0;
 const float WATER_XZ_SCALE = 0.12;
 
-const float WATER_DETAIL = 0.85;
-const float WATER_DRAG_MULT = 0.026;
+const float WATER_DETAIL = 1.0;
+const float WATER_DRAG_MULT = 0.042;
 const float WATER_FREQUENCY = 6.0;
 const float WATER_SPEED = 2.0;
 const float WATER_WEIGHT = 0.6;
 const float WATER_FREQUENCY_MULT = 1.18;
 const float WATER_SPEED_MULT = 1.07;
-const float WATER_ITER_INC = 12.0;
-const float WATER_NORMAL_STRENGTH = 0.5;
-const float WATER_WAVE_HEIGHT = 0.3;
+const float WATER_ITER_INC = 5.06711056;
+const float WATER_NORMAL_STRENGTH = 0.25;
+const float WATER_WAVE_HEIGHT = 0.4;
 
 
 float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
@@ -82,7 +82,11 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     return vec2(dx / pow(waveSum, 1.0 - WATER_DETAIL));
 }
 
-vec3 water_waveNormal(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
+vec3 water_waveNormal(vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
+    #if WORLD_WATER_PIXEL > 0
+        worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+    #endif
+
     float totalFactor = WATER_WAVE_HEIGHT / 13.0;
     vec2 wave = -water_waveDirection(worldPos, skyLight, uvOffset);
     return normalize(vec3(wave.x * totalFactor, wave.y * totalFactor, WATER_NORMAL_STRENGTH));

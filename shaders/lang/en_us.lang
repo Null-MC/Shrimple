@@ -37,12 +37,6 @@ value.WORLD_WETNESS_PUDDLES.1=Basic
 value.WORLD_WETNESS_PUDDLES.2=Pixel
 value.WORLD_WETNESS_PUDDLES.3=Fancy
 
-option.WORLD_WATER_WAVES=Water Waves
-option.WORLD_WATER_WAVES.comment=Describes how the surface of water will wave.
-value.WORLD_WATER_WAVES.0=None
-value.WORLD_WATER_WAVES.1=Simple
-value.WORLD_WATER_WAVES.2=Fancy
-
 option.WORLD_WAVING_ENABLED=Waving Plants
 option.WORLD_WAVING_ENABLED.comment=Allows plants to wave in the wind.
 
@@ -54,55 +48,9 @@ value.WORLD_AMBIENT_MODE.2=Fancy
 option.WORLD_AO_ENABLED=Ambient Occlusion
 option.WORLD_AO_ENABLED.comment=Describes how ambient lighting is occluded.
 
-option.WORLD_WATER_TEXTURE=Water Surface
-value.WORLD_WATER_TEXTURE.0=Textured
-value.WORLD_WATER_TEXTURE.1=Colored
-
-option.WORLD_WATER_OPACITY=Water Opacity
-option.WORLD_WATER_OPACITY.comment=Determines how transparent water blocks will be.
-value.WORLD_WATER_OPACITY.5=5%
-value.WORLD_WATER_OPACITY.10=10%
-value.WORLD_WATER_OPACITY.15=15%
-value.WORLD_WATER_OPACITY.20=20%
-value.WORLD_WATER_OPACITY.25=25%
-value.WORLD_WATER_OPACITY.30=30%
-value.WORLD_WATER_OPACITY.35=35%
-value.WORLD_WATER_OPACITY.40=40%
-value.WORLD_WATER_OPACITY.45=45%
-value.WORLD_WATER_OPACITY.50=50%
-value.WORLD_WATER_OPACITY.55=55%
-value.WORLD_WATER_OPACITY.60=60%
-value.WORLD_WATER_OPACITY.65=65%
-value.WORLD_WATER_OPACITY.70=70%
-value.WORLD_WATER_OPACITY.75=75%
-value.WORLD_WATER_OPACITY.80=80%
-value.WORLD_WATER_OPACITY.85=85%
-value.WORLD_WATER_OPACITY.90=90%
-value.WORLD_WATER_OPACITY.95=95%
-value.WORLD_WATER_OPACITY.100=100%
-
 option.WORLD_RAIN_OPACITY=Rain Opacity
 option.WORLD_RAIN_OPACITY.comment=Determines how transparent falling rain particles will be.
-value.WORLD_RAIN_OPACITY.5=5%
-value.WORLD_RAIN_OPACITY.10=10%
-value.WORLD_RAIN_OPACITY.15=15%
-value.WORLD_RAIN_OPACITY.20=20%
-value.WORLD_RAIN_OPACITY.25=25%
-value.WORLD_RAIN_OPACITY.30=30%
-value.WORLD_RAIN_OPACITY.35=35%
-value.WORLD_RAIN_OPACITY.40=40%
-value.WORLD_RAIN_OPACITY.45=45%
-value.WORLD_RAIN_OPACITY.50=50%
-value.WORLD_RAIN_OPACITY.55=55%
-value.WORLD_RAIN_OPACITY.60=60%
-value.WORLD_RAIN_OPACITY.65=65%
-value.WORLD_RAIN_OPACITY.70=70%
-value.WORLD_RAIN_OPACITY.75=75%
-value.WORLD_RAIN_OPACITY.80=80%
-value.WORLD_RAIN_OPACITY.85=85%
-value.WORLD_RAIN_OPACITY.90=90%
-value.WORLD_RAIN_OPACITY.95=95%
-value.WORLD_RAIN_OPACITY.100=100%
+suffix.WORLD_RAIN_OPACITY=%
 
 option.WORLD_SKY_REFLECTIONS=Sky Reflections
 option.WORLD_SKY_REFLECTIONS.comment=Allows the sky to be reflected when specular materials are enabled.
@@ -115,6 +63,27 @@ suffix.WORLD_SUN_BRIGHTNESS=%
 
 option.WORLD_MOON_BRIGHTNESS=Moon Light
 suffix.WORLD_MOON_BRIGHTNESS=%
+
+
+screen.WATER_OPTIONS=Water
+screen.WATER_OPTIONS.comment=Options for water blocks.
+
+option.WORLD_WATER_TEXTURE=Surface
+value.WORLD_WATER_TEXTURE.0=Textured
+value.WORLD_WATER_TEXTURE.1=Colored
+
+option.WORLD_WATER_OPACITY=Opacity
+option.WORLD_WATER_OPACITY.comment=Determines how transparent water blocks will be.
+suffix.WORLD_WATER_OPACITY=%
+
+option.WORLD_WATER_WAVES=Waves
+option.WORLD_WATER_WAVES.comment=Describes how the surface of water will wave.
+value.WORLD_WATER_WAVES.0=None
+value.WORLD_WATER_WAVES.1=Simple
+value.WORLD_WATER_WAVES.2=Fancy
+
+option.WORLD_WATER_PIXEL=Pixelated
+value.WORLD_WATER_PIXEL.0=OFF
 
 
 screen.MATERIAL_OPTIONS=Materials

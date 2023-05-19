@@ -406,7 +406,7 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        if (any(greaterThan(texNormal, EPSILON3)))
+        if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
         outDeferredColor = color;
