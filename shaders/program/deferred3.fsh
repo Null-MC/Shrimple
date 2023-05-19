@@ -353,25 +353,25 @@ layout(location = 0) out vec4 outFinal;
                         float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
                         #if DYN_LIGHT_RES == 2
-                            const float depthWeightF = 16.0;
+                            const float depthWeightF = 8.0;
                         #else
                             const float depthWeightF = 16.0;
                         #endif
 
-                        float depthWeight = 1.0 - saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
+                        float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
 
                         float normalWeight = 0.0;
                         vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                         if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                             normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                            normalWeight = 0.25 - dot(normalPrev, texNormal) * 0.25;
+                            normalWeight = 0.25 * max(1.0 - dot(normalPrev, texNormal), 0.0);
 
                             #if DYN_LIGHT_RES == 2
                                 normalWeight *= 0.25;
                             #endif
                         }
 
-                        if (depthWeight > 0.0 && normalWeight < 1.0) {
+                        if (depthWeight < 1.0 && normalWeight < 1.0) {
                             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
 
                             bool hasLightingChanged =
@@ -382,7 +382,7 @@ layout(location = 0) out vec4 outFinal;
                             vec3 gridPos = GetLightGridPosition(localPos);
                             vec3 gridPosPrevious = GetLightGridPreviousPosition(localPosPrev);
 
-                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
+                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPos, gridCellPrevious, blockCell)) {
                                 uint gridIndex = GetSceneLightGridIndex(gridCell);
                                 LightCellData cellData = SceneLightMaps[gridIndex];
 
@@ -395,16 +395,20 @@ layout(location = 0) out vec4 outFinal;
 
                             diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
-                            diffuseCounter *= depthWeight;
+                            diffuseCounter *= 1.0 - depthWeight;
                             diffuseCounter *= 1.0 - normalWeight;
 
-                            if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
-                                float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
-                                diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
-                            }
+                            //if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
-                            if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
+                            float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
+                            float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
+                            float moveWeight = max(1.0 - cameraSpeed * viewDist, 0.0);
+
+                            float specularCounter = diffuseCounter * moveWeight;
+
+                            if (HandLightType1 > 0 || HandLightType2 > 0) {
+                                diffuseCounter = diffuseCounter * moveWeight;
+                            }
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
@@ -416,7 +420,7 @@ layout(location = 0) out vec4 outFinal;
                                 //float metal_f0_prev = specularSamplePrev.a;
 
                                 //float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                                float specularWeight = rcp(1.0 + 0.25*diffuseCounter*DynamicLightTemporalStrength);
+                                float specularWeight = rcp(1.0 + specularCounter*DynamicLightTemporalStrength);
 
                                 blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
 

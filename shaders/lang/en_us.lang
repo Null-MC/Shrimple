@@ -83,6 +83,7 @@ value.WORLD_WATER_WAVES.1=Simple
 value.WORLD_WATER_WAVES.2=Fancy
 
 option.WORLD_WATER_PIXEL=Pixelated
+suffix.WORLD_WATER_PIXEL=x
 value.WORLD_WATER_PIXEL.0=OFF
 
 
@@ -112,6 +113,9 @@ option.MATERIAL_OCCLUSION.comment=Describes how much ambient light is occluded f
 value.MATERIAL_OCCLUSION.0=OFF
 value.MATERIAL_OCCLUSION.1=Integrated
 value.MATERIAL_OCCLUSION.2=Lab-PBR
+
+option.METAL_BRIGHTNESS=Metal Brightness
+suffix.METAL_BRIGHTNESS=%
 
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
