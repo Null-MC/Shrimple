@@ -28,7 +28,7 @@ void GetVolumetricPhaseFactors(out float ambient, out float G_Forward, out float
 }
 
 void GetVolumetricCoeff(const in vec3 sunDir, out float scattering, out float extinction) {
-    float density = (sunDir.y * -0.6 + 1.0) * VolumetricDensityF;
+    float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
 
     #ifdef WORLD_SKY_ENABLED
         scattering = mix(0.032, 0.096, rainStrength) * density;
@@ -231,7 +231,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += PI * lightAtt * lightColor * lightPhase;
+                        blockLightAccum += 6.0 * lightAtt * lightColor * lightPhase;
                     }
                 }
             #endif

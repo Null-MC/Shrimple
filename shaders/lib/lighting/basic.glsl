@@ -199,7 +199,7 @@
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
                 //}
 
-                #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
+                #if defined WORLD_SKY_ENABLED && WORLD_SKY_REFLECTIONS > 0
                     float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
                     vec3 reflectDir = reflect(-localViewDir, texNormal);
@@ -212,7 +212,7 @@
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL);
+                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL) * WorldSkyReflectF;
                     skySpecular += reflectColor * skyReflectF * _pow2(skyLight);
                     accumDiffuse *= 1.0 - skyReflectF;
                 #endif
@@ -234,7 +234,7 @@
                 vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             #endif
 
-            vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF;
+            vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF + WorldMinLightF;
 
             // #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
             //     #ifdef WORLD_SKY_ENABLED

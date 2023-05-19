@@ -1,5 +1,5 @@
-#define RENDER_DEFERRED_VL
-#define RENDER_DEFERRED
+#define RENDER_COMPOSITE_VL
+#define RENDER_COMPOSITE
 #define RENDER_FRAG
 
 #include "/lib/constants.glsl"
@@ -8,6 +8,7 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && defined DYN_LIGHT_LPV
@@ -125,19 +126,24 @@ layout(location = 0) out vec4 outVL;
 
 void main() {
     float depth = textureLod(depthtex0, texcoord, 0).r;
+    float opaqueDepth = textureLod(depthtex1, texcoord, 0).r;
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec4 final = vec4(0.0);
+    if (depth < opaqueDepth) {
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-    #else
-        vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-    #endif
+            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
 
-    vec3 localViewDir = normalize(localPos);
-    vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+        vec3 localViewDir = normalize(localPos);
+        final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+    }
+
     outVL = final;
 }
