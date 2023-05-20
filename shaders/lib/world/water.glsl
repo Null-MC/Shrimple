@@ -21,10 +21,12 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     float time = frameTimeCounter / 3.6;
     float modifiedTime = time * WATER_TIME_MULTIPLICATOR;
 
+    float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);
+
 	float iter = 0.0;
     float frequency = WATER_FREQUENCY;
     float speed = WATER_SPEED;
-    float weight = skyLight;
+    float weight = lightF;
     float height = 0.0;
     float waveSum = 0.0;
     
@@ -45,18 +47,20 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     }
     
     if (waveSum < EPSILON) return 0.0;
-    return ((height / waveSum) - 0.6 * step(EPSILON, skyLight)) * WATER_WAVE_HEIGHT * skyLight;
+    return ((height / waveSum) - 0.6 * step(EPSILON, lightF)) * WATER_WAVE_HEIGHT * lightF;
 }
 
 vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
     float time = frameTimeCounter / 3.6;
     float modifiedTime = time * WATER_TIME_MULTIPLICATOR;
 
+    float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);
+
     vec2 wavePos = worldPos * WATER_XZ_SCALE;
 	float iter = 0.0;
     float frequency = WATER_FREQUENCY;
     float speed = WATER_SPEED;
-    float weight = skyLight;
+    float weight = lightF;
     float waveSum = 0.0;
     vec2 dx = vec2(0.0);
     
@@ -84,7 +88,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
 
 vec3 water_waveNormal(vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
     #if WORLD_WATER_PIXEL > 0
-        worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+        worldPos = floor(worldPos * WORLD_WATER_PIXEL + 0.5) / WORLD_WATER_PIXEL;
     #endif
 
     float totalFactor = WATER_WAVE_HEIGHT / 13.0;
