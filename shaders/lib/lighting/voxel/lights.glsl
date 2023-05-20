@@ -223,7 +223,7 @@
             case LIGHT_TORCH_WALL_E:
             case LIGHT_TORCH_WALL_S:
             case LIGHT_TORCH_WALL_W:
-                lightColor = vec3(0.768, 0.701, 0.325);
+                lightColor = vec3(0.899, 0.625, 0.253);
                 break;
         }
 
