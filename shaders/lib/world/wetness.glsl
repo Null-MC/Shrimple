@@ -68,16 +68,16 @@ vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float
 
     float rippleTime = frameTimeCounter / 0.72;
 
-    #if WORLD_WATER_PIXEL > 0
-        worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
-        vec2 rippleTex = worldPos.xz * (WORLD_WATER_PIXEL/96.0);
-    #else
-        #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
+    // #if WORLD_WATER_PIXEL > 0
+    //     worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+    //     vec2 rippleTex = worldPos.xz * (WORLD_WATER_PIXEL/96.0);
+    // #else
+        #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL || WORLD_WATER_PIXEL > 0
             worldPos = floor(worldPos * 32.0) / 32.0;
         #endif
 
         vec2 rippleTex = worldPos.xz * 0.3;
-    #endif
+    //#endif
 
     vec3 rippleNormal;
     rippleNormal.xy = texture(TEX_RIPPLES, vec3(rippleTex, rippleTime)).rg * 2.0 - 1.0;
