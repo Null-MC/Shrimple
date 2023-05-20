@@ -1,4 +1,4 @@
-#if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+#ifdef SHADOW_COLORED
     vec3 GetFinalShadowColor(const in float sss) {
         vec3 shadowColor = vec3(1.0);
 

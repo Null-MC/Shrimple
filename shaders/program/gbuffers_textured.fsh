@@ -32,10 +32,11 @@ uniform sampler2D lightmap;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
+    uniform sampler2D shadowtex1;
 
-    #if SHADOW_COLORS != SHADOW_COLOR_DISABLED
-        uniform sampler2D shadowtex1;
-    #endif
+    // #ifdef SHADOW_COLORED
+    //     uniform sampler2D shadowtex0;
+    // #endif
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         uniform sampler2DShadow shadowtex0HW;
@@ -91,7 +92,7 @@ uniform float blindness;
     uniform vec3 eyePosition;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -203,7 +204,7 @@ void main() {
     const float sss = 0.0;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        #ifdef SHADOW_COLORED
             shadowColor = GetFinalShadowColor();
         #else
             shadowColor = vec3(GetFinalShadowFactor());

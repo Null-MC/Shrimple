@@ -189,11 +189,7 @@ value.SHADOW_FILTER.0=Никакой
 value.SHADOW_FILTER.1=PCF
 value.SHADOW_FILTER.2=PCF+PCSS - best
 
-option.SHADOW_COLORS=Цветная тонировка
-option.SHADOW_COLORS.comment=0: Стекла будут отбрасывать обычные тени. 1: Стекла будут отбрасывать цветные тени. 2: Стекло не отбрасывает никаких теней.
-value.SHADOW_COLORS.0=Disabled
-value.SHADOW_COLORS.1=Enabled
-value.SHADOW_COLORS.2=Ignored
+option.SHADOW_COLORED=Цветная тонировка
 
 option.SHADOW_BRIGHTNESS=Яркость
 option.SHADOW_BRIGHTNESS.comment=Уровни освещенности умножаются на это число, когда поверхность находится в тени.

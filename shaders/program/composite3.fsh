@@ -292,7 +292,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef SHADOW_BLUR
-                #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+                #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
                     vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
                 #else

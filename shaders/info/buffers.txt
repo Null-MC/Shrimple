@@ -1,4 +1,4 @@
-colortex0		RGB8		1.0		final
+colortex0		RGB16F		1.0		final
 
 colortex1		RGBA8		1.0		deferred color
 colortex2		RGB8		1.0		deferred shadow

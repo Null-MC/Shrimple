@@ -23,7 +23,7 @@ uniform sampler2D noisetex;
         uniform sampler2DShadow shadowtex0HW;
     #endif
 
-    #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+    #ifdef SHADOW_COLORED
         uniform sampler2D shadowcolor0;
     #endif
 #endif

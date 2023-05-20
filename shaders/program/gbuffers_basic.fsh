@@ -22,7 +22,7 @@ in vec3 vLocalPos;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -129,7 +129,7 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+            #ifdef SHADOW_COLORED
                 shadowColor = GetFinalShadowColor(sss);
             #else
                 float shadowF = GetFinalShadowFactor(sss);

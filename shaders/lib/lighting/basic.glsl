@@ -118,7 +118,7 @@
                     vec3 skyLightColor = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #endif
 
-                skyLightColor = RGBToLinear(skyLightColor) * WorldSkyBrightnessF;
+                skyLightColor = RGBToLinear(skyLightColor);
 
                 //skyLightColor = skyLightColor * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
 
@@ -131,7 +131,7 @@
                 vec3 WorldSkyLightColor = GetSkyLightColor();
             #endif
 
-            skyLightColor *= CalculateSkyLightWeatherColor(WorldSkyLightColor);
+            skyLightColor *= CalculateSkyLightWeatherColor(WorldSkyLightColor) * WorldSkyBrightnessF;
             //skyLightColor *= 1.0 - 0.7 * rainStrength;
             
             #ifndef IRIS_FEATURE_SSBO

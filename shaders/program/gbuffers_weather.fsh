@@ -32,7 +32,7 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -208,7 +208,7 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+        #ifdef SHADOW_COLORED
             shadowColor = GetFinalShadowColor();
         #else
             shadowColor = vec3(GetFinalShadowFactor());

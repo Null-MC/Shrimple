@@ -462,11 +462,8 @@ option.SHADOW_BRIGHTNESS=Brightness
 option.SHADOW_BRIGHTNESS.comment=Light levels are multiplied by this number when the surface is in shadows.
 suffix.SHADOW_BRIGHTNESS=%
 
-option.SHADOW_COLORS=Color Tinting
-option.SHADOW_COLORS.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks. Disabled: Stained glass will cast ordinary shadows. Enabled: Stained glass will cast colored shadows. Ignored: Stained glass will not cast any shadows.
-value.SHADOW_COLORS.0=Disabled
-value.SHADOW_COLORS.1=Enabled
-value.SHADOW_COLORS.2=Ignored
+option.SHADOW_COLORED=Color Tinting
+option.SHADOW_COLORED.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks.
 
 option.SHADOW_COLOR_BLEND=Blending
 option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports translucent-sorting.

@@ -101,16 +101,12 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
 
-        #ifdef IRIS_FEATURE_SSBO
-            vec3 skyLightColor = WorldSkyLightColor;
-        #else
-            vec3 skyLightColor = GetSkyLightColor(sunDir);
-            //skyLightColor = CalculateSkyLightWeatherColor(skyLightColor);
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
-        skyLightColor *= 1.0 - 0.3 * rainStrength;
-
-        skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
+        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        skyLightColor *= WorldSkyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
@@ -150,7 +146,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 if (cascade >= 0) {
                     float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
                     traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
-                    sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                    sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
                 }
             #else
                 float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
@@ -159,14 +157,17 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
             #endif
 
-            #ifdef SHADOW_COLOR
-                float transparentShadowDepth = SampleTransparentDepth(traceShadowClipPos.xy, vec2(0.0));
+            #ifdef SHADOW_COLORED
+                float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
 
                 if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON) {
-                    vec3 shadowColor = GetShadowColor(traceShadowClipPos.xy);
+                    vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
+                    shadowColor = RGBToLinear(shadowColor);
 
                     if (!any(greaterThan(shadowColor, EPSILON3))) shadowColor = vec3(1.0);
                     shadowColor = normalize(shadowColor) * 1.73;

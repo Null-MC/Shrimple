@@ -93,7 +93,7 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#if (defined WORLD_SHADOW_ENABLED && SHADOW_COLORS == 1) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -341,7 +341,7 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
+            #ifdef SHADOW_COLORED
                 shadowColor = GetFinalShadowColor(sss);
             #else
                 shadowColor = vec3(GetFinalShadowFactor(sss));
