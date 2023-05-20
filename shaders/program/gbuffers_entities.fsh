@@ -241,15 +241,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 
-#if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
-    #endif
-#elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -280,9 +272,6 @@ void main() {
     }
     else {
         #if MATERIAL_PARALLAX != PARALLAX_NONE
-            //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
-            //bool isMissingTangent = any(isnan(vLocalTangent));
-
             float viewDist = length(vPos);
 
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
@@ -406,27 +395,13 @@ void main() {
         #endif
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        color.a = 1.0;
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor, 1.0);
-
-        uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
-        outDeferredData = deferredData;
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
+        #ifndef RENDER_TRANSLUCENT
+            color.a = 1.0;
         #endif
-    #elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);

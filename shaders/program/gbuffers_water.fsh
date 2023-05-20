@@ -311,8 +311,6 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        //vec3 worldPos = vLocalPos + cameraPosition;
-
         float surface_roughness, surface_metal_f0;
         GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
@@ -434,17 +432,11 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        //float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        //float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
-        //float puddleF = GetWetnessPuddleF(skyWetness, porosity);
-
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
             if (vBlockId != BLOCK_WATER)
                 ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                //vec3 waterWorldPos = worldPos;
-                //waterWorldPos.xz += waterUvOffset;
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
         #endif
@@ -452,13 +444,7 @@ void main() {
 
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
-
-    //#if WORLD_WATER_WAVES != WATER_WAVES_NONE || defined PHYSICS_OCEAN
-    //if (vBlockId != BLOCK_WATER)
-    //#endif
-        texNormal = matLocalTBN * texNormal;
-
-    //if (!gl_FrontFacing) texNormal = -texNormal;
+    texNormal = matLocalTBN * texNormal;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -470,8 +456,6 @@ void main() {
 
             shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
         #endif
-    //#else
-    //    shadowColor *= max(vLit, 0.0);
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP

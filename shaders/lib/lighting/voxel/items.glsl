@@ -212,6 +212,7 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         if (lightType != LIGHT_EMPTY) {
             StaticLightData lightInfo = StaticLightMap[lightType];
             vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+            lightColor = RGBToLinear(lightColor);
 
             #ifdef DYN_LIGHT_FLICKER
                 ApplyLightFlicker(lightColor, lightType, noiseSample);
@@ -226,6 +227,7 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
 
             StaticLightData lightInfo = StaticLightMap[lightType];
             vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+            lightColor = RGBToLinear(lightColor);
 
             #ifdef DYN_LIGHT_FLICKER
                 ApplyLightFlicker(lightColor, lightType, noiseSample);

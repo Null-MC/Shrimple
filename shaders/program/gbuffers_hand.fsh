@@ -222,15 +222,7 @@ uniform float blindness;
 #include "/lib/post/tonemap.glsl"
 
 
-#if !defined RENDER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
-    #endif
-#elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -248,18 +240,12 @@ void main() {
     vec2 atlasCoord = texcoord;
     
     #if MATERIAL_PARALLAX != PARALLAX_NONE
-        //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
-        //bool isMissingTangent = any(isnan(vLocalTangent));
-
-        bool skipParallax = false;
-        //if (vBlockId == BLOCK_LAVA) skipParallax = true;
-
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
         float viewDist = length(vPos);
 
-        if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
+        if (viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
@@ -332,23 +318,21 @@ void main() {
         bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
-            if (!skipParallax) {
-                #if MATERIAL_PARALLAX == PARALLAX_SHARP
-                    float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
+            #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
-                    if (depthDiff >= ParallaxSharpThreshold) {
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-                        isValidNormal = true;
-                    }
-                #endif
+                if (depthDiff >= ParallaxSharpThreshold) {
+                    texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                    isValidNormal = true;
+                }
+            #endif
 
-                #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
-                    if (traceCoordDepth.z + EPSILON < 1.0) {
-                        vec3 tanLightDir = normalize(tanLightPos);
-                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
-                    }
-                #endif
-            }
+            #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
+                if (traceCoordDepth.z + EPSILON < 1.0) {
+                    vec3 tanLightDir = normalize(tanLightPos);
+                    shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                }
+            #endif
         #endif
 
         if (isValidNormal) {
@@ -368,32 +352,11 @@ void main() {
 
             shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
         #endif
-    #else
-        //shadowColor *= max(vLit, 0.0);
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
         float fogF = GetVanillaFogFactor(vLocalPos);
-        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        //fogColorFinal = LinearToRGB(fogColorFinal);
-
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor, 1.0);
-
-        uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
-        outDeferredData = deferredData;
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
-        #endif
-    #elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
@@ -401,7 +364,7 @@ void main() {
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, 1.0));
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
@@ -412,18 +375,18 @@ void main() {
         color.rgb = RGBToLinear(color.rgb);
         float roughL = max(_pow2(roughness), ROUGH_MIN);
 
+        vec3 localViewDir = normalize(vLocalPos);
+
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
 
         blockDiffuse += emission * MaterialEmissionF;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
         #endif
-
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
-        vec3 localViewDir = normalize(vLocalPos);
 
         #ifdef WORLD_SKY_ENABLED
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
@@ -443,7 +406,6 @@ void main() {
 
         ApplyFog(color, vLocalPos, localViewDir);
 
-        //ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }

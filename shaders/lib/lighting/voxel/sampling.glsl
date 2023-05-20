@@ -67,6 +67,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 lightData = GetSceneLight(gridIndex, lightIndex % lightCount);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
+                lightColor = RGBToLinear(lightColor);
+
                 #ifdef DYN_LIGHT_INTERLEAVE_ENABLED
                     lightColor *= iStep;
                 #endif

@@ -110,7 +110,6 @@ void main() {
 
                     lightColor = RGBToLinear(lightColor);
 
-                    //float lightRange = GetSceneLightRange(lightType);
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 
                     vec2 lightNoise = vec2(0.0);
@@ -119,13 +118,12 @@ void main() {
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    //vec3 lightOffset = GetSceneLightOffset(lightType);
-                    //float lightSize = GetSceneLightSize(lightType);
-                    //vec3 lightColor = GetSceneLightColor(lightType, lightNoise);
                     bool lightTraced = GetLightTraced(lightType);
                     uint lightMask = BuildLightMask(lightType);
                     
                     vec3 lightPos = blockLocalPos + lightOffset;
+
+                    lightColor = LinearToRGB(lightColor);
 
                     uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
                     SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);

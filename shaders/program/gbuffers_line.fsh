@@ -44,11 +44,8 @@ uniform int fogMode;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
 
-
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -67,35 +64,9 @@ void main() {
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
 
-    // vec3 shadowColor = vec3(1.0);
-    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //     vec3 localLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-
-    //     float skyGeoNoL = 1.0;//dot(localNormal, localLightDir);
-
-    //     if (skyGeoNoL < EPSILON && sss < EPSILON) {
-    //         shadowColor = vec3(0.0);
-    //     }
-    //     else {
-    //         #if SHADOW_COLORS == SHADOW_COLOR_ENABLED
-    //             shadowColor = GetFinalShadowColor(sss);
-    //         #else
-    //             float shadowF = GetFinalShadowFactor(sss);
-    //             shadowColor = vec3(shadowF);
-
-    //             // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-    //             // lmFinal.y = max(lmFinal.y, shadowF);
-    //             // lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
-    //         #endif
-    //     }
-    // #endif
-
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
         float fogF = GetVanillaFogFactor(vLocalPos);
-        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        //fogColorFinal = LinearToRGB(fogColorFinal);
 
         outDeferredColor = color;
         outDeferredShadow = vec4(1.0);
@@ -109,12 +80,11 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-		color.rgb *= texture(lightmap, lmcoord).rgb;// * shadowColor;
+		color.rgb *= texture(lightmap, lmcoord).rgb;
 
         vec3 localViewDir = normalize(vLocalPos);
         ApplyFog(color, vLocalPos, localViewDir);
 
-        //ApplyPostProcessing(color.rgb);
 		outFinal = color;
 	#endif
 }

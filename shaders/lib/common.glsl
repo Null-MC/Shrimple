@@ -460,7 +460,7 @@ vec3 LinearToRGB(const in vec3 color, const in float gamma) {
 }
 
 vec3 LinearToRGB(const in vec3 color) {
-    return LinearToRGB(color, rcp(GAMMA));
+    return LinearToRGB(color, GAMMA);
 }
 
 float luminance(const in vec3 color) {

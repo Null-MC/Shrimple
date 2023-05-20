@@ -186,17 +186,12 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/normalmap.glsl"
     #include "/lib/material/emission.glsl"
     #include "/lib/material/subsurface.glsl"
-
-    //#if MATERIAL_SPECULAR != SPECULAR_NONE
-    //    #include "/lib/material/specular.glsl"
-    //#endif
 #endif
 
 #include "/lib/material/specular.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        //#include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
@@ -231,15 +226,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 
-#if defined DEFERRED_BUFFER_ENABLED && !defined RENDER_TRANSLUCENT
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
-    #endif
-#elif defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -254,7 +241,6 @@ uniform int heldBlockLightValue2;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    //vec2 atlasCoord = texcoord;
 
     vec4 color = texture(gtexture, texcoord) * glcolor;
 
@@ -292,25 +278,6 @@ void main() {
     #if defined MATERIAL_PARTICLES && MATERIAL_NORMALS != NORMALMAP_NONE
         GetMaterialNormal(texcoord, dFdXY, texNormal);
 
-        // #if MATERIAL_PARALLAX != PARALLAX_NONE
-        //     if (!skipParallax) {
-        //         #if MATERIAL_PARALLAX == PARALLAX_SHARP
-        //             float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
-
-        //             if (depthDiff >= ParallaxSharpThreshold) {
-        //                 texNormal = GetParallaxSlopeNormal(texcoord, dFdXY, traceCoordDepth.z, tanViewDir);
-        //             }
-        //         #endif
-
-        //         #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
-        //             if (traceCoordDepth.z + EPSILON < 1.0) {
-        //                 vec3 tanLightDir = normalize(tanLightPos);
-        //                 shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
-        //             }
-        //         #endif
-        //     }
-        // #endif
-
         vec3 localTangent = normalize(vLocalTangent);
         mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
         texNormal = normalize(matLocalTBN * texNormal);
@@ -343,7 +310,7 @@ void main() {
             packUnorm4x8(vec4(texNormal, 1.0)));
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
+            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
@@ -351,15 +318,14 @@ void main() {
 
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
 
         //blockDiffuse += emission * MaterialEmissionF;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
         #endif
-
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
 
         #ifdef WORLD_SKY_ENABLED
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
@@ -388,7 +354,6 @@ void main() {
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        //ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }
