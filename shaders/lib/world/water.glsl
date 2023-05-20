@@ -4,7 +4,7 @@
 const float WATER_TIME_MULTIPLICATOR = 4.0;
 const float WATER_XZ_SCALE = 0.12;
 
-const float WATER_DETAIL = 1.0;
+const float WATER_DETAIL = 0.9;
 const float WATER_DRAG_MULT = 0.042;
 const float WATER_FREQUENCY = 6.0;
 const float WATER_SPEED = 2.0;
@@ -55,6 +55,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     float modifiedTime = time * WATER_TIME_MULTIPLICATOR;
 
     float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);
+    float detailF = 0.7 + 0.2 * lightF;
 
     vec2 wavePos = worldPos * WATER_XZ_SCALE;
 	float iter = 0.0;
@@ -71,7 +72,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
         float result = wave * cos(x);
         vec2 force = result * weight * direction;
         
-        dx += force / pow(weight, WATER_DETAIL); 
+        dx += force / pow(weight, detailF); 
         wavePos -= force * WATER_DRAG_MULT;
         iter += WATER_ITER_INC;
         waveSum += weight;
@@ -83,7 +84,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     uvOffset = (wavePos / WATER_XZ_SCALE) - worldPos;
 
     if (waveSum < EPSILON) return vec2(0.0);
-    return vec2(dx / pow(waveSum, 1.0 - WATER_DETAIL));
+    return vec2(dx / pow(waveSum, 1.0 - detailF));
 }
 
 vec3 water_waveNormal(vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
