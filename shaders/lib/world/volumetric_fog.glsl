@@ -188,10 +188,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #if defined DYN_LIGHT_LPV && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
                 ivec3 gridCell, blockCell;
                 vec3 gridPos = GetLightGridPosition(traceLocalPos);
+                if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
+                    vec3 fragPos = gridPos;//gridCell * LIGHT_BIN_SIZE + blockCell + 0.5;
+                    vec3 lpvTexcoord = fragPos / vec3(256.0, 128.0, 256.0);
 
-                vec3 lpvTexcoord = gridPos / vec3(256.0, 64.0, 256.0);
-                if (saturate(lpvTexcoord) == lpvTexcoord)
-                    blockLightAccum = texture(texLPV, lpvTexcoord).rgb;
+                    if (saturate(lpvTexcoord) == lpvTexcoord) {
+                        int frameIndex = frameCounter % 2;
+                        blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 16.0;
+                    }
+                }
             #else
                 uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
 

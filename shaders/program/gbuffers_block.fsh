@@ -50,7 +50,8 @@ uniform sampler2D lightmap;
 #endif
 
 #if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-    uniform sampler3D texLPV;
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
 #endif
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)

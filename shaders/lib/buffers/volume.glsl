@@ -1,1 +1,2 @@
-layout(rgba8) uniform writeonly image3D imgSceneLPV;
+layout(rgba16f) uniform restrict image3D imgSceneLPV_1;
+layout(rgba16f) uniform restrict image3D imgSceneLPV_2;

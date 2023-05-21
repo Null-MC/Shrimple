@@ -18,6 +18,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform float frameTimeCounter;
     //uniform mat4 gbufferModelView;
     uniform vec3 cameraPosition;
+    uniform vec3 previousCameraPosition;
     //uniform float far;
 
     #include "/lib/blocks.glsl"
@@ -36,54 +37,98 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     //#include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
-    #include "/lib/lighting/voxel/collisions.glsl"
-    #include "/lib/lighting/voxel/tracing.glsl"
-    #include "/lib/lighting/sampling.glsl"
 #endif
 
+
+vec3 mixNeighbours(const in ivec3 fragCoord) {
+    const float FALLOFF = 1.0;
+
+    int frameIndex = frameCounter % 2;
+    //vec3 data = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord).rgb;
+    //if (length(data) > 0.0) return data;
+
+    vec3 nX1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3(-1,  0,  0)).rgb;
+    vec3 nX2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 1,  0,  0)).rgb;
+    vec3 nY1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0, -1,  0)).rgb;
+    vec3 nY2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  1,  0)).rgb;
+    vec3 nZ1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0, -1)).rgb;
+    vec3 nZ2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0,  1)).rgb;
+
+    //vec3 n = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
+    //return n / 6.0 * FALLOFF;
+
+    vec3 xMax = max(nX1, nX2);
+    vec3 yMax = max(nY1, nY2);
+    vec3 zMax = max(nZ1, nZ2);
+
+    vec3 n = max(max(xMax, yMax), zMax);
+    return max(n - FALLOFF, 0.0);
+}
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_LPV
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        ivec3 gridBlockOffset = gridCell * LIGHT_BIN_SIZE;
+        if (any(greaterThanEqual(gridCell, SceneLightGridSize))) return;
 
-        if (any(greaterThanEqual(gridBlockOffset, ivec3(256, 64, 256)))) return;
+        ivec3 gridBlockOffset = gridCell * LIGHT_BIN_SIZE;
+        if (any(greaterThanEqual(gridBlockOffset, ivec3(256, 128, 256)))) return;
+
+        vec3 p1 = GetLightGridPosition(vec3(0.0));
+        vec3 p2 = GetLightGridPosition(previousCameraPosition - cameraPosition);
+
+        ivec3 gridCellOffset = GetSceneLightGridCell(p1) - GetSceneLightGridCell(p2);
+        ivec3 gridCellLast = gridCell + gridCellOffset;
+        ivec3 gridBlockOffsetLast = gridCellLast * LIGHT_BIN_SIZE;
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         
         uint gridIndex = GetSceneLightGridIndex(gridCell);
         uint binLightCountMin = min(SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount, LIGHT_BIN_MAX_COUNT);
-        if (binLightCountMin == 0u) return;
+        //if (binLightCountMin == 0u) return;
 
-        vec3 lightPos, lightColor, lightVec;
+        vec3 lightPos, lightColor, lightVec, accumLight;
         float lightSize, lightRange, traceDist2;
+        uint lightGlobalIndex, blockId;
+        ivec3 blockCell, fragPos;
         uvec4 lightData;
+
+        int frameIndex = frameCounter % 2;
 
         for (int z = 0; z < LIGHT_BIN_SIZE; z++) {
             for (int y = 0; y < LIGHT_BIN_SIZE; y++) {
                 for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
-                    ivec3 blockCell = ivec3(x, y, z);
-                    vec3 blockLocalPos = gridBlockOffset + blockCell + 0.5 - LightGridCenter - cameraOffset;
+                    blockCell = ivec3(x, y, z);
 
-                    vec3 accumLight = vec3(0.0);
-                    for (int i = 0; i < binLightCountMin; i++) {
-                        lightData = GetSceneLight(gridIndex, i);
-                        ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
+                    blockId = GetSceneBlockMask(blockCell, gridIndex);
 
-                        //vec3 lightColor = light.color;
-                        vec3 lightVec = blockLocalPos - lightPos;
-                        if (dot(lightVec, lightVec) >= _pow2(lightRange)) continue;
-
-                        //lightColor *= TraceDDA_fast(light.position, blockLocalPos, light.range);
-
-                        float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        accumLight += lightColor * lightAtt;
+                    accumLight = vec3(0.0);
+                    if (blockId == BLOCK_EMPTY && frameCounter > 1) {
+                        fragPos = gridBlockOffsetLast + blockCell;
+                        accumLight = mixNeighbours(fragPos);
                     }
 
-                    ivec3 tex = gridBlockOffset + blockCell;
-                    imageStore(imgSceneLPV, tex, vec4(accumLight, 1.0));
+                    fragPos = gridBlockOffset + blockCell;
+                    imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, fragPos, vec4(accumLight, 1.0));
                 }
             }
+        }
+
+        for (int i = 0; i < binLightCountMin; i++) {
+            lightGlobalIndex = SceneLightMaps[gridIndex].GlobalLights[i];
+            lightData = SceneLights[lightGlobalIndex];
+
+            ParseLightPosition(lightData, lightPos);
+            ParseLightColor(lightData, lightColor);
+            ParseLightRange(lightData, lightRange);
+
+            // TODO: get light fragcoord
+            ivec3 _gridCell;
+            vec3 gridPos = GetLightGridPosition(lightPos);
+            GetSceneLightGridCell(gridPos, _gridCell, blockCell);
+            fragPos = _gridCell * LIGHT_BIN_SIZE + blockCell;
+
+            vec3 lightFinal = RGBToLinear(lightColor) * lightRange;
+            imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, fragPos, vec4(lightFinal, 1.0));
         }
 
         //memoryBarrierImage();

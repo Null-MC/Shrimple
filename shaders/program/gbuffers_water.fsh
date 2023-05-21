@@ -56,7 +56,8 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-    uniform sampler3D texLPV;
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

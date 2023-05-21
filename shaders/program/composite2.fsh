@@ -12,7 +12,8 @@ uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && defined DYN_LIGHT_LPV
-    uniform sampler3D texLPV;
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
 #endif
 
 #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

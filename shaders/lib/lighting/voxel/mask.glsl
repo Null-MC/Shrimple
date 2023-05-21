@@ -10,7 +10,7 @@ vec3 GetLightGridPosition(const in vec3 position) {
     return position + LightGridCenter + cameraOffset;
 }
 
-#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE
+#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_SHADOWCOMP_LPV
     vec3 GetLightGridPreviousPosition(const in vec3 position) {
         vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         return position + LightGridCenter + cameraOffset;
