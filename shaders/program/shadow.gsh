@@ -64,6 +64,27 @@ uniform float far;
 #endif
 
 
+#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    // returns: tile [0-3] or -1 if excluded
+    int GetShadowRenderTile(const in vec3 blockPos) {
+        //#ifdef SHADOW_CSM_FITRANGE
+        //    const int max = 3;
+        //#else
+            const int max = 4;
+        //#endif
+
+        for (int i = 0; i < max; i++) {
+            if (CascadeContainsPosition(blockPos, i, 3.0)) return i;
+        }
+
+        //#ifdef SHADOW_CSM_FITRANGE
+        //    return 3;
+        //#else
+            return -1;
+        //#endif
+    }
+#endif
+
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
@@ -131,7 +152,7 @@ void main() {
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            int shadowTile = GetShadowTile(cascadeProjection, originShadowViewPos);
+            int shadowTile = GetShadowRenderTile(originShadowViewPos);
             if (shadowTile < 0) return;
 
             #ifdef SHADOW_CSM_OVERLAP
@@ -146,7 +167,7 @@ void main() {
                 if (c != shadowTile) {
                     #ifdef SHADOW_CSM_OVERLAP
                         // duplicate geometry if intersecting overlapping cascades
-                        if (!CascadeIntersectsPosition(originShadowViewPos, c)) continue;
+                        if (!CascadeContainsPosition(originShadowViewPos, c, 9.0)) continue;
                     #else
                         continue;
                     #endif

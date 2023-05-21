@@ -156,8 +156,8 @@ float GetShadowOffsetBias(const in int cascade) {
 #endif
 
 bool CascadeContainsPosition(const in vec3 shadowViewPos, const in int cascade, const in float padding) {
-    return all(greaterThan(shadowViewPos.xy + padding, cascadeViewMin[cascade]))
-        && all(lessThan(shadowViewPos.xy - padding, cascadeViewMax[cascade]));
+    return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade] - padding))
+        && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade] + padding));
 }
 
 bool CascadeIntersectsPosition(const in vec3 shadowViewPos, const in int cascade) {
@@ -183,7 +183,7 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
         //#endif
 
         for (int i = 0; i < max; i++) {
-            if (CascadeContainsPosition(blockPos, i, 1.5)) return i;
+            if (CascadeContainsPosition(blockPos, i, -3.0)) return i;
         }
 
         //#ifdef SHADOW_CSM_FITRANGE
