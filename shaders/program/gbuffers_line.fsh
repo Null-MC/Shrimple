@@ -60,23 +60,31 @@ uniform int fogMode;
 
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
-	
-	const vec3 normal = vec3(0.0);
-	const float sss = 0.0;
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+        const vec3 normal = vec3(0.0);
+        const float occlusion = 0.0;
+        const float emission = 0.0;
+        const float sss = 0.0;
+
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
-
+        
         outDeferredColor = color;
         outDeferredShadow = vec4(1.0);
 
         uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, 1.0, 1.0));
+        deferredData.r = packUnorm4x8(vec4(normal, sss));
+        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion, emission));
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            const float roughness = 1.0;
+            const float metal_f0 = 0.0;
+            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
+        #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
 

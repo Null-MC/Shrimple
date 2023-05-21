@@ -194,7 +194,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
                         int frameIndex = frameCounter % 2;
-                        blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 16.0;
+                        blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 6.0;
                     }
                 }
             #else

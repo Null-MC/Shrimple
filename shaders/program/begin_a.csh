@@ -41,6 +41,9 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #endif
     #endif
 
+    #include "/lib/blocks.glsl"
+    #include "/lib/lights.glsl"
+
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 
@@ -68,8 +71,8 @@ void main() {
             HandLightTypePrevious1 = HandLightType1;
             HandLightTypePrevious2 = HandLightType2;
 
-            HandLightType1 = heldItemId;
-            HandLightType2 = heldItemId2;
+            HandLightType1 = GetSceneLightType(heldItemId);
+            HandLightType2 = GetSceneLightType(heldItemId2);
 
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);

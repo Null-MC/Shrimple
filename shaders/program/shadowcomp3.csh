@@ -41,7 +41,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
-    const float FALLOFF = 1.0;
+    const float FALLOFF = 0.002;
 
     int frameIndex = frameCounter % 2;
     //vec3 data = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord).rgb;
@@ -54,15 +54,16 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     vec3 nZ1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0, -1)).rgb;
     vec3 nZ2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0,  1)).rgb;
 
-    //vec3 n = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    //return n / 6.0 * FALLOFF;
+    vec3 n = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) / 6.0;
+    float falloff = 1.0 - rcp(max(luminance(n), 1.0)) * FALLOFF;
+    return n * falloff;
 
-    vec3 xMax = max(nX1, nX2);
-    vec3 yMax = max(nY1, nY2);
-    vec3 zMax = max(nZ1, nZ2);
+    // vec3 xMax = max(nX1, nX2);
+    // vec3 yMax = max(nY1, nY2);
+    // vec3 zMax = max(nZ1, nZ2);
 
-    vec3 n = max(max(xMax, yMax), zMax);
-    return max(n - FALLOFF, 0.0);
+    // vec3 n = max(max(xMax, yMax), zMax);
+    // return max(n - FALLOFF, 0.0);
 }
 
 void main() {
@@ -127,7 +128,7 @@ void main() {
             GetSceneLightGridCell(gridPos, _gridCell, blockCell);
             fragPos = _gridCell * LIGHT_BIN_SIZE + blockCell;
 
-            vec3 lightFinal = RGBToLinear(lightColor) * lightRange;
+            vec3 lightFinal = RGBToLinear(lightColor) * lightRange;// * VolumetricBlockRangeF;
             imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, fragPos, vec4(lightFinal, 1.0));
         }
 

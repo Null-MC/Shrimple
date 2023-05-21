@@ -64,7 +64,7 @@ uniform float far;
 #endif
 
 
-#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     // returns: tile [0-3] or -1 if excluded
     int GetShadowRenderTile(const in vec3 blockPos) {
         //#ifdef SHADOW_CSM_FITRANGE
