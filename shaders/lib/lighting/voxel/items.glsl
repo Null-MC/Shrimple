@@ -204,67 +204,32 @@ int GetItemBlockId(const in int itemId) {
     return blockId;
 }
 
+uint GetSceneItemLightType(const in int itemId) {
+    #if defined RENDER_HAND && defined IS_IRIS
+        return GetSceneLightType(itemId);
+    #else
+        int blockId = GetItemBlockId(itemId);
+        if (blockId != BLOCK_EMPTY)
+            return GetSceneLightType(blockId);
+
+        return GetSceneLightType(itemId);
+    #endif
+}
+
 vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
     vec3 lightColor = vec3(0.0);
 
-    #if defined RENDER_HAND && defined IS_IRIS
-        uint lightType = GetSceneLightType(itemId);
-        if (lightType != LIGHT_EMPTY) {
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-            lightColor = RGBToLinear(lightColor);
+    uint lightType = GetSceneItemLightType(itemId);
 
-            #ifdef DYN_LIGHT_FLICKER
-                ApplyLightFlicker(lightColor, lightType, noiseSample);
-            #endif
+    if (lightType != LIGHT_EMPTY) {
+        StaticLightData lightInfo = StaticLightMap[lightType];
+        lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+        lightColor = RGBToLinear(lightColor);
 
-            return lightColor;
-        }
-    #else
-        int blockId = GetItemBlockId(itemId);
-        if (blockId != BLOCK_EMPTY) {
-            uint lightType = GetSceneLightType(blockId);
-
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-            lightColor = RGBToLinear(lightColor);
-
-            #ifdef DYN_LIGHT_FLICKER
-                ApplyLightFlicker(lightColor, lightType, noiseSample);
-            #endif
-
-            return lightColor;
-        }
-    #endif
-
-    // switch (itemId) {
-    //     case ITEM_AMETHYST_BUD_MEDIUM:
-    //         lightColor = vec3(0.447, 0.188, 0.758);
-    //         break;
-    // }
-
-    // lightColor = RGBToLinear(lightColor);
-
-    // #ifdef DYN_LIGHT_FLICKER
-    //     // TODO: optimize branching
-    //     //vec2 noiseSample = GetDynLightNoise(cameraPosition + blockLocalPos);
-    //     float flickerNoise = GetDynLightFlickerNoise(noiseSample);
-
-    //     if (itemId == ITEM_TORCH || itemId == ITEM_LANTERN) {
-    //         float torchTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
-    //         lightColor = 0.8 * blackbody(torchTemp);
-    //     }
-
-    //     if (itemId == ITEM_SOUL_TORCH || itemId == ITEM_SOUL_LANTERN) {
-    //         float soulTorchTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
-    //         lightColor = 0.8 * saturate(1.0 - blackbody(soulTorchTemp));
-    //     }
-
-    //     if (itemId == ITEM_JACK_O_LANTERN) {
-    //         float candleTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
-    //         lightColor = 0.7 * blackbody(candleTemp);
-    //     }
-    // #endif
+        #ifdef DYN_LIGHT_FLICKER
+            ApplyLightFlicker(lightColor, lightType, noiseSample);
+        #endif
+    }
 
     return lightColor;
 }
@@ -272,163 +237,25 @@ vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
 float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
     float lightRange = defaultValue;
 
-    #if defined RENDER_HAND && defined IS_IRIS
-        uint lightType = GetSceneLightType(itemId);
-        if (lightType != LIGHT_EMPTY) {
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            return unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+    uint lightType = GetSceneItemLightType(itemId);
 
-            //return GetSceneLightRange(lightType);
-        }
-    #else
-        int blockId = GetItemBlockId(itemId);
-        if (blockId != BLOCK_EMPTY) {
-            uint lightType = GetSceneLightType(blockId);
-
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            return unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
-
-            //return GetSceneLightRange(lightType);
-        }
-    #endif
-
-    // switch (itemId) {
-    //     case ITEM_AMETHYST_BUD_LARGE:
-    //         lightRange = 4.0;
-    //         break;
-    //     case ITEM_AMETHYST_BUD_MEDIUM:
-    //         lightRange = 2.0;
-    //         break;
-    //     case ITEM_AMETHYST_CLUSTER:
-    //         lightRange = 5.0;
-    //         break;
-    //     case ITEM_BEACON:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_GLOW_BERRIES:
-    //         lightRange = 14.0;
-    //         break;
-    //     case ITEM_CRYING_OBSIDIAN:
-    //         lightRange = 10.0;
-    //         break;
-    //     case ITEM_END_ROD:
-    //         lightRange = 14.0;
-    //         break;
-    //     case ITEM_GLOWSTONE:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_GLOW_LICHEN:
-    //         lightRange = 7.0;
-    //         break;
-    //     case ITEM_JACK_O_LANTERN:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_LANTERN:
-    //         lightRange = 12.0;
-    //         break;
-    //     case ITEM_MAGMA:
-    //         lightRange = 3.0;
-    //         break;
-    //     case ITEM_FROGLIGHT_OCHRE:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_FROGLIGHT_PEARLESCENT:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_REDSTONE_TORCH:
-    //         lightRange = 7.0;
-    //         break;
-    //     case ITEM_SCULK_CATALYST:
-    //         lightRange = 6.0;
-    //         break;
-    //     case ITEM_SEA_LANTERN:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_SHROOMLIGHT:
-    //         lightRange = 15.0;
-    //         break;
-    //     case ITEM_SOUL_LANTERN:
-    //         lightRange = 12.0;
-    //         break;
-    //     case ITEM_SOUL_TORCH:
-    //         lightRange = 12.0;
-    //         break;
-    //     case ITEM_TORCH:
-    //         lightRange = 12.0;
-    //         break;
-    //     case ITEM_FROGLIGHT_VERDANT:
-    //         lightRange = 15.0;
-    //         break;
-    // }
-
-    // #ifdef DYN_LIGHT_OREBLOCKS
-    //     switch (itemId) {
-    //         case ITEM_AMETHYST_BLOCK:
-    //         case ITEM_DIAMOND_BLOCK:
-    //         case ITEM_EMERALD_BLOCK:
-    //         case ITEM_LAPIS_BLOCK:
-    //         case ITEM_REDSTONE_BLOCK:
-    //             lightRange = 12.0;
-    //             break;
-    //     }
-    // #endif
+    if (lightType != LIGHT_EMPTY) {
+        StaticLightData lightInfo = StaticLightMap[lightType];
+        lightRange = unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+    }
 
     return lightRange;
 }
 
 float GetSceneItemLightSize(const in int itemId) {
-    float size = 0.1;
+    float lightSize = 0.1;
 
-    #if defined RENDER_HAND && defined IS_IRIS
-        uint lightType = GetSceneLightType(itemId);
+    uint lightType = GetSceneItemLightType(itemId);
 
-        if (lightType != LIGHT_EMPTY) {
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            return unpackUnorm4x8(lightInfo.RangeSize).y;
-        }
-    #else
-        int blockId = GetItemBlockId(itemId);
+    if (lightType != LIGHT_EMPTY) {
+        StaticLightData lightInfo = StaticLightMap[lightType];
+        lightSize = unpackUnorm4x8(lightInfo.RangeSize).y;
+    }
 
-        if (blockId != BLOCK_EMPTY) {
-            uint lightType = GetSceneLightType(blockId);
-
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            return unpackUnorm4x8(lightInfo.RangeSize).y;
-        }
-    #endif
-
-    // switch (itemId) {
-    //     case ITEM_AMETHYST_BLOCK:
-    //     case ITEM_CRYING_OBSIDIAN:
-    //     case ITEM_FROGLIGHT_OCHRE:
-    //     case ITEM_FROGLIGHT_PEARLESCENT:
-    //     case ITEM_FROGLIGHT_VERDANT:
-    //     case ITEM_GLOWSTONE:
-    //     case ITEM_MAGMA:
-    //     case ITEM_SEA_LANTERN:
-    //     case ITEM_SHROOMLIGHT:
-    //         size = 1.0;
-    //         break;
-    //     case ITEM_AMETHYST_CLUSTER:
-    //         size = 0.8;
-    //         break;
-    //     case ITEM_AMETHYST_BUD_LARGE:
-    //     case ITEM_BEACON:
-    //     case ITEM_JACK_O_LANTERN:
-    //         size = 0.6;
-    //         break;
-    //     case ITEM_END_ROD:
-    //         size = 0.5;
-    //     case ITEM_AMETHYST_BUD_MEDIUM:
-    //     case ITEM_LANTERN:
-    //     case ITEM_SOUL_LANTERN:
-    //         size = 0.4;
-    //         break;
-    //     case ITEM_TORCH:
-    //     case ITEM_SOUL_TORCH:
-    //         size = 0.2;
-    //         break;
-    // }
-
-    return size;
+    return lightSize;
 }
