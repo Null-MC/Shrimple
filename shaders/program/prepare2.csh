@@ -14,7 +14,7 @@ const ivec3 workGroups = ivec3(64, 16, 64);
 
 
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_LPV
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
         //ivec3 pos = ivec3(gl_GlobalInvocationID);
         //if (any(greaterThanEqual(pos, SceneLightGridSize))) return;
 

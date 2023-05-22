@@ -205,6 +205,7 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_RES 0 // [0 1 2]
 #define VOLUMETRIC_BLUR
 //#define VOLUMETRIC_HANDLIGHT
+#define LPV_SIZE 2 // [0 1 2 3]
 
 
 // Post-Processing
@@ -221,7 +222,6 @@ const bool colortex15Clear = true;
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
 //#define DYN_LIGHT_DEBUG_COUNTS
-#define DYN_LIGHT_LPV
 //#define DYN_LIGHT_OREBLOCKS
 //#define DEFER_TRANSLUCENT
 #define AF_SAMPLES 1
@@ -296,6 +296,17 @@ const bool colortex15Clear = true;
     #define DYN_LIGHT_BLOCK_IMG_SIZE 16384u
 #endif
 
+#if   LPV_SIZE == 3
+    #define LPV_SIZE_XZ 256
+    #define LPV_SIZE_Y  128
+#elif LPV_SIZE == 2
+    #define LPV_SIZE_XZ 128
+    #define LPV_SIZE_Y  64
+#else
+    #define LPV_SIZE_XZ 64
+    #define LPV_SIZE_Y  32
+#endif
+
 #ifndef MC_GL_VENDOR_INTEL
     #define DYN_LIGHT_GRID_MAX -1u
 #else
@@ -332,8 +343,6 @@ const bool colortex15Clear = true;
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif
 #ifdef DEFER_TRANSLUCENT
-#endif
-#ifdef DYN_LIGHT_LPV
 #endif
 
 #if (defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined IRIS_FEATURE_SSBO)

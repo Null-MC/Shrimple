@@ -236,6 +236,10 @@ uniform int fogMode;
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
+        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+            #include "/lib/lighting/voxel/lpv.glsl"
+        #endif
+
         #include "/lib/world/volumetric_fog.glsl"
     #endif
 #endif

@@ -185,17 +185,16 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 blockLightAccum = vec3(0.0);
             uint gridIndex;
 
-            #if defined DYN_LIGHT_LPV && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+            #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
                 ivec3 gridCell, blockCell;
                 vec3 gridPos = GetLightGridPosition(traceLocalPos);
                 if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-                    vec3 fragPos = gridPos;//gridCell * LIGHT_BIN_SIZE + blockCell + 0.5;
-                    vec3 lpvTexcoord = fragPos / vec3(256.0, 128.0, 256.0);
+                    vec3 lpvPos = GetLPVPosition(traceLocalPos);
+                    vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
                         int frameIndex = frameCounter % 2;
                         blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 16.0;
-                        //blockLightAccum = blockLightAccum / 16.0;
                         blockLightAccum /= 1.0 + luminance(blockLightAccum);
                     }
                 }

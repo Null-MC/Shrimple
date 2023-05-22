@@ -188,31 +188,33 @@ uniform int heldBlockLightValue2;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
+#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
+    #include "/lib/lighting/fresnel.glsl"
 
-#ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-#endif
-
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+    #ifdef DYN_LIGHT_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collissions.glsl"
-        #include "/lib/lighting/voxel/collisions.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
-#endif
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/lighting/voxel/mask.glsl"
+            #include "/lib/lighting/voxel/blocks.glsl"
+        #endif
 
-#include "/lib/lights.glsl"
-#include "/lib/lighting/directional.glsl"
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
-#include "/lib/lighting/sampling.glsl"
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/buffers/collissions.glsl"
+            #include "/lib/lighting/voxel/collisions.glsl"
+            #include "/lib/lighting/voxel/tracing.glsl"
+        #endif
+    #endif
+
+    #include "/lib/lights.glsl"
+    #include "/lib/lighting/directional.glsl"
+    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+    #include "/lib/lighting/sampling.glsl"
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -236,15 +238,21 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
-    #include "/lib/lighting/voxel/sampling.glsl"
-#endif
+#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
+    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+        #include "/lib/lighting/voxel/sampling.glsl"
+    #endif
 
-#include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
+    #include "/lib/lighting/basic_hand.glsl"
+    #include "/lib/lighting/basic.glsl"
 
-#ifdef VL_BUFFER_ENABLED
-    #include "/lib/world/volumetric_fog.glsl"
+    #ifdef VL_BUFFER_ENABLED
+        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+            #include "/lib/lighting/voxel/lpv.glsl"
+        #endif
+
+        #include "/lib/world/volumetric_fog.glsl"
+    #endif
 #endif
 
 
@@ -469,7 +477,6 @@ void main() {
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
         float fogF = GetVanillaFogFactor(vLocalPos);
 
         outDeferredColor = color;

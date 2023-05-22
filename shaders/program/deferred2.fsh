@@ -10,7 +10,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && defined DYN_LIGHT_LPV
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && LPV_SIZE > 0
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -102,6 +102,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #include "/lib/lighting/sampling.glsl"
         //#include "/lib/lighting/basic.glsl"
+
+        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+            #include "/lib/lighting/voxel/lpv.glsl"
+        #endif
     #endif
 #endif
 

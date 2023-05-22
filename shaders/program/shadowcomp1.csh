@@ -1,5 +1,8 @@
+#define RENDER_SHADOWCOMP_LPV
 #define RENDER_SHADOWCOMP
 #define RENDER_COMPUTE
+
+#define LPV_CHUNK_SIZE 4
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
@@ -8,135 +11,96 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #ifdef DYN_LIGHT_FLICKER
-        uniform sampler2D noisetex;
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+    // #ifdef DYN_LIGHT_FLICKER
+    //     uniform sampler2D noisetex;
+    // #endif
 
-        uniform float frameTimeCounter;
-    #endif
-
-    uniform mat4 gbufferModelView;
+    uniform int frameCounter;
+    //uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
-    uniform float far;
+    uniform vec3 previousCameraPosition;
 
-    #include "/lib/blocks.glsl"
-    #include "/lib/lights.glsl"
-    
     #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/volume.glsl"
 
-    #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
-    
+    #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
 #endif
 
 
+ivec3 GetLPVFrameOffset() {
+    vec3 posNow = GetLPVPosition(vec3(0.0));
+    vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
+    return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
+}
+
+ivec3 GetLPVVoxelOffset() {
+    vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+    ivec3 voxelOrigin = ivec3(voxelCameraOffset + LightGridCenter + 0.5);
+
+    vec3 lpvCameraOffset = fract(cameraPosition);
+    ivec3 lpvOrigin = ivec3(lpvCameraOffset + SceneLPVCenter + 0.5);
+
+    return voxelOrigin - lpvOrigin;
+}
+
+vec3 mixNeighbours(const in ivec3 fragCoord) {
+    //const float FALLOFF = 0.002;
+
+    int frameIndex = frameCounter % 2;
+
+    vec3 nX1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3(-1,  0,  0)).rgb;
+    vec3 nX2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 1,  0,  0)).rgb;
+    vec3 nY1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0, -1,  0)).rgb;
+    vec3 nY2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  1,  0)).rgb;
+    vec3 nZ1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0, -1)).rgb;
+    vec3 nZ2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0,  1)).rgb;
+
+    vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) / 6.0;
+    //float falloff = rcp(max(luminance(n), 1.0)) * FALLOFF;
+    return 0.96 * avgColor;// * (1.0 - falloff);
+}
+
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(gridCell, SceneLightGridSize))) return;
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+        ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
 
-        vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-        
-        uint gridIndex = GetSceneLightGridIndex(gridCell);
-        //LightCellData sceneLightMap = SceneLightMaps[gridIndex];
-        
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
-            BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
-            for (int i = 0; i < DYN_LIGHT_OCTREE_SIZE; i++)
-                sceneBlockMap.OctreeMask[i] = 0u;
-        #endif
+        ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
+        if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
 
-        uint lightCount = SceneLightMaps[gridIndex].LightCount;
-        if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
+        int frameIndex = frameCounter % 2;
+        ivec3 imgCoordOffset = GetLPVFrameOffset();
+        ivec3 voxelOffset = GetLPVVoxelOffset();
 
-        uint binLightCountMin = min(lightCount, LIGHT_BIN_MAX_COUNT);
-        uint lightGlobalOffset = atomicAdd(SceneLightCount, binLightCountMin);
+        vec3 accumLight;
+        uint blockId, gridIndex;
+        ivec3 iPos, imgCoord, imgCoordPrev, voxelPos, blockCell;
 
-        uint lightLocalIndex = 0u;
-        for (int z = 0; z < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; z++) {
-            for (int y = 0; y < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; y++) {
-                for (int x = 0; x < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; x++) {
-                    ivec3 blockCell = ivec3(x, y, z);
+        for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
+            for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
+                for (int x = 0; x < LPV_CHUNK_SIZE; x++) {
+                    iPos = ivec3(x, y, z);
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
-                        uint blockType = GetSceneBlockMask(blockCell, gridIndex);
-                        if (blockType != BLOCKTYPE_EMPTY) {
-                            uvec3 nodeMin = uvec3(0);
-                            uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
-                            uvec3 nodePos = uvec3(0);
+                    imgCoord = imgChunkPos + iPos;
+                    if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
 
-                            uint nodeBitOffset = 1u;
+                    voxelPos = voxelOffset + imgCoord;
 
-                            sceneBlockMap.OctreeMask[0] |= 1u;
+                    ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
+                    gridIndex = GetSceneLightGridIndex(gridCell);
+                    blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
+                    blockId = GetSceneBlockMask(blockCell, gridIndex);
 
-                            for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS; treeDepth++) {
-                                uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
-                                uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
+                    accumLight = vec3(0.0);
+                    if (blockId == BLOCK_EMPTY && frameCounter > 1) {
+                        imgCoordPrev = imgCoord + imgCoordOffset;
+                        accumLight = mixNeighbours(imgCoordPrev);
+                    }
 
-                                uint nodeSize = uint(exp2(treeDepth));
-                                uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
-                                uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
-
-                                uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
-                                uint nodeArrayIndex = nodeBitIndex / 32u;
-
-                                uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
-                                sceneBlockMap.OctreeMask[nodeArrayIndex] |= nodeMask;
-
-                                nodeBitOffset += uint(pow(8u, treeDepth + 1u));
-
-                                uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
-                                nodeMin += nodeHalfSize * nodeChild;
-                                nodeMax -= nodeHalfSize * (1u - nodeChild);
-                                nodePos = (nodePos + nodeChild) * 2u;
-                            }
-                        }
-                    #endif
-
-                    uint lightType = GetSceneLightMask(blockCell, gridIndex);
-                    if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
-
-                    StaticLightData lightInfo = StaticLightMap[lightType];
-                    vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;
-                    vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                    float lightRange = lightRangeSize.x * 255.0;
-                    float lightSize = lightRangeSize.y;
-
-                    lightColor = RGBToLinear(lightColor);
-
-                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
-
-                    vec2 lightNoise = vec2(0.0);
-                    #ifdef DYN_LIGHT_FLICKER
-                        lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                        ApplyLightFlicker(lightColor, lightType, lightNoise);
-                    #endif
-
-                    bool lightTraced = GetLightTraced(lightType);
-                    uint lightMask = BuildLightMask(lightType);
-                    
-                    vec3 lightPos = blockLocalPos + lightOffset;
-
-                    lightColor = LinearToRGB(lightColor);
-
-                    uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                    SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
-                    SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
-
-                    //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
-                    lightLocalIndex++;
+                    imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(accumLight, 1.0));
                 }
             }
         }
-
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
-            SceneBlockMaps[gridIndex] = sceneBlockMap;
-        #endif
     #endif
 }

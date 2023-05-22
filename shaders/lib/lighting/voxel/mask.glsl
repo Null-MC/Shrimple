@@ -18,7 +18,7 @@ vec3 GetLightGridPosition(const in vec3 position) {
 #endif
 
 ivec3 GetSceneLightGridCell(const in vec3 gridPos) {
-    return ivec3(floor(gridPos / LIGHT_BIN_SIZE + 0.001));
+    return ivec3(floor(gridPos / LIGHT_BIN_SIZE + EPSILON));
 }
 
 bool GetSceneLightGridCell(const in vec3 gridPos, out ivec3 gridCell, out ivec3 blockCell) {

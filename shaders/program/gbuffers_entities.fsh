@@ -179,32 +179,35 @@ uniform int heldBlockLightValue2;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/voxel/entities.glsl"
+#include "/lib/lights.glsl"
 #include "/lib/physics_mod/snow.glsl"
 
-#ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
-#endif
+#if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
+    #include "/lib/lighting/fresnel.glsl"
+    #include "/lib/lighting/voxel/entities.glsl"
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        //#include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+    #ifdef DYN_LIGHT_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collissions.glsl"
-        #include "/lib/lighting/voxel/collisions.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
-#endif
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            //#include "/lib/buffers/lighting.glsl"
+            #include "/lib/lighting/voxel/mask.glsl"
+            #include "/lib/lighting/voxel/blocks.glsl"
+        #endif
 
-#include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/buffers/collissions.glsl"
+            #include "/lib/lighting/voxel/collisions.glsl"
+            #include "/lib/lighting/voxel/tracing.glsl"
+        #endif
+    #endif
+
+    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
@@ -234,11 +237,12 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
+        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+            #include "/lib/lighting/voxel/lpv.glsl"
+        #endif
+
         #include "/lib/world/volumetric_fog.glsl"
     #endif
-
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
 #endif
 
 
@@ -467,7 +471,6 @@ void main() {
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        //ApplyPostProcessing(color.rgb);
         outFinal = color;
     #endif
 }
