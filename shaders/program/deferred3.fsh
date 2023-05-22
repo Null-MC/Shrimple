@@ -1,3 +1,4 @@
+#define RENDER_DEFERRED_OPAQUE_FINAL
 #define RENDER_DEFERRED
 #define RENDER_FRAG
 
@@ -32,6 +33,11 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_LIGHT_TA;
     uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
+#endif
+
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
 #endif
 
 uniform int frameCounter;
@@ -142,6 +148,11 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/lighting/voxel/sampling.glsl"
+#endif
+
+#if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/buffers/volume.glsl"
+    #include "/lib/lighting/voxel/lpv.glsl"
 #endif
 
 #include "/lib/lighting/voxel/items.glsl"
@@ -477,7 +488,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
-            final = GetFinalLighting(albedo, texNormal, diffuseFinal, specularFinal, deferredLighting.xy, occlusion);
+            final = GetFinalLighting(albedo, localPos, texNormal, diffuseFinal, specularFinal, deferredLighting.xy, occlusion);
 
             vec4 deferredFog = unpackUnorm4x8(deferredData.b);
             vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);

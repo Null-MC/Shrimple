@@ -49,7 +49,7 @@ uniform sampler2D lightmap;
     uniform sampler2D specular;
 #endif
 
-#if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -218,7 +218,7 @@ uniform int fogMode;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     //
 #else
     #include "/lib/lighting/fresnel.glsl"
@@ -232,13 +232,18 @@ uniform int fogMode;
         #include "/lib/world/sky.glsl"
     #endif
 
+    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/lighting/voxel/lpv.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-            #include "/lib/lighting/voxel/lpv.glsl"
-        #endif
+        // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+        //     #include "/lib/lighting/voxel/lpv.glsl"
+        // #endif
 
         #include "/lib/world/volumetric_fog.glsl"
     #endif
@@ -425,7 +430,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, diffuseFinal, specularFinal, lmFinal, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmFinal, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

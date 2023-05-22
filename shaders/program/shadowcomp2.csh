@@ -1,3 +1,4 @@
+#define RENDER_SHADOWCOMP_LIGHT_POPULATE
 #define RENDER_SHADOWCOMP
 #define RENDER_COMPUTE
 
@@ -21,7 +22,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uniform float frameTimeCounter;
     #endif
     
-    #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    #if LPV_SIZE > 0
         uniform int frameCounter;
     #endif
 
@@ -39,7 +40,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
 
-    #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    #if LPV_SIZE > 0
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
     #endif
@@ -67,7 +68,7 @@ void main() {
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
 
-        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+        #if LPV_SIZE > 0
             int frameIndex = frameCounter % 2;
         #endif
 
@@ -133,12 +134,12 @@ void main() {
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+                    #if LPV_SIZE > 0
                         vec3 lpvPos = GetLPVPosition(lightPos);
 
                         if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
                             ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-                            vec3 lightFinal = 2.0 * lightColor * lightRange;// * VolumetricBlockRangeF;
+                            vec3 lightFinal = 4.0 * lightColor * lightRange;// * VolumetricBlockRangeF;
                             imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, lpvCoord, vec4(lightFinal, 1.0));
                         }
                     #endif

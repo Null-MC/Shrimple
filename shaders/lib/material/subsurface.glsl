@@ -114,6 +114,20 @@ float GetBlockSSS(const in int blockId) {
     return sss;
 }
 
+#ifdef RENDER_ENTITIES
+    float GetEntitySSS(const in int entityId) {
+        float sss = 0.0;
+
+        switch (entityId) {
+            case ENTITY_SLIME:
+                sss = 0.9;
+                break;
+        }
+
+        return sss;
+    }
+#endif
+
 #ifdef RENDER_FRAG
     float GetMaterialSSS(const in int id, const in vec2 texcoord, const in mat2 dFdXY) {
         float sss = 0.0;

@@ -48,7 +48,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined RENDER_TRANSLUCENT && defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -182,18 +182,16 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/physics_mod/snow.glsl"
 
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
 #if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/fresnel.glsl"
-    #include "/lib/lighting/voxel/entities.glsl"
-
-    #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            //#include "/lib/buffers/lighting.glsl"
             #include "/lib/lighting/voxel/mask.glsl"
             #include "/lib/lighting/voxel/blocks.glsl"
         #endif
@@ -204,10 +202,11 @@ uniform int heldBlockLightValue2;
             #include "/lib/lighting/voxel/tracing.glsl"
         #endif
     #endif
-
-    #include "/lib/lighting/voxel/lights.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
 #endif
+
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/entities.glsl"
+#include "/lib/lighting/voxel/items.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
@@ -233,14 +232,15 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/sky.glsl"
     #endif
 
+    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/lighting/voxel/lpv.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-            #include "/lib/lighting/voxel/lpv.glsl"
-        #endif
-
         #include "/lib/world/volumetric_fog.glsl"
     #endif
 #endif
@@ -457,7 +457,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, diffuseFinal, specularFinal, lmcoord, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmcoord, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

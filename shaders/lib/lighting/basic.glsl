@@ -222,57 +222,39 @@
         }
     #endif
 
-    vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float occlusion) {
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vec2 lmFinal = lmcoord;
-            //lmFinal.x = (0.5/16.0);
-            lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5 + (0.5/16.0);
+    #ifndef RENDER_DEFERRED_RT_LIGHT
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 localNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float occlusion) {
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                #if LPV_SIZE > 0
+                    vec3 ambientLight = vec3(0.0);
 
-            #ifdef RENDER_GBUFFER
-                vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
+                    vec3 lpvPos = GetLPVPosition(localPos);
+                    vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+
+                    if (saturate(lpvTexcoord) == lpvTexcoord) {
+                        int frameIndex = frameCounter % 2;
+                        ambientLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;// / 16.0;
+                        //ambientLight /= 1.0 + luminance(ambientLight);
+                    }
+                #else
+                    vec2 lmFinal = lmcoord;
+                    lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5 + (0.5/16.0);
+
+                    #ifdef RENDER_GBUFFER
+                        vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
+                    #else
+                        vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                    #endif
+
+                    vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF + WorldMinLightF;
+                #endif
+
+                vec3 diffuseFinal = albedo * (diffuse + ambientLight * occlusion);
             #else
-                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+                vec3 diffuseFinal = albedo * diffuse * occlusion;
             #endif
 
-            vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF + WorldMinLightF;
-
-            // #if WORLD_AMBIENT_MODE == AMBIENT_FANCY
-            //     #ifdef WORLD_SKY_ENABLED
-            //         #ifndef IRIS_FEATURE_SSBO
-            //             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-
-            //             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //                 vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-            //             #else
-            //                 vec3 localSkyLightDirection = localSunDirection;
-            //                 if (worldTime > 12000 && worldTime < 24000)
-            //                     localSkyLightDirection = -localSkyLightDirection;
-            //             #endif
-            //         #endif
-
-            //         const vec3 sunLightColor = RGBToLinear(vec3(0.965, 0.901, 0.725));
-            //         const vec3 moonLightColor = RGBToLinear(vec3(0.864, 0.860, 0.823));
-            //         vec3 skyLightColor = mix(moonLightColor, sunLightColor, localSunDirection.y * 0.5 + 0.5);
-
-            //         float skyLightNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
-            //         ambientLight = 0.3 * skyColor + skyLightColor * (skyLightNoL * 0.3 + 0.5);
-            //     #endif
-
-            //     //ambientLight *= 0.34 + 0.66 * min(localNormal.y + 1.0, 1.0);
-            // #endif
-
-            vec3 diffuseFinal = albedo * (diffuse + ambientLight * occlusion);
-        #else
-            vec3 diffuseFinal = albedo * diffuse * occlusion;
-        #endif
-
-        // #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //     if (metal_f0 >= 0.5) {
-        //         diffuse *= mix(METAL_BRIGHTNESS, 1.0, roughL);
-        //         //specular *= albedo;
-        //     }
-        // #endif
-
-        return diffuseFinal + specular * occlusion;
-    }
+            return diffuseFinal + specular * occlusion;
+        }
+    #endif
 #endif

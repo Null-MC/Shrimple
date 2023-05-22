@@ -55,7 +55,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -243,13 +243,18 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
+    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/lighting/voxel/lpv.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-            #include "/lib/lighting/voxel/lpv.glsl"
-        #endif
+        // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+        //     #include "/lib/lighting/voxel/lpv.glsl"
+        // #endif
 
         #include "/lib/world/volumetric_fog.glsl"
     #endif
@@ -527,7 +532,7 @@ void main() {
         //     color.a = max(color.a, skyF);
         // #endif
 
-        color.rgb = GetFinalLighting(color.rgb, texNormal, diffuseFinal, specularFinal, lmFinal, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmFinal, occlusion);
         color.a = min(color.a + luminance(specularFinal), 1.0);
 
         ApplyFog(color, vLocalPos, localViewDir);

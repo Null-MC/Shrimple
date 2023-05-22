@@ -22,6 +22,11 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D shadowcolor0;
 #endif
 
+// #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//     uniform sampler3D texLPV_1;
+//     uniform sampler3D texLPV_2;
+// #endif
+
 uniform float frameTime;
 uniform float frameTimeCounter;
 uniform int frameCounter;
@@ -100,6 +105,11 @@ uniform float blindness;
     #include "/lib/lighting/voxel/collisions.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
+
+// #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+//     #include "/lib/buffers/volume.glsl"
+//     #include "/lib/lighting/voxel/lpv.glsl"
+// #endif
 
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"

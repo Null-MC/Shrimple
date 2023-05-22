@@ -43,6 +43,11 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
+#endif
+
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -174,6 +179,11 @@ uniform float blindness;
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
+#if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/buffers/volume.glsl"
+    #include "/lib/lighting/voxel/lpv.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
@@ -229,7 +239,7 @@ void main() {
         }
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, normal, diffuseFinal, specularFinal, lmcoord, glcolor.a);
+    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, glcolor.a);
 
     ApplyFog(color, vLocalPos, localViewDir);
 

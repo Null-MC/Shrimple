@@ -63,7 +63,7 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
 }
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
 
         ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
