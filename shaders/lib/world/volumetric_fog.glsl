@@ -210,6 +210,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
                         lightRange *= VolumetricBlockRangeF;
+                        lightColor = RGBToLinear(lightColor);
 
                         vec3 lightVec = traceLocalPos - lightPos;
                         if (length2(lightVec) >= _pow2(lightRange)) continue;
