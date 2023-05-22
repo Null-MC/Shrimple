@@ -228,13 +228,13 @@
                 #if LPV_SIZE > 0
                     vec3 ambientLight = vec3(0.0);
 
-                    vec3 lpvPos = GetLPVPosition(localPos);
+                    vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
                     vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
                         int frameIndex = frameCounter % 2;
                         ambientLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;// / 16.0;
-                        //ambientLight /= 1.0 + luminance(ambientLight);
+                        ambientLight /= 1.0 + luminance(ambientLight);
                     }
                 #else
                     vec2 lmFinal = lmcoord;
