@@ -59,7 +59,7 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
 
     vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) / 6.0;
     //float falloff = rcp(max(luminance(n), 1.0)) * FALLOFF;
-    return 0.96 * avgColor;// * (1.0 - falloff);
+    return avgColor;// * (1.0 - falloff);
 }
 
 void main() {
