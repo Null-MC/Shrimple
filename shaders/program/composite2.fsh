@@ -10,6 +10,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
+uniform sampler2D BUFFER_VL;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && LPV_SIZE > 0
     uniform sampler3D texLPV_1;
@@ -147,6 +148,9 @@ void main() {
 
         vec3 localViewDir = normalize(localPos);
         final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+    }
+    else {
+        final = texelFetch(BUFFER_VL, ivec2(gl_FragCoord.xy), 0);
     }
 
     outVL = final;

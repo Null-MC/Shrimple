@@ -189,6 +189,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/lights.glsl"
+#include "/lib/lighting/directional.glsl"
 
 #if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
     #include "/lib/lighting/fresnel.glsl"
@@ -212,7 +213,6 @@ uniform int heldBlockLightValue2;
         #endif
     #endif
 
-    #include "/lib/lighting/directional.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/items.glsl"
     #include "/lib/lighting/sampling.glsl"
