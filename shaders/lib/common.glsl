@@ -184,6 +184,10 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_RANGE 80 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 180 200 220 240 260 280 300]
 #define DYN_LIGHT_TA 60 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
+// Dynamic LPV
+#define LPV_SIZE 2 // [0 1 2 3]
+#define LPV_GLASS_TINT
+
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
 #define DYN_LIGHT_OCTREE_SIZE 1u
@@ -205,7 +209,6 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_RES 0 // [0 1 2]
 #define VOLUMETRIC_BLUR
 //#define VOLUMETRIC_HANDLIGHT
-#define LPV_SIZE 2 // [0 1 2 3]
 
 
 // Post-Processing

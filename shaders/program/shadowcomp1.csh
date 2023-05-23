@@ -21,11 +21,15 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
+    #include "/lib/blocks.glsl"
+    //#include "/lib/lights.glsl"
+
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/volume.glsl"
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/tinting.glsl"
 #endif
 
 
@@ -93,9 +97,30 @@ void main() {
                     blockId = GetSceneBlockMask(blockCell, gridIndex);
 
                     accumLight = vec3(0.0);
-                    if (blockId == BLOCK_EMPTY && frameCounter > 1) {
-                        imgCoordPrev = imgCoord + imgCoordOffset;
-                        accumLight = mixNeighbours(imgCoordPrev);
+
+                    // TODO: clear in setup
+                    if (frameCounter > 1) {
+                        bool hasLight = false;
+                        vec3 tint = vec3(1.0);
+
+                        #ifdef LPV_GLASS_TINT
+                            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
+                                tint = GetLightGlassTint(blockId);
+                                hasLight = true;
+                            }
+                            else {
+                        #endif
+                            if (blockId == BLOCK_EMPTY) {
+                                hasLight = true;
+                            }
+                        #ifdef LPV_GLASS_TINT
+                            }
+                        #endif
+
+                        if (hasLight) {
+                            imgCoordPrev = imgCoord + imgCoordOffset;
+                            accumLight = mixNeighbours(imgCoordPrev) * tint;
+                        }
                     }
 
                     imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(accumLight, 1.0));
