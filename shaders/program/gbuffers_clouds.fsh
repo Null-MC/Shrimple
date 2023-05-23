@@ -48,6 +48,7 @@ uniform float near;
 uniform float far;
 
 uniform int fogShape;
+uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
 
@@ -92,7 +93,6 @@ uniform int heldBlockLightValue2;
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
     uniform int isEyeInWater;
-    uniform vec3 fogColor;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

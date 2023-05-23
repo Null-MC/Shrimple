@@ -32,7 +32,7 @@ const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex0MipmapEnabled = false;
 const bool colortex0Clear = false;
 
-const vec4 colortex1ClearColor = vec4(1.0, 1.0, 1.0, 0.0);
+const vec4 colortex1ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex1MipmapEnabled = false;
 const bool colortex1Clear = true;
 
@@ -186,6 +186,7 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
+#define LPV_BRIGHTNESS 8 // [1 2 4 8]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE
@@ -226,7 +227,9 @@ const bool colortex15Clear = true;
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
-//#define DEFER_TRANSLUCENT
+#define DEFER_TRANSLUCENT
+#define REFRACTION_ENABLED
+//#define REFRACTION_SNELL_ENABLED
 #define AF_SAMPLES 1
 
 
@@ -244,6 +247,8 @@ const bool colortex15Clear = true;
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
+#define IOR_AIR 1.00
+#define IOR_WATER 1.33
 #define EPSILON 1e-6
 #define GAMMA 2.2
 

@@ -245,12 +245,8 @@
                         vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
-                        const vec3 lpvSizeInner = SceneLPVCenter - LPV_PADDING;
-
-                        vec3 lpvDist = abs(lpvPos - SceneLPVCenter);
-                        vec3 lpvDistF = max(lpvDist - lpvSizeInner, vec3(0.0));
-                        float lpvFade = 1.0 - maxOf(lpvDistF / LPV_PADDING);
-
+                        float lpvFade = GetLpvFade(lpvPos);
+                        lpvFade = smoothstep(0.0, 1.0, lpvFade);
                         ambientLight = mix(ambientLight, lpvLight, lpvFade);
                     }
                 #endif

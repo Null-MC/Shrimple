@@ -133,6 +133,7 @@ uniform int heldBlockLightValue2;
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/collissions.glsl"
     #include "/lib/lighting/voxel/collisions.glsl"
+    #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
@@ -263,21 +264,31 @@ layout(location = 0) out vec4 outFinal;
         // }
 
         float linearDepth = linearizeDepthFast(depth, near, far);
+
+        vec2 refraction = vec2(0.0);
         vec4 final = vec4(0.0);
+        bool tir = false;
+
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+
+        #ifndef IRIS_FEATURE_SSBO
+            //vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
+
+        vec3 localViewDir = normalize(localPos);
+
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
+        fogColorFinal = RGBToLinear(fogColorFinal);
 
         if (depth < depthOpaque) {
-            vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            #else
-                vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-            #endif
-
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
 
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -291,6 +302,26 @@ layout(location = 0) out vec4 outFinal;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
+
+            #ifdef REFRACTION_ENABLED
+                vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+
+                const float ior = IOR_WATER;
+                float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
+
+                vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
+                float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                float linearDist = linearDepthOpaque - linearDepth;
+
+                vec2 refractMax = vec2(0.06);
+                refractMax.x *= viewWidth / viewHeight;
+                refraction = clamp(vec2(0.01 * linearDist), -refractMax, refractMax) * refractDir.xy;
+
+                #ifdef REFRACTION_SNELL_ENABLED
+                    tir = all(lessThan(abs(refractDir), EPSILON3));
+                #endif
+            #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
@@ -462,8 +493,6 @@ layout(location = 0) out vec4 outFinal;
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);
 
-            vec3 localViewDir = normalize(localPos);
-
             #ifdef WORLD_SKY_ENABLED
                 GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
             #endif
@@ -483,10 +512,8 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion);
             final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
-            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-            vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
-            fogColorFinal = RGBToLinear(fogColorFinal);
             final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
+            if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
         }
 
         #ifdef VL_BUFFER_ENABLED
@@ -509,7 +536,25 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        vec3 opaqueFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+        #ifdef REFRACTION_ENABLED
+            float refractDist = maxOf(abs(refraction * viewSize));
+            float refractSteps = min(ceil(refractDist), 16.0);
+
+            for (int i = 1; i <= refractSteps; i++) {
+                vec2 p = refraction * (i / refractSteps);
+                float d = textureLod(depthtex1, texcoord + p, 0).r;
+                if (d < depth) {
+                    refraction *= max(i - 1, 0) / refractSteps;
+                    break;
+                }
+            }
+        #endif
+
+        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
+
+        #if defined REFRACTION_ENABLED && defined REFRACTION_SNELL_ENABLED
+            if (tir) opaqueFinal = fogColorFinal;
+        #endif
 
         final.rgb = mix(opaqueFinal, final.rgb, final.a);
         final.a = 1.0;

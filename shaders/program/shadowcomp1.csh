@@ -49,17 +49,19 @@ ivec3 GetLPVVoxelOffset() {
     return voxelOrigin - lpvOrigin;
 }
 
+vec3 GetLpvValue(const in ivec3 texCoord) {
+    return imageLoad((frameCounter % 2) == 0 ? imgSceneLPV_2 : imgSceneLPV_1, texCoord).rgb;
+}
+
 vec3 mixNeighbours(const in ivec3 fragCoord) {
     //const float FALLOFF = 0.002;
 
-    int frameIndex = frameCounter % 2;
-
-    vec3 nX1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3(-1,  0,  0)).rgb;
-    vec3 nX2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 1,  0,  0)).rgb;
-    vec3 nY1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0, -1,  0)).rgb;
-    vec3 nY2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  1,  0)).rgb;
-    vec3 nZ1 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0, -1)).rgb;
-    vec3 nZ2 = imageLoad(frameIndex == 0 ? imgSceneLPV_2 : imgSceneLPV_1, fragCoord + ivec3( 0,  0,  1)).rgb;
+    vec3 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
+    vec3 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));
+    vec3 nY1 = GetLpvValue(fragCoord + ivec3( 0, -1,  0));
+    vec3 nY2 = GetLpvValue(fragCoord + ivec3( 0,  1,  0));
+    vec3 nZ1 = GetLpvValue(fragCoord + ivec3( 0,  0, -1));
+    vec3 nZ2 = GetLpvValue(fragCoord + ivec3( 0,  0,  1));
 
     vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) / 6.0;
     //float falloff = rcp(max(luminance(n), 1.0)) * FALLOFF;
@@ -77,9 +79,9 @@ void main() {
         ivec3 imgCoordOffset = GetLPVFrameOffset();
         ivec3 voxelOffset = GetLPVVoxelOffset();
 
-        vec3 accumLight;
+        vec3 lightValue, tint;
         uint blockId, gridIndex;
-        ivec3 iPos, imgCoord, imgCoordPrev, voxelPos, blockCell;
+        ivec3 iPos, gridCell, imgCoord, imgCoordPrev, voxelPos, blockCell;
 
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
             for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
@@ -91,17 +93,17 @@ void main() {
 
                     voxelPos = voxelOffset + imgCoord;
 
-                    ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
+                    gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
                     gridIndex = GetSceneLightGridIndex(gridCell);
                     blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
                     blockId = GetSceneBlockMask(blockCell, gridIndex);
 
-                    accumLight = vec3(0.0);
+                    lightValue = vec3(0.0);
 
                     // TODO: clear in setup
                     if (frameCounter > 1) {
                         bool hasLight = false;
-                        vec3 tint = vec3(1.0);
+                        tint = vec3(1.0);
 
                         #ifdef LPV_GLASS_TINT
                             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
@@ -110,7 +112,7 @@ void main() {
                             }
                             else {
                         #endif
-                            if (blockId == BLOCK_EMPTY) {
+                            if (blockId == BLOCK_EMPTY || blockId == BLOCK_GLASS || blockId == BLOCK_GLASS_PANE) {
                                 hasLight = true;
                             }
                         #ifdef LPV_GLASS_TINT
@@ -119,11 +121,11 @@ void main() {
 
                         if (hasLight) {
                             imgCoordPrev = imgCoord + imgCoordOffset;
-                            accumLight = mixNeighbours(imgCoordPrev) * tint;
+                            lightValue = mixNeighbours(imgCoordPrev) * tint;
                         }
                     }
 
-                    imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(accumLight, 1.0));
+                    imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(lightValue, 1.0));
                 }
             }
         }

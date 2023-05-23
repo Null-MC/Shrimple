@@ -192,6 +192,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     int frameIndex = frameCounter % 2;
                     blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 16.0;
                     blockLightAccum /= 1.0 + luminance(blockLightAccum);
+
+                    float lpvFade = GetLpvFade(lpvPos);
+                    blockLightAccum *= smoothstep(0.0, 1.0, lpvFade);
                 }
             #else
                 uint gridIndex;

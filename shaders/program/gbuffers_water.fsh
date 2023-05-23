@@ -360,7 +360,7 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    color.rgb *= glcolor.rgb;
+    color.rgb = RGBToLinear(color.rgb) * glcolor.rgb;
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
@@ -486,6 +486,8 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
+        color.rgb = LinearToRGB(color.rgb);
+
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
 
@@ -500,7 +502,6 @@ void main() {
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
-        color.rgb = RGBToLinear(color.rgb);
         float roughL = max(_pow2(roughness), ROUGH_MIN);
 
         vec3 blockDiffuse = vBlockLight;
