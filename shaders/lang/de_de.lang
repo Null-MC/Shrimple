@@ -1,7 +1,8 @@
 profile.VANILLA=Vanilla
 profile.SHADOWS=Schatten
-profile.LIGHTS_FANCY=Beleuchtung
-profile.LIGHTS_RTX=RTX
+profile.LIGHTS=Lichter
+profile.RTX_LOW=RTX Niedrig
+profile.RTX_HIGH=RTX Hoch
 
 
 screen.WORLD_OPTIONS=Welt
@@ -41,7 +42,7 @@ option.WORLD_WAVING_ENABLED=Wehende Pflanzen
 option.WORLD_WAVING_ENABLED.comment=Lässt Pflanzen im Wind wehen.
 
 option.WORLD_AMBIENT_MODE=Umgebungslicht
-value.WORLD_AMBIENT_MODE.0=OFF
+value.WORLD_AMBIENT_MODE.0=Aus
 value.WORLD_AMBIENT_MODE.1=Standard
 value.WORLD_AMBIENT_MODE.2=Schön
 
@@ -391,6 +392,12 @@ suffix.DYN_LIGHT_RANGE=%
 option.DYN_LIGHT_SAMPLE_MAX=Maximale Probenanzahl
 option.DYN_LIGHT_SAMPLE_MAX.comment=Die maximale Anzahl an Lichtern, die pro Pixel für jedes gerenderte Bild abgetastet werden können. Wenn Sie einen niedrigeren Wert festlegen, wird die Leistung erhöht, aber auch die zeitliche Unschärfe erhöht.
 value.DYN_LIGHT_SAMPLE_MAX.0=Unendlich
+
+option.LPV_SIZE=LPV Größe
+value.LPV_SIZE.0=Aus
+value.LPV_SIZE.1=Klein
+value.LPV_SIZE.2=Mittel
+value.LPV_SIZE.3=Groß
 
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetrische Beleuchtung

@@ -351,7 +351,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmcoord, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

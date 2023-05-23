@@ -532,7 +532,7 @@ void main() {
         //     color.a = max(color.a, skyF);
         // #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, texNormal, diffuseFinal, specularFinal, lmFinal, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmFinal, metal_f0, roughL, occlusion);
         color.a = min(color.a + luminance(specularFinal), 1.0);
 
         ApplyFog(color, vLocalPos, localViewDir);

@@ -470,7 +470,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
-            final.rgb = GetFinalLighting(albedo, texNormal, diffuseFinal, specularFinal, deferredLighting.xy, occlusion);
+            final.rgb = GetFinalLighting(albedo, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion);
             final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
             vec4 deferredFog = unpackUnorm4x8(deferredData.b);
