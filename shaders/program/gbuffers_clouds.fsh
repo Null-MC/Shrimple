@@ -161,10 +161,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-        //     #include "/lib/lighting/voxel/lpv.glsl"
-        // #endif
-
         #include "/lib/world/volumetric_fog.glsl"
     #endif
 #endif
@@ -216,14 +212,23 @@ void main() {
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
+        //float fogF = GetVanillaFogFactor(vLocalPos);
 
-        outDeferredColor = color;
+        vec3 fogPos = vLocalPos;
+        if (fogShape == 1) fogPos.y = 0.0;
+
+        float viewDist = length(fogPos);
+        float newWidth = (fogEnd - fogStart) * 4.0;
+        float fogF = 1.0 - linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
+
+        outDeferredColor = final;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
+
+        const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
+        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;

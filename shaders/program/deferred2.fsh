@@ -74,7 +74,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/blocks.glsl"
-        //#include "/lib/items.glsl"
 
         #ifdef DYN_LIGHT_FLICKER
             #include "/lib/lighting/blackbody.glsl"
@@ -101,7 +100,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
 
         #include "/lib/lighting/sampling.glsl"
-        //#include "/lib/lighting/basic.glsl"
 
         #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
             #include "/lib/lighting/voxel/lpv.glsl"
