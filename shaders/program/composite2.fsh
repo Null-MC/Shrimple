@@ -147,6 +147,7 @@ void main() {
         #endif
 
         vec3 localViewDir = normalize(localPos);
+
         final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
     }
     else {

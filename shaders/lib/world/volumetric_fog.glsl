@@ -1,47 +1,55 @@
+struct VolumetricPhaseFactors {
+    float Ambient;
+    float ScatterF;
+    float ExtinctF;
+    float Direction;
+    float Forward;
+    float Back;
+};
+
 float ComputeVolumetricScattering(const in float VoL, const in float G_scattering) {
     float G_scattering2 = _pow2(G_scattering);
 
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-void GetVolumetricPhaseFactors(out float ambient, out float G_Forward, out float G_Back) {
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.06, 0.06, 0.06, 0.6, 0.46, 0.16);
+
+VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
+    VolumetricPhaseFactors result;
+    result.Direction = 0.7;
+
     #ifdef WORLD_WATER_ENABLED
-        if (isEyeInWater == 1) {
-            ambient = 0.012;
-            G_Forward = 0.26;
-            G_Back = 0.16;
-        }
+        if (isEyeInWater == 1) result = WaterPhaseF;
         else {
     #endif
+        float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
+
         #ifdef WORLD_SKY_ENABLED
-            ambient = 0.012;
-            G_Forward = mix(0.66, 0.26, rainStrength);
-            G_Back = mix(0.36, 0.16, rainStrength);
+            result.Ambient = 0.012;
+            result.Forward = mix(0.66, 0.26, rainStrength);
+            result.Back = mix(0.36, 0.16, rainStrength);
+
+            result.ScatterF = mix(0.032, 0.096, rainStrength) * density;
+            result.ExtinctF = mix(0.004, 0.012, rainStrength) * density;
         #else
-            ambient = 0.14;
-            G_Forward = 0.8;
-            G_Back = 0.3;
+            result.Ambient = 0.14;
+            result.Forward = 0.8;
+            result.Back = 0.3;
+
+            result.ScatterF = 0.016 * density;
+            result.ExtinctF = 0.016 * density;
         #endif
     #ifdef WORLD_WATER_ENABLED
         }
     #endif
+
+    return result;
 }
 
-void GetVolumetricCoeff(const in vec3 sunDir, out float scattering, out float extinction) {
-    float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
-
-    #ifdef WORLD_SKY_ENABLED
-        scattering = mix(0.032, 0.096, rainStrength) * density;
-        extinction = mix(0.004, 0.012, rainStrength) * density;
-    #else
-        scattering = 0.016 * density;
-        extinction = 0.016 * density;
-    #endif
-}
-
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
-    float scatterF, extinction;
-    GetVolumetricCoeff(sunDir, scatterF, extinction);
+vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
+    //float scatterF, extinction;
+    //GetVolumetricCoeff(sunDir, scatterF, extinction);
 
     vec3 localStart = localViewDir * (nearDist + 0.1);
     vec3 localEnd = localViewDir * (farDist - 0.1);
@@ -56,9 +64,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    float ambient, G_Forward, G_Back;
-    GetVolumetricPhaseFactors(ambient, G_Forward, G_Back);
-    const float G_mix = 0.7;
+    //float ambient, G_Forward, G_Back;
+    //GetVolumetricPhaseFactors(ambient, G_Forward, G_Back);
+    //const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifdef IRIS_FEATURE_SSBO
@@ -108,14 +116,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         skyLightColor *= WorldSkyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));
 
-        float skyPhaseForward = ComputeVolumetricScattering(VoL, G_Forward);
-        float skyPhaseBack = ComputeVolumetricScattering(VoL, -G_Back);
-        float skyPhase = mix(skyPhaseBack, skyPhaseForward, G_mix);
+        float skyPhaseForward = ComputeVolumetricScattering(VoL, phaseF.Forward);
+        float skyPhaseBack = ComputeVolumetricScattering(VoL, -phaseF.Back);
+        float skyPhase = mix(skyPhaseBack, skyPhaseForward, phaseF.Direction);
     #endif
 
     float localStepLength = localRayLength * inverseStepCountF;
-    float sampleTransmittance = exp(-extinction * localStepLength);
-    float extinctionInv = rcp(extinction);
+    float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
+    float extinctionInv = rcp(phaseF.ExtinctF);
 
     #ifdef WORLD_SKY_ENABLED
         float eyeLightLevel = (eyeBrightnessSmooth.y / 240.0);
@@ -124,7 +132,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i <= stepCount; i++) {
-        vec3 inScattering = ambient * fogColor;
+        vec3 inScattering = phaseF.Ambient * fogColor;
 
         #ifdef WORLD_SKY_ENABLED
             inScattering *= eyeLightLevel;
@@ -233,9 +241,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         #endif
 
                         float lightVoL = dot(normalize(-lightVec), localViewDir);
-                        float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
-                        float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
-                        float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+                        float lightPhaseForward = ComputeVolumetricScattering(lightVoL, phaseF.Forward);
+                        float lightPhaseBack = ComputeVolumetricScattering(lightVoL, -phaseF.Back);
+                        float lightPhase = mix(lightPhaseBack, lightPhaseForward, phaseF.Direction);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
                         blockLightAccum += 6.0 * lightAtt * lightColor * lightPhase;
@@ -268,9 +276,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             //             #endif
 
             //             float lightVoL = dot(normalize(lightVec), localViewDir);
-            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
-            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
-            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, phaseF.Forward);
+            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, -phaseF.Back);
+            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, phaseF.Direction);
 
             //             blockLightAccum += SampleLight(lightVec, 1.0, heldBlockLightValue) * lightColor * lightPhase;
             //         }
@@ -298,9 +306,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             //             #endif
 
             //             float lightVoL = dot(normalize(lightVec), localViewDir);
-            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, G_Forward);
-            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, G_Back);
-            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, G_mix);
+            //             float lightPhaseForward = ComputeVolumetricScattering(lightVoL, phaseF.Forward);
+            //             float lightPhaseBack = ComputeVolumetricScattering(lightVoL, -phaseF.Back);
+            //             float lightPhase = mix(lightPhaseBack, lightPhaseForward, phaseF.Direction);
                         
             //             blockLightAccum += SampleLight(lightVec, 1.0, heldBlockLightValue2) * lightColor * lightPhase;
             //         }
@@ -310,7 +318,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             inScattering += blockLightAccum * DynamicLightBrightness;
         #endif
 
-        inScattering *= scatterF;
+        inScattering *= phaseF.ScatterF;
 
         vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) * extinctionInv;
 
@@ -321,4 +329,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     scattering /= (scattering + 1.0);
 
     return vec4(scattering, transmittance);
+}
+
+vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
+    VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors(sunDir);
+    return GetVolumetricLighting(phaseF, localViewDir, sunDir, nearDist, farDist);
 }
