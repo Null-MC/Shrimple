@@ -360,7 +360,7 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    color.rgb = RGBToLinear(color.rgb) * glcolor.rgb;
+    color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {

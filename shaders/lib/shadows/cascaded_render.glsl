@@ -56,7 +56,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 if (shadowPos.z - bias > depthOpaque) sampleColor.rgb = vec3(0.0);
                 else {
                     float depthTrans = textureLod(shadowtex0, shadowPos.xy + pixelOffset, 0).r;
-                    if (shadowPos.z - bias < depthTrans) sampleColor.rgb = vec3(1.0);
+                    if (shadowPos.z + EPSILON <= depthTrans) sampleColor.rgb = vec3(1.0);
                     else {
                         sampleColor = textureLod(shadowcolor0, shadowPos.xy + pixelOffset, 0);
                         sampleColor.rgb = RGBToLinear(sampleColor.rgb);

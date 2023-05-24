@@ -45,15 +45,20 @@ void main() {
 		}
 	}
 
-	color.rgb *= gColor.rgb;
+	color.rgb = RGBToLinear(color.rgb * gColor.rgb);
+
+    #if WORLD_WATER_TEXTURE == WATER_COLORED
+        color.rgb = 0.4 * gColor.rgb;
+        color.a = 0.7;
+    #endif
+
+    color.a *= WorldWaterOpacityF;
 
 	#ifdef SHADOW_COLOR_BLEND
-		color.rgb = RGBToLinear(color.rgb);
-
 		color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
-
-		color.rgb = LinearToRGB(color.rgb);
 	#endif
 
+	color.rgb = LinearToRGB(color.rgb);
+	
 	outColor0 = color;
 }

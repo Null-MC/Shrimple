@@ -226,7 +226,20 @@
         vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 geoNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion) {
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 vec2 lmFinal = lmcoord;
-                lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5 + (0.5/16.0);
+
+                lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5;
+
+                #if LPV_SIZE > 0
+                    vec3 lpvPos = GetLPVPosition(localPos + 0.52 * geoNormal);
+                    vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+
+                    float lpvFade = GetLpvFade(lpvPos);
+                    lpvFade = smoothstep(0.0, 1.0, lpvFade);
+
+                    lmFinal.x *= lpvFade;
+                #endif
+
+                lmFinal.x += (0.5/16.0);
 
                 #ifdef RENDER_GBUFFER
                     vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
@@ -237,17 +250,12 @@
                 vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF + WorldMinLightF;
 
                 #if LPV_SIZE > 0
-                    vec3 lpvPos = GetLPVPosition(localPos + 0.52 * geoNormal);
-                    vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
-
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
                         int frameIndex = frameCounter % 2;
                         vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
-                        float lpvFade = GetLpvFade(lpvPos);
-                        lpvFade = smoothstep(0.0, 1.0, lpvFade);
-                        ambientLight = mix(ambientLight, lpvLight, lpvFade);
+                        ambientLight += lpvLight * lpvFade;
                     }
                 #endif
 

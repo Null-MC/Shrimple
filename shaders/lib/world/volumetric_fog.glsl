@@ -177,8 +177,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
                     shadowColor = RGBToLinear(shadowColor);
 
-                    if (!any(greaterThan(shadowColor, EPSILON3))) shadowColor = vec3(1.0);
-                    shadowColor = normalize(shadowColor) * 1.73;
+                    if (any(greaterThan(shadowColor, EPSILON3)))
+                        shadowColor = normalize(shadowColor) * 1.73;
 
                     sampleColor *= shadowColor;
                 }
