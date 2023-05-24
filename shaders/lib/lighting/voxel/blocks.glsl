@@ -47,9 +47,19 @@
 
         if (blockId < 200) result = true;
 
+        if (blockId >= BLOCK_BUTTON_FLOOR_N_S && blockId <= BLOCK_BUTTON_WALL_W) result = true;
+
         if (blockId == BLOCK_CARPET) result = true;
 
         if (blockId == BLOCK_GLASS || blockId == BLOCK_GLASS_PANE) result = true;
+
+        if (blockId >= BLOCK_LEVER_FLOOR_N_S && blockId <= BLOCK_LEVER_WALL_W) result = true;
+
+        if (blockId >= BLOCK_LIGHTNING_ROD_N && blockId <= BLOCK_LIGHTNING_ROD_DOWN) result = true;
+
+        if (blockId == BLOCK_PRESSURE_PLATE || blockId == BLOCK_PRESSURE_PLATE_DOWN) result = true;
+
+        if (blockId >= BLOCK_TRIPWIRE_HOOK_N && blockId <= BLOCK_TRIPWIRE_HOOK_W) result = true;
 
         return result;
     }
