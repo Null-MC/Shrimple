@@ -255,7 +255,7 @@
                         vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
-                        ambientLight += lpvLight * lpvFade;
+                        ambientLight += invPI * lpvLight * lpvFade;
                     }
                 #endif
 
