@@ -12,17 +12,11 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
-    // #ifdef DYN_LIGHT_FLICKER
-    //     uniform sampler2D noisetex;
-    // #endif
-
     uniform int frameCounter;
-    //uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
     #include "/lib/blocks.glsl"
-    //#include "/lib/lights.glsl"
 
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/volume.glsl"
