@@ -55,7 +55,7 @@
 #define PARALLAX_SHARP 3
 
 #define DYN_LIGHT_NONE 0
-#define DYN_LIGHT_VERTEX 1
+//#define DYN_LIGHT_VERTEX 1
 #define DYN_LIGHT_PIXEL 2
 #define DYN_LIGHT_TRACED 3
 

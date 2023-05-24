@@ -98,6 +98,19 @@
             blockDiffuse += blockLightDefault;
         #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
             SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
+        #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
+            vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
+            vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+
+            float lpvFade = GetLpvFade(lpvPos);
+            lpvFade = smoothstep(0.0, 1.0, lpvFade);
+
+            if (saturate(lpvTexcoord) == lpvTexcoord) {
+                int frameIndex = frameCounter % 2;
+                vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
+                blockDiffuse += mix(blockLightDefault, lpvLight * DynamicLightBrightness, lpvFade);
+            }
+            else blockDiffuse += blockLightDefault;
         #elif DYN_LIGHT_MODE == DYN_LIGHT_NONE
             blockDiffuse += blockLightDefault;
         #endif
@@ -252,14 +265,10 @@
                 #if LPV_SIZE > 0
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
                         int frameIndex = frameCounter % 2;
-                        vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;
+                        vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
-                        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                            lpvLight *= invPI;
-                        #endif
-
-                        ambientLight += lpvLight * lpvFade;
+                        ambientLight += lpvLight * lpvFade * DynamicLightAmbientF;
                     }
                 #endif
 

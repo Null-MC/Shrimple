@@ -26,7 +26,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
 
         #ifdef WORLD_SKY_ENABLED
-            result.Ambient = 0.012;
+            result.Ambient = 0.3;
             result.Forward = mix(0.66, 0.26, rainStrength);
             result.Back = mix(0.36, 0.16, rainStrength);
 
@@ -116,13 +116,13 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float extinctionInv = rcp(phaseF.ExtinctF);
 
     #ifdef WORLD_SKY_ENABLED
-        float eyeLightLevel = (eyeBrightnessSmooth.y / 240.0);
+        float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
     #endif
 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i <= stepCount; i++) {
-        vec3 inScattering = phaseF.Ambient * fogColor;
+        vec3 inScattering = phaseF.Ambient * RGBToLinear(fogColor);
 
         #ifdef WORLD_SKY_ENABLED
             inScattering *= eyeLightLevel;
@@ -188,8 +188,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
                 if (saturate(lpvTexcoord) == lpvTexcoord) {
                     int frameIndex = frameCounter % 2;
-                    blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / 16.0;
-                    blockLightAccum /= 1.0 + luminance(blockLightAccum);
+                    blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
+                    blockLightAccum /= 4.0 + luminance(blockLightAccum);
 
                     float lpvFade = GetLpvFade(lpvPos);
                     blockLightAccum *= smoothstep(0.0, 1.0, lpvFade);

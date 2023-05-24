@@ -26,6 +26,10 @@ uniform int blockEntityId;
 uniform vec4 entityColor;
 uniform int entityId;
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
+    uniform int frameCounter;
+#endif
+
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform mat4 gbufferProjection;
     uniform float near;
@@ -51,8 +55,21 @@ uniform int entityId;
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
+
+    // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && LPV_SIZE > 0
+    //     #include "/lib/buffers/volume.glsl"
+    //     #include "/lib/lighting/voxel/lpv.glsl"
+    // #endif
 #endif
 
+
+// #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
+//     void AddLpvLight(const in vec3 lpvPos, const in vec3 lightColor, const in float lightRange) {
+//         ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
+//         vec3 lightFinal = LPV_BRIGHTNESS * lightColor * lightRange;// * VolumetricBlockRangeF;
+//         imageStore((frameCounter % 2) == 0 ? imgSceneLPV_2 : imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
+//     }
+// #endif
 
 void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -118,15 +135,15 @@ void main() {
                 #ifdef DYN_LIGHT_FRUSTUM_TEST
                     vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos, 1.0)).xyz;
 
-                    const float lightRange = 16.0 * DynamicLightRangeF + 1.0;//lightRange + 1.0;
-                    //float maxRange = lightRange > EPSILON ? lightRange : 16.0;
-                    if (lightViewPos.z > lightRange) intersects = false;
-                    else if (lightViewPos.z < -(far + lightRange)) intersects = false;
+                    const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+                    //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
+                    if (lightViewPos.z > maxLightRange) intersects = false;
+                    else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
                     else {
-                        if (dot(sceneViewUp,   lightViewPos) > lightRange) intersects = false;
-                        if (dot(sceneViewDown, lightViewPos) > lightRange) intersects = false;
-                        if (dot(sceneViewLeft,  lightViewPos) > lightRange) intersects = false;
-                        if (dot(sceneViewRight, lightViewPos) > lightRange) intersects = false;
+                        if (dot(sceneViewUp,   lightViewPos) > maxLightRange) intersects = false;
+                        if (dot(sceneViewDown, lightViewPos) > maxLightRange) intersects = false;
+                        if (dot(sceneViewLeft,  lightViewPos) > maxLightRange) intersects = false;
+                        if (dot(sceneViewRight, lightViewPos) > maxLightRange) intersects = false;
                     }
                 #endif
 
@@ -134,21 +151,17 @@ void main() {
                     if (!intersects) lightType = LIGHT_IGNORED;
 
                     if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
-                        if (intersects) {
-                            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                                atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                            if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                            #ifdef DYN_LIGHT_DEBUG_COUNTS
+                                else atomicAdd(SceneLightMaxCount, 1u);
                             #endif
-                        }
-                        #ifdef DYN_LIGHT_DEBUG_COUNTS
-                            else atomicAdd(SceneLightMaxCount, 1u);
                         #endif
                     }
                 }
 
-                //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    if (intersects && !IsTraceEmptyBlock(blockId))
-                        SetSceneBlockMask(blockCell, gridIndex, blockId);
-                //#endif
+                if (intersects && !IsTraceEmptyBlock(blockId))
+                    SetSceneBlockMask(blockCell, gridIndex, blockId);
             }
         }
         //else if (renderStage == MC_RENDER_STAGE_ENTITIES) {

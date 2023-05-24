@@ -186,7 +186,7 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
-#define LPV_BRIGHTNESS 8 // [1 2 4 8]
+#define LPV_BRIGHTNESS 16 // [1 2 4 8]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE

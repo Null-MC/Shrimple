@@ -10,7 +10,7 @@ vec3 GetLightGridPosition(const in vec3 position) {
     return position + LightGridCenter + cameraOffset;
 }
 
-#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_SHADOWCOMP_LPV
+#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_BEGIN_LPV
     vec3 GetLightGridPreviousPosition(const in vec3 position) {
         vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         return position + LightGridCenter + cameraOffset;
@@ -46,7 +46,7 @@ uint GetSceneLightGridIndex(const in ivec3 gridCell) {
     }
 #endif
 
-#if !(defined RENDER_BEGIN || defined RENDER_SHADOW)
+#if defined RENDER_BEGIN_LPV || !(defined RENDER_BEGIN || defined RENDER_SHADOW)
     uint GetSceneBlockMask(const in ivec3 blockCell, const in uint gridIndex) {
         uint maskIndex = blockCell.z * _pow2(LIGHT_BIN_SIZE) + blockCell.y * LIGHT_BIN_SIZE + blockCell.x;
         uint intIndex = gridIndex * LIGHT_BIN_SIZE3 + maskIndex;
@@ -88,7 +88,7 @@ uint GetLightMaskFace(const in vec3 normal) {
         ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_BLOCK_IMG_SIZE, int(intIndex / DYN_LIGHT_BLOCK_IMG_SIZE));
         imageStore(imgLocalBlockMask, texcoord, uvec4(blockId));
     }
-#elif defined RENDER_SHADOWCOMP && !defined RENDER_SHADOWCOMP_LPV
+#elif defined RENDER_SHADOWCOMP && !defined RENDER_BEGIN_LPV
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
         return dot(pointDist, pointDist) < _pow2(lightRange);

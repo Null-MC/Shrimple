@@ -49,7 +49,7 @@ vec3 GetLpvValue(const in ivec3 texCoord) {
 }
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
-    //const float FALLOFF = 0.002;
+    const float FALLOFF = 0.96;
 
     vec3 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
     vec3 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));
@@ -58,9 +58,8 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     vec3 nZ1 = GetLpvValue(fragCoord + ivec3( 0,  0, -1));
     vec3 nZ2 = GetLpvValue(fragCoord + ivec3( 0,  0,  1));
 
-    vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) / 6.0;
-    //float falloff = rcp(max(luminance(n), 1.0)) * FALLOFF;
-    return avgColor;// * (1.0 - falloff);
+    vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * (1.0/6.0);
+    return FALLOFF * avgColor;
 }
 
 void main() {
@@ -93,31 +92,25 @@ void main() {
                     blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
                     blockId = GetSceneBlockMask(blockCell, gridIndex);
 
+                    bool hasLight = false;
                     lightValue = vec3(0.0);
+                    tint = vec3(1.0);
 
-                    // TODO: clear in setup
-                    if (frameCounter > 1) {
-                        bool hasLight = false;
-                        tint = vec3(1.0);
-
-                        #ifdef LPV_GLASS_TINT
-                            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
-                                tint = GetLightGlassTint(blockId);
-                                hasLight = true;
-                            }
-                            else {
-                        #endif
-                            if (IsTraceOpenBlock(blockId)) {
-                                hasLight = true;
-                            }
-                        #ifdef LPV_GLASS_TINT
-                            }
-                        #endif
-
-                        if (hasLight) {
-                            imgCoordPrev = imgCoord + imgCoordOffset;
-                            lightValue = mixNeighbours(imgCoordPrev) * tint;
+                    #ifdef LPV_GLASS_TINT
+                        if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
+                            tint = GetLightGlassTint(blockId);
+                            hasLight = true;
                         }
+                        else {
+                    #endif
+                        hasLight = IsTraceOpenBlock(blockId);
+                    #ifdef LPV_GLASS_TINT
+                        }
+                    #endif
+
+                    if (hasLight) {
+                        imgCoordPrev = imgCoord + imgCoordOffset;
+                        lightValue = mixNeighbours(imgCoordPrev) * tint;
                     }
 
                     imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(lightValue, 1.0));

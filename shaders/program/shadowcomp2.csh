@@ -54,7 +54,7 @@ void main() {
         
         uint gridIndex = GetSceneLightGridIndex(gridCell);
         
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+        #ifdef DYN_LIGHT_OCTREE
             BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
             for (int i = 0; i < DYN_LIGHT_OCTREE_SIZE; i++)
                 sceneBlockMap.OctreeMask[i] = 0u;
@@ -75,12 +75,12 @@ void main() {
         #endif
 
         uint lightLocalIndex = 0u;
-        for (int z = 0; z < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; z++) {
-            for (int y = 0; y < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; y++) {
-                for (int x = 0; x < LIGHT_BIN_SIZE && lightLocalIndex < LIGHT_BIN_MAX_COUNT; x++) {
+        for (int z = 0; z < LIGHT_BIN_SIZE; z++) {
+            for (int y = 0; y < LIGHT_BIN_SIZE; y++) {
+                for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
                     ivec3 blockCell = ivec3(x, y, z);
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+                    #ifdef DYN_LIGHT_OCTREE
                         uint blockType = GetSceneBlockMask(blockCell, gridIndex);
                         if (blockType != BLOCKTYPE_EMPTY) {
                             uvec3 nodeMin = uvec3(0);
@@ -147,22 +147,23 @@ void main() {
                     #endif
 
                     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                        lightColor = LinearToRGB(lightColor);
-                        bool lightTraced = GetLightTraced(lightType);
-                        uint lightMask = BuildLightMask(lightType);
-                        
-                        uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                        SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
-                        SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
-                    #endif
+                        if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {
+                            lightColor = LinearToRGB(lightColor);
+                            bool lightTraced = GetLightTraced(lightType);
+                            uint lightMask = BuildLightMask(lightType);
+                            
+                            uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
+                            SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
+                            SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
-                    //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
-                    lightLocalIndex++;
+                            lightLocalIndex++;
+                        }
+                    #endif
                 }
             }
         }
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_OCTREE
+        #ifdef DYN_LIGHT_OCTREE
             SceneBlockMaps[gridIndex] = sceneBlockMap;
         #endif
     #endif
