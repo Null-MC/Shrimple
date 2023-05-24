@@ -225,7 +225,7 @@ uniform int fogMode;
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
@@ -294,6 +294,10 @@ void main() {
 
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
+
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        color.rgb = vec3(WHITEWORLD_VALUE);
+    #endif
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED

@@ -115,7 +115,7 @@ uniform float blindness;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 

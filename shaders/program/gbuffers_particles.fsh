@@ -211,7 +211,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/sampling.glsl"
 
 #if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
-    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED)
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 

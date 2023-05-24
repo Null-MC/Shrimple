@@ -134,17 +134,21 @@ void main() {
                     if (!intersects) lightType = LIGHT_IGNORED;
 
                     if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
-                        if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                        if (intersects) {
+                            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                                atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                            #endif
+                        }
                         #ifdef DYN_LIGHT_DEBUG_COUNTS
                             else atomicAdd(SceneLightMaxCount, 1u);
                         #endif
                     }
                 }
 
-                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     if (intersects && !IsTraceEmptyBlock(blockId))
                         SetSceneBlockMask(blockCell, gridIndex, blockId);
-                #endif
+                //#endif
             }
         }
         //else if (renderStage == MC_RENDER_STAGE_ENTITIES) {

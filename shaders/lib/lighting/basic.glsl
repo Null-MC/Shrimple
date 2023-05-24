@@ -96,9 +96,9 @@
 
         #if defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER
             blockDiffuse += blockLightDefault;
-        #elif defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED) && !(defined RENDER_CLOUDS)
+        #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
             SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
-        #else
+        #elif DYN_LIGHT_MODE == DYN_LIGHT_NONE
             blockDiffuse += blockLightDefault;
         #endif
 
@@ -236,7 +236,7 @@
                     float lpvFade = GetLpvFade(lpvPos);
                     lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-                    lmFinal.x *= lpvFade;
+                    lmFinal.x *= 1.0 - lpvFade;
                 #endif
 
                 lmFinal.x += (0.5/16.0);
@@ -255,7 +255,11 @@
                         vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
-                        ambientLight += invPI * lpvLight * lpvFade;
+                        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                            lpvLight *= invPI;
+                        #endif
+
+                        ambientLight += lpvLight * lpvFade;
                     }
                 #endif
 

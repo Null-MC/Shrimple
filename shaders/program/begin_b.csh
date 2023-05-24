@@ -9,7 +9,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
@@ -19,7 +19,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         ivec3 pos = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(pos, SceneLightGridSize))) return;
         uint gridIndex = GetSceneLightGridIndex(pos);

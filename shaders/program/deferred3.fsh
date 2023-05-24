@@ -147,7 +147,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 

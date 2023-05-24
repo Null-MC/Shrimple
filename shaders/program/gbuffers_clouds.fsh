@@ -148,7 +148,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
@@ -250,7 +250,10 @@ void main() {
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
 
-            SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss, blockLightDefault);
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss, blockLightDefault);
+            #endif
+
             SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
             
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;

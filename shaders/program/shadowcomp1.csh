@@ -29,6 +29,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 #endif
 
@@ -112,7 +113,7 @@ void main() {
                             }
                             else {
                         #endif
-                            if (blockId == BLOCK_EMPTY || blockId == BLOCK_GLASS || blockId == BLOCK_GLASS_PANE) {
+                            if (IsTraceOpenBlock(blockId)) {
                                 hasLight = true;
                             }
                         #ifdef LPV_GLASS_TINT

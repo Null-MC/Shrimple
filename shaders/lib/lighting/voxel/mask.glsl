@@ -95,7 +95,7 @@ uint GetLightMaskFace(const in vec3 normal) {
     }
 #endif
 
-#if !defined RENDER_SHADOW && !defined RENDER_BEGIN
+#if !defined RENDER_SHADOW && !defined RENDER_BEGIN && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uint GetSceneLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetLightGridPosition(position);

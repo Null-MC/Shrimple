@@ -61,6 +61,11 @@ uniform sampler2D noisetex;
     uniform sampler3D TEX_RIPPLES;
 #endif
 
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler3D texLPV_1;
+    uniform sampler3D texLPV_2;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
@@ -216,8 +221,13 @@ uniform int fogMode;
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
+    #endif
+
+    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/lighting/voxel/lpv.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"

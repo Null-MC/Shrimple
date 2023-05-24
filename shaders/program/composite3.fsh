@@ -147,7 +147,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
@@ -161,7 +161,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
-#ifdef VOLUMETRIC_CELESTIAL
+#if defined VOLUMETRIC_CELESTIAL || VOLUMETRIC_BLOCK_MODE != 0
     #include "/lib/world/volumetric_blur.glsl"
 #endif
 

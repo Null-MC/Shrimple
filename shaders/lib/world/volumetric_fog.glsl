@@ -48,9 +48,6 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
 }
 
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
-    //float scatterF, extinction;
-    //GetVolumetricCoeff(sunDir, scatterF, extinction);
-
     vec3 localStart = localViewDir * (nearDist + 0.1);
     vec3 localEnd = localViewDir * (farDist - 0.1);
     float localRayLength = max(farDist - nearDist - 0.2, 0.0);
@@ -63,10 +60,6 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-
-    //float ambient, G_Forward, G_Back;
-    //GetVolumetricPhaseFactors(ambient, G_Forward, G_Back);
-    //const float G_mix = 0.7;
 
     #if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifdef IRIS_FEATURE_SSBO
@@ -105,13 +98,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
-
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
-        #endif
 
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         skyLightColor *= WorldSkyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));

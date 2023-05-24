@@ -1,4 +1,4 @@
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+//#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     bool IsTraceFullBlock(const in uint blockId) {
         bool result = false;
 
@@ -37,7 +37,19 @@
     bool IsTraceEmptyBlock(const in uint blockId) {
         bool result = false;
 
-        if (blockId < 200) return true;
+        if (blockId < 200) result = true;
+
+        return result;
+    }
+
+    bool IsTraceOpenBlock(const in uint blockId) {
+        bool result = false;
+
+        if (blockId < 200) result = true;
+
+        if (blockId == BLOCK_CARPET) result = true;
+
+        if (blockId == BLOCK_GLASS || blockId == BLOCK_GLASS_PANE) result = true;
 
         return result;
     }
@@ -69,4 +81,4 @@
 
     //     return result;
     // }
-#endif
+//#endif

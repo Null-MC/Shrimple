@@ -60,11 +60,13 @@ void main() {
                 sceneBlockMap.OctreeMask[i] = 0u;
         #endif
 
-        uint lightCount = SceneLightMaps[gridIndex].LightCount;
-        if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            uint lightCount = SceneLightMaps[gridIndex].LightCount;
+            if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
 
-        uint binLightCountMin = min(lightCount, LIGHT_BIN_MAX_COUNT);
-        uint lightGlobalOffset = atomicAdd(SceneLightCount, binLightCountMin);
+            uint binLightCountMin = min(lightCount, LIGHT_BIN_MAX_COUNT);
+            uint lightGlobalOffset = atomicAdd(SceneLightCount, binLightCountMin);
+        #endif
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
 
@@ -144,13 +146,15 @@ void main() {
                         }
                     #endif
 
-                    lightColor = LinearToRGB(lightColor);
-                    bool lightTraced = GetLightTraced(lightType);
-                    uint lightMask = BuildLightMask(lightType);
-                    
-                    uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                    SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
-                    SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                        lightColor = LinearToRGB(lightColor);
+                        bool lightTraced = GetLightTraced(lightType);
+                        uint lightMask = BuildLightMask(lightType);
+                        
+                        uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
+                        SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
+                        SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
+                    #endif
 
                     //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return;
                     lightLocalIndex++;
