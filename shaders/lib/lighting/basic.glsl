@@ -106,8 +106,11 @@
             lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
             if (saturate(lpvTexcoord) == lpvTexcoord) {
-                int frameIndex = frameCounter % 2;
-                vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
+                vec3 lpvLight = (frameCounter % 2 == 0)
+                    ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
+                    : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+
+                lpvLight /= LPV_BRIGHTNESS;
                 blockDiffuse += mix(blockLightDefault, lpvLight * DynamicLightBrightness, lpvFade);
             }
             else blockDiffuse += blockLightDefault;
@@ -264,8 +267,11 @@
 
                 #if LPV_SIZE > 0
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
-                        int frameIndex = frameCounter % 2;
-                        vec3 lpvLight = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
+                        vec3 lpvLight = (frameCounter % 2) == 0
+                            ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
+                            : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+
+                        lpvLight /= LPV_BRIGHTNESS;
                         lpvLight /= 1.0 + luminance(lpvLight);
 
                         ambientLight += lpvLight * lpvFade * DynamicLightAmbientF;

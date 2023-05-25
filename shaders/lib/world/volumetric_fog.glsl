@@ -187,8 +187,11 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                 if (saturate(lpvTexcoord) == lpvTexcoord) {
-                    int frameIndex = frameCounter % 2;
-                    blockLightAccum = textureLod(frameIndex == 0 ? texLPV_1 : texLPV_2, lpvTexcoord, 0).rgb / LPV_BRIGHTNESS;
+                    blockLightAccum = (frameCounter % 2) == 0
+                        ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
+                        : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+
+                    blockLightAccum /= LPV_BRIGHTNESS;
                     blockLightAccum /= 4.0 + luminance(blockLightAccum);
 
                     float lpvFade = GetLpvFade(lpvPos);

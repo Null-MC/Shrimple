@@ -45,7 +45,9 @@ ivec3 GetLPVVoxelOffset() {
 }
 
 vec3 GetLpvValue(const in ivec3 texCoord) {
-    return imageLoad((frameCounter % 2) == 0 ? imgSceneLPV_2 : imgSceneLPV_1, texCoord).rgb;
+    return (frameCounter % 2) == 0
+        ? imageLoad(imgSceneLPV_2, texCoord).rgb
+        : imageLoad(imgSceneLPV_1, texCoord).rgb;
 }
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
@@ -113,7 +115,10 @@ void main() {
                         lightValue = mixNeighbours(imgCoordPrev) * tint;
                     }
 
-                    imageStore(frameIndex == 0 ? imgSceneLPV_1 : imgSceneLPV_2, imgCoord, vec4(lightValue, 1.0));
+                    if (frameIndex == 0)
+                        imageStore(imgSceneLPV_1, imgCoord, vec4(lightValue, 1.0));
+                    else
+                        imageStore(imgSceneLPV_2, imgCoord, vec4(lightValue, 1.0));
                 }
             }
         }
