@@ -10,12 +10,12 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT && LPV_SIZE > 0
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -54,7 +54,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
 #endif
 
-#if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -72,7 +72,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/blocks.glsl"
 
         #ifdef DYN_LIGHT_FLICKER
@@ -86,7 +86,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_EMIT
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/collisions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
@@ -102,13 +102,13 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #include "/lib/lighting/sampling.glsl"
 
-        #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/lpv.glsl"
         #endif
     #endif
 #endif
 
-#if defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
     #include "/lib/world/sky.glsl"
 

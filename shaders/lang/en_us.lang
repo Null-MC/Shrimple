@@ -215,8 +215,7 @@ screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
 option.DYN_LIGHT_MODE=Mode
 option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. Default uses the vanilla lightmap. Enable ray-tracing for block-light shadows.
 value.DYN_LIGHT_MODE.0=Default
-value.DYN_LIGHT_MODE.1=Per-Vertex
-value.DYN_LIGHT_MODE.2=Per-Pixel
+value.DYN_LIGHT_MODE.2=Colored
 value.DYN_LIGHT_MODE.3=Ray-Traced
 
 option.DYN_LIGHT_TYPE=Type
@@ -401,8 +400,15 @@ value.LPV_SIZE.3=Large
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
 
-option.VOLUMETRIC_CELESTIAL=Sun/Moon
-option.VOLUMETRIC_CELESTIAL.comment=Determines whether volumetric lighting is applied to fog for the sun & moon.
+option.VOLUMETRIC_BRIGHT_SKY=Sun/Moon Brightness
+option.VOLUMETRIC_BRIGHT_SKY.comment=Adjusts the brightness of the sun & moon when applying volumetric lighting to fog.
+suffix.VOLUMETRIC_BRIGHT_SKY=%
+value.VOLUMETRIC_BRIGHT_SKY.0=OFF
+
+option.VOLUMETRIC_BRIGHT_BLOCK=Block Light Brightness
+option.VOLUMETRIC_BRIGHT_BLOCK.comment=Adjusts the brightness of block-based lights when applying volumetric lighting to fog.
+suffix.VOLUMETRIC_BRIGHT_BLOCK=%
+value.VOLUMETRIC_BRIGHT_BLOCK.0=OFF
 
 option.VOLUMETRIC_BLOCK_MODE=Block Light
 option.VOLUMETRIC_BLOCK_MODE.comment=Determines whether volumetric lighting is applied to fog for block-based dynamic lighting.
@@ -447,6 +453,9 @@ option.VOLUMETRIC_RES=Resolution
 value.VOLUMETRIC_RES.0=Full
 value.VOLUMETRIC_RES.1=Half
 value.VOLUMETRIC_RES.2=Quarter
+
+option.VOLUMETRIC_BLOCK_RT=Ray Traced
+option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights. Requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: Extremely heavy on performance!
 
 
 screen.SHADOW_OPTIONS=Shadows

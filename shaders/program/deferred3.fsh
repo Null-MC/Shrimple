@@ -161,7 +161,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
-#if defined VOLUMETRIC_CELESTIAL || VOLUMETRIC_BLOCK_MODE != VOLUMETRIC_BLOCK_NONE
+#if VOLUMETRIC_BRIGHT_SKY > 0 || VOLUMETRIC_BRIGHT_BLOCK > 0
     #include "/lib/world/volumetric_blur.glsl"
 #endif
 

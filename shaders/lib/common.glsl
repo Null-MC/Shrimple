@@ -208,7 +208,10 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
 #define VOLUMETRIC_DENSITY 50 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800 1000]
 #define VOLUMETRIC_RES 0 // [0 1 2]
+#define VOLUMETRIC_BRIGHT_SKY   0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
+#define VOLUMETRIC_BRIGHT_BLOCK 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_BLUR
+//#define VOLUMETRIC_BLOCK_RT
 //#define VOLUMETRIC_HANDLIGHT
 
 
@@ -329,13 +332,7 @@ const bool colortex15Clear = true;
 #endif
 #ifdef WORLD_AO_ENABLED
 #endif
-#ifdef VOLUMETRIC_CELESTIAL
-#endif
-#ifdef DYN_LIGHT_WEATHER
-#endif
-#ifdef DYN_LIGHT_BLUR
-#endif
-#ifdef DYN_LIGHT_OREBLOCKS
+#ifdef DIRECTIONAL_LIGHTMAP
 #endif
 #ifdef SHADOW_BLUR
 #endif
@@ -351,12 +348,18 @@ const bool colortex15Clear = true;
 #endif
 #ifdef DYN_LIGHT_DEBUG_COUNTS
 #endif
-#ifdef DIRECTIONAL_LIGHTMAP
+#ifdef DYN_LIGHT_WEATHER
+#endif
+#ifdef DYN_LIGHT_BLUR
+#endif
+#ifdef DYN_LIGHT_OREBLOCKS
+#endif
+#ifdef VOLUMETRIC_BLOCK_RT
 #endif
 #ifdef DEFER_TRANSLUCENT
 #endif
 
-#if (defined VOLUMETRIC_CELESTIAL && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BLOCK_MODE != 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO)
+#if (VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO)
     #define VL_BUFFER_ENABLED
 #endif
 
@@ -384,6 +387,8 @@ const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
 const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;
 const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
+const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
+const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
 const float DynamicLightAmbientF = DYN_LIGHT_AMBIENT * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
