@@ -30,8 +30,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
             result.Forward = mix(0.66, 0.26, rainStrength);
             result.Back = mix(0.36, 0.16, rainStrength);
 
-            result.ScatterF = mix(0.032, 0.096, rainStrength) * density;
-            result.ExtinctF = mix(0.004, 0.012, rainStrength) * density;
+            result.ScatterF = mix(0.032, 0.092, rainStrength) * density;
+            result.ExtinctF = mix(0.024, 0.076, rainStrength) * density;
         #else
             result.Ambient = 0.14;
             result.Forward = 0.8;

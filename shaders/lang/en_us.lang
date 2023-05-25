@@ -1,8 +1,7 @@
 profile.VANILLA=Vanilla
 profile.SHADOWS=Shadows
-profile.LIGHTS=Colored Lights
-profile.RTX_LOW=RTX [Low]
-profile.RTX_HIGH=RTX [High]
+profile.LIGHTS=Colored Light
+profile.RTX_LOW=RTX
 
 
 screen.WORLD_OPTIONS=World

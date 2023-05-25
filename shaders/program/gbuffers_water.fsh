@@ -365,7 +365,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                color.rgb = 0.4 * glcolor.rgb;
+                color.rgb = 0.25 * glcolor.rgb;
                 color.a = 0.7;
             #endif
 
