@@ -303,6 +303,10 @@ void main() {
         #endif
     #endif
 
+    #ifndef RENDER_TRANSLUCENT
+        color.a = 1.0;
+    #endif
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
@@ -310,7 +314,6 @@ void main() {
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
-        color.a = 1.0;
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor, 1.0);
 
