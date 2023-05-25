@@ -6,7 +6,7 @@ colortex3		RGBA32UI	1.0		deferred data
 									 - R: geometry normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
 									 - B: fog.rgba
-									 - A: texture normal
+									 - A: texture normal (normal, water)
 
 colortex4		RGB16F		 *	 	block-light diffuse
 colortex5		RGB8		 *		block-light normal

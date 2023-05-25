@@ -134,7 +134,7 @@ void main() {
     float opaqueDepth = textureLod(depthtex1, texcoord, 0).r;
 
     vec4 final = vec4(0.0);
-    if (depth < opaqueDepth) {
+    if (depth < opaqueDepth || isEyeInWater == 1) {
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
         #ifndef IRIS_FEATURE_SSBO

@@ -13,12 +13,12 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.06, 0.06, 0.06, 0.6, 0.46, 0.16);
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.3, 0.06, 0.06, 0.6, 0.46, 0.16);
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     VolumetricPhaseFactors result;
 
-    #ifdef WORLD_WATER_ENABLED
+    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
         if (isEyeInWater == 1) result = WaterPhaseF;
         else {
     #endif
@@ -43,7 +43,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
             result.ScatterF = 0.016 * density;
             result.ExtinctF = 0.016 * density;
         #endif
-    #ifdef WORLD_WATER_ENABLED
+    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
         }
     #endif
 
@@ -119,18 +119,17 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
+    vec3 inScatteringBase = phaseF.Ambient * RGBToLinear(fogColor);
+
     #ifdef WORLD_SKY_ENABLED
         float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
+        inScatteringBase *= eyeLightLevel;
     #endif
 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     for (int i = 0; i <= stepCount; i++) {
-        vec3 inScattering = phaseF.Ambient * RGBToLinear(fogColor);
-
-        #ifdef WORLD_SKY_ENABLED
-            inScattering *= eyeLightLevel;
-        #endif
+        vec3 inScattering = inScatteringBase;
 
         float iStep = i;// + dither;
         if (i < stepCount) iStep += dither;

@@ -304,23 +304,27 @@ layout(location = 0) out vec4 outFinal;
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
             #ifdef REFRACTION_ENABLED
-                vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+                bool isWater = deferredTexture.a < 0.5;
 
-                const float ior = IOR_WATER;
-                float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
-                vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
+                if (isWater) {
+                    vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-                vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
-                float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
-                float linearDist = linearDepthOpaque - linearDepth;
+                    const float ior = IOR_WATER;
+                    float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                    vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
-                vec2 refractMax = vec2(0.06);
-                refractMax.x *= viewWidth / viewHeight;
-                refraction = clamp(vec2(0.01 * linearDist), -refractMax, refractMax) * refractDir.xy;
+                    vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
+                    float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                    float linearDist = linearDepthOpaque - linearDepth;
 
-                #ifdef REFRACTION_SNELL_ENABLED
-                    tir = all(lessThan(abs(refractDir), EPSILON3));
-                #endif
+                    vec2 refractMax = vec2(0.06);
+                    refractMax.x *= viewWidth / viewHeight;
+                    refraction = clamp(vec2(0.01 * linearDist), -refractMax, refractMax) * refractDir.xy;
+
+                    #ifdef REFRACTION_SNELL_ENABLED
+                        tir = all(lessThan(abs(refractDir), EPSILON3));
+                    #endif
+                }
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -516,26 +520,6 @@ layout(location = 0) out vec4 outFinal;
             if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
         }
 
-        #ifdef VL_BUFFER_ENABLED
-            #ifdef VOLUMETRIC_BLUR
-                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-
-                #if VOLUMETRIC_RES == 2
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #else
-                    const vec2 vlSigma = vec2(1.2, 0.00002);
-                #endif
-
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
-            #else
-                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-            #endif
-
-            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
-
         #ifdef REFRACTION_ENABLED
             float refractDist = maxOf(abs(refraction * viewSize));
             float refractSteps = min(ceil(refractDist), 16.0);
@@ -556,7 +540,34 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        if (isEyeInWater == 1) {
+            final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        }
+
+        #ifdef VL_BUFFER_ENABLED
+            #ifdef VOLUMETRIC_BLUR
+                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+
+                #if VOLUMETRIC_RES == 2
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                #elif VOLUMETRIC_RES == 1
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                #else
+                    const vec2 vlSigma = vec2(1.2, 0.00002);
+                #endif
+
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+            #else
+                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+            #endif
+
+            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        if (isEyeInWater != 1) {
+            final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        }
+        
         final.a = 1.0;
 
         outFinal = final;

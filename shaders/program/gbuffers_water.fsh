@@ -287,14 +287,17 @@ void main() {
     vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = lmcoord;
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (vBlockId == BLOCK_WATER) {
+    bool isWater = false;
+    if (vBlockId == BLOCK_WATER) {
+        isWater = true;
+
+        #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
             if (!gl_FrontFacing && isEyeInWater != 1) {
                 discard;
                 return;
             }
-        }
-    #endif
+        #endif
+    }
 
     vec3 localNormal = normalize(vLocalNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
@@ -302,7 +305,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
 
-        if (vBlockId == BLOCK_WATER) {
+        if (isWater) {
             skipParallax = true;
 
             #ifdef PHYSICS_OCEAN
@@ -363,7 +366,7 @@ void main() {
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
     #ifdef WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER) {
+        if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
                 color.rgb = 0.25 * glcolor.rgb;
                 color.a = 0.7;
@@ -392,7 +395,7 @@ void main() {
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
     #ifdef WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER) {
+        if (isWater) {
             metal_f0 = mix(0.02, 0.04, oceanFoam);
             roughness = mix(0.08, 0.5, oceanFoam);
         }
@@ -423,7 +426,7 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (vBlockId != BLOCK_WATER)
+        if (!isWater)
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -448,7 +451,7 @@ void main() {
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-            if (vBlockId != BLOCK_WATER)
+            if (!isWater)
                 ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
@@ -495,7 +498,7 @@ void main() {
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4((texNormal * 0.5 + 0.5) + dither, 1.0));
+        deferredData.a = packUnorm4x8(vec4((texNormal * 0.5 + 0.5) + dither, isWater ? 0.0 : 1.0));
         outDeferredData = deferredData;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE

@@ -455,7 +455,7 @@ value.VOLUMETRIC_RES.1=Half
 value.VOLUMETRIC_RES.2=Quarter
 
 option.VOLUMETRIC_BLOCK_RT=Ray Traced
-option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights. Requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: Extremely heavy on performance!
+option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights; requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: will kill performance dead!
 
 
 screen.SHADOW_OPTIONS=Shadows
