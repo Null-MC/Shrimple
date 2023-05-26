@@ -54,11 +54,11 @@ void main() {
         
         uint gridIndex = GetSceneLightGridIndex(gridCell);
         
-        #ifdef DYN_LIGHT_OCTREE
-            BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
-            for (int i = 0; i < DYN_LIGHT_OCTREE_SIZE; i++)
-                sceneBlockMap.OctreeMask[i] = 0u;
-        #endif
+        // #ifdef DYN_LIGHT_OCTREE
+        //     BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
+        //     for (int i = 0; i < DYN_LIGHT_OCTREE_SIZE; i++)
+        //         sceneBlockMap.OctreeMask[i] = 0u;
+        // #endif
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             uint lightCount = SceneLightMaps[gridIndex].LightCount;
@@ -80,54 +80,51 @@ void main() {
                 for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
                     ivec3 blockCell = ivec3(x, y, z);
 
-                    #ifdef DYN_LIGHT_OCTREE
-                        uint blockType = GetSceneBlockMask(blockCell, gridIndex);
-                        if (blockType != BLOCKTYPE_EMPTY) {
-                            uvec3 nodeMin = uvec3(0);
-                            uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
-                            uvec3 nodePos = uvec3(0);
+                    // #ifdef DYN_LIGHT_OCTREE
+                    //     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
+                    //     if (blockType != BLOCKTYPE_EMPTY) {
+                    //         uvec3 nodeMin = uvec3(0);
+                    //         uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
+                    //         uvec3 nodePos = uvec3(0);
 
-                            uint nodeBitOffset = 1u;
+                    //         uint nodeBitOffset = 1u;
 
-                            sceneBlockMap.OctreeMask[0] |= 1u;
+                    //         sceneBlockMap.OctreeMask[0] |= 1u;
 
-                            for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS; treeDepth++) {
-                                uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
-                                uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
+                    //         for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS; treeDepth++) {
+                    //             uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
+                    //             uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
 
-                                uint nodeSize = uint(exp2(treeDepth));
-                                uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
-                                uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
+                    //             uint nodeSize = uint(exp2(treeDepth));
+                    //             uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
+                    //             uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
 
-                                uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
-                                uint nodeArrayIndex = nodeBitIndex / 32u;
+                    //             uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
+                    //             uint nodeArrayIndex = nodeBitIndex / 32u;
 
-                                uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
-                                sceneBlockMap.OctreeMask[nodeArrayIndex] |= nodeMask;
+                    //             uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
+                    //             sceneBlockMap.OctreeMask[nodeArrayIndex] |= nodeMask;
 
-                                nodeBitOffset += uint(pow(8u, treeDepth + 1u));
+                    //             nodeBitOffset += uint(pow(8u, treeDepth + 1u));
 
-                                uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
-                                nodeMin += nodeHalfSize * nodeChild;
-                                nodeMax -= nodeHalfSize * (1u - nodeChild);
-                                nodePos = (nodePos + nodeChild) * 2u;
-                            }
-                        }
-                    #endif
+                    //             uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
+                    //             nodeMin += nodeHalfSize * nodeChild;
+                    //             nodeMax -= nodeHalfSize * (1u - nodeChild);
+                    //             nodePos = (nodePos + nodeChild) * 2u;
+                    //         }
+                    //     }
+                    // #endif
 
                     uint lightType = GetSceneLightMask(blockCell, gridIndex);
                     if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
 
                     StaticLightData lightInfo = StaticLightMap[lightType];
-                    vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;
                     vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                     float lightRange = lightRangeSize.x * 255.0;
-                    float lightSize = lightRangeSize.y;
 
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 
-                    vec3 lightPos = blockLocalPos + lightOffset;
                     lightColor = RGBToLinear(lightColor);
 
                     vec2 lightNoise = vec2(0.0);
@@ -137,11 +134,11 @@ void main() {
                     #endif
 
                     #if LPV_SIZE > 0
-                        vec3 lpvPos = GetLPVPosition(lightPos);
+                        vec3 lpvPos = GetLPVPosition(blockLocalPos);
 
                         if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
                             ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-                            vec3 lightFinal = LPV_BRIGHTNESS * lightColor * lightRange;// * VolumetricBlockRangeF;
+                            vec3 lightFinal = LPV_BRIGHTNESS * lightColor * exp2(lightRange);// * VolumetricBlockRangeF;
                             
                             if (frameIndex == 0)
                                 imageStore(imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
@@ -153,11 +150,13 @@ void main() {
                     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                         if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {
                             lightColor = LinearToRGB(lightColor);
+                            vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;
                             bool lightTraced = GetLightTraced(lightType);
                             uint lightMask = BuildLightMask(lightType);
+                            float lightSize = lightRangeSize.y;
                             
                             uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                            SceneLights[lightGlobalIndex] = BuildLightData(lightPos, lightTraced, lightMask, lightSize, lightRange, lightColor);
+                            SceneLights[lightGlobalIndex] = BuildLightData(blockLocalPos + lightOffset, lightTraced, lightMask, lightSize, lightRange, lightColor);
                             SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
                             lightLocalIndex++;
@@ -167,8 +166,8 @@ void main() {
             }
         }
 
-        #ifdef DYN_LIGHT_OCTREE
-            SceneBlockMaps[gridIndex] = sceneBlockMap;
-        #endif
+        // #ifdef DYN_LIGHT_OCTREE
+        //     SceneBlockMaps[gridIndex] = sceneBlockMap;
+        // #endif
     #endif
 }

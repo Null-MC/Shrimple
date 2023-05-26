@@ -540,9 +540,11 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        if (isEyeInWater == 1) {
-            final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        }
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater == 1) {
+                final.rgb = mix(opaqueFinal, final.rgb, final.a);
+            }
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifdef VOLUMETRIC_BLUR
@@ -564,9 +566,11 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        if (isEyeInWater != 1) {
-            final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        }
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater != 1) {
+                final.rgb = mix(opaqueFinal, final.rgb, final.a);
+            }
+        #endif
         
         final.a = 1.0;
 

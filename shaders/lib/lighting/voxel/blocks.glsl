@@ -58,6 +58,8 @@ bool IsTraceOpenBlock(const in uint blockId) {
 
     if (blockId == BLOCK_PRESSURE_PLATE || blockId == BLOCK_PRESSURE_PLATE_DOWN) result = true;
 
+    if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) result = true;
+
     if (blockId >= BLOCK_TRIPWIRE_HOOK_N && blockId <= BLOCK_TRIPWIRE_HOOK_W) result = true;
 
     return result;

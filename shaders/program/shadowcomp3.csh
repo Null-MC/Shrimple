@@ -18,10 +18,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lights.glsl"
 
     #include "/lib/buffers/lighting.glsl"
-    //#include "/lib/lighting/blackbody.glsl"
-    //#include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
-    //#include "/lib/lighting/dynamic/voxel_blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
 
 
@@ -37,15 +34,18 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         for (neighborOffset.z = -gridSize; neighborOffset.z <= gridSize; neighborOffset.z++) {
             for (neighborOffset.y = -gridSize; neighborOffset.y <= gridSize; neighborOffset.y++) {
                 for (neighborOffset.x = -gridSize; neighborOffset.x <= gridSize; neighborOffset.x++) {
+                    if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) break;
                     if (neighborOffset == ivec3(0)) continue;
 
                     ivec3 neighborGridCell = gridCell + neighborOffset;
                     if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, SceneLightGridSize))) continue;
 
                     uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
-                    uint neighborLightCount = min(SceneLightMaps[neighborGridIndex].LightCount, LIGHT_BIN_MAX_COUNT);
+                    uint neighborLightCount = SceneLightMaps[neighborGridIndex].LightCount;
                     
-                    for (uint i = 0u; i < neighborLightCount; i++) {
+                    for (uint i = 0u; i < LIGHT_BIN_MAX_COUNT; i++) {
+                        if (i >= neighborLightCount || lightLocalIndex >= LIGHT_BIN_MAX_COUNT) break;
+
                         uint lightGlobalIndex = SceneLightMaps[neighborGridIndex].GlobalLights[i];
                         uvec4 lightData = SceneLights[lightGlobalIndex];
 
@@ -54,13 +54,14 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                         ParseLightPosition(lightData, lightPos);
                         ParseLightRange(lightData, lightRange);
                         
-                        if (!LightIntersectsBin(binPos, LIGHT_BIN_SIZE, lightPos, lightRange + 0.5)) continue;
+                        if (LightIntersectsBin(binPos, LIGHT_BIN_SIZE, lightPos, lightRange + 0.5)) {
+                            SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
+                            lightLocalIndex++;
+                            neighborCount++;
+                        }
 
-                        SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
-                        neighborCount++;
-
-                        if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT)
-                            return neighborCount;
+                        //if (++lightLocalIndex >= LIGHT_BIN_MAX_COUNT)
+                        //    return neighborCount;
                     }
                 }
             }
