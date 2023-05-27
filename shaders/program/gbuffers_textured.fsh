@@ -151,18 +151,14 @@ uniform float blindness;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
-#ifdef IRIS_FEATURE_SSBO
-    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
-    #endif
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collissions.glsl"
-        #include "/lib/lighting/voxel/collisions.glsl"
-        #include "/lib/lighting/voxel/tinting.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
+    #include "/lib/buffers/collissions.glsl"
+    #include "/lib/lighting/voxel/collisions.glsl"
+    #include "/lib/lighting/voxel/tinting.glsl"
+    #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
 #include "/lib/lights.glsl"

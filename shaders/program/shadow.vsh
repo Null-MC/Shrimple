@@ -66,7 +66,7 @@ uniform int entityId;
 // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
 //     void AddLpvLight(const in vec3 lpvPos, const in vec3 lightColor, const in float lightRange) {
 //         ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-//         vec3 lightFinal = LPV_BRIGHTNESS * lightColor * lightRange;// * VolumetricBlockRangeF;
+//         vec3 lightFinal = LpvRangeF * lightColor * lightRange;// * VolumetricBlockRangeF;
 //         imageStore((frameCounter % 2) == 0 ? imgSceneLPV_2 : imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
 //     }
 // #endif

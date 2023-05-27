@@ -449,7 +449,7 @@
                 lightRange = 12.0;
                 break;
             case LIGHT_LAVA:
-                lightRange = 8.0;
+                lightRange = 15.0;
                 break;
             case LIGHT_LAVA_CAULDRON:
                 lightRange = 15.0;

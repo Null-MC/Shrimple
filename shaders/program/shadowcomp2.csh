@@ -138,7 +138,7 @@ void main() {
 
                         if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
                             ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-                            vec3 lightFinal = LPV_BRIGHTNESS * lightColor * exp2(lightRange);// * VolumetricBlockRangeF;
+                            vec3 lightFinal = LpvRangeF * lightColor * exp2(lightRange);
                             
                             if (frameIndex == 0)
                                 imageStore(imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));

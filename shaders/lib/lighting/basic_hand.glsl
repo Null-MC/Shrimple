@@ -46,7 +46,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             //lightColor = RGBToLinear(lightColor);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
@@ -113,7 +113,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             //lightColor = RGBToLinear(lightColor);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
@@ -165,6 +165,6 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         }
     }
 
-    blockDiffuse += accumDiffuse * DynamicLightBrightness;
+    blockDiffuse += 16.0 * accumDiffuse * DynamicLightBrightness;
     blockSpecular += accumSpecular * DynamicLightBrightness;
 }

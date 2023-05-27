@@ -186,7 +186,7 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
-#define LPV_BRIGHTNESS 8 // [1 2 4 8]
+#define LPV_RANGE 800 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE
@@ -396,6 +396,7 @@ const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
+const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowPCFSize = SHADOW_PCF_SIZE * 0.001;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
