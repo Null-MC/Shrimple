@@ -85,47 +85,49 @@
         }
     #endif
 
-    void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
-        #ifdef RENDER_GBUFFER
-            vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 0.5/16.0), 0).rgb;
-        #else
-            vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 0.5/16.0), 0).rgb;
-        #endif
+    //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
+        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
+            #ifdef RENDER_GBUFFER
+                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 0.5/16.0), 0).rgb;
+            #else
+                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 0.5/16.0), 0).rgb;
+            #endif
 
-        blockLightDefault = RGBToLinear(blockLightDefault);
+            blockLightDefault = RGBToLinear(blockLightDefault);
 
-        #if defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER
-            blockDiffuse += blockLightDefault;
-        #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
-            SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
-        #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
-            vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
-            vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+            #if defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER
+                blockDiffuse += blockLightDefault;
+            #elif defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
+                SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
+            #elif DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
+                vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
+                vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
-            float lpvFade = GetLpvFade(lpvPos);
-            lpvFade = smoothstep(0.0, 1.0, lpvFade);
+                float lpvFade = GetLpvFade(lpvPos);
+                lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-            if (saturate(lpvTexcoord) == lpvTexcoord) {
-                vec3 lpvLight = (frameCounter % 2) == 0
-                    ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
-                    : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+                if (saturate(lpvTexcoord) == lpvTexcoord) {
+                    vec3 lpvLight = (frameCounter % 2) == 0
+                        ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
+                        : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
 
-                lpvLight /= 16.0 * LpvRangeF;
-                lpvLight /= 1.0 + luminance(lpvLight);
-                //lpvLight /= LpvRangeF;
-                blockDiffuse += mix(blockLightDefault, lpvLight * DynamicLightBrightness, lpvFade);
-            }
-            else blockDiffuse += blockLightDefault;
-        #elif DYN_LIGHT_MODE == DYN_LIGHT_NONE
-            blockDiffuse += blockLightDefault;
-        #endif
+                    lpvLight /= 16.0 * LpvRangeF;
+                    lpvLight /= 1.0 + luminance(lpvLight);
+                    //lpvLight /= LpvRangeF;
+                    blockDiffuse += mix(blockLightDefault, lpvLight * DynamicLightBrightness, lpvFade);
+                }
+                else blockDiffuse += blockLightDefault;
+            #elif DYN_LIGHT_MODE == DYN_LIGHT_NONE
+                blockDiffuse += blockLightDefault;
+            #endif
 
-        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+            //SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-            if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
-        #endif
-    }
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+                if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
+            #endif
+        }
+    //#endif
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
@@ -149,7 +151,7 @@
                 vec3 WorldSkyLightColor = GetSkyLightColor();
             #endif
 
-            skyLightColor *= CalculateSkyLightWeatherColor(WorldSkyLightColor) * WorldSkyBrightnessF;
+            skyLightColor *= CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
             //skyLightColor *= 1.0 - 0.7 * rainStrength;
             
             #ifndef IRIS_FEATURE_SSBO

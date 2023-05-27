@@ -28,7 +28,7 @@ layout(location = 0) out vec4 outColor0;
 
 void main() {
     vec4 color = texture(gtexture, texcoord) * glcolor;
-    color.rgb = RGBToLinear(color.rgb) * WorldSkyBrightnessF;
+    color.rgb = RGBToLinear(color.rgb);// * WorldSkyBrightnessF;
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
@@ -52,6 +52,10 @@ void main() {
     // #endif
 
     // color.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
+
+    // #ifdef WORLD_END
+    //     color.rgb *= 10.0;
+    // #endif
 
     outColor0 = color;
 }

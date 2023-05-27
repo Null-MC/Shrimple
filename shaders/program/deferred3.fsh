@@ -155,8 +155,8 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 || VOLUMETRIC_BRIGHT_BLOCK > 0
     #include "/lib/world/volumetric_blur.glsl"
@@ -450,6 +450,8 @@ layout(location = 0) out vec4 outFinal;
                 //blockDiffuse += emission * MaterialEmissionF;
             #else
                 GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+                
+                SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     if (metal_f0 >= 0.5) {
@@ -498,7 +500,7 @@ layout(location = 0) out vec4 outFinal;
             #ifdef WORLD_SKY_ENABLED
                 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             #else
-                final = fogColor * WorldSkyBrightnessF;
+                final = fogColor;// * WorldSkyBrightnessF;
                 final = RGBToLinear(final);
             #endif
         }

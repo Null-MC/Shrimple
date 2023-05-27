@@ -125,12 +125,9 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    //#include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-#endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/collissions.glsl"
     #include "/lib/lighting/voxel/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
@@ -158,8 +155,8 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/basic_hand.glsl"
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 || VOLUMETRIC_BRIGHT_BLOCK > 0
     #include "/lib/world/volumetric_blur.glsl"
@@ -479,6 +476,8 @@ layout(location = 0) out vec4 outFinal;
                 //blockDiffuse += emission * MaterialEmissionF;
             #else
                 GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+
+                SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     if (metal_f0 >= 0.5) {

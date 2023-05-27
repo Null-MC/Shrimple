@@ -3,7 +3,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     vec2 noiseSample = vec2(0.0);
 
     #ifdef DYN_LIGHT_FLICKER
-        noiseSample = GetDynLightNoise(cameraPosition);
+        noiseSample = GetDynLightNoise(vec3(0.0));
     #endif
 
     float viewDist = length(fragLocalPos);
@@ -50,7 +50,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
@@ -117,7 +117,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetLightGridPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
@@ -165,6 +165,6 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         }
     }
 
-    blockDiffuse += 16.0 * accumDiffuse * DynamicLightBrightness;
+    blockDiffuse += accumDiffuse * DynamicLightBrightness;
     blockSpecular += accumSpecular * DynamicLightBrightness;
 }

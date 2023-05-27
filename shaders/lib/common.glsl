@@ -186,7 +186,7 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
-#define LPV_RANGE 800 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
+#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE
@@ -374,8 +374,6 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 const float WorldMinLightF = WORLD_LIGHT_MIN * 0.01;
 const float WorldSunBrightnessF = WORLD_SUN_BRIGHTNESS * 0.01;
 const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.01;
-const float WorldBrightnessF = WORLD_BRIGHTNESS * 0.01;
-const float WorldSkyBrightnessF = WORLD_SKY_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WORLD_WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
 const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
