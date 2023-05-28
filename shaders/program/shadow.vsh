@@ -117,6 +117,8 @@ void main() {
     gl_Position = shadowModelViewEx * gl_Position;
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        bool intersects = true;
+
         if (blockId > 0 && (
             renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
          || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
@@ -131,7 +133,6 @@ void main() {
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
                 uint lightType = GetSceneLightType(blockId);
 
-                bool intersects = true;
                 #ifdef DYN_LIGHT_FRUSTUM_TEST
                     vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos, 1.0)).xyz;
 
@@ -147,18 +148,20 @@ void main() {
                     }
                 #endif
 
-                if (lightType > 0) {
-                    if (!intersects) lightType = LIGHT_IGNORED;
+                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    if (lightType > 0) {
+                        if (!intersects) lightType = LIGHT_IGNORED;
 
-                    if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
-                        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                            if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-                            #ifdef DYN_LIGHT_DEBUG_COUNTS
-                                else atomicAdd(SceneLightMaxCount, 1u);
+                        if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
+                            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                                if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                                #ifdef DYN_LIGHT_DEBUG_COUNTS
+                                    else atomicAdd(SceneLightMaxCount, 1u);
+                                #endif
                             #endif
-                        #endif
+                        }
                     }
-                }
+                #endif
 
                 if (intersects && !IsTraceEmptyBlock(blockId))
                     SetSceneBlockMask(blockCell, gridIndex, blockId);
@@ -179,6 +182,11 @@ void main() {
             //     }
             // #endif
         //}
+
+        if (!intersects) {
+            gl_Position = vec4(-1.0);
+            return;
+        }
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
