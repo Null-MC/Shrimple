@@ -1039,6 +1039,32 @@ void main() {
             }
         }
 
+        if (blockId >= BLOCK_CREATE_CONTENT_OBSERVER_N && blockId <= BLOCK_CREATE_CONTENT_OBSERVER_W) {
+            shapeCount = 4u;
+            boundsMin[0] = modelPart( 0,  0,  0);
+            boundsMax[0] = modelPart(16,  6, 16);
+            boundsMin[1] = modelPart( 1,  6,  1);
+            boundsMax[1] = modelPart(15, 14, 15);
+            boundsMin[2] = modelPart( 0, 14,  0);
+            boundsMax[2] = modelPart(16, 16, 16);
+
+            // switch (blockId) {
+            //     case BLOCK_CREATE_CONTENT_OBSERVER_N:
+            //         boundsMin[3] = modelPart( 0,  3,  3);
+            //         boundsMax[3] = modelPart( 1,  3,  3);
+            //         break;
+            //     case BLOCK_CREATE_CONTENT_OBSERVER_E:
+            //         // TODO
+            //         break;
+            //     case BLOCK_CREATE_CONTENT_OBSERVER_S:
+            //         // TODO
+            //         break;
+            //     case BLOCK_CREATE_CONTENT_OBSERVER_W:
+            //         // TODO
+            //         break;
+            // }
+        }
+
         switch (blockId) {
             case BLOCK_CREATE_BASIN:
                 shapeCount = 5u;
@@ -1051,6 +1077,53 @@ void main() {
                 boundsMin[3] = modelPart( 2,  2,  0);
                 boundsMax[3] = modelPart(14, 16,  2);
                 boundsMin[4] = modelPart( 2,  2, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_BLAZE_BURNER:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 2,  0,  2);
+                boundsMax[0] = modelPart(14,  4, 14);
+                break;
+            case BLOCK_CREATE_CLUTCH_X:
+            case BLOCK_CREATE_GEARSHIFT_X:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 1,  2,  2);
+                boundsMax[0] = modelPart(15, 14, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart(16,  2, 16);
+                boundsMin[2] = modelPart( 0, 14,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 0,  2,  0);
+                boundsMax[3] = modelPart(16, 14,  2);
+                boundsMin[4] = modelPart( 0,  2, 14);
+                boundsMax[4] = modelPart(16, 14, 16);
+                break;
+            case BLOCK_CREATE_CLUTCH_Y:
+            case BLOCK_CREATE_GEARSHIFT_Y:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  1,  2);
+                boundsMax[0] = modelPart(14, 15, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14, 16,  2);
+                boundsMin[4] = modelPart( 2,  0, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_CLUTCH_Z:
+            case BLOCK_CREATE_GEARSHIFT_Z:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  2,  1);
+                boundsMax[0] = modelPart(14, 14, 15);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14,  2, 16);
+                boundsMin[4] = modelPart( 2, 14,  0);
                 boundsMax[4] = modelPart(14, 16, 16);
                 break;
             case BLOCK_CREATE_DEPOT:
@@ -1070,6 +1143,90 @@ void main() {
                 boundsMin[0] = modelPart( 3,  0,  0);
                 boundsMax[0] = modelPart(13, 16, 16);
                 break;
+        }
+
+        switch (blockId) {
+            case BLOCK_CREATE_ENCASED_FAN_UP:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  1,  2);
+                boundsMax[0] = modelPart(14,  3, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14, 16,  2);
+                boundsMin[4] = modelPart( 2,  0, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_ENCASED_FAN_DOWN:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2, 13,  2);
+                boundsMax[0] = modelPart(14, 15, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14, 16,  2);
+                boundsMin[4] = modelPart( 2,  0, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_ENCASED_FAN_N:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  2, 13);
+                boundsMax[0] = modelPart(14, 14, 15);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14,  2, 16);
+                boundsMin[4] = modelPart( 2, 14,  0);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_ENCASED_FAN_E:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 1,  2,  2);
+                boundsMax[0] = modelPart( 3, 14, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart(16,  2, 16);
+                boundsMin[2] = modelPart( 0, 14,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 0,  2,  0);
+                boundsMax[3] = modelPart(16, 14,  2);
+                boundsMin[4] = modelPart( 0,  2, 14);
+                boundsMax[4] = modelPart(16, 14, 16);
+                break;
+            case BLOCK_CREATE_ENCASED_FAN_S:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  2,  1);
+                boundsMax[0] = modelPart(14, 14,  3);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  0,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  0,  0);
+                boundsMax[3] = modelPart(14,  2, 16);
+                boundsMin[4] = modelPart( 2, 14,  0);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
+            case BLOCK_CREATE_ENCASED_FAN_W:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart(13,  2,  2);
+                boundsMax[0] = modelPart(15, 14, 14);
+                boundsMin[1] = modelPart( 0,  0,  0);
+                boundsMax[1] = modelPart(16,  2, 16);
+                boundsMin[2] = modelPart( 0, 14,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 0,  2,  0);
+                boundsMax[3] = modelPart(16, 14,  2);
+                boundsMin[4] = modelPart( 0,  2, 14);
+                boundsMax[4] = modelPart(16, 14, 16);
+                break;
+        }
+
+        switch (blockId) {
             case BLOCK_CREATE_GEARBOX_X:
                 shapeCount = 3u;
                 boundsMin[0] = modelPart( 0,  0,  0);
@@ -1175,6 +1332,76 @@ void main() {
                 shapeCount = 1u;
                 boundsMin[0] = modelPart( 0,  0,  0);
                 boundsMax[0] = modelPart(16, 13, 16);
+                break;
+            case BLOCK_CREATE_MILLSTONE:
+                shapeCount = 3u;
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  6, 16);
+                boundsMin[1] = modelPart( 4,  6,  4);
+                boundsMax[1] = modelPart(12, 13, 12);
+                boundsMin[2] = modelPart( 3, 13,  3);
+                boundsMax[2] = modelPart(13, 15, 13);
+                break;
+        }
+
+        switch (blockId) {
+            case BLOCK_CREATE_NIXIE_TUBE_FLOOR_N_S:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  0,  1);
+                boundsMax[0] = modelPart(11, 12,  7);
+                boundsMin[1] = modelPart( 5,  0,  9);
+                boundsMax[1] = modelPart(11, 12, 15);
+                break;
+            case BLOCK_CREATE_NIXIE_TUBE_FLOOR_W_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 1,  0,  5);
+                boundsMax[0] = modelPart( 7, 12, 11);
+                boundsMin[1] = modelPart( 9,  0,  5);
+                boundsMax[1] = modelPart(15, 12, 11);
+                break;
+
+            case BLOCK_CREATE_NIXIE_TUBE_CEIL_N_S:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  4,  1);
+                boundsMax[0] = modelPart(11, 16,  7);
+                boundsMin[1] = modelPart( 5,  4,  9);
+                boundsMax[1] = modelPart(11, 16, 15);
+                break;
+            case BLOCK_CREATE_NIXIE_TUBE_CEIL_W_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 1,  4,  5);
+                boundsMax[0] = modelPart( 7, 16, 11);
+                boundsMin[1] = modelPart( 9,  4,  5);
+                boundsMax[1] = modelPart(15, 16, 11);
+                break;
+
+            case BLOCK_CREATE_NIXIE_TUBE_WALL_N:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  1,  4);
+                boundsMax[0] = modelPart(11,  7, 16);
+                boundsMin[1] = modelPart( 5,  9,  4);
+                boundsMax[1] = modelPart(11, 15, 16);
+                break;
+            case BLOCK_CREATE_NIXIE_TUBE_WALL_E:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 0,  1,  5);
+                boundsMax[0] = modelPart(12,  7, 11);
+                boundsMin[1] = modelPart( 0,  9,  5);
+                boundsMax[1] = modelPart(12, 15, 11);
+                break;
+            case BLOCK_CREATE_NIXIE_TUBE_WALL_S:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 5,  1,  0);
+                boundsMax[0] = modelPart(11,  7, 12);
+                boundsMin[1] = modelPart( 5,  9,  0);
+                boundsMax[1] = modelPart(11, 15, 12);
+                break;
+            case BLOCK_CREATE_NIXIE_TUBE_WALL_W:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 4,  1,  5);
+                boundsMax[0] = modelPart(16,  7, 11);
+                boundsMin[1] = modelPart( 4,  9,  5);
+                boundsMax[1] = modelPart(16, 15, 11);
                 break;
         }
 
@@ -1314,6 +1541,28 @@ void main() {
         }
 
         switch (blockId) {
+            case BLOCK_CREATE_SPEED_CONTROLLER_X:
+                shapeCount = 4u;
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  4, 16);
+                boundsMin[1] = modelPart( 1,  4,  1);
+                boundsMax[1] = modelPart(15, 12, 15);
+                boundsMin[2] = modelPart( 0,  8,  0);
+                boundsMax[2] = modelPart(16, 14,  5);
+                boundsMin[3] = modelPart( 0,  8, 11);
+                boundsMax[3] = modelPart(16, 14, 16);
+                break;
+            case BLOCK_CREATE_SPEED_CONTROLLER_Z:
+                shapeCount = 4u;
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  4, 16);
+                boundsMin[1] = modelPart( 1,  4,  1);
+                boundsMax[1] = modelPart(15, 12, 15);
+                boundsMin[2] = modelPart( 0,  8,  0);
+                boundsMax[2] = modelPart( 5, 14, 16);
+                boundsMin[3] = modelPart(11,  8,  0);
+                boundsMax[3] = modelPart(16, 14, 16);
+                break;
             case BLOCK_CREATE_SPOUT:
                 shapeCount = 3u;
                 boundsMin[0] = modelPart( 2,  0,  2);
