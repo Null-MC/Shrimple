@@ -89,7 +89,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
 
 vec3 water_waveNormal(vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
     #if WORLD_WATER_PIXEL > 0
-        worldPos = floor(worldPos * WORLD_WATER_PIXEL + 0.5) / WORLD_WATER_PIXEL;
+        worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
     #endif
 
     float totalFactor = WATER_WAVE_HEIGHT / 13.0;

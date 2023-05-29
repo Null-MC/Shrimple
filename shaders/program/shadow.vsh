@@ -75,6 +75,11 @@ void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vColor = gl_Color;
 
+    bool isRenderTerrain = renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
+                        || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
+                        || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
+                        || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
+
     int blockId = int(mc_Entity.x + 0.5);
     if (blockId <= 0) blockId = BLOCK_SOLID;
 
@@ -86,13 +91,13 @@ void main() {
     }
 
     vOriginPos = gl_Vertex.xyz;
-    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && renderStage != MC_RENDER_STAGE_BLOCK_ENTITIES) {
+    if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && isRenderTerrain) {
         vOriginPos += at_midBlock / 64.0;
     }
 
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
 
-    if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
+    if (!isRenderTerrain) {
         vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
         vOriginPos -= 0.05 * geoNormal;
     }
@@ -119,11 +124,7 @@ void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         bool intersects = true;
 
-        if (blockId > 0 && (
-            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
-         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
-         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
-         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)) {
+        if (blockId > 0 && isRenderTerrain) {
             vec3 cf = fract(cameraPosition);
             vec3 lightGridOrigin = floor(vOriginPos + cf) - cf + 0.5;
 
@@ -183,10 +184,10 @@ void main() {
             // #endif
         //}
 
-        if (!intersects) {
-            gl_Position = vec4(-1.0);
-            return;
-        }
+        // if (!intersects) {
+        //     gl_Position = vec4(-1.0);
+        //     return;
+        // }
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

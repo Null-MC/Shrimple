@@ -7,7 +7,7 @@
             float bias = dither * sss;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
+                int tile = GetShadowCascade(shadowPos, ShadowMaxPcfSize);
 
                 if (tile >= 0) {
                     bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);
@@ -33,7 +33,7 @@
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(shadowPos, ShadowPCFSize);
+                int tile = GetShadowCascade(shadowPos, ShadowMaxPcfSize);
 
                 if (tile >= 0) {
                     bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);

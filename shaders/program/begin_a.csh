@@ -94,8 +94,8 @@ void main() {
 
                 #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                     shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
-                    shadowProjectionEx[0][0] = 2.0 / (min(shadowDistance, far) * 0.25);
-                    shadowProjectionEx[1][1] = 2.0 / (min(shadowDistance, far) * 0.25);
+                    shadowProjectionEx[0][0] = 2.0 / min(shadowDistance, far);
+                    shadowProjectionEx[1][1] = 2.0 / min(shadowDistance, far);
                     shadowProjectionEx[2][2] = -2.0 / (2.0 * far);
                     shadowProjectionEx[2][3] = 0.0;//-(zFar + zNear)/(zFar - zNear);
 

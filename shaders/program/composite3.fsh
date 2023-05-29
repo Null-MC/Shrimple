@@ -527,7 +527,7 @@ layout(location = 0) out vec4 outFinal;
                 vec2 p = refraction * (i / refractSteps);
                 float d = textureLod(depthtex1, texcoord + p, 0).r;
                 if (d < depth) {
-                    refraction *= max(i - 1, 0) / refractSteps;
+                    refraction *= max(i - 1.5, 0) / refractSteps;
                     break;
                 }
             }

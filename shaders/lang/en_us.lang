@@ -425,28 +425,7 @@ value.VOLUMETRIC_SAMPLES.24=Very High
 
 option.VOLUMETRIC_DENSITY=Density
 option.VOLUMETRIC_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
-value.VOLUMETRIC_DENSITY.5=5%
-value.VOLUMETRIC_DENSITY.10=10%
-value.VOLUMETRIC_DENSITY.15=15%
-value.VOLUMETRIC_DENSITY.20=20%
-value.VOLUMETRIC_DENSITY.25=25%
-value.VOLUMETRIC_DENSITY.30=30%
-value.VOLUMETRIC_DENSITY.40=40%
-value.VOLUMETRIC_DENSITY.50=50%
-value.VOLUMETRIC_DENSITY.60=60%
-value.VOLUMETRIC_DENSITY.70=70%
-value.VOLUMETRIC_DENSITY.80=80%
-value.VOLUMETRIC_DENSITY.90=90%
-value.VOLUMETRIC_DENSITY.100=100%
-value.VOLUMETRIC_DENSITY.125=125%
-value.VOLUMETRIC_DENSITY.150=150%
-value.VOLUMETRIC_DENSITY.175=175%
-value.VOLUMETRIC_DENSITY.200=200%
-value.VOLUMETRIC_DENSITY.250=250%
-value.VOLUMETRIC_DENSITY.300=300%
-value.VOLUMETRIC_DENSITY.400=400%
-value.VOLUMETRIC_DENSITY.600=600%
-value.VOLUMETRIC_DENSITY.800=800%
+suffix.VOLUMETRIC_DENSITY=%
 value.VOLUMETRIC_DENSITY.1000=Silent Hill
 
 option.VOLUMETRIC_RES=Resolution
@@ -480,7 +459,7 @@ suffix.SHADOW_BRIGHTNESS=%
 option.SHADOW_COLORED=Color Tinting
 option.SHADOW_COLORED.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks.
 
-option.SHADOW_COLOR_BLEND=Blending
+option.SHADOW_COLOR_BLEND=Color Blending
 option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports translucent-sorting.
 
 option.SHADOW_BIAS_SCALE=Bias Scale
@@ -521,23 +500,28 @@ screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.
 option.SHADOW_FILTER=Filtering
 option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
 value.SHADOW_FILTER.0=None
-value.SHADOW_FILTER.1=PCF
-value.SHADOW_FILTER.2=PCF+PCSS
-
-option.SHADOW_PCF_SIZE=PCF Radius
-option.SHADOW_PCF_SIZE.comment=The radius of the shadow blurring using a block-sized scale.
-
-option.SHADOW_PCF_SAMPLES=PCF Samples
-option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring.
-
-option.SHADOW_PCSS_SAMPLES=PCSS Samples
-option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining penumbra width.
+value.SHADOW_FILTER.1=Soft-Fixed
+value.SHADOW_FILTER.2=Soft-Dynamic
 
 option.SHADOW_ENABLE_HWCOMP=HW-Accelerated
 option.SHADOW_ENABLE_HWCOMP.comment=When enabled, shadows will leverage hardware-filtering for better quality and performance.
 
-option.SHADOW_BLUR=Blur
-option.SHADOW_BLUR.comment=Applies a gaussian blur to the shadowing buffer.
+option.SHADOW_PCF_SIZE_MIN=Min Radius
+option.SHADOW_PCF_SIZE_MIN.comment=The minimum radius of the shadow blurring; measured in blocks/meters. For dynamic soft-shadows only.
+suffix.SHADOW_PCF_SIZE_MIN=%
+
+option.SHADOW_PCF_SIZE_MAX=Max Radius
+option.SHADOW_PCF_SIZE_MAX.comment=The maximum/fixed radius of the shadow blurring; measured in blocks/meters. For fixed or dynamic soft-shadows.
+suffix.SHADOW_PCF_SIZE_MAX=%
+
+option.SHADOW_PCF_SAMPLES=Blur Samples
+option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring. For fixed or dynamic soft-shadows.
+
+option.SHADOW_PCSS_SAMPLES=Blocker Samples
+option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining penumbra width. For dynamic soft-shadows only.
+
+option.SHADOW_BLUR=Smooth
+option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
 
 
 screen.POST_OPTIONS=Post-Processing

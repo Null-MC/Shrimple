@@ -87,34 +87,47 @@ uniform float far;
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
-            vec3 lightOrigin = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
+        bool intersectsShadow = true;
+        vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
+        #ifdef SHADOW_FRUSTUM_CULL
+            if (vBlockId[0] > 0) {
+                vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+
+                //const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+                //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
+                const float frustumPadding = 2.0;
+                if (lightViewPos.z > frustumPadding) intersectsShadow = false;
+                //else if (lightViewPos.z < -(far + frustumPadding)) intersectsShadow = false;
+            }
+        #endif
+
+        if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
             vec3 cf = fract(cameraPosition);
-            vec3 lightGridOrigin = floor(lightOrigin + cf) - cf + 0.5;
+            vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
 
             ivec3 gridCell, blockCell;
             vec3 gridPos = GetLightGridPosition(lightGridOrigin);
             if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
                 uint gridIndex = GetSceneLightGridIndex(gridCell);
+                bool intersectsLight = true;
 
-                bool intersects = true;
                 #ifdef DYN_LIGHT_FRUSTUM_TEST
-                    vec3 lightViewPos = (gbufferModelView * vec4(lightOrigin, 1.0)).xyz;
+                    vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
                     const float viewPad = 1.0;
-                    if (lightViewPos.z > viewPad) intersects = false;
-                    else if (lightViewPos.z < -(far + viewPad)) intersects = false;
+                    if (lightViewPos.z > viewPad) intersectsLight = false;
+                    else if (lightViewPos.z < -(far + viewPad)) intersectsLight = false;
                     else {
-                        if (dot(sceneViewUp,   lightViewPos) > viewPad) intersects = false;
-                        if (dot(sceneViewDown, lightViewPos) > viewPad) intersects = false;
-                        if (dot(sceneViewLeft,  lightViewPos) > viewPad) intersects = false;
-                        if (dot(sceneViewRight, lightViewPos) > viewPad) intersects = false;
+                        if (dot(sceneViewUp,   lightViewPos) > viewPad) intersectsLight = false;
+                        if (dot(sceneViewDown, lightViewPos) > viewPad) intersectsLight = false;
+                        if (dot(sceneViewLeft,  lightViewPos) > viewPad) intersectsLight = false;
+                        if (dot(sceneViewRight, lightViewPos) > viewPad) intersectsLight = false;
                     }
                 #endif
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    if (intersects && !IsTraceEmptyBlock(vBlockId[0]))
+                    if (intersectsLight && !IsTraceEmptyBlock(vBlockId[0]))
                         SetSceneBlockMask(blockCell, gridIndex, vBlockId[0]);
                 #endif
             }
@@ -141,6 +154,8 @@ void main() {
         //     //     AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
         //     // }
         // }
+
+        if (!intersectsShadow) return;
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
