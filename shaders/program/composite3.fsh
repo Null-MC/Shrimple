@@ -543,6 +543,8 @@ layout(location = 0) out vec4 outFinal;
             if (isEyeInWater == 1) {
                 final.rgb = mix(opaqueFinal, final.rgb, final.a);
             }
+        #else
+            final.rgb = mix(opaqueFinal, final.rgb, final.a);
         #endif
 
         #ifdef VL_BUFFER_ENABLED
