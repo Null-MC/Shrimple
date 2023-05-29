@@ -364,7 +364,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                color.rgb = 0.25 * glcolor.rgb;
+                color.rgb = 0.5 * RGBToLinear(glcolor.rgb);
                 color.a = 0.7;
             #endif
 
