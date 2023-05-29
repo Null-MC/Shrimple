@@ -283,7 +283,7 @@ layout(location = 0) out vec4 outFinal;
         vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
         fogColorFinal = RGBToLinear(fogColorFinal);
 
-        if (depth < depthOpaque) {
+        if (depth <= depthOpaque) {
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
 
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);

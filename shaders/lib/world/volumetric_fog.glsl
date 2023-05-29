@@ -22,9 +22,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         if (isEyeInWater == 1) result = WaterPhaseF;
         else {
     #endif
-        float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
-
         #ifdef WORLD_SKY_ENABLED
+            float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
+
             result.Ambient = 0.14;
 
             result.Forward = mix(0.66, 0.26, rainStrength);
@@ -34,14 +34,14 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
             result.ScatterF = mix(0.018, 0.092, rainStrength) * density;
             result.ExtinctF = mix(0.012, 0.076, rainStrength) * density;
         #else
-            result.Ambient = 0.48;
+            result.Ambient = 0.96;
 
             result.Forward = 0.6;
             result.Back = 0.2;
             result.Direction = 0.6;
 
-            result.ScatterF = 0.024 * density;
-            result.ExtinctF = 0.016 * density;
+            result.ScatterF = 0.032 * VolumetricDensityF;
+            result.ExtinctF = 0.032 * VolumetricDensityF;
         #endif
     #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
         }
