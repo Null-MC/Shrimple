@@ -354,6 +354,19 @@ void main() {
         }
 
         switch (blockId) {
+            case BLOCK_COMPOSTER:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  0,  2);
+                boundsMax[0] = modelPart(14,  2, 14);
+                boundsMin[1] = modelPart( 0,  2,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  2,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  2,  0);
+                boundsMax[3] = modelPart(14, 16,  2);
+                boundsMin[4] = modelPart( 2,  2, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
             case BLOCK_END_PORTAL_FRAME:
                 shapeCount = 1u;
                 boundsMin[0] = modelPart( 0,  0,  0);
@@ -1027,12 +1040,35 @@ void main() {
         }
 
         switch (blockId) {
+            case BLOCK_CREATE_BASIN:
+                shapeCount = 5u;
+                boundsMin[0] = modelPart( 2,  0,  2);
+                boundsMax[0] = modelPart(14,  2, 14);
+                boundsMin[1] = modelPart( 0,  2,  0);
+                boundsMax[1] = modelPart( 2, 16, 16);
+                boundsMin[2] = modelPart(14,  2,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                boundsMin[3] = modelPart( 2,  2,  0);
+                boundsMax[3] = modelPart(14, 16,  2);
+                boundsMin[4] = modelPart( 2,  2, 14);
+                boundsMax[4] = modelPart(14, 16, 16);
+                break;
             case BLOCK_CREATE_DEPOT:
                 shapeCount = 2u;
                 boundsMin[0] = modelPart( 0,  0,  0);
                 boundsMax[0] = modelPart(16, 11, 16);
                 boundsMin[1] = modelPart( 1, 11,  1);
                 boundsMax[1] = modelPart(15, 13, 15);
+                break;
+            case BLOCK_CREATE_DISPLAY_BOARD_N_S:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 0,  0,  3);
+                boundsMax[0] = modelPart(16, 16, 13);
+                break;
+            case BLOCK_CREATE_DISPLAY_BOARD_W_E:
+                shapeCount = 1u;
+                boundsMin[0] = modelPart( 3,  0,  0);
+                boundsMax[0] = modelPart(13, 16, 16);
                 break;
             case BLOCK_CREATE_GEARBOX_X:
                 shapeCount = 3u;
@@ -1278,6 +1314,31 @@ void main() {
         }
 
         switch (blockId) {
+            case BLOCK_CREATE_SPOUT:
+                shapeCount = 3u;
+                boundsMin[0] = modelPart( 2,  0,  2);
+                boundsMax[0] = modelPart(14,  2, 14);
+                boundsMin[1] = modelPart( 1,  2,  1);
+                boundsMax[1] = modelPart(15, 14, 15);
+                boundsMin[2] = modelPart( 2, 14,  2);
+                boundsMax[2] = modelPart(14, 16, 14);
+                break;
+            case BLOCK_CREATE_TRACK_SIGNAL:
+                shapeCount = 3u;
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  2, 16);
+                boundsMin[1] = modelPart( 1,  2,  1);
+                boundsMax[1] = modelPart(15, 14, 15);
+                boundsMin[2] = modelPart( 0, 14,  0);
+                boundsMax[2] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_TRACK_STATION:
+                shapeCount = 2u;
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  2, 16);
+                boundsMin[1] = modelPart( 1,  2,  1);
+                boundsMax[1] = modelPart(15, 13, 15);
+                break;
             case BLOCK_CREATE_WEIGHTED_EJECTOR_N_S:
                 shapeCount = 6u;
                 boundsMin[0] = modelPart( 0,  0,  0);
