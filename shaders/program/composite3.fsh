@@ -301,10 +301,10 @@ layout(location = 0) out vec4 outFinal;
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
             #ifdef REFRACTION_ENABLED
-                bool isWater = deferredTexture.a < 0.5;
+                //bool isWater = deferredTexture.a < 0.5;
 
-                if (isWater) {
-                    vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+                //if (isWater) {
+                    vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
 
                     const float ior = IOR_WATER;
                     float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
@@ -314,14 +314,14 @@ layout(location = 0) out vec4 outFinal;
                     float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
                     float linearDist = linearDepthOpaque - linearDepth;
 
-                    vec2 refractMax = vec2(0.06);
+                    vec2 refractMax = vec2(0.1);
                     refractMax.x *= viewWidth / viewHeight;
-                    refraction = clamp(vec2(0.01 * linearDist), -refractMax, refractMax) * refractDir.xy;
+                    refraction = clamp(vec2(0.06 * linearDist), -refractMax, refractMax) * refractDir.xy;
 
                     #ifdef REFRACTION_SNELL_ENABLED
                         tir = all(lessThan(abs(refractDir), EPSILON3));
                     #endif
-                }
+                //}
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
