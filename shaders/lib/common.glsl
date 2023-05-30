@@ -233,7 +233,7 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
-#define REFRACTION_ENABLED
+#define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 //#define REFRACTION_SNELL_ENABLED
 #define AF_SAMPLES 1
 
@@ -400,6 +400,7 @@ const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
+const float RefractionStrengthF = REFRACTION_STRENGTH * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;

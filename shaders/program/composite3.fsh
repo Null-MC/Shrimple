@@ -300,7 +300,7 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
-            #ifdef REFRACTION_ENABLED
+            #if REFRACTION_STRENGTH > 0
                 //bool isWater = deferredTexture.a < 0.5;
 
                 //if (isWater) {
@@ -316,7 +316,7 @@ layout(location = 0) out vec4 outFinal;
 
                     vec2 refractMax = vec2(0.1);
                     refractMax.x *= viewWidth / viewHeight;
-                    refraction = clamp(vec2(0.06 * linearDist), -refractMax, refractMax) * refractDir.xy;
+                    refraction = clamp(vec2(0.06 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
 
                     #ifdef REFRACTION_SNELL_ENABLED
                         tir = all(lessThan(abs(refractDir), EPSILON3));
@@ -518,7 +518,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
             if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
 
-            #ifdef REFRACTION_ENABLED
+            #if REFRACTION_STRENGTH > 0
                 float refractDist = maxOf(abs(refraction * viewSize));
                 int refractSteps = int(ceil(refractDist));
 
@@ -536,7 +536,7 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
 
-        #if defined REFRACTION_ENABLED && defined REFRACTION_SNELL_ENABLED
+        #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
