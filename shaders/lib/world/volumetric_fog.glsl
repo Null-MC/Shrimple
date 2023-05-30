@@ -13,7 +13,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.3, 0.06, 0.06, 0.6, 0.46, 0.16);
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.2, 0.04, 0.04, 0.6, 0.46, 0.16);
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     VolumetricPhaseFactors result;
