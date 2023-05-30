@@ -63,6 +63,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+uniform int isEyeInWater;
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferPreviousModelView;
@@ -78,10 +79,6 @@ uniform float blindness;
 
 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
     uniform int worldTime;
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
 #endif
 
 uniform int heldItemId;
@@ -278,14 +275,13 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 localViewDir = normalize(localPos);
 
+        vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
         vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
         fogColorFinal = RGBToLinear(fogColorFinal);
 
-        if (depth <= depthOpaque) {
-            vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
-
+        if (deferredColor.a > (0.5/255.0)) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -549,7 +545,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            if (depth < depthOpaque || isEyeInWater == 1) {
+            if (final.a > (0.5/255.0) || isEyeInWater == 1) {
                 #ifdef VOLUMETRIC_BLUR
                     const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 

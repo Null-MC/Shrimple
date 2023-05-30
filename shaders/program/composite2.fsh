@@ -11,6 +11,7 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_VL;
+uniform sampler2D BUFFER_DEFERRED_COLOR;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
@@ -130,11 +131,13 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    float depth = textureLod(depthtex0, texcoord, 0).r;
-    float opaqueDepth = textureLod(depthtex1, texcoord, 0).r;
+    //float opaqueDepth = textureLod(depthtex1, texcoord, 0).r;
+
+    float opacity = textureLod(BUFFER_DEFERRED_COLOR, texcoord, 0).a;
 
     vec4 final = vec4(0.0);
-    if (depth < opaqueDepth || isEyeInWater == 1) {
+    if (opacity > (0.5/255.0) || isEyeInWater == 1) {
+        float depth = textureLod(depthtex0, texcoord, 0).r;
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
         #ifndef IRIS_FEATURE_SSBO

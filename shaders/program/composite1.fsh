@@ -11,11 +11,11 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
+uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_DEFERRED_COLOR;
     uniform sampler2D BUFFER_ROUGHNESS;
 #endif
 
@@ -179,7 +179,6 @@ void main() {
     #endif
 
     float depth = textureLod(depthtex0, tex2, 0).r;
-    float depthOpaque = textureLod(depthtex1, tex2, 0).r;
     //float handClipDepth = textureLod(depthtex2, tex2, 0).r;
     //bool isHand = handClipDepth > depth;
     
@@ -191,7 +190,11 @@ void main() {
 
     outDepth = vec4(vec3(depth), 1.0);
 
-    if (depth < depthOpaque) {
+    float opacity = textureLod(BUFFER_DEFERRED_COLOR, tex2, 0).a;
+
+    if (opacity > (0.5/255.0)) {
+        float depthOpaque = textureLod(depthtex1, tex2, 0).r;
+
         ivec2 iTex = ivec2(tex2 * viewSize);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
