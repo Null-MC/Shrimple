@@ -43,8 +43,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                     uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
                     uint neighborLightCount = SceneLightMaps[neighborGridIndex].LightCount;
                     
-                    for (uint i = 0u; i < LIGHT_BIN_MAX_COUNT; i++) {
-                        if (i >= neighborLightCount || lightLocalIndex >= LIGHT_BIN_MAX_COUNT) break;
+                    for (uint i = 0u; i < min(neighborLightCount, LIGHT_BIN_MAX_COUNT); i++) {
+                        if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) break;
 
                         uint lightGlobalIndex = SceneLightMaps[neighborGridIndex].GlobalLights[i];
                         uvec4 lightData = SceneLights[lightGlobalIndex];

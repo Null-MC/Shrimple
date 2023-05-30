@@ -66,7 +66,7 @@ vec3 GetLpvValue(const in ivec3 texCoord) {
 }
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
-    const float FALLOFF = 0.99;
+    const float FALLOFF = 0.9;
 
     vec3 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
     vec3 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));

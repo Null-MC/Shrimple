@@ -39,6 +39,7 @@ uniform int entityId;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/shadow.glsl"
 #endif
 
 #ifdef WORLD_WAVING_ENABLED
@@ -101,6 +102,15 @@ void main() {
         vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
         vOriginPos -= 0.05 * geoNormal;
     }
+
+    #ifdef SHADOW_FRUSTUM_CULL
+        if (isRenderTerrain && vBlockId > 0) {
+            if (clamp(vOriginPos.xy, shadowViewBoundsMin, shadowViewBoundsMax) != vOriginPos.xy) {
+                gl_Position = vec4(-1.0);
+                return;
+            }
+        }
+    #endif
 
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
@@ -191,12 +201,7 @@ void main() {
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        if (
-            renderStage == MC_RENDER_STAGE_TERRAIN_SOLID ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED ||
-            renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
-        ) {
+        if (isRenderTerrain) {
             if (blockId == BLOCK_FIRE || blockId == BLOCK_SOUL_FIRE) gl_Position = vec4(-1.0);
         }
     #else

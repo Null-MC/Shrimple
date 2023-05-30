@@ -521,11 +521,12 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef REFRACTION_ENABLED
             float refractDist = maxOf(abs(refraction * viewSize));
-            float refractSteps = min(ceil(refractDist), 16.0);
+            int refractSteps = int(ceil(refractDist));
 
-            for (int i = 1; i <= refractSteps; i++) {
+            for (int i = 1; i <= min(refractSteps, 16); i++) {
                 vec2 p = refraction * (i / refractSteps);
                 float d = textureLod(depthtex1, texcoord + p, 0).r;
+                
                 if (d < depth) {
                     refraction *= max(i - 1.5, 0) / refractSteps;
                     break;

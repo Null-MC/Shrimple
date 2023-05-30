@@ -44,9 +44,7 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
     uint shapeCount = CollissionMaps[blockId].Count;
 
     bool hit = false;
-    for (uint i = 0u; i < BLOCK_MASK_PARTS; i++) {
-        if (i >= shapeCount || hit) break;
-
+    for (uint i = 0u; i < min(shapeCount, BLOCK_MASK_PARTS) && !hit; i++) {
         uvec2 shapeBounds = CollissionMaps[blockId].Bounds[i];
         vec3 boundsMin = unpackUnorm4x8(shapeBounds.x).xyz;
         vec3 boundsMax = unpackUnorm4x8(shapeBounds.y).xyz;

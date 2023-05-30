@@ -228,6 +228,50 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     blockSpecular = accumSpecular / total;
 }
 
+// #if DYN_LIGHT_RES != 0
+//     #if DYN_LIGHT_RES == 1
+//         const ivec2 offsetList[4] = ivec2[](
+//             ivec2(0, 0),
+//             ivec2(1, 0),
+//             ivec2(0, 1),
+//             ivec2(1, 1));
+//     #else
+//         const ivec2 offsetList[16] = ivec2[](
+//             ivec2(0, 0),
+//             ivec2(2, 0),
+//             ivec2(0, 2),
+//             ivec2(2, 2),
+
+//             ivec2(1, 0),
+//             ivec2(3, 0),
+//             ivec2(1, 2),
+//             ivec2(3, 2),
+
+//             ivec2(0, 1),
+//             ivec2(1, 1),
+//             ivec2(0, 3),
+//             ivec2(1, 3),
+
+//             ivec2(1, 1),
+//             ivec2(3, 1),
+//             ivec2(1, 3),
+//             ivec2(3, 3));
+//     #endif
+
+//     ivec2 GetTemporalOffset(const in int size) {
+//         #if DYN_LIGHT_RES == 1
+//             const float resF = 2.0;
+//         #else
+//             const float resF = 4.0;
+//         #endif
+
+//         vec2 p = floor(gl_FragCoord.xy / resF);
+
+//         int i = int(frameCounter + p.x + size*p.y);
+//         return offsetList[i % _pow2(size)];
+//     }
+// #endif
+
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -354,6 +398,12 @@ layout(location = 0) out vec4 outFinal;
 
                     vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 
+                    // #if DYN_LIGHT_RES == 1
+                    //     uvPrev.xy -= 0.5*rcp(viewSize);
+                    // #elif DYN_LIGHT_RES == 2
+                    //     uvPrev.xy -= 0.5*rcp(viewSize);
+                    // #endif
+
                     float diffuseCounter = 0.0;
 
                     if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
@@ -362,9 +412,9 @@ layout(location = 0) out vec4 outFinal;
                         float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
                         #if DYN_LIGHT_RES == 2
-                            const float depthWeightF = 8.0;
-                        #else
                             const float depthWeightF = 16.0;
+                        #else
+                            const float depthWeightF = 32.0;
                         #endif
 
                         float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
@@ -373,7 +423,7 @@ layout(location = 0) out vec4 outFinal;
                         vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                         if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                             normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                            normalWeight = 0.25 * max(1.0 - dot(normalPrev, texNormal), 0.0);
+                            normalWeight = max(1.0 - dot(normalPrev, texNormal), 0.0);
 
                             #if DYN_LIGHT_RES == 2
                                 normalWeight *= 0.25;

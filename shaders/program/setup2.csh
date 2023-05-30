@@ -2305,9 +2305,7 @@ void main() {
 
         CollissionMaps[blockId].Count = shapeCount;
 
-        for (uint i = 0u; i < BLOCK_MASK_PARTS; i++) {
-            if (i >= shapeCount) break;
-
+        for (uint i = 0u; i < min(shapeCount, BLOCK_MASK_PARTS); i++) {
             CollissionMaps[blockId].Bounds[i] = uvec2(
                 packUnorm4x8(vec4(boundsMin[i], 0.0)),
                 packUnorm4x8(vec4(boundsMax[i], 0.0)));

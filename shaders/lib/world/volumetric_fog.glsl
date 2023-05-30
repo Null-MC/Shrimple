@@ -189,7 +189,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                    for (uint l = 0; l < lightCount; l++) {
+                    for (uint l = 0; l < min(lightCount, LIGHT_BIN_MAX_COUNT); l++) {
                         uvec4 lightData = GetSceneLight(gridIndex, l);
 
                         vec3 lightPos, lightColor;

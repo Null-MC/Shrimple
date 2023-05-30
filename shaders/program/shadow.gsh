@@ -92,13 +92,9 @@ void main() {
 
         #ifdef SHADOW_FRUSTUM_CULL
             if (vBlockId[0] > 0) {
-                vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+                vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
 
-                //const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
-                //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
-                const float frustumPadding = 2.0;
-                if (lightViewPos.z > frustumPadding) intersectsShadow = false;
-                //else if (lightViewPos.z < -(far + frustumPadding)) intersectsShadow = false;
+                if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
             }
         #endif
 
