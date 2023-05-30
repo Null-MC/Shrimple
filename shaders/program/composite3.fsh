@@ -549,7 +549,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            if (depth < depthOpaque) {
+            if (depth < depthOpaque || isEyeInWater == 1) {
                 #ifdef VOLUMETRIC_BLUR
                     const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
