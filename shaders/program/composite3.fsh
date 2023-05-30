@@ -517,22 +517,22 @@ layout(location = 0) out vec4 outFinal;
 
             final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
             if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
-        }
 
-        #ifdef REFRACTION_ENABLED
-            float refractDist = maxOf(abs(refraction * viewSize));
-            int refractSteps = int(ceil(refractDist));
+            #ifdef REFRACTION_ENABLED
+                float refractDist = maxOf(abs(refraction * viewSize));
+                int refractSteps = int(ceil(refractDist));
 
-            for (int i = 1; i <= min(refractSteps, 16); i++) {
-                vec2 p = refraction * (i / refractSteps);
-                float d = textureLod(depthtex1, texcoord + p, 0).r;
-                
-                if (d < depth) {
-                    refraction *= max(i - 1.5, 0) / refractSteps;
-                    break;
+                for (int i = 1; i <= min(refractSteps, 16); i++) {
+                    vec2 p = refraction * (i / refractSteps);
+                    float d = textureLod(depthtex1, texcoord + p, 0).r;
+                    
+                    if (d < depth) {
+                        refraction *= max(i - 1.5, 0) / refractSteps;
+                        break;
+                    }
                 }
-            }
-        #endif
+            #endif
+        }
 
         vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
 
@@ -549,23 +549,25 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            #ifdef VOLUMETRIC_BLUR
-                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+            if (depth < depthOpaque) {
+                #ifdef VOLUMETRIC_BLUR
+                    const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-                #if VOLUMETRIC_RES == 2
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #if VOLUMETRIC_RES == 2
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #elif VOLUMETRIC_RES == 1
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #else
+                        const vec2 vlSigma = vec2(1.2, 0.00002);
+                    #endif
+
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
                 #else
-                    const vec2 vlSigma = vec2(1.2, 0.00002);
+                    vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
                 #endif
 
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
-            #else
-                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-            #endif
-
-            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+                final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+            }
         #endif
 
         #ifdef WORLD_WATER_ENABLED
