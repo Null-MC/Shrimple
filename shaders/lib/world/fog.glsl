@@ -34,7 +34,7 @@ float GetFogFactor(const in float dist, const in float start, const in float end
         if (fogShape == 1)
             fogPos.y = 0.0;
 
-        float viewDist = length(fogPos);
+        float viewDist = length(fogPos) * rcp(WorldFogScaleF);
         return GetFogFactor(viewDist, fogStart, fogEnd, 1.0);
     }
 #endif

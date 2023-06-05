@@ -100,6 +100,7 @@ const bool colortex15Clear = true;
 #define WORLD_SUN_BRIGHTNESS 200 // [10 20 30 40 50 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 #define WORLD_MOON_BRIGHTNESS 100 // [10 20 30 40 50 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 #define WORLD_LIGHT_MIN 6 // [0 1 2 4 6 8 10 12 14 16 20 24 28 32]
+#define WORLD_FOG_SCALE 400 // [20 40 60 80 100 120 140 160 180 200 250 300 250 400 500 600]
 
 
 // Water Options
@@ -236,6 +237,7 @@ const bool colortex15Clear = true;
 #define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 //#define REFRACTION_SNELL_ENABLED
 #define AF_SAMPLES 1
+#define LIGHT_LEAK_FIX
 
 
 // INTERNAL SETTINGS
@@ -360,6 +362,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef DEFER_TRANSLUCENT
 #endif
+#ifdef LIGHT_LEAK_FIX
+#endif
 
 #if (VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO)
     #define VL_BUFFER_ENABLED
@@ -379,6 +383,7 @@ const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WORLD_WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
 const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
+const float WorldFogScaleF = WORLD_FOG_SCALE * 0.01;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;

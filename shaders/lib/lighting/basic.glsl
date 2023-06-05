@@ -131,7 +131,7 @@
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
-            #ifndef RENDER_CLOUDS
+            #if defined LIGHT_LEAK_FIX && !defined RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
                     vec3 skyLightColor = textureLod(lightmap, vec2(0.5/16.0, lmcoordY), 0).rgb;
                 #else
@@ -267,7 +267,7 @@
                     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
                 #endif
 
-                vec3 ambientLight = RGBToLinear(lightmapColor) * DynamicLightAmbientF + WorldMinLightF;
+                vec3 ambientLight = RGBToLinear(lightmapColor) + WorldMinLightF;
 
                 #if LPV_SIZE > 0
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
@@ -280,9 +280,11 @@
                         //lpvLight /= 8.0 + luminance(lpvLight);
                         //lpvLight /= LpvRangeF;
 
-                        ambientLight += lpvLight * lpvFade * DynamicLightAmbientF;
+                        ambientLight = mix(ambientLight, lpvLight, lpvFade);
                     }
                 #endif
+
+                ambientLight *= DynamicLightAmbientF;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     if (metal_f0 >= 0.5) {
