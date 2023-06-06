@@ -125,7 +125,7 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
 float GetLpvBounceF(const in uint gridIndex, const in ivec3 blockCell) {
     uint blockId = GetSceneBlockMask(blockCell, gridIndex);
     //return IsTraceOpenBlock(blockId) ? 0.0 : 1.0;
-    return blockId != BLOCK_EMPTY ? 1.0 : 0.0;
+    return IsTraceEmptyBlock(blockId) ? 0.0 : 1.0;
 }
 
 void main() {
