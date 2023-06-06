@@ -122,6 +122,12 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
 //     return fract(magic.z * fract(x));
 // }
 
+float GetLpvBounceF(const in uint gridIndex, const in ivec3 blockCell) {
+    uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+    //return IsTraceOpenBlock(blockId) ? 0.0 : 1.0;
+    return blockId != BLOCK_EMPTY ? 1.0 : 0.0;
+}
+
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
@@ -194,6 +200,15 @@ void main() {
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
                             #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                                float bounceF = (1.0/6.0) * (
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3( 1, 0, 0)) +
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3(-1, 0, 0)) +
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3( 0, 1, 0)) +
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3( 0,-1, 0)) +
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3( 0, 0, 1)) +
+                                    GetLpvBounceF(gridIndex, blockCell + ivec3( 0, 0,-1))
+                                );
+
                                 //float ign = InterleavedGradientNoise(imgCoord.xz + imgCoord.y);
                                 //vec3 shadowOffset = hash31(ign);
                                 vec3 blockLpvPos = blockLocalPos;// + shadowOffset * 0.96 - 0.48;
@@ -205,17 +220,18 @@ void main() {
 
                                 shadowPos = shadowPos * 0.5 + 0.5;
 
+                                float shadowBias = GetShadowOffsetBias();
+
                                 #ifdef SHADOW_COLORED
-                                    const float shadowBias = EPSILON;
                                     vec3 shadow = GetShadowColor(shadowPos, shadowBias);
                                 #else
                                     //float shadow = GetShadowFactor(shadowPos, shadowBias);
-                                    float shadowBias = GetShadowOffsetBias();
                                     float shadow = CompareDepth(shadowPos, vec2(0.0), shadowBias);
                                 #endif
 
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += (256.0 * max(localSunDirection.y, 0.0) + 16.0) * WorldSkyLightColor * shadow;
+                                lightValue += mix(128.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadow * bounceF;
+                                //lightValue += 1024.0 * WorldSkyLightColor * shadow * bounceF;
                             #endif
                         }
                     #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED

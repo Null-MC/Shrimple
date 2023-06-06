@@ -14,6 +14,7 @@ flat in vec3 vOriginPos[3];
 
 out vec2 gTexcoord;
 out vec4 gColor;
+flat out uint gBlockId;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     flat out vec2 gShadowTilePos;
@@ -191,6 +192,7 @@ void main() {
 
                     gTexcoord = vTexcoord[v];
                     gColor = vColor[v];
+                    gBlockId = vBlockId[v];
 
                     gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
 
@@ -207,6 +209,7 @@ void main() {
             for (int v = 0; v < 3; v++) {
                 gTexcoord = vTexcoord[v];
                 gColor = vColor[v];
+                gBlockId = vBlockId[v];
 
                 #ifdef IRIS_FEATURE_SSBO
                     gl_Position = shadowProjectionEx * gl_in[v].gl_Position;

@@ -267,7 +267,7 @@
                     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
                 #endif
 
-                vec3 ambientLight = RGBToLinear(lightmapColor) + WorldMinLightF;
+                vec3 ambientLight = RGBToLinear(lightmapColor);
 
                 #if LPV_SIZE > 0
                     if (saturate(lpvTexcoord) == lpvTexcoord) {
@@ -288,6 +288,7 @@
                     }
                 #endif
 
+                ambientLight += WorldMinLightF;
                 ambientLight *= DynamicLightAmbientF;
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE

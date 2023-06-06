@@ -6,6 +6,7 @@
 
 in vec2 gTexcoord;
 in vec4 gColor;
+flat in uint gBlockId;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
 	flat in vec2 gShadowTilePos;
@@ -18,6 +19,8 @@ uniform int renderStage;
 #if MC_VERSION >= 11700
 	uniform float alphaTestRef;
 #endif
+
+#include "/lib/blocks.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -47,12 +50,14 @@ void main() {
 
 	color.rgb = RGBToLinear(color.rgb * gColor.rgb);
 
-    #if WORLD_WATER_TEXTURE == WATER_COLORED
-        color.rgb = 0.4 * gColor.rgb;
-        color.a = 0.7;
-    #endif
+	if (gBlockId == BLOCK_WATER) {
+	    #if WORLD_WATER_TEXTURE == WATER_COLORED
+	        color.rgb = 0.4 * gColor.rgb;
+	        color.a = 0.7;
+	    #endif
 
-    color.a *= WorldWaterOpacityF;
+	    color.a *= WorldWaterOpacityF;
+	}
 
 	#ifdef SHADOW_COLOR_BLEND
 		color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
