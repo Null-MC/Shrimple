@@ -247,7 +247,7 @@
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 vec2 lmFinal = lmcoord;
 
-                lmFinal.x = (lmFinal.x - (0.5/16.0)) * 0.5;
+                lmFinal.x = (lmFinal.x - (0.5/15.0));
 
                 #if LPV_SIZE > 0
                     vec3 lpvPos = GetLPVPosition(localPos + 0.52 * geoNormal);
@@ -259,7 +259,7 @@
                     lmFinal.x *= 1.0 - lpvFade;
                 #endif
 
-                lmFinal.x += (0.5/16.0);
+                lmFinal.x += (0.5/15.0);
 
                 #ifdef RENDER_GBUFFER
                     vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
@@ -280,7 +280,11 @@
                         //lpvLight /= 8.0 + luminance(lpvLight);
                         //lpvLight /= LpvRangeF;
 
-                        ambientLight = mix(ambientLight, lpvLight, lpvFade);
+                        #ifdef LPV_SUNLIGHT
+                            ambientLight = mix(ambientLight, lpvLight, lpvFade);
+                        #else
+                            ambientLight += lpvLight * lpvFade;
+                        #endif
                     }
                 #endif
 

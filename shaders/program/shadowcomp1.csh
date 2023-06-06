@@ -16,6 +16,23 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uniform sampler2D noisetex;
     #endif
 
+    #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        uniform sampler2D shadowtex0;
+        uniform sampler2D shadowtex1;
+
+        #ifdef SHADOW_ENABLE_HWCOMP
+            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                uniform sampler2DShadow shadowtex0HW;
+            #else
+                uniform sampler2DShadow shadow;
+            #endif
+        #endif
+
+        #ifdef SHADOW_COLORED
+            uniform sampler2D shadowcolor0;
+        #endif
+    #endif
+
     uniform int frameCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
@@ -40,6 +57,22 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
+
+    #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/buffers/scene.glsl"
+        #include "/lib/buffers/shadow.glsl"
+
+        #include "/lib/sampling/noise.glsl"
+        #include "/lib/sampling/ign.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded.glsl"
+            #include "/lib/shadows/cascaded_render.glsl"
+        #else
+            #include "/lib/shadows/basic.glsl"
+            #include "/lib/shadows/basic_render.glsl"
+        #endif
+    #endif
 #endif
 
 
@@ -79,6 +112,14 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     return FALLOFF * avgColor;
 }
 
+// float InterleavedGradientNoiseTime(const in vec2 pixel) {
+//     const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+
+//     vec2 p = pixel + frameCounter * 5.588238;
+//     float x = dot(p, magic.xy);
+//     return fract(magic.z * fract(x));
+// }
+
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
@@ -109,6 +150,8 @@ void main() {
 
                     vec3 lightValue = vec3(0.0);
 
+                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
+
                     #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                         uint lightType = GetSceneLightType(int(blockId));
                         if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
@@ -116,8 +159,6 @@ void main() {
                             vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                             vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                             float lightRange = lightRangeSize.x * 255.0;
-
-                            vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
 
                             lightColor = RGBToLinear(lightColor);
 
@@ -149,6 +190,30 @@ void main() {
                         if (allowLight) {
                             ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
+
+                            #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                                //float ign = InterleavedGradientNoise(imgCoord.xz + imgCoord.y);
+                                //vec3 shadowOffset = hash31(ign);
+                                vec3 blockLpvPos = blockLocalPos;// + shadowOffset * 0.96 - 0.48;
+                                vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
+
+                                #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+                                    shadowPos = distort(shadowPos);
+                                #endif
+
+                                shadowPos = shadowPos * 0.5 + 0.5;
+
+                                #ifdef SHADOW_COLORED
+                                    const float shadowBias = EPSILON;
+                                    vec3 shadow = GetShadowColor(shadowPos, shadowBias);
+                                #else
+                                    //float shadow = GetShadowFactor(shadowPos, shadowBias);
+                                    float shadowBias = GetShadowOffsetBias();
+                                    float shadow = CompareDepth(shadowPos, vec2(0.0), shadowBias);
+                                #endif
+
+                                lightValue += 300.0 * WorldSkyLightColor * shadow;
+                            #endif
                         }
                     #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
                         }

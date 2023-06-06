@@ -157,10 +157,10 @@ void main() {
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
-             || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
-        #endif
+        // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
+        //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
+        // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             int shadowTile = GetShadowRenderTile(originShadowViewPos);
