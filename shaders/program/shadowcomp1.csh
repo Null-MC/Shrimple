@@ -23,6 +23,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         #ifdef SHADOW_ENABLE_HWCOMP
             #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
                 uniform sampler2DShadow shadowtex0HW;
+                uniform sampler2DShadow shadowtex1HW;
             #else
                 uniform sampler2DShadow shadow;
             #endif
@@ -223,7 +224,20 @@ void main() {
                                 float shadowBias = GetShadowOffsetBias();
 
                                 #ifdef SHADOW_COLORED
-                                    vec3 shadow = GetShadowColor(shadowPos, shadowBias);
+                                    //vec3 shadow = GetShadowColor(shadowPos, shadowBias);
+
+                                    vec3 shadow = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+                                    shadow = RGBToLinear(shadow);
+
+                                    //shadow *= CompareDepth(shadowPos, vec2(0.0), shadowBias);
+
+                                    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                                        shadow *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
+                                    #else
+                                        float texDepth = texture(shadowtex1, shadowPos.xy).r;
+                                        shadow *= step(shadowPos.z - shadowBias, texDepth);
+                                    #endif
+
                                 #else
                                     //float shadow = GetShadowFactor(shadowPos, shadowBias);
                                     float shadow = CompareDepth(shadowPos, vec2(0.0), shadowBias);

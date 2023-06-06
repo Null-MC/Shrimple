@@ -281,7 +281,7 @@
                         //lpvLight /= LpvRangeF;
 
                         #ifdef LPV_SUNLIGHT
-                            ambientLight *= 1.0 - 0.85*lpvFade;
+                            ambientLight *= 1.0 - 0.8*lpvFade;
                             ambientLight += lpvLight * lpvFade;
                         #else
                             ambientLight += lpvLight * lpvFade;
