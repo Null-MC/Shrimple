@@ -31,6 +31,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         #ifdef SHADOW_COLORED
             uniform sampler2D shadowcolor0;
         #endif
+
+        uniform float far;
     #endif
 
     uniform int frameCounter;
@@ -212,7 +214,8 @@ void main() {
                                     float shadow = CompareDepth(shadowPos, vec2(0.0), shadowBias);
                                 #endif
 
-                                lightValue += 300.0 * WorldSkyLightColor * shadow;
+                                //float horizonF = GetSkyHorizonF(sunDir.y);
+                                lightValue += (256.0 * max(localSunDirection.y, 0.0) + 16.0) * WorldSkyLightColor * shadow;
                             #endif
                         }
                     #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
