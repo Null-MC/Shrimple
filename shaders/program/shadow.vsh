@@ -174,8 +174,13 @@ void main() {
                     }
                 #endif
 
-                if (intersects && !IsTraceEmptyBlock(blockId))
-                    SetSceneBlockMask(blockCell, gridIndex, blockId);
+                #if LPV_SIZE > 0 && defined LPV_SUNLIGHT
+                    if (!IsTraceEmptyBlock(blockId))
+                        SetSceneBlockMask(blockCell, gridIndex, blockId);
+                #else
+                    if (intersects && !IsTraceEmptyBlock(blockId))
+                        SetSceneBlockMask(blockCell, gridIndex, blockId);
+                #endif
             }
         }
         //else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
