@@ -523,7 +523,8 @@ layout(location = 0) out vec4 outFinal;
             vec3 localViewDir = normalize(localPos);
 
             #ifdef WORLD_SKY_ENABLED
-                GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
+                vec3 shadowPos = vec3(0.0);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

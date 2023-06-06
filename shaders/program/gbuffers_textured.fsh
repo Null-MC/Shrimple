@@ -224,7 +224,7 @@ void main() {
     #endif
 
     #ifdef WORLD_SKY_ENABLED
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
     #endif
 
     vec3 diffuseFinal = blockDiffuse + skyDiffuse;

@@ -224,28 +224,34 @@ void main() {
                                 float shadowBias = GetShadowOffsetBias();
 
                                 #ifdef SHADOW_COLORED
-                                    //vec3 shadow = GetShadowColor(shadowPos, shadowBias);
+                                    //vec3 shadowF = GetShadowColor(shadowPos, shadowBias);
 
-                                    vec3 shadow = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-                                    shadow = RGBToLinear(shadow);
+                                    vec3 shadowF = vec3(0.0);
+                                    for (uint i = 0; i < 1; i++) {
+                                        vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+                                        shadowSample = RGBToLinear(shadowSample);
 
-                                    //shadow *= CompareDepth(shadowPos, vec2(0.0), shadowBias);
+                                        //shadowF *= CompareDepth(shadowPos, vec2(0.0), shadowBias);
 
-                                    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                                        shadow *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
-                                    #else
-                                        float texDepth = texture(shadowtex1, shadowPos.xy).r;
-                                        shadow *= step(shadowPos.z - shadowBias, texDepth);
-                                    #endif
+                                        #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                                            shadowSample *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
+                                        #else
+                                            float texDepth = texture(shadowtex1, shadowPos.xy).r;
+                                            shadowSample *= step(shadowPos.z - shadowBias, texDepth);
+                                        #endif
 
+                                        shadowF += shadowSample;
+                                    }
+
+                                    //shadowF *= (1.0/3.0);
                                 #else
-                                    //float shadow = GetShadowFactor(shadowPos, shadowBias);
-                                    float shadow = CompareDepth(shadowPos, vec2(0.0), shadowBias);
+                                    //float shadowF = GetShadowFactor(shadowPos, shadowBias);
+                                    float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
                                 #endif
 
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += mix(128.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadow * bounceF;
-                                //lightValue += 1024.0 * WorldSkyLightColor * shadow * bounceF;
+                                lightValue += mix(128.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF * bounceF;
+                                //lightValue += 1024.0 * WorldSkyLightColor * shadowF * bounceF;
                             #endif
                         }
                     #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED

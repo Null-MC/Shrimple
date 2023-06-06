@@ -130,12 +130,12 @@
     //#endif
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
-        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
-            #if defined LIGHT_LEAK_FIX && !defined RENDER_CLOUDS
+        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
+            #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLightColor = textureLod(lightmap, vec2(0.5/16.0, lmcoordY), 0).rgb;
+                    vec3 skyLightColor = textureLod(lightmap, vec2((0.5/15.0), lmcoordY), 0).rgb;
                 #else
-                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, vec2(0.5/16.0, lmcoordY), 0).rgb;
+                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, vec2((0.5/15.0), lmcoordY), 0).rgb;
                 #endif
 
                 skyLightColor = RGBToLinear(skyLightColor);
@@ -145,6 +145,13 @@
                 //skyLightColor *= 1.0 - blindness;
             #else
                 vec3 skyLightColor = vec3(1.0);
+            #endif
+
+            #ifndef LIGHT_LEAK_FIX
+                float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
+                shadow = 1.0 - smoothstep(0.5, 0.8, shadow);
+
+                skyLightColor = mix(skyLightColor, vec3(1.0), shadow);
             #endif
 
             #ifndef IRIS_FEATURE_SSBO
