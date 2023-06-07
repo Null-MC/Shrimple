@@ -19,8 +19,8 @@ vec3 tonemap_ReinhardExtendedLuminance(in vec3 color, const in float maxWhiteLum
 
 void ApplyPostProcessing(inout vec3 color) {
     #ifdef TONEMAP_ENABLED
-        color = tonemap_Tech(color, 0.2);
-        //color = tonemap_ReinhardExtendedLuminance(color, 1.5);
+        //color = tonemap_Tech(color, 0.2);
+        color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
     #endif
 
     #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100

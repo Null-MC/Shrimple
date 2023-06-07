@@ -231,7 +231,7 @@ void main() {
                                     //vec3 shadowF = GetShadowColor(shadowPos, shadowBias);
 
                                     vec3 shadowF = vec3(0.0);
-                                    for (uint i = 0; i < 3; i++) {
+                                    for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
                                         //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
                                         vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
                                         vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
@@ -259,7 +259,7 @@ void main() {
                                         shadowF += shadowSample;
                                     }
 
-                                    shadowF *= (1.0/3.0);
+                                    shadowF *= rcp(LPV_SUN_SAMPLES);
                                 #else
                                     //float shadowF = GetShadowFactor(shadowPos, shadowBias);
                                     float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);

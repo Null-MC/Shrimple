@@ -191,6 +191,7 @@ const bool colortex15Clear = true;
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
 #define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
+#define LPV_SUN_SAMPLES 3 // [0 1 2 3 4 5 6 7 8 9]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE
@@ -228,6 +229,7 @@ const bool colortex15Clear = true;
 #define GAMMA_OUT 2.2 // [1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.2 3.4 3.6]
 #define POST_BLOOM_STRENGTH 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define POST_BLOOM_THRESHOLD 160 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
+#define POST_WHITE_POINT 200 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600]
 
 
 // Debug Options
@@ -414,6 +416,7 @@ const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = POST_BLOOM_STRENGTH * 0.01;
 const float PostBloomThresholdF = POST_BLOOM_THRESHOLD * 0.01;
+const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

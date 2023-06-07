@@ -9,23 +9,7 @@ screen.WORLD_OPTIONS.comment=Options for everything else.
 
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
-value.sunPathRotation.-60=-60°
-value.sunPathRotation.-50=-50°
-value.sunPathRotation.-40=-40°
-value.sunPathRotation.-30=-30°
-value.sunPathRotation.-20=-20°
-value.sunPathRotation.-15=-15°
-value.sunPathRotation.-10=-10°
-value.sunPathRotation.-5=-5°
-value.sunPathRotation.0=0°
-value.sunPathRotation.5=5°
-value.sunPathRotation.10=10°
-value.sunPathRotation.15=15°
-value.sunPathRotation.20=20°
-value.sunPathRotation.30=30°
-value.sunPathRotation.40=40°
-value.sunPathRotation.50=50°
-value.sunPathRotation.60=60°
+suffix.sunPathRotation=°
 
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
@@ -131,11 +115,7 @@ value.MATERIAL_NORMALS.3=Old-PBR
 
 option.MATERIAL_NORMAL_SCALE=Resolution
 option.MATERIAL_NORMAL_SCALE.comment=The texture scale which normals are generated at. Only applies to _integrated_ normal-maps.
-value.MATERIAL_NORMAL_SCALE.1=1x
-value.MATERIAL_NORMAL_SCALE.2=2x
-value.MATERIAL_NORMAL_SCALE.4=4x
-value.MATERIAL_NORMAL_SCALE.8=8x
-value.MATERIAL_NORMAL_SCALE.16=16x
+suffix.MATERIAL_NORMAL_SCALE=x
 
 option.MATERIAL_NORMAL_STRENGTH=Strength
 option.MATERIAL_NORMAL_STRENGTH.comment=The angular strength of generated normals. Only applies to _integrated_ normal-maps.
@@ -187,27 +167,7 @@ value.MATERIAL_EMISSION.1=Lab-PBR
 value.MATERIAL_EMISSION.2=Old-PBR
 
 option.MATERIAL_EMISSION_BRIGHTNESS=Brightness
-value.MATERIAL_EMISSION_BRIGHTNESS.20=20%
-value.MATERIAL_EMISSION_BRIGHTNESS.40=40%
-value.MATERIAL_EMISSION_BRIGHTNESS.60=60%
-value.MATERIAL_EMISSION_BRIGHTNESS.80=80%
-value.MATERIAL_EMISSION_BRIGHTNESS.100=100%
-value.MATERIAL_EMISSION_BRIGHTNESS.120=120%
-value.MATERIAL_EMISSION_BRIGHTNESS.140=140%
-value.MATERIAL_EMISSION_BRIGHTNESS.160=160%
-value.MATERIAL_EMISSION_BRIGHTNESS.180=180%
-value.MATERIAL_EMISSION_BRIGHTNESS.200=200%
-value.MATERIAL_EMISSION_BRIGHTNESS.220=220%
-value.MATERIAL_EMISSION_BRIGHTNESS.240=240%
-value.MATERIAL_EMISSION_BRIGHTNESS.260=260%
-value.MATERIAL_EMISSION_BRIGHTNESS.280=280%
-value.MATERIAL_EMISSION_BRIGHTNESS.300=300%
-value.MATERIAL_EMISSION_BRIGHTNESS.350=350%
-value.MATERIAL_EMISSION_BRIGHTNESS.400=400%
-value.MATERIAL_EMISSION_BRIGHTNESS.500=500%
-value.MATERIAL_EMISSION_BRIGHTNESS.600=600%
-value.MATERIAL_EMISSION_BRIGHTNESS.700=700%
-value.MATERIAL_EMISSION_BRIGHTNESS.800=800%
+suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 
 screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
@@ -229,62 +189,11 @@ suffix.WORLD_LIGHT_MIN=%
 
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
-value.DYN_LIGHT_BRIGHTNESS.20=20%
-value.DYN_LIGHT_BRIGHTNESS.40=40%
-value.DYN_LIGHT_BRIGHTNESS.60=60%
-value.DYN_LIGHT_BRIGHTNESS.80=80%
-value.DYN_LIGHT_BRIGHTNESS.100=100%
-value.DYN_LIGHT_BRIGHTNESS.120=120%
-value.DYN_LIGHT_BRIGHTNESS.140=140%
-value.DYN_LIGHT_BRIGHTNESS.160=160%
-value.DYN_LIGHT_BRIGHTNESS.180=180%
-value.DYN_LIGHT_BRIGHTNESS.200=200%
-value.DYN_LIGHT_BRIGHTNESS.220=220%
-value.DYN_LIGHT_BRIGHTNESS.240=240%
-value.DYN_LIGHT_BRIGHTNESS.260=260%
-value.DYN_LIGHT_BRIGHTNESS.280=280%
-value.DYN_LIGHT_BRIGHTNESS.300=300%
-value.DYN_LIGHT_BRIGHTNESS.320=320%
-value.DYN_LIGHT_BRIGHTNESS.340=340%
-value.DYN_LIGHT_BRIGHTNESS.360=360%
-value.DYN_LIGHT_BRIGHTNESS.380=380%
-value.DYN_LIGHT_BRIGHTNESS.400=400%
-value.DYN_LIGHT_BRIGHTNESS.450=450%
-value.DYN_LIGHT_BRIGHTNESS.500=500%
-value.DYN_LIGHT_BRIGHTNESS.550=550%
-value.DYN_LIGHT_BRIGHTNESS.600=600%
-value.DYN_LIGHT_BRIGHTNESS.700=700%
-value.DYN_LIGHT_BRIGHTNESS.800=800%
-value.DYN_LIGHT_BRIGHTNESS.900=900%
+suffix.DYN_LIGHT_BRIGHTNESS=%
 
 option.DYN_LIGHT_AMBIENT=Ambient
 option.DYN_LIGHT_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
-value.DYN_LIGHT_AMBIENT.0=0%
-value.DYN_LIGHT_AMBIENT.2=2%
-value.DYN_LIGHT_AMBIENT.4=4%
-value.DYN_LIGHT_AMBIENT.6=6%
-value.DYN_LIGHT_AMBIENT.8=8%
-value.DYN_LIGHT_AMBIENT.10=10%
-value.DYN_LIGHT_AMBIENT.12=12%
-value.DYN_LIGHT_AMBIENT.14=14%
-value.DYN_LIGHT_AMBIENT.16=16%
-value.DYN_LIGHT_AMBIENT.20=20%
-value.DYN_LIGHT_AMBIENT.25=25%
-value.DYN_LIGHT_AMBIENT.30=30%
-value.DYN_LIGHT_AMBIENT.35=35%
-value.DYN_LIGHT_AMBIENT.40=40%
-value.DYN_LIGHT_AMBIENT.45=45%
-value.DYN_LIGHT_AMBIENT.50=50%
-value.DYN_LIGHT_AMBIENT.55=55%
-value.DYN_LIGHT_AMBIENT.60=60%
-value.DYN_LIGHT_AMBIENT.65=65%
-value.DYN_LIGHT_AMBIENT.70=70%
-value.DYN_LIGHT_AMBIENT.75=75%
-value.DYN_LIGHT_AMBIENT.80=80%
-value.DYN_LIGHT_AMBIENT.85=85%
-value.DYN_LIGHT_AMBIENT.90=90%
-value.DYN_LIGHT_AMBIENT.95=95%
-value.DYN_LIGHT_AMBIENT.100=100%
+suffix.DYN_LIGHT_AMBIENT=%
 
 option.DYN_LIGHT_FLICKER=Dynamic
 option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
@@ -555,6 +464,9 @@ suffix.POST_BLOOM_THRESHOLD=%
 
 option.FXAA_ENABLED=FXAA
 option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
+
+option.POST_WHITE_POINT=White-Point
+suffix.POST_WHITE_POINT=%
 
 
 screen.DEBUG_OPTIONS=Shrimple
