@@ -382,7 +382,7 @@ const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
 const float WorldMinLightF = WORLD_LIGHT_MIN * 0.01;
 const float WorldSunBrightnessF = WORLD_SUN_BRIGHTNESS * 0.01;
-const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.001;
+const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WORLD_WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
 const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
