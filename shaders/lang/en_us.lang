@@ -493,3 +493,7 @@ option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
+
+option.LPV_SUN_SAMPLES=LPV Sky Samples
+option.LPV_SUN_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
+value.LPV_SUN_SAMPLES.0=OFF

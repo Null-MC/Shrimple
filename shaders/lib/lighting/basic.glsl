@@ -287,7 +287,7 @@
                         //lpvLight /= 8.0 + luminance(lpvLight);
                         //lpvLight /= LpvRangeF;
 
-                        #ifdef LPV_SUNLIGHT
+                        #if LPV_SUN_SAMPLES > 0
                             ambientLight *= 1.0 - 0.7*lpvFade;
                             ambientLight += lpvLight * lpvFade;
                         #else

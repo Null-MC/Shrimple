@@ -67,7 +67,7 @@ float GetShadowOffsetBias(const in int cascade) {
     // return mix(xySizeBias, zRangeBias, geoNoL) * SHADOW_BIAS_SCALE;
 }
 
-#if !defined RENDER_FRAG
+#if !defined RENDER_FRAG && !defined RENDER_SHADOWCOMP
     // tile: 0-3
     float GetCascadeDistance(const in int tile) {
         #ifdef SHADOW_CSM_FITRANGE

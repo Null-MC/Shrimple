@@ -174,7 +174,7 @@ void main() {
                     }
                 #endif
 
-                #if LPV_SIZE > 0 && defined LPV_SUNLIGHT
+                #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
                     if (!IsTraceEmptyBlock(blockId))
                         SetSceneBlockMask(blockCell, gridIndex, blockId);
                 #else

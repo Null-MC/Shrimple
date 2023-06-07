@@ -16,7 +16,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uniform sampler2D noisetex;
     #endif
 
-    #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform sampler2D shadowtex0;
         uniform sampler2D shadowtex1;
 
@@ -34,6 +34,10 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         #endif
 
         uniform float far;
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            uniform mat4 shadowModelView;
+        #endif
     #endif
 
     uniform int frameCounter;
@@ -61,7 +65,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 
-    #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/buffers/scene.glsl"
         #include "/lib/buffers/shadow.glsl"
 
@@ -70,10 +74,10 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded.glsl"
-            #include "/lib/shadows/cascaded_render.glsl"
+            //#include "/lib/shadows/cascaded_render.glsl"
         #else
             #include "/lib/shadows/basic.glsl"
-            #include "/lib/shadows/basic_render.glsl"
+            //#include "/lib/shadows/basic_render.glsl"
         #endif
     #endif
 #endif
@@ -114,14 +118,6 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * (1.0/6.0);
     return FALLOFF * avgColor;
 }
-
-// float InterleavedGradientNoiseTime(const in vec2 pixel) {
-//     const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-
-//     vec2 p = pixel + frameCounter * 5.588238;
-//     float x = dot(p, magic.xy);
-//     return fract(magic.z * fract(x));
-// }
 
 float GetLpvBounceF(const in ivec3 gridBlockCell) {
     ivec3 gridCell = ivec3(floor(gridBlockCell / LIGHT_BIN_SIZE));
@@ -204,7 +200,7 @@ void main() {
                             ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
-                            #if defined LPV_SUNLIGHT && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                            #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                                 float bounceF = (1.0/6.0) * (
                                     GetLpvBounceF(voxelPos + ivec3( 1, 0, 0)) +
                                     GetLpvBounceF(voxelPos + ivec3(-1, 0, 0)) +
@@ -214,59 +210,65 @@ void main() {
                                     GetLpvBounceF(voxelPos + ivec3( 0, 0,-1))
                                 );
 
-                                //float ign = InterleavedGradientNoise(imgCoord.xz + imgCoord.y);
-                                //vec3 shadowOffset = hash31(ign);
-                                //vec3 blockLpvPos = blockLocalPos;// + shadowOffset * 0.96 - 0.48;
-                                //vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
+                                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                                    vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
+                                    int cascade = GetShadowCascade(shadowPos, -1.5);
 
-                                // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-                                //     shadowPos = distort(shadowPos);
-                                // #endif
-
-                                // shadowPos = shadowPos * 0.5 + 0.5;
-
-                                float shadowBias = GetShadowOffsetBias();
-
-                                #ifdef SHADOW_COLORED
-                                    //vec3 shadowF = GetShadowColor(shadowPos, shadowBias);
-
-                                    vec3 shadowF = vec3(0.0);
-                                    for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
-                                        //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
-                                        vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
-                                        vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
-                                        vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
-
-                                        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-                                            shadowPos = distort(shadowPos);
-                                        #endif
-
-                                        shadowPos = shadowPos * 0.5 + 0.5;
-
-                                        vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-                                        shadowSample = RGBToLinear(shadowSample);
-
-                                        //shadowF *= CompareDepth(shadowPos, vec2(0.0), shadowBias);
-
-                                        //#if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                                        //    shadowSample *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
-                                        //#else
-                                            float texDepth = texture(shadowtex1, shadowPos.xy).r;
-                                            float shadowDist = max(texDepth - shadowPos.z, 0.0);
-                                            shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
-                                        //#endif
-
-                                        shadowF += shadowSample;
-                                    }
-
-                                    shadowF *= rcp(LPV_SUN_SAMPLES);
+                                    float shadowBias = GetShadowOffsetBias(cascade);
                                 #else
-                                    //float shadowF = GetShadowFactor(shadowPos, shadowBias);
-                                    float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
+                                    float shadowBias = GetShadowOffsetBias();
                                 #endif
 
+                                #ifdef SHADOW_COLORED
+                                    vec3 shadowF = vec3(0.0);
+                                #else
+                                    float shadowF = 0.0;
+                                #endif
+
+                                for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
+                                    //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
+                                    vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
+                                    vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
+
+                                    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                                        vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
+                                        //int cascade = GetShadowCascade(shadowPos, 0.0);
+                                        shadowPos = (cascadeProjection[cascade] * vec4(shadowPos, 1.0)).xyz;
+
+                                        shadowPos = shadowPos * 0.5 + 0.5;
+                                        shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
+                                        //shadowPos.xy = shadowPos.xy * 2.0 - 1.0;
+                                    #else
+                                        vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
+
+                                        shadowPos = distort(shadowPos);
+                                        shadowPos = shadowPos * 0.5 + 0.5;
+                                    #endif
+
+                                    #ifdef SHADOW_COLORED
+                                        vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+                                        shadowSample = RGBToLinear(shadowSample);
+                                    #else
+                                        float shadowSample = 1.0;//CompareDepth(shadowPos, vec2(0.0), shadowBias);
+                                    #endif
+
+                                    //#if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                                    //    shadowSample *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
+                                    //#else
+                                        float texDepth = texture(shadowtex1, shadowPos.xy).r;
+                                        float shadowDist = max(texDepth - shadowPos.z, 0.0);
+                                        shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
+                                    //#endif
+
+                                    shadowF += shadowSample;
+                                }
+
+                                shadowF *= rcp(LPV_SUN_SAMPLES) * bounceF;
+
+                                //float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
+
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += mix(16.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF * bounceF;
+                                lightValue += mix(16.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
                                 //lightValue += 1024.0 * WorldSkyLightColor * shadowF * bounceF;
                             #endif
                         }
