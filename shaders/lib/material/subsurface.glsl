@@ -141,7 +141,7 @@ float GetBlockSSS(const in int blockId) {
             sss = max(sss - 0.25, 0.0) / 0.75;
         #elif MATERIAL_SSS == SSS_DEFAULT
             int materialId = id;
-            #if defined RENDER_HAND || defined RENDER_ENTITIES
+            #if (defined RENDER_HAND || defined RENDER_ENTITIES) && defined IS_IRIS
                 if (currentRenderedItemId > 0)
                     materialId = currentRenderedItemId;
             #endif

@@ -25,7 +25,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         #ifdef WORLD_SKY_ENABLED
             float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
 
-            result.Ambient = 0.14;
+            result.Ambient = 0.08;
 
             result.Forward = mix(0.66, 0.26, rainStrength);
             result.Back = mix(0.32, 0.16, rainStrength);

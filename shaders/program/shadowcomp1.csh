@@ -119,14 +119,21 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     return FALLOFF * avgColor;
 }
 
+float GetBlockBounceF(const in uint blockId) {
+    float result = 1.0;
+
+    if (blockId <= 0) result = 0.0;
+
+    return result;
+}
+
 float GetLpvBounceF(const in ivec3 gridBlockCell) {
     ivec3 gridCell = ivec3(floor(gridBlockCell / LIGHT_BIN_SIZE));
     uint gridIndex = GetSceneLightGridIndex(gridCell);
     ivec3 blockCell = gridBlockCell - gridCell * LIGHT_BIN_SIZE;
 
     uint blockId = GetSceneBlockMask(blockCell, gridIndex);
-    //return IsTraceOpenBlock(blockId) ? 0.0 : 1.0;
-    return IsTraceEmptyBlock(blockId) ? 0.0 : 1.0;
+    return GetBlockBounceF(blockId);
 }
 
 void main() {
@@ -268,7 +275,7 @@ void main() {
                                 //float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
 
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += mix(16.0, 1024.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
+                                lightValue += mix(16.0, 2048.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
                                 //lightValue += 1024.0 * WorldSkyLightColor * shadowF * bounceF;
                             #endif
                         }

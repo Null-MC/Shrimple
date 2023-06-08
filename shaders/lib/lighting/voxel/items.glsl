@@ -216,21 +216,23 @@ uint GetSceneItemLightType(const in int itemId) {
     #endif
 }
 
-#ifndef RENDER_BEGIN
+#if !defined RENDER_BEGIN
     vec3 GetSceneItemLightColor(const in int itemId, const in vec2 noiseSample) {
         vec3 lightColor = vec3(0.0);
 
-        uint lightType = GetSceneItemLightType(itemId);
+        #ifdef IRIS_FEATURE_SSBO
+            uint lightType = GetSceneItemLightType(itemId);
 
-        if (lightType != LIGHT_EMPTY) {
-            StaticLightData lightInfo = StaticLightMap[lightType];
-            lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-            lightColor = RGBToLinear(lightColor);
+            if (lightType != LIGHT_EMPTY) {
+                StaticLightData lightInfo = StaticLightMap[lightType];
+                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                lightColor = RGBToLinear(lightColor);
 
-            #ifdef DYN_LIGHT_FLICKER
-                ApplyLightFlicker(lightColor, lightType, noiseSample);
-            #endif
-        }
+                #ifdef DYN_LIGHT_FLICKER
+                    ApplyLightFlicker(lightColor, lightType, noiseSample);
+                #endif
+            }
+        #endif
 
         return lightColor;
     }
@@ -239,12 +241,14 @@ uint GetSceneItemLightType(const in int itemId) {
 float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
     float lightRange = defaultValue;
 
-    uint lightType = GetSceneItemLightType(itemId);
+    #ifdef IRIS_FEATURE_SSBO
+        uint lightType = GetSceneItemLightType(itemId);
 
-    if (lightType != LIGHT_EMPTY) {
-        StaticLightData lightInfo = StaticLightMap[lightType];
-        lightRange = unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
-    }
+        if (lightType != LIGHT_EMPTY) {
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            lightRange = unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+        }
+    #endif
 
     return lightRange;
 }
@@ -252,12 +256,14 @@ float GetSceneItemLightRange(const in int itemId, const in float defaultValue) {
 float GetSceneItemLightSize(const in int itemId) {
     float lightSize = 0.1;
 
-    uint lightType = GetSceneItemLightType(itemId);
+    #ifdef IRIS_FEATURE_SSBO
+        uint lightType = GetSceneItemLightType(itemId);
 
-    if (lightType != LIGHT_EMPTY) {
-        StaticLightData lightInfo = StaticLightMap[lightType];
-        lightSize = unpackUnorm4x8(lightInfo.RangeSize).y;
-    }
+        if (lightType != LIGHT_EMPTY) {
+            StaticLightData lightInfo = StaticLightMap[lightType];
+            lightSize = unpackUnorm4x8(lightInfo.RangeSize).y;
+        }
+    #endif
 
     return lightSize;
 }

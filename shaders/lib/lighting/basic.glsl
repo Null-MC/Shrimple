@@ -165,7 +165,7 @@
                 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
                 #else
-                    vec3 localSkyLightDirection = localSunDirection;
+                    vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
                     if (worldTime > 12000 && worldTime < 24000)
                         localSkyLightDirection = -localSkyLightDirection;
                 #endif
@@ -250,14 +250,18 @@
     #endif
 
     #if !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 geoNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion) {
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 geoNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion, const in float sss) {
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 vec2 lmFinal = lmcoord;
 
                 lmFinal.x = (lmFinal.x - (0.5/15.0));
 
                 #if LPV_SIZE > 0
-                    vec3 lpvPos = GetLPVPosition(localPos + 0.52 * geoNormal);
+                    vec3 lpvPos = localPos;
+                    lpvPos += 0.52 * geoNormal * (1.0 - sss);
+
+                    lpvPos = GetLPVPosition(lpvPos);
+
                     vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                     float lpvFade = GetLpvFade(lpvPos);
@@ -288,7 +292,7 @@
                         //lpvLight /= LpvRangeF;
 
                         #if LPV_SUN_SAMPLES > 0
-                            ambientLight *= 1.0 - 0.7*lpvFade;
+                            ambientLight *= 1.0 - 0.75*lpvFade;
                             ambientLight += lpvLight * lpvFade;
                         #else
                             ambientLight += lpvLight * lpvFade;

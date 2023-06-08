@@ -509,7 +509,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
-            final.rgb = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion);
+            final.rgb = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
             final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
             final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
@@ -524,7 +524,7 @@ layout(location = 0) out vec4 outFinal;
                     float d = textureLod(depthtex1, texcoord + p, 0).r;
                     
                     if (d < depth) {
-                        refraction *= max(i - 1.5, 0) / refractSteps;
+                        refraction *= max(i - 1.5, 0.0) / refractSteps;
                         break;
                     }
                 }

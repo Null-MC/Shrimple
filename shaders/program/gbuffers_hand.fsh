@@ -402,7 +402,19 @@ void main() {
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    vec3 shadowPos[4];
+                #else
+                    vec3 shadowPos;
+                #endif
+            #endif
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+            #else
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+            #endif
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;
@@ -415,7 +427,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion);
+        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion, sss);
 
         ApplyFog(color, vLocalPos, localViewDir);
 
