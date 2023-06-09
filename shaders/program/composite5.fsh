@@ -135,7 +135,7 @@ void main() {
 
     //float opacity = textureLod(BUFFER_DEFERRED_COLOR, texcoord, 0).a;
 
-    vec4 final = vec4(0.0);
+    vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
     //if (opacity > (0.5/255.0) || isEyeInWater == 1) {
         float depth = textureLod(depthtex0, texcoord, 0).r;
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
@@ -150,8 +150,9 @@ void main() {
         #endif
 
         vec3 localViewDir = normalize(localPos);
+        float distTranslucent = min(length(localPos), far);
 
-        final = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(localPos) - 0.05, far));
+        final = GetVolumetricLighting(localViewDir, localSunDirection, near, distTranslucent);
     //}
     //else {
     //    final = texelFetch(BUFFER_VL, ivec2(gl_FragCoord.xy), 0);

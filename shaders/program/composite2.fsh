@@ -149,8 +149,8 @@ void main() {
     #endif
 
     vec3 localViewDir = normalize(localPosOpaque);
-    float distOpaque = length(localPosOpaque);
-    float distTranslucent = length(localPosTranslucent);
+    float distOpaque = clamp(length(localPosOpaque), near, far);
+    float distTranslucent = clamp(length(localPosTranslucent), near, far);
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
     if (distTranslucent < distOpaque) {
