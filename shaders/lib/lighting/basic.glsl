@@ -129,7 +129,7 @@
         }
     //#endif
 
-    #if defined WORLD_SKY_ENABLED && !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
+    #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localViewDir, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordY, const in float roughL, const in float metal_f0, const in float sss) {
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
@@ -249,7 +249,7 @@
         }
     #endif
 
-    #if !(defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT)
+    #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 geoNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion, const in float sss) {
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 vec2 lmFinal = lmcoord;

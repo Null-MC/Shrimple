@@ -13,39 +13,32 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.2, 0.04, 0.04, 0.6, 0.46, 0.16);
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.02, 0.024, 0.038, 0.72, 0.66, 0.26);
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     VolumetricPhaseFactors result;
 
-    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
-        if (isEyeInWater == 1) result = WaterPhaseF;
-        else {
-    #endif
-        #ifdef WORLD_SKY_ENABLED
-            float densityF = sunDir.y * -0.2 + 0.8;
-            float density = densityF * VolumetricDensityF;
+    #ifdef WORLD_SKY_ENABLED
+        float densityF = sunDir.y * -0.2 + 0.8;
+        float density = densityF * VolumetricDensityF;
 
-            result.Ambient = 0.02 * densityF;
+        result.Ambient = 0.02 * densityF;
 
-            result.Forward = mix(0.66, 0.26, rainStrength);
-            result.Back = mix(0.32, 0.16, rainStrength);
-            result.Direction = 0.75;
+        result.Forward = mix(0.66, 0.26, rainStrength);
+        result.Back = mix(0.32, 0.16, rainStrength);
+        result.Direction = 0.75;
 
-            result.ScatterF = mix(0.004, 0.018, rainStrength) * density;
-            result.ExtinctF = mix(0.002, 0.015, rainStrength) * density;
-        #else
-            result.Ambient = 0.96;
+        result.ScatterF = mix(0.004, 0.018, rainStrength) * density;
+        result.ExtinctF = mix(0.002, 0.015, rainStrength) * density;
+    #else
+        result.Ambient = 0.96;
 
-            result.Forward = 0.6;
-            result.Back = 0.2;
-            result.Direction = 0.6;
+        result.Forward = 0.6;
+        result.Back = 0.2;
+        result.Direction = 0.6;
 
-            result.ScatterF = 0.006 * VolumetricDensityF;
-            result.ExtinctF = 0.006 * VolumetricDensityF;
-        #endif
-    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
-        }
+        result.ScatterF = 0.006 * VolumetricDensityF;
+        result.ExtinctF = 0.006 * VolumetricDensityF;
     #endif
 
     return result;
@@ -266,6 +259,16 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 }
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
-    VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors(sunDir);
+    VolumetricPhaseFactors phaseF;
+
+    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
+        if (isEyeInWater == 1) phaseF = WaterPhaseF;
+        else {
+    #endif
+        phaseF = GetVolumetricPhaseFactors(sunDir);
+    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
+        }
+    #endif
+
     return GetVolumetricLighting(phaseF, localViewDir, sunDir, nearDist, farDist);
 }

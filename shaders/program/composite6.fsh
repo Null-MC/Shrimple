@@ -1,4 +1,4 @@
-#define RENDER_OPAQUE_FINAL
+#define RENDER_TRANSLUCENT_FINAL
 #define RENDER_COMPOSITE
 #define RENDER_FRAG
 
@@ -7,6 +7,7 @@
 
 in vec2 texcoord;
 
+uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
@@ -63,6 +64,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+uniform int isEyeInWater;
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferPreviousModelView;
@@ -78,10 +80,6 @@ uniform float blindness;
 
 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
     uniform int worldTime;
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
 #endif
 
 uniform int heldItemId;
@@ -228,53 +226,9 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     blockSpecular = accumSpecular / total;
 }
 
-// #if DYN_LIGHT_RES != 0
-//     #if DYN_LIGHT_RES == 1
-//         const ivec2 offsetList[4] = ivec2[](
-//             ivec2(0, 0),
-//             ivec2(1, 0),
-//             ivec2(0, 1),
-//             ivec2(1, 1));
-//     #else
-//         const ivec2 offsetList[16] = ivec2[](
-//             ivec2(0, 0),
-//             ivec2(2, 0),
-//             ivec2(0, 2),
-//             ivec2(2, 2),
-
-//             ivec2(1, 0),
-//             ivec2(3, 0),
-//             ivec2(1, 2),
-//             ivec2(3, 2),
-
-//             ivec2(0, 1),
-//             ivec2(1, 1),
-//             ivec2(0, 3),
-//             ivec2(1, 3),
-
-//             ivec2(1, 1),
-//             ivec2(3, 1),
-//             ivec2(1, 3),
-//             ivec2(3, 3));
-//     #endif
-
-//     ivec2 GetTemporalOffset(const in int size) {
-//         #if DYN_LIGHT_RES == 1
-//             const float resF = 2.0;
-//         #else
-//             const float resF = 4.0;
-//         #endif
-
-//         vec2 p = floor(gl_FragCoord.xy / resF);
-
-//         int i = int(frameCounter + p.x + size*p.y);
-//         return offsetList[i % _pow2(size)];
-//     }
-// #endif
-
 
 layout(location = 0) out vec4 outFinal;
-#ifdef DEFERRED_BUFFER_ENABLED
+#if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
         /* RENDERTARGETS: 0,7,8,9,12 */
         layout(location = 1) out vec4 outTA;
@@ -291,9 +245,10 @@ layout(location = 0) out vec4 outFinal;
         ivec2 iTex = ivec2(gl_FragCoord.xy);
         vec2 viewSize = vec2(viewWidth, viewHeight);
 
-        //float depth = texelFetch(depthtex1, iTex, 0).r;
+        //float depth = texelFetch(depthtex0, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
-        float depth = textureLod(depthtex1, texcoord, 0).r;
+        float depth = textureLod(depthtex0, texcoord, 0).r;
+        float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
         float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
         bool isHand = handClipDepth > depth;
 
@@ -304,21 +259,30 @@ layout(location = 0) out vec4 outFinal;
         // }
 
         float linearDepth = linearizeDepthFast(depth, near, far);
-        vec3 final;
 
-        if (depth < 1.0) {
-            vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec2 refraction = vec2(0.0);
+        vec4 final = vec4(0.0);
+        bool tir = false;
 
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            #else
-                vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-            #endif
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 
-            vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+        #ifndef IRIS_FEATURE_SSBO
+            //vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
 
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+        vec3 localViewDir = normalize(localPos);
+
+        vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
+        fogColorFinal = RGBToLinear(fogColorFinal);
+
+        if (deferredColor.a > (0.5/255.0)) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -333,6 +297,30 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
+            #if REFRACTION_STRENGTH > 0
+                //bool isWater = deferredTexture.a < 0.5;
+
+                //if (isWater) {
+                    vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
+
+                    const float ior = IOR_WATER;
+                    float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                    vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
+
+                    vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
+                    float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                    float linearDist = linearDepthOpaque - linearDepth;
+
+                    vec2 refractMax = vec2(0.1);
+                    refractMax.x *= viewWidth / viewHeight;
+                    refraction = clamp(vec2(0.06 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
+
+                    #ifdef REFRACTION_SNELL_ENABLED
+                        tir = all(lessThan(abs(refractDir), EPSILON3));
+                    #endif
+                //}
+            #endif
+
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
                 float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
@@ -345,17 +333,16 @@ layout(location = 0) out vec4 outFinal;
             #ifdef SHADOW_BLUR
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepth, shadowSigma);
+                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
                 #else
                     float shadowSigma = 3.0 / linearDepth;
-                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepth, shadowSigma));
+                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
                 #endif
             #else
-                //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
-            vec3 albedo = RGBToLinear(deferredColor);
+            vec3 albedo = RGBToLinear(deferredColor.rgb);
             float occlusion = deferredLighting.z;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
@@ -381,10 +368,6 @@ layout(location = 0) out vec4 outFinal;
                     #endif
                 #endif
 
-                //vec4 specularSample = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0);
-                //blockSpecular = specularSample.rgb;
-                //blockSpecular *= 1.0 - min(10.0 * abs(roughL - specularSample.a), 1.0);
-
                 #if DYN_LIGHT_TA > 0
                     vec3 cameraOffsetPrevious = cameraPosition - previousCameraPosition;
                     vec3 localPosPrev = localPos + cameraOffsetPrevious;
@@ -398,12 +381,6 @@ layout(location = 0) out vec4 outFinal;
 
                     vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 
-                    // #if DYN_LIGHT_RES == 1
-                    //     uvPrev.xy -= 0.5*rcp(viewSize);
-                    // #elif DYN_LIGHT_RES == 2
-                    //     uvPrev.xy -= 0.5*rcp(viewSize);
-                    // #endif
-
                     float diffuseCounter = 0.0;
 
                     if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
@@ -414,23 +391,23 @@ layout(location = 0) out vec4 outFinal;
                         #if DYN_LIGHT_RES == 2
                             const float depthWeightF = 16.0;
                         #else
-                            const float depthWeightF = 32.0;
+                            const float depthWeightF = 16.0;
                         #endif
 
-                        float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
+                        float depthWeight = 1.0 - saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
 
                         float normalWeight = 0.0;
                         vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                         if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                             normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                            normalWeight = max(1.0 - dot(normalPrev, texNormal), 0.0);
+                            normalWeight = 0.25 - dot(normalPrev, texNormal) * 0.25;
 
                             #if DYN_LIGHT_RES == 2
                                 normalWeight *= 0.25;
                             #endif
                         }
 
-                        if (depthWeight < 1.0 && normalWeight < 1.0) {
+                        if (depthWeight > 0.0 && normalWeight < 1.0) {
                             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
 
                             bool hasLightingChanged =
@@ -454,20 +431,16 @@ layout(location = 0) out vec4 outFinal;
 
                             diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
-                            diffuseCounter *= 1.0 - depthWeight;
+                            diffuseCounter *= depthWeight;
                             diffuseCounter *= 1.0 - normalWeight;
 
-                            if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
-
-                            float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
-                            float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
-                            float moveWeight = max(1.0 - cameraSpeed * viewDist, 0.0);
-
-                            float specularCounter = diffuseCounter * moveWeight;
-
                             if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                diffuseCounter = diffuseCounter * moveWeight;
+                                float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
+                                float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
+                                diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
                             }
+
+                            if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
 
                             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
                             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
@@ -479,7 +452,7 @@ layout(location = 0) out vec4 outFinal;
                                 //float metal_f0_prev = specularSamplePrev.a;
 
                                 //float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                                float specularWeight = rcp(1.0 + specularCounter*DynamicLightTemporalStrength);
+                                float specularWeight = rcp(1.0 + 0.25*diffuseCounter*DynamicLightTemporalStrength);
 
                                 blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
 
@@ -500,7 +473,7 @@ layout(location = 0) out vec4 outFinal;
                 //blockDiffuse += emission * MaterialEmissionF;
             #else
                 GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
-                
+
                 SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -520,8 +493,6 @@ layout(location = 0) out vec4 outFinal;
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);
 
-            vec3 localViewDir = normalize(localPos);
-
             #ifdef WORLD_SKY_ENABLED
                 vec3 shadowPos = vec3(0.0);
                 GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
@@ -539,44 +510,73 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
-            final = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
+            final.rgb = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
+            final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
-            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-            vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
-            fogColorFinal = RGBToLinear(fogColorFinal);
+            final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
+            if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
 
-            final = mix(final, fogColorFinal, deferredFog.a);
-        }
-        else {
-            #ifdef WORLD_SKY_ENABLED
-                final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-            #else
-                final = fogColor;// * WorldSkyBrightnessF;
-                final = RGBToLinear(final);
+            #if REFRACTION_STRENGTH > 0
+                float refractDist = maxOf(abs(refraction * viewSize));
+                int refractSteps = int(ceil(refractDist));
+
+                for (int i = 1; i <= min(refractSteps, 16); i++) {
+                    vec2 p = refraction * (i / refractSteps);
+                    float d = textureLod(depthtex1, texcoord + p, 0).r;
+                    
+                    if (d < depth) {
+                        refraction *= max(i - 1.5, 0.0) / refractSteps;
+                        break;
+                    }
+                }
             #endif
         }
 
-        #ifdef VL_BUFFER_ENABLED
-            #ifdef VOLUMETRIC_BLUR
-                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
 
-                #if VOLUMETRIC_RES == 2
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #else
-                    const vec2 vlSigma = vec2(1.2, 0.00002);
-                #endif
-
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depth, vlSigma);
-            #else
-                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-            #endif
-
-            final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
+            if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        outFinal = vec4(final, 1.0);
+        //#ifdef WORLD_WATER_ENABLED
+        //    if (isEyeInWater == 1) {
+        //        final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        //    }
+        //#else
+            final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        //#endif
+
+        #ifdef VL_BUFFER_ENABLED
+            //if (final.a > (0.5/255.0) || isEyeInWater == 1) {
+                #ifdef VOLUMETRIC_BLUR
+                    const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+
+                    #if VOLUMETRIC_RES == 2
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #elif VOLUMETRIC_RES == 1
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #else
+                        const vec2 vlSigma = vec2(1.2, 0.00002);
+                    #endif
+
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+                #else
+                    vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+                #endif
+
+                final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+            //}
+        #endif
+
+        // #ifdef WORLD_WATER_ENABLED
+        //     if (isEyeInWater != 1) {
+        //         final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        //     }
+        // #endif
+        
+        final.a = 1.0;
+
+        outFinal = final;
     }
 #else
     // Pass-through for world-specific flags not working in shader.properties

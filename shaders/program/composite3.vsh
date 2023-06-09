@@ -1,3 +1,4 @@
+#define RENDER_OPAQUE_FINAL
 #define RENDER_COMPOSITE
 #define RENDER_VERTEX
 

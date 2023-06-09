@@ -68,7 +68,7 @@ const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex9MipmapEnabled = false;
 const bool colortex9Clear = false;
 
-const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex10MipmapEnabled = false;
 const bool colortex10Clear = true;
 
@@ -105,7 +105,7 @@ const bool colortex15Clear = true;
 
 // Water Options
 #define WORLD_WATER_TEXTURE 0 // [0 1]
-#define WORLD_WATER_OPACITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define WORLD_WATER_OPACITY 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WATER_WAVES 1 // [0 1 2]
 #define WORLD_WATER_PIXEL 0 // [0 8 16 32 64 128]
 #define WATER_WAVE_MIN 0.1

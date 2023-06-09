@@ -2,9 +2,12 @@ deferred1		opaque deferred block-light tracing
 deferred2		opaque deferred VL tracing
 deferred3		opaque deferred final
 
-composite1		translucent deferred block-light tracing
-composite2		translucent deferred VL tracing
-composite3		translucent deferred final
+composite1		opaque deferred block-light tracing
+composite2		opaque deferred VL tracing
+composite3		opaque deferred final
+composite4		translucent deferred block-light tracing
+composite5		translucent deferred VL tracing
+composite6		translucent deferred final
 
 composite11		bloom downscale 1/2
 composite12		bloom downscale 1/4

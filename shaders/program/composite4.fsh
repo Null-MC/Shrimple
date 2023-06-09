@@ -1,5 +1,5 @@
-#define RENDER_OPAQUE_RT_LIGHT
-#define RENDER_DEFERRED
+#define RENDER_TRANSLUCENT_RT_LIGHT
+#define RENDER_COMPOSITE
 #define RENDER_FRAG
 
 #include "/lib/constants.glsl"
@@ -8,24 +8,20 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
+uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_DEFERRED_COLOR;
     uniform sampler2D BUFFER_ROUGHNESS;
 #endif
 
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
     uniform sampler2D shadowcolor0;
 #endif
-
-// #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-//     uniform sampler3D texLPV_1;
-//     uniform sampler3D texLPV_2;
-// #endif
 
 uniform float frameTime;
 uniform float frameTimeCounter;
@@ -107,11 +103,6 @@ uniform float blindness;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
-// #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-//     #include "/lib/buffers/volume.glsl"
-//     #include "/lib/lighting/voxel/lpv.glsl"
-// #endif
-
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
@@ -127,36 +118,36 @@ uniform float blindness;
 #include "/lib/lighting/basic.glsl"
 
 
+#if DYN_LIGHT_RES == 1
+    const ivec2 offsetList[4] = ivec2[](
+        ivec2(0, 0),
+        ivec2(1, 0),
+        ivec2(0, 1),
+        ivec2(1, 1));
+#elif DYN_LIGHT_RES == 2
+    const ivec2 offsetList[16] = ivec2[](
+        ivec2(0, 0),
+        ivec2(2, 0),
+        ivec2(0, 2),
+        ivec2(2, 2),
+
+        ivec2(1, 0),
+        ivec2(3, 0),
+        ivec2(1, 2),
+        ivec2(3, 2),
+
+        ivec2(0, 1),
+        ivec2(1, 1),
+        ivec2(0, 3),
+        ivec2(1, 3),
+
+        ivec2(1, 1),
+        ivec2(3, 1),
+        ivec2(1, 3),
+        ivec2(3, 3));
+#endif
+
 #if DYN_LIGHT_RES != 0
-    #if DYN_LIGHT_RES == 1
-        const ivec2 offsetList[4] = ivec2[](
-            ivec2(0, 0),
-            ivec2(1, 0),
-            ivec2(0, 1),
-            ivec2(1, 1));
-    #elif DYN_LIGHT_RES == 2
-        const ivec2 offsetList[16] = ivec2[](
-            ivec2(0, 0),
-            ivec2(2, 0),
-            ivec2(0, 2),
-            ivec2(2, 2),
-
-            ivec2(1, 0),
-            ivec2(3, 0),
-            ivec2(1, 2),
-            ivec2(3, 2),
-
-            ivec2(0, 1),
-            ivec2(1, 1),
-            ivec2(0, 3),
-            ivec2(1, 3),
-
-            ivec2(1, 1),
-            ivec2(3, 1),
-            ivec2(1, 3),
-            ivec2(3, 3));
-    #endif
-
     ivec2 GetTemporalOffset(const in int size) {
         int i = int(frameCounter + gl_FragCoord.x + size*gl_FragCoord.y);
         return offsetList[i % _pow2(size)];
@@ -199,12 +190,16 @@ void main() {
 
     outDepth = vec4(vec3(depth), 1.0);
 
-    if (depth < 1.0) {
+    float opacity = textureLod(BUFFER_DEFERRED_COLOR, tex2, 0).a;
+
+    if (opacity > (0.5/255.0)) {
+        float depthOpaque = textureLod(depthtex1, tex2, 0).r;
+
         ivec2 iTex = ivec2(tex2 * viewSize);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        //vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         vec3 localNormal = deferredNormal.xyz;
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
@@ -238,9 +233,9 @@ void main() {
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+        //blockDiffuse *= 1.0 - deferredFog.a;
+
         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
-        
-        blockDiffuse *= 1.0 - deferredFog.a;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
