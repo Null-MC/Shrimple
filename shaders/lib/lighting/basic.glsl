@@ -258,7 +258,7 @@
 
                 #if LPV_SIZE > 0
                     vec3 lpvPos = localPos;
-                    lpvPos += 0.52 * geoNormal * (1.0 - sss);
+                    lpvPos += 0.5 * geoNormal;// * (1.0 - sss);
 
                     lpvPos = GetLPVPosition(lpvPos);
 
