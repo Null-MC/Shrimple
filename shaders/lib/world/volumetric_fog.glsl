@@ -23,16 +23,17 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         else {
     #endif
         #ifdef WORLD_SKY_ENABLED
-            float density = (sunDir.y * -0.2 + 0.8) * VolumetricDensityF;
+            float densityF = sunDir.y * -0.2 + 0.8;
+            float density = densityF * VolumetricDensityF;
 
-            result.Ambient = 0.08;
+            result.Ambient = 0.02 * densityF;
 
             result.Forward = mix(0.66, 0.26, rainStrength);
             result.Back = mix(0.32, 0.16, rainStrength);
             result.Direction = 0.75;
 
-            result.ScatterF = mix(0.018, 0.092, rainStrength) * density;
-            result.ExtinctF = mix(0.012, 0.076, rainStrength) * density;
+            result.ScatterF = mix(0.004, 0.018, rainStrength) * density;
+            result.ExtinctF = mix(0.002, 0.015, rainStrength) * density;
         #else
             result.Ambient = 0.96;
 
@@ -40,8 +41,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
             result.Back = 0.2;
             result.Direction = 0.6;
 
-            result.ScatterF = 0.032 * VolumetricDensityF;
-            result.ExtinctF = 0.032 * VolumetricDensityF;
+            result.ScatterF = 0.006 * VolumetricDensityF;
+            result.ExtinctF = 0.006 * VolumetricDensityF;
         #endif
     #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
         }
@@ -248,7 +249,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            inScattering += blockLightAccum * DynamicLightBrightness * VolumetricBrightnessBlock;
+            inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
         inScattering *= phaseF.ScatterF;

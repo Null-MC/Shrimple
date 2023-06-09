@@ -275,7 +275,7 @@ void main() {
                                 //float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
 
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += mix(16.0, 2048.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
+                                lightValue += mix(24.0, 2048.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
                                 //lightValue += 1024.0 * WorldSkyLightColor * shadowF * bounceF;
                             #endif
                         }
