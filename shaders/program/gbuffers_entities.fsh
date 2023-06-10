@@ -446,6 +446,10 @@ void main() {
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
 
         #ifdef WORLD_SKY_ENABLED
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                const vec3 shadowPos = vec3(0.0);
+            #endif
+
             GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, -localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
         #endif
 

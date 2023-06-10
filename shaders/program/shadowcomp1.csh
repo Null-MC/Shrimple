@@ -207,7 +207,7 @@ void main() {
                             ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
-                            #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                            #if LPV_SUN_SAMPLES > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                                 float bounceF = (1.0/6.0) * (
                                     GetLpvBounceF(voxelPos + ivec3( 1, 0, 0)) +
                                     GetLpvBounceF(voxelPos + ivec3(-1, 0, 0)) +
