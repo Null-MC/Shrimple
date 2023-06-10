@@ -35,7 +35,7 @@ void main() {
 	vec4 color = texture(gtexture, gTexcoord);
 
 	#ifndef SHADOW_COLORED
-		if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && color.a < 0.9) {
+		if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && color.a < (1.5/255.0)) {
 			discard;
 			return;
 		}

@@ -17,21 +17,20 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #endif
 
     #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform sampler2D shadowtex0;
+        //uniform sampler2D shadowtex0;
         uniform sampler2D shadowtex1;
 
-        #ifdef SHADOW_ENABLE_HWCOMP
-            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                uniform sampler2DShadow shadowtex0HW;
-                uniform sampler2DShadow shadowtex1HW;
-            #else
-                uniform sampler2DShadow shadow;
-            #endif
-        #endif
+        uniform sampler2D shadowcolor0;
 
-        #ifdef SHADOW_COLORED
-            uniform sampler2D shadowcolor0;
-        #endif
+        // #ifdef SHADOW_ENABLE_HWCOMP
+        //     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+        //         uniform sampler2DShadow shadowtex0HW;
+        //         uniform sampler2DShadow shadowtex1HW;
+        //     #else
+        //         uniform sampler2DShadow shadow;
+        //     #endif
+        // #endif
+
 
         uniform float rainStrength;
         uniform float far;
@@ -234,11 +233,7 @@ void main() {
                                     float shadowBias = GetShadowOffsetBias();
                                 #endif
 
-                                #ifdef SHADOW_COLORED
-                                    vec3 shadowF = vec3(0.0);
-                                #else
-                                    float shadowF = 0.0;
-                                #endif
+                                vec3 shadowF = vec3(0.0);
 
                                 for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
                                     //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
@@ -260,20 +255,12 @@ void main() {
                                         shadowPos = shadowPos * 0.5 + 0.5;
                                     #endif
 
-                                    #ifdef SHADOW_COLORED
-                                        vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-                                        shadowSample = RGBToLinear(shadowSample);
-                                    #else
-                                        float shadowSample = 1.0;//CompareDepth(shadowPos, vec2(0.0), shadowBias);
-                                    #endif
+                                    vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+                                    shadowSample = RGBToLinear(shadowSample);
 
-                                    //#if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                                    //    shadowSample *= texture(shadowtex1HW, shadowPos + vec3(0.0, 0.0, -shadowBias)).r;
-                                    //#else
-                                        float texDepth = texture(shadowtex1, shadowPos.xy).r;
-                                        float shadowDist = max(texDepth - shadowPos.z, 0.0);
-                                        shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
-                                    //#endif
+                                    float texDepth = texture(shadowtex1, shadowPos.xy).r;
+                                    float shadowDist = max(texDepth - shadowPos.z, 0.0);
+                                    shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
 
                                     shadowF += shadowSample;
                                 }
