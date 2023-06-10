@@ -1,6 +1,6 @@
 #version 430 compatibility
 
-#define RENDER_TRANSLUCENT
+#define RENDER_OPAQUE
 
 #include "nether.glsl"
 #include "/program/composite1.vsh"

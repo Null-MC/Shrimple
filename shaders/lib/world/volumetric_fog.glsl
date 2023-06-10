@@ -107,7 +107,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         float VoL = dot(-localSkyLightDirection, -localViewDir);
 
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= WorldSkyLightColor * smoothstep(0.0, 0.1, abs(sunDir.y));
+        skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, phaseF.Forward);
@@ -244,7 +244,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     lpvLight /= 16.0 * LpvRangeF;
                     lpvLight /= 8.0 + luminance(lpvLight);
 
-                    blockLightAccum += lpvLight * GetLpvFade(lpvPos);
+                    blockLightAccum += 0.5 * lpvLight * GetLpvFade(lpvPos);
                 }
             #endif
 

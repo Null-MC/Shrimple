@@ -33,6 +33,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
             uniform sampler2D shadowcolor0;
         #endif
 
+        uniform float rainStrength;
         uniform float far;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -71,6 +72,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
         #include "/lib/sampling/noise.glsl"
         #include "/lib/sampling/ign.glsl"
+
+        #include "/lib/world/sky.glsl"
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded.glsl"
@@ -148,6 +151,11 @@ void main() {
         ivec3 voxelOffset = GetLPVVoxelOffset();
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+
+        #if LPV_SUN_SAMPLES > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
+            skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
+        #endif
 
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
             for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
@@ -275,7 +283,7 @@ void main() {
                                 //float shadowF = CompareDepth(shadowPos, vec2(0.0), shadowBias);
 
                                 //float horizonF = GetSkyHorizonF(sunDir.y);
-                                lightValue += mix(24.0, 2048.0, max(localSunDirection.y, 0.0)) * WorldSkyLightColor * shadowF;
+                                lightValue += mix(24.0, 2048.0, max(localSunDirection.y, 0.0)) * skyLightColor * shadowF;
                                 //lightValue += 1024.0 * WorldSkyLightColor * shadowF * bounceF;
                             #endif
                         }
