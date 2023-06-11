@@ -60,6 +60,8 @@ bool IsTraceOpenBlock(const in uint blockId) {
 
     if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) result = true;
 
+    if (blockId >= BLOCK_SNOW_LAYERS_1 && blockId <= BLOCK_SNOW_LAYERS_3) result = true;
+
     if (blockId >= BLOCK_TRIPWIRE_HOOK_N && blockId <= BLOCK_TRIPWIRE_HOOK_W) result = true;
 
     return result;
