@@ -181,8 +181,8 @@ uniform int heldBlockLightValue2;
 #endif
 
 float linear_fog_fade(const in float vertexDistance, const in float fogStart, const in float fogEnd) {
-    if (vertexDistance <= fogStart) return 1.0;
-    else if (vertexDistance >= fogEnd) return 0.0;
+    //if (vertexDistance <= fogStart) return 1.0;
+    //else if (vertexDistance >= fogEnd) return 0.0;
 
     return smoothstep(fogEnd, fogStart, vertexDistance);
 }
@@ -219,8 +219,8 @@ void main() {
         if (fogShape == 1) fogPos.y = 0.0;
 
         float viewDist = length(fogPos);
-        float newWidth = (fogEnd - fogStart) * 4.0;
-        float fogF = 1.0 - linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
+        //float newWidth = (fogEnd - fogStart) * 4.0;
+        float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
 
         outDeferredColor = final;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);

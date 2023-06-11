@@ -189,11 +189,10 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/lights.glsl"
+#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/directional.glsl"
 
 #if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
-    #include "/lib/lighting/fresnel.glsl"
-
     #ifdef DYN_LIGHT_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -481,6 +480,15 @@ void main() {
         ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
     #endif
 
+    float roughL = max(_pow2(roughness), ROUGH_MIN);
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
+        float f0 = GetMaterialF0(metal_f0);
+        float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+        float skyF = F_schlickRough(skyNoVm, f0, roughL);
+        color.a = min(color.a + skyF, 1.0);
+    #endif
+
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
@@ -501,8 +509,6 @@ void main() {
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
-        float roughL = max(_pow2(roughness), ROUGH_MIN);
-
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);
 
@@ -531,13 +537,6 @@ void main() {
                 specularFinal *= color.rgb;
             }
         #endif
-
-        // #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
-        //     float f0 = GetMaterialF0(metal_f0);
-        //     float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-        //     float skyF = F_schlickRough(skyNoVm, f0, roughL);
-        //     color.a = max(color.a, skyF);
-        // #endif
 
         color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmFinal, metal_f0, roughL, occlusion, sss);
         color.a = min(color.a + luminance(specularFinal), 1.0);

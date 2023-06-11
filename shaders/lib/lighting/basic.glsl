@@ -239,7 +239,7 @@
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL) * (1.0 - roughL) * WorldSkyReflectF * _pow3(skyLight);
+                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL) * (1.0 - sqrt(roughL)) * WorldSkyReflectF * pow5(skyLight);
                     skySpecular += reflectColor * skyReflectF;
                     accumDiffuse *= 1.0 - skyReflectF;
                 #endif
