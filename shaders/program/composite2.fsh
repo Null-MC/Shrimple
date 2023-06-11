@@ -11,7 +11,7 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
-uniform sampler2D BUFFER_ROUGHNESS;
+uniform usampler2D BUFFER_DEFERRED_DATA;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
@@ -165,7 +165,9 @@ void main() {
             // TODO: is water or just translucent?
             vec2 viewSize = vec2(viewWidth, viewHeight);
             ivec2 iTex = ivec2(texcoord * viewSize);
-            float deferredWater = texelFetch(BUFFER_ROUGHNESS, iTex, 0).a;
+            uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
+            float deferredWater = unpackUnorm4x8(deferredDataA).a;
+
 
             VolumetricPhaseFactors phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors(localSunDirection);
             final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
