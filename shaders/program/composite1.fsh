@@ -7,7 +7,7 @@
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform usampler2D BUFFER_DEFERRED_DATA;
@@ -187,7 +187,7 @@ void main() {
         #endif
     #endif
 
-    float depth = textureLod(depthtex0, tex2, 0).r;
+    float depth = textureLod(depthtex1, tex2, 0).r;
     //float handClipDepth = textureLod(depthtex2, tex2, 0).r;
     //bool isHand = handClipDepth > depth;
     

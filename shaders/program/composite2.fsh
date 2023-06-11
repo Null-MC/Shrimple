@@ -168,7 +168,6 @@ void main() {
             uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
             float deferredWater = unpackUnorm4x8(deferredDataA).a;
 
-
             VolumetricPhaseFactors phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors(localSunDirection);
             final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
         }
