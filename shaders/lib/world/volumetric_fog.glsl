@@ -231,12 +231,11 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #elif LPV_SIZE > 0
                 vec3 lpvPos = GetLPVPosition(traceLocalPos);
-                vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+                vec3 voxelPos = GetLightGridPosition(traceLocalPos);
+                //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
-                if (saturate(lpvTexcoord) == lpvTexcoord) {
-                    vec3 lpvLight = (frameCounter % 2) == 0
-                        ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
-                        : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+                //if (saturate(lpvTexcoord) == lpvTexcoord) {
+                    vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
 
                     //float lum = luminance(blockLightAccum);
                     //blockLightAccum /= max(lum, EPSILON);
@@ -245,7 +244,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     lpvLight /= 8.0 + luminance(lpvLight);
 
                     blockLightAccum += 0.5 * lpvLight * GetLpvFade(lpvPos);
-                }
+                //}
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;

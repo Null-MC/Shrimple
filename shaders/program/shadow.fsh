@@ -34,18 +34,12 @@ void main() {
 
 	vec4 color = texture(gtexture, gTexcoord);
 
-	#ifndef SHADOW_COLORED
-		if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && color.a < (1.5/255.0)) {
-			discard;
-			return;
-		}
-	#endif
-	
-	if (renderStage != MC_RENDER_STAGE_TERRAIN_TRANSLUCENT) {
-		if (color.a < alphaTestRef) {
-			discard;
-			return;
-		}
+	float alphaF = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+		? (1.5/255.0) : alphaTestRef;
+
+	if (color.a < alphaF) {
+		discard;
+		return;
 	}
 
 	color.rgb = RGBToLinear(color.rgb * gColor.rgb);

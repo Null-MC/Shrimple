@@ -239,8 +239,8 @@
                     //float NoV = abs(dot(texNormal, localViewDir));
                     //float F = 1.0 - NoV;//F_schlick(NoVmax, 0.02, 1.0);
 
-                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL) * WorldSkyReflectF;
-                    skySpecular += reflectColor * skyReflectF * _pow2(skyLight);
+                    float skyReflectF = F_schlickRough(skyNoVm, f0, roughL) * (1.0 - roughL) * WorldSkyReflectF * _pow3(skyLight);
+                    skySpecular += reflectColor * skyReflectF;
                     accumDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif
@@ -257,17 +257,19 @@
                 lmFinal.x = (lmFinal.x - (0.5/15.0));
 
                 #if LPV_SIZE > 0
-                    vec3 lpvPos = localPos;
-                    lpvPos += 0.5 * geoNormal;// * (1.0 - sss);
+                    vec3 surfacePos = localPos;
+                    surfacePos += 0.5 * geoNormal;// * (1.0 - sss);
 
-                    lpvPos = GetLPVPosition(lpvPos);
+                    vec3 lpvPos = GetLPVPosition(surfacePos);
 
-                    vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+                    //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                     float lpvFade = GetLpvFade(lpvPos);
                     lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
                     lmFinal.x *= 1.0 - lpvFade;
+
+                    vec3 voxelPos = GetLightGridPosition(surfacePos);
                 #endif
 
                 lmFinal.x += (0.5/15.0);
@@ -281,10 +283,8 @@
                 vec3 ambientLight = RGBToLinear(lightmapColor);
 
                 #if LPV_SIZE > 0
-                    if (saturate(lpvTexcoord) == lpvTexcoord) {
-                        vec3 lpvLight = (frameCounter % 2) == 0
-                            ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
-                            : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+                    //if (saturate(lpvTexcoord) == lpvTexcoord) {
+                        vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
 
                         lpvLight /= 16.0 * LpvRangeF;
                         lpvLight /= 4.0 + luminance(lpvLight);
@@ -292,12 +292,11 @@
                         //lpvLight /= LpvRangeF;
 
                         #if LPV_SUN_SAMPLES > 0
-                            ambientLight *= 1.0 - 0.75*lpvFade;
-                            ambientLight += lpvLight * lpvFade;
-                        #else
-                            ambientLight += lpvLight * lpvFade;
+                            ambientLight *= 1.0 - (1.0 - LPV_LIGHTMAP_MIX)*lpvFade;
                         #endif
-                    }
+                        
+                        ambientLight += lpvLight * lpvFade;
+                    //}
                 #endif
 
                 ambientLight += WorldMinLightF;

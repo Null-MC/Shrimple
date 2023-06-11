@@ -312,7 +312,8 @@ void main() {
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
     #ifdef WORLD_AO_ENABLED
-        occlusion = RGBToLinear(glcolor.a);
+        //occlusion = RGBToLinear(glcolor.a);
+        occlusion = _pow2(glcolor.a);
     #endif
     
     vec3 shadowColor = vec3(1.0);

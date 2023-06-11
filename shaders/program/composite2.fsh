@@ -105,6 +105,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/lpv.glsl"
+            #include "/lib/lighting/voxel/lpv_render.glsl"
         #endif
     #endif
 #endif
