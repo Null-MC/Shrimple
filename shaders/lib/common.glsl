@@ -120,7 +120,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_EMISSION 0 // [0 1 2]
 #define MATERIAL_EMISSION_BRIGHTNESS 400 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500 550 600 650 700 750 800 950 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000]
 #define MATERIAL_SSS 1 // [0 1 2]
-#define MATERIAL_SSS_MAXDIST 3.0
+#define MATERIAL_SSS_MAXDIST 6.0
 #define MATERIAL_SPECULAR 1 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
@@ -192,7 +192,7 @@ const bool colortex15Clear = true;
 #define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_SUN_SAMPLES 3 // [0 1 2 3 4 5 6 7 8 9]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
-#define LPV_LIGHTMAP_MIX 0.25
+#define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE
@@ -405,6 +405,7 @@ const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
+const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;

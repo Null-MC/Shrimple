@@ -258,7 +258,7 @@
 
                 #if LPV_SIZE > 0
                     vec3 surfacePos = localPos;
-                    surfacePos += 0.5 * geoNormal;// * (1.0 - sss);
+                    surfacePos += 0.501 * geoNormal;// * (1.0 - sss);
 
                     vec3 lpvPos = GetLPVPosition(surfacePos);
 
@@ -292,7 +292,7 @@
                         //lpvLight /= LpvRangeF;
 
                         #if LPV_SUN_SAMPLES > 0
-                            ambientLight *= 1.0 - (1.0 - LPV_LIGHTMAP_MIX)*lpvFade;
+                            ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
                         #endif
                         
                         ambientLight += lpvLight * lpvFade;

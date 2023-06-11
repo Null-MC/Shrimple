@@ -304,12 +304,6 @@ option.DYN_LIGHT_SAMPLE_MAX=Max Sample Count
 option.DYN_LIGHT_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
 value.DYN_LIGHT_SAMPLE_MAX.0=Infinite
 
-option.LPV_SIZE=LPV Size
-value.LPV_SIZE.0=OFF
-value.LPV_SIZE.1=Small
-value.LPV_SIZE.2=Medium
-value.LPV_SIZE.3=Large
-
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
 
@@ -435,6 +429,27 @@ option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining 
 
 option.SHADOW_BLUR=Smooth
 option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
+
+
+screen.LPV_OPTIONS=LPV
+screen.LPV_OPTIONS.comment=Light Propagation Volume
+
+option.LPV_SIZE=Size
+value.LPV_SIZE.0=OFF
+value.LPV_SIZE.1=Small
+value.LPV_SIZE.2=Medium
+value.LPV_SIZE.3=Large
+
+option.LPV_SAMPLE_MODE=Sample Mode
+value.LPV_SAMPLE_MODE.0=Point
+value.LPV_SAMPLE_MODE.1=Linear
+value.LPV_SAMPLE_MODE.2=Voxel
+
+option.LPV_SUN_SAMPLES=Sunlight Samples
+option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
+
+option.LPV_LIGHTMAP_MIX=Lightmap Mix
+suffix.LPV_LIGHTMAP_MIX=%
 
 
 screen.POST_OPTIONS=Post-Processing
