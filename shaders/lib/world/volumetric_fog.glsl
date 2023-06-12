@@ -53,7 +53,7 @@ uniform float cloudTime;
 #if !defined SHADOOW_COLOR_1
 uniform sampler2D shadowcolor1;
 #endif
-#if  defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL
+#if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
     uniform vec3 eyePosition;
 #endif
 float cloudshadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
