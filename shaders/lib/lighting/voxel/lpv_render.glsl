@@ -12,17 +12,15 @@ vec3 SampleLpvPoint(const in ivec3 lpvPos) {
 
 float LpvVoxelTest(const in ivec3 voxelCoord) {
     ivec3 gridCell = ivec3(floor(voxelCoord / LIGHT_BIN_SIZE));
-    uint gridIndex = GetSceneLightGridIndex(gridCell);
+    uint gridIndex = GetVoxelGridCellIndex(gridCell);
     ivec3 blockCell = voxelCoord - gridCell * LIGHT_BIN_SIZE;
 
-    uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
     return IsTraceEmptyBlock(blockId) ? 1.0 : 0.0;
 }
 
 vec3 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
-    #if LPV_SAMPLE_MODE == LPV_SAMPLE_POINT
-        return SampleLpvPoint(ivec3(lpvPos));
-    #elif LPV_SAMPLE_MODE == LPV_SAMPLE_LINEAR
+    #if LPV_SAMPLE_MODE == LPV_SAMPLE_LINEAR
         vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
         return SampleLpvLinear(lpvTexcoord);
     #elif LPV_SAMPLE_MODE == LPV_SAMPLE_VOXEL
@@ -73,5 +71,7 @@ vec3 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
         vec3 sample_z2 = mix(sample_y1z2, sample_y2z2, lpvF.y);
 
         return mix(sample_z1, sample_z2, lpvF.z);
+    #else //LPV_SAMPLE_MODE == LPV_SAMPLE_POINT
+        return SampleLpvPoint(ivec3(lpvPos));
     #endif
 }

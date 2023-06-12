@@ -1,3 +1,21 @@
+SSBO-0		Scene Data
+SSBO-1		Shadow Data
+SSBO-2		Static Light Data
+SSBO-3		Global Light Data
+SSBO-4		Collission Data
+SSBO-5		Local Light Data
+
+
+
+
+CU			imgSceneLPV_1
+CU			imgSceneLPV_2
+CU			imgLocalLightMask
+CU			imgLocalBlockMask
+
+
+
+
 colortex0		RGB16F		1.0		final
 
 colortex1		RGBA8		1.0		deferred color

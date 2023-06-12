@@ -37,6 +37,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #endif
     
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
 
@@ -50,9 +51,9 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(gridCell, SceneLightGridSize))) return;
+        if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
         
-        uint gridIndex = GetSceneLightGridIndex(gridCell);
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
         
         // #ifdef DYN_LIGHT_OCTREE
         //     BlockCellData sceneBlockMap = SceneBlockMaps[gridIndex];
@@ -115,7 +116,7 @@ void main() {
                     //     }
                     // #endif
 
-                    uint lightType = GetSceneLightMask(blockCell, gridIndex);
+                    uint lightType = GetVoxelLightMask(blockCell, gridIndex);
                     if (lightType == LIGHT_NONE || lightType == LIGHT_IGNORED) continue;
 
                     StaticLightData lightInfo = StaticLightMap[lightType];
@@ -123,7 +124,7 @@ void main() {
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                     float lightRange = lightRangeSize.x * 255.0;
 
-                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
+                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
                     lightColor = RGBToLinear(lightColor);
 

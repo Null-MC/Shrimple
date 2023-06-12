@@ -50,7 +50,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -198,18 +198,21 @@ uniform int heldBlockLightValue2;
 #if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/fresnel.glsl"
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #include "/lib/lighting/voxel/mask.glsl"
-            #include "/lib/lighting/voxel/blocks.glsl"
-        #endif
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #include "/lib/buffers/collissions.glsl"
-            #include "/lib/lighting/voxel/collisions.glsl"
-            #include "/lib/lighting/voxel/tinting.glsl"
-            #include "/lib/lighting/voxel/tracing.glsl"
+            #include "/lib/lighting/voxel/light_mask.glsl"
         #endif
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/collissions.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tinting.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 #endif
 
@@ -241,7 +244,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/sky.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"

@@ -18,7 +18,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     lightFragPos += distBiasScale*localNormal;
     //lightFragPos += distBiasScale*localViewDir;
 
-    uint lightCount = GetSceneLights(lightFragPos, gridIndex);
+    uint lightCount = GetVoxelLights(lightFragPos, gridIndex);
 
     if (gridIndex != DYN_LIGHT_GRID_MAX) {
         bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
@@ -34,7 +34,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 accumDiffuse = vec3(0.0);
         vec3 accumSpecular = vec3(0.0);
 
-        vec3 traceEnd = GetLightGridPosition(lightFragPos);
+        vec3 traceEnd = GetVoxelBlockPosition(lightFragPos);
         vec3 cameraOffset = fract(cameraPosition);
 
         uint iOffset = 0u;
@@ -64,7 +64,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             //for (uint i2 = 0u; i2 < 16u; i2++) {
                 uint lightIndex = (i * iStep + iOffset);// % lightCount;
                 if (lightIndex >= lightCount) break;
-                lightData = GetSceneLight(gridIndex, lightIndex % lightCount);
+                lightData = GetVoxelLight(gridIndex, lightIndex % lightCount);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 
                 lightColor = RGBToLinear(lightColor);
@@ -140,7 +140,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                                 if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
                             #endif
 
-                            playerPos = GetLightGridPosition(playerPos);
+                            playerPos = GetVoxelBlockPosition(playerPos);
 
                             vec3 playerOffset = traceOrigin - playerPos;
                             if (length2(playerOffset) < traceDist2) {
@@ -224,8 +224,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         #ifdef DYN_LIGHT_FALLBACK
             // TODO: shrink to shadow bounds
-            vec3 offsetPos = localPos + LightGridCenter;
-            float fade = minOf(min(offsetPos, SceneLightSize - offsetPos)) / 8.0;
+            vec3 offsetPos = localPos + VoxelBlockCenter;
+            float fade = minOf(min(offsetPos, VoxelBlockSize - offsetPos)) / 8.0;
             accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
             accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
         #endif

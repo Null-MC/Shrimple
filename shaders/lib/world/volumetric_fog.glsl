@@ -220,11 +220,11 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
                 uint gridIndex;
-                uint lightCount = GetSceneLights(traceLocalPos, gridIndex);
+                uint lightCount = GetVoxelLights(traceLocalPos, gridIndex);
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
                     for (uint l = 0; l < min(lightCount, LIGHT_BIN_MAX_COUNT); l++) {
-                        uvec4 lightData = GetSceneLight(gridIndex, l);
+                        uvec4 lightData = GetVoxelLight(gridIndex, l);
 
                         vec3 lightPos, lightColor;
                         float lightSize, lightRange;
@@ -241,7 +241,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                             if ((lightData.z & traceFace) == traceFace) continue;
 
                             if ((lightData.z & 1u) == 1u) {
-                                vec3 traceOrigin = GetLightGridPosition(lightPos);
+                                vec3 traceOrigin = GetVoxelBlockPosition(lightPos);
                                 vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
                                 //#if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
@@ -265,7 +265,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #elif LPV_SIZE > 0
                 vec3 lpvPos = GetLPVPosition(traceLocalPos);
-                vec3 voxelPos = GetLightGridPosition(traceLocalPos);
+                vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
                 //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                 //if (saturate(lpvTexcoord) == lpvTexcoord) {

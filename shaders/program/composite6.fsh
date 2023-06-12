@@ -36,7 +36,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -122,10 +122,17 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/specular.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/voxel/light_mask.glsl"
+    #endif
+#endif
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/collissions.glsl"
     #include "/lib/lighting/voxel/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
@@ -146,7 +153,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
-#if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/volume.glsl"
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -416,14 +423,14 @@ layout(location = 0) out vec4 outFinal;
                                 HandLightType2 != HandLightTypePrevious2;
 
                             ivec3 gridCell, gridCellPrevious, blockCell;
-                            vec3 gridPos = GetLightGridPosition(localPos);
-                            vec3 gridPosPrevious = GetLightGridPreviousPosition(localPosPrev);
+                            vec3 gridPos = GetVoxelBlockPosition(localPos);
+                            vec3 gridPosPrevious = GetPreviousVoxelBlockPosition(localPosPrev);
 
-                            if (GetSceneLightGridCell(gridPos, gridCell, blockCell) && GetSceneLightGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
-                                uint gridIndex = GetSceneLightGridIndex(gridCell);
+                            if (GetVoxelGridCell(gridPos, gridCell, blockCell) && GetVoxelGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
+                                uint gridIndex = GetVoxelGridCellIndex(gridCell);
                                 LightCellData cellData = SceneLightMaps[gridIndex];
 
-                                uint gridIndexPrevious = GetSceneLightGridIndex(gridCellPrevious);
+                                uint gridIndexPrevious = GetVoxelGridCellIndex(gridCellPrevious);
                                 LightCellData cellDataPrevious = SceneLightMaps[gridIndexPrevious];
 
                                 if (cellDataPrevious.LightPreviousCount != cellData.LightCount + cellData.LightNeighborCount)
@@ -496,7 +503,7 @@ layout(location = 0) out vec4 outFinal;
 
             #ifdef WORLD_SKY_ENABLED
                 vec3 shadowPos = vec3(0.0);
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, -localViewDir, localNormal, texNormal, deferredLighting.y, roughL, metal_f0, sss);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

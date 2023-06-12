@@ -49,7 +49,7 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -157,10 +157,17 @@ uniform float blindness;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/voxel/light_mask.glsl"
+    #endif
+#endif
+
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/collissions.glsl"
     #include "/lib/lighting/voxel/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
@@ -182,7 +189,7 @@ uniform float blindness;
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
-#if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -215,6 +222,7 @@ void main() {
     const vec3 normal = vec3(0.0);
     const float roughL = 1.0;
     const float metal_f0 = 0.04;
+    float occlusion = glcolor.a;
     const float sss = 0.0;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -236,9 +244,9 @@ void main() {
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
         #else
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
         #endif
     #endif
 
@@ -252,7 +260,7 @@ void main() {
         }
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, glcolor.a, sss);
+    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion, sss);
 
     ApplyFog(color, vLocalPos, localViewDir);
 

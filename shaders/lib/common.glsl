@@ -194,7 +194,7 @@ const bool colortex15Clear = true;
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
 #define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
-#define LPV_SUN_SAMPLES 3 // [0 1 2 3 4 5 6 7 8 9]
+#define LPV_SUN_SAMPLES 3 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT
@@ -244,6 +244,7 @@ const bool colortex15Clear = true;
 #define DEFER_TRANSLUCENT
 #define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 //#define REFRACTION_SNELL_ENABLED
+//#define SHADOW_FORCE_CULLING
 #define AF_SAMPLES 1
 #define LIGHT_LEAK_FIX
 
@@ -322,11 +323,11 @@ const bool colortex15Clear = true;
 #if   LPV_SIZE == 3
     #define LPV_SIZE_XZ 256
     #define LPV_SIZE_Y  128
-    #define LPV_PADDING 32
+    #define LPV_PADDING 64
 #elif LPV_SIZE == 2
     #define LPV_SIZE_XZ 128
     #define LPV_SIZE_Y  64
-    #define LPV_PADDING 16
+    #define LPV_PADDING 32
 #else
     #define LPV_SIZE_XZ 64
     #define LPV_SIZE_Y  32
@@ -371,6 +372,8 @@ const bool colortex15Clear = true;
 #ifdef DEFER_TRANSLUCENT
 #endif
 #ifdef LIGHT_LEAK_FIX
+#endif
+#ifdef SHADOW_FORCE_CULLING
 #endif
 
 #if (VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != 0) || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO)

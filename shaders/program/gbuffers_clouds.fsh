@@ -29,7 +29,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -140,16 +140,17 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #include "/lib/buffers/collissions.glsl"
-            #include "/lib/lighting/voxel/collisions.glsl"
-            #include "/lib/lighting/voxel/tinting.glsl"
-            #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/collissions.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tinting.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 
     #include "/lib/lights.glsl"
@@ -162,7 +163,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -178,6 +179,13 @@ uniform int heldBlockLightValue2;
 #endif
 
 
+float linear_fog_fade(const in float vertexDistance, const in float fogStart, const in float fogEnd) {
+    //if (vertexDistance <= fogStart) return 1.0;
+    //else if (vertexDistance >= fogEnd) return 0.0;
+
+    return smoothstep(fogEnd, fogStart, vertexDistance);
+}
+
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
@@ -190,13 +198,6 @@ uniform int heldBlockLightValue2;
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
 #endif
-
-float linear_fog_fade(const in float vertexDistance, const in float fogStart, const in float fogEnd) {
-    //if (vertexDistance <= fogStart) return 1.0;
-    //else if (vertexDistance >= fogEnd) return 0.0;
-
-    return smoothstep(fogEnd, fogStart, vertexDistance);
-}
 
 void main() {
     vec4 final = texture(gtexture, texcoord) * vColor;
@@ -222,16 +223,22 @@ void main() {
         #endif
     #endif
 
+    vec3 fogPos = vLocalPos;
+    if (fogShape == 1) fogPos.y = 0.0;
+
+    float viewDist = length(fogPos);
+    float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
+
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         //float fogF = GetVanillaFogFactor(vLocalPos);
 
-        vec3 fogPos = vLocalPos;
-        if (fogShape == 1) fogPos.y = 0.0;
+        //vec3 fogPos = vLocalPos;
+        //if (fogShape == 1) fogPos.y = 0.0;
 
-        float viewDist = length(fogPos);
+        //float viewDist = length(fogPos);
         //float newWidth = (fogEnd - fogStart) * 4.0;
-        float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
+        //float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
 
         outDeferredColor = final;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
@@ -270,13 +277,13 @@ void main() {
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
         #endif
 
-        vec3 fogPos = vLocalPos;
-        if (fogShape == 1) fogPos.y = 0.0;
+        // vec3 fogPos = vLocalPos;
+        // if (fogShape == 1) fogPos.y = 0.0;
 
-        float viewDist = length(fogPos);
-        float newWidth = (fogEnd - fogStart) * 4.0;
-        float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
-        final.a *= fade;
+        //float viewDist = length(fogPos);
+        //float newWidth = (fogEnd - fogStart) * 4.0;
+        //float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
+        final.a *= 1.0 - fogF;
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO

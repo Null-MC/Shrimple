@@ -47,6 +47,7 @@ uniform float far;
     //#include "/lib/lighting/blackbody.glsl"
     //#include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
     //#include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     //#include "/lib/lighting/voxel/entities.glsl"
@@ -104,9 +105,9 @@ void main() {
             vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
 
             ivec3 gridCell, blockCell;
-            vec3 gridPos = GetLightGridPosition(lightGridOrigin);
-            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-                uint gridIndex = GetSceneLightGridIndex(gridCell);
+            vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+            if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+                uint gridIndex = GetVoxelGridCellIndex(gridCell);
                 bool intersectsLight = true;
 
                 #ifdef DYN_LIGHT_FRUSTUM_TEST
@@ -125,7 +126,7 @@ void main() {
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     if (intersectsLight && !IsTraceEmptyBlock(vBlockId[0]))
-                        SetSceneBlockMask(blockCell, gridIndex, vBlockId[0]);
+                        SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
                 #endif
             }
         }

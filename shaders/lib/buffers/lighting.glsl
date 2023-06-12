@@ -71,7 +71,7 @@ struct StaticLightData {
     #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
     #if defined RENDER_BEGIN || defined RENDER_SHADOW || defined RENDER_SHADOWCOMP
         layout(r16ui) uniform restrict uimage2D imgLocalBlockMask;
     #else

@@ -47,15 +47,23 @@ uniform int entityId;
     #include "/lib/world/waving.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
     #include "/lib/lights.glsl"
     #include "/lib/entities.glsl"
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/voxel/light_mask.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/voxel/lights.glsl"
+    #endif
 #endif
 
 
@@ -118,7 +126,7 @@ void main() {
     gl_Position = shadowModelViewInverse * gl_Position;
     gl_Position = shadowModelViewEx * gl_Position;
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         bool intersects = true;
 
         if (blockId > 0 && isRenderTerrain) {
@@ -126,12 +134,12 @@ void main() {
             vec3 lightGridOrigin = floor(vOriginPos + cf) - cf + 0.5;
 
             ivec3 gridCell, blockCell;
-            vec3 gridPos = GetLightGridPosition(lightGridOrigin);
-            if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-                uint gridIndex = GetSceneLightGridIndex(gridCell);
+            vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+            if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+                uint gridIndex = GetVoxelGridCellIndex(gridCell);
                 uint lightType = GetSceneLightType(blockId);
 
-                #ifdef DYN_LIGHT_FRUSTUM_TEST
+                #if defined DYN_LIGHT_FRUSTUM_TEST && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                     vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos, 1.0)).xyz;
 
                     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
@@ -150,7 +158,7 @@ void main() {
                     if (lightType > 0) {
                         if (!intersects) lightType = LIGHT_IGNORED;
 
-                        if (SetSceneLightMask(blockCell, gridIndex, lightType)) {
+                        if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
                             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                                 if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
                                 #ifdef DYN_LIGHT_DEBUG_COUNTS
@@ -163,10 +171,10 @@ void main() {
 
                 #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
                     if (!IsTraceEmptyBlock(blockId))
-                        SetSceneBlockMask(blockCell, gridIndex, blockId);
+                        SetVoxelBlockMask(blockCell, gridIndex, blockId);
                 #else
                     if (intersects && !IsTraceEmptyBlock(blockId))
-                        SetSceneBlockMask(blockCell, gridIndex, blockId);
+                        SetVoxelBlockMask(blockCell, gridIndex, blockId);
                 #endif
             }
         }

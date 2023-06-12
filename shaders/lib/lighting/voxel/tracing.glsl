@@ -55,9 +55,9 @@ vec3 TraceDDA_fast(vec3 origin, const in vec3 endPos, const in float range) {
         nextDist -= closestDist;
         nextDist += stepSizes * stepAxis;
 
-        if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
-            uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+        if (GetVoxelGridCell(voxelPos, gridCell, blockCell)) {
+            uint gridIndex = GetVoxelGridCellIndex(gridCell);
+            uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
             #ifdef DYN_LIGHT_OCTREE
                 if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
@@ -193,9 +193,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
         nextDist -= closestDist;
         nextDist += stepSizes * stepAxis;
 
-        if (GetSceneLightGridCell(voxelPos, gridCell, blockCell)) {
-            uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+        if (GetVoxelGridCell(voxelPos, gridCell, blockCell)) {
+            uint gridIndex = GetVoxelGridCellIndex(gridCell);
+            uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
             #ifdef DYN_LIGHT_OCTREE
                 if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
@@ -307,9 +307,9 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
         vec3 gridPos = (i + dither) * stepSize + origin;
         
         ivec3 gridCell, blockCell;
-        if (GetSceneLightGridCell(gridPos, gridCell, blockCell)) {
-            uint gridIndex = GetSceneLightGridIndex(gridCell);
-            uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+        if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+            uint gridIndex = GetVoxelGridCellIndex(gridCell);
+            uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW && blockId != blockIdLast) {
                 color *= GetLightGlassTint(blockId);

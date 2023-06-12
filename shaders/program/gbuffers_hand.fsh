@@ -51,7 +51,7 @@ uniform sampler2D lightmap;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE //&& ((defined RENDER_TRANSLUCENT && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT) || ())
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -189,20 +189,17 @@ uniform float blindness;
 #include "/lib/lighting/voxel/lights.glsl"
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
-
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #include "/lib/lighting/voxel/mask.glsl"
-        #endif
-
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            #include "/lib/buffers/collissions.glsl"
-            #include "/lib/lighting/voxel/collisions.glsl"
-            #include "/lib/lighting/voxel/tinting.glsl"
-            #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/collissions.glsl"
+        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/lighting/voxel/tinting.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 
     #include "/lib/lighting/fresnel.glsl"
@@ -229,7 +226,7 @@ uniform float blindness;
         #include "/lib/world/sky.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"

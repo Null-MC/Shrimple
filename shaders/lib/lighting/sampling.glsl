@@ -22,7 +22,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
     #endif
 
     #if MATERIAL_SSS != SSS_NONE
-        NoL = mix(NoL, 0.2 + 1.0*abs(texNoL), sss);
+        NoL = mix(NoL, 0.25 + 1.25*abs(texNoL), sss);
     //#else
     //    NoL = max(NoL, 0.0);
     #endif

@@ -11,7 +11,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #ifdef DYN_LIGHT_FLICKER
         uniform sampler2D noisetex;
     #endif
@@ -65,8 +65,14 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
+
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        //#include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/lights.glsl"
+    #endif
+
     #include "/lib/lighting/voxel/tinting.glsl"
 
     #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -101,7 +107,7 @@ ivec3 GetLPVFrameOffset() {
 
 ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-    ivec3 voxelOrigin = ivec3(voxelCameraOffset + LightGridCenter + 0.5);
+    ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
 
     vec3 lpvCameraOffset = fract(cameraPosition);
     ivec3 lpvOrigin = ivec3(lpvCameraOffset + SceneLPVCenter + 0.5);
@@ -130,19 +136,21 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
 }
 
 float GetBlockBounceF(const in uint blockId) {
-    float result = 1.0;
+    //float result = 1.0;
 
-    if (blockId <= 0) result = 0.0;
+    //if (blockId <= 0) result = 0.0;
 
-    return result;
+    //return result;
+
+    return step(blockId + 1, BLOCK_WATER);
 }
 
 float GetLpvBounceF(const in ivec3 gridBlockCell) {
     ivec3 gridCell = ivec3(floor(gridBlockCell / LIGHT_BIN_SIZE));
-    uint gridIndex = GetSceneLightGridIndex(gridCell);
+    uint gridIndex = GetVoxelGridCellIndex(gridCell);
     ivec3 blockCell = gridBlockCell - gridCell * LIGHT_BIN_SIZE;
 
-    uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
     return GetBlockBounceF(blockId);
 }
 
@@ -156,8 +164,11 @@ vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
         float shadowBias = GetShadowOffsetBias();
     #endif
 
+    float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
+    uint maxSamples = uint(viewDistF * LPV_SUN_SAMPLES) + 1;
+
     vec3 shadowF = vec3(0.0);
-    for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
+    for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
         //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
         vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
         vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
@@ -199,7 +210,7 @@ vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
 }
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
 
         ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
@@ -211,7 +222,7 @@ void main() {
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
 
-        #if LPV_SUN_SAMPLES > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
             skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
         #endif
@@ -227,15 +238,15 @@ void main() {
                     ivec3 voxelPos = voxelOffset + imgCoord;
 
                     ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
-                    uint gridIndex = GetSceneLightGridIndex(gridCell);
+                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
                     ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-                    uint blockId = GetSceneBlockMask(blockCell, gridIndex);
+                    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+
+                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
                     vec3 lightValue = vec3(0.0);
 
-                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - LightGridCenter - cameraOffset;
-
-                    #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
                         uint lightType = GetSceneLightType(int(blockId));
                         if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                             StaticLightData lightInfo = StaticLightMap[lightType];
@@ -274,7 +285,7 @@ void main() {
                             ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
-                            #if LPV_SUN_SAMPLES > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                            #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                                 float bounceF = (1.0/6.0) * (
                                     GetLpvBounceF(voxelPos + ivec3( 1, 0, 0)) +
                                     GetLpvBounceF(voxelPos + ivec3(-1, 0, 0)) +
@@ -289,7 +300,7 @@ void main() {
                                 lightValue += mix(24.0, 2048.0, max(localSunDirection.y, 0.0)) * skyLightColor * shadowF;
                             #endif
                         }
-                    #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
                         }
                     #endif
 

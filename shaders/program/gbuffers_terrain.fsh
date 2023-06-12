@@ -67,7 +67,7 @@ uniform sampler2D noisetex;
     uniform sampler3D TEX_RIPPLES;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -207,8 +207,9 @@ uniform int fogMode;
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/sampling.glsl"
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
         #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 #endif
@@ -231,9 +232,10 @@ uniform int fogMode;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -318,8 +320,8 @@ void main() {
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
     #ifdef WORLD_AO_ENABLED
-        //occlusion = RGBToLinear(glcolor.a);
-        occlusion = _pow2(glcolor.a);
+        occlusion = glcolor.a;
+        //occlusion = _pow2(glcolor.a);
     #endif
     
     vec3 shadowColor = vec3(1.0);

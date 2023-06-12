@@ -21,8 +21,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         ivec3 pos = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(pos, SceneLightGridSize))) return;
-        uint gridIndex = GetSceneLightGridIndex(pos);
+        if (any(greaterThanEqual(pos, VoxelGridSize))) return;
+        uint gridIndex = GetVoxelGridCellIndex(pos);
 
         LightCellData cellData = SceneLightMaps[gridIndex];
 

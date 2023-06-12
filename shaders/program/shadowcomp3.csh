@@ -19,6 +19,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
 
 
@@ -27,7 +28,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return 0u;
 
         const int gridSize = int(16.0 * DynamicLightRangeF) / LIGHT_BIN_SIZE;
-        vec3 binPos = (gridCell + 0.5) * LIGHT_BIN_SIZE - LightGridCenter - cameraOffset;
+        vec3 binPos = (gridCell + 0.5) * LIGHT_BIN_SIZE - VoxelBlockCenter - cameraOffset;
 
         uint neighborCount = 0u;
         ivec3 neighborOffset;
@@ -38,9 +39,9 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                     if (neighborOffset == ivec3(0)) continue;
 
                     ivec3 neighborGridCell = gridCell + neighborOffset;
-                    if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, SceneLightGridSize))) continue;
+                    if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, VoxelGridSize))) continue;
 
-                    uint neighborGridIndex = GetSceneLightGridIndex(neighborGridCell);
+                    uint neighborGridIndex = GetVoxelGridCellIndex(neighborGridCell);
                     uint neighborLightCount = SceneLightMaps[neighborGridIndex].LightCount;
                     
                     for (uint i = 0u; i < min(neighborLightCount, LIGHT_BIN_MAX_COUNT); i++) {
@@ -74,11 +75,11 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(gridCell, SceneLightGridSize))) return;
+        if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         
-        uint gridIndex = GetSceneLightGridIndex(gridCell);
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
         
         uint neighborCount = PopulateNeighborLists(gridCell, gridIndex, cameraOffset);
 
