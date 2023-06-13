@@ -27,11 +27,34 @@ vec3 distort(const in vec3 v) {
 }
 
 #if defined RENDER_VERTEX && !defined RENDER_SHADOW
-	out vec3 cloudPos;
-	uniform float cloudTime;
-	#if defined RENDER_BASIC || defined RENDER_TEXTURED || defined RENDER_CLOUDS || defined RENDER_PARTICLES || defined RENDER_WEATHER
-		uniform vec3 eyePosition;
-	#endif
+	// out vec3 cloudPos;
+	// uniform float cloudTime;
+	// #if defined RENDER_BASIC || defined RENDER_TEXTURED || defined RENDER_CLOUDS || defined RENDER_PARTICLES || defined RENDER_WEATHER
+	// 	uniform vec3 eyePosition;
+	// #endif
+
+	// void ApplyCloudShadows(const in vec3 localPos) {
+	// 	vec2 cloudOffset = vec2(-cloudTime/12.0, 0.33);
+	// 	cloudOffset = mod(cloudOffset, vec2(256.0));
+	// 	cloudOffset = mod(cloudOffset + 256.0, vec2(256.0));
+
+	// 	const float irisCamWrap = 1024.0;
+	// 	vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
+	// 	camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
+	// 	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
+	// 	float cloudHeightDifference = 192.2 - vertexWorldPos.y;
+
+	// 	#ifdef IRIS_FEATURE_SSBO
+	// 		vec3 lightWorldDir = localSkyLightDirection;//mat3(gbufferModelViewInverse)*shadowLightPosition;
+	// 	#else
+    //         vec3 lightWorldDir = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+	// 	#endif
+
+	// 	lightWorldDir /= lightWorldDir.y;
+	// 	cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+	// 	cloudPos.xy *= 0.00390625;
+	// }
+
 	void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
         float bias = GetShadowNormalBias(geoNoL);
 
@@ -56,19 +79,6 @@ vec3 distort(const in vec3 v) {
 
 		shadowPos = shadowPos * 0.5 + 0.5;
 
-		vec3 worldPos = vec3((-cloudTime)/12.0 , 192.2, 0.33);
-		vec2 cloudOffset = worldPos.xz;
-		cloudOffset = mod(mod(cloudOffset, vec2(256.0))+256.0, vec2(256.0));
-
-		const float irisCamWrap = 1024.0;
-		vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
-		camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
-		vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-		float cloudHeightDifference = worldPos.y - vertexWorldPos.y;
-
-		vec3 lightWorldDir = mat3(gbufferModelViewInverse)*shadowLightPosition;
-		lightWorldDir /= lightWorldDir.y;
-		cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-		cloudPos.xy *= 0.00390625;
+		ApplyCloudShadows(localPos);
 	}
 #endif

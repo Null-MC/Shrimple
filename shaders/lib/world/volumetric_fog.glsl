@@ -49,13 +49,15 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
 
     return result;
 }
-uniform float cloudTime;
-#if !defined SHADOOW_COLOR_1
-uniform sampler2D shadowcolor1;
-#endif
-#if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
-    uniform vec3 eyePosition;
-#endif
+
+// uniform float cloudTime;
+// #if !defined SHADOOW_COLOR_1
+// uniform sampler2D shadowcolor1;
+// #endif
+// #if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
+//     uniform vec3 eyePosition;
+// #endif
+
 float cloudshadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
 		vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
 		float cloudHeightDifference = 192.0 - vertexWorldPos.y;

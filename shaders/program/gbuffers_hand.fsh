@@ -17,6 +17,7 @@ in vec3 vLocalNormal;
 in vec3 vLocalTangent;
 in vec3 vBlockLight;
 in float vTangentW;
+
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -27,11 +28,13 @@ flat in mat2 atlasBounds;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    in vec3 cloudPos;
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
         flat in int shadowTile;
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+    #else
         in vec3 shadowPos;
     #endif
 #endif
@@ -57,9 +60,11 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
+
+    uniform sampler2D shadowcolor1;
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS

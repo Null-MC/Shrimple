@@ -14,11 +14,13 @@ in vec4 vColor;
 in float geoNoL;
 in vec3 vBlockLight;
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    in vec3 cloudPos;
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
         flat in int shadowTile;
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+    #else
         in vec3 shadowPos;
     #endif
 #endif
@@ -34,6 +36,10 @@ uniform sampler2D noisetex;
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
+#endif
+
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    uniform sampler2D shadowcolor1;
 #endif
 
 uniform int worldTime;
@@ -75,6 +81,10 @@ uniform float blindness;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
+
+        #ifdef IS_IRIS
+            uniform float cloudTime;
+        #endif
     #endif
 #endif
 

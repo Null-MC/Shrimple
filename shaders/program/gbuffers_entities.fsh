@@ -27,11 +27,13 @@ flat in mat2 atlasBounds;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    in vec3 cloudPos;
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
         flat in int shadowTile;
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+    #else
         in vec3 shadowPos;
     #endif
 #endif
@@ -53,9 +55,11 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
+
+    uniform sampler2D shadowcolor1;
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
@@ -108,6 +112,10 @@ uniform int heldBlockLightValue2;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
+    #endif
+    
+    #ifdef IS_IRIS
+        uniform float cloudTime;
     #endif
 #else
     uniform int worldTime;

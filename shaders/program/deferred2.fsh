@@ -7,8 +7,18 @@
 
 in vec2 texcoord;
 
+// uniform float cloudTime;
+// #if !defined SHADOOW_COLOR_1
+// uniform sampler2D shadowcolor1;
+// #endif
+// #if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
+//     uniform vec3 eyePosition;
+// #endif
+
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
+
+uniform sampler2D shadowcolor1;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
@@ -27,6 +37,7 @@ uniform sampler2D noisetex;
         uniform sampler2D shadowcolor0;
     #endif
 #endif
+
 
 uniform int frameCounter;
 uniform float frameTime;
@@ -54,6 +65,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
 #endif
 
+#ifdef IS_IRIS
+    uniform vec3 eyePosition;
+    uniform float cloudTime;
+#endif
+
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
@@ -62,7 +78,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef IS_IRIS
         uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
+        //uniform vec3 eyePosition;
     #endif
 #endif
 

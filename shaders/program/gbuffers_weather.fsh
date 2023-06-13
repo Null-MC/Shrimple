@@ -15,11 +15,13 @@ in vec3 vPos;
 in vec3 vLocalPos;
 in vec3 vBlockLight;
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    in vec3 cloudPos;
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
         flat in int shadowTile;
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+    #else
         in vec3 shadowPos;
     #endif
 #endif
@@ -37,9 +39,11 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
+    
+    uniform sampler2D shadowcolor1;
     
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
@@ -47,6 +51,10 @@ uniform sampler2D noisetex;
         #else
             uniform sampler2DShadow shadow;
         #endif
+    #endif
+    
+    #ifdef IS_IRIS
+        uniform float cloudTime;
     #endif
 #endif
 

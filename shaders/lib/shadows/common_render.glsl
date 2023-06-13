@@ -1,6 +1,7 @@
-in vec3 cloudPos;
-uniform sampler2D shadowcolor1;
-#define SHADOOW_COLOR_1
+// in vec3 cloudPos;
+// uniform sampler2D shadowcolor1;
+// #define SHADOOW_COLOR_1
+
 #ifdef SHADOW_COLORED
     vec3 GetFinalShadowColor(const in float sss) {
         vec3 shadowColor = vec3(1.0);
