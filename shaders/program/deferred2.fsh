@@ -10,7 +10,9 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-uniform sampler2D shadowcolor1;
+#ifdef SHADOW_CLOUD_ENABLED
+    uniform sampler2D shadowcolor1;
+#endif
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
@@ -29,7 +31,6 @@ uniform sampler2D shadowcolor1;
         uniform sampler2D shadowcolor0;
     #endif
 #endif
-
 
 uniform int frameCounter;
 uniform float frameTime;

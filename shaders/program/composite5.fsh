@@ -29,6 +29,10 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
     #ifdef SHADOW_COLORED
         uniform sampler2D shadowcolor0;
     #endif
+    
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D shadowcolor1;
+    #endif
 #endif
 
 uniform int frameCounter;
@@ -67,6 +71,10 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform bool firstPersonCamera;
         uniform vec3 eyePosition;
     #endif
+#endif
+
+#if defined IS_IRIS && defined WORLD_SHADOW_ENABLED
+    uniform float cloudTime;
 #endif
 
 #include "/lib/sampling/noise.glsl"

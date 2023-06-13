@@ -18,16 +18,22 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     uniform sampler3D texLPV_2;
 #endif
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if VOLUMETRIC_BRIGHT_SKY > 0
+        uniform sampler2D shadowtex0;
+        uniform sampler2D shadowtex1;
 
-    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
+        #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex0HW;
+        #endif
+
+        #ifdef SHADOW_COLORED
+            uniform sampler2D shadowcolor0;
+        #endif
     #endif
-
-    #ifdef SHADOW_COLORED
-        uniform sampler2D shadowcolor0;
+    
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D shadowcolor1;
     #endif
 #endif
 
@@ -63,10 +69,12 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+    uniform bool firstPersonCamera;
+    uniform vec3 eyePosition;
+#endif
+
+#ifdef IS_IRIS
+    uniform float cloudTime;
 #endif
 
 #include "/lib/sampling/noise.glsl"
