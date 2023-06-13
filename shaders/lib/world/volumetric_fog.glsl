@@ -58,8 +58,14 @@ float SampleCloudShadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffse
 	cloudPos.xy *= rcp(256.0);
 
     float cloudF = texture2D(shadowcolor1, cloudPos.xy).a;
+
     cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
-    return _pow2(cloudF);
+
+    float skyLightF = 1.0;//smoothstep(0.1, 0.3, skyLightDir.y);
+
+    return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
+
+    //return _pow2(cloudF);
 }
 
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
