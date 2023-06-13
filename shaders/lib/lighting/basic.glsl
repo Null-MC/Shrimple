@@ -188,7 +188,7 @@
             #endif
 
             // TODO: replace this crap with actual diffuse function
-            vec3 H = normalize(localSkyLightDirection + localViewDir);
+            vec3 H = normalize(-localSkyLightDirection + -localViewDir);
             float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
@@ -256,7 +256,7 @@
             //     ambientLight *= 1.0 - skyReflectF;
             // #endif
 
-            accumDiffuse += ambientLight * occlusion * roughL;
+            accumDiffuse += ambientLight * occlusion;// * roughL;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 if (metal_f0 >= 0.5) {
