@@ -244,6 +244,7 @@ uniform int fogMode;
     #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -335,9 +336,9 @@ void main() {
         }
         else {
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
-                float shadowF = GetFinalShadowFactor(sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
                 shadowColor = vec3(shadowF);
 
                 // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));

@@ -50,22 +50,16 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     return result;
 }
 
-// uniform float cloudTime;
-// #if !defined SHADOOW_COLOR_1
-// uniform sampler2D shadowcolor1;
-// #endif
-// #if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
-//     uniform vec3 eyePosition;
-// #endif
+float SampleCloudShadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
+	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
+	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
-float cloudshadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
-		vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-		float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+	cloudPos.xy *= rcp(256.0);
 
-		vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-		cloudPos.xy *= 0.00390625;
-        float cloud = 1.0 - texture2D(shadowcolor1, cloudPos.xy).a * 0.5 * step(0.0, cloudPos.z);
-        return cloud*cloud;
+    float cloudF = texture2D(shadowcolor1, cloudPos.xy).a;
+    cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
+    return _pow2(cloudF);
 }
 
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
@@ -147,20 +141,26 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     
-    vec3 lightWorldDir = mat3(gbufferModelViewInverse)*shadowLightPosition;
-	lightWorldDir /= lightWorldDir.y;
-    vec3 worldPos = vec3((-cloudTime)/12.0 , 192.0, 0.33);
-    vec2 cloudOffset = worldPos.xz;
-    cloudOffset = mod(mod(cloudOffset, vec2(256.0))+256.0, vec2(256.0));
+    #ifdef SHADOW_CLOUD_ENABLED
+        //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
+    	vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
 
-    const float irisCamWrap = 1024.0;
-    vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
-    camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
+        vec2 cloudOffset = vec2(-cloudTime/12.0 , 0.33);
+        cloudOffset = mod(cloudOffset, vec2(256.0));
+        cloudOffset = mod(cloudOffset + 256.0, vec2(256.0));
+
+        const float irisCamWrap = 1024.0;
+        vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
+        camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
+    #endif
+
     for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
         vec3 inScattering = inScatteringBase;
 
         float iStep = i + dither * step(i, (VOLUMETRIC_SAMPLES-1));
         //if (i < stepCount) iStep += dither;
+
+        vec3 traceLocalPos = localStep * iStep + localStart;
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float sampleF = 1.0;
@@ -205,11 +205,17 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            inScattering += skyPhase * sampleF * sampleColor*cloudshadow(localStart+localStep*iStep, lightWorldDir,cloudOffset,camOffset);
+            #ifdef SHADOW_CLOUD_ENABLED
+                //vec3 traceLocalPos = localStep * iStep + localStart;
+                float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
+                sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+            #endif
+
+            inScattering += skyPhase * sampleF * sampleColor;
         #endif
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
-            vec3 traceLocalPos = localStep * iStep + localStart;
+            //vec3 traceLocalPos = localStep * iStep + localStart;
             vec3 blockLightAccum = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT

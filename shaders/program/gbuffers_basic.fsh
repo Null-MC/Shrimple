@@ -125,9 +125,9 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        //#ifndef IRIS_FEATURE_SSBO
-        //    vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-        //#endif
+        #ifndef IRIS_FEATURE_SSBO
+           vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
 
         float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
 
@@ -136,9 +136,9 @@ void main() {
         }
         else {
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
-                float shadowF = GetFinalShadowFactor(sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
                 shadowColor = vec3(shadowF);
 
                 // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));

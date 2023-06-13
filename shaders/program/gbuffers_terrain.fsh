@@ -335,9 +335,9 @@ void main() {
         }
         else {
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
-                float shadowF = GetFinalShadowFactor(sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
                 shadowColor = vec3(shadowF);
             #endif
         }

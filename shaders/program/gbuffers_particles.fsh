@@ -306,9 +306,9 @@ void main() {
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifdef SHADOW_COLORED
-            shadowColor = GetFinalShadowColor();
+            shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
         #else
-            shadowColor = vec3(GetFinalShadowFactor());
+            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
         #endif
     #endif
 

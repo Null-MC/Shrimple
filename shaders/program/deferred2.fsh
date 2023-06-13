@@ -7,14 +7,6 @@
 
 in vec2 texcoord;
 
-// uniform float cloudTime;
-// #if !defined SHADOOW_COLOR_1
-// uniform sampler2D shadowcolor1;
-// #endif
-// #if  (defined RENDER_OPAQUE_VL || defined RENDER_TRANSLUCENT_VL || defined RENDER_OPAQUE_VL) && VOLUMETRIC_BRIGHT_BLOCK == 0
-//     uniform vec3 eyePosition;
-// #endif
-
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
@@ -120,6 +112,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/lpv.glsl"
+            #include "/lib/lighting/voxel/lpv_render.glsl"
         #endif
     #endif
 #endif

@@ -400,6 +400,9 @@ value.SHADOW_BIAS_SCALE.2.5=250%
 option.SHADOW_DISTORT_FACTOR=Distortion
 option.SHADOW_DISTORT_FACTOR.comment=The amount of distortion to apply to the shadow map. Applies to distorted shadows only.
 
+option.SHADOW_CLOUD_ENABLED=Clouds
+option.SHADOW_CLOUD_ENABLED.comment=Enables shadows from clouds.
+
 
 screen.SHADOW_FILTER_OPTIONS=Filtering
 screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.

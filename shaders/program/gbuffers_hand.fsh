@@ -232,6 +232,7 @@ uniform float blindness;
     #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -323,9 +324,9 @@ void main() {
         }
         else {
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor(sss));
+                shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
             #endif
         }
     #endif

@@ -157,6 +157,10 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FITRANGE
 #define SHADOW_CSM_OVERLAP
 
+#define SHADOW_CLOUD_ENABLED
+#define SHADOW_CLOUD_RADIUS 3.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
+#define SHADOW_CLOUD_BRIGHTNESS 30 // [0 10 20 30 40 50 60 70 80 90 100]
+
 
 // Dynamic Lighting
 #define DYN_LIGHT_MODE 0 // [0 2 3]
@@ -410,6 +414,7 @@ const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
+const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
 const float RefractionStrengthF = REFRACTION_STRENGTH * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;

@@ -68,23 +68,6 @@
 #endif
 
 #ifdef RENDER_FRAG
-    #if defined RENDER_GBUFFER && !defined RENDER_CLOUDS
-        vec4 GetColor() {
-            vec4 color = texture(gtexture, texcoord);
-
-            #ifndef RENDER_TRANSLUCENT
-                if (color.a < alphaTestRef) {
-                    discard;
-                    return vec4(0.0);
-                }
-            #endif
-
-            color.rgb *= glcolor.rgb;
-
-            return color;
-        }
-    #endif
-
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
         void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
             #ifdef RENDER_GBUFFER

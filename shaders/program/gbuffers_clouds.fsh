@@ -165,6 +165,7 @@ uniform int heldBlockLightValue2;
     #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
     #include "/lib/world/sky.glsl"
@@ -205,21 +206,21 @@ void main() {
         return;
     }
 
-    vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #ifdef SHADOW_COLORED
-            shadowColor = GetFinalShadowColor();
-        #else
-            shadowColor = vec3(GetFinalShadowFactor());
-        #endif
-    #endif
-
     const float roughness = 0.9;
     const vec3 normal = vec3(0.0);
     const float metal_f0 = 0.04;
     const float occlusion = 1.0;
     const float emission = 0.0;
-    const float sss = 0.0;
+    const float sss = 0.6;
+
+    vec3 shadowColor = vec3(1.0);
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef SHADOW_COLORED
+            shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+        #else
+            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+        #endif
+    #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

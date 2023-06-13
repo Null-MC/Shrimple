@@ -56,21 +56,8 @@ uniform int entityId;
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-
-    // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && LPV_SIZE > 0
-    //     #include "/lib/buffers/volume.glsl"
-    //     #include "/lib/lighting/voxel/lpv.glsl"
-    // #endif
 #endif
 
-
-// #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
-//     void AddLpvLight(const in vec3 lpvPos, const in vec3 lightColor, const in float lightRange) {
-//         ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-//         vec3 lightFinal = LpvRangeF * lightColor * lightRange;// * VolumetricBlockRangeF;
-//         imageStore((frameCounter % 2) == 0 ? imgSceneLPV_2 : imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
-//     }
-// #endif
 
 void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
