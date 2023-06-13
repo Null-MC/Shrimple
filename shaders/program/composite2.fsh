@@ -70,11 +70,12 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue2;
 
     uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
+    //uniform vec3 eyePosition;
 #endif
 
 #ifdef IS_IRIS
     uniform float cloudTime;
+    uniform vec3 eyePosition;
 #endif
 
 #include "/lib/sampling/noise.glsl"
