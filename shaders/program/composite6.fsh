@@ -555,27 +555,25 @@ layout(location = 0) out vec4 outFinal;
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             float fogF = deferredFog.a;
 
-            float fogDist = GetVanillaFogDistance(localPos);
-
             if (isEyeInWater == 1) {
                 // water fog
 
                 vec3 skyColorFinal = RGBToLinear(skyColor);
                 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
-                fogF = GetFogFactor(fogDist, 1.0, min(32.0, far), 1.0);
+                fogF = GetCustomWaterFogFactor(viewDist);
             }
             else {
                 // sky fog
 
                 if (depth >= 1.0) fogF = 0.0;
                 else {
-                    float fogStart = WorldFogStartF * far;
-                    fogF = GetFogFactor(fogDist, fogStart, far, 1.0);
-
                     vec3 skyColorFinal = RGBToLinear(skyColor);
                     fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                     fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                    float fogDist = GetVanillaFogDistance(localPos);
+                    fogF = GetCustomSkyFogFactor(fogDist);
                 }
             }
 

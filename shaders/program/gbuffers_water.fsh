@@ -556,7 +556,32 @@ void main() {
         color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmFinal, metal_f0, roughL, occlusion, sss);
         color.a = min(color.a + luminance(specularFinal), 1.0);
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 fogColorFinal = vec3(0.0);
+            float fogF = 0.0;
+
+            if (isEyeInWater == 1) {
+                // water fog
+
+                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+
+                fogF = GetCustomWaterFogFactor(viewDist);
+            }
+            else {
+                // sky fog
+
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                float fogDist  = GetVanillaFogDistance(vLocalPos);
+                fogF = GetCustomSkyFogFactor(fogDist);
+            }
+
+            color.rgb = mix(color.rgb, fogColorFinal, fogF);
+        #else
+            ApplyVanillaFog(color, vLocalPos);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO

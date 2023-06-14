@@ -515,15 +515,6 @@ layout(location = 0) out vec4 outFinal;
                 float fogF = 0.0;
 
                 if (depthTranslucent < depthOpaque) {
-                    vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 viewPosTrans = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
-                        vec3 localPosTrans = (gbufferModelViewInverse * vec4(viewPosTrans, 1.0)).xyz;
-                    #else
-                        vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
-                    #endif
-
                     if (isEyeInWater == 1) {
                         // sky fog from in water
 
@@ -532,26 +523,25 @@ layout(location = 0) out vec4 outFinal;
                         fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
                         float fogDist  = GetVanillaFogDistance(localPos);
-
-                        float fogStart = WorldFogStartF * far;
-                        fogF = GetFogFactor(fogDist, fogStart, far, 1.0);
+                        fogF = GetCustomSkyFogFactor(fogDist);
                     }
                     else {
                         // water fog from outside water
 
-                        // #ifndef IRIS_FEATURE_SSBO
-                        //     vec3 WorldSkyLightColor = GetSkyLightColor();
-                        // #endif
+                        vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
 
-                        // vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                        #ifndef IRIS_FEATURE_SSBO
+                            vec3 viewPosTrans = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
+                            vec3 localPosTrans = (gbufferModelViewInverse * vec4(viewPosTrans, 1.0)).xyz;
+                        #else
+                            vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                        #endif
+
+                        float fogDistTrans = length(localPosTrans);
+                        float fogDist = max(viewDist - fogDistTrans, 0.0);
+                        fogF = GetCustomWaterFogFactor(fogDist);
 
                         fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-
-                        float fogDistNear = length(localPosTrans);
-                        float fogDistFar  = length(localPos);
-                        float fogDist = max(fogDistFar - fogDistNear, 0.0);
-
-                        fogF = GetFogFactor(fogDist, 1.0, min(32.0, far), 1.0);
                     }
                 }
             #else

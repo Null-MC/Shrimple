@@ -13,6 +13,8 @@ uniform float viewHeight;
 uniform float viewWidth;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
+uniform float far;
+
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 
@@ -46,9 +48,20 @@ void main() {
         float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            vec3 skyColorFinal = RGBToLinear(skyColor);
-            vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-            color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
+            #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
+                color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
+            #else
+                if (isEyeInWater == 1) {
+                    color = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
+                    color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
+                }
+            #endif
         #else
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);

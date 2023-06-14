@@ -63,6 +63,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+uniform ivec2 eyeBrightnessSmooth;
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferPreviousModelView;
@@ -337,6 +338,8 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
+            float viewDist = length(localPos);
+
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
                 float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
@@ -464,8 +467,8 @@ layout(location = 0) out vec4 outFinal;
                             if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
                             float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
-                            float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
-                            float moveWeight = max(1.0 - cameraSpeed * viewDist, 0.0);
+                            float viewDistF = max(1.0 - viewDist/16.0, 0.0);
+                            float moveWeight = max(1.0 - cameraSpeed * viewDistF, 0.0);
 
                             float specularCounter = diffuseCounter * moveWeight;
 
@@ -549,44 +552,22 @@ layout(location = 0) out vec4 outFinal;
                 vec3 fogColorFinal = vec3(0.0);
                 float fogF = 0.0;
 
-                if (depthTranslucent < depthOpaque) {
-                    vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+                if (isEyeInWater == 1) {
+                    // water fog
 
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 viewPosTrans = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
-                        vec3 localPosTrans = (gbufferModelViewInverse * vec4(viewPosTrans, 1.0)).xyz;
-                    #else
-                        vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
-                    #endif
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
-                    if (isEyeInWater == 1) {
-                        // sky fog from in water
+                    fogF = GetCustomWaterFogFactor(viewDist);
+                }
+                else {
+                    // sky fog
 
-                        vec3 skyColorFinal = RGBToLinear(skyColor);
-                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
-                        float fogDist  = GetVanillaFogDistance(localPos);
-
-                        fogF = GetFogFactor(fogDist, 0.3*far, far, 1.0);
-                    }
-                    else {
-                        // water fog from outside water
-
-                        #ifndef IRIS_FEATURE_SSBO
-                            vec3 WorldSkyLightColor = GetSkyLightColor();
-                        #endif
-
-                        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-
-                        fogColorFinal = GetCustomWaterFogColor(skyLightColor);
-
-                        float fogDistNear = length(localPosTrans);
-                        float fogDistFar  = length(localPos);
-                        float fogDist = max(fogDistFar - fogDistNear, 0.0);
-
-                        fogF = GetFogFactor(fogDist, 1.0, min(32.0, far), 1.0);
-                    }
+                    float fogDist  = GetVanillaFogDistance(localPos);
+                    fogF = GetCustomSkyFogFactor(fogDist);
                 }
             #else
                 vec4 deferredFog = unpackUnorm4x8(deferredData.b);

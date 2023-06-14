@@ -29,6 +29,11 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 //     return GetSkyFogColor(skyColorL, fogColorL, viewUpF);
 // }
 
+float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
+    float distFactor = dist >= end ? 1.0 : smoothstep(start, end, dist);
+    return saturate(pow(distFactor, density));
+}
+
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
     vec3 GetCustomWaterFogColor(const in float sunUpF) {
         const vec3 _color = RGBToLinear(vec3(0.04, 0.16, 0.32));
@@ -42,6 +47,10 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         return _color * (WaterMinBrightness + brightnessF * skyBrightness * eyeBrightness);
     }
 
+    float GetCustomWaterFogFactor(const in float fogDist) {
+        return GetFogFactor(fogDist, 0.0, min(20.0, far), 0.2);
+    }
+
     vec3 GetCustomSkyFogColor(const in float sunUpF) {
         const vec3 colorNight = RGBToLinear(vec3(0.096, 0.081, 0.121));
         const vec3 colorDay = RGBToLinear(vec3(0.975, 0.954, 0.890));
@@ -49,12 +58,12 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         float f = smoothstep(-0.1, 0.3, sunUpF);
         return mix(colorNight, colorDay, f);
     }
-#endif
 
-float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
-    float distFactor = dist >= end ? 1.0 : smoothstep(start, end, dist);
-    return saturate(pow(distFactor, density));
-}
+    float GetCustomSkyFogFactor(const in float fogDist) {
+        float fogStart = WorldFogSkyStartF * far;
+        return GetFogFactor(fogDist, fogStart, far, WorldFogSkyDensityF);
+    }
+#endif
 
 #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
     float GetVanillaFogDistance(const in vec3 localPos) {
