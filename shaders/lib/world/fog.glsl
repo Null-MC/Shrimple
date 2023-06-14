@@ -19,19 +19,11 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     return GetSkyFogColor(skyColor, fogColor, viewUpF);
 }
 
-// float GetViewUpF(const in vec3 viewDir) {
-//     return dot(viewDir, gbufferModelView[1].xyz);
-// }
-
-// vec3 GetSkyFogColor(const in vec3 fogColor, const in float viewUpF) {
-//     vec3 skyColorL = RGBToLinear(skyColor);
-//     vec3 fogColorL = RGBToLinear(fogColor);
-//     return GetSkyFogColor(skyColorL, fogColorL, viewUpF);
-// }
-
 float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
-    float distFactor = dist >= end ? 1.0 : smoothstep(start, end, dist);
-    return saturate(pow(distFactor, density));
+    if (dist >= end) return 1.0;
+
+    float distF = saturate((dist - start) / (end - start));
+    return smoothstep(0.0, 1.0, pow(distF, density));
 }
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
@@ -41,27 +33,31 @@ float GetFogFactor(const in float dist, const in float start, const in float end
 
         float brightnessF = 1.0 - WaterMinBrightness;
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF);
-        //skyBrightness = mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyBrightness);
-        skyBrightness *= WorldSunBrightnessF;
-        return _color * (WaterMinBrightness + brightnessF * skyBrightness * eyeBrightness);
+        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+        float weatherBrightness = 1.0 - 0.92 * rainStrength;
+        return _color * (WaterMinBrightness + brightnessF * skyBrightness * weatherBrightness * eyeBrightness);
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {
-        return GetFogFactor(fogDist, 0.0, min(20.0, far), 0.2);
+        return GetFogFactor(fogDist, 0.0, min(28.0, far), 0.25);
     }
 
     vec3 GetCustomSkyFogColor(const in float sunUpF) {
         const vec3 colorNight = RGBToLinear(vec3(0.096, 0.081, 0.121));
         const vec3 colorDay = RGBToLinear(vec3(0.975, 0.954, 0.890));
 
-        float f = smoothstep(-0.1, 0.3, sunUpF);
-        return mix(colorNight, colorDay, f);
+        float dayF = smoothstep(-0.1, 0.3, sunUpF);
+        vec3 color = mix(colorNight, colorDay, dayF);
+        float weatherBrightness = 1.0 - 0.92 * rainStrength;
+        return color * weatherBrightness;
     }
 
     float GetCustomSkyFogFactor(const in float fogDist) {
-        float fogStart = WorldFogSkyStartF * far;
-        return GetFogFactor(fogDist, fogStart, far, WorldFogSkyDensityF);
+        const float WorldFogRainySkyDensityF = 0.5;
+
+        float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
+        float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
+        return GetFogFactor(fogDist, fogStart, far, density);
     }
 #endif
 

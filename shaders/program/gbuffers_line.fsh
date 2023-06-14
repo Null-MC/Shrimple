@@ -15,9 +15,7 @@ uniform sampler2D lightmap;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform vec3 sunPosition;
 uniform vec3 upPosition;
-uniform vec3 skyColor;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -31,6 +29,12 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    uniform float rainStrength;
+    uniform vec3 sunPosition;
+    uniform vec3 skyColor;
 #endif
 
 #if MC_VERSION >= 11700

@@ -229,11 +229,24 @@ void main() {
         #endif
     #endif
 
-    vec3 fogPos = vLocalPos;
-    if (fogShape == 1) fogPos.y = 0.0;
+    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        float fogDist = GetVanillaFogDistance(vLocalPos);
 
-    float viewDist = length(fogPos);
-    float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
+        #ifdef IS_IRIS
+            fogDist *= 0.5;
+        #endif
+
+        float fogF = GetCustomSkyFogFactor(fogDist);
+    #else
+        vec3 fogPos = vLocalPos;
+        if (fogShape == 1) fogPos.y = 0.0;
+
+        float viewDist = length(fogPos);
+
+        float fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 2.0, fogEnd * 4.0);
+    #endif
+
+    final.a *= 1.0 - fogF;
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
@@ -274,8 +287,6 @@ void main() {
             
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
         #endif
-
-        final.a *= 1.0 - fogF;
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO
