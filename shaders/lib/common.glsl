@@ -16,7 +16,7 @@ const int colortex10Format = RGBA16F;
 const int colortex11Format  = RGBA16F;
 const int colortex12Format  = RGB16F;
 const int colortex14Format  = RG8;
-const int colortex15Format  = RGB16F;
+const int colortex15Format  = RGBA16F;
 */
 
 const bool generateShadowMipmap = false;
@@ -84,7 +84,7 @@ const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex14MipmapEnabled = false;
 const bool colortex14Clear = true;
 
-const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex15MipmapEnabled = false;
 const bool colortex15Clear = true;
 

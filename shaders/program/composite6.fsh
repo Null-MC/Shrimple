@@ -18,6 +18,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
+uniform sampler2D BUFFER_WEATHER;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -277,7 +278,6 @@ layout(location = 0) out vec4 outFinal;
         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 
         #ifndef IRIS_FEATURE_SSBO
-            //vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
             vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
         #else
             vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
@@ -308,27 +308,23 @@ layout(location = 0) out vec4 outFinal;
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
             #if REFRACTION_STRENGTH > 0
-                //bool isWater = deferredTexture.a < 0.5;
+                vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
 
-                //if (isWater) {
-                    vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
+                const float ior = IOR_WATER;
+                float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
-                    const float ior = IOR_WATER;
-                    float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
-                    vec3 viewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
+                vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
+                float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                float linearDist = linearDepthOpaque - linearDepth;
 
-                    vec3 refractDir = refract(viewDir, texViewNormal, refractEta);
-                    float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
-                    float linearDist = linearDepthOpaque - linearDepth;
+                vec2 refractMax = vec2(0.1);
+                refractMax.x *= viewWidth / viewHeight;
+                refraction = clamp(vec2(0.06 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
 
-                    vec2 refractMax = vec2(0.1);
-                    refractMax.x *= viewWidth / viewHeight;
-                    refraction = clamp(vec2(0.06 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
-
-                    #ifdef REFRACTION_SNELL_ENABLED
-                        tir = all(lessThan(abs(refractDir), EPSILON3));
-                    #endif
-                //}
+                #ifdef REFRACTION_SNELL_ENABLED
+                    tir = all(lessThan(abs(refractDir), EPSILON3));
+                #endif
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -581,33 +577,28 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            //if (final.a > (0.5/255.0) || isEyeInWater == 1) {
-                #ifdef VOLUMETRIC_BLUR
-                    const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+            #ifdef VOLUMETRIC_BLUR
+                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-                    #if VOLUMETRIC_RES == 2
-                        const vec2 vlSigma = vec2(1.0, 0.00001);
-                    #elif VOLUMETRIC_RES == 1
-                        const vec2 vlSigma = vec2(1.0, 0.00001);
-                    #else
-                        const vec2 vlSigma = vec2(1.2, 0.00002);
-                    #endif
-
-                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+                #if VOLUMETRIC_RES == 2
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                #elif VOLUMETRIC_RES == 1
+                    const vec2 vlSigma = vec2(1.0, 0.00001);
                 #else
-                    vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+                    const vec2 vlSigma = vec2(1.2, 0.00002);
                 #endif
 
-                final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-            //}
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+            #else
+                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+            #endif
+
+            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        // #ifdef WORLD_WATER_ENABLED
-        //     if (isEyeInWater != 1) {
-        //         final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        //     }
-        // #endif
-        
+        vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);
+        final.rgb = mix(final.rgb, weatherColor.rgb, weatherColor.a);
+
         final.a = 1.0;
 
         outFinal = final;

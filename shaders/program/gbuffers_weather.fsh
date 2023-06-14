@@ -150,69 +150,61 @@ uniform float blindness;
     #include "/lib/shadows/common_render.glsl"
 #endif
 
-#if !defined DEFERRED_BUFFER_ENABLED || !(defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT)
-    #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
+#ifdef DYN_LIGHT_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
+#endif
 
-    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
-    #endif
+#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
+#endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collissions.glsl"
-        #include "/lib/lighting/voxel/collisions.glsl"
-        #include "/lib/lighting/voxel/tinting.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/buffers/collissions.glsl"
+    #include "/lib/lighting/voxel/collisions.glsl"
+    #include "/lib/lighting/voxel/tinting.glsl"
+    #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
 #include "/lib/lights.glsl"
 
-#if !defined DEFERRED_BUFFER_ENABLED || !(defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT)
-    #include "/lib/lighting/voxel/lights.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
-    #include "/lib/lighting/fresnel.glsl"
-    #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/items.glsl"
+#include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/sampling.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/sampling.glsl"
-    #endif
+#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #include "/lib/lighting/voxel/sampling.glsl"
+#endif
 
-    #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
-    #endif
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
 
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
-        #include "/lib/buffers/volume.glsl"
-        #include "/lib/lighting/voxel/lpv.glsl"
-        #include "/lib/lighting/voxel/lpv_render.glsl"
-    #endif
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+    #include "/lib/buffers/volume.glsl"
+    #include "/lib/lighting/voxel/lpv.glsl"
+    #include "/lib/lighting/voxel/lpv_render.glsl"
+#endif
 
-    #include "/lib/lighting/basic_hand.glsl"
-    #include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/basic_hand.glsl"
+#include "/lib/lighting/basic.glsl"
 
-    #ifdef VL_BUFFER_ENABLED
-        // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-        //     #include "/lib/lighting/voxel/lpv.glsl"
-        // #endif
+#ifdef VL_BUFFER_ENABLED
+    // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
+    //     #include "/lib/lighting/voxel/lpv.glsl"
+    // #endif
 
-        #include "/lib/world/volumetric_fog.glsl"
-    #endif
+    #include "/lib/world/volumetric_fog.glsl"
 #endif
 
 
-#if defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
-    #endif
+#if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    /* RENDERTARGETS: 15 */
+    layout(location = 0) out vec4 outColor;
+    //layout(location = 1) out vec4 outDepth;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -244,68 +236,54 @@ void main() {
         #endif
     #endif
 
-    #if defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
+    color.rgb = RGBToLinear(color.rgb);
+    float roughL = max(_pow2(roughness), ROUGH_MIN);
 
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+    vec3 localViewDir = normalize(vLocalPos);
 
-        uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(normal, 1.0));
-        outDeferredData = deferredData;
+    vec3 blockDiffuse = vBlockLight;
+    vec3 blockSpecular = vec3(0.0);
+    vec3 skyDiffuse = vec3(0.0);
+    vec3 skySpecular = vec3(0.0);
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
+    SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
+
+    #ifdef WORLD_SKY_ENABLED
+        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+            const vec3 shadowPos = vec3(0.0);
         #endif
+
+        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
+    #endif
+
+    vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+    vec3 specularFinal = blockSpecular + skySpecular;
+
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        if (metal_f0 >= 0.5) {
+            diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+            specularFinal *= color.rgb;
+        }
+    #endif
+
+    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, glcolor.a, sss);
+
+    ApplyFog(color, vLocalPos, localViewDir);
+
+    #ifdef VL_BUFFER_ENABLED
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        #endif
+
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
+        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #endif
+
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        outColor = color;
+        //outDepth = ?;
     #else
-        color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(_pow2(roughness), ROUGH_MIN);
-
-        vec3 localViewDir = normalize(vLocalPos);
-
-        vec3 blockDiffuse = vBlockLight;
-        vec3 blockSpecular = vec3(0.0);
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
-
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
-        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
-
-        #ifdef WORLD_SKY_ENABLED
-            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                const vec3 shadowPos = vec3(0.0);
-            #endif
-
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
-        #endif
-
-        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-        vec3 specularFinal = blockSpecular + skySpecular;
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            if (metal_f0 >= 0.5) {
-                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                specularFinal *= color.rgb;
-            }
-        #endif
-
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, glcolor.a, sss);
-
-        ApplyFog(color, vLocalPos, localViewDir);
-
-        #ifdef VL_BUFFER_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-            #endif
-
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
-            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
-
         outFinal = color;
     #endif
 }

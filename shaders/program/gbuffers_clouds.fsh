@@ -237,14 +237,6 @@ void main() {
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        //float fogF = GetVanillaFogFactor(vLocalPos);
-
-        //vec3 fogPos = vLocalPos;
-        //if (fogShape == 1) fogPos.y = 0.0;
-
-        //float viewDist = length(fogPos);
-        //float newWidth = (fogEnd - fogStart) * 4.0;
-        //float fogF = 1.0 - linear_fog_fade(viewDist, fogStart*0.3, fogEnd * 2.0);
 
         outDeferredColor = final;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
@@ -283,12 +275,6 @@ void main() {
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
         #endif
 
-        // vec3 fogPos = vLocalPos;
-        // if (fogShape == 1) fogPos.y = 0.0;
-
-        //float viewDist = length(fogPos);
-        //float newWidth = (fogEnd - fogStart) * 4.0;
-        //float fade = linear_fog_fade(viewDist, fogStart, fogStart + newWidth);
         final.a *= 1.0 - fogF;
 
         #ifdef VL_BUFFER_ENABLED

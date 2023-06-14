@@ -127,6 +127,7 @@
 #define BUFFER_TA_SPECULAR colortex12
 #define BUFFER_ROUGHNESS colortex14
 #define BUFFER_BLOOM_TILES colortex15
+#define BUFFER_WEATHER colortex15
 
 #define TEX_LIGHTMAP colortex13
 #define TEX_RIPPLES colortex13
