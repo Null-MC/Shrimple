@@ -137,7 +137,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    uniform ivec2 eyeBrightnessSmooth;
+    //uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if AF_SAMPLES > 1
