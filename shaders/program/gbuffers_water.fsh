@@ -108,6 +108,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -539,7 +540,7 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, -localViewDir, localNormal, texNormal, lmFinal.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, occlusion, sss);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;

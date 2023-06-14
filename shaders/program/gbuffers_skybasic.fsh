@@ -16,6 +16,8 @@ uniform vec3 upPosition;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 
+uniform int isEyeInWater;
+uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
 #ifdef IRIS_FEATURE_SSBO
@@ -41,11 +43,17 @@ void main() {
     }
     else {
         vec3 viewDir = normalize(viewPos);
-        float upF = dot(viewDir, gbufferModelView[1].xyz);
-        color = GetFogColor(fogColor, upF);
-    }
+        float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
 
-    color = RGBToLinear(color);
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 skyColorFinal = RGBToLinear(skyColor);
+            vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
+            color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
+        #else
+            color = GetVanillaFogColor(fogColor, viewUpF);
+            color = RGBToLinear(color);
+        #endif
+    }
 
     color *= 1.0 - blindness;
     

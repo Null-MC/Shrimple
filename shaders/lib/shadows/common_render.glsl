@@ -1,4 +1,4 @@
-#ifdef SHADOW_CLOUD_ENABLED
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
         #ifdef RENDER_FRAG
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
@@ -49,7 +49,7 @@
                 #endif
             #endif
 
-            #ifdef SHADOW_CLOUD_ENABLED
+            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
                 shadowColor *= SampleCloudShadow(skyLightDir, cloudPos);
             #endif
 
@@ -76,7 +76,7 @@
                 #endif
             #endif
 
-            #ifdef SHADOW_CLOUD_ENABLED
+            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
                 shadow *= SampleCloudShadow(skyLightDir, cloudPos);
             #endif
 

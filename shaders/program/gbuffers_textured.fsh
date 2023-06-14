@@ -76,6 +76,7 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
 uniform float blindness;
+uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;

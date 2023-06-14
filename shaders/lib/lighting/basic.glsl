@@ -40,6 +40,10 @@
             #endif
 
             ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
+
+            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+                ApplyCloudShadows(vLocalPos);
+            #endif
         #endif
 
         #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
@@ -123,8 +127,28 @@
             //float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
             vec3 reflectDir = reflect(-localViewDir, texNormal);
-            vec3 reflectColor = GetFogColor(fogColor, reflectDir.y);
-            reflectColor = RGBToLinear(reflectColor);
+
+            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                vec3 reflectColor;
+                if (isEyeInWater == 1) {
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 WorldSkyLightColor = GetSkyLightColor();
+                    #endif
+
+                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+
+                    //vec3 skyColorFinal = RGBToLinear(skyColor);
+                    reflectColor = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    reflectColor = GetCustomSkyFogColor(localSunDirection.y);
+                    reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, localViewDir.y);
+                }
+            #else
+                vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
+                reflectColor = RGBToLinear(reflectColor);
+            #endif
 
             float m = skyLight * 0.3;
             reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;

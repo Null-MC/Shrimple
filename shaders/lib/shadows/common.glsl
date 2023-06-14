@@ -59,7 +59,7 @@ mat4 BuildShadowProjectionMatrix() {
     return BuildOrthoProjectionMatrix(maxDist, maxDist, -far, far);
 }
 
-#if defined RENDER_VERTEX && !defined RENDER_SHADOW
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !defined RENDER_SHADOW
     // out vec3 cloudPos;
     // uniform float cloudTime;
     // #if defined RENDER_BASIC || defined RENDER_TEXTURED || defined RENDER_CLOUDS || defined RENDER_PARTICLES || defined RENDER_WEATHER

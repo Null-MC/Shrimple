@@ -64,6 +64,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform float blindness;
+uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
 
 #ifndef IRIS_FEATURE_SSBO
@@ -283,11 +284,12 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         vec3 localViewDir = normalize(localPos);
+        float viewDist = length(localPos);
 
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-        vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
+        vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         fogColorFinal = RGBToLinear(fogColorFinal);
 
         if (deferredColor.a > (0.5/255.0)) {
@@ -444,8 +446,8 @@ layout(location = 0) out vec4 outFinal;
 
                             if (HandLightType1 > 0 || HandLightType2 > 0) {
                                 float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
-                                float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
-                                diffuseCounter *= max(1.0 - cameraSpeed * viewDist, 0.0);
+                                float viewDistF = max(1.0 - viewDist/16.0, 0.0);
+                                diffuseCounter *= max(1.0 - cameraSpeed * viewDistF, 0.0);
                             }
 
                             if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
@@ -521,8 +523,10 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
             final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
-            final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
-            if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
+            #if WORLD_FOG_MODE == FOG_MODE_VANILLA
+                final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
+                if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
+            #endif
 
             #if REFRACTION_STRENGTH > 0
                 float refractDist = maxOf(abs(refraction * viewSize));
@@ -546,13 +550,42 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        //#ifdef WORLD_WATER_ENABLED
-        //    if (isEyeInWater == 1) {
-        //        final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        //    }
-        //#else
-            final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        //#endif
+        final.rgb = mix(opaqueFinal, final.rgb, final.a);
+
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            float fogF = deferredFog.a;
+
+            float fogDist = GetVanillaFogDistance(localPos);
+
+            if (isEyeInWater == 1) {
+                // water fog
+
+                // #ifndef IRIS_FEATURE_SSBO
+                //     vec3 WorldSkyLightColor = GetSkyLightColor();
+                // #endif
+
+                // vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+
+                fogF = GetFogFactor(fogDist, 1.0, min(32.0, far), 1.0);
+            }
+            else {
+                // sky fog
+
+                if (depth >= 1.0) fogF = 0.0;
+                else { //if (depthOpaque > depth) {
+                    fogF = GetFogFactor(fogDist, 0.3*far, far, 1.0);
+
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                }
+            }
+
+            final.rgb = mix(final.rgb, fogColorFinal, fogF);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             //if (final.a > (0.5/255.0) || isEyeInWater == 1) {

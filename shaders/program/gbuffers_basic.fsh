@@ -61,6 +61,8 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform ivec2 eyeBrightnessSmooth;
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
@@ -169,8 +171,7 @@ void main() {
 
 		color.rgb *= texture(lightmap, lmcoord).rgb * shadowColor;
 
-        vec3 localViewDir = normalize(vLocalPos);
-        ApplyFog(color, vLocalPos, localViewDir);
+        ApplyVanillaFog(color, vLocalPos);
 
         //ApplyPostProcessing(color.rgb);
 		outFinal = color;

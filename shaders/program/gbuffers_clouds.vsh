@@ -14,9 +14,11 @@ out vec4 vColor;
 out float geoNoL;
 out vec3 vBlockLight;
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     out vec3 cloudPos;
+#endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         out vec3 shadowPos[4];
         flat out int shadowTile;
@@ -41,7 +43,7 @@ uniform vec3 cameraPosition;
         uniform float near;
     #endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
         uniform float cloudTime;
         uniform vec3 eyePosition;
     #endif

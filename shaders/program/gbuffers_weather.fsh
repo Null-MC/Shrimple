@@ -280,7 +280,7 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, normal, normal, lmcoord.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;

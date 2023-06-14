@@ -7,6 +7,7 @@
 
 in vec2 texcoord;
 
+uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
@@ -62,6 +63,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
 #ifndef IRIS_FEATURE_SSBO
@@ -236,50 +238,6 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     blockSpecular = accumSpecular / total;
 }
 
-// #if DYN_LIGHT_RES != 0
-//     #if DYN_LIGHT_RES == 1
-//         const ivec2 offsetList[4] = ivec2[](
-//             ivec2(0, 0),
-//             ivec2(1, 0),
-//             ivec2(0, 1),
-//             ivec2(1, 1));
-//     #else
-//         const ivec2 offsetList[16] = ivec2[](
-//             ivec2(0, 0),
-//             ivec2(2, 0),
-//             ivec2(0, 2),
-//             ivec2(2, 2),
-
-//             ivec2(1, 0),
-//             ivec2(3, 0),
-//             ivec2(1, 2),
-//             ivec2(3, 2),
-
-//             ivec2(0, 1),
-//             ivec2(1, 1),
-//             ivec2(0, 3),
-//             ivec2(1, 3),
-
-//             ivec2(1, 1),
-//             ivec2(3, 1),
-//             ivec2(1, 3),
-//             ivec2(3, 3));
-//     #endif
-
-//     ivec2 GetTemporalOffset(const in int size) {
-//         #if DYN_LIGHT_RES == 1
-//             const float resF = 2.0;
-//         #else
-//             const float resF = 4.0;
-//         #endif
-
-//         vec2 p = floor(gl_FragCoord.xy / resF);
-
-//         int i = int(frameCounter + p.x + size*p.y);
-//         return offsetList[i % _pow2(size)];
-//     }
-// #endif
-
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -301,9 +259,10 @@ layout(location = 0) out vec4 outFinal;
 
         //float depth = texelFetch(depthtex1, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
-        float depth = textureLod(depthtex1, texcoord, 0).r;
+        float depthTranslucent = textureLod(depthtex0, texcoord, 0).r;
+        float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
         float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
-        bool isHand = handClipDepth > depth;
+        bool isHand = handClipDepth > depthOpaque;
 
         // if (isHand) {
         //     depth = depth * 2.0 - 1.0;
@@ -311,11 +270,11 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        float linearDepth = linearizeDepthFast(depth, near, far);
+        float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
         vec3 final;
 
-        if (depth < 1.0) {
-            vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        if (depthOpaque < 1.0) {
+            vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
             #ifndef IRIS_FEATURE_SSBO
                 vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
@@ -341,6 +300,8 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
+            float viewDist = length(localPos);
+
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
                 float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
@@ -353,10 +314,10 @@ layout(location = 0) out vec4 outFinal;
             #ifdef SHADOW_BLUR
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepth, shadowSigma);
+                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepthOpaque, shadowSigma);
                 #else
-                    float shadowSigma = 3.0 / linearDepth;
-                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepth, shadowSigma));
+                    float shadowSigma = 3.0 / linearDepthOpaque;
+                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepthOpaque, shadowSigma));
                 #endif
             #else
                 //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
@@ -374,7 +335,7 @@ layout(location = 0) out vec4 outFinal;
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                 #ifdef DYN_LIGHT_BLUR
                     const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
-                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, roughL, lightSigma);
+                    BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepthOpaque, texNormal, roughL, lightSigma);
                 #elif DYN_LIGHT_RES == 0
                     blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
@@ -468,8 +429,8 @@ layout(location = 0) out vec4 outFinal;
                             if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
                             float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
-                            float viewDist = max(1.0 - length(localPos)/16.0, 0.0);
-                            float moveWeight = max(1.0 - cameraSpeed * viewDist, 0.0);
+                            float viewDistF = max(1.0 - viewDist/16.0, 0.0);
+                            float moveWeight = max(1.0 - cameraSpeed * viewDistF, 0.0);
 
                             float specularCounter = diffuseCounter * moveWeight;
 
@@ -498,7 +459,7 @@ layout(location = 0) out vec4 outFinal;
 
                     outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
                     outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
-                    outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
+                    outTA_Depth = vec4(depthOpaque, 0.0, 0.0, 1.0);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
                         outSpecularTA = vec4(blockSpecular, 1.0);
@@ -549,11 +510,58 @@ layout(location = 0) out vec4 outFinal;
             vec3 specularFinal = blockSpecular + skySpecular;
             final = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
 
-            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-            vec3 fogColorFinal = GetFogColor(deferredFog.rgb, localViewDir.y);
-            fogColorFinal = RGBToLinear(fogColorFinal);
+            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                vec3 fogColorFinal = vec3(0.0);
+                float fogF = 0.0;
 
-            final = mix(final, fogColorFinal, deferredFog.a);
+                if (depthTranslucent < depthOpaque) {
+                    vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 viewPosTrans = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
+                        vec3 localPosTrans = (gbufferModelViewInverse * vec4(viewPosTrans, 1.0)).xyz;
+                    #else
+                        vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                    #endif
+
+                    if (isEyeInWater == 1) {
+                        // sky fog from in water
+
+                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                        float fogDist  = GetVanillaFogDistance(localPos);
+
+                        fogF = GetFogFactor(fogDist, 0.3*far, far, 1.0);
+                    }
+                    else {
+                        // water fog from outside water
+
+                        // #ifndef IRIS_FEATURE_SSBO
+                        //     vec3 WorldSkyLightColor = GetSkyLightColor();
+                        // #endif
+
+                        // vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+
+                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+
+                        float fogDistNear = length(localPosTrans);
+                        float fogDistFar  = length(localPos);
+                        float fogDist = max(fogDistFar - fogDistNear, 0.0);
+
+                        fogF = GetFogFactor(fogDist, 1.0, min(32.0, far), 1.0);
+                    }
+                }
+            #else
+                vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                fogColorFinal = RGBToLinear(fogColorFinal);
+
+                float fogF = deferredFog.a;
+            #endif
+
+            final = mix(final, fogColorFinal, fogF);
         }
         else {
             #ifdef WORLD_SKY_ENABLED
@@ -576,7 +584,7 @@ layout(location = 0) out vec4 outFinal;
                     const vec2 vlSigma = vec2(1.2, 0.00002);
                 #endif
 
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depth, vlSigma);
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaque, vlSigma);
             #else
                 vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
             #endif

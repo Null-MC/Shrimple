@@ -101,6 +101,7 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
 uniform float blindness;
+uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -414,9 +415,9 @@ void main() {
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
             #else
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
             #endif
         #endif
 

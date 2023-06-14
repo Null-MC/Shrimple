@@ -98,6 +98,8 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
+uniform ivec2 eyeBrightnessSmooth;
+
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -462,7 +464,7 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, -localViewDir, localNormal, texNormal, lmcoord.y, roughL, metal_f0, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;

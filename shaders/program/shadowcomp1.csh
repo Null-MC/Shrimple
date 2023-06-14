@@ -191,6 +191,8 @@ vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
         vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
         shadowSample = RGBToLinear(shadowSample);
 
+        //shadowSample = 0.25 + 0.75 * shadowSample;
+
         float texDepth = texture(shadowtex1, shadowPos.xy).r;
         float shadowDist = max(texDepth - shadowPos.z, 0.0);
         shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);

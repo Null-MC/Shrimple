@@ -14,9 +14,11 @@ in vec4 vColor;
 in float geoNoL;
 in vec3 vBlockLight;
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     in vec3 cloudPos;
+#endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         in vec3 shadowPos[4];
         flat in int shadowTile;
@@ -38,7 +40,7 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     uniform sampler2D shadowcolor1;
 #endif
 
@@ -58,6 +60,8 @@ uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
 
+uniform int isEyeInWater;
+uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 uniform float blindness;
 
@@ -82,7 +86,7 @@ uniform float blindness;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
 
-        #ifdef IS_IRIS
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
             uniform float cloudTime;
         #endif
     #endif
@@ -102,7 +106,7 @@ uniform int heldBlockLightValue2;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform ivec2 eyeBrightnessSmooth;
-    uniform int isEyeInWater;
+    //uniform int isEyeInWater;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -116,7 +120,9 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
+#include "/lib/world/fog.glsl"
 
 #include "/lib/material/specular.glsl"
 
