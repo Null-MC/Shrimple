@@ -533,7 +533,8 @@ layout(location = 0) out vec4 outFinal;
 
                         float fogDist  = GetVanillaFogDistance(localPos);
 
-                        fogF = GetFogFactor(fogDist, 0.3*far, far, 1.0);
+                        float fogStart = WorldFogStartF * far;
+                        fogF = GetFogFactor(fogDist, fogStart, far, 1.0);
                     }
                     else {
                         // water fog from outside water

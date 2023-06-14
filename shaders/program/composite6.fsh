@@ -560,12 +560,6 @@ layout(location = 0) out vec4 outFinal;
             if (isEyeInWater == 1) {
                 // water fog
 
-                // #ifndef IRIS_FEATURE_SSBO
-                //     vec3 WorldSkyLightColor = GetSkyLightColor();
-                // #endif
-
-                // vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-
                 vec3 skyColorFinal = RGBToLinear(skyColor);
                 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
@@ -575,8 +569,9 @@ layout(location = 0) out vec4 outFinal;
                 // sky fog
 
                 if (depth >= 1.0) fogF = 0.0;
-                else { //if (depthOpaque > depth) {
-                    fogF = GetFogFactor(fogDist, 0.3*far, far, 1.0);
+                else {
+                    float fogStart = WorldFogStartF * far;
+                    fogF = GetFogFactor(fogDist, fogStart, far, 1.0);
 
                     vec3 skyColorFinal = RGBToLinear(skyColor);
                     fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
