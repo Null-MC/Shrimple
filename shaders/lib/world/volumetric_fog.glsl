@@ -19,7 +19,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 //     const float vlWaterAmbient = 0.12;
 // #endif
 
-const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, 3.0*vec3(0.024, 0.048, 0.096), 2.0*0.076, 0.72, 0.66, 0.26);
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, 3.0*vec3(0.024, 0.048, 0.074), 2.0*0.076, 0.72, 0.66, 0.26);
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     VolumetricPhaseFactors result;
@@ -28,14 +28,14 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         float densityF = sunDir.y * -0.2 + 0.8;
         float density = densityF * VolumetricDensityF;
 
-        result.Ambient = 0.02 * densityF;
+        result.Ambient = 0.08 * densityF;
 
         result.Forward = mix(0.66, 0.26, rainStrength);
         result.Back = mix(0.32, 0.16, rainStrength);
         result.Direction = 0.75;
 
-        result.ScatterF = vec3(mix(0.014, 0.018, rainStrength) * density);
-        result.ExtinctF = mix(0.006, 0.015, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.026, 0.038, rainStrength) * density);
+        result.ExtinctF = mix(0.004, 0.012, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 

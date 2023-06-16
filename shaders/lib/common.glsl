@@ -162,7 +162,7 @@ const bool colortex15Clear = true;
 
 #define SHADOW_CLOUD_ENABLED
 #define SHADOW_CLOUD_RADIUS 3.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
-#define SHADOW_CLOUD_BRIGHTNESS 30 // [0 10 20 30 40 50 60 70 80 90 100]
+#define SHADOW_CLOUD_BRIGHTNESS 40 // [0 10 20 30 40 50 60 70 80 90 100]
 
 
 // Dynamic Lighting
