@@ -73,7 +73,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if defined IS_IRIS && defined WORLD_SHADOW_ENABLED
+#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
     uniform float cloudTime;
     uniform vec3 eyePosition;
 #endif

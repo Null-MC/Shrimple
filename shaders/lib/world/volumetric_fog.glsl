@@ -50,23 +50,25 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     return result;
 }
 
-float SampleCloudShadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
-	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
+    float SampleCloudShadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
+    	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
+    	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
-	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-	cloudPos.xy *= rcp(256.0);
+    	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+    	cloudPos.xy *= rcp(256.0);
 
-    float cloudF = texture2D(shadowcolor1, cloudPos.xy).a;
+        float cloudF = texture2D(shadowcolor1, cloudPos.xy).a;
 
-    cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
+        cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
 
-    float skyLightF = 1.0;//smoothstep(0.1, 0.3, skyLightDir.y);
+        float skyLightF = 1.0;//smoothstep(0.1, 0.3, skyLightDir.y);
 
-    return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
+        return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
 
-    //return _pow2(cloudF);
-}
+        //return _pow2(cloudF);
+    }
+#endif
 
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
     vec3 localStart = localViewDir * (nearDist + 0.1);
@@ -147,7 +149,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
     
-    #ifdef SHADOW_CLOUD_ENABLED
+    #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
         //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
     	vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
 
@@ -211,7 +213,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            #ifdef SHADOW_CLOUD_ENABLED
+            #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
                 //vec3 traceLocalPos = localStep * iStep + localStart;
                 float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
                 sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);

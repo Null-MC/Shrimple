@@ -154,62 +154,64 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
     return GetBlockBounceF(blockId);
 }
 
-vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
-        int cascade = GetShadowCascade(shadowPos, -1.5);
-
-        float shadowBias = GetShadowOffsetBias(cascade);
-    #else
-        float shadowBias = GetShadowOffsetBias();
-    #endif
-
-    float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
-    uint maxSamples = uint(viewDistF * LPV_SUN_SAMPLES) + 1;
-
-    vec3 shadowF = vec3(0.0);
-    for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
-        //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
-        vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
-        vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
-
+#if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
-            //int cascade = GetShadowCascade(shadowPos, 0.0);
-            shadowPos = (cascadeProjection[cascade] * vec4(shadowPos, 1.0)).xyz;
+            vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
+            int cascade = GetShadowCascade(shadowPos, -1.5);
 
-            shadowPos = shadowPos * 0.5 + 0.5;
-            shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
-            //shadowPos.xy = shadowPos.xy * 2.0 - 1.0;
+            float shadowBias = GetShadowOffsetBias(cascade);
         #else
-            vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
-
-            shadowPos = distort(shadowPos);
-            shadowPos = shadowPos * 0.5 + 0.5;
+            float shadowBias = GetShadowOffsetBias();
         #endif
 
-        vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-        shadowSample = RGBToLinear(shadowSample);
+        float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
+        uint maxSamples = uint(viewDistF * LPV_SUN_SAMPLES) + 1;
 
-        //shadowSample = 0.25 + 0.75 * shadowSample;
+        vec3 shadowF = vec3(0.0);
+        for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
+            //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
+            vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
+            vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
 
-        float texDepth = texture(shadowtex1, shadowPos.xy).r;
-        float shadowDist = max(texDepth - shadowPos.z, 0.0);
-        shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
+                //int cascade = GetShadowCascade(shadowPos, 0.0);
+                shadowPos = (cascadeProjection[cascade] * vec4(shadowPos, 1.0)).xyz;
 
-        shadowF += shadowSample;
+                shadowPos = shadowPos * 0.5 + 0.5;
+                shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
+                //shadowPos.xy = shadowPos.xy * 2.0 - 1.0;
+            #else
+                vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
+
+                shadowPos = distort(shadowPos);
+                shadowPos = shadowPos * 0.5 + 0.5;
+            #endif
+
+            vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+            shadowSample = RGBToLinear(shadowSample);
+
+            //shadowSample = 0.25 + 0.75 * shadowSample;
+
+            float texDepth = texture(shadowtex1, shadowPos.xy).r;
+            float shadowDist = max(texDepth - shadowPos.z, 0.0);
+            shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
+
+            shadowF += shadowSample;
+        }
+
+        shadowF *= rcp(LPV_SUN_SAMPLES);
+
+        // #ifdef SHADOW_CLOUD_ENABLED
+        //     float cloudF = SampleCloudShadow(skyLightDir, cloudShadowPos);
+
+        //     shadowF *= cloudF;
+        // #endif
+
+        return shadowF;
     }
-
-    shadowF *= rcp(LPV_SUN_SAMPLES);
-
-    // #ifdef SHADOW_CLOUD_ENABLED
-    //     float cloudF = SampleCloudShadow(skyLightDir, cloudShadowPos);
-
-    //     shadowF *= cloudF;
-    // #endif
-
-    return shadowF;
-}
+#endif
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE

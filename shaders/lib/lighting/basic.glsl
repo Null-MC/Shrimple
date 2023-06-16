@@ -16,54 +16,57 @@
 
         vPos = viewPos.xyz;
 
-        #ifdef RENDER_BILLBOARD
-            vec3 vNormal;
-            vec3 vLocalNormal;
-        #endif
-
-        vNormal = normalize(gl_NormalMatrix * gl_Normal);
-        vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
-
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-            vec3 skyLightDir = normalize(shadowLightPosition);
-            geoNoL = dot(skyLightDir, vNormal);
-        #else
-            geoNoL = 1.0;
-        #endif
-
         vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
-        vBlockLight = vec3(0.0);
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                shadowTile = -1;
+        #ifndef RENDER_DAMAGEDBLOCK
+            vBlockLight = vec3(0.0);
+
+            #ifdef RENDER_BILLBOARD
+                vec3 vNormal;
+                vec3 vLocalNormal;
             #endif
 
-            ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
+            vNormal = normalize(gl_NormalMatrix * gl_Normal);
+            vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
 
-            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-                ApplyCloudShadows(vLocalPos);
-            #endif
-        #endif
-
-        #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
-            vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
-            blockLightDefault = RGBToLinear(blockLightDefault);
-
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                #ifdef RENDER_ENTITIES
-                    vec4 lightColor = GetSceneEntityLightColor(entityId);
-                    vBlockLight += vec3(lightColor.a / 15.0);
-                #elif defined RENDER_HAND
-                    // TODO: change ID depending on hand
-                    float lightRange = heldBlockLightValue;//GetSceneItemLightRange(heldItemId);
-                    vBlockLight += vec3(lightRange / 15.0);
-                #elif defined RENDER_TERRAIN || defined RENDER_WATER
-                    float lightRange = GetSceneBlockEmission(vBlockId);
-                    vBlockLight += vec3(lightRange);
-                #endif
+            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+                vec3 skyLightDir = normalize(shadowLightPosition);
+                geoNoL = dot(skyLightDir, vNormal);
             #else
-                vBlockLight += blockLightDefault;
+                geoNoL = 1.0;
+            #endif
+
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    shadowTile = -1;
+                #endif
+
+                ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
+
+                #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+                    ApplyCloudShadows(vLocalPos);
+                #endif
+            #endif
+
+            #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
+                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
+                blockLightDefault = RGBToLinear(blockLightDefault);
+
+                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                    #ifdef RENDER_ENTITIES
+                        vec4 lightColor = GetSceneEntityLightColor(entityId);
+                        vBlockLight += vec3(lightColor.a / 15.0);
+                    #elif defined RENDER_HAND
+                        // TODO: change ID depending on hand
+                        float lightRange = heldBlockLightValue;//GetSceneItemLightRange(heldItemId);
+                        vBlockLight += vec3(lightRange / 15.0);
+                    #elif defined RENDER_TERRAIN || defined RENDER_WATER
+                        float lightRange = GetSceneBlockEmission(vBlockId);
+                        vBlockLight += vec3(lightRange);
+                    #endif
+                #else
+                    vBlockLight += blockLightDefault;
+                #endif
             #endif
         #endif
 

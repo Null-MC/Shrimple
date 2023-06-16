@@ -2,28 +2,34 @@ float fogify(float x, float w) {
     return w / (x * x + w);
 }
 
-vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
-    #ifdef WORLD_SKY_ENABLED
-        float fogF = fogify(max(viewUpF, 0.0), 0.06);
-        return mix(skyColor, fogColor, fogF);
-    #else
-        return fogColorFinal;
-    #endif
-}
-
-vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
-    #if defined WORLD_WATER_ENABLED //&& !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
-        if (isEyeInWater == 1) return fogColor;
-    #endif
-    
-    return GetSkyFogColor(skyColor, fogColor, viewUpF);
-}
-
 float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
     if (dist >= end) return 1.0;
 
     float distF = saturate((dist - start) / (end - start));
     return smoothstep(0.0, 1.0, pow(distF, density));
+}
+
+#ifdef WORLD_SKY_ENABLED
+    vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
+        #ifdef WORLD_SKY_ENABLED
+            float fogF = fogify(max(viewUpF, 0.0), 0.06);
+            return mix(skyColor, fogColor, fogF);
+        #else
+            return fogColorFinal;
+        #endif
+    }
+#endif
+
+vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
+    #ifdef WORLD_WATER_ENABLED //&& !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
+        if (isEyeInWater == 1) return fogColor;
+    #endif
+    
+    #ifdef WORLD_SKY_ENABLED
+        return GetSkyFogColor(skyColor, fogColor, viewUpF);
+    #else
+        return fogColor;
+    #endif
 }
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
@@ -32,33 +38,41 @@ float GetFogFactor(const in float dist, const in float start, const in float end
         const float WaterMinBrightness = 0.04;
 
         float brightnessF = 1.0 - WaterMinBrightness;
-        float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
-        float weatherBrightness = 1.0 - 0.92 * rainStrength;
-        return _color * (WaterMinBrightness + brightnessF * skyBrightness * weatherBrightness * eyeBrightness);
+
+        #ifdef WORLD_SKY_ENABLED
+            float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+            float weatherBrightness = 1.0 - 0.92 * rainStrength;
+            float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
+
+            brightnessF *= skyBrightness * weatherBrightness * eyeBrightness;
+        #endif
+
+        return _color * (WaterMinBrightness + brightnessF);
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {
         return GetFogFactor(fogDist, 0.0, min(28.0, far), 0.25);
     }
 
-    vec3 GetCustomSkyFogColor(const in float sunUpF) {
-        const vec3 colorNight = RGBToLinear(vec3(0.096, 0.081, 0.121));
-        const vec3 colorDay = RGBToLinear(vec3(0.975, 0.954, 0.890));
+    #ifdef WORLD_SKY_ENABLED
+        vec3 GetCustomSkyFogColor(const in float sunUpF) {
+            const vec3 colorNight = RGBToLinear(vec3(0.096, 0.081, 0.121));
+            const vec3 colorDay = RGBToLinear(vec3(0.975, 0.954, 0.890));
 
-        float dayF = smoothstep(-0.1, 0.3, sunUpF);
-        vec3 color = mix(colorNight, colorDay, dayF);
-        float weatherBrightness = 1.0 - 0.92 * rainStrength;
-        return color * weatherBrightness;
-    }
+            float dayF = smoothstep(-0.1, 0.3, sunUpF);
+            vec3 color = mix(colorNight, colorDay, dayF);
+            float weatherBrightness = 1.0 - 0.92 * rainStrength;
+            return color * weatherBrightness;
+        }
 
-    float GetCustomSkyFogFactor(const in float fogDist) {
-        const float WorldFogRainySkyDensityF = 0.5;
+        float GetCustomSkyFogFactor(const in float fogDist) {
+            const float WorldFogRainySkyDensityF = 0.5;
 
-        float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
-        float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
-        return GetFogFactor(fogDist, fogStart, far, density);
-    }
+            float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
+            float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
+            return GetFogFactor(fogDist, fogStart, far, density);
+        }
+    #endif
 #endif
 
 #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)

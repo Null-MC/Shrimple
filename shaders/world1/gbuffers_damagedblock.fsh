@@ -3,4 +3,4 @@
 #define RENDER_OPAQUE
 
 #include "end.glsl"
-#include "/program/gbuffers_terrain.fsh"
+#include "/program/gbuffers_damagedblock.fsh"

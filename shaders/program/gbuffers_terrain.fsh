@@ -104,6 +104,8 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform ivec2 eyeBrightnessSmooth;
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
@@ -128,7 +130,6 @@ uniform int fogMode;
     uniform int frameCounter;
 
     uniform float blindness;
-    uniform ivec2 eyeBrightnessSmooth;
 
     uniform int heldItemId;
     uniform int heldItemId2;

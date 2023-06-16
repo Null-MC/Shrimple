@@ -551,27 +551,38 @@ layout(location = 0) out vec4 outFinal;
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             float fogF = deferredFog.a;
 
-            if (isEyeInWater == 1) {
-                // water fog
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    // water fog
 
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
-                fogF = GetCustomWaterFogFactor(viewDist);
-            }
-            else {
-                // sky fog
-
+                    fogF = GetCustomWaterFogFactor(viewDist);
+                }
+                else {
+            #endif
                 if (depth >= 1.0) fogF = 0.0;
                 else {
-                    vec3 skyColorFinal = RGBToLinear(skyColor);
-                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                    #ifdef WORLD_SKY_ENABLED
+                        // sky fog
 
-                    float fogDist = GetVanillaFogDistance(localPos);
-                    fogF = GetCustomSkyFogFactor(fogDist);
+                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                        float fogDist = GetVanillaFogDistance(localPos);
+                        fogF = GetCustomSkyFogFactor(fogDist);
+                    #else
+                        // no-sky fog
+
+                        fogColorFinal = RGBToLinear(fogColor);
+                        fogF = GetVanillaFogFactor(localPos);
+                    #endif
                 }
-            }
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
 
             final.rgb = mix(final.rgb, fogColorFinal, fogF);
         #endif
