@@ -72,6 +72,7 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;

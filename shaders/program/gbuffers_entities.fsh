@@ -70,6 +70,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;

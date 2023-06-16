@@ -35,6 +35,7 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
     #endif
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
@@ -157,7 +158,7 @@ void main() {
     vec3 localViewDir = normalize(localPos);
     float distTranslucent = min(length(localPos), far);
 
-    VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors(localSunDirection);
+    VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors();
     vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, distTranslucent);
 
     outVL = final;

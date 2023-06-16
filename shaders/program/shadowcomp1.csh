@@ -229,6 +229,8 @@ void main() {
         #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
             skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
+
+            skyLightColor *= mix(LPV_BRIGHT_MOON, LPV_BRIGHT_SUN, max(localSunDirection.y, 0.0));
         #endif
 
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
@@ -301,7 +303,7 @@ void main() {
 
                                 vec3 shadowF = SampleShadow(blockLocalPos, localSunDirection) * bounceF;
 
-                                lightValue += mix(24.0, 2048.0, max(localSunDirection.y, 0.0)) * skyLightColor * shadowF;
+                                lightValue += skyLightColor * shadowF;
                             #endif
                         }
                     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL

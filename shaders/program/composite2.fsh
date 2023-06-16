@@ -37,6 +37,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
@@ -168,7 +169,7 @@ void main() {
 
     if (distTranslucent < distOpaque) {
         if (isEyeInWater == 1) {
-            VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors(localSunDirection);
+            VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
             final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
         }
         else {
@@ -177,7 +178,7 @@ void main() {
             uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
             float deferredWater = unpackUnorm4x8(deferredDataA).a;
 
-            VolumetricPhaseFactors phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors(localSunDirection);
+            VolumetricPhaseFactors phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors();
             final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
         }
     }
