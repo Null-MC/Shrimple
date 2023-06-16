@@ -77,8 +77,8 @@ void main() {
             HandLightType2 = GetSceneItemLightType(heldItemId2);
 
             #ifdef WORLD_SKY_ENABLED
-                localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-                localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+                localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
 
                 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
                 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);

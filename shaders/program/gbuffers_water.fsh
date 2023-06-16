@@ -377,6 +377,11 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
+    if (color.a < (0.5/255.0)) {
+        discard;
+        return;
+    }
+
     color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
 
     #ifdef WORLD_WATER_ENABLED

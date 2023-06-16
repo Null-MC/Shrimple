@@ -546,9 +546,15 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        opaqueFinal *= 1.0 - final.a;
-        final.rgb = mix(opaqueFinal, final.rgb, final.a);
-        //final.rgb = opaqueFinal * mix(vec3(1.0), final.rgb, final.a);
+        // multiplicative tinting for transparent pixels
+        final.rgb *= mix(opaqueFinal * 3.0, vec3(1.0), pow(final.a, 3.0));
+
+        // remove background for opaque pixels
+        opaqueFinal *= 1.0 - pow(final.a, 3.0);
+
+        // mix background and multiplied foreground
+        final.rgb = mix(opaqueFinal, final.rgb, pow(final.a, 0.2));
+
         final.a = 1.0;
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
