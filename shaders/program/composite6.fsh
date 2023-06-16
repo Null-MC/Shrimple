@@ -546,7 +546,10 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
+        opaqueFinal *= 1.0 - final.a;
         final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        //final.rgb = opaqueFinal * mix(vec3(1.0), final.rgb, final.a);
+        final.a = 1.0;
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             float fogF = deferredFog.a;
@@ -609,8 +612,6 @@ layout(location = 0) out vec4 outFinal;
 
         vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);
         final.rgb = mix(final.rgb, weatherColor.rgb, weatherColor.a);
-
-        final.a = 1.0;
 
         outFinal = final;
     }
