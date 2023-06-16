@@ -32,7 +32,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float densityF = 0.85 - 0.15 * dayF;
         float density = densityF * VolumetricDensityF;
 
-        result.Ambient = 0.04 * densityF;
+        result.Ambient = 0.006 * densityF;
 
         result.Forward = mix(0.46, 0.26, rainStrength);
         result.Back = mix(0.32, 0.16, rainStrength);
