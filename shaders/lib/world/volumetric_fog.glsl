@@ -1,6 +1,6 @@
 struct VolumetricPhaseFactors {
     float Ambient;
-    float ScatterF;
+    vec3  ScatterF;
     float ExtinctF;
     float Direction;
     float Forward;
@@ -13,13 +13,13 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-#if LPV_SIZE > 0 && VOLUMETRIC_BRIGHT_BLOCK > 0
-    const float vlWaterAmbient = 0.02;
-#else
-    const float vlWaterAmbient = 0.12;
-#endif
+// #if LPV_SIZE > 0 && VOLUMETRIC_BRIGHT_BLOCK > 0
+//     const float vlWaterAmbient = 0.02;
+// #else
+//     const float vlWaterAmbient = 0.12;
+// #endif
 
-const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, 0.024, 0.038, 0.72, 0.66, 0.26);
+const VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, 3.0*vec3(0.024, 0.048, 0.096), 2.0*0.076, 0.72, 0.66, 0.26);
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
     VolumetricPhaseFactors result;
@@ -34,8 +34,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         result.Back = mix(0.32, 0.16, rainStrength);
         result.Direction = 0.75;
 
-        result.ScatterF = mix(0.004, 0.018, rainStrength) * density;
-        result.ExtinctF = mix(0.002, 0.015, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.014, 0.018, rainStrength) * density);
+        result.ExtinctF = mix(0.006, 0.015, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 
@@ -43,7 +43,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
         result.Back = 0.2;
         result.Direction = 0.6;
 
-        result.ScatterF = 0.006 * VolumetricDensityF;
+        result.ScatterF = vec3(0.006 * VolumetricDensityF);
         result.ExtinctF = 0.006 * VolumetricDensityF;
     #endif
 
@@ -51,7 +51,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors(const in vec3 sunDir) {
 }
 
 #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    float SampleCloudShadow(in vec3 localPos, in vec3 lightWorldDir, vec2 cloudOffset, vec3 camOffset){
+    float SampleCloudShadow(const in vec3 localPos, const in vec3 lightWorldDir, const in vec2 cloudOffset, const in vec3 camOffset) {
     	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
     	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
@@ -139,7 +139,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
-    vec3 inScatteringBase = phaseF.Ambient * RGBToLinear(fogColor);
+    vec3 inScatteringBase = vec3(phaseF.Ambient);// * RGBToLinear(fogColor);
 
     #ifdef WORLD_SKY_ENABLED
         float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);

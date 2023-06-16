@@ -12,8 +12,9 @@ option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 suffix.sunPathRotation=°
 
 option.WORLD_FOG_MODE=Fog
-value.WORLD_FOG_MODE.0=Vanilla
-value.WORLD_FOG_MODE.1=Custom
+value.WORLD_FOG_MODE.0=None
+value.WORLD_FOG_MODE.1=Vanilla
+value.WORLD_FOG_MODE.2=Custom
 
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.

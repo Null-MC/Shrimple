@@ -7,8 +7,9 @@
 #define PUDDLES_PIXEL 2
 #define PUDDLES_FANCY 3
 
-#define FOG_MODE_VANILLA 0
-#define FOG_MODE_CUSTOM 1
+#define FOG_MODE_NONE 0
+#define FOG_MODE_VANILLA 1
+#define FOG_MODE_CUSTOM 2
 
 #define WATER_TEXTURED 0
 #define WATER_COLORED 1

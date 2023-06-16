@@ -289,8 +289,11 @@ layout(location = 0) out vec4 outFinal;
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+
         vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         fogColorFinal = RGBToLinear(fogColorFinal);
+
+        bool isWater = false;
 
         if (deferredColor.a > (0.5/255.0)) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
@@ -306,6 +309,8 @@ layout(location = 0) out vec4 outFinal;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
+
+            isWater = deferredTexture.a < 0.5;
 
             #if REFRACTION_STRENGTH > 0
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
@@ -546,14 +551,66 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        // multiplicative tinting for transparent pixels
-        final.rgb *= mix(opaqueFinal * 3.0, vec3(1.0), pow(final.a, 3.0));
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            if (depth < depthOpaque) {
+                float fogF = 0.0;
+                
+                #ifdef WORLD_WATER_ENABLED
+                    if (isWater && isEyeInWater != 1) {
+                        // water fog from outside water
 
-        // remove background for opaque pixels
-        opaqueFinal *= 1.0 - pow(final.a, 3.0);
+                        vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
-        // mix background and multiplied foreground
-        final.rgb = mix(opaqueFinal, final.rgb, pow(final.a, 0.2));
+                        #ifndef IRIS_FEATURE_SSBO
+                            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                        #else
+                            vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                        #endif
+
+                        float fogDist = max(length(localPosOpaque) - viewDist, 0.0);
+                        fogF = GetCustomWaterFogFactor(fogDist);
+
+                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    }
+                    else {
+                #endif
+                    #ifdef WORLD_SKY_ENABLED
+                        // sky fog
+
+                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                        float fogDist  = GetVanillaFogDistance(localPos);
+                        fogF = GetCustomSkyFogFactor(fogDist);
+                    #else
+                        // no-sky fog
+
+                        fogColorFinal = RGBToLinear(fogColor);
+                        fogF = GetVanillaFogFactor(localPos);
+                    #endif
+                #ifdef WORLD_WATER_ENABLED
+                    }
+                #endif
+
+                opaqueFinal = mix(opaqueFinal, fogColorFinal, fogF);
+            }
+        #endif
+
+        if (isWater) {
+            final.rgb = mix(opaqueFinal, final.rgb, final.a);
+        }
+        else {
+            // multiplicative tinting for transparent pixels
+            final.rgb *= mix(opaqueFinal * 3.0, vec3(1.0), pow(final.a, 3.0));
+
+            // remove background for opaque pixels
+            opaqueFinal *= 1.0 - pow(final.a, 3.0);
+
+            // mix background and multiplied foreground
+            final.rgb = mix(opaqueFinal, final.rgb, pow(final.a, 0.2));
+        }
 
         final.a = 1.0;
 

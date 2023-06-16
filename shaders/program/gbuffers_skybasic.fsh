@@ -63,8 +63,18 @@ void main() {
                     color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
                 }
             #endif
-        #else
+        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
+            color = RGBToLinear(color);
+        #else
+            #ifdef WORLD_SKY_ENABLED
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
+                color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
+            #else
+                color = fogColor;
+            #endif
+            
             color = RGBToLinear(color);
         #endif
     }

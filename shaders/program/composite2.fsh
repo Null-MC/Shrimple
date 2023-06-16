@@ -155,7 +155,7 @@ void main() {
         vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
         vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
 
-        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #else
         vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
         vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
@@ -172,7 +172,6 @@ void main() {
             final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
         }
         else {
-            // TODO: is water or just translucent?
             vec2 viewSize = vec2(viewWidth, viewHeight);
             ivec2 iTex = ivec2(texcoord * viewSize);
             uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
