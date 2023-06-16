@@ -202,7 +202,7 @@ const bool colortex15Clear = true;
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT
 #define LPV_BRIGHT_MOON 24.0
-#define LPV_BRIGHT_SUN 2048.0
+#define LPV_BRIGHT_SUN 1024.0
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
