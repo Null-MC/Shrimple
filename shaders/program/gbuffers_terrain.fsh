@@ -269,6 +269,7 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     bool skipParallax = false;
+    //if (vBlockId == BLOCK_LAVA && localNormal.y < 1.0) skipParallax = true;
     if (vBlockId == BLOCK_LAVA) skipParallax = true;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -314,6 +315,8 @@ void main() {
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = vec3(WHITEWORLD_VALUE);
     #endif
+
+    //color.rgb = vec3(vLocalCoord, 0.0);
 
     float occlusion = 1.0;
     float roughness, metal_f0;

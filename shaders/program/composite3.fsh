@@ -517,7 +517,7 @@ layout(location = 0) out vec4 outFinal;
                 if (depthTranslucent < depthOpaque) {
                     #ifdef WORLD_WATER_ENABLED
                         // TODO: check if actually water!
-                        bool isWater = true;
+                        bool isWater = deferredTexture.a < 0.5;
 
                         if (isWater && isEyeInWater != 1) {
                             // water fog from outside water

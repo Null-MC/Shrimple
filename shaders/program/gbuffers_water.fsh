@@ -364,7 +364,7 @@ void main() {
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
-        if (vBlockId == BLOCK_LAVA) skipParallax = true;
+        //if (vBlockId == BLOCK_LAVA) skipParallax = true;
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
