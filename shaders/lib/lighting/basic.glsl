@@ -75,6 +75,57 @@
 #endif
 
 #ifdef RENDER_FRAG
+    #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
+        #if LPV_SIZE > 0
+            vec3 GetLpvAmbient(const in vec3 voxelPos, const in vec3 lpvPos) {
+                //if (saturate(lpvTexcoord) == lpvTexcoord) {
+
+                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+
+                lpvLight /= 16.0 * LpvRangeF;
+                lpvLight /= 4.0 + luminance(lpvLight);
+                //lpvLight /= 8.0 + luminance(lpvLight);
+                //lpvLight /= LpvRangeF;
+
+                // #if LPV_LIGHTMAP_MIX > 0
+                //     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
+                // #endif
+                
+                return lpvLight;
+            }
+        #endif
+
+        vec3 GetAmbientLighting(const in vec3 localPos, const in vec3 localNormal) {
+            vec3 ambientLight = vec3(0.0);
+
+            #if LPV_SIZE > 0
+                vec3 surfacePos = localPos;
+                surfacePos += 0.501 * localNormal;// * (1.0 - sss);
+
+                vec3 lpvPos = GetLPVPosition(surfacePos);
+
+                //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+
+                float lpvFade = GetLpvFade(lpvPos);
+                lpvFade = smoothstep(0.0, 1.0, lpvFade);
+            #endif
+
+            // TODO: add lightmap mix
+
+            #if LPV_SIZE > 0
+                //lmFinal.x *= 1.0 - lpvFade;
+
+                vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
+
+                vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
+                
+                ambientLight += lpvLight * lpvFade;
+            #endif
+
+            return ambientLight * DynamicLightAmbientF;
+        }
+    #endif
+
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
         void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
             #ifdef RENDER_GBUFFER
@@ -112,8 +163,6 @@
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 blockDiffuse += blockLightDefault;
             #endif
-
-            //SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
                 if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
@@ -254,34 +303,17 @@
             vec3 ambientLight = RGBToLinear(lightmapColor);
 
             #if LPV_SIZE > 0
-                //if (saturate(lpvTexcoord) == lpvTexcoord) {
-                    vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+                vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
-                    lpvLight /= 16.0 * LpvRangeF;
-                    lpvLight /= 4.0 + luminance(lpvLight);
-                    //lpvLight /= 8.0 + luminance(lpvLight);
-                    //lpvLight /= LpvRangeF;
-
-                    #if LPV_LIGHTMAP_MIX > 0
-                        ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
-                    #endif
-                    
-                    ambientLight += lpvLight * lpvFade;
-                //}
+                #if LPV_LIGHTMAP_MIX > 0
+                    ambientLight *= 1.0 - (1.0 - LpvLightmapMixF) * lpvFade;
+                #endif
+                
+                ambientLight += lpvLight * lpvFade;
             #endif
 
             ambientLight += WorldMinLightF;
             ambientLight *= DynamicLightAmbientF;
-
-            // #if defined WORLD_SKY_ENABLED && WORLD_SKY_REFLECTIONS > 0
-            //     //float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
-            //     float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-            //     float f0 = GetMaterialF0(metal_f0);
-
-            //     float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-            //     //ApplyFresnel(ambientLight, skySpecular, localViewDir, texNormal, skyReflectF, skyLight);
-            //     ambientLight *= 1.0 - skyReflectF;
-            // #endif
 
             accumDiffuse += ambientLight * occlusion;// * roughL;
 

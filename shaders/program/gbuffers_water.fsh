@@ -564,23 +564,34 @@ void main() {
             vec3 fogColorFinal = vec3(0.0);
             float fogF = 0.0;
 
-            if (isEyeInWater == 1) {
-                // water fog
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    // water fog
 
-                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
-                fogF = GetCustomWaterFogFactor(viewDist);
-            }
-            else {
-                // sky fog
+                    fogF = GetCustomWaterFogFactor(viewDist);
+                }
+                else {
+            #endif
+                #ifdef WORLD_SKY_ENABLED
+                    // sky fog
 
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
-                float fogDist  = GetVanillaFogDistance(vLocalPos);
-                fogF = GetCustomSkyFogFactor(fogDist);
-            }
+                    float fogDist  = GetVanillaFogDistance(vLocalPos);
+                    fogF = GetCustomSkyFogFactor(fogDist);
+                #else
+                    // no-sky fog
+
+                    fogColorFinal = RGBToLinear(fogColor);
+                    fogF = GetVanillaFogFactor(vLocalPos);
+                #endif
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
 
             color.rgb = mix(color.rgb, fogColorFinal, fogF);
         #else
