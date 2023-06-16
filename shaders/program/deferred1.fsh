@@ -86,7 +86,7 @@ uniform float blindness;
     #include "/lib/material/specular.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+//#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #ifdef DYN_LIGHT_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -98,7 +98,12 @@ uniform float blindness;
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/items.glsl"
-#endif
+
+    //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/light_mask.glsl"
+    //#endif
+//#endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/buffers/collissions.glsl"

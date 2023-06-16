@@ -194,6 +194,10 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #include "/lib/lighting/voxel/light_mask.glsl"
+        #endif
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
