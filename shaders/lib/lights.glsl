@@ -60,6 +60,7 @@
 #define LIGHT_RAIL_POWERED 59u
 #define LIGHT_REDSTONE_BLOCK 60u
 #define LIGHT_REDSTONE_LAMP 61u
+#define LIGHT_REDSTONE_ORE 150u     // FIX INDEX
 #define LIGHT_REDSTONE_TORCH_FLOOR 62u
 #define LIGHT_REDSTONE_TORCH_WALL_N 63u
 #define LIGHT_REDSTONE_TORCH_WALL_E 64u
@@ -283,6 +284,9 @@ uint GetSceneLightType(const in int blockId) {
             break;
         case BLOCK_REDSTONE_LAMP_LIT:
             lightType = LIGHT_REDSTONE_LAMP;
+            break;
+        case BLOCK_REDSTONE_ORE_LIT:
+            lightType = LIGHT_REDSTONE_ORE;
             break;
         case BLOCK_REDSTONE_TORCH_FLOOR_LIT:
             lightType = LIGHT_REDSTONE_TORCH_FLOOR;

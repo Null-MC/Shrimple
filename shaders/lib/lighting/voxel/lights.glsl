@@ -153,6 +153,7 @@
             case LIGHT_REDSTONE_LAMP:
                 lightColor = vec3(0.953, 0.796, 0.496);
                 break;
+            case LIGHT_REDSTONE_ORE:
             case LIGHT_REDSTONE_TORCH_FLOOR:
             case LIGHT_REDSTONE_TORCH_WALL_N:
             case LIGHT_REDSTONE_TORCH_WALL_E:
@@ -466,6 +467,9 @@
             case LIGHT_REDSTONE_LAMP:
                 lightRange = 15.0;
                 break;
+            case LIGHT_REDSTONE_ORE:
+                lightRange = 9;
+                break;
             case LIGHT_REDSTONE_TORCH_FLOOR:
             case LIGHT_REDSTONE_TORCH_WALL_N:
             case LIGHT_REDSTONE_TORCH_WALL_E:
@@ -672,6 +676,7 @@
             case LIGHT_LAVA_CAULDRON:
             case LIGHT_SEA_LANTERN:
             case LIGHT_REDSTONE_LAMP:
+            case LIGHT_REDSTONE_ORE:
             case LIGHT_ROSE_QUARTZ_LAMP:
             case LIGHT_SMOKER_N:
             case LIGHT_SMOKER_E:

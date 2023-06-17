@@ -33,7 +33,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float densityF = (1.0 - dayHalfDensity) - dayHalfDensity * dayF;
         float density = densityF * VolumetricDensityF;
 
-        result.Ambient = 0.006 * densityF;
+        float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
+        result.Ambient = mix(0.0016, 0.006, eyeBrightness) * densityF;
 
         result.Forward = mix(0.46, 0.26, rainStrength);
         result.Back = mix(0.32, 0.16, rainStrength);
@@ -63,7 +64,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     	cloudPos.xy *= rcp(256.0);
 
-        float cloudF = texture2D(shadowcolor1, cloudPos.xy).a;
+        float cloudF = textureLod(shadowcolor1, cloudPos.xy, 0).a;
 
         cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
 

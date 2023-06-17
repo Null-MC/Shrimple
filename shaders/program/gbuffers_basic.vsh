@@ -10,9 +10,11 @@ out vec2 texcoord;
 flat out vec4 glcolor;
 out vec3 vLocalPos;
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     out vec3 cloudPos;
+#endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         out vec3 shadowPos[4];
         flat out int shadowTile;

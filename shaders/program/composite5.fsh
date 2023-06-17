@@ -29,10 +29,10 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
     #ifdef SHADOW_COLORED
         uniform sampler2D shadowcolor0;
     #endif
-    
-    #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D shadowcolor1;
-    #endif
+#endif
+
+#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
+    uniform sampler2D shadowcolor1;
 #endif
 
 uniform int worldTime;
@@ -74,7 +74,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
+#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
     uniform float cloudTime;
     uniform vec3 eyePosition;
 #endif

@@ -30,9 +30,11 @@ out vec3 vLocalNormal;
     flat out mat2 atlasBounds;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_CLOUD_SHADOWS_ENABLED
     out vec3 cloudPos;
+#endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         out vec3 shadowPos[4];
         flat out int shadowTile;
