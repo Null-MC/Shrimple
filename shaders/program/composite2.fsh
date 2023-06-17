@@ -146,41 +146,41 @@ void main() {
     float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
     float depthTranslucent = textureLod(depthtex0, texcoord, 0).r;
 
-    vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-    vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-        vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-
-        vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
-        vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-
-        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-    #else
-        vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-        vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
-    #endif
-
-    vec3 localViewDir = normalize(localPosOpaque);
-    float distOpaque = clamp(length(localPosOpaque), near, far);
-    float distTranslucent = clamp(length(localPosTranslucent), near, far);
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if (distTranslucent < distOpaque) {
-        if (isEyeInWater == 1) {
-            VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
-            final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
-        }
+    if (depthTranslucent < depthOpaque) {
+        vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+        vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+
+            vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        #else
+            vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+            vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+        #endif
+
+        vec3 localViewDir = normalize(localPosOpaque);
+        float distOpaque = clamp(length(localPosOpaque), near, far);
+        float distTranslucent = clamp(length(localPosTranslucent), near, far);
+        VolumetricPhaseFactors phaseF;
+
+        if (isEyeInWater == 1) phaseF = GetVolumetricPhaseFactors();
         else {
             vec2 viewSize = vec2(viewWidth, viewHeight);
             ivec2 iTex = ivec2(texcoord * viewSize);
             uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
             float deferredWater = unpackUnorm4x8(deferredDataA).a;
 
-            VolumetricPhaseFactors phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors();
-            final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
+            phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors();
         }
+
+        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
     }
 
     outVL = final;

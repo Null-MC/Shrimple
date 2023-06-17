@@ -233,24 +233,27 @@ void main() {
         #endif
     #endif
 
-    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-        float fogDist = GetVanillaFogDistance(vLocalPos);
+    float fogF = 0.0;
+    #if WORLD_FOG_MODE != FOG_MODE_NONE
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            float fogDist = GetVanillaFogDistance(vLocalPos);
 
-        #ifdef IS_IRIS
-            fogDist *= 0.5;
+            #ifdef IS_IRIS
+                fogDist *= 0.5;
+            #endif
+
+            fogF = GetCustomSkyFogFactor(fogDist);
+        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+            vec3 fogPos = vLocalPos;
+            if (fogShape == 1) fogPos.y = 0.0;
+
+            float viewDist = length(fogPos);
+
+            fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
         #endif
 
-        float fogF = GetCustomSkyFogFactor(fogDist);
-    #else
-        vec3 fogPos = vLocalPos;
-        if (fogShape == 1) fogPos.y = 0.0;
-
-        float viewDist = length(fogPos);
-
-        float fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 2.0, fogEnd * 4.0);
+        final.a *= 1.0 - fogF;
     #endif
-
-    final.a *= 1.0 - fogF;
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

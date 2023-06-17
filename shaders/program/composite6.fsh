@@ -554,24 +554,26 @@ layout(location = 0) out vec4 outFinal;
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             if (depth < depthOpaque) {
                 float fogF = 0.0;
-                
+
                 #ifdef WORLD_WATER_ENABLED
                     if (isWater && isEyeInWater != 1) {
                         // water fog from outside water
 
-                        vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+                        #ifndef VL_BUFFER_ENABLED
+                            vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
-                        #ifndef IRIS_FEATURE_SSBO
-                            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                        #else
-                            vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                            #ifndef IRIS_FEATURE_SSBO
+                                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                            #else
+                                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                            #endif
+
+                            float fogDist = max(length(localPosOpaque) - viewDist, 0.0);
+                            fogF = GetCustomWaterFogFactor(fogDist);
+
+                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
                         #endif
-
-                        float fogDist = max(length(localPosOpaque) - viewDist, 0.0);
-                        fogF = GetCustomWaterFogFactor(fogDist);
-
-                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
                     }
                     else {
                 #endif
@@ -615,16 +617,18 @@ layout(location = 0) out vec4 outFinal;
         final.a = 1.0;
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            float fogF = deferredFog.a;
+            float fogF = 0.0;
 
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
                     // water fog
 
-                    vec3 skyColorFinal = RGBToLinear(skyColor);
-                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    #ifndef VL_BUFFER_ENABLED
+                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
 
-                    fogF = GetCustomWaterFogFactor(viewDist);
+                        fogF = GetCustomWaterFogFactor(viewDist);
+                    #endif
                 }
                 else {
             #endif

@@ -121,7 +121,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform float cloudTime;
     #endif
 #else
-    uniform int worldTime;
+    //uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

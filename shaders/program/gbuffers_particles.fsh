@@ -121,7 +121,7 @@ uniform int heldBlockLightValue2;
         uniform mat4 shadowProjection;
     #endif
 #else
-    uniform int worldTime;
+    //uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
