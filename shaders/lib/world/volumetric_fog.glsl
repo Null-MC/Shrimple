@@ -29,7 +29,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float timeShift = mod(time + 0.875, 1.0);
         float dayF = sin(timeShift * PI);
 
-        float densityF = 0.85 - 0.15 * dayF;
+        const float dayHalfDensity = 0.5 * VolumetricSkyDayDensityF;
+        float densityF = (1.0 - dayHalfDensity) - dayHalfDensity * dayF;
         float density = densityF * VolumetricDensityF;
 
         result.Ambient = 0.006 * densityF;

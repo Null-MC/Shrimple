@@ -228,6 +228,8 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_BLUR
 //#define VOLUMETRIC_BLOCK_RT
 //#define VOLUMETRIC_HANDLIGHT
+#define VOLUMETRIC_SKY_DAY_DENSITY 30 // [0 10 20 30 40 50 60 70 80 90 100]
+
 
 
 // Post-Processing
@@ -416,6 +418,7 @@ const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;
 const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
 const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
 const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
+const float VolumetricSkyDayDensityF = VOLUMETRIC_SKY_DAY_DENSITY * 0.01;
 const float DynamicLightAmbientF = DYN_LIGHT_AMBIENT * 0.01;
 const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
