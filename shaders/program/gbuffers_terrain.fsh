@@ -352,7 +352,7 @@ void main() {
 
             #ifndef LIGHT_LEAK_FIX
                 float lightF = min(luminance(shadowColor), 1.0);
-                lmFinal.y = max(lmFinal.y, lightF);
+                lmFinal.y = min(max(lmFinal.y, lightF), (15.5/16.0));
             #endif
         }
     #endif
