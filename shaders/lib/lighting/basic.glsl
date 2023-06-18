@@ -305,7 +305,7 @@
             #if LPV_SIZE > 0
                 vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
-                #if LPV_LIGHTMAP_MIX > 0
+                #if LPV_LIGHTMAP_MIX != 100
                     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF) * lpvFade;
                 #endif
                 
