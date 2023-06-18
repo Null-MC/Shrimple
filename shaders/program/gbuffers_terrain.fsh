@@ -349,6 +349,11 @@ void main() {
                 float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
                 shadowColor = vec3(shadowF);
             #endif
+
+            #ifndef LIGHT_LEAK_FIX
+                float lightF = min(luminance(shadowColor), 1.0);
+                lmFinal.y = max(lmFinal.y, lightF);
+            #endif
         }
     #endif
 

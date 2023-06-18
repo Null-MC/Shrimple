@@ -223,7 +223,6 @@ uniform int heldBlockLightValue2;
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/collissions.glsl"
-        #include "/lib/lighting/voxel/collisions.glsl"
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
@@ -442,6 +441,11 @@ void main() {
                 shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
                 shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+            #endif
+
+            #ifndef LIGHT_LEAK_FIX
+                float lightF = min(luminance(shadowColor), 1.0);
+                lmFinal.y = max(lmFinal.y, lightF);
             #endif
         }
     #endif

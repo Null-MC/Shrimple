@@ -41,7 +41,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Direction = 0.75;
 
         result.ScatterF = vec3(mix(0.024, 0.024, rainStrength) * density);
-        result.ExtinctF = mix(0.006, 0.012, rainStrength) * density;
+        result.ExtinctF = mix(0.007, 0.012, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 
@@ -49,7 +49,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Back = 0.2;
         result.Direction = 0.6;
 
-        result.ScatterF = vec3(0.006 * VolumetricDensityF);
+        result.ScatterF = 0.006 * VolumetricDensityF * RGBToLinear(fogColor);
         result.ExtinctF = 0.006 * VolumetricDensityF;
     #endif
 

@@ -15,9 +15,18 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 
 **\*** Feature only available with [Iris 1.6.0](https://modrinth.com/mod/iris/versions) or later!
 
+
+## Mod Support
+ - Create
+ - Create Deco
+ - Maccaws Lights
+ - Supplementaries
+
+
 ## Known Issues
 - The technique I use for lighting has the advantage of being very fast for few lights, but can also be dead slow with a lot of visible/nearby light sources.
 - Ray-traced block-light volumetrics are known to be incredibly slow. It's more of a cool looking gimmick than meant for gameplay.
+
 
 ## FAQ
 - **Q:** Why isn't block-lighting being ray traced?  
@@ -35,6 +44,7 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
   - Reduce the Block Lighting > Advanced > Bin Size to use smaller bins (less blocks per bin).
   - Reduce the maximum number of lights per-bin.
   - Reduce the Range multiplier for lights.
+
 
 ## Special Thanks
 - Fayer: _very_ extensive help with QA, support, repairs, and motivation.

@@ -63,7 +63,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             float dayF = smoothstep(-0.1, 0.3, sunUpF);
             vec3 color = mix(colorNight, colorDay, dayF);
 
-            float horizonF = smoothstep(0.0, 0.5, abs(sunUpF - 0.15));
+            float horizonF = smoothstep(0.0, 0.45, abs(sunUpF - 0.15));
             color = mix(colorHorizon, color, horizonF);
 
             float weatherBrightness = 1.0 - 0.92 * rainStrength;
