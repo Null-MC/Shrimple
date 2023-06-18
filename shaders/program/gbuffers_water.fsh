@@ -334,7 +334,7 @@ void main() {
                 texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
             #endif
 
-            #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES == WATER_WAVES_FANCY
+            #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES != WATER_WAVES_NONE
                 if (localNormal.y >= 1.0 - EPSILON) {
                     localCoord += waterUvOffset;
                     atlasCoord = GetAtlasCoord(localCoord);

@@ -1,19 +1,28 @@
 #define WATER_ITERATIONS_VERTEX 8
-#define WATER_ITERATIONS_FRAGMENT 24
 
 const float WATER_TIME_MULTIPLICATOR = 4.0;
-const float WATER_XZ_SCALE = 0.12;
-
-const float WATER_DETAIL = 0.9;
-const float WATER_DRAG_MULT = 0.042;
+const float WATER_DRAG_MULT = 0.052;
 const float WATER_FREQUENCY = 6.0;
 const float WATER_SPEED = 2.0;
-const float WATER_WEIGHT = 0.6;
+const float WATER_WEIGHT = 0.45;
 const float WATER_FREQUENCY_MULT = 1.18;
 const float WATER_SPEED_MULT = 1.07;
 const float WATER_ITER_INC = 5.06711056;
 const float WATER_NORMAL_STRENGTH = 0.25;
-const float WATER_WAVE_HEIGHT = 0.4;
+
+#if   WORLD_WATER_WAVES == 3
+    #define WATER_ITERATIONS_FRAGMENT 24
+    const float WATER_XZ_SCALE = 0.08;
+    const float WATER_WAVE_HEIGHT = 0.5;
+#elif WORLD_WATER_WAVES == 2
+    #define WATER_ITERATIONS_FRAGMENT 16
+    const float WATER_XZ_SCALE = 0.16;
+    const float WATER_WAVE_HEIGHT = 0.3;
+#elif WORLD_WATER_WAVES == 1
+    #define WATER_ITERATIONS_FRAGMENT 10
+    const float WATER_XZ_SCALE = 0.32;
+    const float WATER_WAVE_HEIGHT = 0.1;
+#endif
 
 
 float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
@@ -47,7 +56,7 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     }
     
     if (waveSum < EPSILON) return 0.0;
-    return ((height / waveSum) - 0.6 * step(EPSILON, lightF)) * WATER_WAVE_HEIGHT * lightF;
+    return ((height / waveSum) - 0.8 * step(EPSILON, lightF)) * WATER_WAVE_HEIGHT * lightF;
 }
 
 vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {

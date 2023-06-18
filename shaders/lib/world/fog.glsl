@@ -71,11 +71,15 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         }
 
         float GetCustomSkyFogFactor(const in float fogDist) {
-            const float WorldFogRainySkyDensityF = 0.5;
+            #ifdef VL_BUFFER_ENABLED
+                return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
+            #else
+                const float WorldFogRainySkyDensityF = 0.5;
 
-            float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
-            float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
-            return GetFogFactor(fogDist, fogStart, far, density);
+                float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
+                float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
+                return GetFogFactor(fogDist, fogStart, far, density);
+            #endif
         }
     #endif
 #endif

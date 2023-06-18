@@ -67,10 +67,10 @@ option.WORLD_WATER_OPACITY.comment=Determines how transparent water blocks will 
 suffix.WORLD_WATER_OPACITY=%
 
 option.WORLD_WATER_WAVES=Waves
-option.WORLD_WATER_WAVES.comment=Describes how the surface of water will wave.
 value.WORLD_WATER_WAVES.0=None
-value.WORLD_WATER_WAVES.1=Simple
-value.WORLD_WATER_WAVES.2=Fancy
+value.WORLD_WATER_WAVES.1=Small
+value.WORLD_WATER_WAVES.2=Medium
+value.WORLD_WATER_WAVES.3=Large
 
 option.WORLD_WATER_PIXEL=Pixelated
 value.WORLD_WATER_PIXEL.0=OFF
