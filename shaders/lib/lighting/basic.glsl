@@ -285,7 +285,7 @@
                 //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                 float lpvFade = GetLpvFade(lpvPos);
-                lpvFade = smoothstep(0.0, 1.0, lpvFade);
+                //lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
                 lmFinal.x *= 1.0 - lpvFade;
 

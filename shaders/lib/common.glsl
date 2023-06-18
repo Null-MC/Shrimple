@@ -328,16 +328,13 @@ const bool colortex15Clear = true;
 #endif
 
 #if   LPV_SIZE == 3
-    #define LPV_SIZE_XZ 256
-    #define LPV_SIZE_Y  128
-    #define LPV_PADDING 64
-#elif LPV_SIZE == 2
-    #define LPV_SIZE_XZ 128
-    #define LPV_SIZE_Y  64
+    #define LPV_BLOCK_SIZE 256
     #define LPV_PADDING 32
+#elif LPV_SIZE == 2
+    #define LPV_BLOCK_SIZE 128
+    #define LPV_PADDING 16
 #else
-    #define LPV_SIZE_XZ 64
-    #define LPV_SIZE_Y  32
+    #define LPV_BLOCK_SIZE 64
     #define LPV_PADDING 8
 #endif
 
