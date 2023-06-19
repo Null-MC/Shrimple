@@ -394,7 +394,7 @@ void main() {
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(_pow2(roughness), ROUGH_MIN);
+        float roughL = _pow2(roughness);
 
         vec3 localViewDir = normalize(vLocalPos);
 
@@ -406,7 +406,7 @@ void main() {
         blockDiffuse += emission * MaterialEmissionF;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, sss);
             SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
         #endif
 
@@ -436,7 +436,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion, sss);
+        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

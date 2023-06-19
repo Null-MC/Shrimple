@@ -112,6 +112,7 @@ const bool colortex15Clear = true;
 #define WORLD_WATER_WAVES 2 // [0 1 2 3]
 #define WORLD_WATER_PIXEL 0 // [0 8 16 32 64 128]
 #define WATER_WAVE_MIN 0.1
+#define WATER_REFLECTIONS
 
 
 // Material Options
@@ -134,6 +135,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_POROSITY 1 // [0 1 2]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 30 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define MATERIAL_REFLECTIONS 1 // [0 1 2]
 //#define MATERIAL_PARTICLES
 
 
@@ -261,7 +263,7 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
-#define ROUGH_MIN 0.06
+//#define ROUGH_MIN 0.06
 #define WHITEWORLD_VALUE 0.9
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
@@ -553,3 +555,6 @@ void fixNaNs(inout vec3 vec) {
     if (isnan(vec.y) || isinf(vec.y)) vec.y = EPSILON;
     if (isnan(vec.z) || isinf(vec.z)) vec.z = EPSILON;
 }
+
+
+const vec3 waterAbsorbColor = RGBToLinear(1.0 - vec3(0.065, 0.599, 0.742));

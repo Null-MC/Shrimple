@@ -274,7 +274,7 @@ void main() {
         #endif
     #else
         final.rgb = RGBToLinear(final.rgb);
-        float roughL = max(_pow2(roughness), ROUGH_MIN);
+        float roughL = _pow2(roughness);
 
         final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);
 

@@ -416,8 +416,8 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            metal_f0 = mix(0.02, 0.04, oceanFoam);
-            roughness = mix(0.08, 0.5, oceanFoam);
+            metal_f0  = mix(0.02, 0.04, oceanFoam);
+            roughness = mix(0.00, 0.50, oceanFoam);
         }
     #endif
 
@@ -510,8 +510,9 @@ void main() {
         ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
     #endif
 
-    float roughL = max(_pow2(roughness), ROUGH_MIN);
+    float roughL = _pow2(roughness);
 
+    // TODO: Should this only be applied to deferred?
     #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
         float f0 = GetMaterialF0(metal_f0);
         float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
@@ -544,7 +545,7 @@ void main() {
 
         blockDiffuse += emission * MaterialEmissionF;
         
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal.x, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
 
         vec3 skyDiffuse = vec3(0.0);
@@ -568,7 +569,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmFinal, metal_f0, roughL, occlusion, sss);
+        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
         color.a = min(color.a + luminance(specularFinal), 1.0);
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM

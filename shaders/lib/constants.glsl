@@ -58,6 +58,10 @@
 #define PARALLAX_SMOOTH 2
 #define PARALLAX_SHARP 3
 
+#define REFLECT_NONE 0
+#define REFLECT_SKY 1
+#define REFLECT_SCREEN 2
+
 #define DYN_LIGHT_NONE 0
 //#define DYN_LIGHT_VERTEX 1
 #define DYN_LIGHT_PIXEL 2

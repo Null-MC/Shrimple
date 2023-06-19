@@ -195,18 +195,13 @@ uniform float blindness;
 #include "/lib/lighting/basic.glsl"
 
 #ifdef VL_BUFFER_ENABLED
-    // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-    //     #include "/lib/lighting/voxel/lpv.glsl"
-    // #endif
-
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 
 
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
     /* RENDERTARGETS: 15 */
-    layout(location = 0) out vec4 outColor;
-    //layout(location = 1) out vec4 outDepth;
+    layout(location = 0) out vec4 outFinal;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -239,7 +234,7 @@ void main() {
     #endif
 
     color.rgb = RGBToLinear(color.rgb);
-    float roughL = max(_pow2(roughness), ROUGH_MIN);
+    float roughL = _pow2(roughness);
 
     vec3 localViewDir = normalize(vLocalPos);
 
@@ -248,7 +243,7 @@ void main() {
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);
 
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
+    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, sss);
     SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
 
     #ifdef WORLD_SKY_ENABLED
@@ -269,7 +264,7 @@ void main() {
         }
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, glcolor.a, sss);
+    color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, glcolor.a);
 
     ApplyFog(color, vLocalPos, localViewDir);
 
@@ -282,10 +277,5 @@ void main() {
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 
-    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        outColor = color;
-        //outDepth = ?;
-    #else
-        outFinal = color;
-    #endif
+    outFinal = color;
 }

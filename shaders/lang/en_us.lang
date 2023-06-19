@@ -111,6 +111,11 @@ value.MATERIAL_OCCLUSION.2=Lab-PBR
 option.METAL_BRIGHTNESS=Metal Brightness
 suffix.METAL_BRIGHTNESS=%
 
+option.MATERIAL_REFLECTIONS=Reflections
+value.MATERIAL_REFLECTIONS.0=None
+value.MATERIAL_REFLECTIONS.1=Sky Only
+value.MATERIAL_REFLECTIONS.2=Screen-Space
+
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
 screen.MATERIAL_NORMAL_OPTIONS.comment=Describes how each pixel of the surface reacts to directional lighting.

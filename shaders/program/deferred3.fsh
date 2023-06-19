@@ -345,7 +345,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-                float roughL = max(_pow2(deferredRoughMetalF0.r), ROUGH_MIN);
+                float roughL = _pow2(deferredRoughMetalF0.r);
                 float metal_f0 = deferredRoughMetalF0.g;
             #else
                 const float roughL = 1.0;
@@ -509,7 +509,7 @@ layout(location = 0) out vec4 outFinal;
 
                 //blockDiffuse += emission * MaterialEmissionF;
             #else
-                GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+                GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, sss);
                 
                 SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
@@ -553,7 +553,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
-            final = GetFinalLighting(albedo, localPos, localNormal, diffuseFinal, specularFinal, deferredLighting.xy, metal_f0, roughL, occlusion, sss);
+            final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
 
             #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                 vec3 fogColorFinal = vec3(0.0);

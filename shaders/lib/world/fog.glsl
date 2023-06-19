@@ -34,7 +34,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
     vec3 GetCustomWaterFogColor(const in float sunUpF) {
-        const vec3 _color = RGBToLinear(0.6*vec3(0.04, 0.16, 0.32));
+        const vec3 _color = RGBToLinear(vec3(0.031, 0.096, 0.227));
         const float WaterMinBrightness = 0.04;
 
         float brightnessF = 1.0 - WaterMinBrightness;
@@ -51,14 +51,14 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {
-        return GetFogFactor(fogDist, 0.0, min(32.0, far), 0.34);
+        return GetFogFactor(fogDist, 0.0, min(48.0, far), 0.5);
     }
 
     #ifdef WORLD_SKY_ENABLED
         vec3 GetCustomSkyFogColor(const in float sunUpF) {
             const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * (WorldSunBrightnessF * 0.65);
             const vec3 colorNight = RGBToLinear(vec3(0.096, 0.081, 0.121)) * WorldMoonBrightnessF;
-            const vec3 colorDay = RGBToLinear(vec3(0.965, 0.978, 0.985)) * WorldSunBrightnessF;
+            const vec3 colorDay = RGBToLinear(0.8*vec3(0.965, 0.978, 0.985)) * WorldSunBrightnessF;
 
             float dayF = smoothstep(-0.1, 0.3, sunUpF);
             vec3 color = mix(colorNight, colorDay, dayF);

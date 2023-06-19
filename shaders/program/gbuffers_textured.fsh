@@ -236,7 +236,7 @@ void main() {
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord.x, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
     #endif
 
@@ -262,7 +262,7 @@ void main() {
         }
     #endif
 
-    color.rgb = GetFinalLighting(color.rgb, vLocalPos, normal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion, sss);
+    color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
     ApplyFog(color, vLocalPos, localViewDir);
 

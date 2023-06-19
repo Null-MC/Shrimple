@@ -237,7 +237,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
+#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #include "/lib/lighting/sampling.glsl"
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
@@ -440,7 +440,7 @@ void main() {
         #endif
     #else
         color.rgb = RGBToLinear(color.rgb);
-        float roughL = max(_pow2(roughness), ROUGH_MIN);
+        float roughL = _pow2(roughness);
 
         #ifdef RENDER_TRANSLUCENT
             if (color.a > (0.5/255.0)) {
@@ -458,7 +458,7 @@ void main() {
 
         blockDiffuse += emission * MaterialEmissionF;
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord.x, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
 
         #ifdef WORLD_SKY_ENABLED
@@ -479,7 +479,7 @@ void main() {
             }
         #endif
 
-        color.rgb = GetFinalLighting(color.rgb, vLocalPos, localNormal, diffuseFinal, specularFinal, lmcoord, metal_f0, roughL, occlusion, sss);
+        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

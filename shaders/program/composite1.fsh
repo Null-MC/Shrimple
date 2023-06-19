@@ -223,7 +223,7 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            roughL = max(_pow2(specularMap.r), ROUGH_MIN);
+            roughL = _pow2(specularMap.r);
             metal_f0 = specularMap.g;
         #endif
 
@@ -238,7 +238,7 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.x, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
         
         blockDiffuse *= 1.0 - deferredFog.a;

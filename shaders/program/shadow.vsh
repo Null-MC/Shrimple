@@ -66,6 +66,14 @@ uniform int entityId;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #ifdef PHYSICS_OCEAN
+        #include "/lib/physics_mod/ocean.glsl"
+    #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+        #include "/lib/world/water.glsl"
+    #endif
+#endif
+
 
 void main() {
     vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -119,6 +127,26 @@ void main() {
 
     #ifdef WORLD_WAVING_ENABLED
         ApplyWavingOffset(pos.xyz, blockId);
+    #endif
+
+    #if defined WORLD_WATER_ENABLED
+        if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) {
+            //vec4 finalPosition = gl_Vertex;
+
+            #ifdef PHYSICS_OCEAN
+                float physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
+                pos.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+                //physics_localPosition = finalPosition.xyz;
+            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+                vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+                vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+
+                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
+                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight);
+            #endif
+
+            //gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
+        }
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;

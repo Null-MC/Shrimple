@@ -82,8 +82,8 @@
 
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
 
-                lpvLight /= 16.0 * LpvRangeF;
-                lpvLight /= 4.0 + luminance(lpvLight);
+                //lpvLight *= rcp(256.0);
+                lpvLight /= 256.0 + luminance(lpvLight);
                 //lpvLight /= 8.0 + luminance(lpvLight);
                 //lpvLight /= LpvRangeF;
 
@@ -127,11 +127,17 @@
     #endif
 
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
-        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmcoordX, const in float roughL, const in float metal_f0, const in float sss) {
+        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
+            //#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                vec2 lmBlock = vec2(lmcoord.x, 0.5/16.0);
+            //#else
+            //    vec2 lmBlock = lmcoord;
+            //#endif
+
             #ifdef RENDER_GBUFFER
-                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoordX, 0.5/16.0), 0).rgb;
+                vec3 blockLightDefault = textureLod(lightmap, lmBlock, 0).rgb;
             #else
-                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, vec2(lmcoordX, 0.5/16.0), 0).rgb;
+                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
             #endif
 
             blockLightDefault = RGBToLinear(blockLightDefault);
@@ -160,9 +166,9 @@
                 else blockDiffuse += blockLightDefault;
             #endif
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-                blockDiffuse += blockLightDefault;
-            #endif
+            //#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            //    blockDiffuse += blockLightDefault;
+            //#endif
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
                 if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
@@ -171,53 +177,131 @@
     //#endif
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
-            return F_schlickRough(NoVm, f0, roughL) * (1.0 - sqrt(roughL)) * WorldSkyReflectF;
-        }
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined RENDER_CLOUDS
+            float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
+                return F_schlickRough(NoVm, f0, roughL) * (1.0 - sqrt(roughL)) * WorldSkyReflectF;
+            }
 
-        void ApplyFresnel(inout vec3 diffuse, inout vec3 specular, const in vec3 localViewDir, const in vec3 texNormal, const in float skyReflectF, const in float skyLight) {
-            //float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
+            vec3 GetSkyReflectionColor(const in vec3 reflectDir, const in float skyLight) {
+                #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                    vec3 reflectColor;
 
-            vec3 reflectDir = reflect(-localViewDir, texNormal);
+                    if (isEyeInWater == 1) {
+                        #ifndef IRIS_FEATURE_SSBO
+                            vec3 WorldSkyLightColor = GetSkyLightColor();
+                        #endif
 
-            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                vec3 reflectColor;
-                if (isEyeInWater == 1) {
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 WorldSkyLightColor = GetSkyLightColor();
-                    #endif
+                        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                        reflectColor = GetCustomWaterFogColor(localSunDirection.y);
+                    }
+                    else {
+                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                        reflectColor = GetCustomSkyFogColor(localSunDirection.y);
+                        reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
+                    }
+                #else
+                    vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
+                    reflectColor = RGBToLinear(reflectColor);
+                #endif
 
-                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                #if !defined WATER_REFLECTIONS || defined RENDER_OPAQUE_FINAL || defined RENDER_TEXTURED || defined RENDER_WEATHER
+                    float m = skyLight * 0.3;
+                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
+                #endif
 
-                    //vec3 skyColorFinal = RGBToLinear(skyColor);
-                    reflectColor = GetCustomWaterFogColor(localSunDirection.y);
-                }
-                else {
-                    vec3 skyColorFinal = RGBToLinear(skyColor);
-                    reflectColor = GetCustomSkyFogColor(localSunDirection.y);
-                    reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, localViewDir.y);
-                }
-            #else
-                vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
-                reflectColor = RGBToLinear(reflectColor);
-            #endif
+                return reflectColor;
+            }
 
-            float m = skyLight * 0.3;
-            reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
+            void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight) {
+                //float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
-            //float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-            specular += reflectColor * skyReflectF * pow5(skyLight);
-            diffuse *= 1.0 - skyReflectF;
-        }
+                vec3 viewDir = normalize(viewPos);
+                vec3 reflectViewDir = reflect(viewDir, texViewNormal);
+
+                vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
+                vec3 reflectColor = GetSkyReflectionColor(reflectLocalDir, skyLight);
+
+                #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_TRANSLUCENT_FINAL
+                    //if (isWater) {
+                        //reflectViewDir = normalize(reflectViewDir);
+
+                        vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
+                        vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
+                        vec3 clipRay = reflectClipPos - clipPos;
+
+                        vec4 reflection = GetReflectionPosition(depthtex1, clipPos, clipRay);
+                        vec3 col = GetRelectColor(reflection.xy, reflection.a, 0);
+
+                        #if WORLD_FOG_MODE != FOG_MODE_NONE
+                            vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
+
+                            vec3 fogColorFinal = vec3(0.0);
+                            float fogF = 0.0;
+
+                            if (isEyeInWater == 1) {
+                                // water fog
+
+                                float fogDist = length(reflectViewPos - viewPos);
+                                fogF = GetCustomWaterFogFactor(fogDist);
+
+                                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                            }
+                            else if (reflection.z < 1.0) {
+                                #ifdef WORLD_SKY_ENABLED
+                                    // sky fog
+
+                                    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                                        // TODO: apply fog to reflection
+
+                                        float fogDist = GetVanillaFogDistance(reflectViewPos);
+
+                                        fogF = GetCustomSkyFogFactor(fogDist);
+
+                                        vec3 skyColorFinal = RGBToLinear(skyColor);
+                                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
+                                    #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                                        // TODO: apply fog to reflection
+                                    #endif
+                                #else
+                                    // no-sky fog
+
+                                    fogColorFinal = RGBToLinear(fogColor);
+                                    fogF = GetVanillaFogFactor(localPos);
+                                #endif
+                            }
+
+                            col = mix(col, fogColorFinal, fogF);
+                        #endif
+
+                        reflectColor = mix(reflectColor, col, reflection.a);
+                    //}
+                #endif
+
+                //float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+                specular += reflectColor * skyReflectF * pow5(skyLight);
+                diffuse *= 1.0 - skyReflectF;
+            }
+        #endif
         
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
             vec3 localViewDir = -normalize(localPos);
 
+            //#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            //    return;
+            //#endif
+
+            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+                vec2 lmSky = vec2((0.5/16.0), lmcoord.y);
+            #else
+                vec2 lmSky = lmcoord;
+            #endif
+
             #ifndef RENDER_CLOUDS
                 #ifdef RENDER_GBUFFER
-                    vec3 skyLightColor = textureLod(lightmap, vec2((0.5/15.0), lmcoord.y), 0).rgb;
+                    vec3 skyLightColor = textureLod(lightmap, lmSky, 0).rgb;
                 #else
-                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, vec2((0.5/15.0), lmcoord.y), 0).rgb;
+                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
                 #endif
 
                 skyLightColor = RGBToLinear(skyLightColor);
@@ -257,13 +341,12 @@
             if (!all(lessThan(abs(localNormal), EPSILON3)))
                 geoNoL = dot(localNormal, localSkyLightDirection);
 
-            #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+            //#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
                 float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
-            #else
-                const float diffuseNoL = 1.0;
-            #endif
+            //#else
+            //    const float diffuseNoL = 1.0;
+            //#endif
 
-            // TODO: replace this crap with actual diffuse function
             vec3 H = normalize(-localSkyLightDirection + -localViewDir);
             float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
@@ -272,9 +355,13 @@
 
 
 
-            vec2 lmFinal = lmcoord;
+            #ifdef RENDER_GBUFFER
+                vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
+            #else
+                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
+            #endif
 
-            lmFinal.x = (lmFinal.x - (0.5/15.0));
+            vec3 ambientLight = RGBToLinear(lightmapColor);
 
             #if LPV_SIZE > 0
                 vec3 surfacePos = localPos;
@@ -285,24 +372,12 @@
                 //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                 float lpvFade = GetLpvFade(lpvPos);
-                //lpvFade = smoothstep(0.0, 1.0, lpvFade);
+                lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-                lmFinal.x *= 1.0 - lpvFade;
+                //lmFinal.x *= 1.0 - lpvFade;
 
                 vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
-            #endif
 
-            lmFinal.x += (0.5/15.0);
-
-            #ifdef RENDER_GBUFFER
-                vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
-            #else
-                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-            #endif
-
-            vec3 ambientLight = RGBToLinear(lightmapColor);
-
-            #if LPV_SIZE > 0
                 vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
                 #if LPV_LIGHTMAP_MIX != 100
@@ -368,12 +443,19 @@
                     skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
                 //}
 
-                #if defined WORLD_SKY_ENABLED && WORLD_SKY_REFLECTIONS > 0
+                #if MATERIAL_REFLECTIONS != REFLECT_NONE
                     float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
 
+                    vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
+                    vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+
                     float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-                    ApplyFresnel(accumDiffuse, skySpecular, localViewDir, texNormal, skyReflectF, skyLight);
+                    ApplyReflections(accumDiffuse, skySpecular, viewPos, texViewNormal, skyReflectF, skyLight);
                 #endif
+            #endif
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+               accumDiffuse *= occlusion;
             #endif
 
             skyDiffuse += accumDiffuse;
@@ -381,81 +463,9 @@
     #endif
 
     #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 localPos, const in vec3 geoNormal, const in vec3 diffuse, const in vec3 specular, const in vec2 lmcoord, const in float metal_f0, const in float roughL, const in float occlusion, const in float sss) {
-            // #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)
-            //     vec2 lmFinal = lmcoord;
-
-            //     lmFinal.x = (lmFinal.x - (0.5/15.0));
-
-            //     #if LPV_SIZE > 0
-            //         vec3 surfacePos = localPos;
-            //         surfacePos += 0.501 * geoNormal;// * (1.0 - sss);
-
-            //         vec3 lpvPos = GetLPVPosition(surfacePos);
-
-            //         //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
-
-            //         float lpvFade = GetLpvFade(lpvPos);
-            //         lpvFade = smoothstep(0.0, 1.0, lpvFade);
-
-            //         lmFinal.x *= 1.0 - lpvFade;
-
-            //         vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
-            //     #endif
-
-            //     lmFinal.x += (0.5/15.0);
-
-            //     #ifdef RENDER_GBUFFER
-            //         vec3 lightmapColor = textureLod(lightmap, lmFinal, 0).rgb;
-            //     #else
-            //         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-            //     #endif
-
-            //     vec3 ambientLight = RGBToLinear(lightmapColor);
-
-            //     #if LPV_SIZE > 0
-            //         //if (saturate(lpvTexcoord) == lpvTexcoord) {
-            //             vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
-
-            //             lpvLight /= 16.0 * LpvRangeF;
-            //             lpvLight /= 4.0 + luminance(lpvLight);
-            //             //lpvLight /= 8.0 + luminance(lpvLight);
-            //             //lpvLight /= LpvRangeF;
-
-            //             #if LPV_LIGHTMAP_MIX > 0
-            //                 ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
-            //             #endif
-                        
-            //             ambientLight += lpvLight * lpvFade;
-            //         //}
-            //     #endif
-
-            //     ambientLight += WorldMinLightF;
-            //     ambientLight *= DynamicLightAmbientF;
-
-            //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-            //         if (metal_f0 >= 0.5) {
-            //             ambientLight *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            //         }
-            //     #endif
-
-            //     #if defined WORLD_SKY_ENABLED && WORLD_SKY_REFLECTIONS > 0
-            //         //float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
-            //         float skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-            //         float f0 = GetMaterialF0(metal_f0);
-
-            //         float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-            //         //ApplyFresnel(ambientLight, skySpecular, localViewDir, texNormal, skyReflectF, skyLight);
-            //         ambientLight *= 1.0 - skyReflectF;
-            //     #endif
-
-            //     vec3 diffuseFinal = albedo * (diffuse + ambientLight * occlusion);
-            // #else
-            //    vec3 diffuseFinal = albedo * diffuse;// * occlusion;
-            // #endif
-
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 diffuse, const in vec3 specular, const in float occlusion) {
             // TODO: handle specular occlusion
-            return albedo * diffuse + specular * occlusion;
+            return albedo * diffuse + specular * _pow3(occlusion);
         }
     #endif
 #endif
