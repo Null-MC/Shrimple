@@ -13,14 +13,21 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-const vec3 vlWaterScatterColor = vec3(0.263, 0.477, 0.515);
-vec3 vlWaterScatterColorL = RGBToLinear(0.4*vlWaterScatterColor);
-float vlWaterAmbient = mix(0.0060, 0.0002, rainStrength);
+#ifdef WORLD_WATER_ENABLED
+    const vec3 vlWaterScatterColor = vec3(0.263, 0.477, 0.515);
+    vec3 vlWaterScatterColorL = RGBToLinear(0.4*vlWaterScatterColor);
 
-#if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
-#else
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
+    #ifdef WORLD_SKY_ENABLED
+        float vlWaterAmbient = mix(0.0060, 0.0002, rainStrength);
+    #else
+        const float vlWaterAmbient = 0.0040;
+    #endif
+
+    #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
+        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
+    #else
+        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
+    #endif
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {

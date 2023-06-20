@@ -102,7 +102,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
-        
+
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
@@ -159,7 +159,12 @@ void main() {
     vec3 localViewDir = normalize(localPos);
     float distTranslucent = min(length(localPos), far);
 
-    VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors();
+    #ifdef WORLD_WATER_ENABLED
+        VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors();
+    #else
+        VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
+    #endif
+
     vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, distTranslucent);
 
     outVL = final;

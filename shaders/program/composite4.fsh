@@ -80,27 +80,29 @@ layout(location = 0) out vec4 outFinal;
         if (depthTranslucent < depthOpaque) {
             vec2 viewSize = vec2(viewWidth, viewHeight);
             
-            vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-            vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+            #ifdef WORLD_WATER_ENABLED
+                vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+                vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
 
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
-                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-            #else
-                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                    vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                    vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                    vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+                #else
+                    vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                    vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                #endif
+
+                uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+                vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+                bool isWater = deferredTexture.a < 0.5;
+
+                if (isEyeInWater != 1 && isWater) {
+                    float waterDist = length(localPosOpaque - localPosTranslucent);
+                    final *= exp(waterDist * -WaterAbsorbColorInv);
+                }
             #endif
-
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            bool isWater = deferredTexture.a < 0.5;
-
-            if (isEyeInWater != 1 && isWater) {
-                float waterDist = length(localPosOpaque - localPosTranslucent);
-                final *= exp(waterDist * -WaterAbsorbColorInv);
-            }
 
             #ifdef VOLUMETRIC_BLUR
                 const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
