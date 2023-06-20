@@ -14,12 +14,13 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 const vec3 vlWaterScatterColor = vec3(0.263, 0.477, 0.515);
-vec3 vlWaterScatterColorL = RGBToLinear(0.5*vlWaterScatterColor);
+vec3 vlWaterScatterColorL = RGBToLinear(0.4*vlWaterScatterColor);
+float vlWaterAmbient = mix(0.0060, 0.0002, rainStrength);
 
 #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
 #else
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.006, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
