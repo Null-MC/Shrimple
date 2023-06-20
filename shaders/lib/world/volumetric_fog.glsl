@@ -309,7 +309,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     lpvLight /= 16.0 * LpvRangeF;
                     lpvLight /= 8.0 + luminance(lpvLight);
 
-                    blockLightAccum += 0.1 * lpvLight * GetLpvFade(lpvPos);
+                    blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
                 //}
             #endif
 
