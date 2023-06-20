@@ -493,7 +493,31 @@ void main() {
 
         color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 fogColorFinal = vec3(0.0);
+            float fogF = 0.0;
+
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    fogF = GetCustomWaterFogFactor(viewDist);
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+            #endif
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                float fogDist  = GetVanillaFogDistance(vLocalPos);
+                fogF = GetCustomSkyFogFactor(fogDist);
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
+
+            color.rgb = mix(color.rgb, fogColorFinal, fogF);
+        #else
+            ApplyVanillaFog(color, vLocalPos);
+        #endif
 
         outFinal = color;
     #endif
