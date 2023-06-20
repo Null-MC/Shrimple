@@ -572,7 +572,7 @@ layout(location = 0) out vec4 outFinal;
         #ifndef VL_BUFFER_ENABLED
             if (isEyeInWater != 1 && isWater) {
                 float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
-                opaqueFinal *= exp(waterDist * -waterAbsorbColor);
+                opaqueFinal *= exp(waterDist * -WaterAbsorbColorInv);
             }
         #endif
 
@@ -653,7 +653,7 @@ layout(location = 0) out vec4 outFinal;
         // #endif
 
         if (isEyeInWater == 1) {
-            final.rgb *= exp(viewDist * -waterAbsorbColor);
+            final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
         }
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM

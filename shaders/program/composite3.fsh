@@ -528,7 +528,7 @@ layout(location = 0) out vec4 outFinal;
         
         // if (isEyeInWater != 1 && isWater) {
         //     float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
-        //     opaqueFinal *= exp(waterDist * -waterAbsorbColor);
+        //     opaqueFinal *= exp(waterDist * -WaterAbsorbColorInv);
         // }
 
         // #ifdef VL_BUFFER_ENABLED

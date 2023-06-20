@@ -99,7 +99,7 @@ layout(location = 0) out vec4 outFinal;
 
             if (isEyeInWater != 1 && isWater) {
                 float waterDist = length(localPosOpaque - localPosTranslucent);
-                final *= exp(waterDist * -waterAbsorbColor);
+                final *= exp(waterDist * -WaterAbsorbColorInv);
             }
 
             #ifdef VOLUMETRIC_BLUR

@@ -13,12 +13,13 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     return rcp(4.0 * PI) * ((1.0 - G_scattering2) / (pow(1.0 + G_scattering2 - (2.0 * G_scattering) * VoL, 1.5)));
 }
 
-vec3 vlWaterScatterColor = 0.5*RGBToLinear(vec3(0.263, 0.477, 0.515));
+const vec3 vlWaterScatterColor = vec3(0.263, 0.477, 0.515);
+vec3 vlWaterScatterColorL = RGBToLinear(0.5*vlWaterScatterColor);
 
 #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, vlWaterScatterColor, 0.076, 0.78, 0.56, 0.16);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.008, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
 #else
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.006, vlWaterScatterColor, 0.12, 0.78, 0.56, 0.16);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(0.006, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -226,7 +227,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            //sampleColor *= exp(sampleDepth * -waterAbsorbColor);
+            //sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
 
             #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
                 //vec3 traceLocalPos = localStep * iStep + localStart;
