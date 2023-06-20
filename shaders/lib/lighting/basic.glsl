@@ -142,7 +142,7 @@
 
             blockLightDefault = RGBToLinear(blockLightDefault);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_CLOUDS && !(defined RENDER_WEATHER && !defined DYN_LIGHT_WEATHER)
+            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
                 SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
             #endif
 

@@ -101,6 +101,8 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/blocks.glsl"
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+            #include "/lib/lighting/voxel/light_mask.glsl"
+        
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
