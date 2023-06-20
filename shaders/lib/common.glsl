@@ -557,4 +557,4 @@ void fixNaNs(inout vec3 vec) {
 }
 
 
-const vec3 waterAbsorbColor = RGBToLinear(1.0 - vec3(0.065, 0.599, 0.742));
+vec3 waterAbsorbColor = RGBToLinear(1.0 - vec3(0.065, 0.599, 0.742));
