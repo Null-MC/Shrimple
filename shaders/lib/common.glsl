@@ -1,4 +1,4 @@
-const float sunPathRotation = -20; // [-60 -50 -40 -30 -20 -15 -10 -5 0 5 10 15 20 30 40 50 60]
+const float sunPathRotation = -20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 34 40 45 50 55 60]
 
 /*
 const int shadowcolor0Format = RGBA8;

@@ -628,7 +628,8 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         if (true) {
-            final.rgb = mix(opaqueFinal, final.rgb, final.a);
+            //final.rgb = mix(opaqueFinal, final.rgb, final.a);
+            final.rgb += opaqueFinal * (1.0 - final.a);
         }
         else {
             // multiplicative tinting for transparent pixels

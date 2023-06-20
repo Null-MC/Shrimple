@@ -379,7 +379,7 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    if (color.a < (0.5/255.0)) {
+    if (!isWater && color.a < (0.5/255.0)) {
         discard;
         return;
     }
