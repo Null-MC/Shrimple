@@ -32,6 +32,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;

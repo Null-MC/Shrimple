@@ -80,11 +80,12 @@ uniform sampler2D lightmap;
         uniform float cloudTime;
     #endif
 #else
-    uniform int worldTime;
+    //uniform int worldTime;
 #endif
 
 uniform ivec2 atlasSize;
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;

@@ -91,6 +91,7 @@ uniform sampler2D noisetex;
 
 uniform ivec2 atlasSize;
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -131,7 +132,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform float cloudTime;
     #endif
 #else
-    uniform int worldTime;
+    //uniform int worldTime;
 #endif
 
 uniform int heldItemId;
@@ -513,12 +514,15 @@ void main() {
     float roughL = _pow2(roughness);
 
     // TODO: Should this only be applied to deferred?
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SKY_REFLECTIONS
-        float f0 = GetMaterialF0(metal_f0);
-        float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-        float skyF = F_schlickRough(skyNoVm, f0, roughL);
-        color.a = min(color.a + skyF, 1.0);
-    #endif
+    // #if MATERIAL_REFLECTIONS != REFLECT_NONE
+    //     if (isWater) {
+    //         float f0 = GetMaterialF0(metal_f0);
+    //         float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+    //         float skyF = F_schlickRough(skyNoVm, f0, roughL);
+    //         //color.a = min(color.a + skyF, 1.0);
+    //         color.a = max(color.a, skyF);
+    //     }
+    // #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

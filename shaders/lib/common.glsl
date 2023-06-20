@@ -263,7 +263,7 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
-//#define ROUGH_MIN 0.06
+#define ROUGH_MIN 0.06
 #define WHITEWORLD_VALUE 0.9
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP

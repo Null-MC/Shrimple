@@ -627,7 +627,7 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        if (isWater) {
+        if (true) {
             final.rgb = mix(opaqueFinal, final.rgb, final.a);
         }
         else {
