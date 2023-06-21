@@ -5,6 +5,8 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+const bool colortex0MipmapEnabled = true;
+
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;

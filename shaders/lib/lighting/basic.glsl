@@ -212,7 +212,7 @@
                 return reflectColor;
             }
 
-            void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight) {
+            void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
                 //float skyLight = saturate((lmcoordY - (0.5/16.0)) / (15.0/16.0));
 
                 vec3 viewDir = normalize(viewPos);
@@ -229,8 +229,11 @@
                         vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
                         vec3 clipRay = reflectClipPos - clipPos;
 
+                        int maxLod = int(log2(min(viewWidth, viewHeight)));
+                        float roughMip = roughness * maxLod;
+
                         vec4 reflection = GetReflectionPosition(depthtex1, clipPos, clipRay);
-                        vec3 col = GetRelectColor(reflection.xy, reflection.a, 0);
+                        vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
 
                         #if WORLD_FOG_MODE != FOG_MODE_NONE
                             vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
@@ -450,7 +453,7 @@
                     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
                     float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-                    ApplyReflections(accumDiffuse, skySpecular, viewPos, texViewNormal, skyReflectF, skyLight);
+                    ApplyReflections(accumDiffuse, skySpecular, viewPos, texViewNormal, skyReflectF, skyLight, sqrt(roughL));
                 #endif
             #endif
 

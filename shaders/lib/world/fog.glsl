@@ -67,7 +67,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             color = mix(colorHorizon, color, horizonF);
 
             float weatherBrightness = 1.0 - 0.92 * rainStrength;
-            return color * weatherBrightness;
+            return 0.6 * color * weatherBrightness;
         }
 
         float GetCustomSkyFogFactor(const in float fogDist) {

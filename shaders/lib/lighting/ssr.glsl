@@ -1,4 +1,4 @@
-#define SSR_MAXSTEPS 256
+#define SSR_MAXSTEPS 512
 #define SSR_QUALITY 1
 
 
@@ -132,7 +132,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 }
 
 // uv=tracePos.xy
-vec3 GetRelectColor(const in vec2 uv, inout float alpha, const in int lod) {
+vec3 GetRelectColor(const in vec2 uv, inout float alpha, const in float lod) {
     vec3 color = vec3(0.0);
 
     if (alpha > EPSILON) {

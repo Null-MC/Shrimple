@@ -29,7 +29,7 @@ const bool shadowtex0Mipmap = false;
 const bool shadowtex1Mipmap = false;
 
 const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex0MipmapEnabled = false;
+//const bool colortex0MipmapEnabled = false;
 const bool colortex0Clear = false;
 
 const vec4 colortex1ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
@@ -558,5 +558,5 @@ void fixNaNs(inout vec3 vec) {
 }
 
 
-const vec3 WaterAbsorbColor = vec3(0.065, 0.599, 0.742);
+const vec3 WaterAbsorbColor = vec3(0.251, 0.616, 0.732);
 vec3 WaterAbsorbColorInv = RGBToLinear(1.0 - WaterAbsorbColor);
