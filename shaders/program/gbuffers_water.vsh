@@ -180,9 +180,13 @@ void main() {
 
             #ifdef PHYSICS_OCEAN
                 physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-                finalPosition.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+
+                #ifdef WATER_DISPLACEMENT
+                    finalPosition.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+                #endif
+
                 physics_localPosition = finalPosition.xyz;
-            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
                 float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
                 finalPosition.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, skyLight);
             #endif

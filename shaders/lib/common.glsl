@@ -113,6 +113,7 @@ const bool colortex15Clear = true;
 #define WORLD_WATER_PIXEL 0 // [0 8 16 32 64 128]
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
+#define WATER_DISPLACEMENT
 
 
 // Material Options

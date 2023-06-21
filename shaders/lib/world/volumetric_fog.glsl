@@ -24,9 +24,9 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
     #endif
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.076, 0.78, 0.56, 0.16);
+        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.78, 0.56, 0.16);
     #else
-        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.12, 0.78, 0.56, 0.16);
+        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.78, 0.56, 0.16);
     #endif
 #endif
 
