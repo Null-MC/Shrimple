@@ -14,7 +14,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 #ifdef WORLD_WATER_ENABLED
-    const vec3 vlWaterScatterColor = vec3(0.131, 0.237, 0.257);
+    const vec3 vlWaterScatterColor = vec3(0.181, 0.363, 0.369);
     vec3 vlWaterScatterColorL = RGBToLinear(vlWaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
@@ -23,11 +23,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
         const float vlWaterAmbient = 0.0040;
     #endif
 
-    #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.78, 0.56, 0.16);
-    #else
-        VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.78, 0.56, 0.16);
-    #endif
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.65, 0.76, 0.32);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -188,7 +184,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float sampleF = 1.0;
             vec3 sampleColor = skyLightColor;
-            //float sampleDepth = 0.0;
+            float sampleDepth = 0.0;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
@@ -203,8 +199,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
-                    //texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                    //sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
                 }
             #else
                 float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
@@ -217,8 +213,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                 sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
-                //texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                //sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (3.0 * far);
+                texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (256.0);
             #endif
 
             #ifdef SHADOW_COLORED
@@ -235,7 +231,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            //sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
+            sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
 
             #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
                 //vec3 traceLocalPos = localStep * iStep + localStart;
