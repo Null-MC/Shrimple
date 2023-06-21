@@ -1,4 +1,4 @@
-#define SSR_MAXSTEPS 512
+#define SSR_MAXSTEPS 256
 #define SSR_QUALITY 1
 
 

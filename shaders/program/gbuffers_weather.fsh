@@ -247,7 +247,7 @@ void main() {
     SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
 
     #ifdef WORLD_SKY_ENABLED
-        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
             const vec3 shadowPos = vec3(0.0);
         #endif
 
