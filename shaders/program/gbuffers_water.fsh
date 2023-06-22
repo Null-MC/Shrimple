@@ -354,7 +354,8 @@ void main() {
 
         #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
             vec4 rippleNormalStrength = vec4(0.0);
-            if (localNormal.y >= 1.0 - EPSILON) {
+            // TODO: this also needs to check vertex offset!
+            if ((localNormal.y >= 1.0 - EPSILON) || (localNormal.y <= -1.0 + EPSILON)) {
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
                 localCoord += rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
                 atlasCoord = GetAtlasCoord(localCoord);

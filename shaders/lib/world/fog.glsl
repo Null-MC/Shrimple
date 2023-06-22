@@ -58,7 +58,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         vec3 GetCustomSkyFogColor(const in float sunUpF) {
             const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.65;
             const vec3 colorNight   = RGBToLinear(vec3(0.096, 0.081, 0.121));
-            const vec3 colorDay     = RGBToLinear(vec3(0.965, 0.978, 0.985)) * 0.8;
+            const vec3 colorDay     = RGBToLinear(vec3(0.657, 0.719, 0.753));
 
             float dayF = smoothstep(-0.1, 0.3, sunUpF);
             vec3 color = mix(colorNight, colorDay, dayF);

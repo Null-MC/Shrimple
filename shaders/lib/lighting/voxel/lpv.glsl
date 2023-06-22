@@ -1,4 +1,4 @@
-const ivec3 SceneLPVSize = ivec3(LPV_BLOCK_SIZE, LPV_BLOCK_SIZE, LPV_BLOCK_SIZE);
+const ivec3 SceneLPVSize = ivec3(LPV_BLOCK_SIZE);
 const ivec3 SceneLPVCenter = SceneLPVSize / 2;
 
 vec3 GetLPVPosition(const in vec3 position) {

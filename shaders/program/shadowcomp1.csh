@@ -17,7 +17,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #endif
 
     #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        //uniform sampler2D shadowtex0;
+        uniform sampler2D shadowtex0;
         uniform sampler2D shadowtex1;
 
         uniform sampler2D shadowcolor0;
@@ -122,7 +122,7 @@ vec3 GetLpvValue(const in ivec3 texCoord) {
 }
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
-    const float FALLOFF = 0.999;
+    const float FALLOFF = 0.99;
 
     vec3 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
     vec3 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));
@@ -161,8 +161,10 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
             float shadowBias = GetShadowOffsetBias(cascade);
+            float shadowDistScale = 3.0 * far;
         #else
             float shadowBias = GetShadowOffsetBias();
+            const float shadowDistScale = 256.0;
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
@@ -196,7 +198,13 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = max(texDepth - shadowPos.z, 0.0);
-            shadowSample *= step(shadowBias, shadowDist) * max(1.0 - (shadowDist * far / 8.0), 0.0);
+            shadowSample *= step(shadowBias, shadowDist);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
+
+            float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
+            //shadowDist = max(shadowPos.z - texDepth, 0.0);
+            //shadowSample *= exp(shadowDist * -WaterAbsorbColorInv);
+            //shadowSample *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
+            shadowSample *= step(texDepth, texDepthTrans);
 
             shadowF += shadowSample;
         }

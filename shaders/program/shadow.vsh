@@ -87,6 +87,13 @@ void main() {
     int blockId = int(mc_Entity.x + 0.5);
     if (blockId <= 0) blockId = BLOCK_SOLID;
 
+    #ifndef SHADOW_COLORED
+        if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId != BLOCK_WATER) {
+            gl_Position = vec4(-1.0);
+            return;
+        }
+    #endif
+
     if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
         blockId = blockEntityId;
 
