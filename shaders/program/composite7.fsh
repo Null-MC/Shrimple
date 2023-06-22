@@ -541,21 +541,24 @@ layout(location = 0) out vec4 outFinal;
 
             #if REFRACTION_STRENGTH > 0
                 float refractDist = maxOf(abs(refraction * viewSize));
-                int refractSteps = int(ceil(refractDist));
+                int refractSteps = min(16, int(ceil(refractDist)));
+                vec2 step = refraction / refractSteps;
+                //refraction = step * refractSteps;
 
-                for (int i = 1; i <= min(refractSteps, 16); i++) {
-                    vec2 p = refraction * (i / refractSteps);
-                    float d = textureLod(depthtex1, texcoord + p, 0).r;
+                for (int i = 1; i <= refractSteps; i++) {
+                    float sampleDepth = textureLod(depthtex1, texcoord + i * step, 0).r;
                     
-                    if (d < depth) {
-                        refraction *= max(i - 1.5, 0.0) / refractSteps;
+                    if (sampleDepth < depth) {
+                        refraction = max(i - 2, 0) * step;
+                        //depthOpaque = sampleDepth;
                         break;
                     }
                 }
             #endif
         }
 
-        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
+        float lodOpaque = isWater ? 1.0 : 0.0;
+        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
         depthOpaque = textureLod(depthtex1, texcoord + refraction, 0).r;
 
         #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
