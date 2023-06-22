@@ -23,7 +23,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
         const float vlWaterAmbient = 0.0040;
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.6, 0.76, 0.32);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.05, 0.6, 0.76, 0.32);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
