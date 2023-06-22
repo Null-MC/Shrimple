@@ -179,7 +179,7 @@
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined RENDER_CLOUDS
             float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
-                return F_schlickRough(NoVm, f0, roughL) * (1.0 - sqrt(roughL)) * WorldSkyReflectF;
+                return F_schlickRough(NoVm, f0, roughL);// * (1.0 - sqrt(roughL)) * WorldSkyReflectF;
             }
 
             vec3 GetSkyReflectionColor(const in vec3 reflectDir, const in float skyLight) {
@@ -204,12 +204,12 @@
                     reflectColor = RGBToLinear(reflectColor);
                 #endif
 
-                #if !defined WATER_REFLECTIONS || defined RENDER_OPAQUE_FINAL || defined RENDER_TEXTURED || defined RENDER_WEATHER
-                    float m = skyLight * 0.3;
-                    reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
-                #endif
+                // #if !defined WATER_REFLECTIONS || defined RENDER_OPAQUE_FINAL || defined RENDER_TEXTURED || defined RENDER_WEATHER
+                //     float m = skyLight * 0.3;
+                //     reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
+                // #endif
 
-                return reflectColor;
+                return reflectColor * pow5(skyLight);
             }
 
             void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
@@ -221,7 +221,7 @@
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
                 vec3 reflectColor = GetSkyReflectionColor(reflectLocalDir, skyLight);
 
-                #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_TRANSLUCENT_FINAL
+                #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
                     //if (isWater) {
                         //reflectViewDir = normalize(reflectViewDir);
 

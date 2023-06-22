@@ -92,9 +92,9 @@ const bool colortex15Clear = true;
 // World Options
 #define WORLD_WETNESS_ENABLED
 #define WORLD_WAVING_ENABLED
-#define WORLD_AMBIENT_MODE 1 // [0 1 2]
+//#define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
-#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+//#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_RAIN_OPACITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_SUN_BRIGHTNESS 200 // [10 20 30 40 50 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
@@ -404,7 +404,7 @@ const float WorldSunBrightnessF = WORLD_SUN_BRIGHTNESS * 0.01;
 const float WorldMoonBrightnessF = WORLD_MOON_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WORLD_WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = WORLD_RAIN_OPACITY * 0.01;
-const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
+//const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
 const float WorldFogSkyStartF = WORLD_FOG_SKY_START * 0.01;
 const float WorldFogSkyDensityF = WORLD_FOG_SKY_DENSITY * 0.01;
 const float WorldFogScaleF = WORLD_FOG_SCALE * 0.01;
@@ -558,5 +558,5 @@ void fixNaNs(inout vec3 vec) {
 }
 
 
-const vec3 WaterAbsorbColor = vec3(0.251, 0.616, 0.732);
+const vec3 WaterAbsorbColor = vec3(0.519, 0.864, 0.899);
 vec3 WaterAbsorbColorInv = RGBToLinear(1.0 - WaterAbsorbColor);

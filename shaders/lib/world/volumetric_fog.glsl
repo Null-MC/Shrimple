@@ -14,7 +14,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 }
 
 #ifdef WORLD_WATER_ENABLED
-    const vec3 vlWaterScatterColor = vec3(0.181, 0.363, 0.369);
+    const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
     vec3 vlWaterScatterColorL = RGBToLinear(vlWaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
@@ -23,7 +23,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
         const float vlWaterAmbient = 0.0040;
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.65, 0.76, 0.32);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.07, 0.6, 0.76, 0.32);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -88,8 +88,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
     //int stepCount = VOLUMETRIC_SAMPLES;
-    //int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
-    float inverseStepCountF = rcp(VOLUMETRIC_SAMPLES);
+    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
+    float inverseStepCountF = rcp(stepCount);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
 
@@ -173,10 +173,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
     #endif
 
-    for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
+    for (int i = 0; i <= stepCount; i++) {
         vec3 inScattering = inScatteringBase;
 
-        float iStep = i + dither * step(i, (VOLUMETRIC_SAMPLES-1));
+        float iStep = i + dither * step(i, (stepCount-1));
         //if (i < stepCount) iStep += dither;
 
         vec3 traceLocalPos = localStep * iStep + localStart;

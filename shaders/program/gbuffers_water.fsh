@@ -59,6 +59,11 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    uniform sampler2D depthtex1;
+    uniform sampler2D BUFFER_FINAL;
+#endif
+
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
@@ -101,6 +106,7 @@ uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
 uniform vec3 skyColor;
+uniform float near;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -112,6 +118,13 @@ uniform int fogMode;
 
 uniform float blindness;
 uniform ivec2 eyeBrightnessSmooth;
+
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    uniform mat4 gbufferProjection;
+    uniform mat4 gbufferProjectionInverse;
+    uniform float viewWidth;
+    uniform float viewHeight;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -149,14 +162,14 @@ uniform int heldBlockLightValue2;
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     //uniform ivec2 eyeBrightnessSmooth;
-    uniform float near;
+    //uniform float near;
 #endif
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
+// #if AF_SAMPLES > 1
+//     uniform float viewWidth;
+//     uniform float viewHeight;
+//     uniform vec4 spriteBounds;
+// #endif
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
@@ -173,6 +186,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
@@ -264,6 +278,10 @@ uniform int heldBlockLightValue2;
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
+    #endif
+
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+        #include "/lib/lighting/ssr.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -576,6 +594,16 @@ void main() {
             }
         #endif
 
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            if (isWater) {
+                float f0 = GetMaterialF0(metal_f0);
+                float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+                float skyF = F_schlickRough(skyNoVm, f0, roughL);
+                //color.a = min(color.a + skyF, 1.0);
+                color.a = max(color.a, skyF);
+            }
+        #endif
+
         color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
         color.a = min(color.a + luminance(specularFinal), 1.0);
 
@@ -618,12 +646,25 @@ void main() {
         #endif
 
         #ifdef VL_BUFFER_ENABLED
+            VolumetricPhaseFactors phaseF;
+            if (isEyeInWater == 1) phaseF = WaterPhaseF;
+            else phaseF = GetVolumetricPhaseFactors();
+
             #ifndef IRIS_FEATURE_SSBO
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
+            // if (isEyeInWater != 1 && vBlockId == BLOCK_WATER) {
+            //     // TODO: get opaque pos
+            //     float farMax = min(length(vPos) - 0.05, far);
+
+            //     float waterDist = length(vPos);
+            //     vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, waterDist, farMax);
+            //     color.rgb += vlScatterTransmit.rgb * (1.0 - color.a);
+            // }
+
             float farMax = min(length(vPos) - 0.05, far);
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
+            vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

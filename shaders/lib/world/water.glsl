@@ -21,8 +21,8 @@ const float WATER_NORMAL_STRENGTH = 0.5;
     const float WATER_SPEED = 3.0;
 #elif WORLD_WATER_WAVES == 1
     #define WATER_ITERATIONS_FRAGMENT 12
-    const float WATER_XZ_SCALE = 0.48;
-    const float WATER_WAVE_HEIGHT = 0.2;
+    const float WATER_XZ_SCALE = 0.36;
+    const float WATER_WAVE_HEIGHT = 0.14;
     const float WATER_SPEED = 4.0;
 #endif
 

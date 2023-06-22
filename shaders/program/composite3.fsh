@@ -67,7 +67,7 @@ uniform float blindness;
     uniform mat4 gbufferPreviousProjection;
 #endif
 
-#ifdef WATER_REFLECTIONS
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
 #endif
 
@@ -164,7 +164,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#ifdef WATER_REFLECTIONS
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     #include "/lib/lighting/ssr.glsl"
 #endif
 

@@ -33,7 +33,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 gbufferPreviousProjection;
 #endif
 
-#ifdef WATER_REFLECTIONS
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
 #endif
 
