@@ -575,8 +575,10 @@ layout(location = 0) out vec4 outFinal;
 
         //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
         float lodOpaque = 0.0;
-        if (isWater) lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
-        else lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
+        #ifdef REFRACTION_BLUR
+            if (isWater) lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
+            else lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
+        #endif
 
         vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
 
