@@ -303,6 +303,7 @@ layout(location = 0) out vec4 outFinal;
         fogColorFinal = RGBToLinear(fogColorFinal);
 
         bool isWater = false;
+        float roughness = 1.0;
         vec3 texNormal;
 
         if (deferredColor.a > (0.5/255.0)) {
@@ -344,9 +345,11 @@ layout(location = 0) out vec4 outFinal;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-                float roughL = _pow2(deferredRoughMetalF0.r);
+                roughness = deferredRoughMetalF0.r;
                 float metal_f0 = deferredRoughMetalF0.g;
+                float roughL = _pow2(roughness);
             #else
+                //const float roughness = 1.0;
                 const float roughL = 1.0;
                 const float metal_f0 = 0.04;
             #endif
@@ -567,10 +570,13 @@ layout(location = 0) out vec4 outFinal;
             vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
         #endif
 
-        float waterDist = isEyeInWater == 1 ? viewDist :
+        float transDepth = isEyeInWater == 1 ? viewDist :
             max(length(localPosOpaque) - viewDist, 0.0);
-        
-        float lodOpaque = 4.0 * float(isWater) * min(waterDist / 20.0, 1.0);
+
+        //float lodOpaque = 4.0 * float(isWater) * min(waterDist / 20.0, 1.0);
+        float lodOpaque = 0.0;
+        if (isWater) lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
+        else lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
 
         vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
 
