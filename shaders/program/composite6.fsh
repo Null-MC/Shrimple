@@ -157,7 +157,7 @@ void main() {
     #endif
 
     vec3 localViewDir = normalize(localPos);
-    float distTranslucent = min(length(localPos), far);
+    float distTranslucent = clamp(length(localPos), near, far);
 
     #ifdef WORLD_WATER_ENABLED
         VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors();

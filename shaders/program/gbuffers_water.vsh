@@ -176,7 +176,8 @@ void main() {
         if (vBlockId == BLOCK_WATER) {
             vec4 finalPosition = gl_Vertex;
 
-            float distF = min(length(vPos) * 0.3, 1.0);
+            float distF = saturate((length(vPos) - 1.0) * 0.5);
+            distF = smoothstep(0.0, 1.0, distF);
 
             #ifdef PHYSICS_OCEAN
                 physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;

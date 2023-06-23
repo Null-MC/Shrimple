@@ -526,31 +526,6 @@ layout(location = 0) out vec4 outFinal;
             #endif
         }
         
-        // if (isEyeInWater != 1 && isWater) {
-        //     float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
-        //     opaqueFinal *= exp(waterDist * -WaterAbsorbColorInv);
-        // }
-
-        // #ifdef VL_BUFFER_ENABLED
-        //     #ifdef VOLUMETRIC_BLUR
-        //         const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-
-        //         #if VOLUMETRIC_RES == 2
-        //             const vec2 vlSigma = vec2(1.0, 0.00001);
-        //         #elif VOLUMETRIC_RES == 1
-        //             const vec2 vlSigma = vec2(1.0, 0.00001);
-        //         #else
-        //             const vec2 vlSigma = vec2(1.2, 0.00002);
-        //         #endif
-
-        //         vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaque, vlSigma);
-        //     #else
-        //         vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
-        //     #endif
-
-        //     final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        // #endif
-
         outFinal = vec4(final, 1.0);
     }
 #else
