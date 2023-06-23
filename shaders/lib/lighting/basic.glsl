@@ -179,6 +179,7 @@
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined RENDER_CLOUDS
             float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
+                //float roughness = sqrt(roughL);
                 return F_schlickRough(NoVm, f0, roughL) * (1.0 - roughL);// * WorldSkyReflectF;
             }
 

@@ -52,6 +52,8 @@ uniform float far;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
 uniform int isEyeInWater;
 
 uniform mat4 shadowModelView;
@@ -127,6 +129,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
     #include "/lib/world/sky.glsl"
+    #include "/lib/world/fog.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded.glsl"

@@ -54,6 +54,9 @@ suffix.WORLD_SUN_BRIGHTNESS=%
 option.WORLD_MOON_BRIGHTNESS=Moon Light
 suffix.WORLD_MOON_BRIGHTNESS=%
 
+option.WORLD_SKY_BRIGHTNESS=Sky
+suffix.WORLD_SKY_BRIGHTNESS=%
+
 
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.

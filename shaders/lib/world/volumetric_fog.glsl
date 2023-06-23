@@ -132,12 +132,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
+            //vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
 
-        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        vec3 skyLightColor = GetCustomSkyFogColor(sunDir.y);
         skyLightColor *= smoothstep(0.0, 0.06, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 

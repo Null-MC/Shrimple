@@ -13,9 +13,9 @@ float GetFogFactor(const in float dist, const in float start, const in float end
     vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
         #ifdef WORLD_SKY_ENABLED
             float fogF = fogify(max(viewUpF, 0.0), 0.06);
-            return mix(skyColor, fogColor, fogF);
+            return mix(skyColor, fogColor, fogF) * WorldSkyBrightnessF;
         #else
-            return fogColorFinal;
+            return fogColorFinal * WorldSkyBrightnessF;
         #endif
     }
 #endif
@@ -58,7 +58,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         vec3 GetCustomSkyFogColor(const in float sunUpF) {
             const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.65;
             const vec3 colorNight   = RGBToLinear(vec3(0.096, 0.081, 0.121));
-            const vec3 colorDay     = RGBToLinear(vec3(0.657, 0.719, 0.753));
+            const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914));
 
             float dayF = smoothstep(-0.1, 0.3, sunUpF);
             vec3 color = mix(colorNight, colorDay, dayF);
