@@ -573,7 +573,7 @@ layout(location = 0) out vec4 outFinal;
         float transDepth = isEyeInWater == 1 ? viewDist :
             max(length(localPosOpaque) - viewDist, 0.0);
 
-        //float lodOpaque = 4.0 * float(isWater) * min(waterDist / 20.0, 1.0);
+        //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
         float lodOpaque = 0.0;
         if (isWater) lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
         else lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
@@ -586,8 +586,8 @@ layout(location = 0) out vec4 outFinal;
 
         #ifndef VL_BUFFER_ENABLED
             if (isEyeInWater != 1 && isWater) {
-                //float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
-                opaqueFinal *= exp(waterDist * -WaterAbsorbColorInv);
+                //float transDepth = max(length(localPosOpaque) - viewDist, 0.0);
+                opaqueFinal *= exp(transDepth * -WaterAbsorbColorInv);
             }
         #endif
 
