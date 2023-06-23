@@ -16,13 +16,13 @@ const float WATER_NORMAL_STRENGTH = 0.5;
     const float WATER_SPEED = 2.0;
 #elif WORLD_WATER_WAVES == 2
     #define WATER_ITERATIONS_FRAGMENT 16
-    const float WATER_XZ_SCALE = 0.16;
-    const float WATER_WAVE_HEIGHT = 0.4;
-    const float WATER_SPEED = 3.0;
+    const float WATER_XZ_SCALE = 0.20;
+    const float WATER_WAVE_HEIGHT = 0.3;
+    const float WATER_SPEED = 2.4;
 #elif WORLD_WATER_WAVES == 1
     #define WATER_ITERATIONS_FRAGMENT 12
     const float WATER_XZ_SCALE = 0.36;
-    const float WATER_WAVE_HEIGHT = 0.14;
+    const float WATER_WAVE_HEIGHT = 0.15;
     const float WATER_SPEED = 4.0;
 #endif
 

@@ -115,7 +115,9 @@ ivec3 GetLPVVoxelOffset() {
     return voxelOrigin - lpvOrigin;
 }
 
-vec3 GetLpvValue(const in ivec3 texCoord) {
+vec3 GetLpvValue(in ivec3 texCoord) {
+    if (clamp(texCoord, ivec3(0), SceneLPVSize) != texCoord) return vec3(0.0);
+
     return (frameCounter % 2) == 0
         ? imageLoad(imgSceneLPV_2, texCoord).rgb
         : imageLoad(imgSceneLPV_1, texCoord).rgb;

@@ -557,15 +557,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
         }
 
-        float lodOpaque = isWater ? 1.0 : 0.0;
-        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
         depthOpaque = textureLod(depthtex1, texcoord + refraction, 0).r;
-
-        #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
-            if (tir) opaqueFinal = fogColorFinal;
-        #endif
-
-        vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+        vec3 clipPosOpaque = vec3(texcoord + refraction, depthOpaque) * 2.0 - 1.0;
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
@@ -574,9 +567,20 @@ layout(location = 0) out vec4 outFinal;
             vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
         #endif
 
+        float waterDist = isEyeInWater == 1 ? viewDist :
+            max(length(localPosOpaque) - viewDist, 0.0);
+        
+        float lodOpaque = 4.0 * float(isWater) * min(waterDist / 20.0, 1.0);
+
+        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
+
+        #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
+            if (tir) opaqueFinal = fogColorFinal;
+        #endif
+
         #ifndef VL_BUFFER_ENABLED
             if (isEyeInWater != 1 && isWater) {
-                float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
+                //float waterDist = max(length(localPosOpaque) - viewDist, 0.0);
                 opaqueFinal *= exp(waterDist * -WaterAbsorbColorInv);
             }
         #endif

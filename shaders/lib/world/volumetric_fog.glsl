@@ -39,14 +39,14 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float density = densityF * VolumetricDensityF;
 
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = mix(0.0016, 0.006, eyeBrightness) * densityF;
+        result.Ambient = mix(0.0016, 0.02, eyeBrightness) * densityF;
 
         result.Forward = mix(0.46, 0.26, rainStrength);
-        result.Back = mix(0.32, 0.16, rainStrength);
-        result.Direction = 0.75;
+        result.Back = mix(0.12, 0.16, rainStrength);
+        result.Direction = 0.4;
 
-        result.ScatterF = vec3(mix(0.028, 0.14, rainStrength) * density);
-        result.ExtinctF = mix(0.005, 0.024, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.036, 0.14, rainStrength) * density);
+        result.ExtinctF = mix(0.004, 0.024, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 
@@ -147,7 +147,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     #endif
 
     float localStepLength = localRayLength * inverseStepCountF;
-    float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
+    //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
     vec3 inScatteringBase = vec3(phaseF.Ambient);// * RGBToLinear(fogColor);
@@ -312,8 +312,11 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        inScattering *= phaseF.ScatterF;
 
+        float sampleDensity = 1.0 - smoothstep(62.0, 224.0, traceLocalPos.y + cameraPosition.y);
+
+        inScattering *= phaseF.ScatterF * sampleDensity;
+        float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);
         vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) * extinctionInv;
 
         scattering += scatteringIntegral * transmittance;
