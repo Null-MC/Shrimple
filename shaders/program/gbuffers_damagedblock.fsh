@@ -28,18 +28,22 @@ flat in mat2 atlasBounds;
 
 uniform sampler2D gtexture;
 //uniform sampler2D noisetex;
+uniform sampler2D depthtex0;
 
 #if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || MATERIAL_PARALLAX != PARALLAX_NONE || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
     uniform sampler2D normals;
 #endif
 
 uniform ivec2 atlasSize;
+uniform float near;
+uniform float far;
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
 
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/sampling/depth.glsl"
 #include "/lib/utility/tbn.glsl"
 
 //#include "/lib/material/normalmap.glsl"
@@ -84,7 +88,11 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    if (color.a < alphaTestRef) {
+    float depthOpaque = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    float depthOpaqueLinear = linearizeDepthFast(depthOpaque, near, far);
+    float depthLinear = rcp(gl_FragCoord.w);
+
+    if (color.a < alphaTestRef || abs(depthLinear - depthOpaqueLinear) > 0.2) {
         discard;
         return;
     }

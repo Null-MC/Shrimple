@@ -15,10 +15,10 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 
 #ifdef WORLD_WATER_ENABLED
     const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
-    vec3 vlWaterScatterColorL = RGBToLinear(vlWaterScatterColor);
+    vec3 vlWaterScatterColorL = 3.0*RGBToLinear(vlWaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
-        float vlWaterAmbient = mix(0.0060, 0.0002, rainStrength);
+        float vlWaterAmbient = mix(0.018, 0.0002, rainStrength);
     #else
         const float vlWaterAmbient = 0.0040;
     #endif
@@ -38,8 +38,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float densityF = (1.0 - dayHalfDensity) - dayHalfDensity * dayF;
         float density = densityF * VolumetricDensityF;
 
-        float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = mix(0.008, 0.08, eyeBrightness) * densityF;
+        //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
+        result.Ambient = 0.08 * densityF;
 
         result.Forward = mix(0.46, 0.26, rainStrength);
         result.Back = mix(0.12, 0.16, rainStrength);
@@ -151,6 +151,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float extinctionInv = rcp(phaseF.ExtinctF);
 
     vec3 inScatteringBase = vec3(phaseF.Ambient) * skyLightColor;// * RGBToLinear(fogColor);
+
+    #ifdef WORLD_SKY_ENABLED
+        inScatteringBase *= eyeBrightnessSmooth.y / 240.0;
+    #endif
 
     // #ifdef WORLD_SKY_ENABLED
     //     float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
@@ -305,7 +309,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                     lpvLight /= 16.0 * LpvRangeF;
                     lpvLight /= 8.0 + luminance(lpvLight);
 
-                    blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
+                    blockLightAccum += 0.025 * lpvLight * GetLpvFade(lpvPos);
                 //}
             #endif
 
@@ -313,7 +317,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         #endif
 
 
-        float sampleDensity = 1.0 - smoothstep(62.0, 224.0, traceLocalPos.y + cameraPosition.y);
+        //float sampleDensity = 1.0 - smoothstep(68.0, 224.0, traceLocalPos.y + cameraPosition.y);
+        float sampleDensity = (traceLocalPos.y + cameraPosition.y - 68.0) / (264.0 - 68.0);
+        sampleDensity = 1.0 - saturate(sampleDensity);
+        sampleDensity = _pow2(sampleDensity);
 
         inScattering *= phaseF.ScatterF * sampleDensity;
         float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);

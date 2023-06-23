@@ -210,7 +210,7 @@
                 //     reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
                 // #endif
 
-                return reflectColor * pow(skyLight, 8.0);
+                return reflectColor * pow(skyLight, 5.0);
             }
 
             void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {

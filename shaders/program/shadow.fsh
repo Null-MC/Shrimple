@@ -46,7 +46,7 @@ void main() {
 
 	if (gBlockId == BLOCK_WATER) {
 	    #if WORLD_WATER_TEXTURE == WATER_COLORED
-	        color.rgb = 0.4 * gColor.rgb;
+	        color.rgb = RGBToLinear(vec3(0.90, 0.94, 0.96));//gColor.rgb);
 	        color.a = 0.7;
 	    #endif
 
