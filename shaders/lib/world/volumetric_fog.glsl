@@ -39,14 +39,14 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float density = densityF * VolumetricDensityF;
 
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = mix(0.0016, 0.08, eyeBrightness) * densityF;
+        result.Ambient = mix(0.008, 0.08, eyeBrightness) * densityF;
 
         result.Forward = mix(0.46, 0.26, rainStrength);
         result.Back = mix(0.12, 0.16, rainStrength);
         result.Direction = 0.4;
 
-        result.ScatterF = vec3(mix(0.036, 0.10, rainStrength) * density);
-        result.ExtinctF = mix(0.004, 0.032, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.09, 0.10, rainStrength) * density);
+        result.ExtinctF = mix(0.006, 0.032, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 
@@ -87,13 +87,13 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float localRayLength = max(farDist - nearDist - 0.2, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
+    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+
     //int stepCount = VOLUMETRIC_SAMPLES;
-    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2))) + 2;
+    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
     float inverseStepCountF = rcp(stepCount);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
-
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
     #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifdef IRIS_FEATURE_SSBO
@@ -132,7 +132,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-            //vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
+            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
@@ -150,7 +150,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
-    vec3 inScatteringBase = vec3(phaseF.Ambient);// * RGBToLinear(fogColor);
+    vec3 inScatteringBase = vec3(phaseF.Ambient) * skyLightColor;// * RGBToLinear(fogColor);
 
     // #ifdef WORLD_SKY_ENABLED
     //     float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
