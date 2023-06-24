@@ -126,18 +126,21 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/buffers/shadow.glsl"
+#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/buffers/shadow.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded.glsl"
+            #include "/lib/shadows/cascaded_render.glsl"
+        #else
+            #include "/lib/shadows/basic.glsl"
+            #include "/lib/shadows/basic_render.glsl"
+        #endif
+    #endif
+
     #include "/lib/world/sky.glsl"
     #include "/lib/world/fog.glsl"
-
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded.glsl"
-        #include "/lib/shadows/cascaded_render.glsl"
-    #else
-        #include "/lib/shadows/basic.glsl"
-        #include "/lib/shadows/basic_render.glsl"
-    #endif
 #endif
 
 #include "/lib/world/volumetric_fog.glsl"

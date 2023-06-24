@@ -95,7 +95,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
 
-    #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifdef IRIS_FEATURE_SSBO
             vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
             vec3 shadowViewEnd = (shadowModelViewEx * vec4(localEnd, 1.0)).xyz;
@@ -129,7 +129,9 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
             vec3 shadowClipStep = (shadowClipEnd - shadowClipStart) * inverseStepCountF;
         #endif
+    #endif
         
+    #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
             vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
@@ -137,7 +139,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
         float VoL = dot(-localSkyLightDirection, -localViewDir);
 
-        vec3 skyLightColor = GetCustomSkyFogColor(sunDir.y);
+        #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 skyLightColor = GetCustomSkyFogColor(sunDir.y);
+        #else
+            vec3 skyLightColor = RGBToLinear(fogColor);
+        #endif
+
         skyLightColor *= smoothstep(0.0, 0.06, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 
@@ -150,10 +157,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
-    vec3 inScatteringBase = vec3(phaseF.Ambient) * skyLightColor;// * RGBToLinear(fogColor);
+    vec3 inScatteringBase = vec3(phaseF.Ambient);// * RGBToLinear(fogColor);
 
     #ifdef WORLD_SKY_ENABLED
-        inScatteringBase *= eyeBrightnessSmooth.y / 240.0;
+        inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
     #endif
 
     // #ifdef WORLD_SKY_ENABLED
