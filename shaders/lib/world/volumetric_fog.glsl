@@ -15,7 +15,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 
 #ifdef WORLD_WATER_ENABLED
     const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
-    vec3 vlWaterScatterColorL = 3.0*RGBToLinear(vlWaterScatterColor);
+    vec3 vlWaterScatterColorL = 6.0*RGBToLinear(vlWaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
         float vlWaterAmbient = mix(0.018, 0.0002, rainStrength);
