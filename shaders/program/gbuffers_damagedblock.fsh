@@ -104,7 +104,7 @@ void main() {
         color.rgb = vec3(WHITEWORLD_VALUE);
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);
+    color.rgb = vec3(1.0);//RGBToLinear(color.rgb);
 
     outFinal = color;
 }

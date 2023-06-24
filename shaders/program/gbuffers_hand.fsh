@@ -70,7 +70,11 @@ uniform sampler2D lightmap;
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
+            #ifdef RENDER_TRANSLUCENT
+                uniform sampler2DShadow shadowtex0HW;
+            #else
+                uniform sampler2DShadow shadowtex1HW;
+            #endif
         #else
             uniform sampler2DShadow shadow;
         #endif

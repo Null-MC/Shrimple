@@ -47,7 +47,7 @@ uniform sampler2D lightmap;
     #endif
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
+        uniform sampler2DShadow shadowtex1HW;
     #endif
 #endif
 

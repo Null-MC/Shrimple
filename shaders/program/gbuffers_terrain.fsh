@@ -80,7 +80,7 @@ uniform sampler2D noisetex;
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex0HW;
+            uniform sampler2DShadow shadowtex1HW;
         #else
             uniform sampler2DShadow shadow;
         #endif

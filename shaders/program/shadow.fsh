@@ -57,6 +57,10 @@ void main() {
 		color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
 	#endif
 
+    #ifndef SHADOW_COLORED
+    	if (gBlockId == BLOCK_WATER) color.a = 0.0;
+    #endif
+
 	color.rgb = LinearToRGB(color.rgb);
 	
 	outColor0 = color;
