@@ -83,7 +83,7 @@
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
 
                 //lpvLight *= rcp(256.0);
-                lpvLight /= 256.0 + luminance(lpvLight);
+                lpvLight /= 64.0 + luminance(lpvLight);
                 //lpvLight /= 8.0 + luminance(lpvLight);
                 //lpvLight /= LpvRangeF;
 
@@ -205,10 +205,10 @@
                     reflectColor = RGBToLinear(reflectColor);
                 #endif
 
-                // #if !defined WATER_REFLECTIONS || defined RENDER_OPAQUE_FINAL || defined RENDER_TEXTURED || defined RENDER_WEATHER
-                //     float m = skyLight * 0.3;
-                //     reflectColor *= smoothstep(-0.6, 1.0, reflectDir.y) * (1.0 - m) + m;
-                // #endif
+                //#if defined RENDER_OPAQUE_FINAL || defined RENDER_TEXTURED || defined RENDER_WEATHER
+                    float m = skyLight * 0.25;
+                    reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
+                //#endif
 
                 return reflectColor * pow(skyLight, 5.0);
             }
@@ -384,19 +384,22 @@
 
                 vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
-                #if LPV_LIGHTMAP_MIX != 100
+                #if LPV_LIGHTMAP_MIX != 100 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF) * lpvFade;
+                    lpvLight *= 1.0 - LpvLightmapMixF;
                 #endif
                 
                 ambientLight += lpvLight * lpvFade;
             #endif
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                ambientLight += WorldMinLightF;
+                //ambientLight += WorldMinLightF;
                 ambientLight *= DynamicLightAmbientF;
+
+                ambientLight *= occlusion;
             #endif
 
-            accumDiffuse += ambientLight * occlusion;// * roughL;
+            accumDiffuse += ambientLight;// * roughL;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 if (metal_f0 >= 0.5) {
@@ -471,7 +474,7 @@
     #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         vec3 GetFinalLighting(const in vec3 albedo, const in vec3 diffuse, const in vec3 specular, const in float occlusion) {
             // TODO: handle specular occlusion
-            return albedo * diffuse + specular * _pow3(occlusion);
+            return albedo * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
         }
     #endif
 #endif

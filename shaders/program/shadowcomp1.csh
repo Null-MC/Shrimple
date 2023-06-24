@@ -199,9 +199,10 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             //shadowSample = 0.25 + 0.75 * shadowSample;
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
-            float shadowDist = max(texDepth - shadowPos.z, 0.0);
-            shadowSample *= step(shadowBias, shadowDist);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
+            float shadowDist = texDepth - shadowPos.z;
+            shadowSample *= step(shadowBias, shadowDist) * max(1.0 - abs(shadowDist * shadowDistScale) * 0.25, 0.0);
 
+            // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
             //shadowSample *= exp(shadowDist * -WaterAbsorbColorInv);
