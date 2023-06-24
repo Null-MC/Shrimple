@@ -166,12 +166,14 @@ void main() {
     float distTranslucent = clamp(length(localPos), near, far);
 
     #ifdef WORLD_WATER_ENABLED
-        VolumetricPhaseFactors phaseF = isEyeInWater == 1 ? WaterPhaseF : GetVolumetricPhaseFactors();
+        bool isWater = isEyeInWater == 1;
+        VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
     #else
         VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
+        const bool isWater = false;
     #endif
 
-    vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, distTranslucent);
+    vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, distTranslucent, isWater);
 
     outVL = final;
 }

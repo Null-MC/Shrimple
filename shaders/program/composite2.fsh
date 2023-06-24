@@ -177,21 +177,23 @@ void main() {
         float distTranslucent = clamp(length(localPosTranslucent), near, far);
         VolumetricPhaseFactors phaseF;
 
+        bool isWater = false;
         #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater == 1) phaseF = GetVolumetricPhaseFactors();
-            else {
+            if (isEyeInWater != 1) {
                 vec2 viewSize = vec2(viewWidth, viewHeight);
                 ivec2 iTex = ivec2(texcoord * viewSize);
+                
                 uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
                 float deferredWater = unpackUnorm4x8(deferredDataA).a;
-
-                phaseF = deferredWater < 0.5 ? WaterPhaseF : GetVolumetricPhaseFactors();
+                isWater = deferredWater < 0.5;
             }
+
+            phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
         #else
             phaseF = GetVolumetricPhaseFactors();
         #endif
 
-        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque);
+        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque, isWater);
     }
 
     outVL = final;

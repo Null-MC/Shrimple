@@ -1,5 +1,9 @@
-float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {
-    return texture(shadowtex1, shadowPos + offset).r;
+float SampleDepth(const in vec2 shadowPos) {
+    #ifdef RENDER_TRANSLUCENT
+        return texture(shadowtex0, shadowPos).r;
+    #else
+        return texture(shadowtex1, shadowPos).r;
+    #endif
 }
 
 // returns: [0] when depth occluded, [1] otherwise
@@ -11,12 +15,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return texture(shadowtex1HW, shadowPos + vec3(offset, -bias)).r;
         #endif
     #else
-        #ifdef RENDER_TRANSLUCENT
-            float texDepth = texture(shadowtex0, shadowPos.xy + offset).r;
-        #else
-            float texDepth = texture(shadowtex1, shadowPos.xy + offset).r;
-        #endif
-
+        float texDepth = SampleDepth(shadowPos.xy + offset);
         return step(shadowPos.z - bias, texDepth);
     #endif
 }
@@ -111,12 +110,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
             vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
 
-            #ifdef SHADOW_COLORED
-                float texDepth = texture(shadowtex1, shadowPos.xy + pixelOffset).r;
-            #else
-                float texDepth = texture(shadowtex0, shadowPos.xy + pixelOffset).r;
-            #endif
-
+            float texDepth = SampleDepth(shadowPos.xy + pixelOffset);
             float hitDist = max((shadowPos.z - bias) - texDepth, 0.0);
 
             avgBlockerDistance += hitDist * (2.0 * far);
