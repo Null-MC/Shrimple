@@ -15,10 +15,10 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 
 #ifdef WORLD_WATER_ENABLED
     const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
-    vec3 vlWaterScatterColorL = 8.0*RGBToLinear(vlWaterScatterColor);
+    vec3 vlWaterScatterColorL = 7.0*RGBToLinear(vlWaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
-        float vlWaterAmbient = mix(0.018, 0.0002, rainStrength);
+        float vlWaterAmbient = mix(0.05, 0.0002, rainStrength);
     #else
         const float vlWaterAmbient = 0.0040;
     #endif
@@ -225,7 +225,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
                 texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (512.0);
+                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (256.0);
             #endif
 
             #ifdef SHADOW_COLORED

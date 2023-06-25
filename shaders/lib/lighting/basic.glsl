@@ -472,7 +472,11 @@
     #endif
 
     #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 diffuse, const in vec3 specular, const in float occlusion) {
+        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 diffuse, const in vec3 specular, in float occlusion) {
+            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+                //occlusion = 0.5 + 0.5 * occlusion;
+            #endif
+
             // TODO: handle specular occlusion
             return albedo * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
         }

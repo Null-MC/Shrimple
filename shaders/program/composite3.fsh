@@ -328,6 +328,10 @@ layout(location = 0) out vec4 outFinal;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
 
+            float skyLightF = saturate(luminance(deferredShadow) * 10.0);
+            //skyLightF = max(skyLightF, deferredLighting.y);
+            occlusion = max(occlusion, skyLightF);
+
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
 
@@ -502,8 +506,8 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            float shadowF = min(luminance(deferredShadow), 1.0);
-            occlusion = max(occlusion, shadowF);
+            //float shadowF = min(luminance(deferredShadow), 1.0);
+            //occlusion = max(occlusion, shadowF);
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
