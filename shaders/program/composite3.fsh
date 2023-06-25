@@ -329,7 +329,7 @@ layout(location = 0) out vec4 outFinal;
             float sss = deferredNormal.a;
 
             float skyLightF = saturate(luminance(deferredShadow) * 10.0);
-            //skyLightF = max(skyLightF, deferredLighting.y);
+            skyLightF = max(skyLightF, _pow3(deferredLighting.y)*0.7);
             occlusion = max(occlusion, skyLightF);
 
             vec3 blockDiffuse = vec3(0.0);
