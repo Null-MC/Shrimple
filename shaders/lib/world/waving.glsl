@@ -90,7 +90,7 @@ float GetWavingRange(const in int blockId, out uint attachment) {
             break;
     }
 
-    if (blockId == BLOCK_LEAVES) range = 0.06;
+    if (blockId == BLOCK_LEAVES || blockId == BLOCK_LEAVES_CHERRY) range = 0.06;
 
     return range;
 }

@@ -1,7 +1,7 @@
 bool IsFoliageBlock(const in int blockId) {
     bool result = false;
 
-    if (blockId == BLOCK_LEAVES) result = true;
+    if (blockId == BLOCK_LEAVES || blockId == BLOCK_LEAVES_CHERRY) result = true;
 
     switch (blockId) {
         case BLOCK_ALLIUM:
