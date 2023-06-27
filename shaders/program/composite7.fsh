@@ -623,7 +623,7 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        #ifndef VL_BUFFER_ENABLED
+        #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater != 1 && isWater) {
                 //float transDepth = max(length(localPosOpaque) - viewDist, 0.0);
                 opaqueFinal *= exp(transDepth * -WaterAbsorbColorInv);
@@ -707,9 +707,11 @@ layout(location = 0) out vec4 outFinal;
         //     }
         // #endif
 
-        if (isEyeInWater == 1) {
-            final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
-        }
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater == 1) {
+                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+            }
+        #endif
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             float fogF = 0.0;
