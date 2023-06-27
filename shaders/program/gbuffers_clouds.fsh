@@ -182,6 +182,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
     #include "/lib/lighting/basic.glsl"
 
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
+
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/world/volumetric_fog.glsl"
     #endif

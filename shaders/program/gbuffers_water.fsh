@@ -648,9 +648,12 @@ void main() {
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            VolumetricPhaseFactors phaseF;
-            if (isEyeInWater == 1) phaseF = WaterPhaseF;
-            else phaseF = GetVolumetricPhaseFactors();
+            #ifdef WORLD_WATER_ENABLED
+                VolumetricPhaseFactors phaseF = (isEyeInWater == 1)
+                    ? WaterPhaseF : GetVolumetricPhaseFactors();
+            #else
+                VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
+            #endif
 
             #ifndef IRIS_FEATURE_SSBO
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);

@@ -344,11 +344,16 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
 vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
     bool isWater = false;
-    #if defined WORLD_WATER_ENABLED && !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
-        if (isEyeInWater == 1) isWater = true;
-    #endif
+    
+    #ifdef WORLD_WATER_ENABLED
+        #if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
+            if (isEyeInWater == 1) isWater = true;
+        #endif
 
-    VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
+        VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
+    #else
+        VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
+    #endif
 
     return GetVolumetricLighting(phaseF, localViewDir, sunDir, nearDist, farDist, isWater);
 }

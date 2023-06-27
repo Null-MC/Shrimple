@@ -24,7 +24,7 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowtex1;
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
+        uniform sampler2DShadow shadowtex1HW;
     #endif
 
     #ifdef SHADOW_COLORED
@@ -123,6 +123,10 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/lighting/voxel/lpv_render.glsl"
         #endif
     #endif
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
 #endif
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
