@@ -263,7 +263,7 @@ void main() {
 
                     vec3 lightValue = vec3(0.0);
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
                         uint lightType = GetSceneLightType(int(blockId));
                         if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                             StaticLightData lightInfo = StaticLightMap[lightType];
@@ -317,7 +317,7 @@ void main() {
                                 lightValue += skyLightColor * shadowF;
                             #endif
                         }
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
                         }
                     #endif
 

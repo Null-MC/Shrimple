@@ -51,6 +51,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #include "/lib/sampling/bilateral_gaussian.glsl"
 #include "/lib/world/volumetric_blur.glsl"
 

@@ -67,10 +67,9 @@ option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from 
 screen.DYNAMIC_LIGHT_OPTIONS=Освещение блоков
 
 option.DYN_LIGHT_MODE=Mode
-value.DYN_LIGHT_MODE.0=По умолчанию
-value.DYN_LIGHT_MODE.1=Per-Vertex
-value.DYN_LIGHT_MODE.2=Per-Pixel
-value.DYN_LIGHT_MODE.3=Patch-Traced
+value.DYN_LIGHT_MODE.0=LightMap
+value.DYN_LIGHT_MODE.1=LPV
+value.DYN_LIGHT_MODE.2=Ray-Traced
 
 option.DYN_LIGHT_BRIGHTNESS=Яркость
 option.DYN_LIGHT_BRIGHTNESS.comment=Яркость динамических источников освещения.

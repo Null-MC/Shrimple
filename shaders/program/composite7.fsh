@@ -153,6 +153,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/sky.glsl"
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 
@@ -574,11 +578,43 @@ layout(location = 0) out vec4 outFinal;
             max(length(localPosOpaque) - viewDist, 0.0);
 
         //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
+        float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
+
         float lodOpaque = 0.0;
         #ifdef REFRACTION_BLUR
-            if (isWater) lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
-            else lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
+            if (isWater)
+                lodOpaque = maxLod * min(min(viewDist, transDepth) / 12.0, 1.0);
+            else if (isEyeInWater != 1)
+                lodOpaque = maxLod * roughness * min(transDepth / 12.0, 1.0);
         #endif
+
+        // #ifdef WATER_BLUR
+        //     if (isWater) {
+        //         lodOpaque = maxLod * min(transDepth / 20.0, 1.0);
+        //     }
+        // #endif
+
+        // #if defined REFRACTION_BLUR || defined WATER_BLUR
+        //     if (isEyeInWater != 1) {
+        //         //
+        //     }
+
+        //     if (isWater && isEyeInWater != 1) {
+        //         #ifdef WATER_BLUR
+        //             lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
+        //         #endif
+        //     }
+        //     // if (isWater && isEyeInWater != 1) {
+        //     //     #ifdef WATER_BLUR
+        //     //         lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
+        //     //     #endif
+        //     // }
+        //     // else {
+        //     //     #ifdef REFRACTION_BLUR
+        //     //         lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
+        //     //     #endif
+        //     // }
+        // #endif
 
         vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
 

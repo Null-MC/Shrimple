@@ -140,6 +140,12 @@ const bool colortex15Clear = true;
 #define MATERIAL_REFLECTIONS 1 // [0 1 2]
 //#define MATERIAL_PARTICLES
 
+#define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
+#define REFRACTION_BLUR
+
+#define SSR_QUALITY 1 // [2 1 0]
+#define SSR_MAXSTEPS 256 // [64 128 256 384 512]
+
 
 // Shadow Options
 #define SHADOW_TYPE 2 // [0 2 3]
@@ -170,17 +176,16 @@ const bool colortex15Clear = true;
 
 
 // Dynamic Lighting
-#define DYN_LIGHT_MODE 0 // [0 2 3]
+#define DYN_LIGHT_MODE 0 // [0 1 2]
 #define DYN_LIGHT_TYPE 0 // [0 1]
 #define DYN_LIGHT_COLOR_MODE 0 // [0 1]
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define DYN_LIGHT_DIRECTIONAL 100 // [0 10 20 30 40 50 60 70 80 90 100]
 #define DYN_LIGHT_AMBIENT 35 // [0 2 4 6 8 10 12 14 16 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define DYN_LIGHT_RES 2 // [0 1 2]
+#define DYN_LIGHT_RES 2 // [2 1 0]
 #define LIGHT_BIN_MAX_COUNT 128 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
@@ -206,7 +211,7 @@ const bool colortex15Clear = true;
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT
 #define LPV_BRIGHT_SUN 512.0
-#define LPV_BRIGHT_MOON 8.0
+#define LPV_BRIGHT_MOON 2.0
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -226,7 +231,7 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_BLOCK_RANGE 50 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
 #define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800 1000]
-#define VOLUMETRIC_RES 0 // [0 1 2]
+#define VOLUMETRIC_RES 0 // [2 1 0]
 #define VOLUMETRIC_BRIGHT_SKY   0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_BRIGHT_BLOCK 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_BLUR
@@ -253,8 +258,7 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
-#define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
-//#define REFRACTION_BLUR
+//#define WATER_BLUR
 //#define REFRACTION_SNELL_ENABLED
 //#define SHADOW_FORCE_CULLING
 #define AF_SAMPLES 1
@@ -280,8 +284,8 @@ const bool colortex15Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define TEMP_FIRE_MIN 2200
-#define TEMP_FIRE_MAX 2800
+#define TEMP_FIRE 2600 // [2000 2200 2400 2600 2800 3000]
+#define TEMP_FIRE_RANGE 300 // [100 200 300 400 500 600]
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
 #define TEMP_CANDLE_MIN 2000
@@ -423,7 +427,6 @@ const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
 const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
 const float VolumetricSkyDayDensityF = VOLUMETRIC_SKY_DAY_DENSITY * 0.01;
 const float DynamicLightAmbientF = DYN_LIGHT_AMBIENT * 0.01;
-const float DynamicLightDirectionalF = DYN_LIGHT_DIRECTIONAL * 0.01;
 const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
 const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
 const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
@@ -559,7 +562,3 @@ void fixNaNs(inout vec3 vec) {
     if (isnan(vec.y) || isinf(vec.y)) vec.y = EPSILON;
     if (isnan(vec.z) || isinf(vec.z)) vec.z = EPSILON;
 }
-
-
-const vec3 WaterAbsorbColor = vec3(0.519, 0.864, 0.899);
-vec3 WaterAbsorbColorInv = 3.0*RGBToLinear(1.0 - WaterAbsorbColor);

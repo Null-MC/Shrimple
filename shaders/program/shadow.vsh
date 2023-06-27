@@ -26,7 +26,7 @@ uniform int blockEntityId;
 uniform vec4 entityColor;
 uniform int entityId;
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_PIXEL && LPV_SIZE > 0
+#if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
     uniform int frameCounter;
 #endif
 
@@ -67,10 +67,12 @@ uniform int entityId;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
+    //#include "/lib/world/water.glsl"
+
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
     #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
-        #include "/lib/world/water.glsl"
+        #include "/lib/world/water_waves.glsl"
     #endif
 #endif
 

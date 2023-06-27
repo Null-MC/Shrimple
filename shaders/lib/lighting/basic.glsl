@@ -146,7 +146,7 @@
                 SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
             #endif
 
-            #if LPV_SIZE > 0 && DYN_LIGHT_MODE == DYN_LIGHT_PIXEL
+            #if LPV_SIZE > 0 && DYN_LIGHT_MODE == DYN_LIGHT_LPV
                 vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
                 vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
@@ -384,8 +384,12 @@
 
                 vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
-                #if LPV_LIGHTMAP_MIX != 100 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    ambientLight *= 1.0 - (1.0 - LpvLightmapMixF) * lpvFade;
+                #if DYN_LIGHT_MODE != DYN_LIGHT_LPV
+                    lpvFade *= 1.0 - LpvLightmapMixF;
+                #endif
+
+                #if DYN_LIGHT_MODE == DYN_LIGHT_LPV || (DYN_LIGHT_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100)
+                    ambientLight *= 1.0 - lpvFade;
                     lpvLight *= 1.0 - LpvLightmapMixF;
                 #endif
                 
@@ -472,9 +476,13 @@
     #endif
 
     #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        vec3 GetFinalLighting(const in vec3 albedo, const in vec3 diffuse, const in vec3 specular, in float occlusion) {
+        vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 //occlusion = 0.5 + 0.5 * occlusion;
+            #endif
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+                diffuse *= blackbody(TEMP_FIRE);
             #endif
 
             // TODO: handle specular occlusion

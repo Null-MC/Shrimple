@@ -1,7 +1,3 @@
-#define SSR_MAXSTEPS 256
-#define SSR_QUALITY 1
-
-
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
     // vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;

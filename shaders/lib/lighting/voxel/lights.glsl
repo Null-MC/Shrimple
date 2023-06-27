@@ -16,7 +16,9 @@
             || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_STREET_LAMP;
 
         if (isBigFireSource) {
-            blackbodyTemp = mix(TEMP_FIRE_MIN, TEMP_FIRE_MAX, flickerNoise);
+            const float tempFireMin = TEMP_FIRE - 0.5*TEMP_FIRE_RANGE;
+            const float tempFireMax = tempFireMin + TEMP_FIRE_RANGE;
+            blackbodyTemp = mix(tempFireMin, tempFireMax, flickerNoise);
         }
 
         if (isSoulFireSource) {

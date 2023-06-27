@@ -114,11 +114,6 @@ value.MATERIAL_OCCLUSION.2=Lab-PBR
 option.METAL_BRIGHTNESS=Metal Brightness
 suffix.METAL_BRIGHTNESS=%
 
-option.MATERIAL_REFLECTIONS=Reflections
-value.MATERIAL_REFLECTIONS.0=None
-value.MATERIAL_REFLECTIONS.1=Sky Only
-value.MATERIAL_REFLECTIONS.2=Screen-Space
-
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
 screen.MATERIAL_NORMAL_OPTIONS.comment=Describes how each pixel of the surface reacts to directional lighting.
@@ -187,13 +182,35 @@ option.MATERIAL_EMISSION_BRIGHTNESS=Brightness
 suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 
-screen.DYNAMIC_LIGHT_OPTIONS=Block Lighting
+screen.MATERIAL_REFLECT_OPTIONS=Reflections
+
+option.MATERIAL_REFLECTIONS=Reflections
+value.MATERIAL_REFLECTIONS.0=None
+value.MATERIAL_REFLECTIONS.1=Sky Only
+value.MATERIAL_REFLECTIONS.2=Screen-Space
+
+option.SSR_QUALITY=SSR Quality
+value.SSR_QUALITY.0=High
+value.SSR_QUALITY.1=Medium
+value.SSR_QUALITY.2=Low
+
+option.SSR_MAXSTEPS=SSR Max Step Count
+
+
+screen.MATERIAL_REFRACT_OPTIONS=Refraction
+
+option.REFRACTION_STRENGTH=Strength
+
+option.REFRACTION_BLUR=Blur
+
+
+screen.LIGHTING_OPTIONS=Lighting
 
 option.DYN_LIGHT_MODE=Mode
-option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. Default uses the vanilla lightmap. Enable ray-tracing for block-light shadows.
-value.DYN_LIGHT_MODE.0=Default
-value.DYN_LIGHT_MODE.2=Colored
-value.DYN_LIGHT_MODE.3=Ray-Traced
+option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. LightMap uses the vanilla lighting. LPV allows basic colored lighting. Enable ray-tracing for block-light shadows.
+value.DYN_LIGHT_MODE.0=LightMap
+value.DYN_LIGHT_MODE.1=LPV
+value.DYN_LIGHT_MODE.2=Ray-Traced
 
 option.DYN_LIGHT_TYPE=Type
 option.DYN_LIGHT_TYPE.comment=Describes the light-source shape. Point lights emit from an infinitely small point. Area lights emit a cubic shaped light with size.
@@ -212,23 +229,41 @@ option.DYN_LIGHT_AMBIENT=Ambient
 option.DYN_LIGHT_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
 suffix.DYN_LIGHT_AMBIENT=%
 
-option.DYN_LIGHT_FLICKER=Dynamic
-option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
+option.TEMP_FIRE=Torch/Fire Temp
+suffix.TEMP_FIRE=°k
 
-option.DYN_LIGHT_DIRECTIONAL=Directional
-suffix.DYN_LIGHT_DIRECTIONAL=%
 
-option.DYN_LIGHT_WEATHER=Weather
-option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
-
-option.DYN_LIGHT_FALLBACK=Fallback
-option.DYN_LIGHT_FALLBACK.comment=When enabled, colored lighting will be blended into the vanilla lighting at the edge of the light bounds. When disabled there will be no lighting beyond light bounds.
+screen.LIGHTING_LIGHTMAP_OPTIONS=Lightmap Options
 
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
 
+option.DYN_LIGHT_FALLBACK=Fallback
+option.DYN_LIGHT_FALLBACK.comment=Allows LPV or ray-traced lighting to fallback to the vanilla lightmap when out of range. If disabled, there will be no lighting beyond the LPV/RT bounds.
 
-screen.DYNAMIC_LIGHT_TRACE_OPTIONS=Trace Options
+
+screen.LIGHTING_LPV_OPTIONS=LPV Options
+screen.LIGHTING_LPV_OPTIONS.comment=Light Propagation Volume
+
+option.LPV_SIZE=Size
+value.LPV_SIZE.0=OFF
+value.LPV_SIZE.1=Small
+value.LPV_SIZE.2=Medium
+value.LPV_SIZE.3=Large
+
+option.LPV_SAMPLE_MODE=Sample Mode
+value.LPV_SAMPLE_MODE.0=Point
+value.LPV_SAMPLE_MODE.1=Linear
+value.LPV_SAMPLE_MODE.2=Voxel
+
+option.LPV_SUN_SAMPLES=Sunlight Samples
+option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
+
+option.LPV_LIGHTMAP_MIX=Lightmap Mix
+suffix.LPV_LIGHTMAP_MIX=%
+
+
+screen.LIGHTING_TRACE_OPTIONS=Trace Options
 
 option.DYN_LIGHT_RES=Resolution
 value.DYN_LIGHT_RES.0=Full
@@ -255,16 +290,16 @@ value.DYN_LIGHT_PLAYER_SHADOW.0=None
 value.DYN_LIGHT_PLAYER_SHADOW.1=Cuboid
 value.DYN_LIGHT_PLAYER_SHADOW.2=Cylinder
 
-option.DYN_LIGHT_BLUR=Blur
-option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
-
 option.DYN_LIGHT_TA=Temporal Accumulation
 option.DYN_LIGHT_TA.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
 suffix.DYN_LIGHT_TA=%
 value.DYN_LIGHT_TA.0=OFF
 
+option.DYN_LIGHT_FLICKER=Dynamic
+option.DYN_LIGHT_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
 
-screen.DYNAMIC_LIGHT_TRACE_BLOCK_OPTIONS=Block Options
+
+screen.LIGHTING_TRACE_BLOCK_OPTIONS=Block Lights
 
 option.DYN_LIGHT_GLOW_BERRIES=Glow Berry Vines
 option.DYN_LIGHT_GLOW_BERRIES.comment=Determines how lighting for glow berry vines is handled, to avoid heavy performance impacts from lush caverns.
@@ -297,7 +332,7 @@ value.DYN_LIGHT_SEA_PICKLE.1=Emit
 value.DYN_LIGHT_SEA_PICKLE.2=Trace
 
 
-screen.DYNAMIC_LIGHT_ADVANCED_OPTIONS=Advanced
+screen.LIGHTING_TRACE_ADVANCED_OPTIONS=Advanced
 
 option.LIGHT_BIN_SIZE=Bin Size
 option.LIGHT_BIN_SIZE.comment=The cubic size in blocks of each light bin. Using smaller bins will allow more dense lighting. Using larger bins will allow dynamic lighting to apply to further distances from player.
@@ -317,8 +352,14 @@ option.DYN_LIGHT_SAMPLE_MAX=Max Sample Count
 option.DYN_LIGHT_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
 value.DYN_LIGHT_SAMPLE_MAX.0=Infinite
 
+option.DYN_LIGHT_BLUR=Post-Filtering
+option.DYN_LIGHT_BLUR.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
 
-screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetric Lighting
+option.DYN_LIGHT_WEATHER=Weather Particles
+option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
+
+
+screen.VOLUMETRIC_OPTIONS=Volumetric Fog
 
 option.VOLUMETRIC_BRIGHT_SKY=Sun/Moon Brightness
 option.VOLUMETRIC_BRIGHT_SKY.comment=Adjusts the brightness of the sun & moon when applying volumetric lighting to fog.
@@ -445,27 +486,6 @@ option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining 
 
 option.SHADOW_BLUR=Smooth
 option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
-
-
-screen.LPV_OPTIONS=LPV
-screen.LPV_OPTIONS.comment=Light Propagation Volume
-
-option.LPV_SIZE=Size
-value.LPV_SIZE.0=OFF
-value.LPV_SIZE.1=Small
-value.LPV_SIZE.2=Medium
-value.LPV_SIZE.3=Large
-
-option.LPV_SAMPLE_MODE=Sample Mode
-value.LPV_SAMPLE_MODE.0=Point
-value.LPV_SAMPLE_MODE.1=Linear
-value.LPV_SAMPLE_MODE.2=Voxel
-
-option.LPV_SUN_SAMPLES=Sunlight Samples
-option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
-
-option.LPV_LIGHTMAP_MIX=Lightmap Mix
-suffix.LPV_LIGHTMAP_MIX=%
 
 
 screen.POST_OPTIONS=Post-Processing
