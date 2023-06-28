@@ -481,9 +481,9 @@
                 //occlusion = 0.5 + 0.5 * occlusion;
             #endif
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-                diffuse *= blackbody(TEMP_FIRE);
-            #endif
+            // #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            //     diffuse *= blackbody(TEMP_FIRE);
+            // #endif
 
             // TODO: handle specular occlusion
             return albedo * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
