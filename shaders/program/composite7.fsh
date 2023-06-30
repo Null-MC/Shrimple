@@ -590,10 +590,12 @@ layout(location = 0) out vec4 outFinal;
                 blurDist = max(length(localPosOpaque) - viewDist, 0.0);
 
                 distScale = (isWater && isEyeInWater != 1)
-                    ? DIST_BLUR_SCALE_WATER : DIST_BLUR_SCALE_AIR;
+                    ? DIST_BLUR_SCALE_WATER : far;
+
+                distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
             }
 
-            vec3 opaqueFinal = GetBlur(texcoord + refraction, linearDepthOpaque, blurDist, distScale);
+            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, depth, blurDist, distScale);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
             float maxLod = max(log2(min(viewWidth, viewHeight)) - 1.0, 0.0);

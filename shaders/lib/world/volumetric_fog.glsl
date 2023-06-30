@@ -145,7 +145,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             vec3 skyLightColor = RGBToLinear(fogColor);
         #endif
 
-        skyLightColor *= smoothstep(0.0, 0.06, abs(sunDir.y));
+        skyLightColor *= smoothstep(0.0, 0.2, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 
         float skyPhaseForward = ComputeVolumetricScattering(VoL, phaseF.Forward);

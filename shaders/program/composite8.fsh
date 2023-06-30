@@ -15,6 +15,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform int isEyeInWater;
+uniform float blindness;
 uniform float near;
 uniform float far;
 
@@ -36,9 +37,11 @@ void main() {
     float viewDist = length(viewPos);
 
     float distScale = isEyeInWater == 1
-        ? DIST_BLUR_SCALE_WATER : DIST_BLUR_SCALE_AIR;
+        ? DIST_BLUR_SCALE_WATER : far;
 
-    vec3 color = GetBlur(texcoord, depthL, viewDist, distScale);
+    distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
+
+    vec3 color = GetBlur(depthtex0, texcoord, depthL, 0.0, viewDist, distScale);
 
     outFinal = vec4(color, 1.0);
 }
