@@ -210,7 +210,7 @@ const bool colortex15Clear = true;
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT
-#define LPV_BRIGHT_SUN 512 // [1 2 4 8 16 32 64 128 256 512 1024 2048]
+#define LPV_BRIGHT_SUN 32 // [1 2 4 8 16 32 64 128 256 512 1024 2048]
 #define LPV_BRIGHT_MOON 2 // [1 2 4 8 16 32 64 128 256 512 1024 2048]
 
 //#define DYN_LIGHT_OCTREE
@@ -263,6 +263,10 @@ const bool colortex15Clear = true;
 //#define SHADOW_FORCE_CULLING
 #define AF_SAMPLES 1
 #define LIGHT_LEAK_FIX
+
+//#define DIST_BLUR_ENABLED
+#define DIST_BLUR_SCALE_AIR 120.0
+#define DIST_BLUR_SCALE_WATER 20.0
 
 
 // INTERNAL SETTINGS

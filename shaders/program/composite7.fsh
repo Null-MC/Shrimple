@@ -183,6 +183,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_blur.glsl"
 #endif
 
+#ifdef DIST_BLUR_ENABLED
+    #include "/lib/post/depth_blur.glsl"
+#endif
+
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
     const float c_halfSamplesX = 2.0;
@@ -282,6 +286,7 @@ layout(location = 0) out vec4 outFinal;
         // }
 
         float linearDepth = linearizeDepthFast(depth, near, far);
+        float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
 
         vec2 refraction = vec2(0.0);
         vec4 final = vec4(0.0);
@@ -336,7 +341,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 refractViewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
                 vec3 refractDir = refract(refractViewDir, texViewNormal, refractEta);
-                float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
                 float linearDist = linearDepthOpaque - linearDepth;
 
                 vec2 refractMax = vec2(0.2);
@@ -578,46 +583,31 @@ layout(location = 0) out vec4 outFinal;
         float transDepth = isEyeInWater == 1 ? viewDist :
             max(length(localPosOpaque) - viewDist, 0.0);
 
-        //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
-        float maxLod = max(log2(min(viewWidth, viewHeight)) - 1.0, 0.0);
+        #ifdef DIST_BLUR_ENABLED
+            float distScale = 0.0;
+            float blurDist = 0.0;
+            if (depth < depthOpaque) {
+                blurDist = max(length(localPosOpaque) - viewDist, 0.0);
 
-        float lodOpaque = 0.0;
-        #ifdef REFRACTION_BLUR
-            if (isWater)
-                lodOpaque = min(maxLod, 4.0) * min(min(viewDist, transDepth) / 12.0, 1.0);
-            else if (isEyeInWater != 1)
-                lodOpaque = min(maxLod, 4.0) * min(transDepth * roughL / 2.0, 1.0);
+                distScale = (isWater && isEyeInWater != 1)
+                    ? DIST_BLUR_SCALE_WATER : DIST_BLUR_SCALE_AIR;
+            }
+
+            vec3 opaqueFinal = GetBlur(texcoord + refraction, linearDepthOpaque, blurDist, distScale);
+        #else
+            //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
+            float maxLod = max(log2(min(viewWidth, viewHeight)) - 1.0, 0.0);
+
+            float lodOpaque = 0.0;
+            #ifdef REFRACTION_BLUR
+                if (isWater)
+                    lodOpaque = min(maxLod, 4.0) * min(min(viewDist, transDepth) / 12.0, 1.0);
+                else if (isEyeInWater != 1)
+                    lodOpaque = min(maxLod, 4.0) * min(transDepth * roughL / 2.0, 1.0);
+            #endif
+
+            vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
         #endif
-
-        // #ifdef WATER_BLUR
-        //     if (isWater) {
-        //         lodOpaque = maxLod * min(transDepth / 20.0, 1.0);
-        //     }
-        // #endif
-
-        // #if defined REFRACTION_BLUR || defined WATER_BLUR
-        //     if (isEyeInWater != 1) {
-        //         //
-        //     }
-
-        //     if (isWater && isEyeInWater != 1) {
-        //         #ifdef WATER_BLUR
-        //             lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
-        //         #endif
-        //     }
-        //     // if (isWater && isEyeInWater != 1) {
-        //     //     #ifdef WATER_BLUR
-        //     //         lodOpaque = 4.0 * min(transDepth / 20.0, 1.0);
-        //     //     #endif
-        //     // }
-        //     // else {
-        //     //     #ifdef REFRACTION_BLUR
-        //     //         lodOpaque = 8.0 * roughness * min(transDepth / 20.0, 1.0);
-        //     //     #endif
-        //     // }
-        // #endif
-
-        vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
 
         #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
             if (tir) opaqueFinal = fogColorFinal;
