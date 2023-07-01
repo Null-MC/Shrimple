@@ -403,15 +403,19 @@ uint GetSceneLightType(const in int blockId) {
             lightType = LIGHT_CANDLE_CAKE;
             break;
         case BLOCK_CANDLES_LIT_1:
+        case BLOCK_CANDLE_HOLDER_LIT_1:
             lightType = LIGHT_CANDLES_1;
             break;
         case BLOCK_CANDLES_LIT_2:
+        case BLOCK_CANDLE_HOLDER_LIT_2:
             lightType = LIGHT_CANDLES_2;
             break;
         case BLOCK_CANDLES_LIT_3:
+        case BLOCK_CANDLE_HOLDER_LIT_3:
             lightType = LIGHT_CANDLES_3;
             break;
         case BLOCK_CANDLES_LIT_4:
+        case BLOCK_CANDLE_HOLDER_LIT_4:
             lightType = LIGHT_CANDLES_4;
             break;
         case BLOCK_CAULDRON_LAVA:
