@@ -147,48 +147,63 @@ uint GetSceneLightType(const in int blockId) {
     // 200
     switch (blockId) {
         case BLOCK_LIGHT_1:
+        case BLOCK_REDSTONE_ILLUMINATOR_14:
             lightType = LIGHT_BLOCK_1;
             break;
         case BLOCK_LIGHT_2:
+        case BLOCK_REDSTONE_ILLUMINATOR_13:
             lightType = LIGHT_BLOCK_2;
             break;
         case BLOCK_LIGHT_3:
+        case BLOCK_REDSTONE_ILLUMINATOR_12:
             lightType = LIGHT_BLOCK_3;
             break;
         case BLOCK_LIGHT_4:
+        case BLOCK_REDSTONE_ILLUMINATOR_11:
             lightType = LIGHT_BLOCK_4;
             break;
         case BLOCK_LIGHT_5:
+        case BLOCK_REDSTONE_ILLUMINATOR_10:
             lightType = LIGHT_BLOCK_5;
             break;
         case BLOCK_LIGHT_6:
+        case BLOCK_REDSTONE_ILLUMINATOR_9:
             lightType = LIGHT_BLOCK_6;
             break;
         case BLOCK_LIGHT_7:
+        case BLOCK_REDSTONE_ILLUMINATOR_8:
             lightType = LIGHT_BLOCK_7;
             break;
         case BLOCK_LIGHT_8:
+        case BLOCK_REDSTONE_ILLUMINATOR_7:
             lightType = LIGHT_BLOCK_8;
             break;
         case BLOCK_LIGHT_9:
+        case BLOCK_REDSTONE_ILLUMINATOR_6:
             lightType = LIGHT_BLOCK_9;
             break;
         case BLOCK_LIGHT_10:
+        case BLOCK_REDSTONE_ILLUMINATOR_5:
             lightType = LIGHT_BLOCK_10;
             break;
         case BLOCK_LIGHT_11:
+        case BLOCK_REDSTONE_ILLUMINATOR_4:
             lightType = LIGHT_BLOCK_11;
             break;
         case BLOCK_LIGHT_12:
+        case BLOCK_REDSTONE_ILLUMINATOR_3:
             lightType = LIGHT_BLOCK_12;
             break;
         case BLOCK_LIGHT_13:
+        case BLOCK_REDSTONE_ILLUMINATOR_2:
             lightType = LIGHT_BLOCK_13;
             break;
         case BLOCK_LIGHT_14:
+        case BLOCK_REDSTONE_ILLUMINATOR_1:
             lightType = LIGHT_BLOCK_14;
             break;
         case BLOCK_LIGHT_15:
+        case BLOCK_REDSTONE_ILLUMINATOR_0:
             lightType = LIGHT_BLOCK_15;
             break;
 

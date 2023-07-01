@@ -6,9 +6,12 @@ mat2 GetBlurRotation() {
     return mat2(c, -s, s, c);
 }
 
-vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in float distScale) {
+vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 pixelSize = rcp(viewSize);
+
+    float distScale = isWater ? DIST_BLUR_SCALE_WATER : far;
+    distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
 
     #if DIST_BLUR_MODE == DIST_BLUR_DOF
         float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
@@ -20,7 +23,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float distF = min(viewDist / distScale, 1.0);
     #endif
 
-    distF = smoothstep(0.0, 1.0, distF);
+    //distF = smoothstep(0.0, 1.0, distF);
     //distF = pow(distF, 1.2);
 
     uint sampleCount = 1;
@@ -61,7 +64,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         sampleDepthL = clamp(sampleDepthL, near, far);
 
         #if DIST_BLUR_MODE == DIST_BLUR_DOF
-            float sampleDistF = 4.0 * abs(sampleDepthL - centerDepthL);
+            float sampleDistF = abs(sampleDepthL - centerDepthL);
             sampleDistF = min(sampleDistF / distScale, 1.0);
         #else
             //float distF = min(viewDist / distScale, 1.0);
@@ -71,7 +74,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         #endif
 
         sampleDistF = min(sampleDistF, distF);
-        sampleDistF = smoothstep(0.0, 1.0, sampleDistF);
+        //sampleDistF = smoothstep(0.0, 1.0, sampleDistF);
 
         //float sampleDistF = min(minSampleDepthL / distScale, 1.0);
         float sampleLod = max(sampleDistF - 0.5, 0.0);

@@ -49,12 +49,7 @@ void main() {
     vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
     float viewDist = length(viewPos);
 
-    float distScale = isEyeInWater == 1
-        ? DIST_BLUR_SCALE_WATER : far;
-
-    distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
-
-    vec3 color = GetBlur(depthtex0, texcoord, depthL, 0.0, viewDist, distScale);
+    vec3 color = GetBlur(depthtex0, texcoord, depthL, 0.0, viewDist, isEyeInWater == 1);
 
     outFinal = vec4(color, 1.0);
 }
