@@ -42,8 +42,8 @@ uniform sampler2D lightmap;
     //     uniform sampler2D shadowtex0;
     // #endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform sampler2D shadowcolor1;
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D TEX_CLOUDS;
     #endif
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS

@@ -1,15 +1,18 @@
-//#define RENDER_TRANSLUCENT_POST_BLUR
+#define RENDER_TRANSLUCENT_POST_BLUR
 #define RENDER_COMPOSITE
 #define RENDER_FRAG
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+const bool colortex0MipmapEnabled = true;
+
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D BUFFER_FINAL;
+uniform sampler2D BUFFER_WEATHER_DEPTH;
 
 uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
@@ -29,7 +32,13 @@ uniform float far;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    float depth = textureLod(depthtex0, texcoord, 0).r;
+    ivec2 uv = ivec2(gl_FragCoord.xy);
+    float depth = texelFetch(depthtex0, uv, 0).r;
+    //float depth = textureLod(depthtex0, texcoord, 0.0).r;
+
+    float weatherDepth = texelFetch(BUFFER_WEATHER_DEPTH, uv, 0).r;
+    depth = min(depth, weatherDepth);
+
     float depthL = linearizeDepthFast(depth, near, far);
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;

@@ -494,6 +494,19 @@ option.SHADOW_BLUR=Smooth
 option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
 
 
+screen.EFFECT_OPTIONS=Effects
+
+screen.EFFECT_BLOOM_OPTIONS=Bloom
+
+screen.EFFECT_BLUR_OPTIONS=Blur
+
+option.DIST_BLUR_ENABLED=Enabled
+
+option.DIST_BLUR_SAMPLES=Sample Count
+
+option.DIST_BLUR_RADIUS=Radius
+
+
 screen.POST_OPTIONS=Post-Processing
 
 option.POST_BRIGHTNESS=Brightness

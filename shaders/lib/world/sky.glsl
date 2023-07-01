@@ -28,7 +28,7 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
 #endif
 
 vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
-    return skyLightColor * (1.0 - 0.4*rainStrength);
+    return skyLightColor * (1.0 - 0.6*rainStrength);
 }
 
 #ifndef RENDER_BEGIN

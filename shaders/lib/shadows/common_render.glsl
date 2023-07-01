@@ -14,7 +14,7 @@
         for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
             vec2 offset = (rotation * pcfDiskOffset[i]) * rcp(1024.0 * SHADOW_CLOUD_RADIUS);
 
-            float cloudSample = textureLod(shadowcolor1, cloudShadowPos.xy + offset, 0).a;
+            float cloudSample = textureLod(TEX_CLOUDS, cloudShadowPos.xy + offset, 0).a;
             cloudF += cloudSample * step(0.0, cloudShadowPos.z);
         }
 

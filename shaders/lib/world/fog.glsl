@@ -60,13 +60,19 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             const vec3 colorNight   = RGBToLinear(vec3(0.177, 0.170, 0.192));
             const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914));
 
+            #ifdef VL_BUFFER_ENABLED
+                const float weatherDarkF = 0.3;
+            #else
+                const float weatherDarkF = 0.9;
+            #endif
+
             float dayF = smoothstep(-0.1, 0.3, sunUpF);
             vec3 color = mix(colorNight, colorDay, dayF);
 
             float horizonF = smoothstep(0.0, 0.45, abs(sunUpF - 0.15));
             color = mix(colorHorizon, color, horizonF);
 
-            float weatherBrightness = 1.0 - 0.92 * rainStrength;
+            float weatherBrightness = 1.0 - weatherDarkF * smoothstep(0.0, 1.0, rainStrength);
             return 0.6 * color * weatherBrightness;
         }
 

@@ -41,7 +41,7 @@ uniform sampler2D noisetex;
 #endif
 
 #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    uniform sampler2D shadowcolor1;
+    uniform sampler2D TEX_CLOUDS;
 #endif
 
 uniform int worldTime;

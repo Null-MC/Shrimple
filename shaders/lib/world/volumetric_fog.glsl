@@ -69,7 +69,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     	cloudPos.xy *= rcp(256.0);
 
-        float cloudF = textureLod(shadowcolor1, cloudPos.xy, 0).a;
+        float cloudF = textureLod(TEX_CLOUDS, cloudPos.xy, 0).a;
 
         cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
 

@@ -15,6 +15,7 @@ const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16F;
 const int colortex11Format  = RGBA16F;
 const int colortex12Format  = RGB16F;
+const int colortex13Format  = R32F;
 const int colortex14Format  = RG8;
 const int colortex15Format  = RGBA16F;
 */
@@ -79,6 +80,10 @@ const bool colortex11Clear = false;
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex12MipmapEnabled = false;
 const bool colortex12Clear = false;
+
+const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const bool colortex13MipmapEnabled = false;
+const bool colortex13Clear = true;
 
 const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex14MipmapEnabled = false;
@@ -267,8 +272,8 @@ const bool colortex15Clear = true;
 //#define DIST_BLUR_ENABLED
 #define DIST_BLUR_SCALE_WATER 14.0
 #define DIST_BLUR_SCALE_BLIND 6.0
-#define DIST_BLUR_SAMPLES 16 // [2 4 8 12 16 20 24 28 32]
-#define DIST_BLUR_RADIUS 10 // [2 4 6 8 10 12 14 16 18 20 22 24]
+#define DIST_BLUR_SAMPLES 8 // [2 4 8 12 16 20 24 28 32]
+#define DIST_BLUR_RADIUS 8 // [2 4 6 8 10 12 14 16 18 20 22 24]
 
 
 // INTERNAL SETTINGS

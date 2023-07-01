@@ -23,7 +23,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uniform sampler2D shadowcolor0;
 
         #ifdef SHADOW_CLOUD_ENABLED
-            uniform sampler2D shadowcolor1;
+            uniform sampler2D TEX_CLOUDS;
         #endif
 
         // #ifdef SHADOW_ENABLE_HWCOMP

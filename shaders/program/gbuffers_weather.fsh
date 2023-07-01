@@ -44,8 +44,10 @@ uniform sampler2D noisetex;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
-    
-    uniform sampler2D shadowcolor1;
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D TEX_CLOUDS;
+    #endif
     
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
@@ -204,8 +206,9 @@ uniform float blindness;
 
 
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 15 */
-    layout(location = 0) out vec4 outFinal;
+    /* RENDERTARGETS: 13,15 */
+    layout(location = 0) out vec4 outDepth;
+    layout(location = 1) out vec4 outFinal;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -279,6 +282,10 @@ void main() {
 
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #endif
+
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
     #endif
 
     outFinal = color;

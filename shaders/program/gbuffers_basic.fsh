@@ -31,12 +31,12 @@ uniform sampler2D lightmap;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform sampler2D shadowcolor1;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D TEX_CLOUDS;
+    #endif
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS

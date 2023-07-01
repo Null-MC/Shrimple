@@ -11,7 +11,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     vec2 pixelSize = rcp(viewSize);
 
     float distF = min(viewDist / distScale, 1.0);
-    distF = pow(distF, 1.25);
+    //distF = pow(distF, 1.2);
 
     uint sampleCount = 1;
     if (distScale > EPSILON)
@@ -22,6 +22,8 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
     mat2 rotation = GetBlurRotation();
     float radius = distF * DIST_BLUR_RADIUS;
+
+    //float sampleLod = max(distF - 0.5, 0.0);
 
     vec3 color = vec3(0.0);
     float maxWeight = 0.0;
@@ -42,16 +44,29 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         }
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
-        vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
-        float sampleWeight = exp(-length2(diskOffset));
+
+        float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
+        //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
+        float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+
+        float minSampleDepthL = min(fragDepthL, sampleDepthL);
+        float sampleDistF = min(minSampleDepthL / distScale, 1.0);
+        float sampleLod = max(sampleDistF - 0.5, 0.0);
+
+        //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+        vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
+        float sampleWeight = exp(-3.0 * length2(diskOffset));
 
         if (sampleCount > 1) {
-            float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
-            float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+            #ifdef RENDER_TRANSLUCENT_POST_BLUR
+                float sampleWeatherDepth = texelFetch(BUFFER_WEATHER_DEPTH, sampleUV, 0).r;
+                sampleDepth = min(sampleDepth, sampleWeatherDepth);
+            #endif
+
             sampleWeight *= step(minDepth, sampleDepth);
 
-            float minSampleDepth = max(min(fragDepthL, sampleDepthL) - minDepth, 0.0);
-            sampleWeight *= min(minSampleDepth / distScale, 1.0);
+            //float minSampleDepth = max(min(fragDepthL, sampleDepthL) - minDepth, 0.0);
+            sampleWeight *= min(minSampleDepthL / distScale, 1.0);
         }
 
         color += sampleColor * sampleWeight;
@@ -59,7 +74,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     }
 
     if (maxWeight < 1.0) {
-        color += textureLod(BUFFER_FINAL, texcoord, 0.0).rgb * (1.0 - maxWeight);
+        color += texelFetch(BUFFER_FINAL, ivec2(gl_FragCoord.xy), 0).rgb * (1.0 - maxWeight);
     }
     else {
         color /= maxWeight;

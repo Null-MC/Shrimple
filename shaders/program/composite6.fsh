@@ -32,7 +32,7 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
 #endif
 
 #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    uniform sampler2D shadowcolor1;
+    uniform sampler2D TEX_CLOUDS;
 #endif
 
 uniform int worldTime;

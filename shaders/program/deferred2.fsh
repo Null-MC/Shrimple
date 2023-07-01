@@ -10,10 +10,6 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
-#ifdef SHADOW_CLOUD_ENABLED
-    uniform sampler2D shadowcolor1;
-#endif
-
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
@@ -22,6 +18,10 @@ uniform sampler2D noisetex;
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        uniform sampler2D TEX_CLOUDS;
+    #endif
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         uniform sampler2DShadow shadowtex1HW;

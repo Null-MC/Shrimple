@@ -33,7 +33,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
     
     #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D shadowcolor1;
+        uniform sampler2D TEX_CLOUDS;
     #endif
 #endif
 

@@ -2,18 +2,15 @@ deferred1		opaque deferred block-light tracing
 deferred2		opaque deferred VL tracing
 deferred3		opaque deferred final
 
+deferred4		hi-z
+
 composite1		opaque deferred block-light tracing
 composite2		opaque deferred VL tracing
 composite3		opaque deferred final
-
-!composite4	water blur
-
 composite4		opaque apply VL & water absorption
-
 composite5		translucent deferred block-light tracing
 composite6		translucent deferred VL tracing
 composite7		translucent deferred final + pre distance blur
-
 composite8		post distance blur
 
 composite11		bloom downscale 1/2

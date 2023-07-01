@@ -77,8 +77,8 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform sampler2D shadowcolor1;
+#ifdef SHADOW_CLOUD_ENABLED
+    uniform sampler2D TEX_CLOUDS;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
