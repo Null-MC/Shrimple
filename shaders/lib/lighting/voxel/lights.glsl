@@ -104,6 +104,9 @@
             case LIGHT_END_ROD:
                 lightColor = vec3(0.957, 0.929, 0.875);
                 break;
+            case LIGHT_END_STONE_LAMP:
+                lightColor = vec3(0.465, 0.143, 0.416);
+                break;
             case LIGHT_CAMPFIRE:
             case LIGHT_FIRE:
                 lightColor = vec3(0.851, 0.616, 0.239);
@@ -417,6 +420,7 @@
             case LIGHT_END_ROD:
                 lightRange = 14.0;
                 break;
+            case LIGHT_END_STONE_LAMP:
             case LIGHT_CAMPFIRE:
             case LIGHT_FIRE:
                 lightRange = 15.0;

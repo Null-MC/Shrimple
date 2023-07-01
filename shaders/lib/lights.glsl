@@ -35,6 +35,7 @@
 #define LIGHT_DIAMOND_BLOCK 34u
 #define LIGHT_EMERALD_BLOCK 35u
 #define LIGHT_END_ROD 36u
+#define LIGHT_END_STONE_LAMP 151u     // FIX INDEX
 #define LIGHT_CAMPFIRE 37u
 #define LIGHT_FIRE 38u
 #define LIGHT_FURNACE_N 39u
@@ -375,6 +376,9 @@ uint GetSceneLightType(const in int blockId) {
             break;
         case BLOCK_TORCH_WALL_W:
             lightType = LIGHT_TORCH_WALL_W;
+            break;
+        case BLOCK_END_STONE_LAMP:
+            lightType = LIGHT_END_STONE_LAMP;
             break;
     }
 
