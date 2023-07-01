@@ -102,6 +102,10 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
+#if DIST_BLUR_MODE == DIST_BLUR_DOF
+    uniform float centerDepthSmooth;
+#endif
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif
@@ -184,7 +188,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_blur.glsl"
 #endif
 
-#ifdef DIST_BLUR_ENABLED
+#if DIST_BLUR_MODE != DIST_BLUR_OFF
     #include "/lib/post/depth_blur.glsl"
 #endif
 
@@ -584,7 +588,7 @@ layout(location = 0) out vec4 outFinal;
         float transDepth = isEyeInWater == 1 ? viewDist :
             max(length(localPosOpaque) - viewDist, 0.0);
 
-        #ifdef DIST_BLUR_ENABLED
+        #if DIST_BLUR_MODE != DIST_BLUR_OFF
             float distScale = 0.0;
             float blurDist = 0.0;
             if (depth < depthOpaque) {

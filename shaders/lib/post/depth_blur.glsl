@@ -10,7 +10,17 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 pixelSize = rcp(viewSize);
 
-    float distF = min(viewDist / distScale, 1.0);
+    #if DIST_BLUR_MODE == DIST_BLUR_DOF
+        float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
+        centerDepthL = clamp(centerDepthL, near, far);
+
+        float distF = 4.0 * abs(viewDist - centerDepthL);
+        distF = min(distF / distScale, 1.0);
+    #else
+        float distF = min(viewDist / distScale, 1.0);
+    #endif
+
+    distF = smoothstep(0.0, 1.0, distF);
     //distF = pow(distF, 1.2);
 
     uint sampleCount = 1;
@@ -48,9 +58,22 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
         //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
         float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+        sampleDepthL = clamp(sampleDepthL, near, far);
 
-        float minSampleDepthL = min(fragDepthL, sampleDepthL);
-        float sampleDistF = min(minSampleDepthL / distScale, 1.0);
+        #if DIST_BLUR_MODE == DIST_BLUR_DOF
+            float sampleDistF = 4.0 * abs(sampleDepthL - centerDepthL);
+            sampleDistF = min(sampleDistF / distScale, 1.0);
+        #else
+            //float distF = min(viewDist / distScale, 1.0);
+            float sampleDistF = min(sampleDepthL / distScale, 1.0);
+            
+            //float minSampleDepthL = min(fragDepthL, sampleDepthL);
+        #endif
+
+        sampleDistF = min(sampleDistF, distF);
+        sampleDistF = smoothstep(0.0, 1.0, sampleDistF);
+
+        //float sampleDistF = min(minSampleDepthL / distScale, 1.0);
         float sampleLod = max(sampleDistF - 0.5, 0.0);
 
         //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
@@ -63,10 +86,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
                 sampleDepth = min(sampleDepth, sampleWeatherDepth);
             #endif
 
-            sampleWeight *= step(minDepth, sampleDepth);
+            sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
 
             //float minSampleDepth = max(min(fragDepthL, sampleDepthL) - minDepth, 0.0);
-            sampleWeight *= min(minSampleDepthL / distScale, 1.0);
+            //sampleWeight *= min(minSampleDepthL / distScale, 1.0);
         }
 
         color += sampleColor * sampleWeight;

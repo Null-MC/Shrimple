@@ -22,6 +22,10 @@ uniform float blindness;
 uniform float near;
 uniform float far;
 
+#if DIST_BLUR_MODE == DIST_BLUR_DOF
+    uniform float centerDepthSmooth;
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 

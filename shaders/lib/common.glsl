@@ -269,7 +269,7 @@ const bool colortex15Clear = true;
 #define AF_SAMPLES 1
 #define LIGHT_LEAK_FIX
 
-//#define DIST_BLUR_ENABLED
+#define DIST_BLUR_MODE 0 // [0 1 2]
 #define DIST_BLUR_SCALE_WATER 14.0
 #define DIST_BLUR_SCALE_BLIND 6.0
 #define DIST_BLUR_SAMPLES 8 // [2 4 8 12 16 20 24 28 32]
@@ -464,6 +464,8 @@ const vec3 EPSILON3 = vec3(EPSILON);
 
 const float wetnessHalflife = 16000.0;
 const float drynessHalflife = 20.0;
+
+const float centerDepthHalflife = 0.3;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     const float ShadowNormalBias = (SHADOW_CASCADED_NORMAL_BIAS * SHADOW_BIAS_SCALE);

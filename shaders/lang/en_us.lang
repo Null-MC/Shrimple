@@ -500,7 +500,10 @@ screen.EFFECT_BLOOM_OPTIONS=Bloom
 
 screen.EFFECT_BLUR_OPTIONS=Blur
 
-option.DIST_BLUR_ENABLED=Enabled
+option.DIST_BLUR_MODE=Mode
+value.DIST_BLUR_MODE.0=Off
+value.DIST_BLUR_MODE.1=Far
+value.DIST_BLUR_MODE.2=DOF
 
 option.DIST_BLUR_SAMPLES=Sample Count
 
