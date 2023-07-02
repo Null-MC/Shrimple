@@ -6,9 +6,9 @@ mat2 GetBlurRotation() {
     return mat2(c, -s, s, c);
 }
 
-float GetBlurSize(const in float depth, const in float focusPoint, const in float focusScale) {
+float GetBlurSize(const in float depth, const in float focusPoint) {
     float coc = rcp(focusPoint) - rcp(depth);
-    return saturate(abs(coc) * focusScale);// * DIST_BLUR_RADIUS;
+    return saturate(abs(coc) * DepthOfFieldFocusScale);
 }
 
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
@@ -24,10 +24,8 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
     float distF = 0.0;
     #if DIST_BLUR_MODE == DIST_BLUR_DOF
-        const float focusScale = 0.5;
-
         float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
-        float centerSize = GetBlurSize(fragDepthL, centerDepthL, focusScale);
+        float centerSize = GetBlurSize(fragDepthL, centerDepthL);
     #elif DIST_BLUR_MODE == DIST_BLUR_FAR
         if (!isWater) distF = min(viewDist / far, 1.0);
     #endif
@@ -47,7 +45,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     #if DIST_BLUR_MODE == DIST_BLUR_DOF
         float radius = DIST_BLUR_RADIUS;
         uint sampleCount = DIST_BLUR_SAMPLES;
-    #elif DIST_BLUR_MODE == DIST_BLUR_FAR
+    #else
         float radius = distF * DIST_BLUR_RADIUS;
         uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
     #endif
@@ -78,7 +76,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
         float sampleDistF = 0.0;
         #if DIST_BLUR_MODE == DIST_BLUR_DOF
-            float sampleSize = GetBlurSize(sampleDepthL, centerDepthL, focusScale);
+            float sampleSize = GetBlurSize(sampleDepthL, centerDepthL);
 
             if (sampleDepthL > fragDepthL)
                 sampleSize = clamp(sampleSize, 0.0, centerSize*2.0);

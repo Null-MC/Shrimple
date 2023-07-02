@@ -274,6 +274,7 @@ const bool colortex15Clear = true;
 #define DIST_BLUR_SCALE_BLIND 6.0
 #define DIST_BLUR_SAMPLES 8 // [2 4 8 12 16 20 24 28 32]
 #define DIST_BLUR_RADIUS 8 // [2 4 6 8 10 12 14 16 18 20 22 24]
+#define BLUR_DOF_FOCUS_SCALE 40 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 
 
 // INTERNAL SETTINGS
@@ -450,6 +451,7 @@ const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
 const float RefractionStrengthF = REFRACTION_STRENGTH * 0.01;
+const float DepthOfFieldFocusScale = BLUR_DOF_FOCUS_SCALE * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
@@ -462,10 +464,9 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 
+const float centerDepthHalflife = 1.8;
 const float wetnessHalflife = 16000.0;
 const float drynessHalflife = 20.0;
-
-const float centerDepthHalflife = 0.3;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     const float ShadowNormalBias = (SHADOW_CASCADED_NORMAL_BIAS * SHADOW_BIAS_SCALE);

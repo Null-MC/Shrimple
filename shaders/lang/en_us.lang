@@ -505,6 +505,9 @@ value.DIST_BLUR_MODE.0=Off
 value.DIST_BLUR_MODE.1=Far
 value.DIST_BLUR_MODE.2=DOF
 
+option.BLUR_DOF_FOCUS_SCALE=DOF Focus
+suffix.BLUR_DOF_FOCUS_SCALE=%
+
 option.DIST_BLUR_SAMPLES=Sample Count
 
 option.DIST_BLUR_RADIUS=Radius
