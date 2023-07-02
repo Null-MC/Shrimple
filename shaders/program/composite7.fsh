@@ -188,7 +188,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/volumetric_blur.glsl"
 #endif
 
-#if DIST_BLUR_MODE != DIST_BLUR_OFF
+#if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
     #include "/lib/post/depth_blur.glsl"
 #endif
 
@@ -588,7 +588,7 @@ layout(location = 0) out vec4 outFinal;
         float transDepth = isEyeInWater == 1 ? viewDist :
             max(length(localPosOpaque) - viewDist, 0.0);
 
-        #if DIST_BLUR_MODE != DIST_BLUR_OFF
+        #if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
             float blurDist = 0.0;
             if (depth < depthOpaque) {
                 blurDist = max(length(localPosOpaque) - viewDist, 0.0);
@@ -597,14 +597,14 @@ layout(location = 0) out vec4 outFinal;
             vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, depth, blurDist, isWater && isEyeInWater != 1);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
-            float maxLod = max(log2(min(viewWidth, viewHeight)) - 1.0, 0.0);
+            float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
 
             float lodOpaque = 0.0;
             #ifdef REFRACTION_BLUR
                 if (isWater)
-                    lodOpaque = min(maxLod, 4.0) * min(min(viewDist, transDepth) / 12.0, 1.0);
+                    lodOpaque = maxLod * min(min(viewDist, transDepth) / 12.0, 1.0);
                 else if (isEyeInWater != 1)
-                    lodOpaque = min(maxLod, 4.0) * min(transDepth * roughL / 2.0, 1.0);
+                    lodOpaque = maxLod * min(transDepth * roughL / 2.0, 1.0);
             #endif
 
             vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;

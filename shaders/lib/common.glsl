@@ -120,6 +120,7 @@ const bool colortex15Clear = true;
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
 #define WATER_DISPLACEMENT
+#define WATER_BLUR
 
 
 // Material Options
@@ -263,7 +264,6 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
-//#define WATER_BLUR
 //#define REFRACTION_SNELL_ENABLED
 //#define SHADOW_FORCE_CULLING
 #define AF_SAMPLES 1
