@@ -5,9 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 4, local_size_y = 1, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(4, 1, 1);
+const ivec3 workGroups = ivec3(1, 1, 1);
 
 #ifdef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
@@ -71,11 +71,14 @@ void main() {
     #ifdef IRIS_FEATURE_SSBO
         if (i == 0) {
             HandLightTypePrevious1 = HandLightType1;
-            HandLightTypePrevious2 = HandLightType2;
-
             HandLightType1 = GetSceneItemLightType(heldItemId);
+        }
+        else if (i == 1) {
+            HandLightTypePrevious2 = HandLightType2;
             HandLightType2 = GetSceneItemLightType(heldItemId2);
+        }
 
+        if (i == 0) {
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -128,10 +131,10 @@ void main() {
             #endif
         }
 
-        memoryBarrierBuffer();
-
         #ifdef WORLD_SHADOW_ENABLED
-            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            memoryBarrierBuffer();
+
+            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
                 if (i == 0) {
                     vec3 clipMin, clipMax;
                     mat4 matSceneToShadow = shadowModelViewEx * gbufferModelViewProjectionInverse;

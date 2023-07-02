@@ -270,7 +270,7 @@ const bool colortex15Clear = true;
 #define LIGHT_LEAK_FIX
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
-#define DIST_BLUR_SCALE_WATER 14.0
+#define DIST_BLUR_SCALE_WATER 16.0
 #define DIST_BLUR_SCALE_BLIND 6.0
 #define DIST_BLUR_SAMPLES 8 // [2 4 8 12 16 20 24 28 32]
 #define DIST_BLUR_RADIUS 8 // [2 4 6 8 10 12 14 16 18 20 22 24]
