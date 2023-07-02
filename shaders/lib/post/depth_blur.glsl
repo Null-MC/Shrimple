@@ -6,6 +6,11 @@ mat2 GetBlurRotation() {
     return mat2(c, -s, s, c);
 }
 
+float GetBlurSize(const in float depth, const in float focusPoint, const in float focusScale) {
+    float coc = rcp(focusPoint) - rcp(depth);
+    return saturate(abs(coc) * focusScale);// * DIST_BLUR_RADIUS;
+}
+
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 pixelSize = rcp(viewSize);
@@ -19,14 +24,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
     float distF = 0.0;
     #if DIST_BLUR_MODE == DIST_BLUR_DOF
-        float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
-        centerDepthL = clamp(centerDepthL, near, far);
+        const float focusScale = 0.5;
 
-        distF = abs(viewDist - centerDepthL);
-        bool distSign = viewDist >= centerDepthL;
-        float minScale = max(centerDepthL, 1.0);
-        float distScaleDOF = distSign ? max(far - centerDepthL, minScale) : max(centerDepthL, 1.0);
-        distF = min(distF / distScaleDOF, 1.0);
+        float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
+        float centerSize = GetBlurSize(fragDepthL, centerDepthL, focusScale);
     #elif DIST_BLUR_MODE == DIST_BLUR_FAR
         if (!isWater) distF = min(viewDist / far, 1.0);
     #endif
@@ -38,20 +39,18 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         }
     #endif
 
-    //distF = smoothstep(0.0, 1.0, distF);
-    //distF = pow(distF, 1.2);
-
-    uint sampleCount = 1;
-    //if (distScale > EPSILON)
-        sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
-
     const float goldenAngle = PI * (3.0 - sqrt(5.0));
     const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 
     mat2 rotation = GetBlurRotation();
-    float radius = distF * DIST_BLUR_RADIUS;
 
-    //float sampleLod = max(distF - 0.5, 0.0);
+    #if DIST_BLUR_MODE == DIST_BLUR_DOF
+        float radius = DIST_BLUR_RADIUS;
+        uint sampleCount = DIST_BLUR_SAMPLES;
+    #elif DIST_BLUR_MODE == DIST_BLUR_FAR
+        float radius = distF * DIST_BLUR_RADIUS;
+        uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
+    #endif
 
     vec3 color = vec3(0.0);
     float maxWeight = 0.0;
@@ -76,22 +75,18 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
         //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
         float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
-        sampleDepthL = clamp(sampleDepthL, near, far);
-        //sampleDepthL = max(sampleDepthL - minDepth, 0.0);
 
         float sampleDistF = 0.0;
         #if DIST_BLUR_MODE == DIST_BLUR_DOF
-            sampleDistF = abs(sampleDepthL - centerDepthL);
-            bool sampleDistSign = sampleDepthL >= centerDepthL;
-            float sampleDistScaleDOF = max(sampleDistSign ? (far - centerDepthL) : centerDepthL, 1.0);
-            sampleDistF = saturate(sampleDistF / sampleDistScaleDOF);
+            float sampleSize = GetBlurSize(sampleDepthL, centerDepthL, focusScale);
 
-            if (sampleDistSign && !distSign) sampleDistF = 0.0;
+            if (sampleDepthL > fragDepthL)
+                sampleSize = clamp(sampleSize, 0.0, centerSize*2.0);
+
+
+            sampleDistF = sampleSize;
         #elif DIST_BLUR_MODE == DIST_BLUR_FAR
-            //float distF = min(viewDist / distScale, 1.0);
             if (!isWater) sampleDistF = saturate((sampleDepthL - minDepth) / far);
-            
-            //float minSampleDepthL = min(fragDepthL, sampleDepthL);
         #endif
 
         #ifdef WATER_BLUR
@@ -101,10 +96,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             }
         #endif
 
-        sampleDistF = min(sampleDistF, distF);
-        //sampleDistF = smoothstep(0.0, 1.0, sampleDistF);
+        #if DIST_BLUR_MODE == DIST_BLUR_FAR
+            sampleDistF = min(sampleDistF, distF);
+        #endif
 
-        //float sampleDistF = min(minSampleDepthL / distScale, 1.0);
         float sampleLod = max(sampleDistF - 0.5, 0.0);
 
         //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
@@ -118,9 +113,6 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             #endif
 
             sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
-
-            //float minSampleDepth = max(min(fragDepthL, sampleDepthL) - minDepth, 0.0);
-            //sampleWeight *= min(minSampleDepthL / distScale, 1.0);
         }
 
         color += sampleColor * sampleWeight;
