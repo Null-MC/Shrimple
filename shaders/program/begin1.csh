@@ -5,9 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 4, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(1, 1, 1);
+const ivec3 workGroups = ivec3(4, 1, 1);
 
 #ifdef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
@@ -111,7 +111,7 @@ void main() {
                 #endif
             #endif
 
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
                 SceneLightCount = 0u;
                 SceneLightMaxCount = 0u;
 

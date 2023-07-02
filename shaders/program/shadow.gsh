@@ -26,11 +26,9 @@ uniform vec3 cameraPosition;
 uniform float far;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
     uniform float near;
-    //uniform float far;
 #endif
 
 #include "/lib/blocks.glsl"
@@ -44,13 +42,9 @@ uniform float far;
     #include "/lib/items.glsl"
     
     #include "/lib/buffers/lighting.glsl"
-    //#include "/lib/lighting/blackbody.glsl"
-    //#include "/lib/lighting/flicker.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
-    //#include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-    //#include "/lib/lighting/voxel/entities.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -69,38 +63,29 @@ uniform float far;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     // returns: tile [0-3] or -1 if excluded
     int GetShadowRenderTile(const in vec3 blockPos) {
-        //#ifdef SHADOW_CSM_FITRANGE
-        //    const int max = 3;
-        //#else
-            const int max = 4;
-        //#endif
+        const int max = 4;
 
         for (int i = 0; i < max; i++) {
             if (CascadeContainsPosition(blockPos, i, 3.0)) return i;
         }
 
-        //#ifdef SHADOW_CSM_FITRANGE
-        //    return 3;
-        //#else
-            return -1;
-        //#endif
+        return -1;
     }
 #endif
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        bool intersectsShadow = true;
-        vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
-
-        #ifdef SHADOW_FRUSTUM_CULL
-            if (vBlockId[0] > 0) {
-                vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
-
-                if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
-            }
-        #endif
-
+    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
+            vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
+
+            #ifdef SHADOW_FRUSTUM_CULL
+                if (vBlockId[0] > 0) {
+                    vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
+
+                    if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
+                }
+            #endif
+
             vec3 cf = fract(cameraPosition);
             vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
 
@@ -152,12 +137,10 @@ void main() {
         //     //     AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
         //     // }
         // }
-
-        if (!intersectsShadow) return;
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
+        //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
         // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
@@ -165,6 +148,8 @@ void main() {
         // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
+
             int shadowTile = GetShadowRenderTile(originShadowViewPos);
             if (shadowTile < 0) return;
 

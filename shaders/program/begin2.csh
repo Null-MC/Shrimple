@@ -5,12 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
-    const ivec3 workGroups = ivec3(16, 8, 16);
-#else
-#endif
+const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     uniform vec3 cameraPosition;
@@ -27,12 +24,8 @@ void main() {
         if (any(greaterThanEqual(pos, VoxelGridSize))) return;
         uint gridIndex = GetVoxelGridCellIndex(pos);
 
-        //LightCellData cellData = SceneLightMaps[gridIndex];
-
-        SceneLightMaps[gridIndex].LightPreviousCount = cellData.LightCount + cellData.LightNeighborCount;
+        SceneLightMaps[gridIndex].LightPreviousCount = SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount;
         SceneLightMaps[gridIndex].LightNeighborCount = 0u;
         SceneLightMaps[gridIndex].LightCount = 0u;
-
-        //SceneLightMaps[gridIndex] = cellData;
     #endif
 }

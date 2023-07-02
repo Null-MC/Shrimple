@@ -27,7 +27,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
         float centerSize = GetBlurSize(fragDepthL, centerDepthL);
     #elif DIST_BLUR_MODE == DIST_BLUR_FAR
-        if (!isWater) distF = min(viewDist / far, 1.0);
+        if (!isWater) {
+            distF = min(viewDist / far, 1.0);
+            distF = pow(distF, DIST_BLUR_FAR_POW);
+        }
     #endif
 
     #ifdef WATER_BLUR
@@ -84,7 +87,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
             sampleDistF = sampleSize;
         #elif DIST_BLUR_MODE == DIST_BLUR_FAR
-            if (!isWater) sampleDistF = saturate((sampleDepthL - minDepth) / far);
+            if (!isWater) {
+                sampleDistF = saturate((sampleDepthL - minDepth) / far);
+                sampleDistF = pow(sampleDistF, DIST_BLUR_FAR_POW);
+            }
         #endif
 
         #ifdef WATER_BLUR
@@ -98,7 +104,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             sampleDistF = min(sampleDistF, distF);
         #endif
 
-        float sampleLod = max(sampleDistF - 0.5, 0.0);
+        float sampleLod = 2.0 * max(sampleDistF - 0.5, 0.0);
 
         //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
         vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;

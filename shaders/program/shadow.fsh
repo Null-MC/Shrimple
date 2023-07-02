@@ -51,19 +51,8 @@ void main() {
 	color.rgb = LinearToRGB(color.rgb);
 
 	if (gBlockId == BLOCK_WATER) {
-	    // #if WORLD_WATER_TEXTURE == WATER_COLORED
-	    //     color.rgb = RGBToLinear(vec3(0.90, 0.94, 0.96));//gColor.rgb);
-	    //     color.a = 0.7;
-	    // #endif
-
-	    // color.a *= WorldWaterOpacityF;
-
 	    color = vec4(0.90, 0.94, 0.96, 0.0);
 	}
-
-    // #ifndef SHADOW_COLORED
-    // 	if (gBlockId == BLOCK_WATER) color.a = 0.0;
-    // #endif
 	
 	outColor0 = color;
 }

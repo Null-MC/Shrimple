@@ -210,26 +210,6 @@ void main() {
                 #endif
             }
         }
-        //else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-            //if (entityId == ENTITY_LIGHTNING_BOLT) return;
-
-            // #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            //     if (entityId == ENTITY_PLAYER) {
-            //         if (vertexId % 600 == 300) {
-            //             HandLightPos1 = (shadowModelViewInverse * gl_Position).xyz;
-            //         }
-
-            //         if (vertexId == 5) {
-            //             HandLightPos2 = (shadowModelViewInverse * gl_Position).xyz;
-            //         }
-            //     }
-            // #endif
-        //}
-
-        // if (!intersects) {
-        //     gl_Position = vec4(-1.0);
-        //     return;
-        // }
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

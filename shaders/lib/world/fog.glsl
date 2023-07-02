@@ -11,12 +11,19 @@ float GetFogFactor(const in float dist, const in float start, const in float end
 
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
-        #ifdef WORLD_SKY_ENABLED
-            float fogF = fogify(max(viewUpF, 0.0), 0.06);
-            return mix(skyColor, fogColor, fogF) * WorldSkyBrightnessF;
-        #else
+        //#ifdef WORLD_SKY_ENABLED
+            #ifdef VL_BUFFER_ENABLED
+                vec3 fogColorFinal = skyColor * 0.5;
+            #else
+                float fogF = fogify(max(viewUpF, 0.0), 0.06);
+
+                vec3 fogColorFinal = mix(skyColor, fogColor, fogF);
+            #endif
+
             return fogColorFinal * WorldSkyBrightnessF;
-        #endif
+        //#else
+        //    return fogColorFinal * WorldSkyBrightnessF;
+        //#endif
     }
 #endif
 
@@ -73,7 +80,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             color = mix(colorHorizon, color, horizonF);
 
             float weatherBrightness = 1.0 - weatherDarkF * smoothstep(0.0, 1.0, rainStrength);
-            return 0.6 * color * weatherBrightness;
+            return color * weatherBrightness;
         }
 
         float GetCustomSkyFogFactor(const in float fogDist) {

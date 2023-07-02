@@ -41,9 +41,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
         result.Ambient = 0.08 * densityF;
 
-        result.Forward = mix(0.46, 0.26, rainStrength);
+        result.Forward = mix(0.48, 0.26, rainStrength);
         result.Back = mix(0.12, 0.16, rainStrength);
-        result.Direction = 0.4;
+        result.Direction = 0.3;
 
         result.ScatterF = vec3(mix(0.09, 0.10, rainStrength) * density);
         result.ExtinctF = mix(0.006, 0.032, rainStrength) * density;
@@ -145,6 +145,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             vec3 skyLightColor = RGBToLinear(fogColor);
         #endif
 
+        //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        skyLightColor *= 0.6 * WorldSkyLightColor;
         skyLightColor *= smoothstep(0.0, 0.2, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 
