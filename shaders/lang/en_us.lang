@@ -567,7 +567,8 @@ value.DEBUG_VIEW.10=Deferred Diffuse
 value.DEBUG_VIEW.11=Deferred Specular
 value.DEBUG_VIEW.12=Shadow Color
 value.DEBUG_VIEW.13=Bloom Tiles
-value.DEBUG_VIEW.14=White-World
+value.DEBUG_VIEW.14=Depth Tiles
+value.DEBUG_VIEW.15=White-World
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

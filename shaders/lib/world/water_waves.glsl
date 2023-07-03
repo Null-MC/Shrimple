@@ -2,29 +2,33 @@
 
 const float WATER_TIME_MULTIPLICATOR = 4.0;
 const float WATER_DRAG_MULT = 0.052;
+const float WATER_DRAG_INC = 1.2;
 const float WATER_FREQUENCY = 6.0;
 const float WATER_WEIGHT = 0.45;
 const float WATER_FREQUENCY_MULT = 1.18;
 const float WATER_SPEED_MULT = 1.07;
 const float WATER_ITER_INC = 5.06711056;
-const float WATER_NORMAL_STRENGTH = 0.5;
+const float WATER_NORMAL_STRENGTH = 0.25;
+
 
 #if   WORLD_WATER_WAVES == 3
     #define WATER_ITERATIONS_FRAGMENT 24
-    const float WATER_XZ_SCALE = 0.06;
-    const float WATER_WAVE_HEIGHT = 0.6;
-    const float WATER_SPEED = 2.0;
-#elif WORLD_WATER_WAVES == 2
-    #define WATER_ITERATIONS_FRAGMENT 16
     const float WATER_XZ_SCALE = 0.20;
     const float WATER_WAVE_HEIGHT = 0.3;
     const float WATER_SPEED = 2.4;
+#elif WORLD_WATER_WAVES == 2
+    #define WATER_ITERATIONS_FRAGMENT 18
+    const float WATER_XZ_SCALE = 0.35;
+    const float WATER_WAVE_HEIGHT = 0.12;
+    const float WATER_SPEED = 2.8;
 #elif WORLD_WATER_WAVES == 1
     #define WATER_ITERATIONS_FRAGMENT 12
-    const float WATER_XZ_SCALE = 0.36;
-    const float WATER_WAVE_HEIGHT = 0.15;
-    const float WATER_SPEED = 4.0;
+    const float WATER_XZ_SCALE = 0.60;
+    const float WATER_WAVE_HEIGHT = 0.04;
+    const float WATER_SPEED = 3.8;
 #endif
+
+
 
 
 float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
@@ -40,6 +44,7 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     float weight = lightF;
     float height = 0.0;
     float waveSum = 0.0;
+    float drag = WATER_DRAG_MULT;
     
     for (int i = 0; i < WATER_ITERATIONS_VERTEX; i++) {
         vec2 direction = vec2(sin(iter), cos(iter));
@@ -48,13 +53,14 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
         float result = wave * cos(x);
         vec2 force = result * weight * direction;
         
-        position -= force * WATER_DRAG_MULT;
+        position -= force * drag;
         height += wave * weight;
         iter += WATER_ITER_INC;
         waveSum += weight;
         weight *= WATER_WEIGHT;
         frequency *= WATER_FREQUENCY_MULT;
         speed *= WATER_SPEED_MULT;
+        drag *= WATER_DRAG_INC;
     }
     
     if (waveSum < EPSILON) return 0.0;

@@ -26,6 +26,10 @@ uniform float viewHeight;
 uniform float near;
 uniform float far;
 
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifndef IRIS_FEATURE_SSBO
@@ -35,6 +39,11 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 skyColor;
+    uniform float rainStrength;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -50,6 +59,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+    #include "/lib/world/fog.glsl"
+#endif
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
@@ -83,29 +97,74 @@ layout(location = 0) out vec4 outFinal;
 
         if (depthTranslucent < depthOpaque) {
             vec2 viewSize = vec2(viewWidth, viewHeight);
+
+            vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+            vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            #else
+                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            #endif
             
             #ifdef WORLD_WATER_ENABLED
-                vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-                vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-
-                #ifndef IRIS_FEATURE_SSBO
-                    vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                    vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
-                    vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                    vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-                #else
-                    vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-                    vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
-                #endif
-
                 uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
                 bool isWater = deferredTexture.a < 0.5;
 
-                if (isEyeInWater != 1 && isWater) {
-                    float waterDist = length(localPosOpaque - localPosTranslucent);
-                    final *= exp(waterDist * -WaterAbsorbColorInv);
+                float distOpaque = length(localPosOpaque);
+                float distTranslucent = length(localPosTranslucent);
+
+                if (isWater && isEyeInWater != 1) {
+                    final *= exp((distOpaque - distTranslucent) * -WaterAbsorbColorInv);
                 }
+            #endif
+
+            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                vec3 fogColorFinal = vec3(0.0);
+                float fogF = 0.0;
+
+                #ifdef WORLD_WATER_ENABLED
+                    if (isWater && isEyeInWater != 1) {
+                        // water fog from outside water
+
+                        #ifndef VL_BUFFER_ENABLED
+                            float fogDist = max(distOpaque - viewDist, 0.0);
+                            fogF = GetCustomWaterFogFactor(fogDist);
+
+                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #endif
+                    }
+                    else {
+                #endif
+                    #ifdef WORLD_SKY_ENABLED
+                        // sky fog
+
+                        if (depthOpaque < 1.0) {
+                            vec3 localViewDir = normalize(localPosOpaque);
+
+                            vec3 skyColorFinal = RGBToLinear(skyColor);
+                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                            float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                            fogF = GetCustomSkyFogFactor(fogDist);
+                        }
+                    #else
+                        // no-sky fog
+
+                        fogColorFinal = RGBToLinear(fogColor);
+                        fogF = GetVanillaFogFactor(localPosOpaque);
+                    #endif
+                #ifdef WORLD_WATER_ENABLED
+                    }
+                #endif
+
+                final = mix(final, fogColorFinal, fogF);
             #endif
 
             #ifdef VOLUMETRIC_BLUR

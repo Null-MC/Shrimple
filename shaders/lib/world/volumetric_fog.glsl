@@ -15,7 +15,7 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 
 #ifdef WORLD_WATER_ENABLED
     // const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
-    vec3 vlWaterScatterColorL = 4.0*RGBToLinear(WaterScatterColor);
+    vec3 vlWaterScatterColorL = 3.6*RGBToLinear(WaterScatterColor);
 
     #ifdef WORLD_SKY_ENABLED
         float vlWaterAmbient = mix(0.05, 0.0002, rainStrength);
@@ -41,9 +41,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
         result.Ambient = 0.08 * densityF;
 
-        result.Forward = mix(0.48, 0.26, rainStrength);
+        result.Forward = mix(0.85, 0.26, rainStrength);
         result.Back = mix(0.12, 0.16, rainStrength);
-        result.Direction = 0.3;
+        result.Direction = 0.2;
 
         result.ScatterF = vec3(mix(0.09, 0.10, rainStrength) * density);
         result.ExtinctF = mix(0.006, 0.032, rainStrength) * density;
@@ -82,9 +82,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 #endif
 
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in bool isWater) {
-    vec3 localStart = localViewDir * (nearDist + 0.1);
-    vec3 localEnd = localViewDir * (farDist - 0.1);
-    float localRayLength = max(farDist - nearDist - 0.2, 0.0);
+    vec3 localStart = localViewDir * nearDist;
+    vec3 localEnd = localViewDir * farDist;
+    float localRayLength = max(farDist - nearDist, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
@@ -137,9 +137,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
-        float VoL = dot(-localSkyLightDirection, -localViewDir);
-
-        #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             vec3 skyLightColor = GetCustomSkyFogColor(sunDir.y);
         #else
             vec3 skyLightColor = RGBToLinear(fogColor);
@@ -150,6 +148,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         skyLightColor *= smoothstep(0.0, 0.2, abs(sunDir.y));
         skyLightColor *= VolumetricBrightnessSky;
 
+        float VoL = dot(localSkyLightDirection, localViewDir);
         float skyPhaseForward = ComputeVolumetricScattering(VoL, phaseF.Forward);
         float skyPhaseBack = ComputeVolumetricScattering(VoL, -phaseF.Back);
         float skyPhase = mix(skyPhaseBack, skyPhaseForward, phaseF.Direction);

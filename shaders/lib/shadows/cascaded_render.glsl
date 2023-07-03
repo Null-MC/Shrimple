@@ -31,7 +31,11 @@ int GetShadowCascade(const in vec3 shadowPos[4], const in float blockRadius) {
 // returns: [0] when depth occluded, [1] otherwise
 float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float bias) {
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        return texture(shadowtex0HW, shadowPos + vec3(offset, -bias)).r;
+        #ifdef RENDER_TRANSLUCENT
+            return texture(shadowtex0HW, shadowPos + vec3(offset, -bias)).r;
+        #else
+            return texture(shadowtex1HW, shadowPos + vec3(offset, -bias)).r;
+        #endif
     #else
         float texDepth = texture(shadowtex0, shadowPos.xy + offset).r;
         return step(shadowPos.z - bias, texDepth);

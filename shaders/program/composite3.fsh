@@ -37,6 +37,10 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler3D texLPV_2;
 #endif
 
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    uniform sampler2D texDepthNear;
+#endif
+
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;

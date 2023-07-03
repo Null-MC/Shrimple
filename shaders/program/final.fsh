@@ -35,6 +35,8 @@ uniform float viewHeight;
 	uniform sampler2D shadowcolor0;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
 	uniform sampler2D BUFFER_BLOOM_TILES;
+#elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
+	uniform sampler2D texDepthNear;
 #endif
 
 #include "/lib/sampling/bayer.glsl"
@@ -86,6 +88,10 @@ void main() {
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
 		vec3 color = textureLod(BUFFER_BLOOM_TILES, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
+		vec3 color = vec3(0.0);
+		if (texcoord.x < 0.5 && texcoord.y < 0.75)
+			color = textureLod(texDepthNear, texcoord * rcp(vec2(0.5, 0.75)), 0).rgb;
 	#else
 		#ifdef FXAA_ENABLED
 			vec3 color = FXAA(texcoord);

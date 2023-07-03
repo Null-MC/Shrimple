@@ -45,6 +45,10 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler3D texLPV_2;
 #endif
 
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    uniform sampler2D texDepthNear;
+#endif
+
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
@@ -621,56 +625,56 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            if (depth < depthOpaque) {
-                float fogF = 0.0;
+        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        //     if (depth < depthOpaque) {
+        //         float fogF = 0.0;
 
-                #ifdef WORLD_WATER_ENABLED
-                    if (isWater && isEyeInWater != 1) {
-                        // water fog from outside water
+        //         #ifdef WORLD_WATER_ENABLED
+        //             if (isWater && isEyeInWater != 1) {
+        //                 // water fog from outside water
 
-                        #ifndef VL_BUFFER_ENABLED
-                            // vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+        //                 #ifndef VL_BUFFER_ENABLED
+        //                     // vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
-                            // #ifndef IRIS_FEATURE_SSBO
-                            //     vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                            //     vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                            // #else
-                            //     vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-                            // #endif
+        //                     // #ifndef IRIS_FEATURE_SSBO
+        //                     //     vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+        //                     //     vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+        //                     // #else
+        //                     //     vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+        //                     // #endif
 
-                            float fogDist = max(length(localPosOpaque) - viewDist, 0.0);
-                            fogF = GetCustomWaterFogFactor(fogDist);
+        //                     float fogDist = max(length(localPosOpaque) - viewDist, 0.0);
+        //                     fogF = GetCustomWaterFogFactor(fogDist);
 
-                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                        #endif
-                    }
-                    else {
-                #endif
-                    #ifdef WORLD_SKY_ENABLED
-                        // sky fog
+        //                     fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+        //                 #endif
+        //             }
+        //             else {
+        //         #endif
+        //             #ifdef WORLD_SKY_ENABLED
+        //                 // sky fog
 
-                        if (depthOpaque < 1.0) {
-                            vec3 skyColorFinal = RGBToLinear(skyColor);
-                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+        //                 if (depthOpaque < 1.0) {
+        //                     vec3 skyColorFinal = RGBToLinear(skyColor);
+        //                     fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+        //                     fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
-                            float fogDist  = GetVanillaFogDistance(localPosOpaque);
-                            fogF = GetCustomSkyFogFactor(fogDist);
-                        }
-                    #else
-                        // no-sky fog
+        //                     float fogDist  = GetVanillaFogDistance(localPosOpaque);
+        //                     fogF = GetCustomSkyFogFactor(fogDist);
+        //                 }
+        //             #else
+        //                 // no-sky fog
 
-                        fogColorFinal = RGBToLinear(fogColor);
-                        fogF = GetVanillaFogFactor(localPosOpaque);
-                    #endif
-                #ifdef WORLD_WATER_ENABLED
-                    }
-                #endif
+        //                 fogColorFinal = RGBToLinear(fogColor);
+        //                 fogF = GetVanillaFogFactor(localPosOpaque);
+        //             #endif
+        //         #ifdef WORLD_WATER_ENABLED
+        //             }
+        //         #endif
 
-                opaqueFinal = mix(opaqueFinal, fogColorFinal, fogF);
-            }
-        #endif
+        //         opaqueFinal = mix(opaqueFinal, fogColorFinal, fogF);
+        //     }
+        // #endif
 
         if (true) {
             //final.rgb = mix(opaqueFinal, final.rgb, final.a);
