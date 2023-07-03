@@ -189,11 +189,6 @@ value.MATERIAL_REFLECTIONS.0=None
 value.MATERIAL_REFLECTIONS.1=Sky Only
 value.MATERIAL_REFLECTIONS.2=Screen-Space
 
-option.SSR_QUALITY=SSR Quality
-value.SSR_QUALITY.0=High
-value.SSR_QUALITY.1=Medium
-value.SSR_QUALITY.2=Low
-
 option.SSR_MAXSTEPS=SSR Max Step Count
 
 

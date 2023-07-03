@@ -327,9 +327,9 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         float sampleDensity = 1.0;
         if (!isWater) {
             //float sampleDensity = 1.0 - smoothstep(68.0, 224.0, traceLocalPos.y + cameraPosition.y);
-            sampleDensity = (traceLocalPos.y + cameraPosition.y - 68.0) / (264.0 - 68.0);
-            sampleDensity = 1.0 - saturate(sampleDensity);
-            sampleDensity = _pow2(sampleDensity);
+            //sampleDensity = (traceLocalPos.y + cameraPosition.y - 68.0) / (340.0 - 68.0);
+            //sampleDensity = 1.0 - saturate(sampleDensity);
+            sampleDensity = 1.0 - smoothstep(60.0, 280.0, traceLocalPos.y + cameraPosition.y);
         }
 
         inScattering *= phaseF.ScatterF * sampleDensity;
