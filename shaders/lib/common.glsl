@@ -211,7 +211,7 @@ const bool colortex15Clear = true;
 // Dynamic LPV
 #define LPV_SIZE 2 // [0 1 2 3]
 #define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
-#define LPV_SUN_SAMPLES 3 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
+#define LPV_SUN_SAMPLES 9 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_GLASS_TINT

@@ -36,10 +36,10 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
         const float dayHalfDensity = 0.5 * VolumetricSkyDayDensityF;
         float densityF = (1.0 - dayHalfDensity) - dayHalfDensity * dayF;
-        float density = densityF * VolumetricDensityF;
+        float density = 0.4 * densityF * VolumetricDensityF;
 
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = 0.08 * densityF;
+        result.Ambient = 0.06 * densityF;
 
         result.Forward = mix(0.85, 0.26, rainStrength);
         result.Back = mix(0.12, 0.16, rainStrength);
@@ -329,7 +329,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             //float sampleDensity = 1.0 - smoothstep(68.0, 224.0, traceLocalPos.y + cameraPosition.y);
             //sampleDensity = (traceLocalPos.y + cameraPosition.y - 68.0) / (340.0 - 68.0);
             //sampleDensity = 1.0 - saturate(sampleDensity);
-            sampleDensity = 1.0 - smoothstep(60.0, 280.0, traceLocalPos.y + cameraPosition.y);
+            sampleDensity = 1.0 - smoothstep(55.0, 340.0, traceLocalPos.y + cameraPosition.y);
         }
 
         inScattering *= phaseF.ScatterF * sampleDensity;
