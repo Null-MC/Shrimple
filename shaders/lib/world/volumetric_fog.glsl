@@ -15,15 +15,13 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 
 #ifdef WORLD_WATER_ENABLED
     // const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
-    vec3 vlWaterScatterColorL = 3.6*RGBToLinear(WaterScatterColor);
-
     #ifdef WORLD_SKY_ENABLED
-        float vlWaterAmbient = mix(0.05, 0.0002, rainStrength);
+        float vlWaterAmbient = mix(0.016, 0.0002, rainStrength);
     #else
         const float vlWaterAmbient = 0.0040;
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.09, 0.5, 0.76, 0.22);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.06, 0.051, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -36,17 +34,17 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
         const float dayHalfDensity = 0.5 * VolumetricSkyDayDensityF;
         float densityF = (1.0 - dayHalfDensity) - dayHalfDensity * dayF;
-        float density = 0.4 * densityF * VolumetricDensityF;
+        float density = densityF * VolumetricDensityF;
 
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = 0.06 * densityF;
+        result.Ambient = 0.01 * densityF;
 
-        result.Forward = mix(0.85, 0.26, rainStrength);
-        result.Back = mix(0.12, 0.16, rainStrength);
-        result.Direction = 0.2;
+        result.Forward = 0.824; //mix(0.85, 0.26, rainStrength);
+        result.Back = 0.19;//mix(0.12, 0.16, rainStrength);
+        result.Direction = 0.0376;// mix(0.2, 0.1, rainStrength);
 
-        result.ScatterF = vec3(mix(0.09, 0.10, rainStrength) * density);
-        result.ExtinctF = mix(0.006, 0.032, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.02, 0.10, rainStrength) * density);
+        result.ExtinctF = mix(0.008, 0.032, rainStrength) * density;
     #else
         result.Ambient = 0.96;
 
@@ -138,15 +136,14 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         #endif
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            vec3 skyLightColor = GetCustomSkyFogColor(sunDir.y);
+            vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(sunDir.y);
         #else
             vec3 skyLightColor = RGBToLinear(fogColor);
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= 0.6 * WorldSkyLightColor;
-        skyLightColor *= smoothstep(0.0, 0.2, abs(sunDir.y));
-        skyLightColor *= VolumetricBrightnessSky;
+        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
         float skyPhaseForward = ComputeVolumetricScattering(VoL, phaseF.Forward);
@@ -329,7 +326,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             //float sampleDensity = 1.0 - smoothstep(68.0, 224.0, traceLocalPos.y + cameraPosition.y);
             //sampleDensity = (traceLocalPos.y + cameraPosition.y - 68.0) / (340.0 - 68.0);
             //sampleDensity = 1.0 - saturate(sampleDensity);
-            sampleDensity = 1.0 - smoothstep(55.0, 340.0, traceLocalPos.y + cameraPosition.y);
+            sampleDensity = 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
         }
 
         inScattering *= phaseF.ScatterF * sampleDensity;

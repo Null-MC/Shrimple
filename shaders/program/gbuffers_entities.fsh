@@ -348,6 +348,7 @@ void main() {
     // }
 
     float occlusion = 1.0;
+    vec2 lmFinal = lmcoord;
     float roughness, metal_f0, sss, emission;
     sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
     emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
@@ -377,6 +378,11 @@ void main() {
                 shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
             #else
                 shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+            #endif
+
+            #ifndef LIGHT_LEAK_FIX
+                float lightF = min(luminance(shadowColor), 1.0);
+                lmFinal.y = min(max(lmFinal.y, lightF), (15.5/16.0));
             #endif
         }
     #endif
@@ -440,7 +446,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+        deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
@@ -468,7 +474,7 @@ void main() {
 
         blockDiffuse += emission * MaterialEmissionF;
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
 
         #ifdef WORLD_SKY_ENABLED
@@ -476,7 +482,7 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, occlusion, sss);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;
