@@ -181,14 +181,17 @@ void main() {
         float distTranslucent = clamp(length(localPosTranslucent), near, far);
         VolumetricPhaseFactors phaseF;
 
+        ivec2 iTex = ivec2(gl_FragCoord.xy);
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+
         bool isWater = false;
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
-                vec2 viewSize = vec2(viewWidth, viewHeight);
-                ivec2 iTex = ivec2(texcoord * viewSize);
+                //vec2 viewSize = vec2(viewWidth, viewHeight);
+                //ivec2 iTex = ivec2(texcoord * viewSize);
                 
-                uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
-                float deferredWater = unpackUnorm4x8(deferredDataA).a;
+                //uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).a;
+                float deferredWater = unpackUnorm4x8(deferredData.a).a;
                 isWater = deferredWater < 0.5;
             }
 
@@ -197,7 +200,16 @@ void main() {
             phaseF = GetVolumetricPhaseFactors();
         #endif
 
-        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, distOpaque, isWater);
+        //vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+
+        //if (any(greaterThan(localNormal, EPSILON3)))
+        //    localNormal = normalize(localNormal * 2.0 - 1.0);
+
+        float d = clamp(distOpaque * 0.05, 0.02, 0.5);
+        vec3 endPos = localPosOpaque;// + localNormal * d;
+        float endDist = clamp(length(endPos) - 0.4 * d, near, far);
+
+        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, endDist, isWater);
     }
 
     outVL = final;

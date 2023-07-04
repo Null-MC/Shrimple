@@ -164,7 +164,10 @@ void main() {
     #endif
 
     vec3 localViewDir = normalize(localPos);
-    float farDist = clamp(length(localPos), near, far);
+
+    vec3 endPos = localPos;
+    float farDist = clamp(length(endPos), near, far);
+
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist);
     outVL = final;
 }

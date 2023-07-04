@@ -280,7 +280,8 @@ void main() {
         final.rgb = RGBToLinear(final.rgb);
         float roughL = _pow2(roughness);
 
-        final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);
+        //final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);
+        final.rgb *= shadowColor;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
             // TODO: Is this right?

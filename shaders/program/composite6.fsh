@@ -10,8 +10,9 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
-uniform sampler2D BUFFER_VL;
-uniform sampler2D BUFFER_DEFERRED_COLOR;
+//uniform sampler2D BUFFER_VL;
+//uniform sampler2D BUFFER_DEFERRED_COLOR;
+uniform usampler2D BUFFER_DEFERRED_DATA;
 
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
@@ -167,7 +168,6 @@ void main() {
     #endif
 
     vec3 localViewDir = normalize(localPos);
-    float distTranslucent = clamp(length(localPos), near, far);
 
     #ifdef WORLD_WATER_ENABLED
         bool isWater = isEyeInWater == 1;
@@ -177,7 +177,21 @@ void main() {
         const bool isWater = false;
     #endif
 
-    vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, distTranslucent, isWater);
+    ivec2 iTex = ivec2(gl_FragCoord.xy);
+    uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+    vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+    vec3 localNormal = deferredNormal.rgb;
+
+    if (any(greaterThan(localNormal, EPSILON3)))
+        localNormal = normalize(localNormal * 2.0 - 1.0);
+
+    float viewDist = length(localPos);
+
+    float d = clamp(viewDist * 0.05, 0.02, 0.5);
+    vec3 endPos = localPos + localNormal * d;
+    float endDist = clamp(length(endPos) - 0.4 * d, near, far);
+
+    vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, endDist, isWater);
 
     outVL = final;
 }

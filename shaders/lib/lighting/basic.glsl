@@ -355,7 +355,8 @@
             float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
-            vec3 accumDiffuse = skyLightColor * D * mix(shadowColor, vec3(1.0), ShadowBrightnessF);// * roughL;
+            //vec3 accumDiffuse = skyLightColor * D * mix(shadowColor, vec3(1.0), ShadowBrightnessF);// * roughL;
+            vec3 accumDiffuse = skyLightColor * D * shadowColor;
 
 
 

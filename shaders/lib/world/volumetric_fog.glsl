@@ -157,7 +157,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
     vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
 
-    #ifdef WORLD_SKY_ENABLED
+    #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
         inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
     #endif
 

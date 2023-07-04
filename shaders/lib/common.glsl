@@ -446,7 +446,6 @@ const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvRangeF = LPV_RANGE * 0.01;
-const float ShadowBrightnessF = SHADOW_BRIGHTNESS * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
