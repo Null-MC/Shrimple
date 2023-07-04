@@ -398,7 +398,7 @@
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 //ambientLight += WorldMinLightF;
-                ambientLight *= DynamicLightAmbientF;
+                ambientLight *= DynamicLightAmbientF * (1.0 + 2.0*rainStrength);
 
                 ambientLight *= occlusion;
             #endif

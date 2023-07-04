@@ -1,5 +1,5 @@
 struct VolumetricPhaseFactors {
-    float Ambient;
+    vec3  Ambient;
     vec3  ScatterF;
     float ExtinctF;
     float Direction;
@@ -16,9 +16,9 @@ float ComputeVolumetricScattering(const in float VoL, const in float G_scatterin
 #ifdef WORLD_WATER_ENABLED
     // const vec3 vlWaterScatterColor = vec3(0.178, 0.265, 0.288);
     #ifdef WORLD_SKY_ENABLED
-        float vlWaterAmbient = mix(0.016, 0.0002, rainStrength);
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.016, 0.0002, rainStrength);
     #else
-        const float vlWaterAmbient = 0.0040;
+        const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
     VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.06, 0.051, 0.924, 0.197);
@@ -37,16 +37,16 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float density = densityF * VolumetricDensityF;
 
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = 0.01 * densityF;
+        result.Ambient = vec3(mix(0.01, 0.03, rainStrength) * densityF);
 
         result.Forward = 0.824; //mix(0.85, 0.26, rainStrength);
         result.Back = 0.19;//mix(0.12, 0.16, rainStrength);
         result.Direction = 0.0376;// mix(0.2, 0.1, rainStrength);
 
-        result.ScatterF = vec3(mix(0.02, 0.10, rainStrength) * density);
-        result.ExtinctF = mix(0.008, 0.032, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.02, 0.08, rainStrength) * density);
+        result.ExtinctF = mix(0.004, 0.04, rainStrength) * density;
     #else
-        result.Ambient = 0.96;
+        result.Ambient = vec3(0.96);
 
         result.Forward = 0.6;
         result.Back = 0.2;
@@ -155,7 +155,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
     float extinctionInv = rcp(phaseF.ExtinctF);
 
-    vec3 inScatteringBase = vec3(phaseF.Ambient);// * RGBToLinear(fogColor);
+    vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
 
     #ifdef WORLD_SKY_ENABLED
         inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
