@@ -73,35 +73,31 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
         float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
 
-        //if (localPos.y > 0.0) {
-            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                vec3 cloudLocalPos = localPos;
-                //vec3 localViewDir = normalize(localPos);
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 cloudLocalPos = localPos;
+            //vec3 localViewDir = normalize(localPos);
 
-                cloudLocalPos.xz += lightWorldDir.xz * (cloudHeightDifference / lightWorldDir.y);
-                cloudLocalPos.y = 192.0;
+            cloudLocalPos.xz += lightWorldDir.xz * (cloudHeightDifference / lightWorldDir.y);
+            cloudLocalPos.y = 192.0;
 
-                float fogDist = GetVanillaFogDistance(cloudLocalPos);
+            float fogDist = GetVanillaFogDistance(cloudLocalPos);
 
-                #ifdef IS_IRIS
-                    fogDist *= 0.5;
-                #endif
-
-                float fogF = GetCustomSkyFogFactor(fogDist);
-                cloudShadow *= 1.0 - fogF;
-            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-                vec3 fogPos = vLocalPos;
-                if (fogShape == 1) fogPos.y = 0.0;
-
-                float viewDist = length(fogPos);
-
-                fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
+            #ifdef IS_IRIS
+                fogDist *= 0.5;
             #endif
-        //}
 
-        //final.a *= 1.0 - fogF;
+            float fogF = GetCustomSkyFogFactor(fogDist);
+            cloudShadow *= 1.0 - fogF;
+        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+            vec3 fogPos = vLocalPos;
+            if (fogShape == 1) fogPos.y = 0.0;
 
-        //return _pow2(cloudF);
+            float viewDist = length(fogPos);
+
+            float fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
+            cloudShadow *= 1.0 - fogF;
+        #endif
+
         return 1.0 - cloudShadow;
     }
 #endif
@@ -270,9 +266,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
             if (isWater) sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
 
             #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-                //vec3 traceLocalPos = localStep * iStep + localStart;
-                float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
-                sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+                if (traceLocalPos.y < 192.0) {
+                    float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
+                    sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+                }
             #endif
 
             inScattering += skyPhase * sampleF * sampleColor;
