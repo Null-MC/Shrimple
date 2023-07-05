@@ -81,6 +81,10 @@ uniform sampler2D noisetex;
     uniform sampler2D TEX_CLOUDS;
 #endif
 
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    uniform sampler2D texDepthNear;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;

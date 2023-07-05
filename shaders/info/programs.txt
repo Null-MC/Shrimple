@@ -12,8 +12,8 @@ deferred3		opaque deferred final
 deferred4		hi-z
 
 composite1		opaque deferred block-light tracing
-composite2		opaque deferred VL tracing
-composite3		opaque deferred final
+composite2		opaque deferred final
+composite3		opaque deferred VL tracing
 composite4		opaque apply VL & water absorption
 composite5		translucent deferred block-light tracing
 composite6		translucent deferred VL tracing

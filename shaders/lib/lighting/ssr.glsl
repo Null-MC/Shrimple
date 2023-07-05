@@ -18,8 +18,8 @@ float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, cons
             uv += ivec2(tileSize * ivec2(0, 2));
         }
 
-        //return texelFetch(texDepthNear, uv, 0).r;
-        return imageLoad(imgDepthNear, uv).r;
+        return texelFetch(texDepthNear, uv, 0).r;
+        //return imageLoad(imgDepthNear, uv).r;
     }
 
     return depth;
