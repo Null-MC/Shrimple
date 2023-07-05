@@ -39,12 +39,12 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
         result.Ambient = vec3(mix(0.01, 0.03, rainStrength) * densityF);
 
-        result.Forward = 0.824; //mix(0.85, 0.26, rainStrength);
-        result.Back = 0.19;//mix(0.12, 0.16, rainStrength);
-        result.Direction = 0.0376;// mix(0.2, 0.1, rainStrength);
+        result.Forward = 0.824;
+        result.Back = 0.19;
+        result.Direction = 0.0376;
 
-        result.ScatterF = vec3(mix(0.02, 0.08, rainStrength) * density);
-        result.ExtinctF = mix(0.004, 0.04, rainStrength) * density;
+        result.ScatterF = vec3(mix(0.02, 0.06, rainStrength) * density);
+        result.ExtinctF = mix(0.002, 0.012, rainStrength) * density;
     #else
         result.Ambient = vec3(0.96);
 
@@ -64,18 +64,45 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
     	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
-    	vec3 cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-    	cloudPos.xy *= rcp(256.0);
+    	vec3 cloudTexPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+    	cloudTexPos.xy *= rcp(256.0);
 
-        float cloudF = textureLod(TEX_CLOUDS, cloudPos.xy, 0).a;
+        float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, 0).a;
 
-        cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudPos.z);
+        cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudTexPos.z);
 
-        float skyLightF = 1.0;//smoothstep(0.1, 0.3, skyLightDir.y);
+        float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
 
-        return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
+        //if (localPos.y > 0.0) {
+            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                vec3 cloudLocalPos = localPos;
+                //vec3 localViewDir = normalize(localPos);
+
+                cloudLocalPos.xz += lightWorldDir.xz * (cloudHeightDifference / lightWorldDir.y);
+                cloudLocalPos.y = 192.0;
+
+                float fogDist = GetVanillaFogDistance(cloudLocalPos);
+
+                #ifdef IS_IRIS
+                    fogDist *= 0.5;
+                #endif
+
+                float fogF = GetCustomSkyFogFactor(fogDist);
+                cloudShadow *= 1.0 - fogF;
+            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                vec3 fogPos = vLocalPos;
+                if (fogShape == 1) fogPos.y = 0.0;
+
+                float viewDist = length(fogPos);
+
+                fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
+            #endif
+        //}
+
+        //final.a *= 1.0 - fogF;
 
         //return _pow2(cloudF);
+        return 1.0 - cloudShadow;
     }
 #endif
 

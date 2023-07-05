@@ -12,13 +12,13 @@ float GetFogFactor(const in float dist, const in float start, const in float end
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
         //#ifdef WORLD_SKY_ENABLED
-            #ifdef VL_BUFFER_ENABLED
-                vec3 fogColorFinal = skyColor;// * 0.5;
-            #else
+            //#ifdef VL_BUFFER_ENABLED
+            //    vec3 fogColorFinal = skyColor;// * 0.5;
+            //#else
                 float fogF = fogify(max(viewUpF, 0.0), 0.06);
 
                 vec3 fogColorFinal = mix(skyColor, fogColor, fogF);
-            #endif
+            //#endif
 
             return fogColorFinal * WorldSkyBrightnessF;
         //#else
