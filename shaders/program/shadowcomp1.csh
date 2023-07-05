@@ -2,14 +2,20 @@
 #define RENDER_SHADOWCOMP
 #define RENDER_COMPUTE
 
-#define LPV_CHUNK_SIZE 4
-
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
 layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
-const ivec3 workGroups = ivec3(16, 8, 16);
+const ivec3 workGroups = ivec3(16, 16, 16);
+
+#if LPV_SIZE == 3
+    const int LPV_CHUNK_SIZE = 4;
+#elif LPV_SIZE == 2
+    const int LPV_CHUNK_SIZE = 2;
+#else
+    const int LPV_CHUNK_SIZE = 1;
+#endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #ifdef DYN_LIGHT_FLICKER
@@ -229,7 +235,7 @@ void main() {
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
 
         ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
-        if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
+        //if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
 
         int frameIndex = frameCounter % 2;
         ivec3 imgCoordOffset = GetLPVFrameOffset();
@@ -250,7 +256,7 @@ void main() {
                     ivec3 iPos = ivec3(x, y, z);
 
                     ivec3 imgCoord = imgChunkPos + iPos;
-                    if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
+                    //if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
 
                     ivec3 voxelPos = voxelOffset + imgCoord;
 

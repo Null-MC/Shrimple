@@ -46,7 +46,8 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    uniform sampler2D texDepthNear;
+    //uniform sampler2D texDepthNear;
+    layout(r32f) uniform readonly image2D imgDepthNear;
 #endif
 
 uniform int frameCounter;

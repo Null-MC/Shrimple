@@ -37,9 +37,10 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler3D texLPV_2;
 #endif
 
-#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    uniform sampler2D texDepthNear;
-#endif
+// #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+//     //uniform sampler2D texDepthNear;
+//     layout(r32f) uniform readonly image2D imgDepthNear;
+// #endif
 
 uniform int frameCounter;
 uniform float frameTime;
@@ -168,9 +169,9 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    #include "/lib/lighting/ssr.glsl"
-#endif
+// #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+//     #include "/lib/lighting/ssr.glsl"
+// #endif
 
 #include "/lib/lighting/basic.glsl"
 #include "/lib/lighting/basic_hand.glsl"
