@@ -442,7 +442,7 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            float waterRough = 0.4 * min(viewDist / 64.0, 1.0);
+            float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(waterRough, 0.50, oceanFoam);
