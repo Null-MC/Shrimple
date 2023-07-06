@@ -58,11 +58,12 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
+#include "/lib/world/fog.glsl"
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-    #include "/lib/world/fog.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
