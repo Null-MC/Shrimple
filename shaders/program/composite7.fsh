@@ -318,6 +318,8 @@ layout(location = 0) out vec4 outFinal;
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
+        vec3 albedo = RGBToLinear(deferredColor.rgb);
+
         vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         fogColorFinal = RGBToLinear(fogColorFinal);
 
@@ -386,7 +388,6 @@ layout(location = 0) out vec4 outFinal;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
-            vec3 albedo = RGBToLinear(deferredColor.rgb);
             float occlusion = deferredLighting.z;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
@@ -677,19 +678,17 @@ layout(location = 0) out vec4 outFinal;
         //     }
         // #endif
 
-        if (true) {
+        if (isWater) {
             //final.rgb = mix(opaqueFinal, final.rgb, final.a);
             final.rgb += opaqueFinal * (1.0 - final.a);
         }
         else {
-            // multiplicative tinting for transparent pixels
-            final.rgb *= mix(opaqueFinal * 3.0, vec3(1.0), pow(final.a, 3.0));
+            vec3 tint = albedo;
+            if (any(greaterThan(tint, EPSILON3)))
+                tint = normalize(tint) * 1.7;
 
-            // remove background for opaque pixels
-            opaqueFinal *= 1.0 - pow(final.a, 3.0);
-
-            // mix background and multiplied foreground
-            final.rgb = mix(opaqueFinal, final.rgb, pow(final.a, 0.2));
+            tint = mix(tint, vec3(1.0), pow(1.0 - final.a, 3.0));
+            final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
         }
 
         final.a = 1.0;
