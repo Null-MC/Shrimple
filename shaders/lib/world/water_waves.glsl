@@ -1,34 +1,39 @@
 #define WATER_ITERATIONS_VERTEX 8
 
 const float WATER_TIME_MULTIPLICATOR = 4.0;
-const float WATER_DRAG_MULT = 0.052;
-const float WATER_DRAG_INC = 1.2;
-const float WATER_FREQUENCY = 6.0;
-const float WATER_WEIGHT = 0.45;
-const float WATER_FREQUENCY_MULT = 1.18;
-const float WATER_SPEED_MULT = 1.07;
-const float WATER_ITER_INC = 5.06711056;
-const float WATER_NORMAL_STRENGTH = 0.25;
-
+const float WATER_FREQUENCY = 1.0;
+const float WATER_FREQUENCY_MULT = 1.14;
+const float WATER_SPEED_MULT = 1.08;
+const float WATER_ITER_INC = PI * (3.0 - sqrt(5.0));
 
 #if   WORLD_WATER_WAVES == 3
-    #define WATER_ITERATIONS_FRAGMENT 24
-    const float WATER_XZ_SCALE = 0.20;
-    const float WATER_WAVE_HEIGHT = 0.3;
-    const float WATER_SPEED = 2.4;
+    #define WATER_ITERATIONS_FRAGMENT 38
+    const float WATER_XZ_SCALE = 1.0;
+    const float WATER_DRAG_MULT = 0.4;
+    const float WATER_DRAG_INC = 0.8;
+    const float WATER_WAVE_HEIGHT = 0.5;
+    const float WATER_SPEED = 1.6;
+    const float WATER_WEIGHT = 0.36;
+    const float WATER_NORMAL_STRENGTH = 0.1;
 #elif WORLD_WATER_WAVES == 2
-    #define WATER_ITERATIONS_FRAGMENT 18
-    const float WATER_XZ_SCALE = 0.35;
-    const float WATER_WAVE_HEIGHT = 0.12;
-    const float WATER_SPEED = 2.8;
+    #define WATER_ITERATIONS_FRAGMENT 26
+    const float WATER_XZ_SCALE = 1.6;
+    const float WATER_DRAG_MULT = 0.4;
+    const float WATER_DRAG_INC = 0.7;
+    const float WATER_WAVE_HEIGHT = 0.25;
+    const float WATER_SPEED = 2.0;
+    const float WATER_WEIGHT = 0.5;
+    const float WATER_NORMAL_STRENGTH = 0.25;
 #elif WORLD_WATER_WAVES == 1
-    #define WATER_ITERATIONS_FRAGMENT 12
-    const float WATER_XZ_SCALE = 0.60;
-    const float WATER_WAVE_HEIGHT = 0.04;
-    const float WATER_SPEED = 3.8;
+    #define WATER_ITERATIONS_FRAGMENT 18
+    const float WATER_XZ_SCALE = 3.2;
+    const float WATER_DRAG_MULT = 0.3;
+    const float WATER_DRAG_INC = 0.8;
+    const float WATER_WAVE_HEIGHT = 0.1;
+    const float WATER_SPEED = 3.0;
+    const float WATER_WEIGHT = 0.6;
+    const float WATER_NORMAL_STRENGTH = 0.2;
 #endif
-
-
 
 
 float water_waveHeight(const in vec2 worldPos, const in float skyLight) {

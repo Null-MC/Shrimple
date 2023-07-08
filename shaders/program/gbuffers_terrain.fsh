@@ -493,7 +493,7 @@ void main() {
 
         color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM && defined WORLD_SKY_ENABLED
             vec3 fogColorFinal = vec3(0.0);
             float fogF = 0.0;
 

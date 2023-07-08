@@ -77,7 +77,7 @@ uniform ivec2 eyeBrightnessSmooth;
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outFinal;
 
-#if defined VL_BUFFER_ENABLED && defined DEFERRED_BUFFER_ENABLED
+#ifdef DEFERRED_BUFFER_ENABLED
     void main() {
         ivec2 iTex = ivec2(gl_FragCoord.xy);
 
@@ -134,7 +134,7 @@ layout(location = 0) out vec4 outFinal;
                         // water fog from outside water
 
                         #ifndef VL_BUFFER_ENABLED
-                            float fogDist = max(distOpaque - viewDist, 0.0);
+                            float fogDist = max(distOpaque - distTranslucent, 0.0);
                             fogF = GetCustomWaterFogFactor(fogDist);
 
                             fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
@@ -168,23 +168,25 @@ layout(location = 0) out vec4 outFinal;
                 final = mix(final, fogColorFinal, fogF);
             #endif
 
-            #ifdef VOLUMETRIC_BLUR
-                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+            #ifdef VL_BUFFER_ENABLED
+                #ifdef VOLUMETRIC_BLUR
+                    const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-                #if VOLUMETRIC_RES == 2
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #if VOLUMETRIC_RES == 2
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #elif VOLUMETRIC_RES == 1
+                        const vec2 vlSigma = vec2(1.0, 0.00001);
+                    #else
+                        const vec2 vlSigma = vec2(1.2, 0.00002);
+                    #endif
+
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaque, vlSigma);
                 #else
-                    const vec2 vlSigma = vec2(1.2, 0.00002);
+                    vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
                 #endif
 
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaque, vlSigma);
-            #else
-                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+                final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
             #endif
-
-            final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
         }
 
         outFinal = vec4(final, 1.0);

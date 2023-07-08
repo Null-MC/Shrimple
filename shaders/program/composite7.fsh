@@ -620,12 +620,12 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
-        #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
-            if (isEyeInWater != 1 && isWater) {
-                //float transDepth = max(length(localPosOpaque) - viewDist, 0.0);
-                opaqueFinal *= exp(transDepth * -WaterAbsorbColorInv);
-            }
-        #endif
+        // #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
+        //     if (isEyeInWater != 1 && isWater) {
+        //         //float transDepth = max(length(localPosOpaque) - viewDist, 0.0);
+        //         opaqueFinal *= exp(transDepth * -WaterAbsorbColorInv);
+        //     }
+        // #endif
 
         // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
         //     if (depth < depthOpaque) {
