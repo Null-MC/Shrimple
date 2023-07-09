@@ -662,7 +662,7 @@ layout(location = 0) out vec4 outFinal;
         //                     fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
         //                     float fogDist  = GetVanillaFogDistance(localPosOpaque);
-        //                     fogF = GetCustomSkyFogFactor(fogDist);
+        //                     fogF = GetCustomFogFactor(fogDist);
         //                 }
         //             #else
         //                 // no-sky fog
@@ -732,15 +732,15 @@ layout(location = 0) out vec4 outFinal;
                         vec3 skyColorFinal = RGBToLinear(skyColor);
                         fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                         fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-
-                        float fogDist = GetVanillaFogDistance(localPos);
-                        fogF = GetCustomSkyFogFactor(fogDist);
                     #else
                         // no-sky fog
 
                         fogColorFinal = RGBToLinear(fogColor);
-                        fogF = GetVanillaFogFactor(localPos);
+                        //fogF = GetVanillaFogFactor(localPos);
                     #endif
+
+                    float fogDist = GetVanillaFogDistance(localPos);
+                    fogF = GetCustomFogFactor(fogDist);
                 }
             #ifdef WORLD_WATER_ENABLED
                 }

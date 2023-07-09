@@ -7,71 +7,73 @@
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex0;
-uniform sampler2D depthtex1;
-uniform sampler2D depthtex2;
-uniform sampler2D BUFFER_FINAL;
-uniform usampler2D BUFFER_DEFERRED_DATA;
+#ifdef DEFERRED_BUFFER_ENABLED
+    uniform sampler2D depthtex0;
+    uniform sampler2D depthtex1;
+    uniform sampler2D depthtex2;
+    uniform sampler2D BUFFER_FINAL;
+    uniform usampler2D BUFFER_DEFERRED_DATA;
 
-#ifdef VL_BUFFER_ENABLED
-    uniform sampler2D BUFFER_VL;
+    #ifdef VL_BUFFER_ENABLED
+        uniform sampler2D BUFFER_VL;
+    #endif
+
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferModelViewInverse;
+    uniform mat4 gbufferProjectionInverse;
+    uniform vec3 upPosition;
+    uniform float viewWidth;
+    uniform float viewHeight;
+    uniform float near;
+    uniform float far;
+
+    uniform vec3 fogColor;
+    uniform float fogStart;
+    uniform float fogEnd;
+
+    uniform ivec2 eyeBrightnessSmooth;
+
+    #ifndef IRIS_FEATURE_SSBO
+        uniform mat4 gbufferPreviousModelView;
+        uniform mat4 gbufferPreviousProjection;
+    #endif
+
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+        uniform mat4 gbufferProjection;
+    #endif
+
+    #ifdef WORLD_SKY_ENABLED
+        uniform vec3 skyColor;
+        uniform float rainStrength;
+    #endif
+
+    #ifdef WORLD_WATER_ENABLED
+        uniform int isEyeInWater;
+    #endif
+
+    #ifdef IRIS_FEATURE_SSBO
+        #include "/lib/buffers/scene.glsl"
+    #endif
+
+    #include "/lib/sampling/depth.glsl"
+    #include "/lib/sampling/noise.glsl"
+    #include "/lib/sampling/bayer.glsl"
+    #include "/lib/sampling/ign.glsl"
+
+    #include "/lib/world/common.glsl"
+    #include "/lib/world/fog.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+    #endif
+
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
+
+    #include "/lib/sampling/bilateral_gaussian.glsl"
+    #include "/lib/world/volumetric_blur.glsl"
 #endif
-
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferProjectionInverse;
-uniform vec3 upPosition;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float near;
-uniform float far;
-
-uniform vec3 fogColor;
-uniform float fogStart;
-uniform float fogEnd;
-
-uniform ivec2 eyeBrightnessSmooth;
-
-#ifndef IRIS_FEATURE_SSBO
-    uniform mat4 gbufferPreviousModelView;
-    uniform mat4 gbufferPreviousProjection;
-#endif
-
-#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    uniform mat4 gbufferProjection;
-#endif
-
-#ifdef WORLD_SKY_ENABLED
-    uniform vec3 skyColor;
-    uniform float rainStrength;
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
-#endif
-
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#endif
-
-#include "/lib/sampling/depth.glsl"
-#include "/lib/sampling/noise.glsl"
-#include "/lib/sampling/bayer.glsl"
-#include "/lib/sampling/ign.glsl"
-
-#include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
-
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-#endif
-
-#include "/lib/sampling/bilateral_gaussian.glsl"
-#include "/lib/world/volumetric_blur.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -153,13 +155,16 @@ layout(location = 0) out vec4 outFinal;
                             fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
                             float fogDist  = GetVanillaFogDistance(localPosOpaque);
-                            fogF = GetCustomSkyFogFactor(fogDist);
+                            fogF = GetCustomFogFactor(fogDist);
                         }
                     #else
                         // no-sky fog
 
                         fogColorFinal = RGBToLinear(fogColor);
-                        fogF = GetVanillaFogFactor(localPosOpaque);
+                        //fogF = GetVanillaFogFactor(localPosOpaque);
+
+                        float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                        fogF = GetCustomFogFactor(fogDist);
                     #endif
                 #ifdef WORLD_WATER_ENABLED
                     }

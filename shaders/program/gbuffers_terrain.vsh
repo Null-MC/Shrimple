@@ -135,6 +135,9 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
+    //lmcoord = (TEXTURE_MATRIX_2 * vec4(lmcoord, 0.0, 1.0)).xy;
+    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+
     BasicVertex();
 
     PrepareNormalMap();

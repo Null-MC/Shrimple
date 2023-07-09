@@ -49,7 +49,12 @@
             #endif
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
-                vec3 blockLightDefault = textureLod(lightmap, vec2(lmcoord.x, (0.5/16.0)), 0).rgb;
+                vec2 lmcoordFinal = vec2(lmcoord.x, 0.0);
+                //float lightP = rcp(max(DynamicLightAmbientF, EPSILON));
+                //lmcoordFinal.y = pow(lmcoordFinal.y, lightP);
+                lmcoordFinal = saturate(lmcoordFinal) * (15.0/16.0) + (0.5/16.0);
+
+                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
                 blockLightDefault = RGBToLinear(blockLightDefault);
 
                 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -129,16 +134,14 @@
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
         void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
             //#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                vec2 lmBlock = vec2(lmcoord.x, 0.5/16.0);
+                vec2 lmBlock = vec2(lmcoord.x, 0.0);
             //#else
             //    vec2 lmBlock = lmcoord;
             //#endif
 
-            #ifdef RENDER_GBUFFER
-                vec3 blockLightDefault = textureLod(lightmap, lmBlock, 0).rgb;
-            #else
-                vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
-            #endif
+            //lmBlock = (vec4(lmBlock, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
+            lmBlock = saturate(lmBlock) * (15.0/16.0) + (0.5/16.0);
+            vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
 
             blockLightDefault = RGBToLinear(blockLightDefault);
 
@@ -296,17 +299,20 @@
             //#endif
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                vec2 lmSky = vec2((0.5/16.0), lmcoord.y);
+                vec2 lmSky = vec2(0.0, lmcoord.y);
             #else
                 vec2 lmSky = lmcoord;
+                //lmSky.y
             #endif
 
+            //float lightP = rcp(max(DynamicLightAmbientF, EPSILON));
             #ifndef RENDER_CLOUDS
-                #ifdef RENDER_GBUFFER
-                    vec3 skyLightColor = textureLod(lightmap, lmSky, 0).rgb;
-                #else
-                    vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
-                #endif
+                //lmSky.y = pow(lmSky.y, lightP);
+
+                //lmSky = (vec4(lmSky, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
+                lmSky = saturate(lmSky) * (15.0/16.0) + (0.5/16.0);
+
+                vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
 
                 skyLightColor = RGBToLinear(skyLightColor);
 
@@ -359,12 +365,13 @@
             vec3 accumDiffuse = skyLightColor * D * shadowColor;
 
 
+            //vec2 lmcoordFinal = (vec4(lmcoord, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
+            vec2 lmcoordFinal = lmcoord;
+            //float lightP = rcp(max(DynamicLightAmbientF, EPSILON));
+            //lmcoordFinal.y = pow(lmcoordFinal.y, lightP);
+            lmcoordFinal = saturate(lmcoordFinal) * (15.0/16.0) + (0.5/16.0);
 
-            #ifdef RENDER_GBUFFER
-                vec3 lightmapColor = textureLod(lightmap, lmcoord, 0).rgb;
-            #else
-                vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
-            #endif
+            vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
 
             vec3 ambientLight = RGBToLinear(lightmapColor);
 

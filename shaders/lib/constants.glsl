@@ -139,12 +139,22 @@
 #define BUFFER_BLOOM_TILES colortex15
 #define BUFFER_WEATHER colortex15
 
+#ifdef RENDER_GBUFFER
+	#define TEX_LIGHTMAP lightmap
+#endif
+
 #ifdef IS_IRIS
-	#define TEX_LIGHTMAP texLightmap
+	#ifndef RENDER_GBUFFER
+		#define TEX_LIGHTMAP texLightmap
+	#endif
+	
 	#define TEX_RIPPLES texRipples
 	#define TEX_CLOUDS texClouds
 #else
-	#define TEX_LIGHTMAP colortex13
+	#ifndef RENDER_GBUFFER
+		#define TEX_LIGHTMAP colortex13
+	#endif
+
 	#define TEX_RIPPLES colortex13
 	#define TEX_CLOUDS shadowcolor1
 #endif

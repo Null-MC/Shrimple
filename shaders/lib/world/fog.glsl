@@ -41,11 +41,11 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
     vec3 GetCustomWaterFogColor(const in float sunUpF) {
-        #ifdef VL_BUFFER_ENABLED
-            const vec3 _color = RGBToLinear(vec3(0.031, 0.096, 0.227));
-        #else
+        //#ifdef VL_BUFFER_ENABLED
+        //    const vec3 _color = RGBToLinear(vec3(0.031, 0.096, 0.227));
+        //#else
             const vec3 _color = RGBToLinear(vec3(0.124, 0.290, 0.343));
-        #endif
+        //#endif
 
         const float WaterMinBrightness = 0.04;
 
@@ -100,6 +100,22 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             #endif
         }
     #endif
+
+    float GetCustomFogFactor(const in float fogDist) {
+        #ifdef WORLD_SKY_ENABLED
+            #ifdef VL_BUFFER_ENABLED
+                return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
+            #else
+                const float WorldFogRainySkyDensityF = 0.5;
+
+                float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
+                float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
+                return GetFogFactor(fogDist, fogStart, far, density);
+            #endif
+        #else
+            return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
+        #endif
+    }
 #endif
 
 #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)

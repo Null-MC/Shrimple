@@ -577,12 +577,12 @@ layout(location = 0) out vec4 outFinal;
                         fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
                         float fogDist  = GetVanillaFogDistance(localPos);
-                        fogF = GetCustomSkyFogFactor(fogDist);
+                        fogF = GetCustomFogFactor(fogDist);
                     #else
                         // no-sky fog
 
                         fogColorFinal = RGBToLinear(fogColor);
-                        fogF = GetVanillaFogFactor(localPos);
+                        fogF = GetCustomFogFactor(localPos);
                     #endif
                 #ifdef WORLD_WATER_ENABLED
                     }

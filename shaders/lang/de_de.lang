@@ -551,14 +551,13 @@ option.GAMMA_OUT.comment=Die Gammakurve des endgültigen Bildes.
 option.TONEMAP_ENABLED=Tonemap
 option.TONEMAP_ENABLED.comment=Verhindert das Abschneiden heller Farben, nützlich für dynamische Beleuchtung.
 
-option.POST_BLOOM_STRENGTH=Bloomstärke
-option.POST_BLOOM_STRENGTH.comment=Die Menge an Bloom, die auf die letzte Szene angewendet werden soll. Zum Deaktivieren auf Null setzen.
-suffix.POST_BLOOM_STRENGTH=%
-value.POST_BLOOM_STRENGTH.0=Aus
+option.EFFECT_BLOOM_STRENGTH=Stärke
+option.EFFECT_BLOOM_STRENGTH.comment=Die Menge an Bloom, die auf die letzte Szene angewendet werden soll. Zum Deaktivieren auf Null setzen.
+suffix.EFFECT_BLOOM_STRENGTH=%
 
-option.POST_BLOOM_THRESHOLD=Bloom Schwelle
-option.POST_BLOOM_THRESHOLD.comment=Der Helligkeitsschwellenwert des Lichts muss überschritten werden, um zur Blüte beizutragen.
-suffix.POST_BLOOM_THRESHOLD=%
+option.EFFECT_BLOOM_THRESHOLD=Schwelle
+option.EFFECT_BLOOM_THRESHOLD.comment=Der Helligkeitsschwellenwert des Lichts muss überschritten werden, um zur Blüte beizutragen.
+suffix.EFFECT_BLOOM_THRESHOLD=%
 
 option.FXAA_ENABLED=FXAA
 option.FXAA_ENABLED.comment=Ermöglicht ein schnelles, aber minderwertiges Anti-Aliasing.

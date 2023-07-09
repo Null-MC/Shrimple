@@ -350,10 +350,20 @@ void main() {
                 shadowColor = vec3(shadowF);
             #endif
 
-            #ifndef LIGHT_LEAK_FIX
-                float lightF = min(luminance(shadowColor), 1.0);
-                lmFinal.y = min(max(lmFinal.y, lightF), (15.5/16.0));
-            #endif
+            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
+            //lmFinal.y = (lmFinal.y - (0.5/16.0)) / (15.0/16.0);
+            lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
+            //lmFinal.y = lmFinal.y * (15.0/16.0) + (0.5/16.0);
+
+            if (viewDist < shadowDistance) {
+                #ifndef LIGHT_LEAK_FIX
+                    float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
+                    lmFinal.y = max(lmFinal.y, lightF);
+                #endif
+            }
+
+            shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
         }
     #endif
 

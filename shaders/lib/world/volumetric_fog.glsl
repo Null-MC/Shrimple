@@ -37,7 +37,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float density = densityF * VolumetricDensityF;
 
         //float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient = vec3(mix(0.01, 0.03, rainStrength) * densityF);
+        result.Ambient = vec3(0.0);//mix(0.001, 0.03, rainStrength) * densityF);
 
         result.Forward = 0.824;
         result.Back = 0.19;

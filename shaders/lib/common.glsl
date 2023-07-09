@@ -248,9 +248,9 @@ const bool colortex15Clear = true;
 
 
 // Effects
-//#define BLOOM_ENABLED
-#define POST_BLOOM_STRENGTH 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define POST_BLOOM_THRESHOLD 160 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
+//#define EFFECT_BLOOM_ENABLED
+#define EFFECT_BLOOM_STRENGTH 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_THRESHOLD 160 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
 #define DIST_BLUR_SCALE_WATER 16.0
@@ -417,7 +417,7 @@ const bool colortex15Clear = true;
 #endif
 #ifdef SHADOW_FORCE_CULLING
 #endif
-#ifdef BLOOM_ENABLED
+#ifdef EFFECT_BLOOM_ENABLED
 #endif
 
 
@@ -462,8 +462,8 @@ const float DepthOfFieldFocusScale = BLUR_DOF_FOCUS_SCALE * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
-const float PostBloomStrengthF = POST_BLOOM_STRENGTH * 0.01;
-const float PostBloomThresholdF = POST_BLOOM_THRESHOLD * 0.01;
+const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
+const float PostBloomThresholdF = EFFECT_BLOOM_THRESHOLD * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
 const float invPI = 1.0 / PI;
@@ -471,7 +471,7 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 
-const float centerDepthHalflife = 1.8;
+const float centerDepthHalflife = 1.2;
 const float wetnessHalflife = 16000.0;
 const float drynessHalflife = 20.0;
 
@@ -481,7 +481,7 @@ const float drynessHalflife = 20.0;
     const float ShadowNormalBias = (SHADOW_DISTORTED_NORMAL_BIAS * SHADOW_BIAS_SCALE);
 #endif
 
-const float shadowDistanceRenderMul = 1.0;
+const float shadowDistanceRenderMul = -1.0;
 
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800]
 const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
@@ -504,6 +504,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowcolor0Nearest = false;
 #endif
 
+const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
+
 #if MC_VERSION < 11700
     const float alphaTestRef = 0.1;
 #endif
@@ -516,6 +518,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 
 #define modelPart(x, y, z) (vec3(x, y, z)/16.0)
 
+float pow2(const in float x) {return x*x;}
 uint pow3(const in uint x) {return x*x*x;}
 float pow3(const in float x) {return x*x*x;}
 vec2  pow3(const in vec2  x) {return x*x*x;}
