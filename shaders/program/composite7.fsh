@@ -724,8 +724,7 @@ layout(location = 0) out vec4 outFinal;
                 }
                 else {
             #endif
-                if (depth >= 1.0) fogF = 0.0;
-                else {
+                if (depth < 1.0) {
                     #ifdef WORLD_SKY_ENABLED
                         // sky fog
 

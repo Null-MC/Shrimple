@@ -113,7 +113,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
                 return GetFogFactor(fogDist, fogStart, far, density);
             #endif
         #else
-            return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
+            return GetFogFactor(fogDist, 0.0, far, 1.0);
         #endif
     }
 #endif
@@ -140,13 +140,13 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 #endif
 
 #if defined RENDER_GBUFFER && !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED || defined RENDER_CLOUDS) // || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-        void ApplyWaterFog(inout vec4 color, const in vec3 localPos, const in float waterDepth) {
-        }
+    // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+    //     void ApplyWaterFog(inout vec4 color, const in vec3 localPos, const in float waterDepth) {
+    //     }
 
-        void ApplySkyFog(inout vec4 color, const in vec3 localPos, const in float waterDepth) {
-        }
-    #endif
+    //     void ApplySkyFog(inout vec4 color, const in vec3 localPos, const in float waterDepth) {
+    //     }
+    // #endif
 
     void ApplyVanillaFog(inout vec4 color, const in vec3 localPos) {
         vec3 localViewDir = normalize(localPos);
@@ -162,6 +162,39 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     }
 
     void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewDir) {
-        ApplyVanillaFog(color, localPos);
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 fogColorFinal = vec3(0.0);
+            float fogF = 0.0;
+
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    float viewDist = length(localPos);
+                    fogF = GetCustomWaterFogFactor(viewDist);
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+            #endif
+                #ifdef WORLD_SKY_ENABLED
+                    vec3 skyColorFinal = RGBToLinear(skyColor);
+                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                #else
+                    fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
+                    fogColorFinal = RGBToLinear(fogColorFinal);
+                #endif
+
+                float fogDist  = GetVanillaFogDistance(vLocalPos);
+                fogF = GetCustomFogFactor(fogDist);
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
+
+            color.rgb = mix(color.rgb, fogColorFinal, fogF);
+
+            if (color.a > alphaTestRef)
+                color.a = mix(color.a, 1.0, fogF);
+        #else
+            ApplyVanillaFog(color, vLocalPos);
+        #endif
     }
 #endif

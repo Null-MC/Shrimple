@@ -503,31 +503,35 @@ void main() {
 
         color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM && defined WORLD_SKY_ENABLED
-            vec3 fogColorFinal = vec3(0.0);
-            float fogF = 0.0;
+        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        //     vec3 fogColorFinal = vec3(0.0);
+        //     float fogF = 0.0;
 
-            #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater == 1) {
-                    fogF = GetCustomWaterFogFactor(viewDist);
-                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                }
-                else {
-            #endif
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+        //     #ifdef WORLD_WATER_ENABLED
+        //         if (isEyeInWater == 1) {
+        //             fogF = GetCustomWaterFogFactor(viewDist);
+        //             fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+        //         }
+        //         else {
+        //     #endif
+        //         #ifdef WORLD_SKY_ENABLED
+        //             vec3 skyColorFinal = RGBToLinear(skyColor);
+        //             fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+        //             fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+        //         #
 
-                float fogDist  = GetVanillaFogDistance(vLocalPos);
-                fogF = GetCustomSkyFogFactor(fogDist);
-            #ifdef WORLD_WATER_ENABLED
-                }
-            #endif
+        //         float fogDist  = GetVanillaFogDistance(vLocalPos);
+        //         fogF = GetCustomFogFactor(fogDist);
+        //     #ifdef WORLD_WATER_ENABLED
+        //         }
+        //     #endif
 
-            color.rgb = mix(color.rgb, fogColorFinal, fogF);
-        #else
-            ApplyVanillaFog(color, vLocalPos);
-        #endif
+        //     color.rgb = mix(color.rgb, fogColorFinal, fogF);
+        // #else
+        //     ApplyVanillaFog(color, vLocalPos);
+        // #endif
+
+        ApplyFog(color, vLocalPos, localViewDir);
 
         outFinal = color;
     #endif

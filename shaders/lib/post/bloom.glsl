@@ -62,8 +62,8 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
         vec3 color = vec3(0.0);
         float totalWeight = 0.0;
 
-        for (int iy = -2; iy < 2; iy++) {
-            for (int ix = -2; ix < 2; ix++) {
+        for (float iy = -1.0; iy <= 1.0; iy++) {
+            for (float ix = -1.0; ix <= 1.0; ix++) {
                 vec2 sampleOffset = vec2(ix, iy);
                 float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
 
@@ -96,7 +96,7 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 
         vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcOuterBoundsMin;
 
-        //srcTex += 0.25 * pixelSize;
+        srcTex -= 0.25 * pixelSize;
 
         vec3 color = BloomBoxSample(texSrc, srcTex, pixelSize);
 
@@ -121,7 +121,7 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
 
         vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcBoundsMin;
 
-        srcTex -= 0.5*pixelSize;
+        srcTex -= 0.625*pixelSize;
 
         vec3 color1 = textureLod(texSrc, srcTex, 0).rgb;
         vec3 color2 = textureLodOffset(texSrc, srcTex, 0, ivec2(1,0)).rgb;

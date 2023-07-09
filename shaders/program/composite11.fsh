@@ -12,6 +12,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform float viewWidth;
 uniform float viewHeight;
 
+//#include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
 
@@ -33,7 +34,7 @@ void main() {
     tex = clamp(tex, boundsMin, boundsMax);
     tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
 
-    //tex += 0.25 * pixelSize;
+    //tex -= 0.5 * pixelSize;
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
 
@@ -41,6 +42,8 @@ void main() {
     float contribution = max(brightness - PostBloomThresholdF, 0.0);
     contribution /= max(brightness, EPSILON);
     color *= contribution;
+
+    //color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 65.0e3;
 
     outFinal = max(color, 0.0);
 }
