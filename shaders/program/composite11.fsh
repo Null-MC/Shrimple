@@ -12,7 +12,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform float viewWidth;
 uniform float viewHeight;
 
-//#include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
 
@@ -43,7 +43,7 @@ void main() {
     contribution /= max(brightness, EPSILON);
     color *= contribution;
 
-    //color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 65.0e3;
+    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
 
     outFinal = max(color, 0.0);
 }

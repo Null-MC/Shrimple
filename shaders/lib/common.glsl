@@ -30,67 +30,51 @@ const bool shadowtex0Mipmap = false;
 const bool shadowtex1Mipmap = false;
 
 const vec4 colortex0ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-//const bool colortex0MipmapEnabled = false;
 const bool colortex0Clear = false;
 
 const vec4 colortex1ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex1MipmapEnabled = false;
 const bool colortex1Clear = true;
 
 const vec4 colortex2ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex2MipmapEnabled = false;
 const bool colortex2Clear = true;
 
 const vec4 colortex3ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex3MipmapEnabled = false;
 const bool colortex3Clear = true;
 
 const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex4MipmapEnabled = false;
 const bool colortex4Clear = false;
 
 const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex5MipmapEnabled = false;
 const bool colortex5Clear = false;
 
 const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex6MipmapEnabled = false;
 const bool colortex6Clear = false;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex7MipmapEnabled = false;
 const bool colortex7Clear = false;
 
 const vec4 colortex8ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex8MipmapEnabled = false;
 const bool colortex8Clear = false;
 
 const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex9MipmapEnabled = false;
 const bool colortex9Clear = false;
 
 const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex10MipmapEnabled = false;
 const bool colortex10Clear = true;
 
 const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex11MipmapEnabled = false;
 const bool colortex11Clear = false;
 
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex12MipmapEnabled = false;
 const bool colortex12Clear = false;
 
 const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex13MipmapEnabled = false;
 const bool colortex13Clear = true;
 
 const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex14MipmapEnabled = false;
 const bool colortex14Clear = true;
 
 const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex15MipmapEnabled = false;
 const bool colortex15Clear = true;
 
 

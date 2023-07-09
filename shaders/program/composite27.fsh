@@ -12,6 +12,7 @@ uniform sampler2D BUFFER_BLOOM_TILES;
 uniform float viewWidth;
 uniform float viewHeight;
 
+#include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
 
@@ -35,6 +36,8 @@ void main() {
     vec3 color4 = textureLodOffset(BUFFER_BLOOM_TILES, srcTex, 0, ivec2(1,1)).rgb;
 
     vec3 color = (color1 + color2 + color3 + color4) * 0.25;
+    
+    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
 
     outFinal = color * PostBloomStrengthF;
 }

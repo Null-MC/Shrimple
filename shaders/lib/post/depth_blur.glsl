@@ -6,8 +6,8 @@ mat2 GetBlurRotation() {
     return mat2(c, -s, s, c);
 }
 
-float GetBlurSize(const in float depth, const in float focusPoint) {
-    float coc = rcp(focusPoint) - rcp(depth);
+float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
+    float coc = rcp(focusDepthL) - rcp(fragDepthL);
     return saturate(abs(coc) * DepthOfFieldFocusScale);
 }
 

@@ -62,8 +62,8 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
         vec3 color = vec3(0.0);
         float totalWeight = 0.0;
 
-        for (float iy = -1.0; iy <= 1.0; iy++) {
-            for (float ix = -1.0; ix <= 1.0; ix++) {
+        for (float iy = -1.5; iy <= 1.5; iy++) {
+            for (float ix = -1.5; ix <= 1.5; ix++) {
                 vec2 sampleOffset = vec2(ix, iy);
                 float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
 

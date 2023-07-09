@@ -12,6 +12,7 @@ uniform sampler2D BUFFER_BLOOM_TILES;
 uniform float viewWidth;
 uniform float viewHeight;
 
+#include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
 
@@ -20,6 +21,8 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     vec3 color = BloomTileUpsample(BUFFER_BLOOM_TILES, BLOOM_TILE_MAX_COUNT-4);
+    
+    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
 
     outFinal = color;
 }

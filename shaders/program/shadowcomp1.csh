@@ -213,7 +213,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
             //shadowSample *= exp(shadowDist * -WaterAbsorbColorInv);
             //shadowSample *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
-            shadowSample *= step(texDepth, texDepthTrans);
+            shadowSample *= step(texDepth, texDepthTrans + shadowBias);
 
             shadowF += shadowSample;
         }
