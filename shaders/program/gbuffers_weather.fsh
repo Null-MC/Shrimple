@@ -197,8 +197,18 @@ uniform float blindness;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
+#if MATERIAL_REFLECTIONS != REFLECT_NONE
+    #include "/lib/lighting/reflections.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+    #include "/lib/lighting/vanilla.glsl"
+#else
+    #include "/lib/lighting/basic.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/hg.glsl"
 
 #ifdef VL_BUFFER_ENABLED
     #include "/lib/world/volumetric_fog.glsl"
@@ -245,33 +255,48 @@ void main() {
 
     vec3 localViewDir = normalize(vLocalPos);
 
-    vec3 blockDiffuse = vBlockLight;
-    vec3 blockSpecular = vec3(0.0);
-    vec3 skyDiffuse = vec3(0.0);
-    vec3 skySpecular = vec3(0.0);
+    #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+        vec3 diffuse, specular = vec3(0.0);
+        GetVanillaLighting(diffuse, lmcoord, normal, shadowColor);
 
-    GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, sss);
-    SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
+        SampleHandLight(diffuse, specular, vLocalPos, normal, normal, roughL, metal_f0, sss);
 
-    #ifdef WORLD_SKY_ENABLED
-        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
-            const vec3 shadowPos = vec3(0.0);
+        // TODO: weather specular phase
+        float VoL = dot(localSkyLightDirection, localViewDir);
+        float phase = DHG(VoL, -0.12, 0.6, 0.091);
+        diffuse *= phase * WorldSkyLightColor * 20.0;
+        //specular += skyPhase * WorldSkyLightColor;
+
+        color.rgb = GetFinalLighting(color.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
+    #else
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, sss);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
+
+        #ifdef WORLD_SKY_ENABLED
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
+                const vec3 shadowPos = vec3(0.0);
+            #endif
+
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
         #endif
 
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                specularFinal *= color.rgb;
+            }
+        #endif
+
+        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, glcolor.a);
     #endif
-
-    vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-    vec3 specularFinal = blockSpecular + skySpecular;
-
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        if (metal_f0 >= 0.5) {
-            diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            specularFinal *= color.rgb;
-        }
-    #endif
-
-    color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, glcolor.a);
 
     ApplyFog(color, vLocalPos, localViewDir);
 

@@ -48,9 +48,7 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-//uniform sampler2D noisetex;
 
-//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -68,14 +66,8 @@ uniform vec3 cameraPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
-        //uniform vec3 eyePosition;
     #endif
 #endif
-
-// uniform int heldItemId;
-// uniform int heldItemId2;
-// uniform int heldBlockLightValue;
-// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -90,17 +82,11 @@ uniform vec3 cameraPosition;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-//#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
 #endif
-
-// #ifdef DYN_LIGHT_FLICKER
-//     #include "/lib/lighting/blackbody.glsl"
-//     #include "/lib/lighting/flicker.glsl"
-// #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
@@ -115,12 +101,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-// #include "/lib/lighting/voxel/lights.glsl"
-// #include "/lib/lighting/voxel/items.glsl"
-// #include "/lib/lighting/fresnel.glsl"
-// #include "/lib/lighting/sampling.glsl"
 
-// #include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 
@@ -128,6 +109,8 @@ void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
+
+    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
 
     BasicVertex();
 

@@ -251,14 +251,20 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #include "/lib/lighting/reflections.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+        #include "/lib/lighting/vanilla.glsl"
+    #else
+        #include "/lib/lighting/basic.glsl"
+    #endif
+
     #include "/lib/lighting/basic_hand.glsl"
-    #include "/lib/lighting/basic.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        // #if LPV_SIZE > 0 && VOLUMETRIC_BLOCK_MODE == VOLUMETRIC_BLOCK_EMIT
-        //     #include "/lib/lighting/voxel/lpv.glsl"
-        // #endif
-
+        #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
 #endif
@@ -357,37 +363,46 @@ void main() {
         color.rgb = RGBToLinear(color.rgb);
         float roughL = _pow2(roughness);
 
-        vec3 blockDiffuse = vBlockLight;
-        vec3 blockSpecular = vec3(0.0);
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
+        #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            vec3 diffuse, specular = vec3(0.0);
+            GetVanillaLighting(diffuse, lmcoord, localNormal, shadowColor);
 
-        //blockDiffuse += emission * MaterialEmissionF;
+            specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, shadowColor, lmcoord, metal_f0, roughL);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
-        #endif
+            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
 
-        #ifdef WORLD_SKY_ENABLED
-            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                const vec3 shadowPos = vec3(0.0);
+            color.rgb = GetFinalLighting(color.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
+        #else
+            vec3 blockDiffuse = vBlockLight;
+            vec3 blockSpecular = vec3(0.0);
+            vec3 skyDiffuse = vec3(0.0);
+            vec3 skySpecular = vec3(0.0);
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_LPV || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, sss);
+                SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
             #endif
 
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
+            #ifdef WORLD_SKY_ENABLED
+                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                    const vec3 shadowPos = vec3(0.0);
+                #endif
+
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmcoord, roughL, metal_f0, occlusion, sss);
+            #endif
+
+            vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+            vec3 specularFinal = blockSpecular + skySpecular;
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                if (metal_f0 >= 0.5) {
+                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                    specularFinal *= color.rgb;
+                }
+            #endif
+
+            color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
         #endif
-
-        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-        vec3 specularFinal = blockSpecular + skySpecular;
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            if (metal_f0 >= 0.5) {
-                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                specularFinal *= color.rgb;
-            }
-        #endif
-
-        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
         ApplyFog(color, vLocalPos, localViewDir);
 

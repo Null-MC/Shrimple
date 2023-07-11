@@ -21,5 +21,5 @@ void ApplyDirectionalLightmap(inout float blockLight, const in vec3 viewPos, con
     //blockLight = mix(blockLight, blockLightNew, DynamicLightDirectionalF);
     blockLight = blockLight * 0.8 + blockLightNew * 0.8;
 
-    blockLight = clamp(blockLight / 1.5, 0.5/16.0, 15.5/16.0);
+    blockLight = saturate(blockLight / 1.5);
 }

@@ -49,17 +49,11 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-//uniform sampler2D noisetex;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-
-// uniform int heldItemId;
-// uniform int heldItemId2;
-// uniform int heldBlockLightValue;
-// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -99,11 +93,6 @@ uniform vec3 cameraPosition;
     #include "/lib/world/waving.glsl"
 #endif
 
-// #ifdef DYN_LIGHT_FLICKER
-//     #include "/lib/lighting/blackbody.glsl"
-//     #include "/lib/lighting/flicker.glsl"
-// #endif
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -118,15 +107,9 @@ uniform vec3 cameraPosition;
 
 #include "/lib/lights.glsl"
 
-//#include "/lib/lighting/voxel/items.glsl"
-//#include "/lib/lighting/fresnel.glsl"
-//#include "/lib/lighting/sampling.glsl"
-
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
-//#include "/lib/material/subsurface.glsl"
 
-//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 
@@ -135,7 +118,6 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
-    //lmcoord = (TEXTURE_MATRIX_2 * vec4(lmcoord, 0.0, 1.0)).xy;
     lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
 
     BasicVertex();

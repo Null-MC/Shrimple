@@ -197,8 +197,17 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
+#if MATERIAL_REFLECTIONS != REFLECT_NONE
+    #include "/lib/lighting/reflections.glsl"
+#endif
+
+#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+    #include "/lib/lighting/vanilla.glsl"
+#else
+    #include "/lib/lighting/basic.glsl"
+#endif
+
 #include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -235,34 +244,45 @@ void main() {
         #endif
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+        vec3 diffuse, specular = vec3(0.0);
+        GetVanillaLighting(diffuse, lmcoord, normal, shadowColor);
+
+        const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
+        specular += GetSkySpecular(vLocalPos, geoNoL, normal, shadowColor, lmcoord, metal_f0, roughL);
+
+        SampleHandLight(diffuse, specular, vLocalPos, normal, normal, roughL, metal_f0, sss);
+
+        const float emission = 0.0;
+        color.rgb = GetFinalLighting(color.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
+    #else
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
-    #endif
 
-    #ifdef WORLD_SKY_ENABLED
-        #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-            const vec3 shadowPos = vec3(0.0);
+        #ifdef WORLD_SKY_ENABLED
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                const vec3 shadowPos = vec3(0.0);
+            #endif
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
+            #else
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
+            #endif
         #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
-        #else
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, lmcoord, roughL, metal_f0, occlusion, sss);
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                specularFinal *= color.rgb;
+            }
         #endif
+
+        color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
     #endif
-
-    vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-    vec3 specularFinal = blockSpecular + skySpecular;
-
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        if (metal_f0 >= 0.5) {
-            diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            specularFinal *= color.rgb;
-        }
-    #endif
-
-    color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
 
     ApplyFog(color, vLocalPos, localViewDir);
 

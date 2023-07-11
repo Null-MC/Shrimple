@@ -187,6 +187,7 @@ uniform int heldBlockLightValue2;
     #endif
 
     #ifdef VL_BUFFER_ENABLED
+        #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
 #endif

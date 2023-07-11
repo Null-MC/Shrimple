@@ -56,11 +56,10 @@ uniform float far;
 
 #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
     /* RENDERTARGETS: 1 */
-    layout(location = 0) out vec4 outFinal;
 #else
     /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
 #endif
+layout(location = 0) out vec4 outFinal;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
@@ -88,14 +87,21 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    float depthOpaque = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-    float depthOpaqueLinear = linearizeDepthFast(depthOpaque, near, far);
-    float depthLinear = rcp(gl_FragCoord.w);
-
-    if (color.a < alphaTestRef || abs(depthLinear - depthOpaqueLinear) > 0.2) {
+    if (color.a < alphaTestRef) {
         discard;
         return;
     }
+
+    #ifdef DAMAGE_DEPTH_CHECK
+        float depthOpaque = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+        float depthOpaqueLinear = linearizeDepthFast(depthOpaque, near, far);
+        float depthLinear = rcp(gl_FragCoord.w);
+
+        if (abs(depthLinear - depthOpaqueLinear) > 0.2) {
+            discard;
+            return;
+        }
+    #endif
 
     color.rgb *= glcolor.rgb;
     //color.a = 1.0;
@@ -104,7 +110,7 @@ void main() {
         color.rgb = vec3(WHITEWORLD_VALUE);
     #endif
 
-    color.rgb = vec3(1.0);//RGBToLinear(color.rgb);
+    color.rgb = RGBToLinear(color.rgb);
 
     outFinal = color;
 }

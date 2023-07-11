@@ -143,6 +143,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#include "/lib/lighting/hg.glsl"
 #include "/lib/world/volumetric_fog.glsl"
 
 

@@ -46,6 +46,8 @@ void ApplyPostProcessing(inout vec3 color) {
         //color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
         color = tonemap_ACESFit2(color);
         //color = tonemap_FilmicHejl2015(0.6*color);
+    #else
+        color /= color + 0.5;
     #endif
 
     #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100

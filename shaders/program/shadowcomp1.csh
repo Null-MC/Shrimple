@@ -285,7 +285,7 @@ void main() {
                                 ApplyLightFlicker(lightColor, lightType, lightNoise);
                             #endif
 
-                            lightValue = lightColor * _pow2(LpvRangeF * lightRange);
+                            lightValue = lightColor * pow2(lightRange * LPV_BRIGHT_BLOCK);
                         }
                         else {
                     #endif

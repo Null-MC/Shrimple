@@ -73,9 +73,6 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-//#include "/lib/lighting/fresnel.glsl"
-//#include "/lib/lighting/sampling.glsl"
-
 #include "/lib/lighting/basic.glsl"
 
 
@@ -83,6 +80,8 @@ void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
+
+    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
 
     BasicVertex();
 }

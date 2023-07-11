@@ -25,8 +25,6 @@ void main() {
         mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
         mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
 
-        //matColorPost = matContrast * matBrightness * matSaturation;
-        //matColorPost = matSaturation * (matBrightness * matContrast);
         matColorPost = matSaturation * (matContrast * matBrightness);
     #endif
     
@@ -54,6 +52,4 @@ void main() {
             pcssDiskOffset[i] = vec2(cosine, sine) * r;
         }
     #endif
-
-    //barrier();
 }
