@@ -107,8 +107,8 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
-    float saturation = max(1.6 * skyWetness, puddleF) * pow(porosity, 0.5);
-    albedo = pow(albedo, vec3(1.0 + saturation));
+    float saturation = max(skyWetness, 0.8 * puddleF) * pow(porosity, 0.5);
+    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
 
     float surfaceWetness = saturate(2.0 * skyWetness - porosity);
     surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));

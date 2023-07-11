@@ -129,6 +129,7 @@ const bool colortex15Clear = true;
 #define METAL_BRIGHTNESS 30 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define MATERIAL_REFLECTIONS 1 // [0 1 2]
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define MATERIAL_POROSITY_DARKEN 120 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 //#define MATERIAL_PARTICLES
 
 #define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
@@ -362,6 +363,10 @@ const bool colortex15Clear = true;
     #define DEFERRED_BUFFER_ENABLED
 #endif
 
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #define RENDER_SHADOWS_ENABLED
+#endif
+
 #if defined SHADOW_CLOUD_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
     #define RENDER_CLOUD_SHADOWS_ENABLED
 #endif
@@ -423,6 +428,7 @@ const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
 const float MaterialMetalBrightnessF = METAL_BRIGHTNESS * 0.01;
 const float MaterialReflectionStrength = MATERIAL_REFLECT_STRENGTH * 0.01;
+const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
 const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;

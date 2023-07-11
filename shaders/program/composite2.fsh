@@ -353,7 +353,7 @@ layout(location = 0) out vec4 outFinal;
                     (isEyeInWater != 1 && depthTranslucent < depthOpaque) ||
                     (isEyeInWater == 1 && depthOpaque <= depthTranslucent)
                 ) {
-                    albedo = pow(albedo, vec3(1.0 + 1.0 * porosity));
+                    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * porosity));
                 }
             #endif
 

@@ -5,12 +5,28 @@ void GetVanillaLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 localNo
     //     lmcoord.y *= max(geoNoL, DynamicLightAmbientF);
     // }
 
-    lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
-    vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
-    lightmapColor = RGBToLinear(lightmapColor);
+    //lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
 
-    shadowColor = DynamicLightAmbientF + (1.0 - DynamicLightAmbientF) * shadowColor;
-    diffuse = lightmapColor * shadowColor;
+    #ifdef RENDER_SHADOWS_ENABLED
+        float lightMax = 0.6;//rcp(max(lmcoord.x + lmcoord.y, 1.0));
+
+        vec2 lmBlock = saturate(vec2(lmcoord.x, 0.0)) * (15.0/16.0) + (0.5/16.0);
+        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
+        lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
+
+        vec2 lmSky = saturate(vec2(0.0, lmcoord.y)) * (15.0/16.0) + (0.5/16.0);
+        vec3 lightmapSky = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
+        lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
+
+        shadowColor = DynamicLightAmbientF + (1.0 - DynamicLightAmbientF) * shadowColor;
+        diffuse = lightmapBlock + lightmapSky * shadowColor;
+    #else
+        vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
+        lightmapColor = RGBToLinear(lightmapColor);
+
+        diffuse = lightmapColor;
+    #endif
+
     //diffuse = pow(lightmapColor, vec3(rcp(DynamicLightAmbientF)));
 }
 
