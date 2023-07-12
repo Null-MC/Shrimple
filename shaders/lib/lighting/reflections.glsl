@@ -2,40 +2,47 @@ float GetReflectiveness(const in float NoVm, const in float f0, const in float r
     return F_schlickRough(NoVm, f0, roughL) * (1.0 - roughL) * MaterialReflectionStrength;
 }
 
-vec3 GetSkyReflectionColor(const in vec3 reflectDir, const in float skyLight) {
-    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-        vec3 reflectColor;
+#ifdef WORLD_SKY_ENABLED
+    vec3 GetSkyReflectionColor(const in vec3 reflectDir, const in float skyLight) {
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+            vec3 reflectColor;
 
-        if (isEyeInWater == 1) {
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 WorldSkyLightColor = GetSkyLightColor();
-            #endif
+            if (isEyeInWater == 1) {
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 WorldSkyLightColor = GetSkyLightColor();
+                #endif
 
-            vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-            reflectColor = GetCustomWaterFogColor(localSunDirection.y);
-        }
-        else {
-            vec3 skyColorFinal = RGBToLinear(skyColor);
-            reflectColor = GetCustomSkyFogColor(localSunDirection.y);
-            reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
-        }
-    #else
-        vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
-        reflectColor = RGBToLinear(reflectColor);
-    #endif
+                vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                reflectColor = GetCustomWaterFogColor(localSunDirection.y);
+            }
+            else {
+                vec3 skyColorFinal = RGBToLinear(skyColor);
+                reflectColor = GetCustomSkyFogColor(localSunDirection.y);
+                reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
+            }
+        #else
+            vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
+            reflectColor = RGBToLinear(reflectColor);
+        #endif
 
-    float m = skyLight * 0.25;
-    reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
+        float m = skyLight * 0.25;
+        reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
 
-    return reflectColor * pow(skyLight, 5.0);
-}
+        return reflectColor * pow(skyLight, 5.0);
+    }
+#endif
 
 void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
     vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
-    vec3 reflectColor = GetSkyReflectionColor(reflectLocalDir, skyLight);
+
+    #ifdef WORLD_SKY_ENABLED
+        vec3 reflectColor = GetSkyReflectionColor(reflectLocalDir, skyLight);
+    #else
+        vec3 reflectColor = RGBToLinear(fogColor);
+    #endif
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
