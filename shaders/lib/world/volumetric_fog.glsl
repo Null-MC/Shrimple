@@ -82,12 +82,12 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
             float fogF = GetCustomSkyFogFactor(fogDist);
             cloudShadow *= 1.0 - fogF;
         #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-            vec3 fogPos = vLocalPos;
+            vec3 fogPos = localPos;
             if (fogShape == 1) fogPos.y = 0.0;
 
             float viewDist = length(fogPos);
 
-            float fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
+            float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
             cloudShadow *= 1.0 - fogF;
         #endif
 

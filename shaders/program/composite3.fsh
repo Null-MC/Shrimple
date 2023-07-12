@@ -53,6 +53,7 @@ uniform float far;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float fogStart;
+uniform int fogShape;
 uniform float fogEnd;
 uniform int isEyeInWater;
 

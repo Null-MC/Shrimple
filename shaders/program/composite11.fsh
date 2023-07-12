@@ -11,6 +11,7 @@ uniform sampler2D BUFFER_FINAL;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform int isEyeInWater;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
@@ -38,8 +39,11 @@ void main() {
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
 
+    float threshold = PostBloomThresholdF;
+    if (isEyeInWater == 1) threshold *= 0.25;
+
     float brightness = luminance(color);
-    float contribution = max(brightness - PostBloomThresholdF, 0.0);
+    float contribution = max(brightness - threshold, 0.0);
     contribution /= max(brightness, EPSILON);
     color *= contribution;
 

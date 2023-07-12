@@ -53,6 +53,7 @@ uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
+uniform int fogShape;
 uniform int isEyeInWater;
 
 uniform mat4 shadowModelView;
