@@ -374,11 +374,12 @@ void main() {
         }
     #endif
 
+    float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float surface_roughness, surface_metal_f0;
         GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
-        float porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
         float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 

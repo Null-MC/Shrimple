@@ -283,13 +283,14 @@ void main() {
     //if (vBlockId == BLOCK_LAVA && localNormal.y < 1.0) skipParallax = true;
     if (vBlockId == BLOCK_LAVA) skipParallax = true;
 
+    float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         vec3 worldPos = vLocalPos + cameraPosition;
 
         float surface_roughness, surface_metal_f0;
         GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
-        float porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
         float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 

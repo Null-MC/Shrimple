@@ -82,6 +82,8 @@ void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 vie
                 #else
                     // no-sky fog
 
+                    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
                     fogColorFinal = RGBToLinear(fogColor);
                     fogF = GetVanillaFogFactor(localPos);
                 #endif
