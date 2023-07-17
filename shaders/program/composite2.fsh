@@ -185,6 +185,11 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/basic_hand.glsl"
 
+#ifdef DH_COMPAT_ENABLED
+    #include "/lib/post/saturation.glsl"
+    #include "/lib/post/tonemap.glsl"
+#endif
+
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
     const float c_halfSamplesX = 2.0;
@@ -359,7 +364,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localNormal, deferredShadow);
+                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
 
                 float geoNoL = dot(localNormal, localSkyLightDirection);
                 specular += GetSkySpecular(localPos, geoNoL, texNormal, deferredShadow, deferredLighting.xy, metal_f0, roughL);
@@ -550,7 +555,7 @@ layout(location = 0) out vec4 outFinal;
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             #endif
 
-            #if WORLD_FOG_MODE == FOG_MODE_VANILLA
+            #if WORLD_FOG_MODE == FOG_MODE_VANILLA && !defined DH_COMPAT_ENABLED
                 vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                 vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
                 fogColorFinal = RGBToLinear(fogColorFinal);
@@ -561,12 +566,27 @@ layout(location = 0) out vec4 outFinal;
         else {
             #ifdef WORLD_SKY_ENABLED
                 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+
+                #ifdef DH_COMPAT_ENABLED
+                    final = RGBToLinear(final, GAMMA_OUT);
+                #endif
             #else
                 //final = fogColor;// * WorldSkyBrightnessF;
                 final = RGBToLinear(fogColor);
             #endif
+
+            #ifdef DH_COMPAT_ENABLED
+                vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+
+                if (all(greaterThan(deferredColor, EPSILON3)))
+                    final = RGBToLinear(deferredColor);
+            #endif
         }
         
+        #ifdef DH_COMPAT_ENABLED
+            ApplyPostProcessing(final);
+        #endif
+
         outFinal = vec4(final, 1.0);
     }
 #else

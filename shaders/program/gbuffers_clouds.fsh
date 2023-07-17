@@ -190,6 +190,11 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
+
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -308,6 +313,10 @@ void main() {
             vec3 localViewDir = normalize(vLocalPos);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos), far));
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        #ifdef DH_COMPAT_ENABLED
+            ApplyPostProcessing(final.rgb);
         #endif
         
         outFinal = final;

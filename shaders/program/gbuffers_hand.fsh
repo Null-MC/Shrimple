@@ -255,6 +255,11 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
+
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -415,7 +420,7 @@ void main() {
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, localNormal, shadowColor);
+            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
             specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, shadowColor, lmcoord, metal_f0, roughL);
 
@@ -464,7 +469,11 @@ void main() {
             color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #ifdef DH_COMPAT_ENABLED
+            ApplyPostProcessing(color.rgb);
+        #else
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
         outFinal = color;
     #endif

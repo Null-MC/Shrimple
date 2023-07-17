@@ -306,6 +306,11 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
+
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -580,7 +585,7 @@ void main() {
     #else
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, localNormal, shadowColor);
+            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
             specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, shadowColor, lmcoord, metal_f0, roughL);
 
@@ -631,7 +636,9 @@ void main() {
             }
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #ifndef DH_COMPAT_ENABLED
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifdef WORLD_WATER_ENABLED
@@ -648,6 +655,10 @@ void main() {
             float farMax = min(length(vPos) - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, farMax, isWater);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        #ifdef DH_COMPAT_ENABLED
+            ApplyPostProcessing(color.rgb);
         #endif
 
         outFinal = color;

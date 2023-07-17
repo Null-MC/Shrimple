@@ -257,7 +257,7 @@ void main() {
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
         vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, lmcoord, normal, shadowColor);
+        GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, shadowColor);
 
         SampleHandLight(diffuse, specular, vLocalPos, normal, normal, roughL, metal_f0, sss);
 

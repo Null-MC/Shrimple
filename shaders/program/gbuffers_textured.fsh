@@ -246,7 +246,7 @@ void main() {
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
         vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, lmcoord, normal, shadowColor);
+        GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, shadowColor);
 
         const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
         specular += GetSkySpecular(vLocalPos, geoNoL, normal, shadowColor, lmcoord, metal_f0, roughL);

@@ -162,9 +162,10 @@
                         ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
                         : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
 
-                    lpvLight = sqrt(lpvLight) / LpvRangeF;
+                    //lpvLight = sqrt(lpvLight) / LpvRangeF;
                     //lpvLight /= 1.0 + luminance(lpvLight);
                     //lpvLight /= LpvRangeF;
+                    lpvLight /= lpvLight + 1.0;
                     blockDiffuse += mix(blockLightDefault, lpvLight, lpvFade);
                 }
                 else blockDiffuse += blockLightDefault;

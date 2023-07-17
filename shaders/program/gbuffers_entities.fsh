@@ -280,6 +280,11 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
+
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -479,7 +484,7 @@ void main() {
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, localNormal, shadowColor);
+            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
             //float geoNoL = dot(localNormal, localSkyLightDirection);
             specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, shadowColor, lmcoord, metal_f0, roughL);
@@ -529,6 +534,10 @@ void main() {
             float farMax = min(length(vPos) - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        #ifdef DH_COMPAT_ENABLED
+            ApplyPostProcessing(color.rgb);
         #endif
 
         outFinal = color;

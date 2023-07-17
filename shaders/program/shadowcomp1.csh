@@ -179,10 +179,12 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
         uint maxSamples = uint(viewDistF * LPV_SUN_SAMPLES) + 1;
 
         vec3 shadowF = vec3(0.0);
+        //float shadowWeight = 0.0;
         for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
             //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
             vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
             vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
+            //vec3 blockLpvPos = floor(blockLocalPos - fract(cameraPosition)) + 0.5 + 0.8*(shadowOffset - 0.5);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
@@ -206,7 +208,8 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
-            shadowSample *= step(shadowBias, shadowDist) * max(1.0 - abs(shadowDist * shadowDistScale) * 0.25, 0.0);
+            shadowSample *= step(shadowBias, shadowDist);
+            shadowSample *= max(1.0 - max(abs(shadowDist * shadowDistScale) - 1.0, 0.0), 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
@@ -218,7 +221,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             shadowF += shadowSample;
         }
 
-        shadowF *= rcp(LPV_SUN_SAMPLES);
+        shadowF *= rcp(maxSamples);
 
         // #ifdef SHADOW_CLOUD_ENABLED
         //     float cloudF = SampleCloudShadow(skyLightDir, cloudShadowPos);
@@ -318,9 +321,9 @@ void main() {
                                     GetLpvBounceF(voxelPos + ivec3( 0, 0,-1))
                                 );
 
-                                vec3 shadowF = SampleShadow(blockLocalPos, localSunDirection) * bounceF;
+                                vec3 shadowColor = SampleShadow(blockLocalPos, localSunDirection) * bounceF;
 
-                                lightValue += skyLightColor * shadowF;
+                                lightValue += skyLightColor * shadowColor;
                             #endif
                         }
                     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV

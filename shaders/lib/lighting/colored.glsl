@@ -9,7 +9,7 @@
     }
 #endif
 
-void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, in vec3 shadowColor) {
+void GetColoredLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, in vec3 shadowColor) {
     // if (!all(lessThan(abs(localNormal), EPSILON3))) {
     //     float geoNoL = dot(localNormal, localSkyLightDirection);
     //     geoNoL = pow(max(geoNoL, 0.0), 0.2);
@@ -17,14 +17,15 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     // }
 
     //lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
-    vec2 lmFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
 
     #ifdef RENDER_SHADOWS_ENABLED
-        float lightMax = rcp(max(lmcoord.x + lmcoord.y, 1.0));
+        float lightMax = 0.6;//rcp(max(lmcoord.x + lmcoord.y, 1.0));
+        vec2 lmFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
         const float lmEmpty = (0.5/16.0);
 
-        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmEmpty), 0).rgb;
-        lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
+        //vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmEmpty), 0).rgb;
+        //lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
+        // TODO: get blocklight from LPV
 
         vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmEmpty, lmFinal.y), 0).rgb;
         lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
@@ -32,7 +33,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         shadowColor = DynamicLightAmbientF + (1.0 - DynamicLightAmbientF) * shadowColor;
         diffuse = lightmapBlock + lightmapSky * shadowColor;
     #else
-        vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+        vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoord, 0).rgb;
         lightmapColor = RGBToLinear(lightmapColor);
 
         diffuse = lightmapColor;

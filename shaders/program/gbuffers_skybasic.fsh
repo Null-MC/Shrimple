@@ -30,6 +30,11 @@ uniform float blindness;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#ifdef DH_COMPAT_ENABLED
+    #include "/lib/post/saturation.glsl"
+    #include "/lib/post/tonemap.glsl"
+#endif
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outFinal;
@@ -46,7 +51,9 @@ void main() {
     }
     else {
         vec3 viewDir = normalize(viewPos);
-        float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
+        vec3 upDir = normalize(upPosition);
+        float viewUpF = dot(viewDir, upDir);
+        //float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
@@ -63,23 +70,19 @@ void main() {
                     color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
                 }
             #endif
-        #else
+        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);
-        // #else
-        //     #ifdef WORLD_SKY_ENABLED
-        //         vec3 skyColorFinal = RGBToLinear(skyColor);
-        //         vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-        //         color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
-        //     #else
-        //         color = fogColor;
-        //     #endif
-            
-        //     color = RGBToLinear(color);
+        #else
+            color = RGBToLinear(skyColor);
         #endif
     }
 
     color *= 1.0 - blindness;
+
+    #ifdef DH_COMPAT_ENABLED
+        ApplyPostProcessing(color);
+    #endif
     
     outFinal = vec4(color, 1.0);
 }

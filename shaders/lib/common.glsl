@@ -125,11 +125,11 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
 #define MATERIAL_POROSITY 1 // [0 1 2]
+#define MATERIAL_POROSITY_DARKEN 180 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 30 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define MATERIAL_REFLECTIONS 1 // [0 1 2]
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define MATERIAL_POROSITY_DARKEN 120 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 //#define MATERIAL_PARTICLES
 
 #define REFRACTION_STRENGTH 100 // [0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
@@ -236,6 +236,7 @@ const bool colortex15Clear = true;
 //#define EFFECT_BLOOM_ENABLED
 #define EFFECT_BLOOM_STRENGTH 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define EFFECT_BLOOM_THRESHOLD 160 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
+#define EFFECT_BLOOM_TILE_MAX 6
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
 #define DIST_BLUR_SCALE_WATER 16.0
@@ -277,7 +278,7 @@ const bool colortex15Clear = true;
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
-#define BLOOM_TILE_MAX_COUNT 6
+//#define DH_COMPAT_ENABLED
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -408,6 +409,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef EFFECT_BLOOM_ENABLED
 #endif
+#ifdef DH_COMPAT_ENABLED
+#endif
 
 
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
@@ -535,6 +538,10 @@ float RGBToLinear(const in float value) {
 
 vec3 RGBToLinear(const in vec3 color) {
 	return pow(color, vec3(GAMMA));
+}
+
+vec3 RGBToLinear(const in vec3 color, const in float gamma) {
+    return pow(color, vec3(gamma));
 }
 
 float LinearToRGB(const in float color) {

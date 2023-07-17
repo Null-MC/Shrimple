@@ -41,11 +41,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
     vec3 GetCustomWaterFogColor(const in float sunUpF) {
-        //#ifdef VL_BUFFER_ENABLED
-        //    const vec3 _color = RGBToLinear(vec3(0.031, 0.096, 0.227));
-        //#else
-            const vec3 _color = RGBToLinear(vec3(0.124, 0.290, 0.343));
-        //#endif
+        const vec3 _color = RGBToLinear(vec3(0.143, 0.230, 0.258));
 
         const float WaterMinBrightness = 0.04;
 

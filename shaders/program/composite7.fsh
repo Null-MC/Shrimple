@@ -403,7 +403,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localNormal, deferredShadow);
+                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
 
                 float geoNoL = dot(localNormal, localSkyLightDirection);
                 specular += GetSkySpecular(localPos, geoNoL, texNormal, deferredShadow, deferredLighting.xy, metal_f0, roughL);
@@ -678,23 +678,25 @@ layout(location = 0) out vec4 outFinal;
                 }
                 else {
             #endif
-                if (depth < 1.0) {
-                    #ifdef WORLD_SKY_ENABLED
-                        // sky fog
+                #ifndef DH_COMPAT_ENABLED
+                    if (depth < 1.0) {
+                        #ifdef WORLD_SKY_ENABLED
+                            // sky fog
 
-                        vec3 skyColorFinal = RGBToLinear(skyColor);
-                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-                    #else
-                        // no-sky fog
+                            vec3 skyColorFinal = RGBToLinear(skyColor);
+                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                        #else
+                            // no-sky fog
 
-                        fogColorFinal = RGBToLinear(fogColor);
-                        //fogF = GetVanillaFogFactor(localPos);
-                    #endif
+                            fogColorFinal = RGBToLinear(fogColor);
+                            //fogF = GetVanillaFogFactor(localPos);
+                        #endif
 
-                    float fogDist = GetVanillaFogDistance(localPos);
-                    fogF = GetCustomFogFactor(fogDist);
-                }
+                        float fogDist = GetVanillaFogDistance(localPos);
+                        fogF = GetCustomFogFactor(fogDist);
+                    }
+                #endif
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
