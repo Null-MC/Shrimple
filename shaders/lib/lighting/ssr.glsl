@@ -111,30 +111,23 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         // }
 
         //texDepth = minOf(depthSamples);
+        bool isFurther = texDepth > tracePos.z + depthBias;
+        bool isNearer = screenRay.z > 0.0 && texDepth < clipPos.z;
 
-        if (texDepth > tracePos.z + depthBias) {
-            level = min(level + 1, maxLevel);
+        if (isFurther || isNearer) {
+            if (level < maxLevel) {
+                // vec2 nextLevelCoord = iuv / exp2(level + 1);
+
+                // bool isLevelEdge = any(lessThan(fract(nextLevelCoord), vec2(0.5)));
+                // if (isLevelEdge) level++;
+
+                level++;
+            }
 
             //i += l2;
             lastTracePos = tracePos;
             continue;
         }
-
-        //float texDepthLinear = linearizeDepthFast(texDepth, near, far);
-        //float traceDepthLinear = linearizeDepthFast(tracePos.z, near, far);
-
-        // ignore geometry closer than start pos when tracing away
-        if (screenRay.z > 0.0 && texDepth < clipPos.z) {
-            lastTracePos = tracePos;
-            continue;
-        }
-
-        // float d = 0.999 * traceDepthLinear; //  1.0e10 * pow(saturate(startDepthLinear / far), 3.0);
-        // if (traceDepthLinear > texDepthLinear + d) {
-        //     lastTracePos = tracePos;
-        //     //i += l2;
-        //     continue;
-        // }
 
         if (level > 0) {
             level--;

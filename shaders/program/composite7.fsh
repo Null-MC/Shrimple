@@ -206,6 +206,11 @@ uniform int heldBlockLightValue2;
     #include "/lib/post/depth_blur.glsl"
 #endif
 
+#ifdef DH_COMPAT_ENABLED
+    #include "/lib/post/saturation.glsl"
+    #include "/lib/post/tonemap.glsl"
+#endif
+
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
     const float c_halfSamplesX = 2.0;
@@ -638,6 +643,10 @@ layout(location = 0) out vec4 outFinal;
             vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
         #endif
 
+        // #ifdef DH_COMPAT_ENABLED
+        //     opaqueFinal = RGBToLinear(opaqueFinal);
+        // #endif
+
         #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
             if (tir) opaqueFinal = fogColorFinal;
         #endif
@@ -729,6 +738,11 @@ layout(location = 0) out vec4 outFinal;
         //weatherColor.a *= step(weatherDepth, depthOpaque);
 
         final.rgb = mix(final.rgb, weatherColor.rgb, weatherColor.a);
+        
+        // #ifdef DH_COMPAT_ENABLED
+        //     if (deferredColor.a > (0.5/255.0) || weatherColor.a > (0.5/255.0))
+        //         ApplyPostProcessing(final.rgb);
+        // #endif
 
         outFinal = final;
     }

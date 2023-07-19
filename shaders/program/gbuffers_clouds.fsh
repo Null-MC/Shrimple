@@ -219,9 +219,9 @@ float linear_fog_fade(const in float vertexDistance, const in float fogStart, co
 #endif
 
 void main() {
-    vec4 final = texture(gtexture, texcoord) * vColor;
+    vec4 albedo = texture(gtexture, texcoord) * vColor;
 
-    if (final.a < 0.2) {
+    if (albedo.a < 0.2) {
         discard;
         return;
     }
@@ -261,13 +261,13 @@ void main() {
             fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
         #endif
 
-        final.a *= 1.0 - fogF;
+        albedo.a *= 1.0 - fogF;
     #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        outDeferredColor = final;
+        outDeferredColor = albedo;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
 
         const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
@@ -283,6 +283,7 @@ void main() {
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
+        vec4 final = albedo;
         final.rgb = RGBToLinear(final.rgb);
         float roughL = _pow2(roughness);
 

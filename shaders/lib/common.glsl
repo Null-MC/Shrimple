@@ -266,6 +266,8 @@ const bool colortex15Clear = true;
 //#define SHADOW_FORCE_CULLING
 #define AF_SAMPLES 1
 #define LIGHT_LEAK_FIX
+//#define DH_COMPAT_ENABLED
+#define FORCE_DEFERRED
 
 
 // INTERNAL SETTINGS
@@ -278,7 +280,6 @@ const bool colortex15Clear = true;
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
-//#define DH_COMPAT_ENABLED
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -360,7 +361,7 @@ const bool colortex15Clear = true;
     #define VL_BUFFER_ENABLED
 #endif
 
-#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR) || defined VL_BUFFER_ENABLED
+#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR) || defined VL_BUFFER_ENABLED || defined FORCE_DEFERRED
     #define DEFERRED_BUFFER_ENABLED
 #endif
 
@@ -410,6 +411,8 @@ const bool colortex15Clear = true;
 #ifdef EFFECT_BLOOM_ENABLED
 #endif
 #ifdef DH_COMPAT_ENABLED
+#endif
+#ifdef FORCE_DEFERRED
 #endif
 
 

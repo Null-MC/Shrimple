@@ -301,6 +301,8 @@ layout(location = 0) out vec4 outFinal;
                 vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
             #endif
 
+            vec3 localViewDir = normalize(localPos);
+
             vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
@@ -533,8 +535,6 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyDiffuse = vec3(0.0);
                 vec3 skySpecular = vec3(0.0);
 
-                vec3 localViewDir = normalize(localPos);
-
                 #ifdef WORLD_SKY_ENABLED
                     vec3 shadowPos = vec3(0.0);
                     GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
@@ -583,9 +583,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
         }
         
-        #ifdef DH_COMPAT_ENABLED
-            ApplyPostProcessing(final);
-        #endif
+        // #ifdef DH_COMPAT_ENABLED
+        //     ApplyPostProcessing(final);
+        // #endif
 
         outFinal = vec4(final, 1.0);
     }
