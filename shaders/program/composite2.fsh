@@ -291,6 +291,20 @@ layout(location = 0) out vec4 outFinal;
         float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
         vec3 final;
 
+        #ifdef DH_COMPAT_ENABLED
+            #ifdef WORLD_SKY_ENABLED
+                vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+                skyFinal = RGBToLinear(skyFinal, GAMMA_OUT);
+            #else
+                vec3 skyFinal = RGBToLinear(fogColor);
+            #endif
+
+            vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+
+            if (all(greaterThan(deferredColor, EPSILON3)))
+                skyFinal = RGBToLinear(deferredColor);
+        #endif
+
         if (depthOpaque < 1.0) {
             vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
@@ -555,7 +569,11 @@ layout(location = 0) out vec4 outFinal;
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             #endif
 
-            #if WORLD_FOG_MODE == FOG_MODE_VANILLA && !defined DH_COMPAT_ENABLED
+            #ifdef DH_COMPAT_ENABLED
+                // float fogDist = GetVanillaFogDistance(localPos);
+                // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+                // final = mix(final, skyFinal, fogF);
+            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
                 vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                 vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
                 fogColorFinal = RGBToLinear(fogColorFinal);
@@ -564,28 +582,16 @@ layout(location = 0) out vec4 outFinal;
             #endif
         }
         else {
-            #ifdef WORLD_SKY_ENABLED
-                final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-
-                #ifdef DH_COMPAT_ENABLED
-                    final = RGBToLinear(final, GAMMA_OUT);
-                #endif
-            #else
-                //final = fogColor;// * WorldSkyBrightnessF;
-                final = RGBToLinear(fogColor);
-            #endif
-
             #ifdef DH_COMPAT_ENABLED
-                vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-
-                if (all(greaterThan(deferredColor, EPSILON3)))
-                    final = RGBToLinear(deferredColor);
+                final = skyFinal;
+            #else
+                #ifdef WORLD_SKY_ENABLED
+                    final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+                #else
+                    final.rgb = RGBToLinear(fogColor);
+                #endif
             #endif
         }
-        
-        // #ifdef DH_COMPAT_ENABLED
-        //     ApplyPostProcessing(final);
-        // #endif
 
         outFinal = vec4(final, 1.0);
     }

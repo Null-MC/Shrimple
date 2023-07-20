@@ -581,7 +581,13 @@ layout(location = 0) out vec4 outFinal;
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             #endif
 
-            #ifndef DH_COMPAT_ENABLED
+            #ifdef DH_COMPAT_ENABLED
+                // float dhFogDist = GetVanillaFogDistance(localPos);
+                // float dhFogF = GetFogFactor(dhFogDist, 0.6 * far, far, 1.0);
+
+                // vec3 backColor = mix(final, albedo, dhFogF);
+                // final = mix(final, backColor, dhFogF);
+            #else
                 #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                     vec3 fogColorFinal = vec3(0.0);
                     float fogF = 0.0;
@@ -665,9 +671,9 @@ layout(location = 0) out vec4 outFinal;
             final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        #ifdef DH_COMPAT_ENABLED
-            ApplyPostProcessing(final);
-        #endif
+        // #ifdef DH_COMPAT_ENABLED
+        //     ApplyPostProcessing(final);
+        // #endif
 
         outFinal = vec4(final, 1.0);
     }

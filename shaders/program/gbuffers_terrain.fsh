@@ -462,6 +462,12 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
+        // #ifdef DH_COMPAT_ENABLED
+        //     float dhFogDist = GetVanillaFogDistance(vLocalPos);
+        //     float dhFogF = GetFogFactor(dhFogDist, 0.6 * far, far, 1.0);
+        //     color.a *= 1.0 - dhFogF;
+        // #endif
+
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
@@ -530,6 +536,12 @@ void main() {
         #endif
 
         ApplyFog(color, vLocalPos, localViewDir);
+
+        #ifdef DH_COMPAT_ENABLED
+            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            color.a *= 1.0 - fogF;
+        #endif
 
         #ifdef DH_COMPAT_ENABLED
             ApplyPostProcessing(color.rgb);

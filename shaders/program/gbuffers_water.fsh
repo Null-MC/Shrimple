@@ -552,22 +552,22 @@ void main() {
 
     float roughL = _pow2(roughness);
 
-    // TODO: Should this only be applied to deferred?
-    // #if MATERIAL_REFLECTIONS != REFLECT_NONE
-    //     if (isWater) {
-    //         float f0 = GetMaterialF0(metal_f0);
-    //         float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-    //         float skyF = F_schlickRough(skyNoVm, f0, roughL);
-    //         //color.a = min(color.a + skyF, 1.0);
-    //         color.a = max(color.a, skyF);
-    //     }
-    // #endif
-
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
         color.rgb = LinearToRGB(color.rgb);
+
+        // TODO: should this also apply to forward?
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            if (isWater) {
+                float f0 = GetMaterialF0(metal_f0);
+                float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+                float skyF = F_schlickRough(skyNoVm, f0, roughL);
+                //color.a = min(color.a + skyF, 1.0);
+                color.a = max(color.a, skyF * MaterialReflectionStrength);
+            }
+        #endif
 
         outDeferredColor = color;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
@@ -658,6 +658,12 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
+            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            color.a *= 1.0 - fogF;
+        #endif
+
+        #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
             ApplyPostProcessing(color.rgb);
         #endif
 

@@ -81,7 +81,11 @@ void main() {
     color *= 1.0 - blindness;
 
     #ifdef DH_COMPAT_ENABLED
-        ApplyPostProcessing(color);
+        #ifdef DEFERRED_BUFFER_ENABLED
+            //color = LinearToRGB(color);
+        #else
+            ApplyPostProcessing(color);
+        #endif
     #endif
     
     outFinal = vec4(color, 1.0);

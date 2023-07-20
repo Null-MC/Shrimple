@@ -651,7 +651,14 @@ layout(location = 0) out vec4 outFinal;
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 
+        // #ifdef DH_COMPAT_ENABLED
+        //     float fogDist = GetVanillaFogDistance(localPos);
+        //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+        //     final.a *= 1.0 - fogF;
+        // #endif
+
         if (isWater) {
+            final.rgb *= final.a;
             final.rgb += opaqueFinal * (1.0 - final.a);
         }
         else {
@@ -737,7 +744,7 @@ layout(location = 0) out vec4 outFinal;
         //float weatherDepth = textureLod(BUFFER_WEATHER_DEPTH, texcoord, 0).r;
         //weatherColor.a *= step(weatherDepth, depthOpaque);
 
-        final.rgb = mix(final.rgb, weatherColor.rgb, weatherColor.a);
+        final = mix(final, weatherColor, weatherColor.a);
         
         // #ifdef DH_COMPAT_ENABLED
         //     if (deferredColor.a > (0.5/255.0) || weatherColor.a > (0.5/255.0))

@@ -1060,6 +1060,13 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMin[0] = modelPart( 2,  0,  2);
             boundsMax[0] = modelPart(14,  4, 14);
             break;
+        case BLOCK_CREATE_CHUTE:
+            shapeCount = 2u;
+            boundsMin[0] = modelPart( 2,  0,  2);
+            boundsMax[0] = modelPart(14,  8, 14);
+            boundsMin[1] = modelPart( 1,  8,  1);
+            boundsMax[1] = modelPart(15, 16, 15);
+            break;
         case BLOCK_CREATE_CLUTCH_X:
         case BLOCK_CREATE_GEARSHIFT_X:
             shapeCount = 5u;
@@ -1557,6 +1564,28 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMin[2] = modelPart( 0,  0, 14);
             boundsMax[2] = modelPart( 2, 16, 16);
             boundsMin[3] = modelPart(14,  0, 14);
+            boundsMax[3] = modelPart(16, 16, 16);
+            break;
+        case BLOCK_CREATE_SUPPORT_N_S:
+            shapeCount = 4u;
+            boundsMin[0] = modelPart( 0,  0,  0);
+            boundsMax[0] = modelPart( 2,  2, 16);
+            boundsMin[1] = modelPart(14,  0,  0);
+            boundsMax[1] = modelPart(16,  2, 16);
+            boundsMin[2] = modelPart( 0, 14,  0);
+            boundsMax[2] = modelPart( 2, 16, 16);
+            boundsMin[3] = modelPart(14, 14,  0);
+            boundsMax[3] = modelPart(16, 16, 16);
+            break;
+        case BLOCK_CREATE_SUPPORT_W_E:
+            shapeCount = 4u;
+            boundsMin[0] = modelPart( 0,  0,  0);
+            boundsMax[0] = modelPart(16,  2,  2);
+            boundsMin[1] = modelPart( 0, 14,  0);
+            boundsMax[1] = modelPart(16, 16,  2);
+            boundsMin[2] = modelPart( 0,  0, 14);
+            boundsMax[2] = modelPart(16,  2, 16);
+            boundsMin[3] = modelPart( 0, 14, 14);
             boundsMax[3] = modelPart(16, 16, 16);
             break;
         case BLOCK_CREATE_TRACK_SIGNAL:

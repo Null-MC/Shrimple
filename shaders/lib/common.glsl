@@ -267,7 +267,7 @@ const bool colortex15Clear = true;
 #define AF_SAMPLES 1
 #define LIGHT_LEAK_FIX
 //#define DH_COMPAT_ENABLED
-#define FORCE_DEFERRED
+//#define FORCE_DEFERRED
 
 
 // INTERNAL SETTINGS

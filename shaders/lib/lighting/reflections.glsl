@@ -70,29 +70,31 @@ void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 vie
                 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
             }
             else if (reflection.z < 1.0) {
-                #ifdef WORLD_SKY_ENABLED
-                    // sky fog
+                #ifndef DH_COMPAT_ENABLED
+                    #ifdef WORLD_SKY_ENABLED
+                        // sky fog
 
-                    #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                        // TODO: apply fog to reflection
+                        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                            // TODO: apply fog to reflection
 
-                        float fogDist = GetVanillaFogDistance(reflectViewPos);
+                            float fogDist = GetVanillaFogDistance(reflectViewPos);
 
-                        fogF = GetCustomSkyFogFactor(fogDist);
+                            fogF = GetCustomSkyFogFactor(fogDist);
 
-                        vec3 skyColorFinal = RGBToLinear(skyColor);
-                        fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                        fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
-                    #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-                        // TODO: apply fog to reflection
+                            vec3 skyColorFinal = RGBToLinear(skyColor);
+                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
+                        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                            // TODO: apply fog to reflection
+                        #endif
+                    #else
+                        // no-sky fog
+
+                        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+                        fogColorFinal = RGBToLinear(fogColor);
+                        fogF = GetVanillaFogFactor(localPos);
                     #endif
-                #else
-                    // no-sky fog
-
-                    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-                    fogColorFinal = RGBToLinear(fogColor);
-                    fogF = GetVanillaFogFactor(localPos);
                 #endif
             }
 
