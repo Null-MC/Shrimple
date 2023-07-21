@@ -535,16 +535,14 @@ void main() {
             color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
-
         #ifdef DH_COMPAT_ENABLED
             float fogDist = GetVanillaFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
-        #endif
 
-        #ifdef DH_COMPAT_ENABLED
             ApplyPostProcessing(color.rgb);
+        #else
+            ApplyFog(color, vLocalPos, localViewDir);
         #endif
 
         outFinal = color;

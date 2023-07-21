@@ -130,7 +130,7 @@
                 lightColor = vec3(0.652, 0.583, 0.275);
                 break;
             case LIGHT_GLOW_LICHEN:
-                lightColor = 0.8*vec3(0.173, 0.374, 0.252);
+                lightColor = vec3(0.092, 0.217, 0.126);
                 break;
             case LIGHT_JACK_O_LANTERN_N:
             case LIGHT_JACK_O_LANTERN_E:
