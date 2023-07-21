@@ -193,7 +193,7 @@
                 lightColor = vec3(0.390, 0.065, 0.646);
                 break;
             case LIGHT_SCULK_CATALYST:
-                lightColor = vec3(0.510, 0.831, 0.851);
+                lightColor = vec3(0.181, 0.358, 0.369);
                 break;
             case LIGHT_SEA_LANTERN:
                 lightColor = vec3(0.570, 0.780, 0.800);

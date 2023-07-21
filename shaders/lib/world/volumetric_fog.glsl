@@ -110,7 +110,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
     //int stepCount = VOLUMETRIC_SAMPLES;
-    int stepCount = int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
+    int stepCount = VOLUMETRIC_SAMPLES;//int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
     float inverseStepCountF = rcp(stepCount);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
@@ -205,7 +205,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     for (int i = 0; i <= stepCount; i++) {
         vec3 inScattering = inScatteringBase;
 
-        float iStep = i + dither * step(i, (stepCount-1));
+        if (i == stepCount) {
+            localStepLength *= 1.0 - dither;
+            dither = 0.0;
+        }
+
+        float iStep = i + dither;
         //if (i < stepCount) iStep += dither;
 
         vec3 traceLocalPos = localStep * iStep + localStart;
@@ -316,11 +321,11 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 lpvPos = GetLPVPosition(traceLocalPos);
                 vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
 
-                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+                vec3 lpvLight = 0.02 * SampleLpvVoxel(voxelPos, lpvPos);
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
-                lpvLight /= 4.0 + lpvLight;
+                //lpvLight /= 1.0 + lpvLight;
 
-                blockLightAccum += invPI * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
