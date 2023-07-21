@@ -32,7 +32,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float skyLight = eyeBrightnessSmooth.y / 240.0;
 
 
-        result.Ambient = vec3(0.0);//mix(0.001, 0.03, rainStrength) * densityF);
+        float ambientF = 0.0;//mix(0.001, 0.03, rainStrength) * densityF);
+        ambientF = mix(0.012, ambientF, skyLight);
+        result.Ambient = vec3(ambientF);
 
         result.Forward = 0.824;
         result.Back = 0.19;
@@ -43,7 +45,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.ScatterF = vec3(scatterF);
 
         float extinctF = mix(0.002, 0.009, rainStrength) * density;
-        result.ExtinctF = mix(0.009, extinctF, skyLight);
+        result.ExtinctF = mix(0.004, extinctF, skyLight);
     #else
         result.Ambient = vec3(0.96);
 
@@ -177,9 +179,9 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
     vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
 
-    #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-        inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
-    #endif
+    // #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
+    //     inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
+    // #endif
 
     // #ifdef WORLD_SKY_ENABLED
     //     float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
@@ -321,11 +323,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 lpvPos = GetLPVPosition(traceLocalPos);
                 vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
 
-                vec3 lpvLight = 0.02 * SampleLpvVoxel(voxelPos, lpvPos);
+                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+                lpvLight /= LPV_BRIGHT_BLOCK;
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
                 //lpvLight /= 1.0 + lpvLight;
 
-                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 3.0 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
