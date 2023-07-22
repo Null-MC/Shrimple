@@ -9,7 +9,7 @@ struct VolumetricPhaseFactors {
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.016, 0.0002, rainStrength);
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.012, 0.0002, rainStrength);
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
@@ -328,7 +328,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
                 //lpvLight /= 1.0 + lpvLight;
 
-                blockLightAccum += 3.0 * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
