@@ -335,16 +335,17 @@ void main() {
             float alphaThreshold = alphaTestRef;
         #endif
 
-        if (color.a < alphaThreshold) {
+        if (color.a <= alphaThreshold) {
             discard;
             return;
         }
 
-        #ifndef RENDER_TRANSLUCENT
-            color.a = 1.0;
-        #endif
+        // #ifndef RENDER_TRANSLUCENT
+        //     color.a = 1.0;
+        // #endif
 
-        color.rgb = mix(color.rgb * glcolor.rgb, entityColor.rgb, entityColor.a);
+        color *= glcolor;
+        color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
     }
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
