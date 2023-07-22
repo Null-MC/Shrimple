@@ -82,7 +82,7 @@ void main() {
 
     #ifdef DH_COMPAT_ENABLED
         #ifdef DEFERRED_BUFFER_ENABLED
-            //color = LinearToRGB(color);
+            color = LinearToRGB(color);
         #else
             ApplyPostProcessing(color);
         #endif

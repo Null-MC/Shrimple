@@ -266,6 +266,10 @@ option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
 option.LPV_LIGHTMAP_MIX=Lightmap Mix
 suffix.LPV_LIGHTMAP_MIX=%
 
+option.LPV_SUN_SAMPLES=LPV Sky Samples
+option.LPV_SUN_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
+value.LPV_SUN_SAMPLES.0=OFF
+
 
 screen.LIGHTING_TRACE_OPTIONS=Trace Options
 
@@ -576,6 +580,5 @@ option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
 
-option.LPV_SUN_SAMPLES=LPV Sky Samples
-option.LPV_SUN_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
-value.LPV_SUN_SAMPLES.0=OFF
+option.DH_COMPAT_ENABLED=Distant Horizons
+option.DH_COMPAT_ENABLED.comment=Enables special support for the Distant Horizons mod.

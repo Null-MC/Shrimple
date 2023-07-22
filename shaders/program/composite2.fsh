@@ -294,7 +294,7 @@ layout(location = 0) out vec4 outFinal;
         #ifdef DH_COMPAT_ENABLED
             #ifdef WORLD_SKY_ENABLED
                 vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                skyFinal = RGBToLinear(skyFinal, GAMMA_OUT);
+                skyFinal = RGBToLinear(skyFinal);
             #else
                 vec3 skyFinal = RGBToLinear(fogColor);
             #endif

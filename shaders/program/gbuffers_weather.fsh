@@ -236,7 +236,7 @@ void main() {
 
     const vec3 normal = vec3(0.0);
     const float occlusion = 1.0;
-    const float roughness = 0.6;
+    const float roughness = 0.4;
     const float metal_f0 = 0.04;
     const float emission = 0.0;
     const float sss = 0.4;
@@ -263,9 +263,10 @@ void main() {
 
         // TODO: weather specular phase
         float VoL = dot(localSkyLightDirection, localViewDir);
-        float phase = DHG(VoL, -0.12, 0.6, 0.091);
-        diffuse *= phase * WorldSkyLightColor * 20.0;
-        //specular += skyPhase * WorldSkyLightColor;
+        float phase = DHG(VoL, -0.32, 0.85, 0.08);
+        //diffuse *= phase * WorldSkyLightColor * 20.0;
+        diffuse *= 0.2;
+        specular += 1.2 * phase * shadowColor;
 
         color.rgb = GetFinalLighting(color.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #else
