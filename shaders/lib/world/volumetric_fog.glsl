@@ -324,11 +324,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
 
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
-                lpvLight /= LPV_BRIGHT_BLOCK;
+                lpvLight = pow(lpvLight / LPV_BRIGHT_BLOCK, vec3(0.5));
+
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
                 //lpvLight /= 1.0 + lpvLight;
 
-                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 0.5 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;

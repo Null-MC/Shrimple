@@ -171,20 +171,24 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             float shadowBias = GetShadowOffsetBias(cascade);
             float shadowDistScale = 3.0 * far;
         #else
-            float shadowBias = GetShadowOffsetBias();
-            const float shadowDistScale = 256.0;
+            float shadowBias = 0.02;//GetShadowOffsetBias();
+            const float shadowDistScale = 64.0;
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
-        uint maxSamples = uint(viewDistF * LPV_SUN_SAMPLES) + 1;
+        uint maxSamples = 1u;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
 
         vec3 shadowF = vec3(0.0);
         //float shadowWeight = 0.0;
         for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
-            //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
-            vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
-            vec3 blockLpvPos = blockLocalPos + 0.8*(shadowOffset - 0.5);
-            //vec3 blockLpvPos = floor(blockLocalPos - fract(cameraPosition)) + 0.5 + 0.8*(shadowOffset - 0.5);
+            vec3 blockLpvPos = blockLocalPos;
+
+            #if LPV_SUN_SAMPLES > 1
+                //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
+                vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos, i)).xyz;
+                blockLpvPos += 0.8*(shadowOffset - 0.5);
+                //vec3 blockLpvPos = floor(blockLocalPos - fract(cameraPosition)) + 0.5 + 0.8*(shadowOffset - 0.5);
+            #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
@@ -208,15 +212,15 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
-            shadowSample *= step(shadowBias, shadowDist);
-            shadowSample *= max(1.0 - max(abs(shadowDist * shadowDistScale) - 1.0, 0.0), 0.0);
+            shadowSample *= step(0.003, shadowDist);
+            shadowSample *= max(1.0 - abs(shadowDist) * shadowDistScale, 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
             //shadowSample *= exp(shadowDist * -WaterAbsorbColorInv);
             //shadowSample *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
-            shadowSample *= step(texDepth, texDepthTrans + shadowBias);
+            shadowSample *= step(shadowPos.z - texDepthTrans, -0.003);
 
             shadowF += shadowSample;
         }

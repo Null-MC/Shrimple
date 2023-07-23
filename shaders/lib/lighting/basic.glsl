@@ -86,7 +86,16 @@
                 //if (saturate(lpvTexcoord) == lpvTexcoord) {
 
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
-                lpvLight = sqrt(lpvLight / LpvRangeF);
+                //lpvLight = sqrt(lpvLight / LpvRangeF);
+
+                //lpvLight /= LPV_BRIGHT_BLOCK;
+
+                // float lum = luminance(lpvLight);
+                // lpvLight /= lum + 3.0;
+
+                lpvLight = pow(lpvLight / LPV_BRIGHT_BLOCK, vec3(0.5));
+
+                //lpvLight /= lpvLight + 1.0;
 
                 //lpvLight *= rcp(256.0);
                 //lpvLight /= 64.0 + luminance(lpvLight);
@@ -97,7 +106,7 @@
                 //     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
                 // #endif
                 
-                return 0.2 * lpvLight;
+                return 3.0 * lpvLight;
             }
         #endif
 
@@ -192,22 +201,22 @@
                 //lmSky.y
             #endif
 
-            #ifndef RENDER_CLOUDS
-                //lmSky.y = pow(lmSky.y, lightP);
+            // #ifndef RENDER_CLOUDS
+            //     //lmSky.y = pow(lmSky.y, lightP);
 
-                //lmSky = (vec4(lmSky, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
-                lmSky = saturate(lmSky) * (15.0/16.0) + (0.5/16.0);
+            //     //lmSky = (vec4(lmSky, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
+            //     lmSky = saturate(lmSky) * (15.0/16.0) + (0.5/16.0);
 
-                vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
+            //     vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
 
-                skyLightColor = RGBToLinear(skyLightColor);
+            //     skyLightColor = RGBToLinear(skyLightColor);
 
-                //skyLightColor = skyLightColor * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
+            //     //skyLightColor = skyLightColor * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
 
-                //skyLightColor *= 1.0 - blindness;
-            #else
+            //     //skyLightColor *= 1.0 - blindness;
+            // #else
                 vec3 skyLightColor = vec3(1.0);
-            #endif
+            //#endif
 
             #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
                 float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));

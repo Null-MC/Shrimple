@@ -592,17 +592,22 @@ layout(location = 0) out vec4 outFinal;
 
             #if REFRACTION_STRENGTH > 0
                 float refractDist = maxOf(abs(refraction * viewSize));
-                int refractSteps = min(16, int(ceil(refractDist)));
-                vec2 step = refraction / refractSteps;
-                //refraction = step * refractSteps;
+                if (refractDist >= 1.0) {
+                    int refractSteps = clamp(int(ceil(refractDist)), 2, 16);
+                    vec2 step = refraction / refractSteps;
+                    //refraction = step * refractSteps;
+                    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-                for (int i = 1; i <= refractSteps; i++) {
-                    float sampleDepth = textureLod(depthtex1, texcoord + i * step, 0).r;
-                    
-                    if (sampleDepth < depth) {
-                        refraction = max(i - 2, 0) * step;
-                        //depthOpaque = sampleDepth;
-                        break;
+                    //refraction = vec2(0.0);
+                    for (int i = 1; i <= refractSteps; i++) {
+                        float o = i + dither;
+                        float sampleDepth = textureLod(depthtex1, texcoord + o * step, 0).r;
+                        
+                        if (sampleDepth < depth) {
+                            refraction = max(i - 1, 0) * step;
+                            //depthOpaque = sampleDepth;
+                            break;
+                        }
                     }
                 }
             #endif
