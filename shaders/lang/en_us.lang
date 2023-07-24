@@ -254,11 +254,9 @@ value.LPV_SAMPLE_MODE.0=Point
 value.LPV_SAMPLE_MODE.1=Linear
 value.LPV_SAMPLE_MODE.2=Voxel
 
-option.LPV_BRIGHT_SUN=Sun Brightness
-suffix.LPV_BRIGHT_SUN=x
-
-option.LPV_BRIGHT_MOON=Moon Brightness
-suffix.LPV_BRIGHT_MOON=x
+option.LPV_BRIGHT_BLOCK=Light Range
+option.LPV_BRIGHT_BLOCK.comment=Scale factor for how far light propagates within LPV.
+suffix.LPV_BRIGHT_BLOCK=x
 
 option.LPV_SUN_SAMPLES=Sunlight Samples
 option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
