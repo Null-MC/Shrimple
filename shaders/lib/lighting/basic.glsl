@@ -88,12 +88,12 @@
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
 
-                //lpvLight /= LPV_BRIGHT_BLOCK;
+                //lpvLight /= LpvBlockLightF;
 
                 // float lum = luminance(lpvLight);
                 // lpvLight /= lum + 3.0;
 
-                lpvLight = pow(lpvLight / LPV_BRIGHT_BLOCK, vec3(0.5));
+                lpvLight = pow(lpvLight / LpvBlockLightF, vec3(0.5));
 
                 //lpvLight /= lpvLight + 1.0;
 
@@ -106,7 +106,8 @@
                 //     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
                 // #endif
                 
-                return 3.0 * lpvLight;
+                lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
+                return lpvLight;
             }
         #endif
 

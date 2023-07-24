@@ -130,8 +130,6 @@ vec3 GetLpvValue(in ivec3 texCoord) {
 }
 
 vec3 mixNeighbours(const in ivec3 fragCoord) {
-    const float FALLOFF = 0.9;
-
     vec3 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
     vec3 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));
     vec3 nY1 = GetLpvValue(fragCoord + ivec3( 0, -1,  0));
@@ -139,8 +137,8 @@ vec3 mixNeighbours(const in ivec3 fragCoord) {
     vec3 nZ1 = GetLpvValue(fragCoord + ivec3( 0,  0, -1));
     vec3 nZ2 = GetLpvValue(fragCoord + ivec3( 0,  0,  1));
 
-    vec3 avgColor = (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * (1.0/6.0);
-    return FALLOFF * avgColor;
+    vec3 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
 float GetBlockBounceF(const in uint blockId) {
@@ -176,7 +174,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
-        uint maxSamples = 1u;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
+        uint maxSamples = LPV_SUN_SAMPLES;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
 
         vec3 shadowF = vec3(0.0);
         //float shadowWeight = 0.0;
@@ -206,7 +204,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             #endif
 
             vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-            shadowSample = RGBToLinear(shadowSample);
+            //shadowSample = RGBToLinear(shadowSample);
 
             //shadowSample = 0.25 + 0.75 * shadowSample;
 
@@ -226,6 +224,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
         }
 
         shadowF *= rcp(maxSamples);
+        shadowF = RGBToLinear(shadowF);
 
         // #ifdef SHADOW_CLOUD_ENABLED
         //     float cloudF = SampleCloudShadow(skyLightDir, cloudShadowPos);
@@ -254,7 +253,8 @@ void main() {
             vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
             skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
 
-            skyLightColor *= mix(LPV_BRIGHT_MOON, LPV_BRIGHT_SUN, max(localSunDirection.y, 0.0));
+            float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+            skyLightColor *= LpvBlockLightF * mix(LPV_BRIGHT_MOON, LPV_BRIGHT_SUN, sunUpF);
         #endif
 
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
@@ -292,7 +292,7 @@ void main() {
                                 ApplyLightFlicker(lightColor, lightType, lightNoise);
                             #endif
 
-                            lightValue = lightColor * pow2(lightRange * LPV_BRIGHT_BLOCK);
+                            lightValue = lightColor * lightRange * LpvBlockLightF;
                         }
                         else {
                     #endif

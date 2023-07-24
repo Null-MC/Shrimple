@@ -33,7 +33,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
 
         float ambientF = 0.0;//mix(0.001, 0.03, rainStrength) * densityF);
-        ambientF = mix(0.012, ambientF, skyLight);
+        ambientF = mix(0.009, ambientF, skyLight);
         result.Ambient = vec3(ambientF);
 
         result.Forward = 0.824;
@@ -41,7 +41,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Direction = 0.0376;
 
         float scatterF = mix(0.02, 0.04, rainStrength) * density;
-        scatterF = mix(0.04, scatterF, skyLight);
+        scatterF = mix(0.06, scatterF, skyLight);
         result.ScatterF = vec3(scatterF);
 
         float extinctF = mix(0.002, 0.009, rainStrength) * density;
@@ -324,12 +324,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
 
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
-                lpvLight = pow(lpvLight / LPV_BRIGHT_BLOCK, vec3(0.5));
+                lpvLight = pow(lpvLight / LpvBlockLightF, vec3(0.5));
 
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
                 //lpvLight /= 1.0 + lpvLight;
 
-                blockLightAccum += 0.5 * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;

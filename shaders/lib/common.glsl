@@ -196,14 +196,15 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 0 // [0 1 2 3]
-#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
-#define LPV_SUN_SAMPLES 0 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
+#define LPV_SUN_SAMPLES 0 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define LPV_BRIGHT_BLOCK 12 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
+//#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
+#define LPV_BRIGHT_SUN 0.5
+#define LPV_BRIGHT_MOON 0.04
+#define LPV_FALLOFF 0.01
 #define LPV_GLASS_TINT
-#define LPV_BRIGHT_SUN 4096 // [1 2 4 8 16 32 64 128 256 512 1024 2048 4096]
-#define LPV_BRIGHT_MOON 2 // [1 2 4 8 16 32 64 128 256 512 1024 2048 4096]
-#define LPV_BRIGHT_BLOCK 4096 // [1 2 4 8 16 32 64 128 256 512 1024 2048 4096]
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -449,7 +450,8 @@ const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
 const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
 const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
-const float LpvRangeF = LPV_RANGE * 0.01;
+const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
+//const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
