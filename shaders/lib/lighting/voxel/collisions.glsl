@@ -1041,6 +1041,69 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
         // }
     }
 
+    if (blockId >= BLOCK_CREATE_COPYCAT_PANEL_N && blockId <= BLOCK_CREATE_COPYCAT_STEP_TOP_W) {
+        shapeCount = 1u;
+
+        switch (blockId) {
+            case BLOCK_CREATE_COPYCAT_PANEL_N:
+                boundsMin[0] = modelPart( 0,  0, 13);
+                boundsMax[0] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_PANEL_E:
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart( 3, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_PANEL_S:
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16, 16,  3);
+                break;
+            case BLOCK_CREATE_COPYCAT_PANEL_W:
+                boundsMin[0] = modelPart(13,  0,  0);
+                boundsMax[0] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_PANEL_UP:
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  3, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_PANEL_DOWN:
+                boundsMin[0] = modelPart( 0, 13,  0);
+                boundsMax[0] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_BOTTOM_N:
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart(16,  8,  8);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_BOTTOM_E:
+                boundsMin[0] = modelPart( 8,  0,  0);
+                boundsMax[0] = modelPart(16,  8, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_BOTTOM_S:
+                boundsMin[0] = modelPart( 0,  0,  8);
+                boundsMax[0] = modelPart(16,  8, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_BOTTOM_W:
+                boundsMin[0] = modelPart( 0,  0,  0);
+                boundsMax[0] = modelPart( 8,  8, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_TOP_N:
+                boundsMin[0] = modelPart( 0,  8,  0);
+                boundsMax[0] = modelPart(16, 16,  8);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_TOP_E:
+                boundsMin[0] = modelPart( 8,  8,  0);
+                boundsMax[0] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_TOP_S:
+                boundsMin[0] = modelPart( 0,  8,  8);
+                boundsMax[0] = modelPart(16, 16, 16);
+                break;
+            case BLOCK_CREATE_COPYCAT_STEP_TOP_W:
+                boundsMin[0] = modelPart( 0,  8,  0);
+                boundsMax[0] = modelPart( 8, 16, 16);
+                break;
+        }
+    }
+
     switch (blockId) {
         case BLOCK_CREATE_BASIN:
             shapeCount = 5u;

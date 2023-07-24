@@ -616,6 +616,9 @@ uint GetSceneLightType(const in int blockId) {
                 lightType = LIGHT_REPEATER;
                 break;
         }
+
+        // if (blockId == BLOCK_GANTRY_SHAFT_POWERED)
+        //     lightType = LIGHT_REDSTONE_WIRE_8;
     #endif
 
     #ifdef DYN_LIGHT_OREBLOCKS
