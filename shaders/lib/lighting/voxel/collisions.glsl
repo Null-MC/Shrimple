@@ -1569,6 +1569,11 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
     }
 
     switch (blockId) {
+        case BLOCK_CREATE_SCAFFOLDING_BOTTOM:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 0, 13,  0);
+            boundsMax[0] = modelPart(16, 16, 16);
+            break;
         case BLOCK_CREATE_SHAFT_X:
             shapeCount = 1u;
             boundsMin[0] = modelPart( 0,  6,  6);
