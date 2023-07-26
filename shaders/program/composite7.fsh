@@ -5,7 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-const bool colortex0MipmapEnabled = true;
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    const bool colortex0MipmapEnabled = true;
+#endif
 
 in vec2 texcoord;
 
@@ -357,7 +359,8 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
-            isWater = deferredTexture.a < 0.5;
+            vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
+            isWater = deferredShadow.a < 0.5;
 
             #if REFRACTION_STRENGTH > 0
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
@@ -393,13 +396,13 @@ layout(location = 0) out vec4 outFinal;
             #ifdef SHADOW_BLUR
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
+                    deferredShadow.rgb = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
                 #else
                     float shadowSigma = 3.0 / linearDepth;
-                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
+                    deferredShadow.rgb = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
                 #endif
             #else
-                vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+                //deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
             float occlusion = deferredLighting.z;
@@ -408,10 +411,10 @@ layout(location = 0) out vec4 outFinal;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
+                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow.rgb);
 
                 float geoNoL = dot(localNormal, localSkyLightDirection);
-                specular += GetSkySpecular(localPos, geoNoL, texNormal, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                specular += GetSkySpecular(localPos, geoNoL, texNormal, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
 
                 SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
 
@@ -566,7 +569,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #ifdef WORLD_SKY_ENABLED
                     vec3 shadowPos = vec3(0.0);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
+                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow.rgb, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
                 #endif
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -576,7 +579,7 @@ layout(location = 0) out vec4 outFinal;
                     }
                 #endif
 
-                float shadowF = min(luminance(deferredShadow), 1.0);
+                float shadowF = min(luminance(deferredShadow.rgb), 1.0);
                 occlusion = max(occlusion, shadowF);
 
                 vec3 diffuseFinal = blockDiffuse + skyDiffuse;

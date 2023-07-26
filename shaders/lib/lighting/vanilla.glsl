@@ -87,7 +87,8 @@ vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3
 
         vec3 diffuse = vec3(0.0);
         float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-        ApplyReflections(diffuse, specular, viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+        specular += ApplyReflections(viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+        diffuse *= 1.0 - skyReflectF;
     #endif
 
     return specular;

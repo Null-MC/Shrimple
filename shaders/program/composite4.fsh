@@ -5,6 +5,10 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    const bool colortex0MipmapEnabled = true;
+#endif
+
 in vec2 texcoord;
 
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -12,7 +16,17 @@ in vec2 texcoord;
     uniform sampler2D depthtex1;
     uniform sampler2D depthtex2;
     uniform sampler2D BUFFER_FINAL;
-    uniform usampler2D BUFFER_DEFERRED_DATA;
+    uniform sampler2D BUFFER_DEFERRED_SHADOW;
+
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+        uniform sampler2D BUFFER_DEFERRED_COLOR;
+        uniform usampler2D BUFFER_DEFERRED_DATA;
+        uniform sampler2D texDepthNear;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            uniform sampler2D BUFFER_ROUGHNESS;
+        #endif
+    #endif
 
     #ifdef VL_BUFFER_ENABLED
         uniform sampler2D BUFFER_VL;
@@ -71,6 +85,17 @@ in vec2 texcoord;
         #include "/lib/world/water.glsl"
     #endif
 
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            #include "/lib/blocks.glsl"
+            #include "/lib/material/specular.glsl"
+        #endif
+
+        #include "/lib/lighting/ssr.glsl"
+        #include "/lib/lighting/fresnel.glsl"
+        #include "/lib/lighting/reflections.glsl"
+    #endif
+
     #include "/lib/sampling/bilateral_gaussian.glsl"
     #include "/lib/world/volumetric_blur.glsl"
 #endif
@@ -98,26 +123,59 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
 
+        vec2 viewSize = vec2(viewWidth, viewHeight);
+
+        vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+        vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+            vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+        #else
+            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+        #endif
+        
+        vec3 localViewDir = normalize(localPosOpaque);
+
+        #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && MATERIAL_SPECULAR != SPECULAR_NONE
+            vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
+            float roughness = deferredRoughMetalF0.r;
+            float metal_f0 = deferredRoughMetalF0.g;
+            float roughL = _pow2(roughness);
+
+            vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
+            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+            vec3 texNormal = deferredTexture.xyz;
+
+            float skyNoVm = 1.0;
+            if (any(greaterThan(texNormal, EPSILON3))) {
+                texNormal = normalize(texNormal * 2.0 - 1.0);
+                skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+            }
+
+            float f0 = GetMaterialF0(metal_f0);
+            float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+            vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+            vec3 specular = ApplyReflections(viewPosOpaque, texViewNormal, skyReflectF, deferredLighting.y, roughness);
+
+            if (metal_f0 >= 0.5)
+                specular *= RGBToLinear(deferredColor.rgb);
+
+            final += specular;
+        #endif
+
         if (depthTranslucent < depthOpaque) {
-            vec2 viewSize = vec2(viewWidth, viewHeight);
-
-            vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-            vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
-                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-            #else
-                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
-            #endif
-            
             #ifdef WORLD_WATER_ENABLED
-                uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-                vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-                bool isWater = deferredTexture.a < 0.5;
+                //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+                //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
+                bool isWater = deferredShadowA < 0.5;
 
                 float distOpaque = length(localPosOpaque);
                 float distTranslucent = length(localPosTranslucent);
@@ -149,8 +207,6 @@ layout(location = 0) out vec4 outFinal;
                             // sky fog
 
                             if (depthOpaque < 1.0) {
-                                vec3 localViewDir = normalize(localPosOpaque);
-
                                 vec3 skyColorFinal = RGBToLinear(skyColor);
                                 fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                                 fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);

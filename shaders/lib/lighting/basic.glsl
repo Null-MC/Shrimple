@@ -106,7 +106,9 @@
                 //     ambientLight *= 1.0 - (1.0 - LpvLightmapMixF)*lpvFade;
                 // #endif
                 
-                lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
+                //lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
+                lpvLight *= sqrt(LPV_BRIGHT_BLOCK);
+                //lpvLight *= LPV_BRIGHT_BLOCK;
                 return lpvLight;
             }
         #endif
@@ -361,7 +363,12 @@
                     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
                     float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-                    ApplyReflections(accumDiffuse, skySpecular, viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+
+                    #ifndef RENDER_OPAQUE_FINAL
+                        skySpecular += ApplyReflections(viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+                    #endif
+
+                    accumDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif
 

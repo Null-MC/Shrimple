@@ -90,6 +90,7 @@ uniform sampler2D noisetex;
 #endif
 
 uniform ivec2 atlasSize;
+uniform int renderStage;
 
 uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
@@ -290,20 +291,25 @@ void main() {
 
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        vec3 worldPos = vLocalPos + cameraPosition;
+        float skyWetness = 0.0, puddleF = 0.0;
+        vec4 rippleNormalStrength;
 
-        float surface_roughness, surface_metal_f0;
-        GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
+            vec3 worldPos = vLocalPos + cameraPosition;
 
-        porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
-        float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
-        float puddleF = GetWetnessPuddleF(skyWetness, porosity);
+            float surface_roughness, surface_metal_f0;
+            GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
-        #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
-            vec4 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
-            localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-            if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
-        #endif
+            porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+            puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+            #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+                rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+                localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
+                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+            #endif
+        }
     #endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -418,20 +424,14 @@ void main() {
     vec3 localTangent = normalize(vLocalTangent);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        //vec3 worldPos = vLocalPos + cameraPosition;
-
-        //float porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
-        //float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
-        //float puddleF = GetWetnessPuddleF(skyWetness, porosity);
-
-        #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
             ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
-        #endif
+        }
     #endif
 
     vec3 localViewDir = normalize(vLocalPos);

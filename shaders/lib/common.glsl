@@ -4,7 +4,7 @@ const float sunPathRotation = -20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -
 const int shadowcolor0Format = RGBA8;
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
-const int colortex2Format  = RGB8;
+const int colortex2Format  = RGBA8;
 const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGB8;
@@ -202,8 +202,8 @@ const bool colortex15Clear = true;
 #define LPV_BRIGHT_BLOCK 12 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_BRIGHT_SUN 0.5
-#define LPV_BRIGHT_MOON 0.04
-#define LPV_FALLOFF 0.01
+#define LPV_BRIGHT_MOON 0.02
+#define LPV_FALLOFF 0.001
 #define LPV_GLASS_TINT
 
 //#define DYN_LIGHT_OCTREE

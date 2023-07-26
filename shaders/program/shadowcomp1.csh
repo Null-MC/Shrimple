@@ -151,13 +151,13 @@ float GetBlockBounceF(const in uint blockId) {
     return step(blockId + 1, BLOCK_WATER);
 }
 
-float GetLpvBounceF(const in ivec3 gridBlockCell) {
-    ivec3 gridCell = ivec3(floor(gridBlockCell / LIGHT_BIN_SIZE));
+float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
+    ivec3 gridCell = ivec3(floor((gridBlockCell + blockOffset) / LIGHT_BIN_SIZE));
     uint gridIndex = GetVoxelGridCellIndex(gridCell);
-    ivec3 blockCell = gridBlockCell - gridCell * LIGHT_BIN_SIZE;
+    ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
 
     uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-    return GetBlockBounceF(blockId);
+    return GetBlockBounceF(blockId) * max(dot(-blockOffset, localSkyLightDirection), 0.0);
 }
 
 #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -204,7 +204,10 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
             #endif
 
             vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-            //shadowSample = RGBToLinear(shadowSample);
+            shadowSample = RGBToLinear(shadowSample);
+
+            // WARN: this is just a test! make skylight GI more dark and saturated
+            shadowSample = _pow2(shadowSample);
 
             //shadowSample = 0.25 + 0.75 * shadowSample;
 
@@ -224,7 +227,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell) {
         }
 
         shadowF *= rcp(maxSamples);
-        shadowF = RGBToLinear(shadowF);
+        //shadowF = RGBToLinear(shadowF);
 
         // #ifdef SHADOW_CLOUD_ENABLED
         //     float cloudF = SampleCloudShadow(skyLightDir, cloudShadowPos);
@@ -317,12 +320,12 @@ void main() {
 
                             #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                                 float bounceF = (1.0/6.0) * (
-                                    GetLpvBounceF(voxelPos + ivec3( 1, 0, 0)) +
-                                    GetLpvBounceF(voxelPos + ivec3(-1, 0, 0)) +
-                                    GetLpvBounceF(voxelPos + ivec3( 0, 1, 0)) +
-                                    GetLpvBounceF(voxelPos + ivec3( 0,-1, 0)) +
-                                    GetLpvBounceF(voxelPos + ivec3( 0, 0, 1)) +
-                                    GetLpvBounceF(voxelPos + ivec3( 0, 0,-1))
+                                    GetLpvBounceF(voxelPos, ivec3( 1, 0, 0)) +
+                                    GetLpvBounceF(voxelPos, ivec3(-1, 0, 0)) +
+                                    GetLpvBounceF(voxelPos, ivec3( 0, 1, 0)) +
+                                    GetLpvBounceF(voxelPos, ivec3( 0,-1, 0)) +
+                                    GetLpvBounceF(voxelPos, ivec3( 0, 0, 1)) +
+                                    GetLpvBounceF(voxelPos, ivec3( 0, 0,-1))
                                 );
 
                                 vec3 shadowColor = SampleShadow(blockLocalPos, localSunDirection) * bounceF;

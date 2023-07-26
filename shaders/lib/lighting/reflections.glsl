@@ -1,5 +1,5 @@
 float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * (1.0 - roughL) * MaterialReflectionStrength;
+    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
 }
 
 #ifdef WORLD_SKY_ENABLED
@@ -7,19 +7,25 @@ float GetReflectiveness(const in float NoVm, const in float f0, const in float r
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             vec3 reflectColor;
 
-            if (isEyeInWater == 1) {
-                #ifndef IRIS_FEATURE_SSBO
-                    vec3 WorldSkyLightColor = GetSkyLightColor();
-                #endif
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 WorldSkyLightColor = GetSkyLightColor();
+                    #endif
 
-                vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-                reflectColor = GetCustomWaterFogColor(localSunDirection.y);
-            }
-            else {
+                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                    reflectColor = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+            #endif
+                
                 vec3 skyColorFinal = RGBToLinear(skyColor);
                 reflectColor = GetCustomSkyFogColor(localSunDirection.y);
                 reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
-            }
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
         #else
             vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
             reflectColor = RGBToLinear(reflectColor);
@@ -32,7 +38,7 @@ float GetReflectiveness(const in float NoVm, const in float f0, const in float r
     }
 #endif
 
-void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
+vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
@@ -44,7 +50,7 @@ void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 vie
         vec3 reflectColor = RGBToLinear(fogColor);
     #endif
 
-    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
         vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
         vec3 clipRay = reflectClipPos - clipPos;
@@ -61,42 +67,50 @@ void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 vie
             vec3 fogColorFinal = vec3(0.0);
             float fogF = 0.0;
 
-            if (isEyeInWater == 1) {
-                // water fog
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 1) {
+                    // water fog
 
-                float fogDist = length(reflectViewPos - viewPos);
-                fogF = GetCustomWaterFogFactor(fogDist);
+                    float fogDist = length(reflectViewPos - viewPos);
+                    fogF = GetCustomWaterFogFactor(fogDist);
 
-                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-            }
-            else if (reflection.z < 1.0) {
-                #ifndef DH_COMPAT_ENABLED
-                    #ifdef WORLD_SKY_ENABLED
-                        // sky fog
+                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                }
+                else {
+            #endif
 
-                        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                            // TODO: apply fog to reflection
+                if (reflection.z < 1.0) {
+                    #ifndef DH_COMPAT_ENABLED
+                        #ifdef WORLD_SKY_ENABLED
+                            // sky fog
 
-                            float fogDist = GetVanillaFogDistance(reflectViewPos);
+                            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                                // TODO: apply fog to reflection
 
-                            fogF = GetCustomSkyFogFactor(fogDist);
+                                float fogDist = GetVanillaFogDistance(reflectViewPos);
 
-                            vec3 skyColorFinal = RGBToLinear(skyColor);
-                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
-                        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-                            // TODO: apply fog to reflection
+                                fogF = GetCustomSkyFogFactor(fogDist);
+
+                                vec3 skyColorFinal = RGBToLinear(skyColor);
+                                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
+                            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                                // TODO: apply fog to reflection
+                            #endif
+                        #else
+                            // no-sky fog
+
+                            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
+                            fogColorFinal = RGBToLinear(fogColor);
+                            fogF = GetVanillaFogFactor(localPos);
                         #endif
-                    #else
-                        // no-sky fog
-
-                        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-                        fogColorFinal = RGBToLinear(fogColor);
-                        fogF = GetVanillaFogFactor(localPos);
                     #endif
-                #endif
-            }
+                }
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
 
             col = mix(col, fogColorFinal, fogF);
         #endif
@@ -104,6 +118,6 @@ void ApplyReflections(inout vec3 diffuse, inout vec3 specular, const in vec3 vie
         reflectColor = mix(reflectColor, col, reflection.a);
     #endif
 
-    specular += reflectColor * skyReflectF;// * pow5(skyLight);
-    diffuse *= 1.0 - skyReflectF;
+    return reflectColor * skyReflectF;// * pow5(skyLight);
+    //diffuse *= 1.0 - skyReflectF;
 }

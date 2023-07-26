@@ -11,7 +11,7 @@ const ivec3 workGroups = ivec3(256, 256, 1);
 
 layout(r32f) uniform image2D imgDepthNear;
 
-uniform sampler2D depthtex1;
+uniform sampler2D depthtex0;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -46,7 +46,7 @@ void main() {
 	for (int y = 0; y < 2; y++) {
 		for (int x = 0; x < 2; x++) {
 			ivec2 sampleUV = fragReadPos + ivec2(x, y);
-			float sampleZ = texelFetch(depthtex1, sampleUV, 0).r;
+			float sampleZ = texelFetch(depthtex0, sampleUV, 0).r;
 			minZ = min(minZ, sampleZ);
 		}
 	}

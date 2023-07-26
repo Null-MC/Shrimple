@@ -19,12 +19,12 @@ CU			imgLocalBlockMask
 colortex0		RGB16F		1.0		final
 
 colortex1		RGBA8		1.0		deferred color
-colortex2		RGB8		1.0		deferred shadow
+colortex2		RGBA8		1.0		deferred shadow, water mask
 colortex3		RGBA32UI	1.0		deferred data
 									 - R: geometry normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
 									 - B: fog.rgba
-									 - A: texture normal (normal, water)
+									 - A: texture normal.xyz
 
 colortex4		RGB16F		 *	 	block-light diffuse
 colortex11		RGBA16F		 *	 	block-light specular
