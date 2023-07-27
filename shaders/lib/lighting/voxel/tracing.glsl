@@ -74,9 +74,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     if (abs(direction.y) < EPSILON) direction.y = EPSILON;
     if (abs(direction.z) < EPSILON) direction.z = EPSILON;
 
-    vec3 stepSizes = rcp(abs(direction));
-
     vec3 stepDir = sign(direction);
+    vec3 stepSizes = rcp(abs(direction));
     vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction;
 
     ivec3 gridCell, blockCell;

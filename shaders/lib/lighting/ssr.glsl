@@ -27,39 +27,48 @@ float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, cons
 
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
-    // vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
-    // vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectDir, 1.0)) * 0.5 + 0.5;
-
-    // vec3 screenRay = reflectClipPos - clipPos;
     float screenRayLength = length(clipRay);
     if (screenRayLength < EPSILON) return vec4(0.0);
-
-    vec3 screenRay = clipRay / screenRayLength;
-    vec3 screenRayDir = screenRay;
 
     vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 ssrPixelSize = rcp(viewSize);
 
-    if (abs(screenRay.y) > abs(screenRay.x))
+    vec3 screenRay = clipRay / screenRayLength;
+
+
+
+    vec2 origin = clipPos.xy * viewSize;
+    vec3 direction = screenRay;
+
+    vec2 stepDir = sign(direction.xy);
+    vec2 stepSizes = rcp(abs(direction.xy));// * viewSize;
+    vec2 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction.xy;
+
+
+
+    vec2 screenRayAbs = abs(screenRay.xy);
+    if (screenRayAbs.y > screenRayAbs.x)
         screenRay *= ssrPixelSize.y / abs(screenRay.y);
     else
         screenRay *= ssrPixelSize.x / abs(screenRay.x);
 
-    // #ifndef SSR_HIZ
-    //     #if SSR_QUALITY == 2
-    //         screenRay *= 3.0;
-    //     #elif SSR_QUALITY == 1
-    //         screenRay *= 2.0;
-    //     #endif
-    // #endif
-
     vec3 lastTracePos = clipPos + screenRay;
-    //#if SSR_QUALITY != 0
-    //    lastTracePos += screenRay * GetScreenBayerValue();
-    //#endif
+    vec3 lastVisPos = lastTracePos;
 
     float startDepthLinear = linearizeDepthFast(clipPos.z, near, far);
     ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
+
+
+
+    float closestDist = minOf(nextDist);
+    vec2 currPos = origin + direction.xy * closestDist;
+
+    bvec2 stepAxis = lessThanEqual(nextDist, vec2(closestDist));
+
+    nextDist -= closestDist;
+    nextDist += stepSizes * vec2(stepAxis);
+
+
 
     const vec3 clipMin = vec3(0.0);
     vec3 clipMax = vec3(1.0) - vec3(ssrPixelSize, EPSILON);
@@ -75,57 +84,61 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         int l2 = int(exp2(level));
         tracePos = lastTracePos + screenRay*l2;
 
+
+
+        closestDist = minOf(nextDist);
+        vec2 ddaStep = direction.xy * closestDist * l2;
+
+        //float currLen2 = length2(currPos - origin);
+        //if (currLen2 > traceRayLen2) currPos = endPos;
+        
+        //vec3 voxelPos = floor(0.5 * (currPos + rayStart));
+
+        //if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
+
+        stepAxis = lessThanEqual(nextDist, vec2(closestDist));
+
+        nextDist -= closestDist;
+        nextDist += stepSizes * vec2(stepAxis);
+
+
+
         if (tracePos.z >= 1.0 && clamp(tracePos, clipMin, clipMax) != tracePos) {
             if (level > 0) {
                 level--;
                 continue;
             }
 
+            //lastTracePos = tracePos;
             alpha = 1.0;
             break;
         }
 
-        ivec2 iuv = ivec2(tracePos.xy * viewSize);
-        // if (iuv == iuv_start) {
-        //     //i += l2;
-        //     lastTracePos = tracePos;
-        //     level++;
-        //     continue;
-        // }
-
         float depthBias = -0.01 * (1.0 - clipPos.z);
-        //if (level > 0) depthBias += screenRay.z * l2;
+        //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
+        texDepth = SampleDepthTiles(depthtex, (currPos) / viewSize, level);
 
-        //texDepth = texelFetch(depthtex, iuv, level).r;
-        //texDepth = textureLod(depthtex, tracePos.xy, level).r;
+        float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
+        float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
-        //vec4 depthSamples = vec4(1.0);
-        //depthSamples.x = textureLod(depthtex, tracePos.xy, level).r;
-        //texDepth = textureLod(depthtex, tracePos.xy, level).r;
-        texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
+        bool ignoreIfCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
+        bool ignoreIfTraceNearer = tracePos.z < texDepth + 0.0001;
+        //bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.1;
+        bool ignoreIfTooThick = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
-        // if (level > 0) {
-        //     depthSamples.y = texelFetchOffset(depthtex, iuv, level, ivec2(1, 0)).r;
-        //     depthSamples.z = texelFetchOffset(depthtex, iuv, level, ivec2(0, 1)).r;
-        //     depthSamples.w = texelFetchOffset(depthtex, iuv, level, ivec2(1, 1)).r;
-        // }
+        if (ignoreIfCloserThanStartAndMovingAway || ignoreIfTraceNearer || ignoreIfTooThick) {
+            lastTracePos = tracePos;
+            currPos += ddaStep;
 
-        //texDepth = minOf(depthSamples);
-        bool isFurther = texDepth > tracePos.z + depthBias;
-        bool isNearer = screenRay.z > 0.0 && texDepth < clipPos.z;
+            if (ignoreIfTraceNearer) lastVisPos = tracePos;
 
-        if (isFurther || isNearer) {
             if (level < maxLevel) {
-                // vec2 nextLevelCoord = iuv / exp2(level + 1);
-
-                // bool isLevelEdge = any(lessThan(fract(nextLevelCoord), vec2(0.5)));
-                // if (isLevelEdge) level++;
+                //vec2 halfPos = floor(currPos + 0.5) * 0.5;
+                //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
 
                 level++;
             }
 
-            //i += l2;
-            lastTracePos = tracePos;
             continue;
         }
 
@@ -134,10 +147,11 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             continue;
         }
 
+        lastTracePos = tracePos;
         alpha = 1.0;
     }
 
-    return vec4(tracePos, alpha);
+    return vec4(lastVisPos, alpha);
 }
 
 // uv=tracePos.xy

@@ -277,6 +277,7 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
 #define ROUGH_MIN 0.06
+#define REFLECTION_ROUGH_SCATTER 11
 #define WHITEWORLD_VALUE 0.9
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
@@ -456,6 +457,7 @@ const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
 const float RefractionStrengthF = REFRACTION_STRENGTH * 0.01;
+const float ReflectionRoughScatterF = REFLECTION_ROUGH_SCATTER * 0.01;
 const float DepthOfFieldFocusScale = BLUR_DOF_FOCUS_SCALE * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
