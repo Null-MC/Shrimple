@@ -1,5 +1,5 @@
-float GetReflectiveness(const in float NoVm, const in float f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
+vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
+    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength;// * (1.0 - roughL);
 }
 
 #ifdef WORLD_SKY_ENABLED
@@ -34,11 +34,11 @@ float GetReflectiveness(const in float NoVm, const in float f0, const in float r
         float m = skyLight * 0.25;
         reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
 
-        return reflectColor * pow(skyLight, 5.0);
+        return reflectColor * pow5(skyLight);
     }
 #endif
 
-vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const in float skyReflectF, const in float skyLight, const in float roughness) {
+vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const in float skyLight, const in float roughness) {
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
@@ -127,6 +127,6 @@ vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const 
         reflectColor = mix(reflectColor, col, reflection.a);
     #endif
 
-    return reflectColor * skyReflectF;// * pow5(skyLight);
+    return reflectColor;// * skyReflectF;// * pow5(skyLight);
     //diffuse *= 1.0 - skyReflectF;
 }

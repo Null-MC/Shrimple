@@ -56,7 +56,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 }
 
 vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
-    float f0 = GetMaterialF0(metal_f0);
+    vec3 f0 = GetMaterialF0(metal_f0);
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 WorldSkyLightColor = GetSkyLightColor();
@@ -81,14 +81,13 @@ vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3
     float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
     vec3 specular = invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
 
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined RENDER_OPAQUE_FINAL
+    //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
         vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-        vec3 diffuse = vec3(0.0);
         float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-        specular += ApplyReflections(viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
-        diffuse *= 1.0 - skyReflectF;
+        specular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
     #endif
 
     return specular;
@@ -96,9 +95,11 @@ vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
     #if MATERIAL_SPECULAR != SPECULAR_NONE
+        specular *= GetMetalTint(albedo, metal_f0);
+    
         if (metal_f0 >= 0.5) {
             diffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            specular *= albedo;
+            //specular *= albedo;
         }
     #endif
 

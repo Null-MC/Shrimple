@@ -73,10 +73,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     const vec3 clipMin = vec3(0.0);
     vec3 clipMax = vec3(1.0) - vec3(ssrPixelSize, EPSILON);
 
-    const int maxLevel = 4;
-    int level = 0;
+    const int minLod = 0;
 
     int i;
+    int level = minLod;
     float alpha = 0.0;
     float texDepth;
     vec3 tracePos;
@@ -104,7 +104,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
 
         if (tracePos.z >= 1.0 && clamp(tracePos, clipMin, clipMax) != tracePos) {
-            if (level > 0) {
+            if (level > minLod) {
                 level--;
                 continue;
             }
@@ -114,7 +114,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             break;
         }
 
-        float depthBias = -0.01 * (1.0 - clipPos.z);
+        //float depthBias = -0.01 * (1.0 - clipPos.z);
         //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
         texDepth = SampleDepthTiles(depthtex, (currPos) / viewSize, level);
 
@@ -132,7 +132,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
             if (ignoreIfTraceNearer) lastVisPos = tracePos;
 
-            if (level < maxLevel) {
+            if (level < SSR_LOD_MAX) {
                 //vec2 halfPos = floor(currPos + 0.5) * 0.5;
                 //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
 
@@ -142,12 +142,12 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             continue;
         }
 
-        if (level > 0) {
+        if (level > minLod) {
             level--;
             continue;
         }
 
-        lastTracePos = tracePos;
+        //lastTracePos = tracePos;
         alpha = 1.0;
     }
 
@@ -160,7 +160,8 @@ vec3 GetRelectColor(const in vec2 uv, inout float alpha, const in float lod) {
 
     if (alpha > EPSILON) {
         vec2 alphaXY = saturate(12.0 * abs(vec2(0.5) - uv) - 5.0);
-        alpha = 1.0 - pow(maxOf(alphaXY), 4.0);
+        alpha = maxOf(alphaXY);
+        alpha = 1.0 - pow4(alpha);
 
         color = textureLod(BUFFER_FINAL, uv, lod).rgb;
     }

@@ -166,6 +166,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/noise.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/world/fog.glsl"

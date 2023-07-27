@@ -88,6 +88,8 @@ in vec2 texcoord;
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #include "/lib/blocks.glsl"
+            #include "/lib/items.glsl"
+            #include "/lib/material/hcm.glsl"
             #include "/lib/material/specular.glsl"
         #endif
 
@@ -159,13 +161,13 @@ layout(location = 0) out vec4 outFinal;
                 skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
             }
 
-            float f0 = GetMaterialF0(metal_f0);
-            float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+            vec3 f0 = GetMaterialF0(metal_f0);
+            vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-            vec3 specular = ApplyReflections(viewPosOpaque, texViewNormal, skyReflectF, deferredLighting.y, roughness);
+            vec3 specular = ApplyReflections(viewPosOpaque, texViewNormal, deferredLighting.y, roughness) * skyReflectF;
 
-            if (metal_f0 >= 0.5)
-                specular *= RGBToLinear(deferredColor.rgb);
+            vec3 albedo = RGBToLinear(deferredColor.rgb);
+            specular *= GetMetalTint(albedo, metal_f0);
 
             final += specular;
         #endif

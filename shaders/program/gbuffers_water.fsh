@@ -224,7 +224,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/directional.glsl"
 
-#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
+#if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -275,7 +275,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
+#if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
@@ -314,7 +314,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 
-#if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+#if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
@@ -416,7 +416,14 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    if (!isWater && color.a < (0.5/255.0)) {
+    float alphaThreshold = (0.5/255.0);
+    if (isWater) alphaThreshold = -1.0;
+
+    #ifdef MATERIAL_REFLECT_GLASS
+        if (vBlockId == BLOCK_GLASS) alphaThreshold = -1.0;
+    #endif
+
+    if (color.a < alphaThreshold) {
         discard;
         return;
     }
@@ -458,6 +465,17 @@ void main() {
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(waterRough, 0.50, oceanFoam);
+        }
+    #endif
+
+    #ifdef MATERIAL_REFLECT_GLASS
+        if (vBlockId == BLOCK_GLASS) {
+            if (color.a < (1.5/255.0)) {
+                metal_f0 = 0.04;
+                roughness = 0.08;
+            }
+
+            color.a = max(color.a, 0.2);
         }
     #endif
 
@@ -552,7 +570,7 @@ void main() {
 
     float roughL = _pow2(roughness);
 
-    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
@@ -561,11 +579,11 @@ void main() {
         // TODO: should this also apply to forward?
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                float f0 = GetMaterialF0(metal_f0);
+                vec3 f0 = GetMaterialF0(metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                float skyF = F_schlickRough(skyNoVm, f0, roughL);
+                vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
-                color.a = max(color.a, skyF * MaterialReflectionStrength);
+                color.a = max(color.a, luminance(skyF) * MaterialReflectionStrength);
             }
         #endif
 
@@ -628,11 +646,11 @@ void main() {
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                float f0 = GetMaterialF0(metal_f0);
+                vec3 f0 = GetMaterialF0(metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                float skyF = F_schlickRough(skyNoVm, f0, roughL);
+                vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
-                color.a = max(color.a, skyF);
+                color.a = max(color.a, luminance(skyF));
             }
         #endif
 

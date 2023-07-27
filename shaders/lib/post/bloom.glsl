@@ -65,7 +65,8 @@ int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, con
         for (float iy = -1.5; iy <= 1.5; iy++) {
             for (float ix = -1.5; ix <= 1.5; ix++) {
                 vec2 sampleOffset = vec2(ix, iy);
-                float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
+                //float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
+                float sampleWeight = 1.0 - length(sampleOffset) * 0.25;
 
                 vec3 sampleColor = textureLod(texColor, texcoord + sampleOffset * pixelSize, 0).rgb;
                 color += sampleWeight * sampleColor;

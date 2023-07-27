@@ -57,7 +57,7 @@ void GetColoredLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 localPo
 }
 
 vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
-    float f0 = GetMaterialF0(metal_f0);
+    vec3 f0 = GetMaterialF0(metal_f0);
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 WorldSkyLightColor = GetSkyLightColor();
@@ -88,7 +88,7 @@ vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3
 
         //vec3 diffuse = vec3(0.0);
         float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-        specular += ApplyReflections(viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+        specular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
     #endif
 
     return specular;

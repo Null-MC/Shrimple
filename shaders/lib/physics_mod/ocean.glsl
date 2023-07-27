@@ -127,7 +127,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     float normalx = left - right;
     float normaly = top - bottom;
     vec3 rippleNormal = normalize(vec3(normaly, -normalx, 1.0));
-    return normalize(mix(waveNormal, rippleNormal, pow(totalEffect, 0.5)));
+    return normalize(mix(waveNormal, rippleNormal, sqrt(totalEffect)));
 }
 
 WavePixelData physics_wavePixel(vec2 position, const in float factor, const in float iterations, const in float time) {
@@ -169,7 +169,8 @@ WavePixelData physics_wavePixel(vec2 position, const in float factor, const in f
     
     data.normal = physics_waveNormal(position, data.direction, factor, time);
 
-    float waveAmplitude = data.height * pow(max(data.normal.z, 0.0), 4.0);
+    float waveAmplitude = max(data.normal.z, 0.0);
+    waveAmplitude = data.height * pow4(waveAmplitude);
     vec2 waterUV = mix(position - physics_waveOffset, data.worldPos, clamp(factor * 2.0, 0.2, 1.0));
     
     vec2 s1 = textureLod(physics_foam, vec3(waterUV * 0.26, physics_globalTime / 360.0), 0).rg;

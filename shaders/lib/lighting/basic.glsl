@@ -93,7 +93,7 @@
                 // float lum = luminance(lpvLight);
                 // lpvLight /= lum + 3.0;
 
-                lpvLight = pow(lpvLight / LpvBlockLightF, vec3(0.5));
+                lpvLight = sqrt(lpvLight / LpvBlockLightF);
 
                 //lpvLight /= lpvLight + 1.0;
 
@@ -321,7 +321,7 @@
                 //     geoNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
 
                 //if (geoNoL > EPSILON) {
-                    float f0 = GetMaterialF0(metal_f0);
+                    vec3 f0 = GetMaterialF0(metal_f0);
 
                     vec3 localSkyLightDir = localSkyLightDirection;
                     //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
@@ -346,7 +346,7 @@
 
                     //float invCosTheta = 1.0 - skyVoHm;
                     //float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    float skyF = F_schlick(skyVoHm, f0, 1.0);
+                    vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
 
                     skyLightColor *= 1.0 - 0.92*rainStrength;
 
@@ -362,10 +362,10 @@
                     vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
                     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-                    float skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+                    vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
 
                     #ifndef RENDER_OPAQUE_FINAL
-                        skySpecular += ApplyReflections(viewPos, texViewNormal, skyReflectF, lmcoord.y, sqrt(roughL));
+                        skySpecular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
                     #endif
 
                     accumDiffuse *= 1.0 - skyReflectF;

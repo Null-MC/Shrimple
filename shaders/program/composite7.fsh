@@ -281,7 +281,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
 
 
 layout(location = 0) out vec4 outFinal;
-#if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
+#if defined DEFERRED_BUFFER_ENABLED && (defined DEFER_TRANSLUCENT || defined MATERIAL_REFRACT_ENABLED)
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
         /* RENDERTARGETS: 0,7,8,9,12 */
         layout(location = 1) out vec4 outTA;
@@ -362,7 +362,7 @@ layout(location = 0) out vec4 outFinal;
             vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
             isWater = deferredShadow.a < 0.5;
 
-            #if REFRACTION_STRENGTH > 0
+            #ifdef MATERIAL_REFRACT_ENABLED
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
 
                 const float ior = IOR_WATER;
@@ -593,7 +593,7 @@ layout(location = 0) out vec4 outFinal;
                 if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
             #endif
 
-            #if REFRACTION_STRENGTH > 0
+            #ifdef MATERIAL_REFRACT_ENABLED
                 float refractDist = maxOf(abs(refraction * viewSize));
                 if (refractDist >= 1.0) {
                     int refractSteps = clamp(int(ceil(refractDist)), 2, 16);
@@ -655,7 +655,7 @@ layout(location = 0) out vec4 outFinal;
         //     opaqueFinal = RGBToLinear(opaqueFinal);
         // #endif
 
-        #if REFRACTION_STRENGTH > 0 && defined REFRACTION_SNELL_ENABLED
+        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL_ENABLED
             if (tir) opaqueFinal = fogColorFinal;
         #endif
 

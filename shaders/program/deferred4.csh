@@ -17,20 +17,15 @@ uniform float viewWidth;
 uniform float viewHeight;
 
 
-void BuildTile(const in ivec2 sourcePos, const in ivec2 sourceSize, const in ivec2 destPos) {
-	float minZ = 1.0;
+void SampleDepthMin(inout float minZ, const in ivec2 sampleUV) {
+	float sampleZ = texelFetch(depthtex0, sampleUV, 0).r;
+	minZ = min(minZ, sampleZ);
+}
 
-	for (int y = 0; y < 2; y++) {
-		for (int x = 0; x < 2; x++) {
-			ivec2 sampleUV = sourcePos + ivec2(x, y);
-			if (any(greaterThanEqual(sampleUV, sourceSize))) continue;
-
-			float sampleZ = imageLoad(imgDepthNear, sampleUV).r;
-			minZ = min(minZ, sampleZ);
-		}
-	}
-
-	imageStore(imgDepthNear, destPos, vec4(minZ));
+void SampleTileMin(inout float minZ, const in ivec2 sourceSize, const in ivec2 sampleUV) {
+	float sampleZ = imageLoad(imgDepthNear, sampleUV).r;
+	float sampleWeight = float(any(greaterThanEqual(sampleUV, sourceSize)));
+	minZ = min(minZ, max(sampleZ, sampleWeight));
 }
 
 void main() {
@@ -40,21 +35,17 @@ void main() {
 	ivec2 tileSize = viewSize / 2;
 	if (any(greaterThanEqual(fragWritePos, tileSize))) return;
 
-	ivec2 fragReadPos = fragWritePos * 2;
-
 	float minZ = 1.0;
-	for (int y = 0; y < 2; y++) {
-		for (int x = 0; x < 2; x++) {
-			ivec2 sampleUV = fragReadPos + ivec2(x, y);
-			float sampleZ = texelFetch(depthtex0, sampleUV, 0).r;
-			minZ = min(minZ, sampleZ);
-		}
-	}
+	ivec2 fragReadPos = fragWritePos * 2;
+	SampleDepthMin(minZ, fragReadPos + ivec2(0, 0));
+	SampleDepthMin(minZ, fragReadPos + ivec2(1, 0));
+	SampleDepthMin(minZ, fragReadPos + ivec2(0, 1));
+	SampleDepthMin(minZ, fragReadPos + ivec2(1, 1));
 
 	imageStore(imgDepthNear, fragWritePos, vec4(minZ));
 
 	ivec2 tilePos, readPos, writePos;
-	for (int i = 1; i < 4; i++) {
+	for (int i = 1; i < SSR_LOD_MAX; i++) {
 		if (any(greaterThanEqual(fragWritePos, tileSize/2))) break;
 		
 		memoryBarrierImage();
@@ -74,9 +65,15 @@ void main() {
 			writePos += tileSize * ivec2(3, 4);
 		}
 
+		minZ = 1.0;
 		readPos = fragWritePos * 2 + tilePos;
+		ivec2 sourceSize = tilePos + tileSize;
+		SampleTileMin(minZ, sourceSize, readPos + ivec2(0, 0));
+		SampleTileMin(minZ, sourceSize, readPos + ivec2(1, 0));
+		SampleTileMin(minZ, sourceSize, readPos + ivec2(0, 1));
+		SampleTileMin(minZ, sourceSize, readPos + ivec2(1, 1));
 
-		BuildTile(readPos, tilePos + tileSize, writePos);
+		imageStore(imgDepthNear, writePos, vec4(minZ));
 
 		tileSize /= 2;
 	}

@@ -11,7 +11,7 @@ float GetShadowOffsetBias() {
 // this results in smaller distances along the diagonal axes.
 
 float cubeLength(const in vec2 v) {
-    return pow(abs(v.x * v.x * v.x) + abs(v.y * v.y * v.y), 1.0 / 3.0);
+    return pow(abs(v.x * v.x * v.x) + abs(v.y * v.y * v.y), (1.0/3.0));
 }
 
 float getDistortFactor(const in vec2 v) {

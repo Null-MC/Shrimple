@@ -209,8 +209,14 @@ float GetItemMetalF0(const in int itemId) {
     return metal_f0;
 }
 
-float GetMaterialF0(const in float metal_f0) {
-    return metal_f0 > 0.5 ? 0.96 : 0.04;
+vec3 GetMaterialF0(const in float metal_f0) {
+    #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+        bool isMetal = metal_f0 >= (229.5/255.0);
+        return isMetal ? vec3(0.96) : vec3(metal_f0);
+    #else
+        bool isMetal = metal_f0 > 0.5;
+        return vec3(isMetal ? 0.96 : 0.04);
+    #endif
 }
 
 #if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE) && (!defined RENDER_BILLBOARD || (defined RENDER_PARTICLES && defined MATERIAL_PARTICLES))

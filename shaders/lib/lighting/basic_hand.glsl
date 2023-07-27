@@ -18,7 +18,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-        float f0 = GetMaterialF0(metal_f0);
+        vec3 f0 = GetMaterialF0(metal_f0);
     #endif
 
     float lightNoVm = 1.0;
@@ -77,7 +77,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 lightH = normalize(lightDir + localViewDir);
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
-                float F = 0.0;
+                vec3 F = vec3(0.0);
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
@@ -144,7 +144,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 lightH = normalize(lightDir + localViewDir);
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
-                float F = 0.0;
+                vec3 F = vec3(0.0);
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 

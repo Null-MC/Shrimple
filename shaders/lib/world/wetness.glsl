@@ -9,7 +9,7 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, in vec2 lmcoord
         if (vBlockId == BLOCK_WATER) return skyWetness;
     #endif
 
-    skyWetness *= pow(localNormal.y * 0.5 + 0.5, 0.5);
+    skyWetness *= sqrt(localNormal.y * 0.5 + 0.5);
 
     //#if MATERIAL_NORMALS != NORMALMAP_NONE
     //    //skyWetness *= smoothstep(-0.8, 0.8, texNormal.y);
@@ -107,7 +107,7 @@ void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
 }
 
 void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
-    float saturation = max(skyWetness, 0.8 * puddleF) * pow(porosity, 0.5);
+    float saturation = max(skyWetness, 0.8 * puddleF) * sqrt(porosity);
     albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
 
     float surfaceWetness = saturate(2.0 * skyWetness - porosity);

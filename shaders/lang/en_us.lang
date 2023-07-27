@@ -197,7 +197,10 @@ option.SSR_MAXSTEPS=SSR Max Step Count
 
 screen.MATERIAL_REFRACT_OPTIONS=Refraction
 
+option.MATERIAL_REFRACT_ENABLED=Enabled
+
 option.REFRACTION_STRENGTH=Strength
+option.REFRACTION_STRENGTH.suffix=%
 
 option.REFRACTION_BLUR=Blur
 

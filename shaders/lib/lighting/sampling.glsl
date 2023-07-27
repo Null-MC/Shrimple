@@ -41,7 +41,7 @@ float SampleLightDiffuse(const in float NoV, const in float NoL, const in float 
     return light_scatter * view_scatter * NoL;
 }
 
-float SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in float F, const in float roughL) {
+vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in vec3 F, const in float roughL) {
     float roughLm = max(roughL, ROUGH_MIN);
 
     float a = NoHm * roughLm;

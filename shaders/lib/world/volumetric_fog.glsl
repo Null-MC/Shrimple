@@ -324,7 +324,7 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
 
                 vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
-                //lpvLight = pow(lpvLight / LpvBlockLightF, vec3(0.5));
+                //lpvLight = sqrt(lpvLight / LpvBlockLightF);
                 lpvLight = lpvLight / LpvBlockLightF;
 
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
@@ -358,7 +358,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     bool isWater = false;
     
     #ifdef WORLD_WATER_ENABLED
-        #if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED && defined RENDER_DEFERRED)
+        #if defined RENDER_DEFERRED && (!defined MATERIAL_REFRACT_ENABLED || (defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED))
             if (isEyeInWater == 1) isWater = true;
         #endif
 
