@@ -548,8 +548,8 @@ suffix.POST_SATURATION=%
 option.GAMMA_OUT=Gamma
 option.GAMMA_OUT.comment=Die Gammakurve des endgültigen Bildes.
 
-option.TONEMAP_ENABLED=Tonemap
-option.TONEMAP_ENABLED.comment=Verhindert das Abschneiden heller Farben, nützlich für dynamische Beleuchtung.
+option.POST_TONEMAP=Tonemap
+option.POST_TONEMAP.comment=Verhindert das Abschneiden heller Farben, nützlich für dynamische Beleuchtung.
 
 option.EFFECT_BLOOM_STRENGTH=Stärke
 option.EFFECT_BLOOM_STRENGTH.comment=Die Menge an Bloom, die auf die letzte Szene angewendet werden soll. Zum Deaktivieren auf Null setzen.

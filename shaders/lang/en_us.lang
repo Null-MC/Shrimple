@@ -545,8 +545,13 @@ suffix.POST_SATURATION=%
 option.GAMMA_OUT=Gamma
 option.GAMMA_OUT.comment=The gamma curve of the final image.
 
-option.TONEMAP_ENABLED=Tonemap
-option.TONEMAP_ENABLED.comment=Prevents clipping of bright colors, useful for dynamic lighting.
+option.POST_TONEMAP=Tonemap
+option.POST_TONEMAP.comment=Prevents clipping of bright colors, useful for dynamic lighting.
+value.POST_TONEMAP.0=OFF
+value.POST_TONEMAP.1=Reinhard
+value.POST_TONEMAP.2=ACES
+value.POST_TONEMAP.3=Heijl
+value.POST_TONEMAP.4=Lottes
 
 option.FXAA_ENABLED=FXAA
 option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.

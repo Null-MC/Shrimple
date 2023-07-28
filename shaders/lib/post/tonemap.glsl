@@ -34,20 +34,39 @@ vec3 tonemap_ACESFit2(const in vec3 color) {
     return clamp(m2 * (a / b), 0.0, 1.0);
 }
 
-vec3 tonemap_FilmicHejl2015(const in vec3 hdr) {
-    vec3 va = 1.425 * hdr + 0.05;
-    vec3 vf = ((hdr * va + 0.004) / ((hdr * (va + 0.55) + 0.0491))) - 0.0821;
+vec3 tonemap_FilmicHejl2015(const in vec3 color) {
+    vec3 va = 1.425 * color + 0.05;
+    vec3 vf = ((color * va + 0.004) / ((color * (va + 0.55) + 0.0491))) - 0.0821;
     return vf / 0.918;
 }
 
+vec3 tonemap_Lottes(const in vec3 color) {
+    const vec3 a = vec3(1.6);
+    const vec3 d = vec3(0.977);
+    const vec3 hdrMax = vec3(8.0);
+    const vec3 midIn = vec3(0.18);
+    const vec3 midOut = vec3(0.267);
+
+    const vec3 b =
+        (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+    const vec3 c =
+        (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
+        ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+    return pow(color, a) / (pow(color, a * d) * b + c);
+}
+
 void ApplyPostProcessing(inout vec3 color) {
-    #ifdef TONEMAP_ENABLED
+    #if POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);
-        //color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
+        color = tonemap_Lottes(0.6 * color);
+    #elif POST_TONEMAP == 3
+        color = tonemap_FilmicHejl2015(0.4 * color);
+    #elif POST_TONEMAP == 2
         color = tonemap_ACESFit2(color);
-        //color = tonemap_FilmicHejl2015(0.6*color);
-    #else
-        //color /= color + 0.5;
+    #elif POST_TONEMAP == 1
+        color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
     #endif
 
     #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100
