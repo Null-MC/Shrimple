@@ -220,8 +220,8 @@ vec3 GetMaterialF0(const in vec3 albedo, const in float metal_f0) {
 
         return f0;
     #else
-        bool isMetal = metal_f0 > 0.5;
-        return vec3(isMetal ? albedo : 0.04);
+        //return IsMetal(metal_f0) ? albedo : vec3(0.04);
+        return mix(vec3(0.04), albedo, metal_f0);
     #endif
 }
 

@@ -194,7 +194,8 @@ bool IsMetal(const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
         return metal_f0 >= (229.5/255.0);
     #else
-        return mix(vec3(1.0), albedo, metal_f0);
+        //return mix(vec3(1.0), albedo, metal_f0);
+        return metal_f0 >= 0.5;
     #endif
 }
 
