@@ -145,7 +145,7 @@
     #endif
 
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
-        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
+        void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
             //#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 vec2 lmBlock = vec2(lmcoord.x, 0.0);
             //#else
@@ -159,7 +159,7 @@
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
-                SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss, blockLightDefault);
+                SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss, blockLightDefault);
             #endif
 
             #if LPV_SIZE > 0 && DYN_LIGHT_MODE == DYN_LIGHT_LPV
@@ -194,7 +194,7 @@
     //#endif
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
+        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
             vec3 localViewDir = -normalize(localPos);
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -310,9 +310,16 @@
             accumDiffuse += ambientLight;// * roughL;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                }
+                #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+                    if (IsMetal(metal_f0))
+                        accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                #else
+                    accumDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+                #endif
+
+                // if (metal_f0 >= 0.5) {
+                //     accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                // }
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
@@ -321,7 +328,7 @@
                 //     geoNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
 
                 //if (geoNoL > EPSILON) {
-                    vec3 f0 = GetMaterialF0(metal_f0);
+                    vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
                     vec3 localSkyLightDir = localSkyLightDirection;
                     //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
@@ -364,7 +371,7 @@
 
                     vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
 
-                    #ifndef RENDER_OPAQUE_FINAL
+                    #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                         skySpecular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
                     #endif
 

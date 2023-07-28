@@ -391,9 +391,9 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
 
                 float geoNoL = dot(localNormal, localSkyLightDirection);
-                specular += GetSkySpecular(localPos, geoNoL, texNormal, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
 
-                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
                 final = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
             #else
@@ -536,9 +536,9 @@ layout(location = 0) out vec4 outFinal;
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #else
-                    GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, sss);
+                    GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
                     
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
                         if (metal_f0 >= 0.5) {
@@ -563,7 +563,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #ifdef WORLD_SKY_ENABLED
                     vec3 shadowPos = vec3(0.0);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
+                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
                 #endif
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE

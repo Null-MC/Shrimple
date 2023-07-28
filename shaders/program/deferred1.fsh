@@ -205,10 +205,15 @@ void main() {
 
     if (depth < 1.0) {
         ivec2 iTex = ivec2(tex2 * viewSize);
+
+        vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+        
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+
+        vec3 albedo = RGBToLinear(deferredColor);
 
         vec3 localNormal = deferredNormal.xyz;
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
@@ -241,16 +246,16 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, sss);
-        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
+        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
         
         blockDiffuse *= 1.0 - deferredFog.a;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
-                vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+                //vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
                 blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                blockSpecular *= RGBToLinear(deferredAlbedo);
+                blockSpecular *= albedo;
             }
         #endif
 

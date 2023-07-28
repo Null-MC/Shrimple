@@ -8,7 +8,7 @@ float InterleavedGradientNoiseTime(const in vec2 pixel) {
     return fract(magic.z * fract(x));
 }
 
-void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
+void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);
     vec3 localViewDir = -normalize(localPos);
@@ -25,7 +25,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-            vec3 f0 = GetMaterialF0(metal_f0);
+            vec3 f0 = GetMaterialF0(albedo, metal_f0);
         #endif
 
         float lightNoVm = 1.0;

@@ -161,12 +161,13 @@ layout(location = 0) out vec4 outFinal;
                 skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
             }
 
-            vec3 f0 = GetMaterialF0(metal_f0);
+            vec3 albedo = RGBToLinear(deferredColor.rgb);
+            vec3 f0 = GetMaterialF0(albedo, metal_f0);
+            
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
             vec3 specular = ApplyReflections(viewPosOpaque, texViewNormal, deferredLighting.y, roughness) * skyReflectF;
 
-            vec3 albedo = RGBToLinear(deferredColor.rgb);
             specular *= GetMetalTint(albedo, metal_f0);
 
             final += specular;

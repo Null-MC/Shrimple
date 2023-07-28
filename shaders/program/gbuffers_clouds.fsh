@@ -124,6 +124,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
+#include "/lib/material/hcm.glsl"
 #include "/lib/material/specular.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -298,10 +299,10 @@ void main() {
             vec3 blockSpecular = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss, blockLightDefault);
+                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss, blockLightDefault);
             #endif
 
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
             
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
         #endif

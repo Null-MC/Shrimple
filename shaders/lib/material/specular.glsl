@@ -209,13 +209,19 @@ float GetItemMetalF0(const in int itemId) {
     return metal_f0;
 }
 
-vec3 GetMaterialF0(const in float metal_f0) {
+vec3 GetMaterialF0(const in vec3 albedo, const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        bool isMetal = metal_f0 >= (229.5/255.0);
-        return isMetal ? vec3(0.96) : vec3(metal_f0);
+        vec3 f0 = vec3(metal_f0);
+
+        if (IsMetal(metal_f0)) {
+            int hcm = int(metal_f0 * 255.0 + 0.5) - 230;
+            f0 = GetHCM_f0(albedo, hcm);
+        }
+
+        return f0;
     #else
         bool isMetal = metal_f0 > 0.5;
-        return vec3(isMetal ? 0.96 : 0.04);
+        return vec3(isMetal ? albedo : 0.04);
     #endif
 }
 

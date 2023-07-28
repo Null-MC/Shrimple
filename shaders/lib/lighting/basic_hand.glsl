@@ -1,4 +1,4 @@
-void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in float roughL, const in float metal_f0, const in float sss) {
+void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss) {
     vec3 result = vec3(0.0);
     vec2 noiseSample = vec2(0.0);
 
@@ -18,7 +18,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-        vec3 f0 = GetMaterialF0(metal_f0);
+        vec3 f0 = GetMaterialF0(albedo, metal_f0);
     #endif
 
     float lightNoVm = 1.0;

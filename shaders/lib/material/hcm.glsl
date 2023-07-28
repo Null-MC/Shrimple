@@ -1,7 +1,7 @@
-vec3 f0ToIOR(const in vec3 f0) {
-    vec3 sqrt_f0 = sqrt(max(f0, vec3(0.02)));
-    return (1.0 + sqrt_f0) / max(1.0 - sqrt_f0, EPSILON3);
-}
+// vec3 f0_to_IOR(const in vec3 f0) {
+//     vec3 sqrt_f0 = sqrt(max(f0, vec3(0.02)));
+//     return (1.0 + sqrt_f0) / max(1.0 - sqrt_f0, EPSILON3);
+// }
 
 
 #ifdef HCM_LAZANYI
@@ -50,7 +50,20 @@ vec3 f0ToIOR(const in vec3 f0) {
         silver_f82);
 
 
-    void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 f0, out vec3 f82) {
+    // void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 f0, out vec3 f82) {
+    //     if (hcm < 8) {
+    //         // HCM conductor
+    //         f0  = RGBToLinear(lazanyi_f0[hcm]);
+    //         f82 = RGBToLinear(lazanyi_f82[hcm]);
+    //     }
+    //     else {
+    //         // albedo-only conductor
+    //         f0 = albedo;
+    //         f82 = vec3(1.0); //albedo;
+    //     }
+    // }
+
+    void GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 f0, out vec3 f82) {
         if (hcm < 8) {
             // HCM conductor
             f0  = RGBToLinear(lazanyi_f0[hcm]);
@@ -143,19 +156,47 @@ vec3 f0ToIOR(const in vec3 f0) {
         ior_k_silver);
 
 
-    void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
+    // void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
+    //     if (hcm < 8) {
+    //         // HCM conductor
+    //         n = ior_n[hcm];
+    //         k = ior_k[hcm];
+    //     }
+    //     else {
+    //         // albedo-only conductor
+    //         n = vec3(f0_to_IOR(albedo));
+    //         k = albedo;
+    //     }
+    // }
+
+    vec3 IOR_to_f0(const in vec3 ior) {
+        return pow((ior - 1.0) / (ior + 1.0), vec3(2.0));
+    }
+
+    //vec3 GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
+    vec3 GetHCM_f0(const in vec3 albedo, const in int hcm) {
         if (hcm < 8) {
             // HCM conductor
-            n = ior_n[hcm];
-            k = ior_k[hcm];
+            //n = IOR_to_f0(ior_n[hcm]);
+            //k = IOR_to_f0(ior_k[hcm]);
+            return IOR_to_f0(ior_n[hcm]);
         }
         else {
             // albedo-only conductor
-            n = vec3(f0ToIOR(albedo));
-            k = albedo;
+            //n = albedo;
+            //k = 0.0;//albedo;
+            return albedo;
         }
     }
 #endif
+
+bool IsMetal(const in float metal_f0) {
+    #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+        return metal_f0 >= (229.5/255.0);
+    #else
+        return mix(vec3(1.0), albedo, metal_f0);
+    #endif
+}
 
 vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
     if (hcm < 0) return vec3(1.0);
@@ -165,8 +206,7 @@ vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
 
 vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        bool isMetal = metal_f0 >= (229.5/255.0);
-        return isMetal ? albedo : vec3(1.0);
+        return IsMetal(metal_f0) ? albedo : vec3(1.0);
     #else
         return mix(vec3(1.0), albedo, metal_f0);
     #endif

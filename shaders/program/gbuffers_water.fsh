@@ -260,6 +260,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/parallax.glsl"
 #endif
 
+#include "/lib/material/hcm.glsl"
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 #include "/lib/material/specular.glsl"
@@ -428,12 +429,12 @@ void main() {
         return;
     }
 
-    color.rgb = RGBToLinear(color.rgb * glcolor.rgb);
+    vec3 albedo = RGBToLinear(color.rgb * glcolor.rgb);
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                color.rgb = 0.5 * RGBToLinear(glcolor.rgb);
+                albedo = 0.5 * RGBToLinear(glcolor.rgb);
                 color.a = 0.7;
             #endif
 
@@ -443,9 +444,9 @@ void main() {
         }
     #endif
 
-    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-        color.rgb = vec3(WHITEWORLD_VALUE);
-    #endif
+    // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+    //     albedo = vec3(WHITEWORLD_VALUE);
+    // #endif
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
@@ -565,7 +566,7 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
+        ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
     #endif
 
     float roughL = _pow2(roughness);
@@ -574,12 +575,12 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        color.rgb = LinearToRGB(color.rgb);
+        color.rgb = LinearToRGB(albedo);
 
         // TODO: should this also apply to forward?
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                vec3 f0 = GetMaterialF0(metal_f0);
+                vec3 f0 = GetMaterialF0(albedo, metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
                 vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
@@ -605,19 +606,19 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
-            specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, shadowColor, lmcoord, metal_f0, roughL);
+            specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
 
-            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
+            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
-            color.rgb = GetFinalLighting(color.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
+            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
             vec3 blockDiffuse = vBlockLight;
             vec3 blockSpecular = vec3(0.0);
 
             blockDiffuse += emission * MaterialEmissionF;
             
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, roughL, metal_f0, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);
@@ -627,26 +628,30 @@ void main() {
                     const vec3 shadowPos = vec3(0.0);
                 #endif
 
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, lmFinal, roughL, metal_f0, occlusion, sss);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss);
             #endif
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
             vec3 specularFinal = blockSpecular + skySpecular;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= color.rgb;
-                }
+                #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+                    if (IsMetal(metal_f0))
+                        diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                #else
+                    diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+                #endif
+
+                specularFinal *= GetMetalTint(albedo, metal_f0);
             #endif
 
-            color.rgb = GetFinalLighting(color.rgb, diffuseFinal, specularFinal, occlusion);
+            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             color.a = min(color.a + luminance(specularFinal), 1.0);
         #endif
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                vec3 f0 = GetMaterialF0(metal_f0);
+                vec3 f0 = GetMaterialF0(albedo, metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
                 vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);

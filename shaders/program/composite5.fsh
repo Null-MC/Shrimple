@@ -79,6 +79,7 @@ uniform float blindness;
 #include "/lib/items.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
+    #include "/lib/material/hcm.glsl"
     #include "/lib/material/specular.glsl"
 #endif
 
@@ -191,16 +192,21 @@ void main() {
 
     outDepth = vec4(vec3(depth), 1.0);
 
-    float opacity = textureLod(BUFFER_DEFERRED_COLOR, tex2, 0).a;
+    ivec2 iTex = ivec2(tex2 * viewSize);
+    vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
+    //float opacity = textureLod(BUFFER_DEFERRED_COLOR, tex2, 0).a;
 
-    if (opacity > (0.5/255.0)) {
+    if (deferredColor.a > (0.5/255.0)) {
         float depthOpaque = textureLod(depthtex1, tex2, 0).r;
 
-        ivec2 iTex = ivec2(tex2 * viewSize);
+        //vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         //vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+
+        vec3 albedo = RGBToLinear(deferredColor.rgb);
 
         vec3 localNormal = deferredNormal.xyz;
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
@@ -233,16 +239,16 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
         //blockDiffuse *= 1.0 - deferredFog.a;
 
-        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, roughL, metal_f0, sss);
+        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {
-                vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+                //vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
                 blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                blockSpecular *= RGBToLinear(deferredAlbedo);
+                blockSpecular *= albedo;
             }
         #endif
 

@@ -285,6 +285,7 @@ const bool colortex15Clear = true;
 //#define TRANSLUCENT_SSS_ENABLED
 #define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
+//#define HCM_LAZANYI
 
 #define PI 3.1415926538
 #define TAU 6.2831853076
@@ -527,6 +528,7 @@ float pow3(const in float x) {return x*x*x;}
 vec2  pow3(const in vec2  x) {return x*x*x;}
 float pow4(const in float x) {float x2 = _pow2(x); return _pow2(x2);}
 float pow5(const in float x) {return x * pow4(x);}
+float pow6(const in float x) {float x2 = _pow2(x); return _pow3(x2);}
 
 float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
 vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}
