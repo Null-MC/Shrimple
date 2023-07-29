@@ -46,7 +46,7 @@ vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const 
         vec3 randomVec = normalize(hash32(gl_FragCoord.xy) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = _pow2(roughness) * ReflectionRoughScatterF;
+        float roughScatterF = pow5(roughness) * ReflectionRoughScatterF;
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif

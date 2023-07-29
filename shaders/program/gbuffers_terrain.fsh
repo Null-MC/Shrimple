@@ -337,6 +337,10 @@ void main() {
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
 
+    // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID) color.rgb = vec3(0.0, 0.0, 1.0);
+    // if (renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) color.rgb = vec3(1.0, 0.0, 0.0);
+    // if (renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED) color.rgb = vec3(0.0, 1.0, 0.0);
+
     // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
     //     color.rgb = vec3(WHITEWORLD_VALUE);
     // #endif

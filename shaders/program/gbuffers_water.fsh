@@ -368,7 +368,7 @@ void main() {
                 oceanFoam = wave.foam;
             #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
                 float skyLight = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-                texNormal = water_waveNormal(worldPos.xz, skyLight, waterUvOffset);
+                texNormal = water_waveNormal(worldPos.xz, skyLight, viewDist, waterUvOffset);
             #endif
 
             #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES != WATER_WAVES_NONE
@@ -462,7 +462,9 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
+            //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
+            float distF = 16.0 / (viewDist + 16.0);
+            float waterRough = mix(0.3 * lmcoord.y, 0.06, distF);
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(waterRough, 0.50, oceanFoam);
