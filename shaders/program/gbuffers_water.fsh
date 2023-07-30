@@ -138,6 +138,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float skyWetnessSmooth;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform vec3 shadowLightPosition;
 
@@ -186,6 +191,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -434,7 +440,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                albedo = 0.5 * RGBToLinear(glcolor.rgb);
+                albedo = 0.6 * RGBToLinear(glcolor.rgb);
                 color.a = 0.7;
             #endif
 

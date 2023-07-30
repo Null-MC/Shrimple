@@ -63,6 +63,8 @@ in vec2 texcoord;
 
     #ifdef WORLD_WATER_ENABLED
         uniform int isEyeInWater;
+        uniform vec3 WaterAbsorbColor;
+        uniform vec3 WaterScatterColor;
     #endif
 
     #ifdef IRIS_FEATURE_SSBO

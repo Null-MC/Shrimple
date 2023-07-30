@@ -109,6 +109,12 @@ uniform int heldBlockLightValue2;
 
 uniform ivec2 eyeBrightnessSmooth;
 
+// #ifdef ANIM_WORLD_TIME
+//     uniform int worldTime;
+// #else
+//     uniform float frameTimeCounter;
+// #endif
+
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -134,6 +140,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #ifdef IS_IRIS
@@ -163,6 +171,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"

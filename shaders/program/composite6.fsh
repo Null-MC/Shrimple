@@ -66,6 +66,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+#endif
+
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;

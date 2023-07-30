@@ -23,6 +23,11 @@ uniform float rainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

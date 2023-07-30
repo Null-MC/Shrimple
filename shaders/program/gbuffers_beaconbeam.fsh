@@ -34,6 +34,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 skyColor;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+#endif
+
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
 #endif

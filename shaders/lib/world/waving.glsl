@@ -3,6 +3,7 @@ const float wavingHeight = 0.6;
 
 vec3 waving_fbm(const in vec3 worldPos) {
     vec2 position = worldPos.xz * rcp(wavingScale);
+    float time = GetAnimationFactor() / 3.6;
 
     float iter = 0.0;
     float frequency = 3.0;
@@ -11,8 +12,6 @@ vec3 waving_fbm(const in vec3 worldPos) {
     float height = 0.0;
     float waveSum = 0.0;
 
-    float time = frameTimeCounter / 3.6;
-    
     for (int i = 0; i < 8; i++) {
         vec2 direction = vec2(sin(iter), cos(iter));
         float x = dot(direction, position) * frequency + time * speed;
@@ -122,7 +121,7 @@ void ApplyWavingOffset(inout vec3 position, const in int blockId) {
         }
 
         float baseOffset = -at_midBlock.y / 64.0 + attachOffset;
-        offset *= clamp(baseOffset, 0.0, 1.0);
+        offset *= saturate(baseOffset);
     }
 
     position += offset;

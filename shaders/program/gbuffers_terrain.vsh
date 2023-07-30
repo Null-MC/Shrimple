@@ -50,10 +50,15 @@ flat out mat2 atlasBounds;
 
 uniform sampler2D lightmap;
 
-uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -84,6 +89,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/blocks.glsl"
 //#include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"

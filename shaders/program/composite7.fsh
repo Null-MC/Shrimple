@@ -52,6 +52,7 @@ uniform sampler2D TEX_LIGHTMAP;
     //layout(r32f) uniform readonly image2D imgDepthNear;
 #endif
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
 uniform float frameTimeCounter;
@@ -94,9 +95,14 @@ uniform int isEyeInWater;
     //uniform float wetness;
 #endif
 
-#if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-    uniform int worldTime;
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
+
+// #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+//     uniform int worldTime;
+// #endif
 
 uniform int heldItemId;
 uniform int heldItemId2;
@@ -119,6 +125,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

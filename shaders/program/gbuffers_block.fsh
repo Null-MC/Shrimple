@@ -112,10 +112,21 @@ uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
 
+// #ifdef ANIM_WORLD_TIME
+//     uniform int worldTime;
+// #else
+//     uniform float frameTimeCounter;
+// #endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -163,6 +174,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"

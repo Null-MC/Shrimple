@@ -588,3 +588,6 @@ option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colo
 
 option.DH_COMPAT_ENABLED=Distant Horizons
 option.DH_COMPAT_ENABLED.comment=Enables special support for the Distant Horizons mod.
+
+option.ANIM_WORLD_TIME=World-Time Animations
+option.ANIM_WORLD_TIME.comment=Uses the worlds time counter for animations rather than a constant increment. Useful for recording mods that replay using scaled world-time.

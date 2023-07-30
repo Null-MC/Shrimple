@@ -1,5 +1,6 @@
 vec2 GetDynLightNoise(const in vec3 worldPos) {
-    float time = frameTimeCounter / 3600.0;
+    //float time = frameTimeCounter / 3600.0;
+    float time = GetAnimationFactor() / 3600.0;
 
     vec3 texPos = fract(worldPos.xzy * vec3(0.04, 0.04, 0.08));
     texPos.z += 200.0 * time;

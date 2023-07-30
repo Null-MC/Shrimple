@@ -55,10 +55,15 @@ flat out mat2 atlasBounds;
 uniform sampler2D lightmap;
 //uniform sampler2D noisetex;
 
-uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform mat4 shadowModelView;
@@ -94,6 +99,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/blocks.glsl"
 //#include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 //#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"

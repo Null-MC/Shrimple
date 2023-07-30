@@ -272,6 +272,7 @@ const bool colortex15Clear = true;
 #define LIGHT_LEAK_FIX
 //#define DH_COMPAT_ENABLED
 //#define FORCE_DEFERRED
+#define ANIM_WORLD_TIME
 
 
 // INTERNAL SETTINGS

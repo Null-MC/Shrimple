@@ -69,6 +69,11 @@ uniform float blindness;
     uniform vec3 skyColor;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;

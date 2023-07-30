@@ -55,7 +55,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             brightnessF *= skyBrightness * weatherBrightness * eyeBrightness;
         #endif
 
-        return _color * (WaterMinBrightness + brightnessF);
+        return RGBToLinear(WaterScatterColor) * (WaterMinBrightness + brightnessF);
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {

@@ -37,10 +37,11 @@ const float WATER_ITER_INC = PI * (3.0 - sqrt(5.0));
 
 
 float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
-    vec2 position = worldPos * WATER_XZ_SCALE;
-    float time = frameTimeCounter / 3.6;
-    float modifiedTime = time * WATER_TIME_MULTIPLICATOR;
+    //float time = frameTimeCounter;
+    float modifiedTime = GetAnimationFactor() / 3.6;
+    modifiedTime *= WATER_TIME_MULTIPLICATOR;
 
+    vec2 position = worldPos * WATER_XZ_SCALE;
     float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);
 
 	float iter = 0.0;
@@ -73,8 +74,8 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
 }
 
 vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
-    float time = frameTimeCounter / 3.6;
-    float modifiedTime = time * WATER_TIME_MULTIPLICATOR;
+    float modifiedTime = GetAnimationFactor() / 3.6;
+    modifiedTime *= WATER_TIME_MULTIPLICATOR;
 
     float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);
     float detailF = 0.7 + 0.2 * lightF;

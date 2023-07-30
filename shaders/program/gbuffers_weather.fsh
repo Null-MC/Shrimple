@@ -105,6 +105,8 @@ uniform float blindness;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #ifdef IS_IRIS
@@ -127,6 +129,8 @@ uniform float blindness;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"

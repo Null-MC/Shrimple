@@ -44,7 +44,7 @@ uniform sampler2D TEX_LIGHTMAP;
 
 uniform int frameCounter;
 uniform float frameTime;
-uniform float frameTimeCounter;
+//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
@@ -66,6 +66,12 @@ uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferPreviousModelView;
@@ -89,6 +95,8 @@ uniform float blindness;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 uniform int heldItemId;
@@ -108,6 +116,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

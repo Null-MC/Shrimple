@@ -92,7 +92,6 @@ uniform sampler2D noisetex;
 uniform ivec2 atlasSize;
 uniform int renderStage;
 
-uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -108,6 +107,12 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -127,6 +132,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
@@ -162,6 +169,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bayer.glsl"

@@ -134,6 +134,8 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -162,6 +164,8 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"

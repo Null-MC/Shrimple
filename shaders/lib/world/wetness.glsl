@@ -66,7 +66,7 @@ void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in 
 vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float puddleF) {
     //if (viewDist > 10.0) return;
 
-    float rippleTime = frameTimeCounter / 0.72;
+    float rippleTime = GetAnimationFactor() / 0.72;
 
     // #if WORLD_WATER_PIXEL > 0
     //     worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;

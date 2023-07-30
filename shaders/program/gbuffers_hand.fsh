@@ -86,7 +86,6 @@ uniform sampler2D lightmap;
 uniform ivec2 atlasSize;
 
 uniform int frameCounter;
-uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -111,6 +110,12 @@ uniform int heldBlockLightValue2;
 uniform float blindness;
 uniform ivec2 eyeBrightnessSmooth;
 
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
@@ -128,6 +133,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #ifdef IS_IRIS
@@ -150,6 +157,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"

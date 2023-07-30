@@ -79,6 +79,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
+    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
 #endif
 
 #if MC_VERSION >= 11700

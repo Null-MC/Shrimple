@@ -17,7 +17,6 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
-uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 uniform int renderStage;
 uniform float far;
@@ -25,6 +24,12 @@ uniform float far;
 uniform int blockEntityId;
 uniform vec4 entityColor;
 uniform int entityId;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
     uniform int frameCounter;
@@ -36,6 +41,7 @@ uniform int entityId;
 #endif
 
 #include "/lib/blocks.glsl"
+#include "/lib/anim.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
