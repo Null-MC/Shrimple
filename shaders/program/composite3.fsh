@@ -86,6 +86,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 eyePosition;
 #endif
 
+#include "/lib/anim.glsl"
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 

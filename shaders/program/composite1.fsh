@@ -73,14 +73,15 @@ uniform float blindness;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+#include "/lib/anim.glsl"
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 //#include "/lib/world/fog.glsl"
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"

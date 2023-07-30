@@ -28,6 +28,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
     #include "/lib/blocks.glsl"
     #include "/lib/lights.glsl"
+    #include "/lib/anim.glsl"
     
     #include "/lib/buffers/lighting.glsl"
 

@@ -8,13 +8,13 @@ const float WATER_ITER_INC = PI * (3.0 - sqrt(5.0));
 
 #if   WORLD_WATER_WAVES == 3
     #define WATER_ITERATIONS_FRAGMENT 38
-    const float WATER_XZ_SCALE = 1.0;
+    const float WATER_XZ_SCALE = 0.8;
     const float WATER_DRAG_MULT = 0.4;
     const float WATER_DRAG_INC = 0.8;
     const float WATER_WAVE_HEIGHT = 0.5;
-    const float WATER_SPEED = 1.6;
+    const float WATER_SPEED = 1.8;
     const float WATER_WEIGHT = 0.36;
-    const float WATER_NORMAL_STRENGTH = 0.1;
+    const float WATER_NORMAL_STRENGTH = 0.5;
 #elif WORLD_WATER_WAVES == 2
     #define WATER_ITERATIONS_FRAGMENT 26
     const float WATER_XZ_SCALE = 1.6;
