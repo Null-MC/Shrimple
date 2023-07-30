@@ -693,6 +693,8 @@ void main() {
         #ifdef DH_COMPAT_ENABLED
             float fogDist = GetVanillaFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            //vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+            //float fogF = GetFogFactor(-viewPos.z, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
         #endif
 
