@@ -85,6 +85,7 @@ uniform sampler2D lightmap;
 
 uniform ivec2 atlasSize;
 
+uniform int worldTime;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -110,9 +111,7 @@ uniform int heldBlockLightValue2;
 uniform float blindness;
 uniform ivec2 eyeBrightnessSmooth;
 
-#ifdef ANIM_WORLD_TIME
-    uniform int worldTime;
-#else
+#ifndef ANIM_WORLD_TIME
     uniform float frameTimeCounter;
 #endif
 
@@ -127,8 +126,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-#else
-    uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

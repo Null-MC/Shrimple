@@ -85,13 +85,14 @@ uniform sampler2D noisetex;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-#else
-    uniform int worldTime;
+//#else
+//    uniform int worldTime;
 #endif
 
 uniform ivec2 atlasSize;
 uniform int renderStage;
 
+uniform int worldTime;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -108,9 +109,7 @@ uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
 
-#ifdef ANIM_WORLD_TIME
-    uniform int worldTime;
-#else
+#ifndef ANIM_WORLD_TIME
     uniform float frameTimeCounter;
 #endif
 

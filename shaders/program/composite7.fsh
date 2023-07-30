@@ -427,7 +427,7 @@ layout(location = 0) out vec4 outFinal;
                 SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
                 final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
-                final.a = deferredColor.a;
+                final.a = min(deferredColor.a + luminance(specular), 1.0);
             #else
                 vec3 blockDiffuse = vec3(0.0);
                 vec3 blockSpecular = vec3(0.0);

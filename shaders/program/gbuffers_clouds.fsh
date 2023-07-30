@@ -121,6 +121,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"

@@ -619,6 +619,7 @@ void main() {
             SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+            color.a = min(color.a + luminance(specular), 1.0);
         #else
             vec3 blockDiffuse = vBlockLight;
             vec3 blockSpecular = vec3(0.0);
@@ -659,11 +660,12 @@ void main() {
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                vec3 f0 = GetMaterialF0(albedo, metal_f0);
+                //vec3 f0 = GetMaterialF0(albedo, metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
+                float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
                 //color.a = min(color.a + skyF, 1.0);
-                color.a = max(color.a, luminance(skyF));
+                color.a = max(color.a, skyF);
+                //color.a = clamp(skyF * 10.0, color.a, 1.0);
             }
         #endif
 

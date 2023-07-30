@@ -128,13 +128,11 @@ uniform int heldBlockLightValue2;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-#else
-    //uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
-    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
 #endif
 

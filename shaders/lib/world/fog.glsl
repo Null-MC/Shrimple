@@ -59,7 +59,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {
-        return GetFogFactor(fogDist, 0.0, min(48.0, far), 0.5);
+        return GetFogFactor(fogDist, 0.0, min(64.0, far), 0.65);
     }
 
     #ifdef WORLD_SKY_ENABLED
