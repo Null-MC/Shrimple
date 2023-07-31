@@ -421,8 +421,10 @@ layout(location = 0) out vec4 outFinal;
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow.rgb);
 
-                float geoNoL = dot(localNormal, localSkyLightDirection);
-                specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                    specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
+                #endif
 
                 SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
@@ -646,17 +648,17 @@ layout(location = 0) out vec4 outFinal;
             vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, depth, blurDist, isWater && isEyeInWater != 1);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
-            float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
+            // float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
 
-            float lodOpaque = 0.0;
-            #ifdef REFRACTION_BLUR
-                if (isWater)
-                    lodOpaque = maxLod * min(min(viewDist, transDepth) / 12.0, 1.0);
-                else if (isEyeInWater != 1)
-                    lodOpaque = maxLod * min(transDepth * roughL / 2.0, 1.0);
-            #endif
+            // float lodOpaque = 0.0;
+            // #ifdef REFRACTION_BLUR
+            //     if (isWater)
+            //         lodOpaque = maxLod * min(min(viewDist, transDepth) / 12.0, 1.0);
+            //     else if (isEyeInWater != 1)
+            //         lodOpaque = maxLod * min(transDepth * roughL / 2.0, 1.0);
+            // #endif
 
-            vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, lodOpaque).rgb;
+            vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
         #endif
 
         // #ifdef DH_COMPAT_ENABLED

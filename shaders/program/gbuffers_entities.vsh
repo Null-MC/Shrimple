@@ -84,6 +84,7 @@ uniform vec4 entityColor;
 #endif
 
 #include "/lib/blocks.glsl"
+#include "/lib/entities.glsl"
 #include "/lib/items.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
@@ -134,6 +135,11 @@ void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
+
+    if (entityId == ENTITY_LIGHTNING_BOLT) {
+        gl_Position = vec4(-1.0);
+        return;
+    }
     
     BasicVertex();
 

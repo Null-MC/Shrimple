@@ -328,6 +328,9 @@ void main() {
         color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
         color.a = 1.0;
     }
+    // else if (entityId == ENTITY_LIGHTNING_BOLT) {
+    //     color = vec4(1.0, 0.0, 0.0, 1.0);
+    // }
     else {
         #if MATERIAL_PARALLAX != PARALLAX_NONE
             float viewDist = length(vPos);
@@ -388,6 +391,12 @@ void main() {
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
         sss = max(sss, 1.0 - color.a);
     #endif
+
+    if (entityId == ENTITY_LIGHTNING_BOLT) {
+        roughness = 1.0;
+        metal_f0 = 0.0;
+        emission = 1.0;
+    }
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -498,8 +507,10 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
-            //float geoNoL = dot(localNormal, localSkyLightDirection);
-            specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                //float geoNoL = dot(localNormal, localSkyLightDirection);
+                specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+            #endif
 
             SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 

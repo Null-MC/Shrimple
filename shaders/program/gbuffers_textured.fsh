@@ -254,8 +254,10 @@ void main() {
         vec3 diffuse, specular = vec3(0.0);
         GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, shadowColor);
 
-        const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
-        specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
+            specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+        #endif
 
         SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
 

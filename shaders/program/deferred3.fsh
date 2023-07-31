@@ -390,8 +390,10 @@ layout(location = 0) out vec4 outFinal;
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
 
-                float geoNoL = dot(localNormal, localSkyLightDirection);
-                specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                    specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                #endif
 
                 SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 

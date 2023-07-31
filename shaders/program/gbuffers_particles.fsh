@@ -270,6 +270,11 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
+    
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -370,7 +375,9 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
-            specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+            #endif
 
             SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
@@ -407,7 +414,16 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        //ApplyFog(color, vLocalPos, localViewDir);
+        #ifdef DH_COMPAT_ENABLED
+            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            color.a *= 1.0 - fogF;
+
+            ApplyPostProcessing(color.rgb);
+        #else
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO
