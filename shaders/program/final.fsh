@@ -99,6 +99,10 @@ void main() {
 		#else
 			vec3 color = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).rgb;
 		#endif
+
+		// #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+		// 	color = RGBToLinear(color);
+		// #endif
 	#endif
 
     //color.rgb += (GetScreenBayerValue() * 2.0 - 1.0) / 255.0;

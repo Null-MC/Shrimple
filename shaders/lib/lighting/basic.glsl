@@ -2,7 +2,7 @@
     void BasicVertex() {
         vec4 pos = gl_Vertex;
 
-        #if defined RENDER_TERRAIN || defined RENDER_WATER || defined RENDER_BLOCK
+        #if defined RENDER_TERRAIN || defined RENDER_WATER
             vBlockId = int(mc_Entity.x + 0.5);
         #endif
 

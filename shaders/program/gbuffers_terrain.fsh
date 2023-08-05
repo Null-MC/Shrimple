@@ -310,7 +310,7 @@ void main() {
             GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
             porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);
+            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
@@ -559,7 +559,8 @@ void main() {
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
-            ApplyPostProcessing(color.rgb);
+            //ApplyPostProcessing(color.rgb);
+            color.rgb = LinearToRGB(color.rgb);
         #else
             ApplyFog(color, vLocalPos, localViewDir);
         #endif

@@ -23,7 +23,6 @@ out vec2 vLocalCoord;
 out vec3 vLocalNormal;
 out vec3 vLocalTangent;
 out float vTangentW;
-flat out int vBlockId;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE

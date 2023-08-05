@@ -38,6 +38,10 @@ void main() {
     vec3 color = (color1 + color2 + color3 + color4) * 0.25;
     
     color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
+    
+    // #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+    //     color = RGBToLinear(color);
+    // #endif
 
     outFinal = color * PostBloomStrengthF;
 }

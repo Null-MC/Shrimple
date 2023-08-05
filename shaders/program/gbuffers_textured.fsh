@@ -292,7 +292,11 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #endif
 
-    ApplyFog(color, vLocalPos, localViewDir);
+    #ifdef DH_COMPAT_ENABLED
+        color.rgb = LinearToRGB(color.rgb);
+    #else
+        ApplyFog(color, vLocalPos, localViewDir);
+    #endif
 
     outFinal = color;
 }

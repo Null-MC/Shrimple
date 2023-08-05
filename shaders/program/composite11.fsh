@@ -38,6 +38,10 @@ void main() {
     //tex -= 0.5 * pixelSize;
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
+    
+    #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        color = RGBToLinear(color);
+    #endif
 
     float threshold = PostBloomThresholdF;
     if (isEyeInWater == 1) threshold *= 0.25;

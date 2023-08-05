@@ -498,7 +498,7 @@ void main() {
             if (color.a > (0.5/255.0)) {
                 float NoV = abs(dot(texNormal, -localViewDir));
 
-                float F = F_schlick(NoV, metal_f0, 1.0);
+                float F = F_schlickRough(NoV, metal_f0, roughL);
                 color.a += (1.0 - color.a) * F;
             }
         #endif
@@ -538,16 +538,22 @@ void main() {
             vec3 specularFinal = blockSpecular + skySpecular;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= albedo;
-                }
+                #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+                    if (IsMetal(metal_f0))
+                        diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                #else
+                    diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+                #endif
+
+                specularFinal *= GetMetalTint(albedo, metal_f0);
             #endif
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #ifndef DH_COMPAT_ENABLED
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO

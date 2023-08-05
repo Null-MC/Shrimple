@@ -415,13 +415,7 @@ void main() {
         #endif
 
         //ApplyFog(color, vLocalPos, localViewDir);
-        #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetVanillaFogDistance(vLocalPos);
-            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-            color.a *= 1.0 - fogF;
-
-            ApplyPostProcessing(color.rgb);
-        #else
+        #ifndef DH_COMPAT_ENABLED
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
 
@@ -432,6 +426,14 @@ void main() {
 
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        #ifdef DH_COMPAT_ENABLED
+            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            color.a *= 1.0 - fogF;
+
+            ApplyPostProcessing(color.rgb);
         #endif
 
         outFinal = color;

@@ -73,7 +73,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     const vec3 clipMin = vec3(0.0);
     vec3 clipMax = vec3(1.0) - vec3(ssrPixelSize, EPSILON);
 
-    const int minLod = 2;
+    const int minLod = 0;
 
     int i;
     int level = minLod;

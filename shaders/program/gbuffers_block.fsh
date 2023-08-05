@@ -17,7 +17,6 @@ in vec3 vLocalNormal;
 in vec3 vLocalTangent;
 in vec3 vBlockLight;
 in float vTangentW;
-flat in int vBlockId;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -51,6 +50,10 @@ uniform sampler2D lightmap;
 
 #if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
     uniform sampler2D specular;
+#endif
+
+#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+    uniform sampler3D TEX_RIPPLES;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
@@ -110,6 +113,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform int blockEntityId;
 uniform ivec2 eyeBrightnessSmooth;
 
 // #ifdef ANIM_WORLD_TIME
@@ -122,6 +126,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
+
+    uniform float skyWetnessSmooth;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -175,6 +181,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 #include "/lib/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
@@ -187,6 +195,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"
+#endif
+
+#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+    #include "/lib/material/porosity.glsl"
+    #include "/lib/world/wetness.glsl"
 #endif
 
 #if AF_SAMPLES > 1
@@ -210,9 +223,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_NORMALS != NORMALMAP_NONE
     #include "/lib/material/normalmap.glsl"
 #endif
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
@@ -293,6 +303,11 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
     #endif
+
+    #ifdef DH_COMPAT_ENABLED
+        #include "/lib/post/saturation.glsl"
+        #include "/lib/post/tonemap.glsl"
+    #endif
 #endif
 
 
@@ -311,13 +326,42 @@ uniform ivec2 eyeBrightnessSmooth;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
+    vec3 localNormal = normalize(vLocalNormal);
+    float viewDist = length(vPos);
+    vec2 localCoord = vLocalCoord;
     vec2 atlasCoord = texcoord;
     
+    if (!gl_FrontFacing) localNormal = -localNormal;
+
+    float porosity = 0.0;
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        float skyWetness = 0.0, puddleF = 0.0;
+        vec4 rippleNormalStrength;
+
+        //if (blockEntityId == BLOCK_CREATE_TRACK) {
+            vec3 worldPos = vLocalPos + cameraPosition;
+
+            float surface_roughness, surface_metal_f0;
+            GetMaterialSpecular(blockEntityId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
+
+            porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            skyWetness = GetSkyWetness(worldPos, localNormal, lmcoord, blockEntityId);
+            puddleF = GetWetnessPuddleF(skyWetness, porosity);
+
+            #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+                rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+
+                localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
+                //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+                atlasCoord = GetAtlasCoord(localCoord);
+            #endif
+        //}
+    #endif
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
-        float viewDist = length(vPos);
 
         if (viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -340,22 +384,19 @@ void main() {
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
 
-    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-        color.rgb = vec3(WHITEWORLD_VALUE);
-    #endif
+    // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+    //     color.rgb = vec3(WHITEWORLD_VALUE);
+    // #endif
 
     float occlusion = 1.0;
     #ifdef WORLD_AO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
     #endif
 
-    vec3 localNormal = normalize(vLocalNormal);
-    if (!gl_FrontFacing) localNormal = -localNormal;
-
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
-    GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
+    float sss = GetMaterialSSS(blockEntityId, atlasCoord, dFdXY);
+    float emission = GetMaterialEmission(blockEntityId, atlasCoord, dFdXY);
+    GetMaterialSpecular(blockEntityId, atlasCoord, dFdXY, roughness, metal_f0);
     
     vec2 lmFinal = lmcoord;
 
@@ -432,12 +473,28 @@ void main() {
         shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     #endif
 
+    vec3 albedo = RGBToLinear(color.rgb);
+
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+        //if (blockEntityId == BLOCK_CREATE_TRACK) {
+            #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+                ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
+
+                #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+                    ApplyWetnessRipples(texNormal, rippleNormalStrength);
+                #endif
+            #endif
+
+            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
+        //}
+    #endif
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+        outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
+        outDeferredShadow = vec4(shadowColor, 1.0) + dither;
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
@@ -450,7 +507,6 @@ void main() {
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
         #endif
     #else
-        vec3 albedo = RGBToLinear(color.rgb);
         float roughL = _pow2(roughness);
         
         vec3 localViewDir = normalize(vLocalPos);
@@ -491,16 +547,22 @@ void main() {
             vec3 specularFinal = blockSpecular + skySpecular;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= albedo;
-                }
+                #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+                    if (IsMetal(metal_f0))
+                        diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                #else
+                    diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+                #endif
+
+                specularFinal *= GetMetalTint(albedo, metal_f0);
             #endif
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        ApplyFog(color, vLocalPos, localViewDir);
+        #ifndef DH_COMPAT_ENABLED
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
         #ifdef VL_BUFFER_ENABLED
             #ifndef IRIS_FEATURE_SSBO
@@ -510,6 +572,11 @@ void main() {
             float farMax = min(length(vPos) - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #endif
+
+        #ifdef DH_COMPAT_ENABLED
+            //ApplyPostProcessing(color.rgb);
+            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;

@@ -308,7 +308,9 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
     #endif
 
-    ApplyFog(color, vLocalPos, localViewDir);
+    #ifndef DH_COMPAT_ENABLED
+        ApplyFog(color, vLocalPos, localViewDir);
+    #endif
 
     #ifdef VL_BUFFER_ENABLED
         #ifndef IRIS_FEATURE_SSBO
@@ -321,6 +323,10 @@ void main() {
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
+    #endif
+
+    #ifndef DH_COMPAT_ENABLED
+        color.rgb = LinearToRGB(color.rgb);
     #endif
 
     outFinal = color;
