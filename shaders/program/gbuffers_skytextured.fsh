@@ -47,9 +47,10 @@ void main() {
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;
 
-    // #ifndef DEFERRED_BUFFER_ENABLED
-    //     ApplyPostProcessing(color.rgb);
-    // #endif
+    #ifndef DEFERRED_BUFFER_ENABLED
+        //ApplyPostProcessing(color.rgb);
+        color.rgb = LinearToRGB(color.rgb);
+    #endif
 
     // color.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
 

@@ -96,6 +96,8 @@ void main() {
         ApplyFog(color, vLocalPos, localViewDir);
 
         //ApplyPostProcessing(color.rgb);
+        color.rgb = LinearToRGB(color.rgb);
+        
 		outFinal = color;
 	#endif
 }

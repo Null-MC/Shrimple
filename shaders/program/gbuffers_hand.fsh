@@ -478,10 +478,11 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        #ifdef DH_COMPAT_ENABLED
-            ApplyPostProcessing(color.rgb);
-        #else
+        #ifndef DH_COMPAT_ENABLED
             ApplyFog(color, vLocalPos, localViewDir);
+        #else
+            //ApplyPostProcessing(color.rgb);
+            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;

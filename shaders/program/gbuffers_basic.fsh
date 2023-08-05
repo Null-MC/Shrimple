@@ -179,9 +179,12 @@ void main() {
 
 		color.rgb *= texture(lightmap, lmcoord).rgb * shadowColor;
 
-        ApplyVanillaFog(color, vLocalPos);
+        #ifndef DH_COMPAT_ENABLED
+            ApplyFog(color, vLocalPos, localViewDir);
+        #else
+            color.rgb = LinearToRGB(color.rgb);
+        #endif
 
-        //ApplyPostProcessing(color.rgb);
 		outFinal = color;
 	#endif
 }

@@ -433,7 +433,8 @@ void main() {
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
-            ApplyPostProcessing(color.rgb);
+            //ApplyPostProcessing(color.rgb);
+            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;

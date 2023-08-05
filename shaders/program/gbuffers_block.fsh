@@ -189,11 +189,12 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/atlas.glsl"
+
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
-    #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"
 #endif
 

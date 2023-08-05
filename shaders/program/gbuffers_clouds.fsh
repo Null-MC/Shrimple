@@ -324,7 +324,8 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            ApplyPostProcessing(final.rgb);
+            //ApplyPostProcessing(final.rgb);
+            final.rgb = LinearToRGB(final.rgb);
         #endif
         
         outFinal = final;
