@@ -44,47 +44,53 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     if (screenRayLength < EPSILON) return vec4(0.0);
 
     //vec2 viewSize = vec2(viewWidth, viewHeight);
-    vec2 ssrPixelSize = rcp(viewSize);
+    //vec2 ssrPixelSize = rcp(viewSize);
 
     vec3 screenRay = clipRay / screenRayLength;
 
 
 
     vec2 origin = clipPos.xy * viewSize;
-    vec3 direction = screenRay;
 
-    vec2 stepDir = sign(direction.xy);
-    vec2 stepSizes = rcp(abs(direction.xy));// * viewSize;
-    vec2 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction.xy;
+    #ifdef SSR_HIZ
+        vec3 direction = screenRay;
+
+        vec2 stepDir = sign(direction.xy);
+        vec2 stepSizes = rcp(abs(direction.xy));// * viewSize;
+        vec2 nextDist = (stepDir * 0.5 + 0.5 - fract(origin)) / direction.xy;
+    #endif
 
 
 
     vec2 screenRayAbs = abs(screenRay.xy);
     if (screenRayAbs.y > screenRayAbs.x)
-        screenRay *= ssrPixelSize.y / abs(screenRay.y);
+        screenRay *= pixelSize.y / abs(screenRay.y);
     else
-        screenRay *= ssrPixelSize.x / abs(screenRay.x);
+        screenRay *= pixelSize.x / abs(screenRay.x);
 
     vec3 lastTracePos = clipPos + screenRay;
     vec3 lastVisPos = lastTracePos;
 
     float startDepthLinear = linearizeDepthFast(clipPos.z, near, far);
-    ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
+    //ivec2 iuv_start = ivec2(origin);
+
+    //return vec4(lastVisPos, 1.0);
 
 
+    #ifdef SSR_HIZ
+        float closestDist = minOf(nextDist);
+        vec2 currPos = origin + direction.xy * closestDist;
 
-    float closestDist = minOf(nextDist);
-    vec2 currPos = origin + direction.xy * closestDist;
+        bvec2 stepAxis = lessThanEqual(nextDist, vec2(closestDist));
 
-    bvec2 stepAxis = lessThanEqual(nextDist, vec2(closestDist));
-
-    nextDist -= closestDist;
-    nextDist += stepSizes * vec2(stepAxis);
+        nextDist -= closestDist;
+        nextDist += stepSizes * vec2(stepAxis);
+    #endif
 
 
 
     const vec3 clipMin = vec3(0.0);
-    vec3 clipMax = vec3(1.0) - vec3(ssrPixelSize, EPSILON);
+    vec3 clipMax = vec3(1.0) - vec3(pixelSize, EPSILON);
 
     int i;
     int level = SSR_MinLod;
@@ -97,73 +103,86 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
 
 
-        closestDist = minOf(nextDist);
-        vec2 ddaStep = direction.xy * closestDist * l2;
+        #ifdef SSR_HIZ
+            closestDist = minOf(nextDist);
+            vec2 ddaStep = direction.xy * closestDist * l2;
 
-        //float currLen2 = length2(currPos - origin);
-        //if (currLen2 > traceRayLen2) currPos = endPos;
-        
-        //vec3 voxelPos = floor(0.5 * (currPos + rayStart));
+            //float currLen2 = length2(currPos - origin);
+            //if (currLen2 > traceRayLen2) currPos = endPos;
+            
+            //vec3 voxelPos = floor(0.5 * (currPos + rayStart));
 
-        //if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
+            //if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
 
-        stepAxis = lessThanEqual(nextDist, vec2(closestDist));
+            stepAxis = lessThanEqual(nextDist, vec2(closestDist));
 
-        nextDist -= closestDist;
-        nextDist += stepSizes * vec2(stepAxis);
+            nextDist -= closestDist;
+            nextDist += stepSizes * vec2(stepAxis);
+        #endif
 
 
 
-        vec3 t = clamp(tracePos, clipMin, clipMax);
-        if (t != tracePos) {
-            if (level > SSR_MinLod) {
-                level--;
-                continue;
-            }
+        // vec3 t = clamp(tracePos, clipMin, clipMax);
+        // if (t != tracePos) {
+        //     if (level > SSR_MinLod) {
+        //         level--;
+        //         continue;
+        //     }
 
-            lastVisPos = t;
-            alpha = 1.0;
-            break;
-        }
+        //     lastVisPos = t;
+        //     alpha = 1.0;
+        //     break;
+        // }
 
-        //float depthBias = -0.01 * (1.0 - clipPos.z);
-        //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
-        texDepth = SampleDepthTiles(depthtex, (currPos) / viewSize, level);
+        #ifdef SSR_HIZ
+            texDepth = SampleDepthTiles(depthtex, currPos * pixelSize, level);
+        #else
+            float depthBias = -0.01 * (1.0 - clipPos.z);
+            texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
+        #endif
 
         float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
         float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         bool ignoreIfCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
-        bool ignoreIfTraceNearer = tracePos.z < texDepth + 0.0001;
+        bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.001;
         //bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.1;
-        bool ignoreIfTooThick = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
+        bool ignoreIfTooThick = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
+
+        if (ignoreIfTraceNearer) lastVisPos = tracePos;
 
         if (ignoreIfCloserThanStartAndMovingAway || ignoreIfTraceNearer || ignoreIfTooThick) {
             lastTracePos = tracePos;
-            currPos += ddaStep;
 
-            if (ignoreIfTraceNearer) lastVisPos = tracePos;
+            //if (ignoreIfTraceNearer) lastVisPos = tracePos;
 
-            if (level < SSR_LOD_MAX) {
-                //vec2 halfPos = floor(currPos + 0.5) * 0.5;
-                //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
+            #ifdef SSR_HIZ
+                currPos += ddaStep;
 
-                level++;
+                if (level < SSR_LOD_MAX) {
+                    //vec2 halfPos = floor(currPos + 0.5) * 0.5;
+                    //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
+
+                    level++;
+                }
+            #endif
+
+            continue;
+        }
+
+        #ifdef SSR_HIZ
+            if (level > SSR_MinLod) {
+                level--;
+                continue;
             }
-
-            continue;
-        }
-
-        if (level > SSR_MinLod) {
-            level--;
-            continue;
-        }
+        #endif
 
         //lastTracePos = tracePos;
+        lastVisPos = tracePos;
         alpha = 1.0;
     }
 
-    return vec4(lastVisPos, alpha);
+    return vec4(tracePos, alpha);
 }
 
 // uv=tracePos.xy

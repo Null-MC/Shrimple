@@ -138,7 +138,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define SSR_MAXSTEPS 64 // [32 64 96 128 160 192 224 256]
 #define SSR_QUALITY 2 // [0 1 2]
-#define SSR_LOD_MAX 4
+#define SSR_LOD_MAX 0 // [0 1 2 3 4]
 //#define MATERIAL_REFLECT_GLASS
 
 

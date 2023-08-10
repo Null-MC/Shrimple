@@ -65,6 +65,7 @@ uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform ivec2 viewSize;
+uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
 
