@@ -180,6 +180,7 @@ void main() {
 		color.rgb *= texture(lightmap, lmcoord).rgb * shadowColor;
 
         #ifndef DH_COMPAT_ENABLED
+            vec3 localViewDir = normalize(vLocalPos);
             ApplyFog(color, vLocalPos, localViewDir);
         #else
             color.rgb = LinearToRGB(color.rgb);

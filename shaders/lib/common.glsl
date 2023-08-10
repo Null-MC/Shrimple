@@ -125,7 +125,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
 #define MATERIAL_POROSITY 1 // [0 1 2]
-#define MATERIAL_POROSITY_DARKEN 180 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
+#define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define MATERIAL_PARTICLES
@@ -136,7 +136,8 @@ const bool colortex15Clear = true;
 
 #define MATERIAL_REFLECTIONS 1 // [0 1 2]
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define SSR_MAXSTEPS 64 // [32 64 96 128 160 192 224 256]
+//#define SSR_MAXSTEPS 64 // [32 64 96 128 160 192 224 256]
+#define SSR_QUALITY 2 // [0 1 2]
 #define SSR_LOD_MAX 4
 //#define MATERIAL_REFLECT_GLASS
 
@@ -179,7 +180,7 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define DYN_LIGHT_PENUMBRA 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define DYN_LIGHT_RES 2 // [2 1 0]
+#define DYN_LIGHT_RES 1 // [2 1 0]
 #define LIGHT_BIN_MAX_COUNT 128 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
@@ -511,7 +512,9 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowcolor0Nearest = false;
 #endif
 
-const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
+const float voxelDistance = 64.0;
+
+//const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
 
 #if MC_VERSION < 11700
     const float alphaTestRef = 0.1;

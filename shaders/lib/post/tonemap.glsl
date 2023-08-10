@@ -62,7 +62,7 @@ void ApplyPostProcessing(inout vec3 color) {
         //color = tonemap_Tech(color, 0.2);
         color = tonemap_Lottes(0.6 * color);
     #elif POST_TONEMAP == 3
-        color = tonemap_FilmicHejl2015(0.4 * color);
+        color = tonemap_FilmicHejl2015(0.7 * color);
     #elif POST_TONEMAP == 2
         color = tonemap_ACESFit2(color);
     #elif POST_TONEMAP == 1

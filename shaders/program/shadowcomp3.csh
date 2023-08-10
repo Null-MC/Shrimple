@@ -27,7 +27,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uint lightLocalIndex = SceneLightMaps[gridIndex].LightCount;
         if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return 0u;
 
-        const int gridSize = int(16.0 * DynamicLightRangeF) / LIGHT_BIN_SIZE;
+        const int gridSize = int(16.0 * DynamicLightRangeF) / LIGHT_BIN_SIZE + 1;
         vec3 binPos = gridCell * LIGHT_BIN_SIZE - VoxelBlockCenter - cameraOffset;
 
         uint neighborCount = 0u;

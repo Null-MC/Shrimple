@@ -40,8 +40,8 @@ uint GetLightMaskFace(const in vec3 normal) {
     }
 #elif defined RENDER_SHADOWCOMP && !defined RENDER_BEGIN_LPV
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
-        vec3 pointDist = lightPos - clamp(lightPos, binPos - binSize, binPos + binSize);
-        return dot(pointDist, pointDist) < _pow2(lightRange);
+        vec3 pointDist = lightPos - clamp(lightPos, binPos, binPos + binSize);
+        return length2(pointDist) < _pow2(lightRange);
     }
 #endif
 

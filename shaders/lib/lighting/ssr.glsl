@@ -1,5 +1,26 @@
+#if SSR_QUALITY == 2
+    const int SSR_MinLod = 0;
+    const int SSR_MaxStepCount = 128;
+    //const float SSR_StepScale = 1.0;
+#elif SSR_QUALITY == 1
+    const int SSR_MinLod = 1;
+    const int SSR_MaxStepCount = 64;
+    //const float SSR_StepScale = 2.0;
+#else
+    const int SSR_MinLod = 2;
+    const int SSR_MaxStepCount = 32;
+    //const float SSR_StepScale = 4.0;
+#endif
+
+
 float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-    ivec2 viewSize = ivec2(viewWidth, viewHeight);
+    const ivec2 tileOffsets[] = ivec2[](
+        ivec2(0, 0),
+        ivec2(0, 2),
+        ivec2(2, 4),
+        ivec2(6, 8));
+
+    //ivec2 viewSize = ivec2(viewWidth, viewHeight);
     float depth = 1.0;
 
     if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
@@ -8,15 +29,7 @@ float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, cons
 
         ivec2 uv = ivec2(texcoord * tileSize);
 
-        if (level == 4) {
-            uv += ivec2(tileSize * ivec2(6, 8));
-        }
-        else if (level == 3) {
-            uv += ivec2(tileSize * ivec2(2, 4));
-        }
-        else if (level == 2) {
-            uv += ivec2(tileSize * ivec2(0, 2));
-        }
+        uv += tileSize * tileOffsets[level - 1];
 
         return texelFetch(texDepthNear, uv, 0).r;
         //return imageLoad(imgDepthNear, uv).r;
@@ -30,7 +43,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     float screenRayLength = length(clipRay);
     if (screenRayLength < EPSILON) return vec4(0.0);
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 ssrPixelSize = rcp(viewSize);
 
     vec3 screenRay = clipRay / screenRayLength;
@@ -73,14 +86,12 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     const vec3 clipMin = vec3(0.0);
     vec3 clipMax = vec3(1.0) - vec3(ssrPixelSize, EPSILON);
 
-    const int minLod = 0;
-
     int i;
-    int level = minLod;
+    int level = SSR_MinLod;
     float alpha = 0.0;
     float texDepth;
     vec3 tracePos;
-    for (i = 0; i < SSR_MAXSTEPS && alpha < EPSILON; i++) {
+    for (i = 0; i < SSR_MaxStepCount && alpha < EPSILON; i++) {
         int l2 = int(exp2(level));
         tracePos = lastTracePos + screenRay*l2;
 
@@ -104,8 +115,8 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
 
         vec3 t = clamp(tracePos, clipMin, clipMax);
-        if (tracePos.z >= 1.0 && t != tracePos) {
-            if (level > minLod) {
+        if (t != tracePos) {
+            if (level > SSR_MinLod) {
                 level--;
                 continue;
             }
@@ -143,7 +154,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             continue;
         }
 
-        if (level > minLod) {
+        if (level > SSR_MinLod) {
             level--;
             continue;
         }

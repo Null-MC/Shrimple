@@ -9,8 +9,8 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_BLOOM_TILES;
 
-uniform float viewWidth;
-uniform float viewHeight;
+uniform ivec2 viewSize;
+uniform vec2 pixelSize;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
@@ -20,11 +20,8 @@ uniform float viewHeight;
 layout(location = 0) out vec3 outFinal;
 
 void main() {
-    vec2 viewSize = vec2(viewWidth, viewHeight);
-    vec2 pixelSize = rcp(viewSize);
-
     vec2 srcBoundsMin, srcBoundsMax;
-    GetBloomTileInnerBounds(viewSize, 0, srcBoundsMin, srcBoundsMax);
+    GetBloomTileInnerBounds(0, srcBoundsMin, srcBoundsMax);
 
     vec2 srcTex = texcoord * (srcBoundsMax - srcBoundsMin) + srcBoundsMin;
 

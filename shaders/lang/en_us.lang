@@ -99,12 +99,6 @@ value.MATERIAL_SSS.0=OFF
 value.MATERIAL_SSS.1=Integrated
 value.MATERIAL_SSS.2=Lab-PBR
 
-option.MATERIAL_POROSITY=Porosity
-option.MATERIAL_POROSITY.comment=Describes how much water is absorbed by each pixel of the surface.
-value.MATERIAL_POROSITY.0=OFF
-value.MATERIAL_POROSITY.1=Integrated
-value.MATERIAL_POROSITY.2=Lab-PBR
-
 option.MATERIAL_OCCLUSION=Occlusion
 option.MATERIAL_OCCLUSION.comment=Describes how much ambient light is occluded from each pixel of the surface.
 value.MATERIAL_OCCLUSION.0=OFF
@@ -168,6 +162,18 @@ option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
+
+
+screen.MATERIAL_POROSITY_OPTIONS=Porosity
+screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
+
+option.MATERIAL_POROSITY=Type
+value.MATERIAL_POROSITY.0=OFF
+value.MATERIAL_POROSITY.1=Integrated
+value.MATERIAL_POROSITY.2=Lab-PBR
+
+option.MATERIAL_POROSITY_DARKEN=Darkening
+suffix.MATERIAL_POROSITY_DARKEN=%
 
 
 screen.MATERIAL_EMISSION_OPTIONS=Emission

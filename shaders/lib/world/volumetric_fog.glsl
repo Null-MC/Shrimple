@@ -9,7 +9,7 @@ struct VolumetricPhaseFactors {
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.012, 0.0002, rainStrength);
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.012, 0.002, rainStrength);
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif

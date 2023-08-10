@@ -64,6 +64,7 @@ uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform ivec2 viewSize;
 uniform float near;
 uniform float far;
 

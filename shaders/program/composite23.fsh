@@ -9,8 +9,8 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_BLOOM_TILES;
 
-uniform float viewWidth;
-uniform float viewHeight;
+uniform ivec2 viewSize;
+uniform vec2 pixelSize;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"

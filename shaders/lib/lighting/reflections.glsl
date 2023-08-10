@@ -89,15 +89,16 @@ vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const 
                     else {
                 #endif
 
-                    if (reflection.z < 1.0) {
-                        #ifndef DH_COMPAT_ENABLED
+                    #ifndef DH_COMPAT_ENABLED
+                        if (reflection.z < 1.0) {
                             #ifdef WORLD_SKY_ENABLED
                                 // sky fog
 
                                 #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                                     // TODO: apply fog to reflection
 
-                                    float fogDist = GetVanillaFogDistance(reflectViewPos);
+                                    vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
+                                    float fogDist = GetVanillaFogDistance(reflectLocalPos);
 
                                     fogF = GetCustomSkyFogFactor(fogDist);
 
@@ -115,8 +116,8 @@ vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const 
                                 fogColorFinal = RGBToLinear(fogColor);
                                 fogF = GetVanillaFogFactor(localPos);
                             #endif
-                        #endif
-                    }
+                        }
+                    #endif
 
                 #ifdef WORLD_WATER_ENABLED
                     }

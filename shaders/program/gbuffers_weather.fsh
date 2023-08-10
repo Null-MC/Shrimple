@@ -266,12 +266,14 @@ void main() {
 
         SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
 
-        // TODO: weather specular phase
-        float VoL = dot(localSkyLightDirection, localViewDir);
-        float phase = DHG(VoL, -0.32, 0.85, 0.08);
-        //diffuse *= phase * WorldSkyLightColor * 20.0;
-        diffuse *= 0.2;
-        specular += 1.2 * phase * shadowColor;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            // TODO: weather specular phase
+            float VoL = dot(localSkyLightDirection, localViewDir);
+            float phase = DHG(VoL, -0.32, 0.85, 0.08);
+            //diffuse *= phase * WorldSkyLightColor * 20.0;
+            diffuse *= 0.2;
+            specular += 1.2 * phase * shadowColor;
+        #endif
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #else

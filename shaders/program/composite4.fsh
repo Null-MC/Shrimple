@@ -38,6 +38,7 @@ in vec2 texcoord;
     uniform vec3 upPosition;
     uniform float viewWidth;
     uniform float viewHeight;
+    uniform ivec2 viewSize;
     uniform float near;
     uniform float far;
 

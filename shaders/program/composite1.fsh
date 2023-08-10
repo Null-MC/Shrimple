@@ -10,11 +10,11 @@ in vec2 texcoord;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
+uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_DEFERRED_COLOR;
     uniform sampler2D BUFFER_ROUGHNESS;
 #endif
 

@@ -9,8 +9,8 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_FINAL;
 
-uniform float viewWidth;
-uniform float viewHeight;
+uniform ivec2 viewSize;
+uniform vec2 pixelSize;
 uniform int isEyeInWater;
 
 #include "/lib/sampling/ign.glsl"
@@ -23,15 +23,12 @@ layout(location = 0) out vec3 outFinal;
 void main() {
     const int tile = 0;
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
-    vec2 pixelSize = rcp(viewSize);
-
     vec2 boundsMin, boundsMax;
     vec2 outerBoundsMin, outerBoundsMax;
-    GetBloomTileInnerBounds(viewSize, tile, boundsMin, boundsMax);
-    GetBloomTileOuterBounds(viewSize, tile, outerBoundsMin, outerBoundsMax);
+    GetBloomTileInnerBounds(tile, boundsMin, boundsMax);
+    GetBloomTileOuterBounds(tile, outerBoundsMin, outerBoundsMax);
 
-    vec2 tex = (gl_FragCoord.xy - 0.5) / viewSize;
+    vec2 tex = (gl_FragCoord.xy - 0.5) * pixelSize;
     tex = clamp(tex, boundsMin, boundsMax);
     tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
 

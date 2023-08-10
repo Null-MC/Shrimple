@@ -63,7 +63,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             //bool hasLight = false;
             //for (uint i2 = 0u; i2 < 16u; i2++) {
                 uint lightIndex = (i * iStep + iOffset);// % lightCount;
-                if (lightIndex >= lightCount) break;
+                //if (lightIndex >= lightCount) break;
+
                 lightData = GetVoxelLight(gridIndex, lightIndex % lightCount);
                 ParseLightData(lightData, lightPos, lightSize, lightRange, lightColor);
 

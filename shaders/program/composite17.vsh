@@ -7,8 +7,8 @@
 
 out vec2 texcoord;
 
-uniform float viewWidth;
-uniform float viewHeight;
+uniform ivec2 viewSize;
+uniform vec2 pixelSize;
 
 #include "/lib/post/bloom.glsl"
 
