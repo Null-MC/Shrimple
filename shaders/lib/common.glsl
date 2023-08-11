@@ -104,7 +104,10 @@ const bool colortex15Clear = true;
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
 #define WATER_DISPLACEMENT
+
 #define WATER_BLUR
+#define WATER_BLUR_SCALE 12.0
+#define WATER_BLUR_RADIUS 32 // [2 4 6 8 10 12 14 16 18 20 22 24]
 
 
 // Material Options
@@ -136,9 +139,9 @@ const bool colortex15Clear = true;
 
 #define MATERIAL_REFLECTIONS 1 // [0 1 2]
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define SSR_MAXSTEPS 64 // [32 64 96 128 160 192 224 256]
+#define SSR_MAXSTEPS 96 // [32 64 96 128 160 192 224 256]
 #define SSR_QUALITY 2 // [0 1 2]
-#define SSR_LOD_MAX 2 // [0 1 2 3 4]
+#define SSR_LOD_MAX 4 // [0 1 2 3 4]
 //#define MATERIAL_REFLECT_GLASS
 
 
@@ -244,7 +247,6 @@ const bool colortex15Clear = true;
 #define EFFECT_BLOOM_TILE_MAX 6
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
-#define DIST_BLUR_SCALE_WATER 16.0
 #define DIST_BLUR_SCALE_BLIND 6.0
 #define DIST_BLUR_SAMPLES 8 // [2 4 8 12 16 20 24 28 32]
 #define DIST_BLUR_RADIUS 8 // [2 4 6 8 10 12 14 16 18 20 22 24]

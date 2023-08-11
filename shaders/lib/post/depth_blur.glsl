@@ -11,15 +11,20 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
     return saturate(abs(coc) * DepthOfFieldFocusScale);
 }
 
+float GetWaterDistF(const in float viewDist) {
+    float waterDistF = min(viewDist / WATER_BLUR_SCALE, 1.0);
+    return pow(waterDistF, 1.5);
+}
+
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
     vec2 viewSize = vec2(viewWidth, viewHeight);
-    vec2 pixelSize = rcp(viewSize);
+    // vec2 pixelSize = rcp(viewSize);
 
     #if defined WATER_BLUR && DIST_BLUR_MODE == DIST_BLUR_NONE
         if (!isWater) return texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
     #endif
 
-    float distScale = isWater ? DIST_BLUR_SCALE_WATER : far;
+    float distScale = isWater ? WATER_BLUR_SCALE : far;
     distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
 
     float distF = 0.0;
@@ -35,7 +40,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
     #ifdef WATER_BLUR
         if (isWater) {
-            float waterDistF = min(viewDist / DIST_BLUR_SCALE_WATER, 1.0);
+            float waterDistF = GetWaterDistF(viewDist);
             distF = max(distF, waterDistF);
         }
     #endif
@@ -46,22 +51,24 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     mat2 rotation = GetBlurRotation();
 
     #if DIST_BLUR_MODE == DIST_BLUR_DOF
-        float radius = DIST_BLUR_RADIUS;
-        uint sampleCount = DIST_BLUR_SAMPLES;
+        float radius = isWater ? WATER_BLUR_RADIUS : DIST_BLUR_RADIUS;
+        //uint sampleCount = DIST_BLUR_SAMPLES;
     #else
-        float radius = distF * DIST_BLUR_RADIUS;
-        uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
+        float radius = isWater ? WATER_BLUR_RADIUS : (distF * DIST_BLUR_RADIUS);
+        //uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
+
+        radius *= distF;
     #endif
 
     vec3 color = vec3(0.0);
     float maxWeight = 0.0;
 
-    for (uint i = 0; i < min(sampleCount, DIST_BLUR_SAMPLES); i++) {
+    for (uint i = 0; i < DIST_BLUR_SAMPLES; i++) {
         vec2 sampleCoord = texcoord;
         vec2 diskOffset = vec2(0.0);
 
-        if (sampleCount > 1) {
-            float r = sqrt((i + 0.5) / sampleCount);
+        //if (DIST_BLUR_SAMPLES > 1) {
+            float r = sqrt((i + 0.5) / DIST_BLUR_SAMPLES);
             float theta = i * goldenAngle + PHI;
             
             float sine = sin(theta);
@@ -69,7 +76,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             
             diskOffset = rotation * (vec2(cosine, sine) * r);
             sampleCoord = saturate(sampleCoord + diskOffset * radius * pixelSize);
-        }
+        //}
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
 
@@ -95,7 +102,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
         #ifdef WATER_BLUR
             if (isWater) {
-                float sampleWaterDistF = saturate((sampleDepthL - minDepth) / DIST_BLUR_SCALE_WATER);
+                float sampleWaterDistF = GetWaterDistF(max(sampleDepthL - minDepth, 0.0));
                 sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);
             }
         #endif
@@ -110,14 +117,14 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
         float sampleWeight = exp(-3.0 * length2(diskOffset));
 
-        if (sampleCount > 1) {
+        //if (DIST_BLUR_SAMPLES > 1) {
             #ifdef RENDER_TRANSLUCENT_POST_BLUR
                 float sampleWeatherDepth = texelFetch(BUFFER_WEATHER_DEPTH, sampleUV, 0).r;
                 sampleDepth = min(sampleDepth, sampleWeatherDepth);
             #endif
 
             sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
-        }
+        //}
 
         color += sampleColor * sampleWeight;
         maxWeight += sampleWeight;
