@@ -127,11 +127,11 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         //bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.1;
         bool ignoreIfTooThick = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
+        if (ignoreIfTraceNearer) lastVisPos = tracePos;
+
         if (ignoreIfCloserThanStartAndMovingAway || ignoreIfTraceNearer || ignoreIfTooThick) {
             lastTracePos = tracePos;
             currPos += ddaStep;
-
-            if (ignoreIfTraceNearer) lastVisPos = tracePos;
 
             if (level < SSR_LOD_MAX) {
                 //vec2 halfPos = floor(currPos + 0.5) * 0.5;

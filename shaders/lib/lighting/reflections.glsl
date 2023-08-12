@@ -1,9 +1,9 @@
 vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
+    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - sqrt(roughL));
 }
 
 #ifdef WORLD_SKY_ENABLED
-    vec3 GetSkyReflectionColor(const in vec3 reflectDir, const in float skyLight) {
+    vec3 GetSkyReflectionColor(const in vec3 localPos, const in vec3 reflectDir, const in float skyLight, const in float roughness) {
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             vec3 reflectColor;
 
@@ -31,6 +31,17 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             reflectColor = RGBToLinear(reflectColor);
         #endif
 
+        // TODO: clouds
+        #if defined MATERIAL_REFLECT_CLOUDS && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+            vec3 lightWorldDir = reflectDir / reflectDir.y;
+
+            vec2 cloudOffset = GetCloudOffset();
+            vec3 camOffset = GetCloudCameraOffset();
+            float cloudF = SampleClouds(localPos, lightWorldDir, cloudOffset, camOffset, max(roughness, 0.1));
+            vec3 cloudColor = WorldSkyLightColor; //vec3(1.0);
+            reflectColor = mix(reflectColor, cloudColor, cloudF);
+        #endif
+
         float m = skyLight * 0.25;
         reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
 
@@ -38,7 +49,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
     }
 #endif
 
-vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const in float skyLight, const in float roughness) {
+vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyLight, const in float roughness) {
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
@@ -55,7 +66,7 @@ vec3 ApplyReflections(const in vec3 viewPos, const in vec3 texViewNormal, const 
     //return reflectLocalDir * 0.5 + 0.5;
 
     #ifdef WORLD_SKY_ENABLED
-        vec3 reflectColor = GetSkyReflectionColor(reflectLocalDir, skyLight);
+        vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
     #else
         vec3 reflectColor = RGBToLinear(fogColor);
     #endif

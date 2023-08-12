@@ -60,49 +60,6 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     return result;
 }
 
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    float SampleCloudShadow(const in vec3 localPos, const in vec3 lightWorldDir, const in vec2 cloudOffset, const in vec3 camOffset) {
-    	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-    	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
-
-    	vec3 cloudTexPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-    	cloudTexPos.xy *= rcp(256.0);
-
-        float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, 0).a;
-
-        cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudTexPos.z);
-
-        float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            vec3 cloudLocalPos = localPos;
-            //vec3 localViewDir = normalize(localPos);
-
-            cloudLocalPos.xz += lightWorldDir.xz * (cloudHeightDifference / lightWorldDir.y);
-            cloudLocalPos.y = 192.0;
-
-            float fogDist = GetVanillaFogDistance(cloudLocalPos);
-
-            #ifdef IS_IRIS
-                fogDist *= 0.5;
-            #endif
-
-            float fogF = GetCustomSkyFogFactor(fogDist);
-            cloudShadow *= 1.0 - fogF;
-        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-            vec3 fogPos = localPos;
-            if (fogShape == 1) fogPos.y = 0.0;
-
-            float viewDist = length(fogPos);
-
-            float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
-            cloudShadow *= 1.0 - fogF;
-        #endif
-
-        return 1.0 - cloudShadow;
-    }
-#endif
-
 vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
@@ -193,15 +150,10 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     
     #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
         //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
-    	vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
+        vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
 
-        vec2 cloudOffset = vec2(-cloudTime/12.0 , 0.33);
-        cloudOffset = mod(cloudOffset, vec2(256.0));
-        cloudOffset = mod(cloudOffset + 256.0, vec2(256.0));
-
-        const float irisCamWrap = 1024.0;
-        vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
-        camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
+        vec2 cloudOffset = GetCloudOffset();
+        vec3 camOffset = GetCloudCameraOffset();
     #endif
 
     for (int i = 0; i <= stepCount; i++) {

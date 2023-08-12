@@ -103,7 +103,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-            specular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
+            specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
         #endif
 
         return specular;

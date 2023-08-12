@@ -32,6 +32,10 @@ in vec2 texcoord;
         uniform sampler2D BUFFER_VL;
     #endif
 
+    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        uniform sampler2D TEX_CLOUDS;
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferProjectionInverse;
@@ -61,6 +65,12 @@ in vec2 texcoord;
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 skyColor;
         uniform float rainStrength;
+
+        #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+            uniform vec3 cameraPosition;
+            uniform float cloudTime;
+            uniform vec3 eyePosition;
+        #endif
     #endif
 
     #ifdef WORLD_WATER_ENABLED
@@ -95,6 +105,10 @@ in vec2 texcoord;
             #include "/lib/items.glsl"
             #include "/lib/material/hcm.glsl"
             #include "/lib/material/specular.glsl"
+        #endif
+
+        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+            #include "/lib/shadows/clouds.glsl"
         #endif
 
         #include "/lib/lighting/ssr.glsl"
@@ -170,7 +184,7 @@ layout(location = 0) out vec4 outFinal;
             
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-            vec3 specular = ApplyReflections(viewPosOpaque, texViewNormal, deferredLighting.y, roughness) * skyReflectF;
+            vec3 specular = ApplyReflections(localPosOpaque, viewPosOpaque, texViewNormal, deferredLighting.y, roughness) * skyReflectF;
 
             specular *= GetMetalTint(albedo, metal_f0);
 

@@ -77,7 +77,7 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef SHADOW_CLOUD_ENABLED
+#if defined IS_IRIS && (defined SHADOW_CLOUD_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED))
     uniform sampler2D TEX_CLOUDS;
 #endif
 
@@ -150,9 +150,9 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform mat4 shadowProjection;
     #endif
 
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-    #endif
+    // #ifdef IS_IRIS
+    //     uniform float cloudTime;
+    // #endif
 #else
     //uniform int worldTime;
 #endif
@@ -166,6 +166,10 @@ uniform int heldBlockLightValue2;
     uniform bool isSpectator;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
+
+    #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
+        uniform float cloudTime;
+    #endif
 #endif
 
 #ifdef VL_BUFFER_ENABLED
@@ -298,6 +302,10 @@ uniform int heldBlockLightValue2;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+            #include "/lib/shadows/clouds.glsl"
+        #endif
+    
         #include "/lib/lighting/reflections.glsl"
     #endif
 

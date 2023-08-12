@@ -372,7 +372,7 @@
                     vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
 
                     #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
-                        skySpecular += ApplyReflections(viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
+                        skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
                     #endif
 
                     accumDiffuse *= 1.0 - skyReflectF;

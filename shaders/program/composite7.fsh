@@ -52,6 +52,10 @@ uniform sampler2D TEX_LIGHTMAP;
     //layout(r32f) uniform readonly image2D imgDepthNear;
 #endif
 
+#if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    uniform sampler2D TEX_CLOUDS;
+#endif
+
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
@@ -95,6 +99,10 @@ uniform int isEyeInWater;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     //uniform float wetness;
+
+    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+        uniform float cloudTime;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -199,6 +207,10 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
+    #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+
     #include "/lib/lighting/reflections.glsl"
 #endif
 
@@ -419,6 +431,8 @@ layout(location = 0) out vec4 outFinal;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
 
+            //if (isWater) deferredColor.a *= WorldWaterOpacityF;
+
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow.rgb);
@@ -429,6 +443,9 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+
+                if (isWater) diffuse *= WorldWaterOpacityF;
+                //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
 
                 final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
                 final.a = min(deferredColor.a + luminance(specular), 1.0);
@@ -678,7 +695,7 @@ layout(location = 0) out vec4 outFinal;
         // #endif
 
         if (isWater) {
-            final.rgb *= final.a;
+            //final.rgb *= final.a;
             final.rgb += opaqueFinal * (1.0 - final.a);
         }
         else {

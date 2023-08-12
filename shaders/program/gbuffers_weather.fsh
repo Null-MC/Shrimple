@@ -216,6 +216,10 @@ uniform float blindness;
 #include "/lib/lighting/hg.glsl"
 
 #ifdef VL_BUFFER_ENABLED
+    #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+
     #include "/lib/world/volumetric_fog.glsl"
 #endif
 

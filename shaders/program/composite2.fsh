@@ -37,10 +37,9 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler3D texLPV_2;
 #endif
 
-// #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-//     //uniform sampler2D texDepthNear;
-//     layout(r32f) uniform readonly image2D imgDepthNear;
-// #endif
+#if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    uniform sampler2D TEX_CLOUDS;
+#endif
 
 uniform int frameCounter;
 uniform float frameTime;
@@ -87,6 +86,10 @@ uniform float blindness;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     //uniform float wetness;
+
+    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+        uniform float cloudTime;
+    #endif
 #endif
 
 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
@@ -184,6 +187,10 @@ uniform int heldBlockLightValue2;
 // #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
+    #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+
     #include "/lib/lighting/reflections.glsl"
 #endif
 
