@@ -31,6 +31,10 @@ uniform int entityId;
     uniform float frameTimeCounter;
 #endif
 
+#if defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED
+    uniform float rainStrength;
+#endif
+
 #if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
     uniform int frameCounter;
 #endif

@@ -65,6 +65,10 @@ uniform vec3 cameraPosition;
     uniform float frameTimeCounter;
 #endif
 
+#if defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED
+    uniform float rainStrength;
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
