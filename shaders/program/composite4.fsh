@@ -47,6 +47,7 @@ in vec2 texcoord;
     uniform float near;
     uniform float far;
 
+    uniform int fogShape;
     uniform vec3 fogColor;
     uniform float fogStart;
     uniform float fogEnd;

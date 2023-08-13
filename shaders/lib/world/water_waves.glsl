@@ -5,16 +5,16 @@ const float WATER_FREQUENCY = 1.0;
 const float WATER_FREQUENCY_MULT = 1.14;
 const float WATER_SPEED_MULT = 1.08;
 const float WATER_ITER_INC = PI * (3.0 - sqrt(5.0));
+const float WATER_WEIGHT = 0.55;
 const float WATER_NORMAL_STRENGTH = 0.25;
 
 #if   WORLD_WATER_WAVES == 3
-    #define WATER_ITERATIONS_FRAGMENT 34
-    const float WATER_XZ_SCALE = 0.8;
+    #define WATER_ITERATIONS_FRAGMENT 42
+    const float WATER_XZ_SCALE = 0.6;
     const float WATER_DRAG_MULT = mix(0.2, 0.6, rainStrength);
     const float WATER_DRAG_INC = 0.06;
     const float WATER_WAVE_HEIGHT = 0.8;
     const float WATER_SPEED = 1.5;
-    const float WATER_WEIGHT = 0.4;
 #elif WORLD_WATER_WAVES == 2
     #define WATER_ITERATIONS_FRAGMENT 32
     const float WATER_XZ_SCALE = 1.4;
@@ -22,7 +22,6 @@ const float WATER_NORMAL_STRENGTH = 0.25;
     const float WATER_DRAG_INC = 0.06;
     const float WATER_WAVE_HEIGHT = 0.4;
     const float WATER_SPEED = 2.0;
-    const float WATER_WEIGHT = 0.5;
 #elif WORLD_WATER_WAVES == 1
     #define WATER_ITERATIONS_FRAGMENT 18
     const float WATER_XZ_SCALE = 3.2;
@@ -30,7 +29,6 @@ const float WATER_NORMAL_STRENGTH = 0.25;
     const float WATER_DRAG_INC = 0.8;
     const float WATER_WAVE_HEIGHT = 0.2;
     const float WATER_SPEED = 3.0;
-    const float WATER_WEIGHT = 0.6;
 #endif
 
 

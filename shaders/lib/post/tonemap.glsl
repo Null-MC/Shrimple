@@ -58,7 +58,11 @@ vec3 tonemap_Lottes(const in vec3 color) {
 }
 
 void ApplyPostProcessing(inout vec3 color) {
-    color *= mix(3.0, 1.0, eyeBrightnessSmooth.y / 240.0);
+    #ifdef EFFECT_AUTO_EXPOSE
+        vec2 eyeBright = eyeBrightnessSmooth / 240.0;
+        float brightF = 1.0 - max(eyeBright.x * 0.5, eyeBright.y);
+        color *= mix(1.0, 3.0, pow(brightF, 1.5));
+    #endif
 
     #if POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);

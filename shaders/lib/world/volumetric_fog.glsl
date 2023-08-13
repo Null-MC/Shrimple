@@ -9,7 +9,7 @@ struct VolumetricPhaseFactors {
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.012, 0.002, rainStrength);
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.006, 0.002, rainStrength);
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
@@ -33,7 +33,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
 
         float ambientF = 0.0;//mix(0.001, 0.03, rainStrength) * densityF);
-        ambientF = mix(0.007, ambientF, skyLight);
+        ambientF = mix(0.004, ambientF, skyLight);
         result.Ambient = vec3(ambientF);
 
         result.Forward = 0.824;
@@ -45,7 +45,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.ScatterF = vec3(scatterF);
 
         float extinctF = mix(0.002, 0.009, rainStrength) * density;
-        result.ExtinctF = mix(0.004, extinctF, skyLight);
+        result.ExtinctF = mix(0.008, extinctF, skyLight);
     #else
         result.Ambient = vec3(0.96);
 

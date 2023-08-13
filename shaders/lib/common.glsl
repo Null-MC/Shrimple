@@ -244,7 +244,8 @@ const bool colortex15Clear = true;
 // Effects
 //#define EFFECT_BLOOM_ENABLED
 #define EFFECT_BLOOM_STRENGTH 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define EFFECT_BLOOM_THRESHOLD 160 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
+//#define EFFECT_BLOOM_THRESHOLD 1200 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
+#define EFFECT_BLOOM_POWER 4 // [1 2 4 6 8 12 16 20 24]
 #define EFFECT_BLOOM_TILE_MAX 6
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
@@ -253,6 +254,8 @@ const bool colortex15Clear = true;
 #define DIST_BLUR_RADIUS 8 // [2 4 6 8 10 12 14 16 18 20 22 24]
 #define DIST_BLUR_FAR_POW 1.5
 #define BLUR_DOF_FOCUS_SCALE 40 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
+
+#define EFFECT_AUTO_EXPOSE
 
 
 // Post-Processing
@@ -474,7 +477,7 @@ const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
-const float PostBloomThresholdF = EFFECT_BLOOM_THRESHOLD * 0.01;
+//const float PostBloomThresholdF = EFFECT_BLOOM_THRESHOLD * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
 const float invPI = 1.0 / PI;
@@ -492,7 +495,7 @@ const float drynessHalflife = 20.0;
     const float ShadowNormalBias = (SHADOW_DISTORTED_NORMAL_BIAS * SHADOW_BIAS_SCALE);
 #endif
 
-const float shadowDistanceRenderMul = -1.0;
+const float shadowDistanceRenderMul = 1.0;
 
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800]
 const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
@@ -515,6 +518,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowcolor0Nearest = false;
 #endif
 
+const float entityShadowDistanceMul = 0.25;
 const float voxelDistance = 64.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));

@@ -40,13 +40,16 @@ void main() {
         color = RGBToLinear(color);
     #endif
 
-    float threshold = PostBloomThresholdF;
-    if (isEyeInWater == 1) threshold *= 0.25;
+    float power = EFFECT_BLOOM_POWER;
+    if (isEyeInWater == 1) power = 1.0;
 
-    float brightness = luminance(color);
-    float contribution = max(brightness - threshold, 0.0);
-    contribution /= max(brightness, EPSILON);
-    color *= contribution;
+    //const float lumMax = luminance(vec3(6.0));
+    float brightness = luminance(color);// / lumMax;
+    brightness = brightness / (brightness + 1.0);
+    //float contribution = max(brightness - threshold, 0.0);
+    float contribution = pow(brightness, power);
+    //contribution /= max(brightness, EPSILON);
+    color *= min(contribution, 1.0);
 
     color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
 
