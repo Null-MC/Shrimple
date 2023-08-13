@@ -1,4 +1,4 @@
-#if LPV_SIZE > 0
+#if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
     vec3 GetLpvAmbient(const in vec3 voxelPos, const in vec3 lpvPos) {
         vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
         //lpvLight = log2(lpvLight + EPSILON) / LpvRangeF;

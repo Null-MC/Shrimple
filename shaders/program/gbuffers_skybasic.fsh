@@ -26,6 +26,7 @@ uniform float blindness;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -34,11 +35,6 @@ uniform float blindness;
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-
-#ifdef DH_COMPAT_ENABLED
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
-#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -87,10 +83,6 @@ void main() {
 
     #ifdef DH_COMPAT_ENABLED
         color = LinearToRGB(color);
-        // #ifdef DEFERRED_BUFFER_ENABLED
-        // #else
-        //     ApplyPostProcessing(color);
-        // #endif
     #endif
     
     outFinal = vec4(color, 1.0);

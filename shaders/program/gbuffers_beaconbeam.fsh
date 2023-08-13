@@ -37,6 +37,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #if MC_VERSION >= 11700
@@ -52,9 +53,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
-
-#include "/lib/post/saturation.glsl"
-#include "/lib/post/tonemap.glsl"
 
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)

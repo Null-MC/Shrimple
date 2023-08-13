@@ -29,8 +29,9 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
-    //uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED

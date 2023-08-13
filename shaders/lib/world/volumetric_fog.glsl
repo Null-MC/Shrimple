@@ -14,7 +14,7 @@ struct VolumetricPhaseFactors {
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, 0.06, 0.051, 0.924, 0.197);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, rcp(waterDensitySmooth), 0.051, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {

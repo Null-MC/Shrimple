@@ -141,6 +141,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -478,7 +479,7 @@ void main() {
         if (isWater) {
             //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
             float distF = 16.0 / (viewDist + 16.0);
-            float waterRough = mix(0.3 * lmcoord.y, 0.06, distF);
+            float waterRough = 0.06;//mix(0.3 * lmcoord.y, 0.06, distF);
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(waterRough, 0.50, oceanFoam);

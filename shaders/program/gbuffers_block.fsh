@@ -133,6 +133,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED

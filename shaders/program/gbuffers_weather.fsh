@@ -107,6 +107,7 @@ uniform float blindness;
     uniform int isEyeInWater;
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef IS_IRIS

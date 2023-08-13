@@ -108,6 +108,7 @@ uniform int isEyeInWater;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
@@ -230,10 +231,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/post/depth_blur.glsl"
 #endif
 
-#ifdef DH_COMPAT_ENABLED
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
-#endif
+// #ifdef DH_COMPAT_ENABLED
+//     #include "/lib/post/saturation.glsl"
+//     #include "/lib/post/tonemap.glsl"
+// #endif
 
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {

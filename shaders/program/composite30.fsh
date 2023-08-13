@@ -9,6 +9,9 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_FINAL;
 
+uniform ivec2 eyeBrightnessSmooth;
+uniform float playerMood;
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

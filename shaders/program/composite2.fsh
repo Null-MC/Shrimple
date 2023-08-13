@@ -100,6 +100,7 @@ uniform float blindness;
     uniform int isEyeInWater;
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 uniform int heldItemId;
@@ -202,10 +203,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/basic_hand.glsl"
 
-#ifdef DH_COMPAT_ENABLED
-    #include "/lib/post/saturation.glsl"
-    #include "/lib/post/tonemap.glsl"
-#endif
+// #ifdef DH_COMPAT_ENABLED
+//     #include "/lib/post/saturation.glsl"
+//     #include "/lib/post/tonemap.glsl"
+// #endif
 
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {

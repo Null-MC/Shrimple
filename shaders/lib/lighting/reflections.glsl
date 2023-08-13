@@ -49,15 +49,19 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
     }
 #endif
 
-vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyLight, const in float roughness) {
+vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in vec3 texViewNormal, const in float skyLight, in float roughness) {
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
+
+    float viewDist = length(localPos);
+    float distF = 32.0 / (viewDist + 32.0);
+    roughness = pow(roughness, 0.5 + 0.5 * distF);
 
     #if REFLECTION_ROUGH_SCATTER > 0
         vec3 randomVec = normalize(hash32(gl_FragCoord.xy) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = pow5(roughness) * ReflectionRoughScatterF;
+        float roughScatterF = pow3(roughness) * ReflectionRoughScatterF;// * (1.0 - distF);
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif
@@ -79,6 +83,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         //if (length2(clipRay) > EPSILON) clipRay = normalize(clipRay);
         //return clipRay * 0.5 + 0.5;
 
+        vec2 viewSize = vec2(viewWidth, viewHeight);
         int maxLod = int(log2(minOf(viewSize)));
         float roughMip = roughness * maxLod;
 

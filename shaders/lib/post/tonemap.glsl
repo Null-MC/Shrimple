@@ -58,6 +58,8 @@ vec3 tonemap_Lottes(const in vec3 color) {
 }
 
 void ApplyPostProcessing(inout vec3 color) {
+    color *= mix(3.0, 1.0, eyeBrightnessSmooth.y / 240.0);
+
     #if POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);
         color = tonemap_Lottes(0.6 * color);

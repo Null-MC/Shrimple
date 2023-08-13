@@ -28,6 +28,10 @@ uniform float far;
     uniform float centerDepthSmooth;
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    uniform float waterDensitySmooth;
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 

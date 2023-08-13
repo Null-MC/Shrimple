@@ -134,6 +134,7 @@ uniform int heldBlockLightValue2;
     uniform int isEyeInWater;
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

@@ -12,7 +12,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 float GetWaterDistF(const in float viewDist) {
-    float waterDistF = min(viewDist / WATER_BLUR_SCALE, 1.0);
+    float waterDistF = min(viewDist / waterDensitySmooth * 2.0, 1.0);
     return pow(waterDistF, 1.5);
 }
 
@@ -24,8 +24,8 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         if (!isWater) return texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
     #endif
 
-    float distScale = isWater ? WATER_BLUR_SCALE : far;
-    distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
+    //float distScale = isWater ? WATER_BLUR_SCALE : far;
+    //distScale = mix(distScale, DIST_BLUR_SCALE_BLIND, blindness);
 
     float distF = 0.0;
     #if DIST_BLUR_MODE == DIST_BLUR_DOF

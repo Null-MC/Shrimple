@@ -72,6 +72,7 @@ uniform float blindness;
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -287,7 +288,7 @@ void main() {
         outDeferredData = deferredData;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
+            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0) + dither;
         #endif
     #else
         vec4 final = albedo;
@@ -324,7 +325,6 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            //ApplyPostProcessing(final.rgb);
             final.rgb = LinearToRGB(final.rgb);
         #endif
         
