@@ -337,7 +337,7 @@ void main() {
         return;
     }
 
-    color.rgb *= glcolor.rgb;
+    vec3 albedo = RGBToLinear(color.rgb) * RGBToLinear(glcolor.rgb);
     color.a = 1.0;
 
     // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID) color.rgb = vec3(0.0, 0.0, 1.0);
@@ -462,8 +462,6 @@ void main() {
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
     #endif
-
-    vec3 albedo = RGBToLinear(color.rgb);
 
     #ifdef DEFERRED_BUFFER_ENABLED
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

@@ -48,7 +48,7 @@
 
                 if (tile >= 0) {
                     vec3 _shadowPos = shadowPos[tile];
-                    _shadowPos.xy += 0.04 * bias * sssOffset;
+                    _shadowPos.xy += 0.002 * bias * sssOffset;
 
                     bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);
 
