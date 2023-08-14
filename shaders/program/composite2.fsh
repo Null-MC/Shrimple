@@ -52,6 +52,7 @@ uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform ivec2 viewSize;
 uniform float near;
 uniform float far;
 
@@ -192,6 +193,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/shadows/clouds.glsl"
     #endif
 
+    //#include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/reflections.glsl"
 #endif
 
@@ -202,11 +204,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"
-
-// #ifdef DH_COMPAT_ENABLED
-//     #include "/lib/post/saturation.glsl"
-//     #include "/lib/post/tonemap.glsl"
-// #endif
 
 
 void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {

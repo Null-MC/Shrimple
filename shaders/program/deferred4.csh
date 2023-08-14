@@ -15,6 +15,10 @@ uniform sampler2D depthtex0;
 
 uniform float viewWidth;
 uniform float viewHeight;
+//uniform ivec2 viewSize;
+//uniform vec2 pixelSize;
+
+#include "/lib/utility/depth_tiles.glsl"
 
 
 void SampleDepthMin(inout float minZ, const in ivec2 sampleUV) {
@@ -46,35 +50,27 @@ void main() {
 
 	ivec2 tilePos, readPos, writePos;
 	for (int i = 1; i < SSR_LOD_MAX; i++) {
-		if (any(greaterThanEqual(fragWritePos, tileSize/2))) break;
+		tileSize /= 2;
+
+		if (any(greaterThanEqual(fragWritePos, tileSize))) break;
 		
 		memoryBarrierImage();
 
-		writePos = fragWritePos;
+	    ivec2 _tileSize;
+	    GetDepthTileBounds(i - 1, tilePos, _tileSize);
 
-		if (i == 1) {
-			tilePos = ivec2(0);
-			writePos += tileSize * ivec2(0, 1);
-		}
-		else if (i == 2) {
-			tilePos = viewSize/2 * ivec2(0, 1);
-			writePos += tileSize * ivec2(1, 2);
-		}
-		else if (i == 3) {
-			tilePos = viewSize/4 * ivec2(1, 2);
-			writePos += tileSize * ivec2(3, 4);
-		}
+	    GetDepthTileBounds(i, writePos, _tileSize);
+		writePos += fragWritePos;
+
+		readPos = fragWritePos * 2 + tilePos;
+		ivec2 sourceSize = tilePos + 2*tileSize;
 
 		minZ = 1.0;
-		readPos = fragWritePos * 2 + tilePos;
-		ivec2 sourceSize = tilePos + tileSize;
 		SampleTileMin(minZ, sourceSize, readPos + ivec2(0, 0));
 		SampleTileMin(minZ, sourceSize, readPos + ivec2(1, 0));
 		SampleTileMin(minZ, sourceSize, readPos + ivec2(0, 1));
 		SampleTileMin(minZ, sourceSize, readPos + ivec2(1, 1));
 
 		imageStore(imgDepthNear, writePos, vec4(minZ));
-
-		tileSize /= 2;
 	}
 }

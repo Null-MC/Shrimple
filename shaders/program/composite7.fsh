@@ -68,6 +68,7 @@ uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform float aspectRatio;
 uniform ivec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
@@ -204,6 +205,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/voxel/items.glsl"
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    #include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/ssr.glsl"
 #endif
 
@@ -211,7 +213,7 @@ uniform int heldBlockLightValue2;
     #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
         #include "/lib/shadows/clouds.glsl"
     #endif
-
+    
     #include "/lib/lighting/reflections.glsl"
 #endif
 

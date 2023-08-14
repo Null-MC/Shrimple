@@ -128,6 +128,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 gbufferProjectionInverse;
     uniform float viewWidth;
     uniform float viewHeight;
+    uniform float aspectRatio;
+    uniform vec2 pixelSize;
 #endif
 
 #ifdef WORLD_SKY_ENABLED

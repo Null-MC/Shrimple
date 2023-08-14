@@ -42,6 +42,7 @@ in vec2 texcoord;
     uniform vec3 upPosition;
     uniform float viewWidth;
     uniform float viewHeight;
+    uniform float aspectRatio;
     uniform ivec2 viewSize;
     uniform vec2 pixelSize;
     uniform float near;
@@ -113,6 +114,7 @@ in vec2 texcoord;
             #include "/lib/shadows/clouds.glsl"
         #endif
 
+        #include "/lib/utility/depth_tiles.glsl"
         #include "/lib/lighting/ssr.glsl"
         #include "/lib/lighting/fresnel.glsl"
         #include "/lib/lighting/reflections.glsl"
