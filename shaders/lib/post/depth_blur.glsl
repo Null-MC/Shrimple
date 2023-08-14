@@ -12,7 +12,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 float GetWaterDistF(const in float viewDist) {
-    float waterDistF = min(viewDist / waterDensitySmooth * 2.0, 1.0);
+    float waterDistF = min(viewDist / waterDensitySmooth, 1.0);
     return pow(waterDistF, 1.5);
 }
 
