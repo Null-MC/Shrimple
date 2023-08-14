@@ -86,7 +86,8 @@ uniform float blindness;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
-    //uniform float wetness;
+    uniform float skyWetnessSmooth;
+    uniform float wetness;
 
     #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
@@ -167,6 +168,10 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+
+    #ifdef WORLD_WETNESS_ENABLED
+        #include "/lib/world/wetness.glsl"
+    #endif
 #endif
 
 #include "/lib/lights.glsl"
@@ -384,13 +389,24 @@ layout(location = 0) out vec4 outFinal;
             //skyLightF = max(skyLightF, _pow3(deferredLighting.y)*0.7);
             //occlusion = max(occlusion, skyLightF);
 
+            #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+                float skyWetness = 0.0, puddleF = 0.0;
+                vec3 worldPos = localPos + cameraPosition;
+
+                skyWetness = GetSkyWetness(worldPos, localNormal, deferredLighting.xy);
+                puddleF = GetWetnessPuddleF(skyWetness, porosity);
+            #endif
+
             #ifdef WORLD_WATER_ENABLED
                 if (
                     (isEyeInWater != 1 && depthTranslucent < depthOpaque) ||
-                    (isEyeInWater == 1 && depthOpaque <= depthTranslucent)
-                ) {
-                    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * porosity));
-                }
+                    (isEyeInWater == 1 && depthOpaque <= depthTranslucent)) puddleF = 1.0;
+            #endif
+
+            #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
+                //albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * sqrt(porosity)));
+
+                ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
             #endif
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE

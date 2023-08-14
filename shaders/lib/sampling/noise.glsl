@@ -19,6 +19,12 @@ float hash13(const in vec3 seed) {
     return fract((p3.x + p3.y) * p3.z);
 }
 
+vec2 hash22(const in vec2 seed) {
+    vec3 p3 = fract(seed.xyx * U.xyz);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.xx + p3.yz) * p3.zy);
+}
+
 vec2 hash23(const in vec3 seed) {
     vec3 p3 = fract(seed * U.xyz);
     p3 += dot(p3, p3.yzx + 33.33);

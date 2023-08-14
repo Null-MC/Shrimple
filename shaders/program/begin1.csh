@@ -59,7 +59,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #include "/lib/buffers/shadow.glsl"
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded.glsl"
+            #include "/lib/shadows/cascaded/common.glsl"
         #endif
     #endif
 #endif

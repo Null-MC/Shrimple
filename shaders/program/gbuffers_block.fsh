@@ -212,14 +212,14 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded.glsl"
-        #include "/lib/shadows/cascaded_render.glsl"
+        #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/render.glsl"
     #else
-        #include "/lib/shadows/basic.glsl"
-        #include "/lib/shadows/basic_render.glsl"
+        #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/render.glsl"
     #endif
 
-    #include "/lib/shadows/common_render.glsl"
+    #include "/lib/shadows/render.glsl"
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -347,7 +347,7 @@ void main() {
             GetMaterialSpecular(blockEntityId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
             porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            skyWetness = GetSkyWetness(worldPos, localNormal, lmcoord, blockEntityId);
+            skyWetness = GetSkyWetness(worldPos, localNormal, lmcoord);//, blockEntityId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC

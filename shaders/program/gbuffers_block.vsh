@@ -93,9 +93,9 @@ uniform vec3 cameraPosition;
     #include "/lib/shadows/common.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded.glsl"
+        #include "/lib/shadows/cascaded/common.glsl"
     #else
-        #include "/lib/shadows/basic.glsl"
+        #include "/lib/shadows/distorted/common.glsl"
     #endif
 #endif
 

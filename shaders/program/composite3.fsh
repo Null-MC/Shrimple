@@ -150,11 +150,11 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded.glsl"
-            #include "/lib/shadows/cascaded_render.glsl"
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
         #else
-            #include "/lib/shadows/basic.glsl"
-            #include "/lib/shadows/basic_render.glsl"
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
         #endif
     #endif
 #endif

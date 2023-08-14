@@ -1,13 +1,13 @@
-float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 lmcoord, const in int blockId) {
+float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 lmcoord) {//, const in int blockId) {
     //lmcoord = saturate((lmcoord - (0.5/16.0)) / (15.0/16.0));
 
     float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
 
     skyWetness *= smoothstep(0.0, 1.0, skyWetnessSmooth);//max(rainStrength, wetness);
 
-    #ifdef WORLD_WATER_ENABLED
-        if (blockId == BLOCK_WATER) return skyWetness;
-    #endif
+    // #ifdef WORLD_WATER_ENABLED
+    //     if (blockId == BLOCK_WATER) return skyWetness;
+    // #endif
 
     skyWetness *= sqrt(localNormal.y * 0.5 + 0.5);
 
@@ -38,82 +38,91 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
     #endif
 }
 
-void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in float skyWetness, const in float porosity, const in float puddleF) {
-    vec3 puddleNormal = vec3(0.0, 0.0, 1.0);
-
-    #if WORLD_WETNESS_PUDDLES != PUDDLES_PIXEL
-        float puddleF2 = smoothstep(0.6, 0.8, skyWetness);
-        float puddleHeight = pow(puddleF2, 0.06) / (puddleF2 + 8.0);
-
-        vec3 puddlePos = localPos.xzy;
-        puddlePos.z += saturate(puddleHeight);// * (1.0 - porosity);
-
-        vec3 nX = dFdx(puddlePos);
-        vec3 nY = dFdy(puddlePos);
-
-        if (abs(nX.z - nY.z) > EPSILON) {
-            vec3 puddleEdgeNormal = normalize(cross(nY, nX));
-            puddleEdgeNormal = mix(puddleEdgeNormal, vec3(0.0, 0.0, 1.0), _pow2(porosity));
-            puddleNormal = normalize(puddleEdgeNormal);
-        }
-    #endif
-
-    float mixF = smoothstep(0.0, 0.1, puddleF);
-    texNormal = mix(texNormal, puddleNormal, mixF);
-    texNormal = normalize(texNormal);
+void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float skyWetness, const in float puddleF) {
+    float saturation = max(skyWetness, 2.0 * puddleF) * sqrt(porosity);
+    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
 }
 
-vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float puddleF) {
-    //if (viewDist > 10.0) return;
+#if defined RENDER_GBUFFER
+    void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in float skyWetness, const in float porosity, const in float puddleF) {
+        vec3 puddleNormal = vec3(0.0, 0.0, 1.0);
 
-    float rippleTime = GetAnimationFactor() / 0.72;
+        #if WORLD_WETNESS_PUDDLES != PUDDLES_PIXEL
+            float puddleF2 = smoothstep(0.6, 0.8, skyWetness);
+            float puddleHeight = pow(puddleF2, 0.06) / (puddleF2 + 8.0);
 
-    // #if WORLD_WATER_PIXEL > 0
-    //     worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
-    //     vec2 rippleTex = worldPos.xz * (WORLD_WATER_PIXEL/96.0);
-    // #else
-        #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL || WORLD_WATER_PIXEL > 0
-            worldPos = floor(worldPos * 32.0) / 32.0;
+            vec3 puddlePos = localPos.xzy;
+            puddlePos.z += saturate(puddleHeight);// * (1.0 - porosity);
+
+            vec3 nX = dFdx(puddlePos);
+            vec3 nY = dFdy(puddlePos);
+
+            if (abs(nX.z - nY.z) > EPSILON) {
+                vec3 puddleEdgeNormal = normalize(cross(nY, nX));
+                puddleEdgeNormal = mix(puddleEdgeNormal, vec3(0.0, 0.0, 1.0), _pow2(porosity));
+                puddleNormal = normalize(puddleEdgeNormal);
+            }
         #endif
 
-        vec2 rippleTex = worldPos.xz * 0.3;
-    //#endif
+        float mixF = smoothstep(0.0, 0.1, puddleF);
+        texNormal = mix(texNormal, puddleNormal, mixF);
+        texNormal = normalize(texNormal);
+    }
 
-    vec3 rippleNormal;
-    rippleNormal.xy = texture(TEX_RIPPLES, vec3(rippleTex, rippleTime)).rg * 2.0 - 1.0;
-    rippleNormal.z = sqrt(max(1.0 - length2(rippleNormal.xy), EPSILON));
+    vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float puddleF) {
+        //if (viewDist > 10.0) return;
 
-    float rippleF = 1.0 - min(viewDist * 0.06, 1.0);
-    //rippleNormal = normalize(rippleNormal);
+        float rippleTime = GetAnimationFactor() / 0.72;
 
-    rippleF *= _pow2(puddleF) * rainStrength;
+        // #if WORLD_WATER_PIXEL > 0
+        //     worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+        //     vec2 rippleTex = worldPos.xz * (WORLD_WATER_PIXEL/96.0);
+        // #else
+            #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL || WORLD_WATER_PIXEL > 0
+                worldPos = floor(worldPos * 32.0) / 32.0;
+            #endif
 
-    return vec4(rippleNormal, rippleF);
-}
+            vec2 rippleTex = worldPos.xz * 0.3;
+        //#endif
 
-void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
-    // #ifdef PHYSICS_OCEAN
-    //     if (vBlockId == BLOCK_WATER) {
-    //         texNormal += rippleNormalStrength.xzy * rippleNormalStrength.w;
-    //     }
-    //     else {
-    // #endif
-            texNormal = mix(texNormal, rippleNormalStrength.xyz, rippleNormalStrength.w);
-    // #ifdef PHYSICS_OCEAN
-    //     }
-    // #endif
+        vec3 rippleNormal;
+        rippleNormal.xy = texture(TEX_RIPPLES, vec3(rippleTex, rippleTime)).rg * 2.0 - 1.0;
+        rippleNormal.z = sqrt(max(1.0 - length2(rippleNormal.xy), EPSILON));
 
-    texNormal = normalize(texNormal);
-}
+        float rippleF = 1.0 - min(viewDist * 0.06, 1.0);
+        //rippleNormal = normalize(rippleNormal);
 
-void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
-    float saturation = max(skyWetness, 0.8 * puddleF) * sqrt(porosity);
-    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
+        rippleF *= _pow2(puddleF) * rainStrength;
 
-    float surfaceWetness = saturate(2.0 * skyWetness - porosity);
-    surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));
+        return vec4(rippleNormal, rippleF);
+    }
 
-    float _roughL = _pow2(roughness);
-    _roughL = mix(_roughL, 0.06, surfaceWetness);
-    roughness = sqrt(_roughL);
-}
+    void ApplyWetnessRipples(inout vec3 texNormal, in vec4 rippleNormalStrength) {
+        // #ifdef PHYSICS_OCEAN
+        //     if (vBlockId == BLOCK_WATER) {
+        //         texNormal += rippleNormalStrength.xzy * rippleNormalStrength.w;
+        //     }
+        //     else {
+        // #endif
+                texNormal = mix(texNormal, rippleNormalStrength.xyz, rippleNormalStrength.w);
+        // #ifdef PHYSICS_OCEAN
+        //     }
+        // #endif
+
+        texNormal = normalize(texNormal);
+    }
+
+    void ApplySkyWetness(inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
+        float surfaceWetness = saturate(2.0 * skyWetness - porosity);
+        surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));
+
+        float _roughL = _pow2(roughness);
+        _roughL = mix(_roughL, 0.06, surfaceWetness);
+        roughness = sqrt(_roughL);
+    }
+
+    void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
+        ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
+        ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
+    }
+#endif

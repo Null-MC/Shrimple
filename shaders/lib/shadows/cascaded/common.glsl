@@ -18,20 +18,10 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
         bias += 0.0008 * SHADOW_PCF_SIZE_MAX;
     #endif
 
-    switch (cascade) {
-        case 0:
-            bias += 0.06;
-            break;
-        case 1:
-            bias += 0.10;
-            break;
-        case 2:
-            bias += 0.20;
-            break;
-        case 3:
-            bias += 0.30;
-            break;
-    }
+    const float cascadeNormalBias[] = float[]
+        (0.06, 0.10, 0.20, 0.30);
+
+    bias += cascadeNormalBias[cascade];
 
     return bias * max(1.0 - geoNoL, 0.0) * SHADOW_BIAS_SCALE;
 }
@@ -43,21 +33,10 @@ float GetShadowOffsetBias(const in int cascade) {
         bias += 0.001 * rcp(far * 3.0) * SHADOW_PCF_SIZE_MAX;
     #endif
 
-    switch (cascade) {
-        case 0:
-            bias += 0.000018;
-            break;
-        case 1:
-            bias += 0.000032;
-            break;
-        case 2:
-            bias += 0.000128;
-            break;
-        case 3:
-            bias += 0.000512;
-            break;
-    }
+    const float cascadeOffsetBias[] = float[]
+        (0.000018, 0.000032, 0.000128, 0.000512);
 
+    bias += cascadeOffsetBias[cascade];
     return bias * SHADOW_BIAS_SCALE;
 
     // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;

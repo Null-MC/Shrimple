@@ -92,6 +92,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
@@ -101,14 +102,14 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded.glsl"
-        #include "/lib/shadows/cascaded_render.glsl"
+        #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/render.glsl"
     #else
-        #include "/lib/shadows/basic.glsl"
-        #include "/lib/shadows/basic_render.glsl"
+        #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/render.glsl"
     #endif
 
-    #include "/lib/shadows/common_render.glsl"
+    #include "/lib/shadows/render.glsl"
 #endif
 
 

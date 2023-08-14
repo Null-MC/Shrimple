@@ -88,7 +88,7 @@ float GetBlockSSS(const in int blockId) {
             break;
         case BLOCK_LEAVES:
         case BLOCK_LEAVES_CHERRY:
-            sss = 0.4;
+            sss = 0.8;
             break;
         case BLOCK_SNOW:
             sss = 0.6;

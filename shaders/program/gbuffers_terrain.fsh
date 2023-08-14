@@ -200,14 +200,14 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded.glsl"
-        #include "/lib/shadows/cascaded_render.glsl"
+        #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/render.glsl"
     #else
-        #include "/lib/shadows/basic.glsl"
-        #include "/lib/shadows/basic_render.glsl"
+        #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/render.glsl"
     #endif
 
-    #include "/lib/shadows/common_render.glsl"
+    #include "/lib/shadows/render.glsl"
 #endif
 
 #include "/lib/material/normalmap.glsl"
@@ -264,11 +264,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
-
-    #ifdef DH_COMPAT_ENABLED
-        #include "/lib/post/saturation.glsl"
-        #include "/lib/post/tonemap.glsl"
-    #endif
 #endif
 
 
@@ -311,7 +306,7 @@ void main() {
             GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
             porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal, vBlockId);
+            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
@@ -468,11 +463,13 @@ void main() {
         ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        ApplySkyWetness(color.rgb, roughness, porosity, skyWetness, puddleF);
-    #endif
+    vec3 albedo = RGBToLinear(color.rgb);
 
     #ifdef DEFERRED_BUFFER_ENABLED
+        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+            ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
+        #endif
+
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
 
@@ -481,6 +478,8 @@ void main() {
         //     float dhFogF = GetFogFactor(dhFogDist, 0.6 * far, far, 1.0);
         //     color.a *= 1.0 - dhFogF;
         // #endif
+
+        color.rgb = LinearToRGB(albedo);
 
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
@@ -499,7 +498,10 @@ void main() {
             outDeferredRough = vec4(roughness, metal_f0, porosity, 1.0) + dither;
         #endif
     #else
-        vec3 albedo = RGBToLinear(color.rgb);
+        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
+        #endif
+
         float roughL = _pow2(roughness);
         
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE

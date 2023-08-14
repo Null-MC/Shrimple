@@ -92,15 +92,15 @@ const ivec3 workGroups = ivec3(16, 16, 16);
         #include "/lib/world/sky.glsl"
 
         #ifdef SHADOW_CLOUD_ENABLED
-            #include "/lib/shadows/common_render.glsl"
+            #include "/lib/shadows/render.glsl"
         #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded.glsl"
-            //#include "/lib/shadows/cascaded_render.glsl"
+            #include "/lib/shadows/cascaded/common.glsl"
+            //#include "/lib/shadows/cascaded/render.glsl"
         #else
-            #include "/lib/shadows/basic.glsl"
-            //#include "/lib/shadows/basic_render.glsl"
+            #include "/lib/shadows/distorted/common.glsl"
+            //#include "/lib/shadows/distorted/render.glsl"
         #endif
     #endif
 #endif
