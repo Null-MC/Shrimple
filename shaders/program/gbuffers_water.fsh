@@ -300,9 +300,9 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
-    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-        #include "/lib/lighting/ssr.glsl"
-    #endif
+    // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    //     #include "/lib/lighting/ssr.glsl"
+    // #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
         #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
@@ -323,11 +323,6 @@ uniform int heldBlockLightValue2;
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/volumetric_fog.glsl"
-    #endif
-
-    #ifdef DH_COMPAT_ENABLED
-        #include "/lib/post/saturation.glsl"
-        #include "/lib/post/tonemap.glsl"
     #endif
 #endif
 

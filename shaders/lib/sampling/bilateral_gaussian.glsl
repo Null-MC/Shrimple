@@ -5,8 +5,8 @@ float Gaussian(const in float sigma, const in float x) {
 float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float linearDepth, const in float g_sigmaV) {
     //float g_sigmaV = 0.03 * _pow2(sigmaV) + 0.1;
 
-    float g_sigmaX = 3.0;
-    float g_sigmaY = 3.0;
+    float g_sigmaX = 9.0;
+    float g_sigmaY = 9.0;
 
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
@@ -22,7 +22,7 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in sampler2D b
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigmaX, ix);
             
-            vec2 sampleTex = texcoord + vec2(ix, iy) * blendPixelSize;
+            vec2 sampleTex = texcoord + vec2(ix, iy) * blendPixelSize * 2.0;
 
             ivec2 iTexBlend = ivec2(sampleTex * blendTexSize);
             float sampleValue = texelFetch(blendSampler, iTexBlend, 0).r;
