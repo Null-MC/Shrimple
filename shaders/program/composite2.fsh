@@ -428,9 +428,11 @@ layout(location = 0) out vec4 outFinal;
                     puddleF = 1.0;
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        vec3 shadowViewPos = mat3(shadowModelViewEx) * (localPos + cameraPosition);
-
                         float causticTime = 0.5 * frameTimeCounter;
+
+                        vec3 shadowViewPos = localPos + cameraPosition + vec3(4.0, 1.0, 0.0) * Water_WaveStrength * causticTime;
+                        shadowViewPos = mat3(shadowModelViewEx) * shadowViewPos;
+
                         vec3 causticCoord = vec3(0.1/Water_WaveStrength * shadowViewPos.xy, causticTime);
                         float causticLight = textureLod(texCaustics, causticCoord.yxz, 0).r;
                         causticLight = RGBToLinear(causticLight);
