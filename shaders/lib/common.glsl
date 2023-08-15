@@ -103,6 +103,7 @@ const bool colortex15Clear = true;
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
 #define WATER_DISPLACEMENT
+#define WATER_CAUSTICS
 
 #define WATER_BLUR
 #define WATER_BLUR_SCALE 12.0
@@ -393,6 +394,8 @@ const bool colortex15Clear = true;
 #ifdef WORLD_WETNESS_ENABLED
 #endif
 #ifdef WORLD_AO_ENABLED
+#endif
+#ifdef WATER_CAUSTICS
 #endif
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif

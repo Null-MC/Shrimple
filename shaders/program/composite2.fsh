@@ -20,6 +20,10 @@ uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
+#if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    uniform sampler3D texCaustics;
+#endif
+
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     uniform sampler2D BUFFER_ROUGHNESS;
     uniform sampler2D BUFFER_BLOCK_SPECULAR;
@@ -172,6 +176,10 @@ uniform int heldBlockLightValue2;
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/world/wetness.glsl"
     #endif
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
 #endif
 
 #include "/lib/lights.glsl"
@@ -398,9 +406,42 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
-                if (
-                    (isEyeInWater != 1 && depthTranslucent < depthOpaque) ||
-                    (isEyeInWater == 1 && depthOpaque <= depthTranslucent)) puddleF = 1.0;
+                // float waterDepth = isEyeInWater == 1
+                //     ? depthOpaque <= depthTranslucent
+                //     : depthTranslucent < depthOpaque;
+
+                // TODO: this needs to be linear!
+                float waterDepth = 0.0;
+                if (isEyeInWater == 1) {
+                    if (depthOpaque <= depthTranslucent)
+                        waterDepth = depthTranslucent;
+                }
+                else {
+                    waterDepth = depthOpaque - depthTranslucent;
+                }
+
+                bool hasWaterDepth = isEyeInWater == 1
+                    ? depthOpaque <= depthTranslucent
+                    : depthTranslucent < depthOpaque;
+
+                if (hasWaterDepth) {
+                    puddleF = 1.0;
+
+                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+                        vec3 shadowViewPos = mat3(shadowModelViewEx) * (localPos + cameraPosition);
+
+                        float causticTime = 0.5 * frameTimeCounter;
+                        vec3 causticCoord = vec3(0.1/Water_WaveStrength * shadowViewPos.xy, causticTime);
+                        float causticLight = textureLod(texCaustics, causticCoord.yxz, 0).r;
+                        causticLight = RGBToLinear(causticLight);
+                        causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+
+                        float causticStrength = Water_CausticStrength;
+                        causticStrength *= max(1.0 - viewDist/waterDensitySmooth, 0.0);
+
+                        deferredShadow *= 0.3 + 0.7*mix(1.0, causticLight, causticStrength);
+                    #endif
+                }
             #endif
 
             #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED

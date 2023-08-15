@@ -83,6 +83,10 @@ value.WORLD_WATER_PIXEL.32=32x
 value.WORLD_WATER_PIXEL.64=64x
 value.WORLD_WATER_PIXEL.128=128x
 
+option.WATER_CAUSTICS=Caustics
+
+option.WATER_BLUR=Blur
+
 
 screen.MATERIAL_OPTIONS=Materials
 

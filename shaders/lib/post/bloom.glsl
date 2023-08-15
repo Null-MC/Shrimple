@@ -29,18 +29,6 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
     boundsMax = max(boundsMax - pixelSize, center);
 }
 
-// int GetBloomTileOuterIndex(const in vec2 screenSize, const in vec2 texcoord, const in int tileCount) {
-//     vec2 tileMin, tileMax;
-//     for (int i = 0; i < tileCount; i++) {
-//         GetBloomTileOuterBounds(screenSize, i, tileMin, tileMax);
-
-//         if (texcoord.x > tileMin.x && texcoord.x <= tileMax.x
-//          && texcoord.y > tileMin.y && texcoord.y <= tileMax.y) return i;
-//     }
-
-//     return -1;
-// }
-
 #ifdef RENDER_VERTEX
     void UpdateTileVertexBounds(const in int tile) {
         vec2 halfPixelSize = 0.5*pixelSize;
