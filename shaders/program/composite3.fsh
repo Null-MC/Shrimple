@@ -13,6 +13,10 @@ uniform sampler2D noisetex;
 
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
 
+#if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    uniform sampler3D texCaustics;
+#endif
+
 #if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
@@ -136,6 +140,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
+
+    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+        #include "/lib/lighting/caustics.glsl"
+    #endif
 #endif
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED

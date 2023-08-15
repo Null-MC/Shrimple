@@ -180,6 +180,10 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
+
+    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+        #include "/lib/lighting/caustics.glsl"
+    #endif
 #endif
 
 #include "/lib/lights.glsl"
@@ -317,6 +321,7 @@ layout(location = 0) out vec4 outFinal;
         // }
 
         float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+        float linearDepthTranslucent = linearizeDepthFast(depthTranslucent, near, far);
         vec3 final;
 
         #ifdef DH_COMPAT_ENABLED
@@ -414,10 +419,10 @@ layout(location = 0) out vec4 outFinal;
                 float waterDepth = 0.0;
                 if (isEyeInWater == 1) {
                     if (depthOpaque <= depthTranslucent)
-                        waterDepth = depthTranslucent;
+                        waterDepth = 1.0;
                 }
                 else {
-                    waterDepth = depthOpaque - depthTranslucent;
+                    waterDepth = 1.0;
                 }
 
                 bool hasWaterDepth = isEyeInWater == 1
@@ -428,18 +433,12 @@ layout(location = 0) out vec4 outFinal;
                     puddleF = 1.0;
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        float causticTime = 0.5 * frameTimeCounter;
-
-                        vec3 shadowViewPos = localPos + cameraPosition + vec3(4.0, 1.0, 0.0) * Water_WaveStrength * causticTime;
-                        shadowViewPos = mat3(shadowModelViewEx) * shadowViewPos;
-
-                        vec3 causticCoord = vec3(0.1/Water_WaveStrength * shadowViewPos.xy, causticTime);
-                        float causticLight = textureLod(texCaustics, causticCoord.yxz, 0).r;
-                        causticLight = RGBToLinear(causticLight);
+                        float causticLight = SampleWaterCaustics(localPos);
                         causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
 
                         float causticStrength = Water_CausticStrength;
-                        causticStrength *= max(1.0 - viewDist/waterDensitySmooth, 0.0);
+                        //causticStrength *= min(waterDepth*0.5, 1.0);
+                        //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
 
                         deferredShadow *= 0.3 + 0.7*mix(1.0, causticLight, causticStrength);
                     #endif

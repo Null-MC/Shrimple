@@ -219,7 +219,19 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            if (isWater) sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
+            #ifndef RENDER_WEATHER
+                if (isWater) {
+                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+                        // TODO: replace traceLocalPos with water surface pos
+
+                        float causticLight = SampleWaterCaustics(traceLocalPos);
+                        causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+                        sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, Water_CausticStrength);
+                    #endif
+
+                    sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
+                }
+            #endif
 
             #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
                 if (traceLocalPos.y < 192.0) {
