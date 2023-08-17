@@ -9,6 +9,11 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_FINAL;
 
+#if EFFECT_BLOOM_HAND != 100
+    uniform sampler2D depthtex1;
+    uniform sampler2D depthtex2;
+#endif
+
 uniform ivec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
@@ -50,6 +55,13 @@ void main() {
     float contribution = pow(brightness, power);
     //contribution /= max(brightness, EPSILON);
     color *= min(contribution, 1.0);
+
+    #if EFFECT_BLOOM_HAND != 100
+        float depth1 = textureLod(depthtex1, texcoord, 0).r;
+        float depth2 = textureLod(depthtex2, texcoord, 0).r;
+
+        if (depth1 < depth2) color *= Bloom_HandStrength;
+    #endif
 
     color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
 

@@ -1,5 +1,5 @@
 float SampleWaterCaustics(const in vec3 localPos) {
-    float causticTime = 0.5 * frameTimeCounter;
+    float causticTime = 0.5 * GetAnimationFactor();
 
     vec3 shadowViewPos = localPos + fract(cameraPosition*0.01)*100.0 + vec3(1.0, 0.25, 0.0) * Water_WaveStrength * causticTime;
     shadowViewPos = mat3(shadowModelViewEx) * shadowViewPos;

@@ -167,6 +167,9 @@ option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
+option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Smooth Shadows
+option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows when smooth POM is enabled.
+
 
 screen.MATERIAL_POROSITY_OPTIONS=Porosity
 screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
@@ -525,6 +528,10 @@ suffix.EFFECT_BLOOM_POWER=x
 option.EFFECT_BLOOM_THRESHOLD=Threshold
 option.EFFECT_BLOOM_THRESHOLD.comment=The brightness threshold light needs to exceed to contribute to bloom.
 suffix.EFFECT_BLOOM_THRESHOLD=%
+
+option.EFFECT_BLOOM_HAND=Hand Strength
+option.EFFECT_BLOOM_HAND.comment=Determines the strength of bloom from in-hand items/blocks.
+suffix.EFFECT_BLOOM_HAND=%
 
 
 screen.EFFECT_BLUR_OPTIONS=Blur

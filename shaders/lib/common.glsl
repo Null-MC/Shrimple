@@ -124,6 +124,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
+//#define MATERIAL_PARALLAX_SHADOW_SMOOTH
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
@@ -247,6 +248,7 @@ const bool colortex15Clear = true;
 #define EFFECT_BLOOM_STRENGTH 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define EFFECT_BLOOM_THRESHOLD 1200 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
 #define EFFECT_BLOOM_POWER 4 // [1 2 4 6 8 12 16 20 24]
+#define EFFECT_BLOOM_HAND 20 // [0 10 20 30 40 50 60 70 80 90 100]
 #define EFFECT_BLOOM_TILE_MAX 6
 
 #define DIST_BLUR_MODE 0 // [0 1 2]
@@ -399,6 +401,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif
+#ifdef MATERIAL_PARALLAX_SHADOW_SMOOTH
+#endif
 #ifdef SHADOW_BLUR
 #endif
 #ifdef SHADOW_COLORED
@@ -481,6 +485,7 @@ const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 //const float PostBloomThresholdF = EFFECT_BLOOM_THRESHOLD * 0.01;
+const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
 const float invPI = 1.0 / PI;

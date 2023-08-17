@@ -6,24 +6,19 @@ float GetShadowOffsetBias() {
     return (0.00004 * SHADOW_BIAS_SCALE);
 }
 
-// euclidian distance is defined as sqrt(a^2 + b^2 + ...)
-// this length function instead does cbrt(a^3 + b^3 + ...)
-// this results in smaller distances along the diagonal axes.
+vec3 distort(const in vec3 pos) {
+    float factor = maxOf(abs(pos.xy)) + SHADOW_DISTORT_FACTOR;
 
-float cubeLength(const in vec2 v) {
-    return pow(abs(v.x * v.x * v.x) + abs(v.y * v.y * v.y), (1.0/3.0));
+    //float factor = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+
+    return vec3((pos.xy / factor) * (1.0 + SHADOW_DISTORT_FACTOR), pos.z * 0.5);
 }
 
-float getDistortFactor(const in vec2 v) {
-    return cubeLength(v) + SHADOW_DISTORT_FACTOR;
-}
+float computeBias(vec3 pos) {
+    const float SHADOW_DISTORTED_BIAS = 1.0;
 
-vec3 distort(const in vec3 v, const in float factor) {
-    return vec3(v.xy / factor, v.z);
-}
-
-vec3 distort(const in vec3 v) {
-    return distort(v, getDistortFactor(v.xy));
+    float numerator = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+    return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / SHADOW_DISTORT_FACTOR;
 }
 
 #if defined RENDER_VERTEX && !defined RENDER_SHADOW

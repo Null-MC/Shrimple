@@ -28,7 +28,7 @@ uniform sampler2D TEX_LIGHTMAP;
 // #endif
 
 uniform float frameTime;
-uniform float frameTimeCounter;
+//uniform float frameTimeCounter;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -50,6 +50,12 @@ uniform vec3 upPosition;
 uniform vec3 fogColor;
 
 uniform float blindness;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;

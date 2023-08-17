@@ -92,11 +92,13 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
     int i;
     float shadow = 1.0;
-    for (i = 1; i + skip < MATERIAL_PARALLAX_SHADOW_SAMPLES && shadow > 0.001; i++) {
+    for (i = 1; i + skip < MATERIAL_PARALLAX_SHADOW_SAMPLES; i++) {
+        if (shadow < 0.001) break;
+
         float traceDepth = traceTex.z + i * stepDepth;
         vec2 localCoord = traceTex.xy + i * stepCoord;
 
-        #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
+        #if MATERIAL_PARALLAX == PARALLAX_SMOOTH && defined MATERIAL_PARALLAX_SHADOW_SMOOTH
             vec2 uv[4];
             vec2 atlasTileSize = atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localCoord, atlasTileSize, uv);

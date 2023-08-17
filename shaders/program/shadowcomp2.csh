@@ -19,7 +19,13 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform float far;
 
     #ifdef DYN_LIGHT_FLICKER
-        uniform float frameTimeCounter;
+        //uniform float frameTimeCounter;
+
+        #ifdef ANIM_WORLD_TIME
+            uniform int worldTime;
+        #else
+            uniform float frameTimeCounter;
+        #endif
     #endif
     
     #if LPV_SIZE > 0

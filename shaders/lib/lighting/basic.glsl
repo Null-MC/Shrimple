@@ -396,9 +396,15 @@
             // #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             //     diffuse *= blackbody(TEMP_FIRE);
             // #endif
+            
+            #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+                vec3 final = vec3(WHITEWORLD_VALUE);
+            #else
+                vec3 final = albedo;
+            #endif
 
             // TODO: handle specular occlusion
-            return albedo * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
+            return final * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
         }
     #endif
 #endif

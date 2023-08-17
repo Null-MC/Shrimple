@@ -55,7 +55,13 @@ const ivec3 workGroups = ivec3(16, 16, 16);
     uniform vec3 previousCameraPosition;
 
     #ifdef DYN_LIGHT_FLICKER
-        uniform float frameTimeCounter;
+        //uniform float frameTimeCounter;
+
+        #ifdef ANIM_WORLD_TIME
+            uniform int worldTime;
+        #else
+            uniform float frameTimeCounter;
+        #endif
     #endif
 
     #include "/lib/blocks.glsl"
@@ -320,14 +326,18 @@ void main() {
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
                             #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                float bounceF = (1.0/6.0) * (
-                                    GetLpvBounceF(voxelPos, ivec3( 1, 0, 0)) +
-                                    GetLpvBounceF(voxelPos, ivec3(-1, 0, 0)) +
-                                    GetLpvBounceF(voxelPos, ivec3( 0, 1, 0)) +
-                                    GetLpvBounceF(voxelPos, ivec3( 0,-1, 0)) +
-                                    GetLpvBounceF(voxelPos, ivec3( 0, 0, 1)) +
-                                    GetLpvBounceF(voxelPos, ivec3( 0, 0,-1))
-                                );
+                                vec3 bounceDir = sign(-localSunDirection);
+
+                                // float bounceF = (1.0/6.0) * (
+                                //     GetLpvBounceF(voxelPos, ivec3( 1, 0, 0)) +
+                                //     GetLpvBounceF(voxelPos, ivec3(-1, 0, 0)) +
+                                //     GetLpvBounceF(voxelPos, ivec3( 0, 1, 0)) +
+                                //     GetLpvBounceF(voxelPos, ivec3( 0,-1, 0)) +
+                                //     GetLpvBounceF(voxelPos, ivec3( 0, 0, 1)) +
+                                //     GetLpvBounceF(voxelPos, ivec3( 0, 0,-1))
+                                // );
+
+                                float bounceF = GetLpvBounceF(voxelPos, ivec3(sign(-localSunDirection)));
 
                                 vec3 shadowColor = SampleShadow(blockLocalPos, localSunDirection) * bounceF;
 

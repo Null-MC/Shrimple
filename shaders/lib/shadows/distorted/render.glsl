@@ -84,11 +84,11 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
         vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
 
-        float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
+        //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
         float maxRes = shadowMapSize / SHADOW_DISTORT_FACTOR;
 
         vec2 pixelPerBlockScale = maxRes / shadowProjectionSize;
-        return blockRadius * pixelPerBlockScale * shadowPixelSize * (1.0 - distortFactor);
+        return blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
     }
 #endif
 

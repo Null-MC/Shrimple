@@ -109,6 +109,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
         texDepth = SampleDepthTiles(depthtex, (currPos) / viewSize, level);
 
+        //float minTraceDepth = min(tracePos.z, lastTracePos.z);
         float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
         float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
