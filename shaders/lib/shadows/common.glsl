@@ -75,7 +75,8 @@ mat4 BuildShadowProjectionMatrix() {
 
         vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
         camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
-        vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
+        vec3 vertexWorldPos = localPos + camOffset;
+        vertexWorldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
         float cloudHeightDifference = 192.2 - vertexWorldPos.y;
 
         vec3 lightWorldDir = skyLightDir / skyLightDir.y;

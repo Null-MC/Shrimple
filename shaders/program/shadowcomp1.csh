@@ -68,6 +68,7 @@ const ivec3 workGroups = ivec3(16, 16, 16);
     #include "/lib/lights.glsl"
     #include "/lib/anim.glsl"
 
+    #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/volume.glsl"
 
@@ -89,7 +90,6 @@ const ivec3 workGroups = ivec3(16, 16, 16);
     #include "/lib/lighting/voxel/tinting.glsl"
 
     #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/buffers/scene.glsl"
         #include "/lib/buffers/shadow.glsl"
 
         #include "/lib/sampling/noise.glsl"

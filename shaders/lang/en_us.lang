@@ -563,6 +563,8 @@ option.POST_SATURATION=Saturation
 option.POST_SATURATION.comment=The saturation of the final image.
 suffix.POST_SATURATION=%
 
+option.POST_EXPOSURE=Exposure
+
 option.GAMMA_OUT=Gamma
 option.GAMMA_OUT.comment=The gamma curve of the final image.
 
