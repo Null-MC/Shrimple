@@ -44,6 +44,10 @@ void main() {
     #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         color = RGBToLinear(color);
     #endif
+    
+    #if POST_EXPOSURE != 0
+        color *= exp2(POST_EXPOSURE);
+    #endif
 
     float power = EFFECT_BLOOM_POWER;
     if (isEyeInWater == 1) power = 1.0;

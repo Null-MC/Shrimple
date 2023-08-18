@@ -255,7 +255,7 @@ void main() {
         vec3 diffuse, specular = vec3(0.0);
         GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, shadowColor);
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
+        #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
             specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo, shadowColor, lmcoord, metal_f0, roughL);
         #endif

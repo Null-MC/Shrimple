@@ -337,7 +337,8 @@ void main() {
         return;
     }
 
-    vec3 albedo = RGBToLinear(color.rgb) * RGBToLinear(glcolor.rgb);
+    color.rgb *= glcolor.rgb;
+    vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
 
     // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID) color.rgb = vec3(0.0, 0.0, 1.0);
@@ -506,7 +507,7 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
 
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
+            #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 

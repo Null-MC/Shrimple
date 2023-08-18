@@ -64,6 +64,10 @@ void ApplyPostProcessing(inout vec3 color) {
         color *= mix(1.0, 3.0, pow(brightF, 1.5));
     #endif
 
+    #if POST_EXPOSURE != 0
+        color *= exp2(POST_EXPOSURE);
+    #endif
+
     #if POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);
         color = tonemap_Lottes(0.6 * color);
