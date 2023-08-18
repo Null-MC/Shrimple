@@ -59,38 +59,38 @@ mat4 BuildShadowProjectionMatrix() {
     return BuildOrthoProjectionMatrix(maxDist, maxDist, -far, far);
 }
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !defined RENDER_SHADOW
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !(defined RENDER_SHADOW || defined RENDER_CLOUDS)
     // out vec3 cloudPos;
     // uniform float cloudTime;
     // #if defined RENDER_BASIC || defined RENDER_TEXTURED || defined RENDER_CLOUDS || defined RENDER_PARTICLES || defined RENDER_WEATHER
     //  uniform vec3 eyePosition;
     // #endif
 
-    vec3 GetCloudShadowPosition(const in vec3 localPos, const in vec3 skyLightDir) {
-        const float irisCamWrap = 1024.0;
+    // vec3 GetCloudShadowPosition(const in vec3 localPos, const in vec3 skyLightDir) {
+    //     const float irisCamWrap = 1024.0;
 
-        vec2 cloudOffset = vec2(-cloudTime/12.0, 0.33);
-        cloudOffset = mod(cloudOffset, vec2(256.0));
-        cloudOffset = mod(cloudOffset + 256.0, vec2(256.0));
+    //     vec2 cloudOffset = GetCloudOffset();
+    //     vec3 camOffset = GetCloudCameraOffset();
 
-        vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
-        camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
-        vec3 vertexWorldPos = localPos + camOffset;
-        vertexWorldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
-        float cloudHeightDifference = 192.2 - vertexWorldPos.y;
+    //     vec3 vertexWorldPos = localPos + camOffset;
+    //     vertexWorldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
+    //     float cloudHeightDifference = 192.2 - vertexWorldPos.y;
 
-        vec3 lightWorldDir = skyLightDir / skyLightDir.y;
-        cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-        cloudPos.xy *= rcp(256.0);
+    //     vec3 lightWorldDir = skyLightDir / skyLightDir.y;
+    //     cloudPos = vec3((vertexWorldPos.xz + lightWorldDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+    //     cloudPos.xy *= rcp(256.0);
 
-        return cloudPos;
-    }
+    //     return cloudPos;
+    // }
 
     void ApplyCloudShadows(const in vec3 localPos) {
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
 
-        cloudPos = GetCloudShadowPosition(localPos, localSkyLightDirection);
+        vec2 cloudOffset = GetCloudOffset();
+        vec3 camOffset = GetCloudCameraOffset();
+        vec3 worldPos = localPos + camOffset;
+        cloudPos = GetCloudShadowPosition(worldPos, localSkyLightDirection, cloudOffset);
     }
 #endif

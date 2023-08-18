@@ -43,7 +43,7 @@
 
                 ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
 
-                #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+                #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
                     ApplyCloudShadows(vLocalPos);
                 #endif
             #endif

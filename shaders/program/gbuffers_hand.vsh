@@ -98,6 +98,11 @@ uniform int heldBlockLightValue2;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+
 	#include "/lib/shadows/common.glsl"
 
 	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED

@@ -171,8 +171,8 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_OVERLAP
 
 #define SHADOW_CLOUD_ENABLED
-#define SHADOW_CLOUD_RADIUS 3.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
-#define SHADOW_CLOUD_BRIGHTNESS 40 // [0 10 20 30 40 50 60 70 80 90 100]
+#define SHADOW_CLOUD_RADIUS 1.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0 5.0 6.0 8.0]
+#define SHADOW_CLOUD_BRIGHTNESS 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
 // Dynamic Lighting
@@ -269,7 +269,7 @@ const bool colortex15Clear = true;
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.2 3.4 3.6]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define POST_EXPOSURE 0 // [-4.0 -3.0 -2.0 -1.5 -1.0 -0.5 0.0 0.5 1.0 1.5 2.0 3.0 4.0]
+#define POST_EXPOSURE 0.0 // [-4.0 -3.0 -2.0 -1.5 -1.0 -0.5 0.0 0.5 1.0 1.5 2.0 3.0 4.0]
 
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]

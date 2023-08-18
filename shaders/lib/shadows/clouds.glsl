@@ -8,94 +8,111 @@ vec2 GetCloudOffset() {
 
 vec3 GetCloudCameraOffset() {
     const float irisCamWrap = 1024.0;
+
     vec3 camOffset = (mod(cameraPosition.xyz, irisCamWrap) + min(sign(cameraPosition.xyz), 0.0) * irisCamWrap) - (mod(eyePosition.xyz, irisCamWrap) + min(sign(eyePosition.xyz), 0.0) * irisCamWrap);
     camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
     return camOffset;
 }
 
-float SampleClouds(const in vec3 localPos, const in vec3 localDir, const in vec2 cloudOffset, const in vec3 camOffset, const in float roughness) {
-    vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-    float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in vec2 cloudOffset) {
+    //vec3 vertexWorldPos = localPos + camOffset;
+    worldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
+    worldPos.y += eyePosition.y;
 
-    vec3 cloudTexPos = vec3((vertexWorldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+    float cloudHeightDifference = 192.0 - worldPos.y;
+
+    vec3 cloudTexPos = vec3((worldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     cloudTexPos.xy *= rcp(256.0);
+    return cloudTexPos;
+}
 
-    const int maxLod = int(log2(256));
-    float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, roughness * maxLod).a;
+#ifndef RENDER_VERTEX
+    float SampleClouds(const in vec3 localPos, const in vec3 localDir, const in vec2 cloudOffset, const in vec3 camOffset, const in float roughness) {
+        vec3 vertexWorldPos = localPos + camOffset;
+        vec3 cloudTexPos = GetCloudShadowPosition(vertexWorldPos, localDir, cloudOffset);
 
-    //cloudF *= step(0.0, cloudTexPos.z);
-    //cloudF *= step(0.0, localDir.y);
+        float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
-    #if WORLD_FOG_MODE != FOG_MODE_NONE
-        vec3 cloudLocalPos = localPos;
-        //vec3 localViewDir = normalize(localPos);
+        const int maxLod = int(log2(256));
+        float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, roughness * maxLod).a;
 
-        cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
-        cloudLocalPos.y = 192.0;
+        //cloudF *= step(0.0, cloudTexPos.z);
+        //cloudF *= step(0.0, localDir.y);
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            float fogDist = GetVanillaFogDistance(cloudLocalPos);
+        #if WORLD_FOG_MODE != FOG_MODE_NONE
+            vec3 cloudLocalPos = localPos;
+            //vec3 localViewDir = normalize(localPos);
 
-            #ifdef IS_IRIS
-                fogDist *= 0.5;
+            cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
+            cloudLocalPos.y = 192.0;
+
+            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                float fogDist = GetVanillaFogDistance(cloudLocalPos);
+
+                #ifdef IS_IRIS
+                    fogDist *= 0.5;
+                #endif
+
+                float fogF = GetCustomSkyFogFactor(fogDist);
+                cloudF *= 1.0 - fogF;
+            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                vec3 fogPos = cloudLocalPos;
+                if (fogShape == 1) fogPos.y = 0.0;
+
+                float viewDist = length(fogPos);
+
+                float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
+                cloudF *= 1.0 - fogF;
             #endif
-
-            float fogF = GetCustomSkyFogFactor(fogDist);
-            cloudF *= 1.0 - fogF;
-        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-            vec3 fogPos = cloudLocalPos;
-            if (fogShape == 1) fogPos.y = 0.0;
-
-            float viewDist = length(fogPos);
-
-            float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
-            cloudF *= 1.0 - fogF;
         #endif
-    #endif
 
-    return cloudF;
-}
+        return cloudF;
+    }
 
-float SampleCloudShadow(const in vec3 localPos, const in vec3 localDir, const in vec2 cloudOffset, const in vec3 camOffset) {
-    // TODO: unduplicate this from above!
-	vec3 vertexWorldPos = localPos + mod(eyePosition, 3072.0) + camOffset; // 3072 is one full cloud pattern
-	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+    float SampleCloudShadow(const in vec3 localPos, const in vec3 localDir, const in vec2 cloudOffset, const in vec3 camOffset) {
+        // TODO: unduplicate this from above!
+    	vec3 vertexWorldPos = localPos + camOffset;
+        vertexWorldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
+        vertexWorldPos.y += eyePosition.y;
 
-	// vec3 cloudTexPos = vec3((vertexWorldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
-	// cloudTexPos.xy *= rcp(256.0);
+    	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
 
-    // float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, 0).a;
+    	// vec3 cloudTexPos = vec3((vertexWorldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
+    	// cloudTexPos.xy *= rcp(256.0);
 
-    // cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudTexPos.z);
-    float cloudF = SampleClouds(localPos, localDir, cloudOffset, camOffset, 0.0);
-    cloudF = 1.0 - 0.5 * cloudF;
+        // float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, 0).a;
 
-    float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+        // cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudTexPos.z);
+        float cloudF = SampleClouds(localPos, localDir, cloudOffset, camOffset, 0.0);
+        cloudF = 1.0 - 0.5 * cloudF;
 
-    // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-    //     vec3 cloudLocalPos = localPos;
-    //     //vec3 localViewDir = normalize(localPos);
+        float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
 
-    //     cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
-    //     cloudLocalPos.y = 192.0;
+        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        //     vec3 cloudLocalPos = localPos;
+        //     //vec3 localViewDir = normalize(localPos);
 
-    //     float fogDist = GetVanillaFogDistance(cloudLocalPos);
+        //     cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
+        //     cloudLocalPos.y = 192.0;
 
-    //     #ifdef IS_IRIS
-    //         fogDist *= 0.5;
-    //     #endif
+        //     float fogDist = GetVanillaFogDistance(cloudLocalPos);
 
-    //     float fogF = GetCustomSkyFogFactor(fogDist);
-    //     cloudShadow *= 1.0 - fogF;
-    // #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-    //     vec3 fogPos = localPos;
-    //     if (fogShape == 1) fogPos.y = 0.0;
+        //     #ifdef IS_IRIS
+        //         fogDist *= 0.5;
+        //     #endif
 
-    //     float viewDist = length(fogPos);
+        //     float fogF = GetCustomSkyFogFactor(fogDist);
+        //     cloudShadow *= 1.0 - fogF;
+        // #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+        //     vec3 fogPos = localPos;
+        //     if (fogShape == 1) fogPos.y = 0.0;
 
-    //     float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
-    //     cloudShadow *= 1.0 - fogF;
-    // #endif
+        //     float viewDist = length(fogPos);
 
-    return 1.0 - cloudShadow;
-}
+        //     float fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
+        //     cloudShadow *= 1.0 - fogF;
+        // #endif
+
+        return 1.0 - cloudShadow;
+    }
+#endif
