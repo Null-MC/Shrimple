@@ -626,7 +626,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #ifdef WORLD_SKY_ENABLED
                     vec3 shadowPos = vec3(0.0);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
+                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
                 #endif
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE

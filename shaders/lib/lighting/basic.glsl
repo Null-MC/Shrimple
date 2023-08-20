@@ -194,7 +194,7 @@
     //#endif
 
     #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
+        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
             vec3 localViewDir = -normalize(localPos);
 
             #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -369,7 +369,7 @@
                     vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
                     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-                    vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+                    vec3 skyReflectF = tir ? vec3(1.0) : GetReflectiveness(skyNoVm, f0, roughL);
 
                     #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                         skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
@@ -384,6 +384,10 @@
             #endif
 
             skyDiffuse += accumDiffuse;
+        }
+
+        void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, false);
         }
     #endif
 

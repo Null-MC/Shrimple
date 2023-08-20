@@ -217,6 +217,8 @@ option.REFRACTION_STRENGTH.suffix=%
 
 option.REFRACTION_BLUR=Blur
 
+option.REFRACTION_SNELL=TIR/Snells Window
+
 
 screen.LIGHTING_OPTIONS=Lighting
 

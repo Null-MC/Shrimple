@@ -402,8 +402,16 @@ layout(location = 0) out vec4 outFinal;
                 refractMax.x *= viewWidth / viewHeight;
                 refraction = clamp(vec2(0.1 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
 
-                #ifdef REFRACTION_SNELL_ENABLED
-                    tir = all(lessThan(abs(refractDir), EPSILON3));
+                #ifdef REFRACTION_SNELL
+                    if (isEyeInWater == 1) {
+                        texViewNormal = mat3(gbufferModelView) * texNormal;
+
+                        refractEta = (IOR_WATER/IOR_AIR);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                        refractViewDir = normalize(viewPos);
+                        refractDir = refract(refractViewDir, texViewNormal, refractEta);
+
+                        tir = all(lessThan(abs(refractDir), EPSILON3));
+                    }
                 #endif
             #endif
 
@@ -601,7 +609,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #ifdef WORLD_SKY_ENABLED
                     vec3 shadowPos = vec3(0.0);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
+                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -687,8 +695,10 @@ layout(location = 0) out vec4 outFinal;
         //     opaqueFinal = RGBToLinear(opaqueFinal);
         // #endif
 
-        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL_ENABLED
-            if (tir) opaqueFinal = fogColorFinal;
+        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL
+            if (tir) {
+                opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
+            }
         #endif
 
         // #ifdef DH_COMPAT_ENABLED
