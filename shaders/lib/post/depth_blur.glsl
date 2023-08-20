@@ -11,10 +11,12 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
     return saturate(abs(coc) * DepthOfFieldFocusScale);
 }
 
-float GetWaterDistF(const in float viewDist) {
-    float waterDistF = min(viewDist / waterDensitySmooth, 1.0);
-    return pow(waterDistF, 1.5);
-}
+#ifdef WORLD_WATER_ENABLED
+    float GetWaterDistF(const in float viewDist) {
+        float waterDistF = min(viewDist / waterDensitySmooth, 1.0);
+        return pow(waterDistF, 1.5);
+    }
+#endif
 
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
     vec2 viewSize = vec2(viewWidth, viewHeight);
@@ -38,7 +40,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         }
     #endif
 
-    #ifdef WATER_BLUR
+    #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
         if (isWater) {
             float waterDistF = GetWaterDistF(viewDist);
             distF = max(distF, waterDistF);
@@ -100,7 +102,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             }
         #endif
 
-        #ifdef WATER_BLUR
+        #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
             if (isWater) {
                 float sampleWaterDistF = GetWaterDistF(max(sampleDepthL - minDepth, 0.0));
                 sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);

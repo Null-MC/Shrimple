@@ -41,31 +41,33 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 }
 
 #ifdef WORLD_FOG_MODE == FOG_MODE_CUSTOM
-    vec3 GetCustomWaterFogColor(const in float sunUpF) {
-        //const vec3 _color = RGBToLinear(vec3(0.143, 0.230, 0.258));
+    #ifdef WORLD_WATER_ENABLED
+        vec3 GetCustomWaterFogColor(const in float sunUpF) {
+            //const vec3 _color = RGBToLinear(vec3(0.143, 0.230, 0.258));
 
-        const float WaterMinBrightness = 0.04;
+            const float WaterMinBrightness = 0.04;
 
-        float brightnessF = 1.0 - WaterMinBrightness;
+            float brightnessF = 1.0 - WaterMinBrightness;
 
-        #ifdef WORLD_SKY_ENABLED
-            float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
-            float weatherBrightness = 1.0 - 0.92 * rainStrength;
-            float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
+            #ifdef WORLD_SKY_ENABLED
+                float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+                float weatherBrightness = 1.0 - 0.92 * rainStrength;
+                float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
 
-            brightnessF *= skyBrightness * weatherBrightness * eyeBrightness;
-        #endif
+                brightnessF *= skyBrightness * weatherBrightness * eyeBrightness;
+            #endif
 
-        vec3 color = 2.0 * RGBToLinear(WaterScatterColor) * RGBToLinear(WaterAbsorbColor);
-        color = color / (color + 1.0);
+            vec3 color = 2.0 * RGBToLinear(WaterScatterColor) * RGBToLinear(WaterAbsorbColor);
+            color = color / (color + 1.0);
 
-        return color * (WaterMinBrightness + brightnessF);
-    }
+            return color * (WaterMinBrightness + brightnessF);
+        }
 
-    float GetCustomWaterFogFactor(const in float fogDist) {
-        float waterFogFar = min(waterDensitySmooth, far);
-        return GetFogFactor(fogDist, 0.0, waterFogFar, 0.65);
-    }
+        float GetCustomWaterFogFactor(const in float fogDist) {
+            float waterFogFar = min(waterDensitySmooth, far);
+            return GetFogFactor(fogDist, 0.0, waterFogFar, 0.65);
+        }
+    #endif
 
     #ifdef WORLD_SKY_ENABLED
         vec3 GetCustomSkyFogColor(const in float sunUpF) {
