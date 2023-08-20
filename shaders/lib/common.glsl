@@ -172,7 +172,7 @@ const bool colortex15Clear = true;
 
 #define SHADOW_CLOUD_ENABLED
 #define SHADOW_CLOUD_RADIUS 1.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0 5.0 6.0 8.0]
-#define SHADOW_CLOUD_BRIGHTNESS 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define SHADOW_CLOUD_BRIGHTNESS 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
 // Dynamic Lighting
@@ -402,6 +402,8 @@ const bool colortex15Clear = true;
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif
 #ifdef MATERIAL_PARALLAX_SHADOW_SMOOTH
+#endif
+#ifdef MATERIAL_REFLECT_CLOUDS
 #endif
 #ifdef SHADOW_BLUR
 #endif

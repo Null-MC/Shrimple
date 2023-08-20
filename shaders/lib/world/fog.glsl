@@ -2,6 +2,13 @@ float fogify(float x, float w) {
     return w / (x * x + w);
 }
 
+float GetFogFactorL(const in float dist, const in float start, const in float end, const in float density) {
+    if (dist >= end) return 1.0;
+
+    float distF = saturate((dist - start) / (end - start));
+    return pow(distF, density);
+}
+
 float GetFogFactor(const in float dist, const in float start, const in float end, const in float density) {
     if (dist >= end) return 1.0;
 
@@ -92,6 +99,16 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
                 float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
                 return GetFogFactor(fogDist, fogStart, far, density);
             #endif
+        }
+
+        void ApplyCustomRainFog(inout vec3 color, const in float fogDist) {
+            float rainFar = min(96, far);
+            float fogF = GetFogFactorL(fogDist, 0.0, rainFar, 0.8);
+
+            float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
+            vec3 fogColorFinal = RGBToLinear(vec3(0.5)) * eyeBrightness;
+
+            color = mix(color, fogColorFinal, 0.88*fogF * rainStrength);
         }
     #endif
 

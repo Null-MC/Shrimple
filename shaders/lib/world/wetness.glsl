@@ -39,7 +39,7 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
 }
 
 void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float skyWetness, const in float puddleF) {
-    float saturation = max(skyWetness, 2.0 * puddleF) * sqrt(porosity);
+    float saturation = max(1.4 * skyWetness, 2.0 * puddleF) * sqrt(porosity);
     albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
 }
 

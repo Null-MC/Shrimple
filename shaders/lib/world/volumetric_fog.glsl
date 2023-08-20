@@ -40,11 +40,11 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Back = 0.19;
         result.Direction = 0.0376;
 
-        float scatterF = mix(0.02, 0.04, rainStrength) * density;
+        float scatterF = 0.02 * density;
         scatterF = mix(0.048, scatterF, skyLight);
         result.ScatterF = vec3(scatterF);
 
-        float extinctF = mix(0.002, 0.009, rainStrength) * density;
+        float extinctF = mix(0.002, 0.006, rainStrength) * density;
         result.ExtinctF = mix(0.008, extinctF, skyLight);
     #else
         result.Ambient = vec3(0.96);

@@ -272,10 +272,13 @@ void main() {
         albedo.a *= 1.0 - fogF;
     #endif
 
+    albedo.rgb = RGBToLinear(albedo.rgb);
+    albedo.rgb *= 1.0 - 0.7 * rainStrength;
+
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        outDeferredColor = albedo;
+        outDeferredColor = vec4(LinearToRGB(albedo.rgb), albedo.a);
         outDeferredShadow = vec4(shadowColor + dither, 1.0);
 
         const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
@@ -292,7 +295,6 @@ void main() {
         #endif
     #else
         vec4 final = albedo;
-        final.rgb = RGBToLinear(final.rgb);
         float roughL = _pow2(roughness);
 
         //final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);

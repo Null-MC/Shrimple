@@ -123,6 +123,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
                 sampleDepth = min(sampleDepth, sampleWeatherDepth);
             #endif
 
+            //if (sampleDepth >= minDepth) sampleWeight *= sampleDistF;
             sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
         //}
 

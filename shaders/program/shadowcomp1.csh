@@ -265,6 +265,8 @@ void main() {
 
             float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
             skyLightColor *= LpvBlockLightF * mix(LPV_BRIGHT_MOON, LPV_BRIGHT_SUN, sunUpF);
+
+            skyLightColor *= mix(1.0, 0.1, rainStrength);
         #endif
 
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {

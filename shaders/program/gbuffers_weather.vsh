@@ -47,7 +47,7 @@ uniform vec3 cameraPosition;
 		uniform float near;
 	#endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+    #ifdef IS_IRIS
         uniform float cloudTime;
         uniform vec3 eyePosition;
     #endif

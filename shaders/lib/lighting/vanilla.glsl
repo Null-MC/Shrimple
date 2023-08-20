@@ -57,11 +57,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 albedo, const in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 WorldSkyLightColor = GetSkyLightColor();
-        #endif
+        vec3 specular = vec3(0.0);
 
-        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
         vec3 localViewDir = -normalize(localPos);
 
         const float skyLightSize = 9.5e9;
@@ -77,11 +74,9 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         vec3 skyH = normalize(localSkyLightDir + localViewDir);
         float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
-        float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
+        float skyNoVm = 1.0;
         if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
             skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-            skyNoHm = max(dot(texNormal, skyH), 0.0);
         }
 
         #ifdef HCM_LAZANYI
@@ -92,10 +87,24 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
         #endif
 
-        skyLightColor *= 1.0 - 0.92*rainStrength;
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 WorldSkyLightColor = GetSkyLightColor();
+            #endif
 
-        float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
-        vec3 specular = invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
+            vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
+
+            float skyNoLm = 1.0, skyNoHm = 1.0;
+            if (!all(lessThan(abs(texNormal), EPSILON3))) {
+                skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
+                skyNoHm = max(dot(texNormal, skyH), 0.0);
+            }
+
+            skyLightColor *= 1.0 - 0.92*rainStrength;
+
+            float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
+            specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
+        #endif
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE)
         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)

@@ -719,7 +719,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            float fogF = 0.0;
+            //float fogF = 0.0;
 
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
@@ -728,14 +728,17 @@ layout(location = 0) out vec4 outFinal;
                     #ifndef VL_BUFFER_ENABLED
                         vec3 skyColorFinal = RGBToLinear(skyColor);
                         fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-
-                        fogF = GetCustomWaterFogFactor(viewDist);
+                        float fogF = GetCustomWaterFogFactor(viewDist);
+                        final.rgb = mix(final.rgb, fogColorFinal, fogF);
                     #endif
                 }
                 else {
             #endif
-                #ifndef DH_COMPAT_ENABLED
-                    if (depth < 1.0) {
+                float fogF;
+                float fogDist = GetVanillaFogDistance(localPos);
+
+                if (depth < 1.0) {
+                    #ifndef DH_COMPAT_ENABLED
                         #ifdef WORLD_SKY_ENABLED
                             // sky fog
 
@@ -749,15 +752,20 @@ layout(location = 0) out vec4 outFinal;
                             //fogF = GetVanillaFogFactor(localPos);
                         #endif
 
-                        float fogDist = GetVanillaFogDistance(localPos);
                         fogF = GetCustomFogFactor(fogDist);
-                    }
+                        final.rgb = mix(final.rgb, fogColorFinal, fogF);
+                    #endif
+                }
+
+                #ifdef WORLD_SKY_ENABLED
+                    fogDist = length(localPos);
+                    ApplyCustomRainFog(final.rgb, fogDist);
                 #endif
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
 
-            final.rgb = mix(final.rgb, fogColorFinal, fogF);
+            //final.rgb = mix(final.rgb, fogColorFinal, fogF);
         #endif
 
         #ifdef VL_BUFFER_ENABLED

@@ -403,6 +403,8 @@ void main() {
 
         #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
             vec4 rippleNormalStrength = vec4(0.0);
+            if (isWater) puddleF = 1.0;
+
             // TODO: this also needs to check vertex offset!
             if ((localNormal.y >= 1.0 - EPSILON) || (localNormal.y <= -1.0 + EPSILON)) {
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
@@ -580,7 +582,8 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
+        if (!isWater)
+            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
     #endif
 
     float roughL = _pow2(roughness);

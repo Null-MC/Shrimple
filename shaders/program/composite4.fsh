@@ -221,39 +221,48 @@ layout(location = 0) out vec4 outFinal;
                         #ifndef VL_BUFFER_ENABLED
                             float fogDist = max(distOpaque - distTranslucent, 0.0);
                             fogF = GetCustomWaterFogFactor(fogDist);
-
                             fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                            final = mix(final, fogColorFinal, fogF);
                         #endif
                     }
                     else {
                 #endif
-                    #ifndef DH_COMPAT_ENABLED
-                        #ifdef WORLD_SKY_ENABLED
-                            // sky fog
+                    float fogDist  = GetVanillaFogDistance(localPosOpaque);
 
-                            if (depthOpaque < 1.0) {
+                    #ifndef DH_COMPAT_ENABLED
+                        if (depthOpaque < 1.0) {
+                            #ifdef WORLD_SKY_ENABLED
+                                // sky fog
+
                                 vec3 skyColorFinal = RGBToLinear(skyColor);
                                 fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                                 fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
 
-                                float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                                //float fogDist  = GetVanillaFogDistance(localPosOpaque);
                                 fogF = GetCustomFogFactor(fogDist);
-                            }
-                        #else
-                            // no-sky fog
+                            #else
+                                // no-sky fog
 
-                            fogColorFinal = RGBToLinear(fogColor);
-                            //fogF = GetVanillaFogFactor(localPosOpaque);
+                                fogColorFinal = RGBToLinear(fogColor);
+                                //fogF = GetVanillaFogFactor(localPosOpaque);
 
-                            float fogDist  = GetVanillaFogDistance(localPosOpaque);
-                            fogF = GetCustomFogFactor(fogDist);
-                        #endif
+                                //float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                                fogF = GetCustomFogFactor(fogDist);
+                            #endif
+
+                            final = mix(final, fogColorFinal, fogF);
+                        }
+                    #endif
+
+                    #ifdef WORLD_SKY_ENABLED
+                        fogDist = length(localPosOpaque);
+                        ApplyCustomRainFog(final, fogDist);
                     #endif
                 #ifdef WORLD_WATER_ENABLED
                     }
                 #endif
 
-                final = mix(final, fogColorFinal, fogF);
+                //final = mix(final, fogColorFinal, fogF);
             #endif
 
             #ifdef VL_BUFFER_ENABLED
