@@ -769,7 +769,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #ifdef WORLD_SKY_ENABLED
                     fogDist = length(localPos);
-                    ApplyCustomRainFog(final.rgb, fogDist);
+                    ApplyCustomRainFog(final.rgb, fogDist, localSunDirection.y);
                 #endif
             #ifdef WORLD_WATER_ENABLED
                 }

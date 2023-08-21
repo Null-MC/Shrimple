@@ -103,12 +103,13 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             #endif
         }
 
-        void ApplyCustomRainFog(inout vec3 color, const in float fogDist) {
+        void ApplyCustomRainFog(inout vec3 color, const in float fogDist, const in float sunUpF) {
             float rainFar = min(96, far);
             float fogF = GetFogFactorL(fogDist, 0.0, rainFar, 0.8);
 
             float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-            vec3 fogColorFinal = RGBToLinear(vec3(0.5)) * eyeBrightness;
+            float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+            vec3 fogColorFinal = RGBToLinear(vec3(0.5)) * skyBrightness * eyeBrightness;
 
             color = mix(color, fogColorFinal, 0.88*fogF * rainStrength);
         }

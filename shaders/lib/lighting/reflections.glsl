@@ -35,11 +35,14 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
         #if defined MATERIAL_REFLECT_CLOUDS && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
+            const vec3 cloudColor = RGBToLinear(vec3(0.8));
+            const vec3 cloudColorRain = RGBToLinear(vec3(0.139, 0.184, 0.192));
+
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
             float cloudF = SampleClouds(localPos, lightWorldDir, cloudOffset, camOffset, max(roughness, 0.1));
-            vec3 cloudColor = WorldSkyLightColor; //vec3(1.0);
-            reflectColor = mix(reflectColor, cloudColor, cloudF);
+            vec3 cloudColorFinal = WorldSkyLightColor * mix(cloudColor, cloudColorRain, rainStrength);
+            reflectColor = mix(reflectColor, cloudColorFinal, cloudF);
         #endif
 
         float m = skyLight * 0.25;
