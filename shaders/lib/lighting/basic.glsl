@@ -369,13 +369,15 @@
                     vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
                     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-                    vec3 skyReflectF = tir ? vec3(1.0) : GetReflectiveness(skyNoVm, f0, roughL);
+                    vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+
+                    accumDiffuse *= 1.0 - skyReflectF;
+
+                    if (tir) skyReflectF = vec3(1.0);
 
                     #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                         skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
                     #endif
-
-                    accumDiffuse *= 1.0 - skyReflectF;
                 #endif
             #endif
 
