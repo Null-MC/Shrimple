@@ -283,6 +283,7 @@ const bool colortex15Clear = true;
 //#define DH_COMPAT_ENABLED
 //#define FORCE_DEFERRED
 //#define ANIM_WORLD_TIME
+//#define MAGNIFICENT_COLORS
 
 
 // INTERNAL SETTINGS

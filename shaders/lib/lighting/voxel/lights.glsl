@@ -321,6 +321,22 @@
                 lightColor = vec3(0.867, 0.835, 0.271);
                 break;
         }
+
+        #ifdef MAGNIFICENT_COLORS
+            if (lightType == LIGHT_SEA_LANTERN) lightColor = vec3(0.2, 0.8, 1.0) * .5;
+            if (lightType == LIGHT_GLOWSTONE) lightColor = vec3(1.0, 0.7, 0.4);
+            if (lightType == LIGHT_END_ROD) lightColor = vec3(0.7, 0.5, 0.9) * 1.1;
+            if (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W) lightColor = vec3(1.00, 0.60, 0.30);
+            if (lightType >= LIGHT_REDSTONE_TORCH_FLOOR && lightType <= LIGHT_REDSTONE_TORCH_WALL_W) lightColor = vec3(1.00, 0.30, 0.10);
+            if (lightType == LIGHT_FIRE) lightColor = vec3(1.00, 0.40, 0.20);
+            if (lightType == LIGHT_CAMPFIRE || lightType == LIGHT_LANTERN || (lightType >= LIGHT_FURNACE_N && lightType <= LIGHT_FURNACE_W)) lightColor = vec3(1.00, 0.60, 0.30);
+            if (lightType == LIGHT_SOUL_CAMPFIRE || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)) lightColor = vec3(0.1, 0.8, 1.0);
+            if (lightType == LIGHT_LAVA) lightColor = vec3(1.0, 0.5, 0.2);
+            if (lightType == LIGHT_REDSTONE_LAMP) lightColor = vec3(1.0, 0.6, 0.4);
+            if (lightType == LIGHT_BEACON) lightColor = vec3(0.6, 0.7, 1.0);
+            if (lightType == LIGHT_MAGMA) lightColor = vec3(1.0, 0.2, 0.1);
+            if (lightType == LIGHT_SHROOMLIGHT) lightColor = vec3(0.8, 0.4, 0.0);
+        #endif
         
         return lightColor;
     }
