@@ -34,7 +34,10 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         if (any(greaterThan(abs(texNormal), EPSILON3)))
             ambientLight *= (texNormal.y * 0.3 + 0.7);
 
-        shadowColor *= 1.0 + 1.0 * sss;
+        float viewDist = length(localPos);
+        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
+        shadowColor *= 1.0 + 1.65 * sss * shadowDistF;
+
         shadowColor = ambientLight + (1.0 - DynamicLightAmbientF) * shadowColor;
 
         diffuse = lightmapBlock + lightmapSky * shadowColor;

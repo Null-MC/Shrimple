@@ -56,9 +56,9 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     vec3 viewDir = normalize(viewPos);
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
-    float viewDist = length(localPos);
-    float distF = 32.0 / (viewDist + 32.0);
-    roughness = pow(roughness, 0.5 + 0.5 * distF);
+    //float viewDist = length(localPos);
+    //float distF = 32.0 / (viewDist + 32.0);
+    //roughness = pow(roughness, 0.5 + 0.5 * distF);
 
     #if REFLECTION_ROUGH_SCATTER > 0
         vec3 randomVec = normalize(hash32(gl_FragCoord.xy) * 2.0 - 1.0);
@@ -88,7 +88,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
         vec2 viewSize = vec2(viewWidth, viewHeight);
         int maxLod = int(log2(minOf(viewSize)));
-        float roughMip = roughness * maxLod;
+        float roughMip = roughness * maxLod + 0.5;
 
         vec4 reflection = GetReflectionPosition(depthtex1, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);

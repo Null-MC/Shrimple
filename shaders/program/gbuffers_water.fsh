@@ -383,8 +383,7 @@ void main() {
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
             #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
-                float skyLight = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-                texNormal = water_waveNormal(worldPos.xz, skyLight, viewDist, waterUvOffset);
+                texNormal = water_waveNormal(worldPos.xz, lmcoord.y, viewDist, waterUvOffset);
             #endif
 
             #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES != WATER_WAVES_NONE
