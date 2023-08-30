@@ -307,6 +307,9 @@
                 ambientLight *= occlusion;
             #endif
 
+            if (any(greaterThan(abs(texNormal), EPSILON3)))
+                ambientLight *= (texNormal.y * 0.3 + 0.7);
+
             accumDiffuse += ambientLight;// * roughL;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

@@ -71,9 +71,9 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 
     #ifdef WORLD_SKY_ENABLED
         vec3 GetCustomSkyFogColor(const in float sunUpF) {
-            const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360));
+            const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.7;
             const vec3 colorNight   = RGBToLinear(vec3(0.177, 0.170, 0.192));
-            const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914));
+            const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914)) * 0.5;
 
             #ifdef VL_BUFFER_ENABLED
                 const float weatherDarkF = 0.3;

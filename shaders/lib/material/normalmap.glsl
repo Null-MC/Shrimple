@@ -83,7 +83,7 @@
             vec2 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rg;
 
             if (any(greaterThan(texNormal.rg, EPSILON2))) {
-                normal.xy = texNormal.xy * 2.0 - 1.0;
+                normal.xy = saturate(texNormal.xy * 2.0 - (254.0/255.0));
                 normal.z = sqrt(max(1.0 - dot(normal.xy, normal.xy), EPSILON));
                 valid = true;
             }

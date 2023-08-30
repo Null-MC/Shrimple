@@ -51,6 +51,7 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform vec2 viewSize;
 uniform float near;
 uniform float far;
 
@@ -98,6 +99,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 
     #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/blocks.glsl"
@@ -197,29 +202,25 @@ void main() {
             vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
         #endif
 
+        float distOpaque = length(localPosOpaque);
+        float distTranslucent = length(localPosTranslucent);
         vec3 localViewDir = normalize(localPosOpaque);
-        float distOpaque = clamp(length(localPosOpaque), near, far);
-        float distTranslucent = clamp(length(localPosTranslucent), near, far);
-        VolumetricPhaseFactors phaseF;
-
 
         bool isWater = false;
-        #ifdef WORLD_WATER_ENABLED
+        #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater != 1) {
-                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(gl_FragCoord.xy), 0).a;
+                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).a;
                 isWater = deferredShadowA < 0.5;
             }
-
-            phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
-        #else
-            phaseF = GetVolumetricPhaseFactors();
         #endif
 
-        float d = clamp(distOpaque * 0.05, 0.02, 0.5);
-        vec3 endPos = localPosOpaque;// + localNormal * d;
-        float endDist = clamp(length(endPos) - 0.4 * d, near, far);
+        //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
+        //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, distTranslucent, endDist, isWater);
+        float distNear = clamp(length(localPosTranslucent), near, far);
+        float distFar = clamp(length(localPosOpaque), near, far);
+
+        final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
     }
 
     outVL = final;

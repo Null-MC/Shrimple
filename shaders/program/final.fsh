@@ -8,6 +8,10 @@ in vec2 texcoord;
 
 uniform sampler2D colortex0;
 
+#if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
+	uniform sampler2D depthtex0;
+#endif
+
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -39,13 +43,24 @@ uniform float viewHeight;
 	uniform sampler2D texDepthNear;
 #endif
 
+#if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
+	uniform mat4 gbufferProjectionInverse;
+	uniform float far;
+#endif
+
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/text.glsl"
 #include "/lib/utility/iris.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
-	#include "/lib/buffers/lighting.glsl"
+#ifdef IRIS_FEATURE_SSBO
+	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
+		#include "/lib/buffers/lighting.glsl"
+	#endif
+
+    #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #ifdef FXAA_ENABLED
@@ -135,6 +150,39 @@ void main() {
 		printString((_B, _l, _o, _c, _k, _colon, _space, _space, _space));
 		printUnsignedInt(DYN_LIGHT_BLOCK_IMG_SIZE);
 		printString((_x));
+
+		endText(color);
+	#endif
+
+	#if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
+		beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewHeight/2 - 24));
+
+		text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
+		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
+		text.fpPrecision = 4;
+
+		vec2 center = vec2(viewWidth, viewHeight) * 0.5;
+        uint waterUV = uint(center.y * viewWidth + center.x);
+
+		printString((_I, _s, _space, _W, _a, _t, _e, _r, _colon, _space));
+		printBool(WaterDepths[waterUV].IsWater);
+		printLine();
+
+		float depthTrans = texelFetch(depthtex0, ivec2(center), 0).r;
+		vec3 ndcPos = vec3(0.5, 0.5, depthTrans) * 2.0 - 1.0;
+		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(ndcPos, 1.0));
+
+		printString((_D, _i, _s, _t, _space, _T, _colon, _space));
+		printFloat(length(viewPos));
+		printLine();
+
+		const uint charIndices[6] = uint[](_0, _1, _2, _3, _4, _5);
+
+		for (int i = 0; i < WATER_DEPTH_LAYERS; i++) {
+			printString((_D, _i, _s, _t, _space, charIndices[i], _colon, _space));
+			printFloat(GetWaterDepth(waterUV, i));
+			printLine();
+		}
 
 		endText(color);
 	#endif

@@ -142,6 +142,10 @@ uniform int heldBlockLightValue2;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #include "/lib/sampling/depth.glsl"
@@ -446,7 +450,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow.rgb);
+                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow.rgb, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     float geoNoL = dot(localNormal, localSkyLightDirection);
@@ -666,13 +670,61 @@ layout(location = 0) out vec4 outFinal;
             vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
         #endif
 
-        float transDepth = isEyeInWater == 1 ? viewDist :
-            max(length(localPosOpaque) - viewDist, 0.0);
+        //float transDepth = isEyeInWater == 1 ? viewDist :
+        //    max(length(localPosOpaque) - viewDist, 0.0);
 
         #if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
             float blurDist = 0.0;
             if (depth < depthOpaque) {
-                blurDist = max(length(localPosOpaque) - viewDist, 0.0);
+                float opaqueDist = length(localPosOpaque);
+
+                // water blur depth
+                #if WATER_DEPTH_LAYERS > 1
+                    uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
+                    uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
+
+                    float waterDepth[WATER_DEPTH_LAYERS];
+                    GetAllWaterDepths(waterPixelIndex, waterDepth);
+
+                    if (isEyeInWater == 1) {
+                        if (viewDist < waterDepth[0] - 0.1) {
+                            if (waterDepth[0] < far)
+                                blurDist += max(min(waterDepth[1], opaqueDist) - min(waterDepth[0], opaqueDist), 0.0);
+
+                            #if WATER_DEPTH_LAYERS >= 4
+                                if (waterDepth[2] < far)
+                                    blurDist += max(min(waterDepth[3], opaqueDist) - min(waterDepth[2], opaqueDist), 0.0);
+                            #endif
+                        }
+                        else {
+                            #if WATER_DEPTH_LAYERS >= 3
+                                if (waterDepth[1] < far)
+                                    blurDist += max(min(waterDepth[2], opaqueDist) - min(waterDepth[1], opaqueDist), 0.0);
+                            #endif
+
+                            #if WATER_DEPTH_LAYERS >= 5
+                                if (waterDepth[3] < far)
+                                    blurDist += max(min(waterDepth[4], opaqueDist) - min(waterDepth[3], opaqueDist), 0.0);
+                            #endif
+                        }
+                    }
+                    else {
+                        if (waterDepth[0] < far)
+                            blurDist += max(min(waterDepth[1], opaqueDist) - min(waterDepth[0], opaqueDist), 0.0);
+
+                        #if WATER_DEPTH_LAYERS >= 4
+                            if (waterDepth[2] < far)
+                                blurDist += max(min(waterDepth[3], opaqueDist) - min(waterDepth[2], opaqueDist), 0.0);
+                        #endif
+
+                        #if WATER_DEPTH_LAYERS >= 6
+                            if (waterDepth[4] < far)
+                                blurDist += max(min(waterDepth[5], opaqueDist) - min(waterDepth[4], opaqueDist), 0.0);
+                        #endif
+                    }
+                #else
+                    blurDist = max(opaqueDist - viewDist, 0.0);
+                #endif
             }
 
             vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, depth, blurDist, isWater && isEyeInWater != 1);

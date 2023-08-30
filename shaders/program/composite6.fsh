@@ -50,6 +50,7 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform float viewWidth;
 uniform float viewHeight;
+uniform vec2 viewSize;
 uniform float near;
 uniform float far;
 
@@ -100,6 +101,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 
     #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/blocks.glsl"
@@ -193,13 +198,11 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         bool isWater = isEyeInWater == 1;
-        VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
     #else
-        VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
         const bool isWater = false;
     #endif
 
-    ivec2 iTex = ivec2(gl_FragCoord.xy);
+    ivec2 iTex = ivec2(texcoord * viewSize);
     uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
     vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
     vec3 localNormal = deferredNormal.rgb;
@@ -209,11 +212,13 @@ void main() {
 
     float viewDist = length(localPos);
 
-    float d = clamp(viewDist * 0.05, 0.02, 0.5);
-    vec3 endPos = localPos + localNormal * d;
-    float endDist = clamp(length(endPos) - 0.4 * d, near, far);
+    //float d = clamp(viewDist * 0.05, 0.02, 0.5);
+    //vec3 endPos = localPos + localNormal * d;
+    //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    vec4 final = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, endDist, isWater);
+    float farDist = clamp(viewDist, near, far);
+
+    vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 
     outVL = final;
 }

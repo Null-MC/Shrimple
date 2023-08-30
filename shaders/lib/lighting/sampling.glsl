@@ -11,7 +11,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
     if (!all(lessThan(abs(texNormal), EPSILON3)))
         texNoL = dot(texNormal, lightDir);
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         NoL = max(geoNoL, 0.0);
         //if (any(greaterThan(localNormal, EPSILON3)))
         //    NoL = dot(localNormal, lightDir);
@@ -19,7 +19,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
         if (!all(lessThan(abs(texNormal), EPSILON3))) {
             NoL = min(NoL, max(texNoL, 0.0));
         }
-    #endif
+    //#endif
 
     #if MATERIAL_SSS != SSS_NONE
         NoL = mix(NoL, 0.25 + 1.25*abs(texNoL), sss);

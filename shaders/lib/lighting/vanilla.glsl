@@ -9,7 +9,7 @@
     }
 #endif
 
-void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, in vec3 shadowColor) {
+void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     // if (!all(lessThan(abs(localNormal), EPSILON3))) {
     //     float geoNoL = dot(localNormal, localSkyLightDirection);
     //     geoNoL = pow(max(geoNoL, 0.0), 0.2);
@@ -29,7 +29,14 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmEmpty, lmFinal.y), 0).rgb;
         lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
 
-        shadowColor = DynamicLightAmbientF + (1.0 - DynamicLightAmbientF) * shadowColor;
+        vec3 ambientLight = vec3(DynamicLightAmbientF);
+
+        if (any(greaterThan(abs(texNormal), EPSILON3)))
+            ambientLight *= (texNormal.y * 0.3 + 0.7);
+
+        shadowColor *= 1.0 + 1.0 * sss;
+        shadowColor = ambientLight + (1.0 - DynamicLightAmbientF) * shadowColor;
+
         diffuse = lightmapBlock + lightmapSky * shadowColor;
     #else
         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;

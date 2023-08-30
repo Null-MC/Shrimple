@@ -107,6 +107,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform float viewWidth;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
 uniform vec3 skyColor;
@@ -126,7 +127,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferProjectionInverse;
-    uniform float viewWidth;
     uniform float viewHeight;
     uniform float aspectRatio;
     uniform vec2 pixelSize;
@@ -194,6 +194,10 @@ uniform int heldBlockLightValue2;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -369,7 +373,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
 
-        if (isWater) {
+        if (isWater && abs(vLocalNormal.y) > 0.5) {
             skipParallax = true;
 
             #ifdef PHYSICS_OCEAN
@@ -431,7 +435,7 @@ void main() {
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-    float alphaThreshold = (0.5/255.0);
+    float alphaThreshold = 0.1;//(1.5/255.0);
     if (isWater) alphaThreshold = -1.0;
 
     #ifdef MATERIAL_REFLECT_GLASS
@@ -455,6 +459,10 @@ void main() {
             color.a *= WorldWaterOpacityF;
 
             color = mix(color, vec4(1.0), oceanFoam);
+
+            #if WATER_DEPTH_LAYERS > 1
+                SetWaterDepth(viewDist);
+            #endif
         }
     #endif
 
@@ -500,6 +508,10 @@ void main() {
         sss = max(sss, 1.0 - color.a);
     #endif
     
+    // if (isWater && isEyeInWater != 1 && isWaterBackFace) {
+    //     //
+    // }
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifndef IRIS_FEATURE_SSBO
@@ -621,7 +633,7 @@ void main() {
     #else
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, shadowColor);
+            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);

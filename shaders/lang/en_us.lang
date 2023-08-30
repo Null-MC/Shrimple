@@ -87,6 +87,8 @@ option.WATER_CAUSTICS=Caustics
 
 option.WATER_BLUR=Blur
 
+option.WATER_DEPTH_LAYERS=Depth Layers
+
 
 screen.MATERIAL_OPTIONS=Materials
 

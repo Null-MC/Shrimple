@@ -9,10 +9,11 @@ in vec4 starData;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjectionInverse;
-uniform float viewHeight;
-uniform float viewWidth;
+uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
+uniform float viewHeight;
+uniform float viewWidth;
 uniform float far;
 
 uniform vec3 fogColor;

@@ -129,7 +129,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
 #define MATERIAL_POROSITY 1 // [0 1 2]
-#define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
+#define MATERIAL_POROSITY_DARKEN 60 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define MATERIAL_PARTICLES
@@ -173,7 +173,7 @@ const bool colortex15Clear = true;
 
 #define SHADOW_CLOUD_ENABLED
 #define SHADOW_CLOUD_RADIUS 1.0 // [0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0 5.0 6.0 8.0]
-#define SHADOW_CLOUD_BRIGHTNESS 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define SHADOW_CLOUD_BRIGHTNESS 40 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
 // Dynamic Lighting
@@ -210,7 +210,7 @@ const bool colortex15Clear = true;
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_SUN_SAMPLES 0 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_LIGHTMAP_MIX 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define LPV_BRIGHT_BLOCK 12 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
+#define LPV_BRIGHT_BLOCK 8 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_BRIGHT_SUN 0.5
 #define LPV_BRIGHT_MOON 0.02
@@ -266,11 +266,11 @@ const bool colortex15Clear = true;
 #define POST_TONEMAP 1 // [0 1 2 3 4]
 #define FXAA_ENABLED
 #define POST_BRIGHTNESS 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
-#define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200]
+#define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.2 3.4 3.6]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define POST_EXPOSURE 0.0 // [-4.0 -3.0 -2.0 -1.5 -1.0 -0.5 0.0 0.5 1.0 1.5 2.0 3.0 4.0]
+#define POST_EXPOSURE 0.0 // [-4.0 -3.0 -2.5 -2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.4 -0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 4.0]
 
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
@@ -284,6 +284,8 @@ const bool colortex15Clear = true;
 //#define FORCE_DEFERRED
 //#define ANIM_WORLD_TIME
 //#define MAGNIFICENT_COLORS
+#define WATER_DEPTH_LAYERS 5 // [1 2 3 4 5 6]
+//#define WATER_MULTIDEPTH_DEBUG
 
 
 // INTERNAL SETTINGS
@@ -299,6 +301,7 @@ const bool colortex15Clear = true;
 #define RIPPLE_STRENGTH 0.03
 //#define HCM_LAZANYI
 
+#define UINT32_MAX 4294967295u
 #define PI 3.1415926538
 #define TAU 6.2831853076
 #define IOR_AIR 1.00
@@ -400,6 +403,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef WATER_CAUSTICS
 #endif
+#ifdef WATER_BLUR
+#endif
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif
 #ifdef MATERIAL_PARALLAX_SHADOW_SMOOTH
@@ -440,7 +445,7 @@ const bool colortex15Clear = true;
 #endif
 #ifdef DH_COMPAT_ENABLED
 #endif
-#ifdef FORCE_DEFERRED
+#ifdef WATER_MULTIDEPTH_DEBUG
 #endif
 
 
@@ -495,6 +500,7 @@ const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
+const float uint32MaxInv = 1.0 / UINT32_MAX;
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 
@@ -544,6 +550,8 @@ const float voxelDistance = 64.0;
 
 #define _pow2(x) (x*x)
 #define _pow3(x) (x*x*x)
+
+#define _lengthSq(x) dot((x), (x))
 
 #define modelPart(x, y, z) (vec3(x, y, z)/16.0)
 

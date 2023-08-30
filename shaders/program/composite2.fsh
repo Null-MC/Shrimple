@@ -131,6 +131,10 @@ uniform int heldBlockLightValue2;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #include "/lib/sampling/depth.glsl"
@@ -416,21 +420,69 @@ layout(location = 0) out vec4 outFinal;
                 //     : depthTranslucent < depthOpaque;
 
                 // TODO: this needs to be linear!
-                float waterDepth = 0.0;
-                if (isEyeInWater == 1) {
-                    if (depthOpaque <= depthTranslucent)
-                        waterDepth = 1.0;
-                }
-                else {
-                    waterDepth = 1.0;
-                }
+                // float waterDepth = 0.0;
+                // if (isEyeInWater == 1) {
+                //     if (depthOpaque <= depthTranslucent)
+                //         waterDepth = 1.0;
+                // }
+                // else {
+                //     waterDepth = 1.0;
+                // }
 
-                bool hasWaterDepth = isEyeInWater == 1
-                    ? depthOpaque <= depthTranslucent
-                    : depthTranslucent < depthOpaque;
+                #if WATER_DEPTH_LAYERS > 1
+                    uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
+                    uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
+                    bool hasWaterDepth = false;
+
+                    float waterDepth[WATER_DEPTH_LAYERS];
+                    GetAllWaterDepths(waterPixelIndex, waterDepth);
+
+                    if (isEyeInWater == 1) {
+                        //hasWaterDepth = depthOpaque <= depthTranslucent;
+
+                        vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+                        vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                        float distTrans = length(localPosTrans);
+
+                        hasWaterDepth = viewDist < min(distTrans, waterDepth[0]) + 0.001;
+
+                        if (distTrans < waterDepth[0] - 0.1) {
+                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[0] && viewDist < waterDepth[1]);
+
+                            #if WATER_DEPTH_LAYERS >= 4
+                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
+                            #endif
+                        }
+                        else {
+                            #if WATER_DEPTH_LAYERS >= 3
+                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
+                            #endif
+
+                            #if WATER_DEPTH_LAYERS >= 5
+                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
+                            #endif
+                        }
+                    }
+                    else {
+                        hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
+
+                        #if WATER_DEPTH_LAYERS >= 4
+                            hasWaterDepth = hasWaterDepth || clamp(viewDist, waterDepth[2], waterDepth[3]) == viewDist;
+                        #endif
+
+                        #if WATER_DEPTH_LAYERS >= 6
+                            hasWaterDepth = hasWaterDepth || clamp(viewDist, waterDepth[4], waterDepth[5]) == viewDist;
+                        #endif
+                    }
+                #else
+                    bool hasWaterDepth = isEyeInWater == 1
+                        ? depthOpaque <= depthTranslucent
+                        : depthTranslucent < depthOpaque;
+                #endif
 
                 if (hasWaterDepth) {
                     puddleF = 1.0;
+                    //albedo = vec3(1.0, 0.0, 0.0);
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         float causticLight = SampleWaterCaustics(localPos);
@@ -453,7 +505,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, deferredShadow);
+                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     float geoNoL = dot(localNormal, localSkyLightDirection);

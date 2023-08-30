@@ -38,10 +38,10 @@
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-            float bias = (dither * sss);
+            float bias = sss * dither;
 
-            vec2 sssOffset = 2.0 * hash22(gl_FragCoord.xy) - 1.0;
-            sssOffset = (sssOffset);
+            vec2 sssOffset = 2.0 * hash22(vec2(dither, 0.0)) - 1.0;
+            //sssOffset = (sssOffset);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int tile = GetShadowCascade(shadowPos, ShadowMaxPcfSize);
@@ -60,7 +60,7 @@
                 }
             #else
                 vec3 _shadowPos = shadowPos;
-                _shadowPos.xy += 0.04 * bias * sssOffset;
+                _shadowPos.xy += 0.02 * bias * sssOffset;
 
                 bias *= MATERIAL_SSS_MAXDIST / (2.0 * far);
 

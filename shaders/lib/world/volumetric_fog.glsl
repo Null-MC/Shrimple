@@ -9,12 +9,13 @@ struct VolumetricPhaseFactors {
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.006, 0.002, rainStrength);
+        float skyLight = eyeBrightnessSmooth.y / 240.0;
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.06, 0.002, rainStrength) * skyLight;
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, rcp(waterDensitySmooth), 0.051, 0.924, 0.197);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, rcp(waterDensitySmooth), 0.09, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -32,17 +33,17 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         float skyLight = eyeBrightnessSmooth.y / 240.0;
 
 
-        float ambientF = 0.0;//mix(0.001, 0.03, rainStrength) * densityF);
-        ambientF = mix(0.004, ambientF, skyLight);
-        result.Ambient = vec3(ambientF);
+        //float ambientF = 0.0;//mix(0.001, 0.03, rainStrength) * densityF);
+        //ambientF = mix(0.004, ambientF, skyLight);
+        result.Ambient = vec3(0.004); //vec3(ambientF);
 
         result.Forward = 0.824;
         result.Back = 0.19;
-        result.Direction = 0.0376;
+        result.Direction = 0.09;
 
         float scatterF = 0.02 * density;
         scatterF = mix(0.048, scatterF, skyLight);
-        result.ScatterF = vec3(scatterF);
+        result.ScatterF = scatterF * vec3(0.752, 0.835, 0.889);
 
         float extinctF = mix(0.002, 0.006, rainStrength) * density;
         result.ExtinctF = mix(0.008, extinctF, skyLight);
@@ -60,11 +61,18 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     return result;
 }
 
-vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in bool isWater) {
+vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
     float localRayLength = max(farDist - nearDist, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
+
+    #if WATER_DEPTH_LAYERS > 1
+        VolumetricPhaseFactors phaseAir = GetVolumetricPhaseFactors();
+        VolumetricPhaseFactors phaseWater = WaterPhaseF;
+    #else
+        VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
+    #endif
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
@@ -127,14 +135,40 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
-        float skyPhase = DHG(VoL, -phaseF.Back, phaseF.Forward, phaseF.Direction);
+
+        #if WATER_DEPTH_LAYERS > 1
+            float skyPhaseAir = DHG(VoL, -phaseAir.Back, phaseAir.Forward, phaseAir.Direction);
+            float skyPhaseWater = DHG(VoL, -phaseWater.Back, phaseWater.Forward, phaseWater.Direction);
+        #else
+            float skyPhase = DHG(VoL, -phaseF.Back, phaseF.Forward, phaseF.Direction);
+        #endif
+
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+            //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
+            vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
+
+            vec2 cloudOffset = GetCloudOffset();
+            vec3 camOffset = GetCloudCameraOffset();
+        #endif
     #endif
 
     float localStepLength = localRayLength * inverseStepCountF;
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
-    float extinctionInv = rcp(phaseF.ExtinctF);
 
-    vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
+    #if WATER_DEPTH_LAYERS > 1
+        uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
+        uint uvIndex = uint(uv.y * viewWidth + uv.x);
+
+        float waterDepth[WATER_DEPTH_LAYERS];
+        GetAllWaterDepths(uvIndex, waterDepth);
+
+        float extinctionInvAir = rcp(phaseAir.ExtinctF);
+        float extinctionInvWater = rcp(phaseWater.ExtinctF);
+    #else
+        float extinctionInv = rcp(phaseF.ExtinctF);
+    #endif
+
+    //vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
 
     // #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
     //     inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
@@ -147,18 +181,8 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
-    
-    #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-        //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
-        vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
-
-        vec2 cloudOffset = GetCloudOffset();
-        vec3 camOffset = GetCloudCameraOffset();
-    #endif
 
     for (int i = 0; i <= stepCount; i++) {
-        vec3 inScattering = inScatteringBase;
-
         if (i == stepCount) {
             localStepLength *= 1.0 - dither;
             dither = 0.0;
@@ -168,6 +192,53 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
         //if (i < stepCount) iStep += dither;
 
         vec3 traceLocalPos = localStep * iStep + localStart;
+
+        #if WATER_DEPTH_LAYERS > 1
+            float traceDist = length(traceLocalPos);
+
+            if (isEyeInWater == 1) {
+                isWater = traceDist < min(distTrans, waterDepth[0]) + 0.001;
+
+                if (distTrans < waterDepth[0] - 0.25) {
+                    if (waterDepth[0] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[0], farDist) && traceDist < min(waterDepth[1], farDist));
+
+                    #if WATER_DEPTH_LAYERS >= 4
+                        if (waterDepth[2] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
+                    #endif
+                }
+                else {
+                    #if WATER_DEPTH_LAYERS >= 3
+                        if (waterDepth[1] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
+                    #endif
+
+                    #if WATER_DEPTH_LAYERS >= 5
+                        if (waterDepth[3] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
+                    #endif
+                }
+            }
+            else {
+                if (waterDepth[0] < farDist)
+                    isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
+
+                #if WATER_DEPTH_LAYERS >= 4
+                    if (waterDepth[2] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
+                #endif
+
+                #if WATER_DEPTH_LAYERS >= 6
+                    if (waterDepth[4] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
+                #endif
+            }
+
+            VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
+        #endif
+
+        vec3 inScattering = phaseF.Ambient;
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float sampleF = 1.0;
@@ -240,7 +311,13 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
                 }
             #endif
 
-            inScattering += skyPhase * sampleF * sampleColor;
+            #if WATER_DEPTH_LAYERS > 1
+                sampleF *= isWater ? skyPhaseWater : skyPhaseAir;
+            #else
+                sampleF *= skyPhase;
+            #endif
+
+            inScattering += sampleF * sampleColor;
         #endif
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
@@ -309,7 +386,13 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
 
         inScattering *= phaseF.ScatterF * sampleDensity;
         float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);
-        vec3 scatteringIntegral = (inScattering - inScattering * sampleTransmittance) * extinctionInv;
+        vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
+
+        #if WATER_DEPTH_LAYERS > 1
+            scatteringIntegral *= isWater ? extinctionInvWater : extinctionInvAir;
+        #else
+            scatteringIntegral *= extinctionInv;
+        #endif
 
         scattering += scatteringIntegral * transmittance;
         transmittance *= sampleTransmittance;
@@ -318,18 +401,12 @@ vec4 GetVolumetricLighting(const in VolumetricPhaseFactors phaseF, const in vec3
     return vec4(scattering, transmittance);
 }
 
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist) {
+vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in float distTrans) {
     bool isWater = false;
     
-    #ifdef WORLD_WATER_ENABLED
-        #if defined RENDER_DEFERRED && (!defined MATERIAL_REFRACT_ENABLED || (defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED))
-            if (isEyeInWater == 1) isWater = true;
-        #endif
-
-        VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
-    #else
-        VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
+    #if defined WORLD_WATER_ENABLED && defined RENDER_DEFERRED && (!defined MATERIAL_REFRACT_ENABLED || (defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED))
+        if (isEyeInWater == 1) isWater = true;
     #endif
 
-    return GetVolumetricLighting(phaseF, localViewDir, sunDir, nearDist, farDist, isWater);
+    return GetVolumetricLighting(localViewDir, sunDir, nearDist, farDist, distTrans, isWater);
 }

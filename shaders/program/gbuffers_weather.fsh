@@ -69,6 +69,8 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform float viewWidth;
+uniform vec2 viewSize;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform float near;
@@ -129,6 +131,10 @@ uniform float blindness;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #include "/lib/anim.glsl"
@@ -267,7 +273,7 @@ void main() {
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
         vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, shadowColor);
+        GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, normal, shadowColor, sss);
 
         SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
 
@@ -324,7 +330,7 @@ void main() {
             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
         #endif
 
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
+        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far), far);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif
 

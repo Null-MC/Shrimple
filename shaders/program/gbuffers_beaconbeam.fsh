@@ -12,6 +12,7 @@ in vec3 vLocalPos;
 uniform sampler2D gtexture;
 
 uniform mat4 gbufferModelView;
+uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform float far;
 

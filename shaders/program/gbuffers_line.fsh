@@ -15,6 +15,7 @@ uniform sampler2D lightmap;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 uniform float far;
 

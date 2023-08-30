@@ -72,9 +72,13 @@
                 lightColor = vec3(0.9);
                 break;
             case LIGHT_AMETHYST_BUD_LARGE:
+                lightColor = vec3(0.464, 0.227, 0.788);
+                break;
             case LIGHT_AMETHYST_BUD_MEDIUM:
+                lightColor = vec3(0.316, 0.085, 0.631);
+                break;
             case LIGHT_AMETHYST_CLUSTER:
-                lightColor = vec3(0.600, 0.439, 0.820);
+                lightColor = vec3(0.624, 0.422, 0.899);
                 break;
             case LIGHT_BEACON:
                 lightColor = vec3(1.0);
@@ -127,7 +131,8 @@
                 lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_GLOWSTONE:
-                lightColor = vec3(0.652, 0.583, 0.275);
+                //lightColor = vec3(0.652, 0.583, 0.275);
+                lightColor = vec3(0.889, 0.611, 0.334);
                 break;
             case LIGHT_GLOW_LICHEN:
                 lightColor = vec3(0.092, 0.217, 0.126);
@@ -164,7 +169,8 @@
             case LIGHT_REDSTONE_TORCH_WALL_E:
             case LIGHT_REDSTONE_TORCH_WALL_S:
             case LIGHT_REDSTONE_TORCH_WALL_W:
-                lightColor = vec3(0.697, 0.130, 0.051);
+                //lightColor = vec3(0.697, 0.130, 0.051);
+                lightColor = vec3(0.939, 0.305, 0.164);
                 break;
             case LIGHT_COMPARATOR:
             case LIGHT_REPEATER:
@@ -196,7 +202,7 @@
                 lightColor = vec3(0.181, 0.358, 0.369);
                 break;
             case LIGHT_SEA_LANTERN:
-                lightColor = vec3(0.570, 0.780, 0.800);
+                lightColor = vec3(0.553, 0.748, 0.859);
                 break;
             case LIGHT_SEA_PICKLE_1:
             case LIGHT_SEA_PICKLE_2:
@@ -222,14 +228,16 @@
             case LIGHT_SOUL_CAMPFIRE:
             case LIGHT_SOUL_FIRE:
             case LIGHT_SOUL_STREET_LAMP:
-                lightColor = vec3(0.203, 0.725, 0.758);
+                //lightColor = vec3(0.203, 0.725, 0.758);
+                lightColor = vec3(0.097, 0.721, 0.899);
                 break;
             case LIGHT_TORCH_FLOOR:
             case LIGHT_TORCH_WALL_N:
             case LIGHT_TORCH_WALL_E:
             case LIGHT_TORCH_WALL_S:
             case LIGHT_TORCH_WALL_W:
-                lightColor = vec3(0.899, 0.625, 0.253);
+                //lightColor = vec3(0.899, 0.625, 0.253);
+                lightColor = vec3(0.960, 0.570, 0.277);
                 break;
         }
 

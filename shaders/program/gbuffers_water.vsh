@@ -65,8 +65,12 @@ uniform vec3 cameraPosition;
     uniform float frameTimeCounter;
 #endif
 
-#if defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED
-    uniform float rainStrength;
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+
+    #ifdef WORLD_SKY_ENABLED
+        uniform float rainStrength;
+    #endif
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -171,6 +175,13 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
+    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+
+    // if (isEyeInWater != 1 && gl_Normal.y < -0.999 && gl_Vertex.y + at_midBlock.y/64.0 > 0.5) {
+    //     gl_Position = vec4(-1.0);
+    //     return;
+    // }
+
     BasicVertex();
 
     PrepareNormalMap();
@@ -205,8 +216,7 @@ void main() {
 
                 physics_localPosition = finalPosition.xyz;
             #elif WORLD_WATER_WAVES != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
-                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
-                finalPosition.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, skyLight);
+                finalPosition.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, lmcoord.y);
             #endif
 
             gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
