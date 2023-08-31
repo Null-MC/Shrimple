@@ -197,12 +197,7 @@
         void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
             vec3 localViewDir = -normalize(localPos);
 
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                vec2 lmSky = vec2(0.0, lmcoord.y);
-            #else
-                vec2 lmSky = lmcoord;
-                //lmSky.y
-            #endif
+            vec2 lmSky = vec2(0.0, lmcoord.y);
 
             // #ifndef RENDER_CLOUDS
             //     //lmSky.y = pow(lmSky.y, lightP);
@@ -249,25 +244,17 @@
             if (!all(lessThan(abs(localNormal), EPSILON3)))
                 geoNoL = dot(localNormal, localSkyLightDirection);
 
-            //#if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
-                float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
-            //#else
-            //    const float diffuseNoL = 1.0;
-            //#endif
+            float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
 
             vec3 H = normalize(-localSkyLightDirection + -localViewDir);
             float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
             //vec3 accumDiffuse = skyLightColor * D * mix(shadowColor, vec3(1.0), ShadowBrightnessF);// * roughL;
-            vec3 accumDiffuse = skyLightColor * D * shadowColor;
+            vec3 accumDiffuse = D * skyLightColor * shadowColor;
 
 
-            //vec2 lmcoordFinal = (vec4(lmcoord, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
-            vec2 lmcoordFinal = lmcoord;
-            //float lightP = rcp(max(DynamicLightAmbientF, EPSILON));
-            //lmcoordFinal.y = pow(lmcoordFinal.y, lightP);
-            lmcoordFinal = saturate(lmcoordFinal) * (15.0/16.0) + (0.5/16.0);
+            vec2 lmcoordFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
 
             vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
 
@@ -300,12 +287,10 @@
                 ambientLight += lpvLight * lpvFade;
             #endif
 
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                //ambientLight += WorldMinLightF;
-                ambientLight *= DynamicLightAmbientF * (1.0 + 2.0*rainStrength);
+            //ambientLight += WorldMinLightF;
+            ambientLight *= DynamicLightAmbientF * (1.0 + 2.0*rainStrength);
 
-                ambientLight *= occlusion;
-            #endif
+            ambientLight *= occlusion;
 
             if (any(greaterThan(abs(texNormal), EPSILON3)))
                 ambientLight *= (texNormal.y * 0.3 + 0.7);
@@ -384,9 +369,9 @@
                 #endif
             #endif
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-               accumDiffuse *= occlusion;
-            #endif
+            // #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            //    accumDiffuse *= occlusion;
+            // #endif
 
             skyDiffuse += accumDiffuse;
         }

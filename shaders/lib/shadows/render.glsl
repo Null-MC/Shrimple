@@ -37,10 +37,10 @@
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-
-            float bias = sss * dither;
-
             vec2 sssOffset = 2.0 * hash22(vec2(dither, 0.0)) - 1.0;
+
+            float bias = sss * _pow2(dither);
+
             //sssOffset = (sssOffset);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

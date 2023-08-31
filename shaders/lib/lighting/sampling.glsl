@@ -17,7 +17,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
         //    NoL = dot(localNormal, lightDir);
 
         if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            NoL = min(NoL, max(texNoL, 0.0));
+            NoL = max(texNoL, 0.0);
         }
     //#endif
 

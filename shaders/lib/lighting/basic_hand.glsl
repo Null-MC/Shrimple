@@ -92,7 +92,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
