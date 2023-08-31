@@ -25,7 +25,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     vec3 screenRay = clipRay / screenRayLength;
 
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    float dither = 2.0 + InterleavedGradientNoise(gl_FragCoord.xy);
 
 
     #if SSR_LOD_MAX > 0
@@ -120,7 +120,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         bool ignoreIfCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
-        bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.02;
+        bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.02 * exp2(level);
         //bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.1;
         bool ignoreIfTooThick = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
