@@ -90,7 +90,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         int maxLod = int(log2(minOf(viewSize)));
         float roughMip = roughness * maxLod + 0.5;
 
-        vec4 reflection = GetReflectionPosition(depthtex1, clipPos, clipRay);
+        vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
 
         #if WORLD_FOG_MODE != FOG_MODE_NONE

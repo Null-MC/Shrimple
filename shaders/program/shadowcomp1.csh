@@ -54,7 +54,7 @@ const ivec3 workGroups = ivec3(16, 16, 16);
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
-    #ifdef DYN_LIGHT_FLICKER
+    //#ifdef DYN_LIGHT_FLICKER
         //uniform float frameTimeCounter;
 
         #ifdef ANIM_WORLD_TIME
@@ -62,7 +62,7 @@ const ivec3 workGroups = ivec3(16, 16, 16);
         #else
             uniform float frameTimeCounter;
         #endif
-    #endif
+    //#endif
 
     #include "/lib/blocks.glsl"
     #include "/lib/lights.glsl"

@@ -623,7 +623,7 @@ void main() {
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4((texNormal * 0.5 + 0.5) + dither, 1.0));
+        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
