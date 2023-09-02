@@ -6,7 +6,7 @@ const ivec2 DepthTileSizes[] = ivec2[](
 
 
 void GetDepthTileBounds(const in int index, out ivec2 tilePos, out ivec2 tileSize) {
-    ivec2 viewSize = ivec2(viewWidth, viewHeight);
+    //ivec2 viewSize = ivec2(viewWidth, viewHeight);
     tileSize = ivec2(viewSize / exp2(index + 1));
 
     tilePos = ivec2(0);

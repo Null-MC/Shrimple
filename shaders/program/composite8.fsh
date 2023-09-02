@@ -17,7 +17,7 @@ uniform sampler2D BUFFER_WEATHER_DEPTH;
 uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
 uniform float viewHeight;
-uniform ivec2 viewSize;
+uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 uniform float blindness;

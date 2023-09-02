@@ -15,8 +15,8 @@ uniform sampler2D depthtex0;
 
 uniform float viewWidth;
 uniform float viewHeight;
-//uniform ivec2 viewSize;
-//uniform vec2 pixelSize;
+uniform vec2 viewSize;
+uniform vec2 pixelSize;
 
 #include "/lib/utility/depth_tiles.glsl"
 
@@ -33,10 +33,10 @@ void SampleTileMin(inout float minZ, const in ivec2 sourceSize, const in ivec2 s
 }
 
 void main() {
-	ivec2 viewSize = ivec2(viewWidth, viewHeight);
+	//ivec2 viewSize = ivec2(viewWidth, viewHeight);
 	ivec2 fragWritePos = ivec2(gl_GlobalInvocationID.xy);
 
-	ivec2 tileSize = viewSize / 2;
+	ivec2 tileSize = ivec2(viewSize) / 2;
 	if (any(greaterThanEqual(fragWritePos, tileSize))) return;
 
 	float minZ = 1.0;

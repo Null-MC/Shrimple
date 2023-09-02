@@ -43,7 +43,7 @@ in vec2 texcoord;
     uniform float viewWidth;
     uniform float viewHeight;
     uniform float aspectRatio;
-    uniform ivec2 viewSize;
+    uniform vec2 viewSize;
     uniform vec2 pixelSize;
     uniform float near;
     uniform float far;
@@ -151,7 +151,7 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
 
-        vec2 viewSize = vec2(viewWidth, viewHeight);
+        //vec2 viewSize = vec2(viewWidth, viewHeight);
 
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
         vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;

@@ -11,8 +11,8 @@ float sampleLuma(const in vec2 uv) {
 
 // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
 vec3 FXAA(const in vec2 uv) {
-	vec2 viewSize = vec2(viewWidth, viewHeight);
-	vec2 inverseScreenSize = rcp(viewSize);
+	//vec2 viewSize = vec2(viewWidth, viewHeight);
+	//vec2 inverseScreenSize = rcp(viewSize);
 
 	vec3 colorCenter = textureLod(colortex0, uv, 0.0).rgb;
 	
@@ -64,7 +64,7 @@ vec3 FXAA(const in vec2 uv) {
 	bool isHorizontal = (edgeHorizontal >= edgeVertical);
 	
 	// Choose the step size (one pixel) accordingly.
-	float stepLength = isHorizontal ? inverseScreenSize.y : inverseScreenSize.x;
+	float stepLength = isHorizontal ? pixelSize.y : pixelSize.x;
 	
 	// Select the two neighboring texels lumas in the opposite direction to the local edge.
 	float luma1 = isHorizontal ? lumaDown : lumaLeft;
@@ -98,7 +98,7 @@ vec3 FXAA(const in vec2 uv) {
 	}
 	
 	// Compute offset (for each iteration step) in the right direction.
-	vec2 offset = isHorizontal ? vec2(inverseScreenSize.x, 0.0) : vec2(0.0, inverseScreenSize.y);
+	vec2 offset = isHorizontal ? vec2(pixelSize.x, 0.0) : vec2(0.0, pixelSize.y);
 	// Compute UVs to explore on each side of the edge, orthogonally. The QUALITY allows us to step faster.
 	vec2 uv1 = currentUv - offset * FXAA_QUALITY(0);
 	vec2 uv2 = currentUv + offset * FXAA_QUALITY(0);

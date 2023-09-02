@@ -19,7 +19,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 #endif
 
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     // vec2 pixelSize = rcp(viewSize);
 
     #if defined WATER_BLUR && DIST_BLUR_MODE == DIST_BLUR_NONE

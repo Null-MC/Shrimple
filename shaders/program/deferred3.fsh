@@ -192,10 +192,10 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     const float lightBufferScale = exp2(DYN_LIGHT_RES);
     const float lightBufferScaleInv = rcp(lightBufferScale);
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 lightBufferSize = viewSize * lightBufferScaleInv;
     vec2 blendPixelSize = rcp(lightBufferSize);
-    vec2 screenPixelSize = rcp(viewSize);
+    //vec2 screenPixelSize = rcp(viewSize);
 
     float total = 0.0;
     vec3 accumDiffuse = vec3(0.0);
@@ -311,7 +311,7 @@ layout(location = 0) out vec4 outFinal;
 
     void main() {
         ivec2 iTex = ivec2(gl_FragCoord.xy);
-        vec2 viewSize = vec2(viewWidth, viewHeight);
+        //vec2 viewSize = vec2(viewWidth, viewHeight);
 
         //float depth = texelFetch(depthtex0, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;

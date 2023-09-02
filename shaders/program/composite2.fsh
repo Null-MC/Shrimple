@@ -56,7 +56,7 @@ uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
 uniform float viewWidth;
 uniform float viewHeight;
-uniform ivec2 viewSize;
+uniform vec2 viewSize;
 uniform float near;
 uniform float far;
 
@@ -234,10 +234,10 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     const float lightBufferScale = exp2(DYN_LIGHT_RES);
     const float lightBufferScaleInv = rcp(lightBufferScale);
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 lightBufferSize = viewSize * lightBufferScaleInv;
     vec2 blendPixelSize = rcp(lightBufferSize);
-    vec2 screenPixelSize = rcp(viewSize);
+    //vec2 screenPixelSize = rcp(viewSize);
 
     float total = 0.0;
     vec3 accumDiffuse = vec3(0.0);

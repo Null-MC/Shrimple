@@ -14,6 +14,8 @@ uniform sampler2D colortex0;
 
 uniform float viewWidth;
 uniform float viewHeight;
+uniform vec2 viewSize;
+uniform vec2 pixelSize;
 
 #if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 	uniform sampler2D BUFFER_DEFERRED_COLOR;
@@ -69,7 +71,7 @@ uniform float viewHeight;
 
 
 void main() {
-	vec2 viewSize = vec2(viewWidth, viewHeight);
+	//vec2 viewSize = vec2(viewWidth, viewHeight);
 
 	#if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 		vec3 color = texelFetch(BUFFER_DEFERRED_COLOR, ivec2(texcoord * viewSize), 0).rgb;
@@ -161,8 +163,8 @@ void main() {
 		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
 		text.fpPrecision = 4;
 
-		vec2 center = vec2(viewWidth, viewHeight) * 0.5;
-        uint waterUV = uint(center.y * viewWidth + center.x);
+		vec2 center = viewSize * 0.5;
+        uint waterUV = uint(center.y * viewSize.x + center.x);
 
 		printString((_I, _s, _space, _W, _a, _t, _e, _r, _colon, _space));
 		printBool(WaterDepths[waterUV].IsWater);

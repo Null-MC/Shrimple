@@ -14,7 +14,7 @@ uniform sampler2D BUFFER_FINAL;
     uniform sampler2D depthtex2;
 #endif
 
-uniform ivec2 viewSize;
+uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 

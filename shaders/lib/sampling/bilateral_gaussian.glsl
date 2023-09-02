@@ -131,7 +131,7 @@ vec3 BilateralGaussianDepthBlurRGB_7x(const in vec2 texcoord, const in sampler2D
     float total = 0.0;
     vec3 accum = vec3(0.0);
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 blendPixelSize = rcp(viewSize * blendTexScale);
     //vec2 depthPixelSize = rcp(depthTexSize);
     vec3 defaultColor;

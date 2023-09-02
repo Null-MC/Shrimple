@@ -21,8 +21,8 @@ uniform mat4 projectionMatrix;
 
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
-uniform float viewWidth;
-uniform float viewHeight;
+uniform vec2 viewSize;
+uniform vec2 pixelSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -40,9 +40,9 @@ void main() {
     vec4 linePosEnd = projectionMatrix * (VIEW_SCALE * (modelViewMatrix * vec4(vaPosition + vaNormal, 1.0)));
     vec3 ndc2 = unproject(linePosEnd);
 
-    vec2 viewSize = vec2(viewWidth, viewHeight);
+    //vec2 viewSize = vec2(viewWidth, viewHeight);
     vec2 lineScreenDirection = normalize((ndc2.xy - ndc1.xy) * viewSize);
-    vec2 lineOffset = vec2(-lineScreenDirection.y, lineScreenDirection.x) * LINE_WIDTH / viewSize;
+    vec2 lineOffset = vec2(-lineScreenDirection.y, lineScreenDirection.x) * LINE_WIDTH * pixelSize;
 
     if (lineOffset.x < 0.0) lineOffset = -lineOffset;
     if (gl_VertexID % 2 != 0) lineOffset = -lineOffset;

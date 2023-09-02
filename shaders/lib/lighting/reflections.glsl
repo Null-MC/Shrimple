@@ -86,7 +86,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         //if (length2(clipRay) > EPSILON) clipRay = normalize(clipRay);
         //return clipRay * 0.5 + 0.5;
 
-        vec2 viewSize = vec2(viewWidth, viewHeight);
+        //vec2 viewSize = vec2(viewWidth, viewHeight);
         int maxLod = int(log2(minOf(viewSize)));
         float roughMip = roughness * maxLod + 0.5;
 
