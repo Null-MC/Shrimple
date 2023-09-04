@@ -470,7 +470,7 @@ void main() {
     // #endif
 
     float occlusion = 1.0;
-    #ifdef WORLD_AO_ENABLED
+    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
     #endif
 

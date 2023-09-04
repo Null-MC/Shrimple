@@ -258,6 +258,13 @@ const bool colortex15Clear = true;
 #define DIST_BLUR_FAR_POW 1.2
 #define BLUR_DOF_FOCUS_SCALE 40 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 
+#define EFFECT_SSAO_ENABLED
+#define EFFECT_SSAO_SAMPLES 12 // [2 4 6 8 10 12 14 16 24 32]
+#define EFFECT_SSAO_RADIUS 1.5 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
+#define EFFECT_SSAO_STRENGTH 9 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
+#define EFFECT_SSAO_MIN 0.1
+#define EFFECT_SSAO_BIAS 0.2
+
 #define EFFECT_AUTO_EXPOSE
 
 
@@ -303,6 +310,7 @@ const bool colortex15Clear = true;
 #define UINT32_MAX 4294967295u
 #define PI 3.1415926538
 #define TAU 6.2831853076
+#define GOLDEN_ANGLE 2.39996323
 #define IOR_AIR 1.00
 #define IOR_WATER 1.33
 #define EPSILON 1e-6
@@ -441,6 +449,8 @@ const bool colortex15Clear = true;
 #ifdef SHADOW_FORCE_CULLING
 #endif
 #ifdef EFFECT_BLOOM_ENABLED
+#endif
+#ifdef EFFECT_SSAO_ENABLED
 #endif
 #ifdef DH_COMPAT_ENABLED
 #endif

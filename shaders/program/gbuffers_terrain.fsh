@@ -357,7 +357,7 @@ void main() {
     float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
 
-    #ifdef WORLD_AO_ENABLED
+    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
         //occlusion = _pow2(glcolor.a);
     #endif

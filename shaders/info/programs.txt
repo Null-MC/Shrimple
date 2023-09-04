@@ -17,11 +17,11 @@ composite3		opaque deferred VL tracing
 
 composite4		opaque SSAO
 
-composite4		opaque apply reflections, VL, & water absorption
-composite5		translucent deferred block-light tracing
-composite6		translucent deferred VL tracing
-composite7		translucent deferred final + pre distance blur
-composite8		post distance blur
+composite5		opaque apply reflections, VL, & water absorption
+composite6		translucent deferred block-light tracing
+composite7		translucent deferred VL tracing
+composite8		translucent deferred final + pre distance blur
+composite9		post distance blur
 
 composite11		bloom downscale 1/2
 composite12		bloom downscale 1/4

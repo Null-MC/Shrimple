@@ -553,6 +553,19 @@ option.DIST_BLUR_SAMPLES=Sample Count
 option.DIST_BLUR_RADIUS=Radius
 
 
+screen.EFFECT_SSAO_OPTIONS=SSAO
+screen.EFFECT_SSAO_OPTIONS.comment=Options for Screen-Space Ambient Occlusion
+
+option.EFFECT_SSAO_ENABLED=Enabled
+
+option.EFFECT_SSAO_SAMPLES=Sample Count
+
+option.EFFECT_SSAO_RADIUS=Block Radius
+
+option.EFFECT_SSAO_STRENGTH=Strength
+suffix.EFFECT_SSAO_STRENGTH=x
+
+
 screen.POST_OPTIONS=Post-Processing
 
 option.POST_BRIGHTNESS=Brightness
