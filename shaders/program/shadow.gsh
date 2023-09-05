@@ -35,6 +35,8 @@ uniform float far;
     uniform int frameCounter;
     uniform int currentRenderedItemId;
     uniform vec3 previousCameraPosition;
+    uniform vec3 eyePosition;
+    uniform int entityId;
 #endif
 
 #include "/lib/blocks.glsl"
@@ -122,26 +124,24 @@ void main() {
                         }
                     #endif
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                         if (intersectsLight && !IsTraceEmptyBlock(vBlockId[0]))
                             SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
-                    #endif
+                    //#endif
                 }
             }
         #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
-            if (renderStage == MC_RENDER_STAGE_ENTITIES && _lengthSq(originPos) > 2.0) {
+            vec3 playerOffset = originPos - (eyePosition - cameraPosition);
+            playerOffset.y += 1.0;
+
+            if (renderStage == MC_RENDER_STAGE_ENTITIES && _lengthSq(playerOffset) > 2.0) {
+                uint lightType = GetSceneLightType(currentRenderedItemId);
                 vec3 lightValue = vec3(0.0);
 
-                // if (currentRenderedItemId == BLOCK_TORCH_FLOOR)
-                //     lightValue = vec3(0.0, 100.0, 0.0);
-
-                // if (currentRenderedItemId == ITEM_REDSTONE_TORCH)
-                //     lightValue = vec3(100.0, 0.0, 0.0);
-
-                // if (currentRenderedItemId == BLOCK_SEA_LANTERN)
-                //     lightValue = vec3(0.0, 0.0, 100.0);
-
-                uint lightType = GetSceneLightType(currentRenderedItemId);
+                if (entityId == ENTITY_SPECTRAL_ARROW)
+                    lightType = LIGHT_TORCH_FLOOR;
+                else if (entityId == ENTITY_TORCH_ARROW)
+                    lightType = LIGHT_TORCH_FLOOR;
 
                 if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                     StaticLightData lightInfo = StaticLightMap[lightType];

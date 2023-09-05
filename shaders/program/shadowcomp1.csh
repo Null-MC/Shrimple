@@ -251,7 +251,7 @@ void main() {
         ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
 
         ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
-        //if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
+        if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
 
         int frameIndex = frameCounter % 2;
         ivec3 imgCoordOffset = GetLPVFrameOffset();
@@ -269,13 +269,16 @@ void main() {
             skyLightColor *= mix(1.0, 0.1, rainStrength);
         #endif
 
+        //for (int t = 0; t < 3; t++) {
+        //    if (t > 0) memoryBarrierImage();
+
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
             for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
                 for (int x = 0; x < LPV_CHUNK_SIZE; x++) {
                     ivec3 iPos = ivec3(x, y, z);
 
                     ivec3 imgCoord = imgChunkPos + iPos;
-                    //if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
+                    if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
 
                     ivec3 voxelPos = voxelOffset + imgCoord;
 
@@ -357,5 +360,7 @@ void main() {
                 }
             }
         }
+
+        //}
     #endif
 }

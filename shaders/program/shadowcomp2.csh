@@ -16,6 +16,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
     uniform mat4 gbufferModelView;
     uniform vec3 cameraPosition;
+    uniform vec3 previousCameraPosition;
     uniform float far;
 
     #ifdef DYN_LIGHT_FLICKER

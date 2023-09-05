@@ -1,5 +1,5 @@
 #if LPV_SIZE == 3
-    const ivec3 SceneLPVSize = ivec3(256);
+    const ivec3 SceneLPVSize = ivec3(256, 128, 256);
 #elif LPV_SIZE == 2
     const ivec3 SceneLPVSize = ivec3(128);
 #elif LPV_SIZE == 1
