@@ -112,11 +112,11 @@ const ivec3 workGroups = ivec3(16, 16, 16);
 #endif
 
 
-ivec3 GetLPVFrameOffset() {
-    vec3 posNow = GetLPVPosition(vec3(0.0));
-    vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
-    return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
-}
+// ivec3 GetLPVFrameOffset() {
+//     vec3 posNow = GetLPVPosition(vec3(0.0));
+//     vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
+//     return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
+// }
 
 ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;

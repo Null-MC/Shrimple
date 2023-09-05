@@ -31,20 +31,32 @@ uniform float far;
     uniform float near;
 #endif
 
+#if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
+    uniform int frameCounter;
+    uniform int currentRenderedItemId;
+    uniform vec3 previousCameraPosition;
+#endif
+
 #include "/lib/blocks.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-#endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/entities.glsl"
-    #include "/lib/items.glsl"
-    
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/block_mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
+    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/entities.glsl"
+        #include "/lib/items.glsl"
+        
+        #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
+        #include "/lib/lights.glsl"
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/lighting/voxel/lpv.glsl"
+    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -74,47 +86,94 @@ uniform float far;
 #endif
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
-            vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
+    #if defined IRIS_FEATURE_SSBO //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
-            #ifdef SHADOW_FRUSTUM_CULL
-                if (vBlockId[0] > 0) {
-                    vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
+        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES && vBlockId[0] > 0) {
+                #ifdef SHADOW_FRUSTUM_CULL
+                    if (vBlockId[0] > 0) {
+                        vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
 
-                    if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
-                }
-            #endif
-
-            vec3 cf = fract(cameraPosition);
-            vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
-
-            ivec3 gridCell, blockCell;
-            vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
-            if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-                uint gridIndex = GetVoxelGridCellIndex(gridCell);
-                bool intersectsLight = true;
-
-                #ifdef DYN_LIGHT_FRUSTUM_TEST
-                    vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
-
-                    const float viewPad = 1.0;
-                    if (lightViewPos.z > viewPad) intersectsLight = false;
-                    else if (lightViewPos.z < -(far + viewPad)) intersectsLight = false;
-                    else {
-                        if (dot(sceneViewUp,   lightViewPos) > viewPad) intersectsLight = false;
-                        if (dot(sceneViewDown, lightViewPos) > viewPad) intersectsLight = false;
-                        if (dot(sceneViewLeft,  lightViewPos) > viewPad) intersectsLight = false;
-                        if (dot(sceneViewRight, lightViewPos) > viewPad) intersectsLight = false;
+                        if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
                     }
                 #endif
 
-                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    if (intersectsLight && !IsTraceEmptyBlock(vBlockId[0]))
-                        SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
-                #endif
+                vec3 cf = fract(cameraPosition);
+                vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
+
+                ivec3 gridCell, blockCell;
+                vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+                if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
+                    bool intersectsLight = true;
+
+                    #ifdef DYN_LIGHT_FRUSTUM_TEST
+                        vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+
+                        const float viewPad = 1.0;
+                        if (lightViewPos.z > viewPad) intersectsLight = false;
+                        else if (lightViewPos.z < -(far + viewPad)) intersectsLight = false;
+                        else {
+                            if (dot(sceneViewUp,   lightViewPos) > viewPad) intersectsLight = false;
+                            if (dot(sceneViewDown, lightViewPos) > viewPad) intersectsLight = false;
+                            if (dot(sceneViewLeft,  lightViewPos) > viewPad) intersectsLight = false;
+                            if (dot(sceneViewRight, lightViewPos) > viewPad) intersectsLight = false;
+                        }
+                    #endif
+
+                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                        if (intersectsLight && !IsTraceEmptyBlock(vBlockId[0]))
+                            SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
+                    #endif
+                }
             }
-        }
+        #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
+            if (renderStage == MC_RENDER_STAGE_ENTITIES && _lengthSq(originPos) > 2.0) {
+                vec3 lightValue = vec3(0.0);
+
+                // if (currentRenderedItemId == BLOCK_TORCH_FLOOR)
+                //     lightValue = vec3(0.0, 100.0, 0.0);
+
+                // if (currentRenderedItemId == ITEM_REDSTONE_TORCH)
+                //     lightValue = vec3(100.0, 0.0, 0.0);
+
+                // if (currentRenderedItemId == BLOCK_SEA_LANTERN)
+                //     lightValue = vec3(0.0, 0.0, 100.0);
+
+                uint lightType = GetSceneLightType(currentRenderedItemId);
+
+                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                    StaticLightData lightInfo = StaticLightMap[lightType];
+                    vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                    float lightRange = lightRangeSize.x * 255.0;
+
+                    lightColor = RGBToLinear(lightColor);
+
+                    //vec2 lightNoise = vec2(0.0);
+                    //#ifdef DYN_LIGHT_FLICKER
+                    //    lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                    //    ApplyLightFlicker(lightColor, lightType, lightNoise);
+                    //#endif
+
+                    lightValue = lightColor * lightRange * LpvBlockLightF;
+                }
+
+                if (any(greaterThan(lightValue, EPSILON3))) {
+                    vec3 lpvPos = GetLPVPosition(originPos);
+                    ivec3 imgCoord = GetLPVImgCoord(lpvPos);
+
+                    ivec3 imgCoordOffset = GetLPVFrameOffset();
+                    ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+
+                    if (frameCounter % 2 == 0)
+                        imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                    else
+                        imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                }
+            }
+        #endif
         // else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         //     if (entityId == ENTITY_LIGHTNING_BOLT) return;
 

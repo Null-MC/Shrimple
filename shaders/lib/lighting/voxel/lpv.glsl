@@ -30,3 +30,9 @@ float GetLpvFade(const in vec3 lpvPos) {
     vec3 lpvDistF = max(lpvDist - lpvSizeInner, vec3(0.0));
     return saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
 }
+
+ivec3 GetLPVFrameOffset() {
+    vec3 posNow = GetLPVPosition(vec3(0.0));
+    vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
+    return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
+}

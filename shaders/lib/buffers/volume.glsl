@@ -1,7 +1,7 @@
 #ifdef RENDER_SHADOWCOMP_LPV
 	layout(rgba16f) uniform restrict image3D imgSceneLPV_1;
 	layout(rgba16f) uniform restrict image3D imgSceneLPV_2;
-#elif defined RENDER_SHADOWCOMP_LIGHT_POPULATE
+#elif defined RENDER_SHADOWCOMP_LIGHT_POPULATE || defined RENDER_SHADOW
 	layout(rgba16f) uniform restrict writeonly image3D imgSceneLPV_1;
 	layout(rgba16f) uniform restrict writeonly image3D imgSceneLPV_2;
 #else

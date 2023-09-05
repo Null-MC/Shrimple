@@ -254,13 +254,19 @@
             vec3 accumDiffuse = D * skyLightColor * shadowColor;
 
 
-            vec2 lmcoordFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
+            vec2 lmcoordFinal = saturate(lmcoord);
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                lmcoordFinal.x = 0.0;
+            #endif
+
+            lmcoordFinal = lmcoordFinal * (15.0/16.0) + (0.5/16.0);
 
             vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
 
             vec3 ambientLight = RGBToLinear(lightmapColor);
 
-            #if LPV_SIZE > 0
+            #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_LPV
                 vec3 surfacePos = localPos;
                 surfacePos += 0.501 * localNormal;// * (1.0 - sss);
 
