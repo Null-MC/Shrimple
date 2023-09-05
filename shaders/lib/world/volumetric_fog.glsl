@@ -67,11 +67,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float localRayLength = max(farDist - nearDist, 0.0);
     if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
 
-    #if WATER_DEPTH_LAYERS > 1
+    #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
         VolumetricPhaseFactors phaseAir = GetVolumetricPhaseFactors();
         VolumetricPhaseFactors phaseWater = WaterPhaseF;
-    #else
+    #elif defined WORLD_WATER_ENABLED
         VolumetricPhaseFactors phaseF = isWater ? WaterPhaseF : GetVolumetricPhaseFactors();
+    #else
+        VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
     #endif
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
@@ -136,7 +138,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
-        #if WATER_DEPTH_LAYERS > 1
+        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
             float skyPhaseAir = DHG(VoL, -phaseAir.Back, phaseAir.Forward, phaseAir.Direction);
             float skyPhaseWater = DHG(VoL, -phaseWater.Back, phaseWater.Forward, phaseWater.Direction);
         #else
@@ -155,7 +157,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float localStepLength = localRayLength * inverseStepCountF;
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
 
-    #if WATER_DEPTH_LAYERS > 1
+    #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
         uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
         uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
@@ -193,7 +195,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         vec3 traceLocalPos = localStep * iStep + localStart;
 
-        #if WATER_DEPTH_LAYERS > 1
+        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
             float traceDist = length(traceLocalPos);
 
             if (isEyeInWater == 1) {
@@ -311,7 +313,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 }
             #endif
 
-            #if WATER_DEPTH_LAYERS > 1
+            #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
                 sampleF *= isWater ? skyPhaseWater : skyPhaseAir;
             #else
                 sampleF *= skyPhase;
@@ -388,7 +390,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 
-        #if WATER_DEPTH_LAYERS > 1
+        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
             scatteringIntegral *= isWater ? extinctionInvWater : extinctionInvAir;
         #else
             scatteringIntegral *= extinctionInv;
