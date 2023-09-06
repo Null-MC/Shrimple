@@ -8,17 +8,17 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
+//in vec3 vPos;
+//in vec3 vNormal;
+//in float geoNoL;
 in vec3 vBlockLight;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
 in vec3 vLocalTangent;
-flat in int vBlockId;
 in float vTangentW;
 
+flat in int vBlockId;
 flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -282,7 +282,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    float viewDist = length(vPos);
+    float viewDist = length(vLocalPos);
     vec2 atlasCoord = texcoord;
     vec2 localCoord = vLocalCoord;
     vec2 lmFinal = lmcoord;
@@ -460,8 +460,11 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
+        //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-        ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
+        ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
     #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED
@@ -508,6 +511,13 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    //vec3 skyLightDir = normalize(shadowLightPosition);
+                    geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    geoNoL = 1.0;
+                #endif
+
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 

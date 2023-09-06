@@ -14,7 +14,7 @@
 
         vec4 viewPos = gl_ModelViewMatrix * pos;
 
-        vPos = viewPos.xyz;
+        //vPos = viewPos.xyz;
 
         vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
 
@@ -22,23 +22,22 @@
             vBlockLight = vec3(0.0);
 
             #ifdef RENDER_BILLBOARD
-                vec3 vNormal;
                 vec3 vLocalNormal;
             #endif
 
-            vNormal = normalize(gl_NormalMatrix * gl_Normal);
-            vLocalNormal = mat3(gbufferModelViewInverse) * vNormal;
-
-            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-                vec3 skyLightDir = normalize(shadowLightPosition);
-                geoNoL = dot(skyLightDir, vNormal);
-            #else
-                geoNoL = 1.0;
-            #endif
+            vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+            vLocalNormal = mat3(gbufferModelViewInverse) * viewNormal;
 
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     shadowTile = -1;
+                #endif
+
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+                    vec3 skyLightDir = normalize(shadowLightPosition);
+                    float geoNoL = dot(skyLightDir, viewNormal);
+                #else
+                    float geoNoL = 1.0;
                 #endif
 
                 ApplyShadows(vLocalPos, vLocalNormal, geoNoL);

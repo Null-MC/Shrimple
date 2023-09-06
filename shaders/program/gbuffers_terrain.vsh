@@ -14,17 +14,17 @@ in vec3 vaPosition;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vPos;
-out vec3 vNormal;
-out float geoNoL;
+//out vec3 vPos;
+//out vec3 vNormal;
+//out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
 out vec3 vLocalTangent;
 out float vTangentW;
-flat out int vBlockId;
 
+flat out int vBlockId;
 flat out mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
