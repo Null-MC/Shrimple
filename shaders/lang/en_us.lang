@@ -16,6 +16,11 @@ value.WORLD_FOG_MODE.0=None
 value.WORLD_FOG_MODE.1=Vanilla
 value.WORLD_FOG_MODE.2=Custom
 
+option.WORLD_FOG_SHAPE=Fog Shape
+value.WORLD_FOG_SHAPE.0=Default
+value.WORLD_FOG_SHAPE.1=Sphere
+value.WORLD_FOG_SHAPE.2=Cylinder
+
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
 

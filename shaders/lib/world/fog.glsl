@@ -140,8 +140,13 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         // if (fogShape == 1)
         //     fogPos.y = 0.0;
 
-        #ifdef WORLD_SKY_ENABLED
-            fogPos.y = 0.0;
+        #if defined WORLD_SKY_ENABLED
+            #if WORLD_FOG_SHAPE == FOG_SHAPE_CYLINDER
+                fogPos.y = 0.0;
+            #elif WORLD_FOG_SHAPE == FOG_SHAPE_DEFAULT
+                if (fogShape == 1)
+                    fogPos.y = 0.0;
+            #endif
         #endif
 
         return length(fogPos);// * rcp(WorldFogScaleF);

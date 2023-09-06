@@ -373,6 +373,11 @@ layout(location = 0) out vec4 outFinal;
         float roughL = 1.0;
         vec3 texNormal;
 
+        #if WATER_DEPTH_LAYERS > 1
+            uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
+            uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
+        #endif
+
         if (deferredColor.a > (0.5/255.0)) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
@@ -389,7 +394,12 @@ layout(location = 0) out vec4 outFinal;
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
             vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
-            isWater = deferredShadow.a < 0.5;
+
+            #if WATER_DEPTH_LAYERS > 1
+                isWater = WaterDepths[waterPixelIndex].IsWater;
+            #else
+                isWater = deferredShadow.a < 0.5;
+            #endif
 
             #ifdef MATERIAL_REFRACT_ENABLED
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
@@ -680,17 +690,15 @@ layout(location = 0) out vec4 outFinal;
 
                 // water blur depth
                 #if WATER_DEPTH_LAYERS > 1
-                    uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
-                    uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
+                    //uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
+                    //uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
 
                     float waterDepth[WATER_DEPTH_LAYERS+1];
                     GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
 
                     if (isEyeInWater == 1) {
-                        #if WATER_DEPTH_LAYERS >= 2
-                            if (waterDepth[1] < opaqueDist)
-                                blurDist += max(min(waterDepth[2], opaqueDist) - min(waterDepth[1], opaqueDist), 0.0);
-                        #endif
+                        if (waterDepth[1] < opaqueDist)
+                            blurDist += max(min(waterDepth[2], opaqueDist) - min(waterDepth[1], opaqueDist), 0.0);
 
                         #if WATER_DEPTH_LAYERS >= 4
                             if (waterDepth[3] < opaqueDist)
@@ -706,12 +714,12 @@ layout(location = 0) out vec4 outFinal;
                         if (waterDepth[0] < opaqueDist)
                             blurDist += max(min(waterDepth[1], opaqueDist) - min(waterDepth[0], opaqueDist), 0.0);
 
-                        #if WATER_DEPTH_LAYERS >= 4
+                        #if WATER_DEPTH_LAYERS >= 3
                             if (waterDepth[2] < opaqueDist)
                                 blurDist += max(min(waterDepth[3], opaqueDist) - min(waterDepth[2], opaqueDist), 0.0);
                         #endif
 
-                        #if WATER_DEPTH_LAYERS >= 6
+                        #if WATER_DEPTH_LAYERS >= 5
                             if (waterDepth[4] < opaqueDist)
                                 blurDist += max(min(waterDepth[5], opaqueDist) - min(waterDepth[4], opaqueDist), 0.0);
                         #endif
