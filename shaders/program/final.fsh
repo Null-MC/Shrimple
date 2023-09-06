@@ -47,6 +47,7 @@ uniform vec2 pixelSize;
 
 #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
 	uniform mat4 gbufferProjectionInverse;
+	uniform int isEyeInWater;
 	uniform float far;
 #endif
 
@@ -163,14 +164,14 @@ void main() {
 		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
 		text.fpPrecision = 4;
 
-		vec2 center = viewSize * 0.5;
+		ivec2 center = ivec2(viewSize * 0.5);
         uint waterUV = uint(center.y * viewSize.x + center.x);
 
 		printString((_I, _s, _space, _W, _a, _t, _e, _r, _colon, _space));
 		printBool(WaterDepths[waterUV].IsWater);
 		printLine();
 
-		float depthTrans = texelFetch(depthtex0, ivec2(center), 0).r;
+		float depthTrans = texelFetch(depthtex0, center, 0).r;
 		vec3 ndcPos = vec3(0.5, 0.5, depthTrans) * 2.0 - 1.0;
 		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(ndcPos, 1.0));
 

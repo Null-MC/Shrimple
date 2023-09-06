@@ -683,42 +683,36 @@ layout(location = 0) out vec4 outFinal;
                     uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
 
-                    float waterDepth[WATER_DEPTH_LAYERS];
-                    GetAllWaterDepths(waterPixelIndex, waterDepth);
+                    float waterDepth[WATER_DEPTH_LAYERS+1];
+                    GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
 
                     if (isEyeInWater == 1) {
-                        if (viewDist < waterDepth[0] - 0.1) {
-                            if (waterDepth[0] < far)
-                                blurDist += max(min(waterDepth[1], opaqueDist) - min(waterDepth[0], opaqueDist), 0.0);
+                        #if WATER_DEPTH_LAYERS >= 2
+                            if (waterDepth[1] < opaqueDist)
+                                blurDist += max(min(waterDepth[2], opaqueDist) - min(waterDepth[1], opaqueDist), 0.0);
+                        #endif
 
-                            #if WATER_DEPTH_LAYERS >= 4
-                                if (waterDepth[2] < far)
-                                    blurDist += max(min(waterDepth[3], opaqueDist) - min(waterDepth[2], opaqueDist), 0.0);
-                            #endif
-                        }
-                        else {
-                            #if WATER_DEPTH_LAYERS >= 3
-                                if (waterDepth[1] < far)
-                                    blurDist += max(min(waterDepth[2], opaqueDist) - min(waterDepth[1], opaqueDist), 0.0);
-                            #endif
+                        #if WATER_DEPTH_LAYERS >= 4
+                            if (waterDepth[3] < opaqueDist)
+                                blurDist += max(min(waterDepth[4], opaqueDist) - min(waterDepth[3], opaqueDist), 0.0);
+                        #endif
 
-                            #if WATER_DEPTH_LAYERS >= 5
-                                if (waterDepth[3] < far)
-                                    blurDist += max(min(waterDepth[4], opaqueDist) - min(waterDepth[3], opaqueDist), 0.0);
-                            #endif
-                        }
+                        #if WATER_DEPTH_LAYERS >= 6
+                            if (waterDepth[4] < opaqueDist)
+                                blurDist += max(min(waterDepth[5], opaqueDist) - min(waterDepth[4], opaqueDist), 0.0);
+                        #endif
                     }
                     else {
-                        if (waterDepth[0] < far)
+                        if (waterDepth[0] < opaqueDist)
                             blurDist += max(min(waterDepth[1], opaqueDist) - min(waterDepth[0], opaqueDist), 0.0);
 
                         #if WATER_DEPTH_LAYERS >= 4
-                            if (waterDepth[2] < far)
+                            if (waterDepth[2] < opaqueDist)
                                 blurDist += max(min(waterDepth[3], opaqueDist) - min(waterDepth[2], opaqueDist), 0.0);
                         #endif
 
                         #if WATER_DEPTH_LAYERS >= 6
-                            if (waterDepth[4] < far)
+                            if (waterDepth[4] < opaqueDist)
                                 blurDist += max(min(waterDepth[5], opaqueDist) - min(waterDepth[4], opaqueDist), 0.0);
                         #endif
                     }

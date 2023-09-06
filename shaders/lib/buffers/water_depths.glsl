@@ -34,8 +34,20 @@ struct WaterDepthPixelData {
         return saturate(depth * uint32MaxInv) * far;
     }
 
-    void GetAllWaterDepths(const in uint uvIndex, out float waterDepth[WATER_DEPTH_LAYERS]) {
-        for (int i = 0; i < WATER_DEPTH_LAYERS; i++)
-            waterDepth[i] = GetWaterDepth(uvIndex, i);
+    void GetAllWaterDepths(const in uint uvIndex, const in float transDist, out float waterDepth[WATER_DEPTH_LAYERS+1]) {
+        waterDepth[0] = GetWaterDepth(uvIndex, 0);
+        int o = 0;
+
+        if (isEyeInWater == 1 && transDist < waterDepth[0] - 0.1) {
+            waterDepth[1] = waterDepth[0];
+            waterDepth[0] = transDist;
+            o = 1;
+        }
+        else {
+            waterDepth[WATER_DEPTH_LAYERS] = far;
+        }
+
+        for (int i = 1; i < WATER_DEPTH_LAYERS; i++)
+            waterDepth[i+o] = GetWaterDepth(uvIndex, i);
     }
 #endif

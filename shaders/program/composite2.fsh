@@ -434,44 +434,35 @@ layout(location = 0) out vec4 outFinal;
                     uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
                     bool hasWaterDepth = false;
 
-                    float waterDepth[WATER_DEPTH_LAYERS];
-                    GetAllWaterDepths(waterPixelIndex, waterDepth);
+                    vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+                    vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                    float distTrans = length(localPosTrans);
+
+                    float waterDepth[WATER_DEPTH_LAYERS+1];
+                    GetAllWaterDepths(waterPixelIndex, distTrans, waterDepth);
 
                     if (isEyeInWater == 1) {
                         //hasWaterDepth = depthOpaque <= depthTranslucent;
 
-                        vec3 clipPosTrans = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-                        vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
-                        float distTrans = length(localPosTrans);
+                        hasWaterDepth = viewDist < waterDepth[0] + 0.001;
 
-                        hasWaterDepth = viewDist < min(distTrans, waterDepth[0]) + 0.001;
+                        #if WATER_DEPTH_LAYERS >= 2
+                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
+                        #endif
 
-                        if (distTrans < waterDepth[0] - 0.1) {
-                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[0] && viewDist < waterDepth[1]);
-
-                            #if WATER_DEPTH_LAYERS >= 4
-                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
-                            #endif
-                        }
-                        else {
-                            #if WATER_DEPTH_LAYERS >= 3
-                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
-                            #endif
-
-                            #if WATER_DEPTH_LAYERS >= 5
-                                hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
-                            #endif
-                        }
+                        #if WATER_DEPTH_LAYERS >= 4
+                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
+                        #endif
                     }
                     else {
                         hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
 
-                        #if WATER_DEPTH_LAYERS >= 4
-                            hasWaterDepth = hasWaterDepth || clamp(viewDist, waterDepth[2], waterDepth[3]) == viewDist;
+                        #if WATER_DEPTH_LAYERS >= 3
+                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
                         #endif
 
-                        #if WATER_DEPTH_LAYERS >= 6
-                            hasWaterDepth = hasWaterDepth || clamp(viewDist, waterDepth[4], waterDepth[5]) == viewDist;
+                        #if WATER_DEPTH_LAYERS >= 5
+                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[4] && viewDist < waterDepth[5]);
                         #endif
                     }
                 #else

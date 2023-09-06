@@ -8,9 +8,9 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
+//in vec3 vPos;
+//in vec3 vNormal;
+//in float geoNoL;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vLocalTangent;
@@ -107,6 +107,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform vec2 viewSize;
 uniform float viewWidth;
 uniform vec3 upPosition;
 uniform int isEyeInWater;
@@ -127,7 +128,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferProjectionInverse;
-    uniform float viewHeight;
+    //uniform float viewHeight;
     uniform float aspectRatio;
     uniform vec2 pixelSize;
 #endif
@@ -348,7 +349,7 @@ void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     vec3 worldPos = vLocalPos + cameraPosition;
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
-    float viewDist = length(vPos);
+    float viewDist = length(vLocalPos);
     vec2 atlasCoord = texcoord;
     vec2 localCoord = vLocalCoord;
     bool skipParallax = false;
@@ -588,8 +589,10 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
+        vec3 geoViewNormal = mat3(gbufferModelView) localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-        ApplyDirectionalLightmap(lmFinal.x, vPos, vNormal, texViewNormal);
+        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -635,6 +638,13 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    //vec3 skyLightDir = normalize(shadowLightPosition);
+                    geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    geoNoL = 1.0;
+                #endif
+            
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
@@ -707,7 +717,7 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
-            float farMax = min(length(vPos) - 0.05, far);
+            float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, farMax, isWater);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif

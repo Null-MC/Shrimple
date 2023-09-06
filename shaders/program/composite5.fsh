@@ -216,49 +216,33 @@ layout(location = 0) out vec4 outFinal;
                 float distOpaque = length(localPosOpaque);
                 float distTranslucent = length(localPosTranslucent);
                 float waterDepthFinal = 0.0;
+                float waterDepthAirFinal = 0.0;
 
                 if (isWater) {
                     #if WATER_DEPTH_LAYERS > 1
-                        float waterDepth[WATER_DEPTH_LAYERS];
-                        GetAllWaterDepths(waterPixelIndex, waterDepth);
+                        float waterDepth[WATER_DEPTH_LAYERS+1];
+                        GetAllWaterDepths(waterPixelIndex, distTranslucent, waterDepth);
 
                         if (isEyeInWater == 1) {
-                            if (distTranslucent < waterDepth[0] - 0.2) {
-                                if (waterDepth[0] < far)
-                                    waterDepthFinal += max(min(waterDepth[1], distOpaque) - min(waterDepth[0], distOpaque), 0.0);
-
-                                #if WATER_DEPTH_LAYERS >= 4
-                                    if (waterDepth[2] < far)
-                                        waterDepthFinal += max(min(waterDepth[3], distOpaque) - min(waterDepth[2], distOpaque), 0.0);
-                                #endif
+                            if (waterDepth[1] < distOpaque) {
+                                waterDepthFinal += max(min(waterDepth[2], distOpaque) - min(waterDepth[1], distOpaque), 0.0);
                             }
-                            else {
-                                if (waterDepth[1] < far) {
-                                    #if WATER_DEPTH_LAYERS >= 3
-                                        float waterDepth2 = waterDepth[2];
-                                    #else
-                                        float waterDepth2 = far;
-                                    #endif
-                                    
-                                    waterDepthFinal += max(min(waterDepth2, distOpaque) - min(waterDepth[1], distOpaque), 0.0);
-                                }
 
-                                #if WATER_DEPTH_LAYERS >= 5
-                                    if (waterDepth[3] < far)
-                                        waterDepthFinal += max(min(waterDepth[4], distOpaque) - min(waterDepth[3], distOpaque), 0.0);
-                                #endif
-                            }
+                            #if WATER_DEPTH_LAYERS >= 4
+                                if (waterDepth[3] < distOpaque)
+                                    waterDepthFinal += max(min(waterDepth[4], distOpaque) - min(waterDepth[3], distOpaque), 0.0);
+                            #endif
                         }
                         else {
                             waterDepthFinal = max(min(waterDepth[1], distOpaque) - min(waterDepth[0], distOpaque), 0.0);
 
-                            #if WATER_DEPTH_LAYERS >= 4
-                                if (waterDepth[2] < far)
+                            #if WATER_DEPTH_LAYERS >= 3
+                                if (waterDepth[2] < distOpaque)
                                     waterDepthFinal += max(min(waterDepth[3], distOpaque) - min(waterDepth[2], distOpaque), 0.0);
                             #endif
 
-                            #if WATER_DEPTH_LAYERS >= 6
-                                if (waterDepth[4] < far)
+                            #if WATER_DEPTH_LAYERS >= 5
+                                if (waterDepth[4] < distOpaque)
                                     waterDepthFinal += max(min(waterDepth[5], distOpaque) - min(waterDepth[4], distOpaque), 0.0);
                             #endif
                         }
@@ -268,63 +252,62 @@ layout(location = 0) out vec4 outFinal;
                         }
                     #endif
 
-                    final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+                    //final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
                 }
             #endif
 
             #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                vec3 fogColorFinal = vec3(0.0);
-                float fogF = 0.0;
+                float fogDist  = GetVanillaFogDistance(localPosOpaque);
 
-                #ifdef WORLD_WATER_ENABLED
+                #ifndef DH_COMPAT_ENABLED
+                    if (depthOpaque < 1.0) {
+                        vec3 fogColorFinal = vec3(0.0);
+                        float fogF = 0.0;
+
+                        #ifdef WORLD_SKY_ENABLED
+                            // sky fog
+
+                            vec3 skyColorFinal = RGBToLinear(skyColor);
+                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+
+                            //float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                            fogF = GetCustomFogFactor(fogDist);
+                        #else
+                            // no-sky fog
+
+                            fogColorFinal = RGBToLinear(fogColor);
+                            //fogF = GetVanillaFogFactor(localPosOpaque);
+
+                            //float fogDist  = GetVanillaFogDistance(localPosOpaque);
+                            fogF = GetCustomFogFactor(fogDist);
+                        #endif
+
+                        final = mix(final, fogColorFinal, fogF);
+                    }
+                #endif
+
+                #ifdef WORLD_SKY_ENABLED
+                    fogDist = length(localPosOpaque);
+                    ApplyCustomRainFog(final, fogDist, localSunDirection.y);
+                #endif
+
+                #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
                     if (isWater) {
                         // water fog from outside water
 
-                        #ifndef VL_BUFFER_ENABLED
-                            float fogDist = max(waterDepthFinal, 0.0);
-                            fogF = GetCustomWaterFogFactor(fogDist);
-                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                            final = mix(final, fogColorFinal, fogF);
-                        #endif
-                    }
-                    else {
-                #endif
-                    float fogDist  = GetVanillaFogDistance(localPosOpaque);
-
-                    #ifndef DH_COMPAT_ENABLED
-                        if (depthOpaque < 1.0) {
-                            #ifdef WORLD_SKY_ENABLED
-                                // sky fog
-
-                                vec3 skyColorFinal = RGBToLinear(skyColor);
-                                fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-
-                                //float fogDist  = GetVanillaFogDistance(localPosOpaque);
-                                fogF = GetCustomFogFactor(fogDist);
-                            #else
-                                // no-sky fog
-
-                                fogColorFinal = RGBToLinear(fogColor);
-                                //fogF = GetVanillaFogFactor(localPosOpaque);
-
-                                //float fogDist  = GetVanillaFogDistance(localPosOpaque);
-                                fogF = GetCustomFogFactor(fogDist);
-                            #endif
-
-                            final = mix(final, fogColorFinal, fogF);
-                        }
-                    #endif
-
-                    #ifdef WORLD_SKY_ENABLED
-                        fogDist = length(localPosOpaque);
-                        ApplyCustomRainFog(final, fogDist, localSunDirection.y);
-                    #endif
-                #ifdef WORLD_WATER_ENABLED
+                        float fogDist = max(waterDepthFinal, 0.0);
+                        float fogF = GetCustomWaterFogFactor(fogDist);
+                        vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        final = mix(final, fogColorFinal, fogF);
                     }
                 #endif
+            #endif
 
-                //final = mix(final, fogColorFinal, fogF);
+            #ifdef WORLD_WATER_ENABLED
+                if (isWater) {
+                    final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+                }
             #endif
 
             #ifdef VL_BUFFER_ENABLED

@@ -293,7 +293,7 @@
             #endif
 
             //ambientLight += WorldMinLightF;
-            ambientLight *= DynamicLightAmbientF * (1.0 + 2.0*rainStrength);
+            ambientLight *= DynamicLightAmbientF;// * (1.0 + 2.0*rainStrength);
 
             ambientLight *= occlusion;
 

@@ -161,8 +161,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
         uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
-        float waterDepth[WATER_DEPTH_LAYERS];
-        GetAllWaterDepths(uvIndex, waterDepth);
+        float waterDepth[WATER_DEPTH_LAYERS+1];
+        GetAllWaterDepths(uvIndex, distTrans, waterDepth);
 
         float extinctionInvAir = rcp(phaseAir.ExtinctF);
         float extinctionInvWater = rcp(phaseWater.ExtinctF);
@@ -199,39 +199,28 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float traceDist = length(traceLocalPos);
 
             if (isEyeInWater == 1) {
-                isWater = traceDist < min(distTrans, waterDepth[0]) + 0.001;
+                isWater = traceDist < waterDepth[0] + 0.001;
 
-                if (distTrans < waterDepth[0] - 0.25) {
-                    if (waterDepth[0] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[0], farDist) && traceDist < min(waterDepth[1], farDist));
+                #if WATER_DEPTH_LAYERS >= 2
+                    if (waterDepth[1] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
+                #endif
 
-                    #if WATER_DEPTH_LAYERS >= 4
-                        if (waterDepth[2] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
-                    #endif
-                }
-                else {
-                    #if WATER_DEPTH_LAYERS >= 3
-                        if (waterDepth[1] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
-                    #endif
-
-                    #if WATER_DEPTH_LAYERS >= 5
-                        if (waterDepth[3] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
-                    #endif
-                }
+                #if WATER_DEPTH_LAYERS >= 4
+                    if (waterDepth[3] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
+                #endif
             }
             else {
                 if (waterDepth[0] < farDist)
                     isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
 
-                #if WATER_DEPTH_LAYERS >= 4
+                #if WATER_DEPTH_LAYERS >= 3
                     if (waterDepth[2] < farDist)
                         isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
                 #endif
 
-                #if WATER_DEPTH_LAYERS >= 6
+                #if WATER_DEPTH_LAYERS >= 5
                     if (waterDepth[4] < farDist)
                         isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
                 #endif
