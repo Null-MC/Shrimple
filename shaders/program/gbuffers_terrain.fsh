@@ -513,9 +513,9 @@ void main() {
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     //vec3 skyLightDir = normalize(shadowLightPosition);
-                    geoNoL = dot(localNormal, localSkyLightDirection);
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
-                    geoNoL = 1.0;
+                    float geoNoL = 1.0;
                 #endif
 
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);

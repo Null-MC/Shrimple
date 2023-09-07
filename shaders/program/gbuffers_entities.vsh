@@ -11,9 +11,6 @@ in vec4 mc_midTexCoord;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vPos;
-out vec3 vNormal;
-out float geoNoL;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
@@ -44,9 +41,7 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-//uniform sampler2D noisetex;
 
-//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -72,11 +67,6 @@ uniform vec4 entityColor;
         //uniform vec3 eyePosition;
     #endif
 #endif
-
-// uniform int heldItemId;
-// uniform int heldItemId2;
-// uniform int heldBlockLightValue;
-// uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
@@ -115,11 +105,6 @@ uniform vec4 entityColor;
     #endif
 #endif
 
-// #ifdef DYN_LIGHT_FLICKER
-//     #include "/lib/lighting/blackbody.glsl"
-//     #include "/lib/lighting/flicker.glsl"
-// #endif
-
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
 
@@ -127,12 +112,6 @@ uniform vec4 entityColor;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-// #include "/lib/lighting/voxel/lights.glsl"
-// #include "/lib/lighting/voxel/items.glsl"
-// #include "/lib/lighting/fresnel.glsl"
-// #include "/lib/lighting/sampling.glsl"
-
-//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 
@@ -157,7 +136,8 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
 
-        tanViewPos = vPos * matViewTBN;
+        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        tanViewPos = viewPos * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             tanLightPos = shadowLightPosition * matViewTBN;

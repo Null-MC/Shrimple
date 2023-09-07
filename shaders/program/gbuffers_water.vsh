@@ -203,6 +203,11 @@ void main() {
 
     #if defined WORLD_WATER_ENABLED
         if (vBlockId == BLOCK_WATER) {
+            // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
+            //     gl_Position = vec4(-1.0);
+            //     return;
+            // }
+
             vec4 finalPosition = gl_Vertex;
 
             float distF = saturate((length(vLocalPos) - 1.0) * 0.5);

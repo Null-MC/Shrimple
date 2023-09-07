@@ -8,9 +8,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -109,12 +106,6 @@ uniform int heldBlockLightValue2;
 
 uniform ivec2 eyeBrightnessSmooth;
 
-// #ifdef ANIM_WORLD_TIME
-//     uniform int worldTime;
-// #else
-//     uniform float frameTimeCounter;
-// #endif
-
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -134,8 +125,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef IS_IRIS
         uniform float cloudTime;
     #endif
-#else
-    //uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -334,7 +323,7 @@ void main() {
     // }
     else {
         #if MATERIAL_PARALLAX != PARALLAX_NONE
-            float viewDist = length(vPos);
+            float viewDist = length(vLocalPos);
 
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
                 atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -509,7 +498,12 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                //float geoNoL = dot(localNormal, localSkyLightDirection);
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
@@ -561,7 +555,7 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
-            float farMax = min(length(vPos) - 0.05, far);
+            float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif

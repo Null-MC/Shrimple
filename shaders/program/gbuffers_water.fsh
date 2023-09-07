@@ -589,7 +589,7 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-        vec3 geoViewNormal = mat3(gbufferModelView) localNormal;
+        vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
         ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);

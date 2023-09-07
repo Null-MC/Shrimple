@@ -11,9 +11,9 @@ in vec4 at_tangent;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vPos;
-out vec3 vNormal;
-out float geoNoL;
+//out vec3 vPos;
+//out vec3 vNormal;
+//out float geoNoL;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
@@ -146,7 +146,8 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
 
-        tanViewPos = vPos * matViewTBN;
+        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        tanViewPos = viewPos * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             tanLightPos = shadowLightPosition * matViewTBN;

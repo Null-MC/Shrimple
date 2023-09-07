@@ -8,9 +8,9 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
+// vec3 vPos;
+//in vec3 vNormal;
+//in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -292,7 +292,7 @@ void main() {
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
-        float viewDist = length(vPos);
+        float viewDist = length(vLocalPos);
 
         if (viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -431,6 +431,13 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    //vec3 skyLightDir = normalize(shadowLightPosition);
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 

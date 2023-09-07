@@ -166,20 +166,18 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         float extinctionInvAir = rcp(phaseAir.ExtinctF);
         float extinctionInvWater = rcp(phaseWater.ExtinctF);
+
+        #ifdef WORLD_SKY_ENABLED
+            float eyeLightF = eyeBrightnessSmooth.y / 240.0;
+            vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * rainStrength);
+            vec3 ambientWater = vec3(0.2, 0.8, 1.0) * skyLightAmbient * 0.02;
+        #else
+            vec3 ambientWater = vec3(0.0040);
+        #endif
     #else
         float extinctionInv = rcp(phaseF.ExtinctF);
+        vec3 ambientBase = phaseF.Ambient;
     #endif
-
-    //vec3 inScatteringBase = phaseF.Ambient;// * RGBToLinear(fogColor);
-
-    // #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-    //     inScatteringBase *= skyLightColor * (eyeBrightnessSmooth.y / 240.0);
-    // #endif
-
-    // #ifdef WORLD_SKY_ENABLED
-    //     float eyeLightLevel = 0.2 + 0.8 * (eyeBrightnessSmooth.y / 240.0);
-    //     inScatteringBase *= eyeLightLevel;
-    // #endif
 
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
@@ -227,9 +225,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             }
 
             VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
-        #endif
 
-        vec3 inScattering = phaseF.Ambient;
+            vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
+        #else
+            vec3 inScattering = ambientBase;
+        #endif
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float sampleF = 1.0;

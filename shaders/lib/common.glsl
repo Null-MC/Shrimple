@@ -109,6 +109,7 @@ const bool colortex15Clear = true;
 #define WATER_BLUR
 #define WATER_BLUR_SCALE 12.0
 #define WATER_BLUR_RADIUS 20 // [4 8 12 16 20 24 28 32]
+#define WATER_DEPTH_LAYERS 5 // [1 2 3 4 5 6]
 
 
 // Material Options
@@ -291,7 +292,6 @@ const bool colortex15Clear = true;
 //#define FORCE_DEFERRED
 //#define ANIM_WORLD_TIME
 //#define MAGNIFICENT_COLORS
-#define WATER_DEPTH_LAYERS 5 // [1 2 3 4 5 6]
 //#define WATER_MULTIDEPTH_DEBUG
 
 

@@ -8,9 +8,9 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
+//in vec3 vPos;
+//in vec3 vNormal;
+//in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -329,7 +329,7 @@ uniform ivec2 eyeBrightnessSmooth;
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     vec3 localNormal = normalize(vLocalNormal);
-    float viewDist = length(vPos);
+    float viewDist = length(vLocalPos);
     vec2 localCoord = vLocalCoord;
     vec2 atlasCoord = texcoord;
     
@@ -518,6 +518,13 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    //vec3 skyLightDir = normalize(shadowLightPosition);
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+            
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
@@ -571,7 +578,7 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
-            float farMax = min(length(vPos) - 0.05, far);
+            float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
