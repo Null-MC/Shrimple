@@ -10,9 +10,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
@@ -38,10 +35,6 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
-    // #ifdef SHADOW_COLORED
-    //     uniform sampler2D shadowtex0;
-    // #endif
-
     #ifdef SHADOW_CLOUD_ENABLED
         uniform sampler2D TEX_CLOUDS;
     #endif
@@ -51,7 +44,7 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -256,7 +249,7 @@ void main() {
         GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, normal, shadowColor, sss);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            const float geoNoL = 1.0; //dot(localNormal, localSkyLightDirection);
+            const float geoNoL = 1.0;
             specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo, shadowColor, lmcoord, metal_f0, roughL);
         #endif
 

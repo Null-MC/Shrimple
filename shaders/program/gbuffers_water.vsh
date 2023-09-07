@@ -14,9 +14,6 @@ in vec3 vaPosition;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-//out vec3 vPos;
-//out vec3 vNormal;
-//out float geoNoL;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
@@ -53,7 +50,6 @@ flat out mat2 atlasBounds;
 #endif
 
 uniform sampler2D lightmap;
-//uniform sampler2D noisetex;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -90,11 +86,6 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-// uniform int heldItemId;
-// uniform int heldItemId2;
-// uniform int heldBlockLightValue;
-// uniform int heldBlockLightValue2;
-
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
@@ -106,10 +97,8 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
-//#include "/lib/items.glsl"
 #include "/lib/anim.glsl"
 
-//#include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/tbn.glsl"
 
@@ -134,34 +123,14 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-// #ifdef DYN_LIGHT_FLICKER
-//     #include "/lib/lighting/blackbody.glsl"
-//     #include "/lib/lighting/flicker.glsl"
-// #endif
-
-// #ifdef IRIS_FEATURE_SSBO
-//     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-//         #include "/lib/lighting/voxel/blocks.glsl"
-//     #endif
-// #endif
-
 #include "/lib/lights.glsl"
-
-// #include "/lib/lighting/voxel/lights.glsl"
-// #include "/lib/lighting/voxel/items.glsl"
-// #include "/lib/lighting/fresnel.glsl"
-// #include "/lib/lighting/sampling.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
-//#include "/lib/material/subsurface.glsl"
 
-//#include "/lib/lighting/basic_hand.glsl"
 #include "/lib/lighting/basic.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    //#include "/lib/world/water.glsl"
-
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
     #elif WORLD_WATER_WAVES != WATER_WAVES_NONE

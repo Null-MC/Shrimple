@@ -10,9 +10,6 @@
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vPos;
-out vec3 vNormal;
-out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
@@ -32,7 +29,6 @@ out vec3 vLocalNormal;
 
 uniform sampler2D lightmap;
 
-//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -58,7 +54,6 @@ uniform vec3 cameraPosition;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    //#include "/lib/buffers/lighting.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

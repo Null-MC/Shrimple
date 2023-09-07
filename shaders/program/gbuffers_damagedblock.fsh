@@ -7,9 +7,6 @@
 
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-//in vec3 vNormal;
-//in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -20,14 +17,9 @@ flat in mat2 atlasBounds;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     in vec3 tanViewPos;
-
-    // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-    //     in vec3 tanLightPos;
-    // #endif
 #endif
 
 uniform sampler2D gtexture;
-//uniform sampler2D noisetex;
 uniform sampler2D depthtex0;
 
 #if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || MATERIAL_PARALLAX != PARALLAX_NONE || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
@@ -46,8 +38,6 @@ uniform float far;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/utility/tbn.glsl"
 
-//#include "/lib/material/normalmap.glsl"
-
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
@@ -63,12 +53,11 @@ layout(location = 0) out vec4 outFinal;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    float viewDist = length(vPos);
+    float viewDist = length(vLocalPos);
     vec2 atlasCoord = texcoord;
     vec2 localCoord = vLocalCoord;
     
     vec3 localNormal = normalize(vLocalNormal);
-    //if (!gl_FrontFacing) localNormal = -localNormal;
 
     bool skipParallax = false;
 
@@ -104,7 +93,6 @@ void main() {
     #endif
 
     color.rgb *= glcolor.rgb;
-    //color.a = 1.0;
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = vec3(WHITEWORLD_VALUE);

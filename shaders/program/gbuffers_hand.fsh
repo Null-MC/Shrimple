@@ -8,9 +8,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-// vec3 vPos;
-//in vec3 vNormal;
-//in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -432,7 +429,6 @@ void main() {
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //vec3 skyLightDir = normalize(shadowLightPosition);
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
                     float geoNoL = 1.0;
@@ -486,11 +482,10 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        #ifndef DH_COMPAT_ENABLED
-            ApplyFog(color, vLocalPos, localViewDir);
-        #else
-            //ApplyPostProcessing(color.rgb);
+        #ifdef DH_COMPAT_ENABLED
             color.rgb = LinearToRGB(color.rgb);
+        #else
+            ApplyFog(color, vLocalPos, localViewDir);
         #endif
 
         outFinal = color;

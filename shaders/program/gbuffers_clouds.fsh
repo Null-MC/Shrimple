@@ -8,15 +8,13 @@
 #include "/lib/common.glsl"
 
 in vec2 texcoord;
-in vec3 vPos;
 in vec3 vLocalPos;
 in vec4 vColor;
-in float geoNoL;
 in vec3 vBlockLight;
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    in vec3 cloudPos;
-#endif
+// #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+//     in vec3 cloudPos;
+// #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -79,10 +77,6 @@ uniform float blindness;
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
-    // #ifdef SHADOW_COLORED
-    //     uniform sampler2D shadowtex1;
-    // #endif
-
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         uniform sampler2DShadow shadowtex0HW;
     #endif
@@ -111,8 +105,6 @@ uniform int heldBlockLightValue2;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    //uniform ivec2 eyeBrightnessSmooth;
-    //uniform int isEyeInWater;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -206,13 +198,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 
-float linear_fog_fade(const in float vertexDistance, const in float fogStart, const in float fogEnd) {
-    //if (vertexDistance <= fogStart) return 1.0;
-    //else if (vertexDistance >= fogEnd) return 0.0;
-
-    return smoothstep(fogEnd, fogStart, vertexDistance);
-}
-
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
     /* RENDERTARGETS: 1,2,3,14 */
     layout(location = 0) out vec4 outDeferredColor;
@@ -265,8 +250,7 @@ void main() {
             if (fogShape == 1) fogPos.y = 0.0;
 
             float viewDist = length(fogPos);
-
-            fogF = 1.0 - linear_fog_fade(viewDist, fogEnd * 0.5, fogEnd * 1.8);
+            fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
         #endif
 
         albedo.a *= 1.0 - fogF;
@@ -297,7 +281,6 @@ void main() {
         vec4 final = albedo;
         float roughL = _pow2(roughness);
 
-        //final.rgb *= mix(vec3(1.0), shadowColor, ShadowBrightnessF);
         final.rgb *= shadowColor;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -321,8 +304,9 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
+            float viewDist = length(vLocalPos);
             vec3 localViewDir = normalize(vLocalPos);
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos), far));
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 

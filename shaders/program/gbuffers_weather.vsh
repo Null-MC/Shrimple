@@ -10,8 +10,6 @@
 out vec2 texcoord;
 out vec2 lmcoord;
 out vec4 glcolor;
-out float geoNoL;
-out vec3 vPos;
 out vec3 vLocalPos;
 out vec3 vBlockLight;
 

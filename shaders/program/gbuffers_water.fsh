@@ -8,9 +8,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-//in vec3 vPos;
-//in vec3 vNormal;
-//in float geoNoL;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vLocalTangent;
@@ -153,12 +150,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-
-    // #ifdef IS_IRIS
-    //     uniform float cloudTime;
-    // #endif
-#else
-    //uniform int worldTime;
 #endif
 
 uniform int heldItemId;
@@ -178,15 +169,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    //uniform ivec2 eyeBrightnessSmooth;
-    //uniform float near;
 #endif
-
-// #if AF_SAMPLES > 1
-//     uniform float viewWidth;
-//     uniform float viewHeight;
-//     uniform vec4 spriteBounds;
-// #endif
 
 #if MC_VERSION >= 11700
     uniform float alphaTestRef;
@@ -304,10 +287,6 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
-
-    // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    //     #include "/lib/lighting/ssr.glsl"
-    // #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
         #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
@@ -466,10 +445,6 @@ void main() {
         }
     #endif
 
-    // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-    //     albedo = vec3(WHITEWORLD_VALUE);
-    // #endif
-
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
@@ -508,10 +483,6 @@ void main() {
         sss = max(sss, 1.0 - color.a);
     #endif
     
-    // if (isWater && isEyeInWater != 1 && isWaterBackFace) {
-    //     //
-    // }
-
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifndef IRIS_FEATURE_SSBO
@@ -639,7 +610,6 @@ void main() {
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //vec3 skyLightDir = normalize(shadowLightPosition);
                     geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
                     geoNoL = 1.0;
@@ -692,12 +662,9 @@ void main() {
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                //vec3 f0 = GetMaterialF0(albedo, metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
                 float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
-                //color.a = min(color.a + skyF, 1.0);
                 color.a = max(color.a, skyF);
-                //color.a = clamp(skyF * 10.0, color.a, 1.0);
             }
         #endif
 
@@ -725,16 +692,10 @@ void main() {
         #ifdef DH_COMPAT_ENABLED
             float fogDist = GetVanillaFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-            //vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
-            //float fogF = GetFogFactor(-viewPos.z, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
             
             color.rgb = LinearToRGB(color.rgb);
         #endif
-
-        // #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-        //     ApplyPostProcessing(color.rgb);
-        // #endif
 
         outFinal = color;
     #endif

@@ -8,9 +8,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-//in vec3 vPos;
-//in vec3 vNormal;
-//in float geoNoL;
 in vec3 vBlockLight;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
@@ -85,8 +82,6 @@ uniform sampler2D noisetex;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-//#else
-//    uniform int worldTime;
 #endif
 
 uniform ivec2 atlasSize;
@@ -297,7 +292,7 @@ void main() {
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
-        vec4 rippleNormalStrength;
+        vec4 rippleNormalStrength = vec4(0.0);
 
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
             vec3 worldPos = vLocalPos + cameraPosition;
@@ -341,16 +336,6 @@ void main() {
     vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
 
-    // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID) color.rgb = vec3(0.0, 0.0, 1.0);
-    // if (renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) color.rgb = vec3(1.0, 0.0, 0.0);
-    // if (renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED) color.rgb = vec3(0.0, 1.0, 0.0);
-
-    // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-    //     color.rgb = vec3(WHITEWORLD_VALUE);
-    // #endif
-
-    //color.rgb = vec3(vLocalCoord, 0.0);
-
     float occlusion = 1.0;
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
@@ -359,7 +344,6 @@ void main() {
 
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
-        //occlusion = _pow2(glcolor.a);
     #endif
     
     vec3 shadowColor = vec3(1.0);
@@ -383,9 +367,7 @@ void main() {
 
             float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
 
-            //lmFinal.y = (lmFinal.y - (0.5/16.0)) / (15.0/16.0);
             lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
-            //lmFinal.y = lmFinal.y * (15.0/16.0) + (0.5/16.0);
 
             if (viewDist < shadowDistance) {
                 #ifndef LIGHT_LEAK_FIX
@@ -460,7 +442,6 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-        //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
@@ -474,12 +455,6 @@ void main() {
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
-
-        // #ifdef DH_COMPAT_ENABLED
-        //     float dhFogDist = GetVanillaFogDistance(vLocalPos);
-        //     float dhFogF = GetFogFactor(dhFogDist, 0.6 * far, far, 1.0);
-        //     color.a *= 1.0 - dhFogF;
-        // #endif
 
         color.rgb = LinearToRGB(albedo);
 
@@ -512,7 +487,6 @@ void main() {
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //vec3 skyLightDir = normalize(shadowLightPosition);
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
                     float geoNoL = 1.0;
@@ -532,14 +506,8 @@ void main() {
 
             blockDiffuse += emission * MaterialEmissionF;
 
-            //#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-                SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
-            //#endif
-
-            // #if (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER)
-            //     SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
-            // #endif
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
             #ifdef WORLD_SKY_ENABLED
                 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
@@ -571,7 +539,6 @@ void main() {
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
-            //ApplyPostProcessing(color.rgb);
             color.rgb = LinearToRGB(color.rgb);
         #else
             ApplyFog(color, vLocalPos, localViewDir);

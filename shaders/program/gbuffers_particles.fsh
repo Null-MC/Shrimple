@@ -10,9 +10,9 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vPos;
-in vec3 vNormal;
-in float geoNoL;
+//in vec3 vPos;
+//in vec3 vNormal;
+//in float geoNoL;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vBlockLight;
@@ -377,6 +377,12 @@ void main() {
             GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+            
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
@@ -425,7 +431,8 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(length(vPos) - 0.05, far));
+            float viewDist = length(vLocalPos);
+            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far));
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
@@ -434,7 +441,6 @@ void main() {
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
-            //ApplyPostProcessing(color.rgb);
             color.rgb = LinearToRGB(color.rgb);
         #endif
 

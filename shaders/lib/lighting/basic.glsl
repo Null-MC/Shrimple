@@ -14,19 +14,21 @@
 
         vec4 viewPos = gl_ModelViewMatrix * pos;
 
-        //vPos = viewPos.xyz;
-
         vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
 
+        #if !(defined RENDER_BILLBOARD || defined RENDER_CLOUDS)
+            vLocalNormal = vec3(0.0);
+        #endif
+
         #ifndef RENDER_DAMAGEDBLOCK
+            vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
             vBlockLight = vec3(0.0);
 
-            #ifdef RENDER_BILLBOARD
-                vec3 vLocalNormal;
+            #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+                vec3 _vLocalNormal = mat3(gbufferModelViewInverse) * viewNormal;
+            #else
+                vLocalNormal = mat3(gbufferModelViewInverse) * viewNormal;
             #endif
-
-            vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-            vLocalNormal = mat3(gbufferModelViewInverse) * viewNormal;
 
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -40,7 +42,11 @@
                     float geoNoL = 1.0;
                 #endif
 
-                ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
+                #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+                    ApplyShadows(vLocalPos, _vLocalNormal, geoNoL);
+                #else
+                    ApplyShadows(vLocalPos, vLocalNormal, geoNoL);
+                #endif
 
                 #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
                     ApplyCloudShadows(vLocalPos);

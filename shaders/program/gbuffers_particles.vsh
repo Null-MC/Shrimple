@@ -15,9 +15,6 @@
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vPos;
-out vec3 vNormal;
-out float geoNoL;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
@@ -44,9 +41,7 @@ out vec3 vLocalNormal;
 #endif
 
 uniform sampler2D lightmap;
-//uniform sampler2D noisetex;
 
-//uniform float frameTimeCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -97,14 +92,6 @@ uniform vec3 cameraPosition;
 
     #include "/lib/material/normalmap.glsl"
 #endif
-
-// #ifdef DYN_LIGHT_FLICKER
-//     #include "/lib/lighting/blackbody.glsl"
-//     #include "/lib/lighting/flicker.glsl"
-// #endif
-
-//#include "/lib/lighting/fresnel.glsl"
-//#include "/lib/lighting/sampling.glsl"
 
 #include "/lib/lighting/basic.glsl"
 

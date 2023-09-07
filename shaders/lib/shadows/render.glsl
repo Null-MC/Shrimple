@@ -72,7 +72,7 @@
             #endif
         #endif
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
             shadow *= SampleCloudShadow(skyLightDir, cloudPos);
         #endif
 

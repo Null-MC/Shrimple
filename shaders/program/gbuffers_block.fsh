@@ -8,9 +8,6 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-//in vec3 vPos;
-//in vec3 vNormal;
-//in float geoNoL;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -88,8 +85,6 @@ uniform sampler2D lightmap;
     #ifdef IS_IRIS
         uniform float cloudTime;
     #endif
-#else
-    //uniform int worldTime;
 #endif
 
 uniform ivec2 atlasSize;
@@ -115,12 +110,6 @@ uniform int fogMode;
 
 uniform int blockEntityId;
 uniform ivec2 eyeBrightnessSmooth;
-
-// #ifdef ANIM_WORLD_TIME
-//     uniform int worldTime;
-// #else
-//     uniform float frameTimeCounter;
-// #endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -386,10 +375,6 @@ void main() {
     color.rgb *= glcolor.rgb;
     color.a = 1.0;
 
-    // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-    //     color.rgb = vec3(WHITEWORLD_VALUE);
-    // #endif
-
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         occlusion = RGBToLinear(glcolor.a);
@@ -419,10 +404,6 @@ void main() {
             #else
                 float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
                 shadowColor = vec3(shadowF);
-
-                // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
-                // lmFinal.y = max(lmFinal.y, shadowF);
-                // lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
             #endif
         }
     #endif
@@ -519,7 +500,6 @@ void main() {
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //vec3 skyLightDir = normalize(shadowLightPosition);
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
                     float geoNoL = 1.0;
@@ -584,7 +564,6 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            //ApplyPostProcessing(color.rgb);
             color.rgb = LinearToRGB(color.rgb);
         #endif
 
