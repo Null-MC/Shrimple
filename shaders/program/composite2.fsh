@@ -132,7 +132,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
     
-    #if WATER_DEPTH_LAYERS > 1
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
     #endif
 #endif

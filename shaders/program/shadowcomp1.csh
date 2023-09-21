@@ -168,7 +168,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 }
 
 #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    vec3 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
+    vec4 SampleShadow(const in vec3 blockLocalPos, const in vec3 skyLightDir) {
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
             int cascade = GetShadowCascade(shadowPos, -1.5);
@@ -183,7 +183,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
         uint maxSamples = LPV_SUN_SAMPLES;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
 
-        vec3 shadowF = vec3(0.0);
+        vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
         for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
             vec3 blockLpvPos = blockLocalPos;
@@ -210,27 +210,25 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 shadowPos = shadowPos * 0.5 + 0.5;
             #endif
 
-            vec3 shadowSample = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-            shadowSample = RGBToLinear(shadowSample);
-
-            // WARN: this is just a test! make skylight GI more dark and saturated
-            shadowSample = _pow2(shadowSample);
-
-            //shadowSample = 0.25 + 0.75 * shadowSample;
+            vec3 sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+            sampleColor = RGBToLinear(sampleColor);
+            //sampleColor = _pow2(sampleColor);
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
-            shadowSample *= step(0.003, shadowDist);
-            shadowSample *= max(1.0 - abs(shadowDist) * shadowDistScale, 0.0);
+            float sampleF = step(0.003, shadowDist);
+            sampleF *= max(1.0 - abs(shadowDist) * shadowDistScale, 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
-            //shadowSample *= exp(shadowDist * -WaterAbsorbColorInv);
-            //shadowSample *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
-            shadowSample *= step(shadowPos.z - texDepthTrans, -0.003);
+            //sampleColor *= exp(shadowDist * -WaterAbsorbColorInv);
+            //sampleColor *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
+            sampleF *= step(shadowPos.z - texDepthTrans, -0.003);
 
-            shadowF += shadowSample;
+            sampleColor *= sampleF;
+
+            shadowF += vec4(sampleColor, sampleF);
         }
 
         shadowF *= rcp(maxSamples);
@@ -241,6 +239,9 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
         //     shadowF *= cloudF;
         // #endif
+
+        // WARN: this is just a test! make skylight GI more dark and saturated
+        //shadowF.rgb = _pow2(shadowF.rgb);
 
         return shadowF;
     }
@@ -331,7 +332,7 @@ void main() {
                             lightValue = mixNeighbours(imgCoordPrev) * tint;
 
                             #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                vec3 bounceDir = sign(-localSunDirection);
+                                //vec3 bounceDir = sign(-localSunDirection);
 
                                 // float bounceF = (1.0/6.0) * (
                                 //     GetLpvBounceF(voxelPos, ivec3( 1, 0, 0)) +
@@ -342,11 +343,18 @@ void main() {
                                 //     GetLpvBounceF(voxelPos, ivec3( 0, 0,-1))
                                 // );
 
-                                float bounceF = GetLpvBounceF(voxelPos, ivec3(sign(-localSunDirection)));
+                                ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                                // TODO: make sure diagonals dont exist!
 
-                                vec3 shadowColor = SampleShadow(blockLocalPos, localSunDirection) * bounceF;
+                                int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                                bounceOffset.xz *= 1 - bounceYF;
+                                bounceOffset.y *= bounceYF;
 
-                                lightValue += skyLightColor * shadowColor;
+                                float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+
+                                vec4 shadowColorF = SampleShadow(blockLocalPos, localSunDirection);
+
+                                lightValue += skyLightColor * (0.8 * shadowColorF.rgb * bounceF + 0.2 * shadowColorF.a);
                             #endif
                         }
                     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV

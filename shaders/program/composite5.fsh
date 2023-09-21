@@ -85,7 +85,7 @@ in vec2 texcoord;
     #ifdef IRIS_FEATURE_SSBO
         #include "/lib/buffers/scene.glsl"
 
-        #if WATER_DEPTH_LAYERS > 1
+        #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             #include "/lib/buffers/water_depths.glsl"
         #endif
     #endif

@@ -776,12 +776,6 @@ layout(location = 0) out vec4 outFinal;
 
         final.a = 1.0;
 
-        #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater == 1) {
-                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
-            }
-        #endif
-
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             //float fogF = 0.0;
 
@@ -830,6 +824,12 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             //final.rgb = mix(final.rgb, fogColorFinal, fogF);
+        #endif
+
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater == 1) {
+                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+            }
         #endif
 
         #ifdef VL_BUFFER_ENABLED

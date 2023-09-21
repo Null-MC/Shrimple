@@ -134,11 +134,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
 
 #if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
     float GetVanillaFogDistance(const in vec3 localPos) {
-        //if (fogStart > far) return 0.0;
-
         vec3 fogPos = localPos;
-        // if (fogShape == 1)
-        //     fogPos.y = 0.0;
 
         #if defined WORLD_SKY_ENABLED
             #if WORLD_FOG_SHAPE == FOG_SHAPE_CYLINDER
