@@ -1,6 +1,6 @@
 #ifdef RENDER_VERTEX
     void PrepareNormalMap() {
-        vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+        vec3 viewTangent = gl_NormalMatrix * at_tangent.xyz;
         vLocalTangent = mat3(gbufferModelViewInverse) * viewTangent;
 
         vTangentW = at_tangent.w;
@@ -83,15 +83,15 @@
             vec2 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rg;
 
             if (any(greaterThan(texNormal.rg, EPSILON2))) {
-                normal.xy = saturate(texNormal.xy * 2.0 - (254.0/255.0));
-                normal.z = sqrt(max(1.0 - dot(normal.xy, normal.xy), EPSILON));
+                normal.xy = texNormal.xy * 2.0 - (254.0/255.0);
+                normal.z = sqrt(max(1.0 - dot(normal.xy, normal.xy), 0.0));
                 valid = true;
             }
         #elif MATERIAL_NORMALS == NORMALMAP_OLDPBR
             vec3 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rgb;
 
             if (any(greaterThan(texNormal, EPSILON3))) {
-                normal = normalize(texNormal * 2.0 - 1.0);
+                normal = normalize(texNormal * 2.0 - (254.0/255.0));
                 valid = true;
             }
         #elif MATERIAL_NORMALS == NORMALMAP_GENERATED
