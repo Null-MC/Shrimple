@@ -5,9 +5,9 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (local_size_x = 8, local_size_y = 8) in;
 
-const ivec3 workGroups = ivec3(400, 400, 1);
+const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 uniform vec2 viewSize;
 

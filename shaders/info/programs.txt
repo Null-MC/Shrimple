@@ -1,5 +1,6 @@
 begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
+begin3			clear water depths
 
 shadowcomp1		propagate LPV
 shadowcomp2		build light bin lists; insert lpv lights
