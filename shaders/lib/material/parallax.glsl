@@ -90,13 +90,16 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
     float skip = floor(traceTex.z * MATERIAL_PARALLAX_SHADOW_SAMPLES + 0.5) / MATERIAL_PARALLAX_SHADOW_SAMPLES;
 
+    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+
     int i;
     float shadow = 1.0;
-    for (i = 1; i + skip < MATERIAL_PARALLAX_SHADOW_SAMPLES; i++) {
+    for (i = 0; i + skip < MATERIAL_PARALLAX_SHADOW_SAMPLES; i++) {
         if (shadow < 0.001) break;
 
-        float traceDepth = traceTex.z + i * stepDepth;
-        vec2 localCoord = traceTex.xy + i * stepCoord;
+        float stepF = i + dither;
+        float traceDepth = traceTex.z + stepF * stepDepth;
+        vec2 localCoord = traceTex.xy + stepF * stepCoord;
 
         #if MATERIAL_PARALLAX == PARALLAX_SMOOTH && defined MATERIAL_PARALLAX_SHADOW_SMOOTH
             vec2 uv[4];
