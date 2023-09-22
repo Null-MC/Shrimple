@@ -151,16 +151,9 @@
 
     //#if defined RENDER_GBUFFER || defined RENDER_DEFERRED_RT_LIGHT || defined RENDER_COMPOSITE_RT_LIGHT
         void GetFinalBlockLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
-            //#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-                vec2 lmBlock = vec2(lmcoord.x, 0.0);
-            //#else
-            //    vec2 lmBlock = lmcoord;
-            //#endif
-
-            //lmBlock = (vec4(lmBlock, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
+            vec2 lmBlock = vec2(lmcoord.x, 0.0);
             lmBlock = saturate(lmBlock) * (15.0/16.0) + (0.5/16.0);
             vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
-
             blockLightDefault = RGBToLinear(blockLightDefault);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
@@ -168,6 +161,8 @@
             #endif
 
             #if LPV_SIZE > 0 && DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                blockLightDefault = _pow3(blockLightDefault);
+
                 vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
                 vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
@@ -188,10 +183,6 @@
                 else blockDiffuse += blockLightDefault;
             #endif
 
-            //#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-            //    blockDiffuse += blockLightDefault;
-            //#endif
-
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
                 if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
             #endif
@@ -204,22 +195,7 @@
 
             vec2 lmSky = vec2(0.0, lmcoord.y);
 
-            // #ifndef RENDER_CLOUDS
-            //     //lmSky.y = pow(lmSky.y, lightP);
-
-            //     //lmSky = (vec4(lmSky, 0.0, 1.0) * TEXTURE_MATRIX_2).xy;
-            //     lmSky = saturate(lmSky) * (15.0/16.0) + (0.5/16.0);
-
-            //     vec3 skyLightColor = textureLod(TEX_LIGHTMAP, lmSky, 0).rgb;
-
-            //     skyLightColor = RGBToLinear(skyLightColor);
-
-            //     //skyLightColor = skyLightColor * (1.0 - ShadowBrightnessF) + (ShadowBrightnessF);
-
-            //     //skyLightColor *= 1.0 - blindness;
-            // #else
-                vec3 skyLightColor = vec3(1.0);
-            //#endif
+            vec3 skyLightColor = vec3(1.0);
 
             #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
                 float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
@@ -255,7 +231,6 @@
             float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
-            //vec3 accumDiffuse = skyLightColor * D * mix(shadowColor, vec3(1.0), ShadowBrightnessF);// * roughL;
             vec3 accumDiffuse = D * skyLightColor * shadowColor;
 
 
@@ -298,8 +273,7 @@
                 ambientLight += lpvLight * lpvFade;
             #endif
 
-            //ambientLight += WorldMinLightF;
-            ambientLight *= DynamicLightAmbientF;// * (1.0 + 2.0*rainStrength);
+            ambientLight *= DynamicLightAmbientF;
 
             ambientLight *= occlusion;
 
@@ -315,54 +289,38 @@
                 #else
                     accumDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
                 #endif
-
-                // if (metal_f0 >= 0.5) {
-                //     accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                // }
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
-                // float geoNoL = 1.0;
-                // if (any(greaterThan(localNormal, EPSILON3)))
-                //     geoNoL = max(dot(localNormal, localSkyLightDirection), 0.0);
+                vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
-                //if (geoNoL > EPSILON) {
-                    vec3 f0 = GetMaterialF0(albedo, metal_f0);
+                vec3 localSkyLightDir = localSkyLightDirection;
+                //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                    const float skyLightSize = 480.0;
 
-                    vec3 localSkyLightDir = localSkyLightDirection;
-                    //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                        const float skyLightSize = 480.0;
+                    vec3 r = reflect(-localViewDir, texNormal);
+                    vec3 L = localSkyLightDir * 10000.0;
+                    vec3 centerToRay = dot(L, r) * r - L;
+                    vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+                    localSkyLightDir = normalize(closestPoint);
+                //#endif
 
-                        vec3 r = reflect(-localViewDir, texNormal);
-                        vec3 L = localSkyLightDir * 10000.0;
-                        vec3 centerToRay = dot(L, r) * r - L;
-                        vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
-                        localSkyLightDir = normalize(closestPoint);
-                    //#endif
+                vec3 skyH = normalize(localSkyLightDir + localViewDir);
+                float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
-                    vec3 skyH = normalize(localSkyLightDir + localViewDir);
-                    float skyVoHm = max(dot(localViewDir, skyH), 0.0);
+                float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
+                if (!all(lessThan(abs(texNormal), EPSILON3))) {
+                    skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
+                    skyNoVm = max(dot(texNormal, localViewDir), 0.0);
+                    skyNoHm = max(dot(texNormal, skyH), 0.0);
+                }
 
-                    float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
-                    if (!all(lessThan(abs(texNormal), EPSILON3))) {
-                        skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
-                        skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-                        skyNoHm = max(dot(texNormal, skyH), 0.0);
-                    }
+                vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
 
-                    //float invCosTheta = 1.0 - skyVoHm;
-                    //float skyF = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
+                skyLightColor *= 1.0 - 0.92*rainStrength;
 
-                    skyLightColor *= 1.0 - 0.92*rainStrength;
-
-                    //#if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                    //    skyLightColor *= invPI;
-                    //#endif
-
-                    float invGeoNoL = saturate(geoNoL*40.0);
-                    skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
-                //}
+                float invGeoNoL = saturate(geoNoL*40.0);
+                skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
 
                 #if MATERIAL_REFLECTIONS != REFLECT_NONE
                     vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
@@ -380,10 +338,6 @@
                 #endif
             #endif
 
-            // #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-            //    accumDiffuse *= occlusion;
-            // #endif
-
             skyDiffuse += accumDiffuse;
         }
 
@@ -394,14 +348,6 @@
 
     #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
         vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
-            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-                //occlusion = 0.5 + 0.5 * occlusion;
-            #endif
-
-            // #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
-            //     diffuse *= blackbody(TEMP_FIRE);
-            // #endif
-            
             #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
                 vec3 final = vec3(WHITEWORLD_VALUE);
             #else
