@@ -217,6 +217,7 @@ void main() {
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
 
         vec3 albedo = RGBToLinear(deferredColor);
 
@@ -224,7 +225,6 @@ void main() {
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
             localNormal = normalize(localNormal * 2.0 - 1.0);
 
-        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
         vec3 texNormal = deferredTexture.xyz;
 
         if (any(greaterThan(texNormal, EPSILON3)))

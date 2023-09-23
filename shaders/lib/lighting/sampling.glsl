@@ -17,12 +17,12 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
         //    NoL = dot(localNormal, lightDir);
 
         if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            NoL = max(texNoL, 0.0);
+            NoL = max(texNoL, 0.0) * step(0.0, geoNoL);
         }
     //#endif
 
     #if MATERIAL_SSS != SSS_NONE
-        NoL = mix(NoL, 0.25 + 1.25*abs(texNoL), sss);
+        NoL = mix(NoL, 0.25 + abs(texNoL), _pow2(sss));
     //#else
     //    NoL = max(NoL, 0.0);
     #endif
