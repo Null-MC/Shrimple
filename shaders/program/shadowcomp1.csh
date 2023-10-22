@@ -212,7 +212,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
             vec3 sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
             sampleColor = RGBToLinear(sampleColor);
-            //sampleColor = _pow2(sampleColor);
+            sampleColor = 10.0 * _pow3(sampleColor);
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;

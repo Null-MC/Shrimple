@@ -1,7 +1,7 @@
 float GetLightAttenuation(const in vec3 lightVec, const in float lightRange) {
     float lightDist = length(lightVec);
     float lightAtt = 1.0 - saturate(lightDist / lightRange);
-    return _pow3(lightAtt);
+    return pow5(lightAtt);
 }
 
 float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 lightDir, const in float sss) {
