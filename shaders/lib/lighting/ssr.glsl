@@ -1,19 +1,21 @@
 const int SSR_LodMin = 0;
 
 
-float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-    //ivec2 viewSize = ivec2(viewWidth, viewHeight);
-    float depth = 1.0;
+#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
+    float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
+        //ivec2 viewSize = ivec2(viewWidth, viewHeight);
+        float depth = 1.0;
 
-    if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
-    else {
-        ivec2 uv = GetDepthTileCoord(texcoord, level - 1);
-        return texelFetch(texDepthNear, uv, 0).r;
-        //return imageLoad(imgDepthNear, uv).r;
+        if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
+        else {
+            ivec2 uv = GetDepthTileCoord(texcoord, level - 1);
+            return texelFetch(texDepthNear, uv, 0).r;
+            //return imageLoad(imgDepthNear, uv).r;
+        }
+
+        return depth;
     }
-
-    return depth;
-}
+#endif
 
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
@@ -25,10 +27,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     vec3 screenRay = clipRay / screenRayLength;
 
-    float dither = 2.0 + InterleavedGradientNoise(gl_FragCoord.xy);
+    float dither = 0.0 + InterleavedGradientNoise(gl_FragCoord.xy);
 
 
-    #if SSR_LOD_MAX > 0
+    #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
         vec2 origin = clipPos.xy * viewSize + screenRay.xy * dither;
         vec3 direction = screenRay;
 
@@ -44,6 +46,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     else
         screenRay *= pixelSize.x / abs(screenRay.x);
 
+    #ifndef MATERIAL_REFLECT_HIZ
+        screenRay *= 8.0;
+    #endif
+
     vec3 lastTracePos = clipPos + screenRay * dither;
     vec3 lastVisPos = lastTracePos;
 
@@ -51,7 +57,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
 
-    #if SSR_LOD_MAX > 0
+    #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
         float closestDist = minOf(nextDist);
         vec2 currPos = origin + direction.xy * closestDist;
         vec2 lastPos = currPos;
@@ -76,7 +82,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         tracePos = lastTracePos + screenRay*l2;
 
 
-        #if SSR_LOD_MAX > 0
+        #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             closestDist = minOf(nextDist);
             vec2 ddaStep = direction.xy * closestDist * l2;
 
@@ -108,11 +114,12 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
         //float depthBias = -0.01 * (1.0 - clipPos.z);
         //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
-        #if SSR_LOD_MAX > 0
+        #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             //texDepth = SampleDepthTiles(depthtex, currPos / viewSize, level);
             texDepth = SampleDepthTiles(depthtex, 0.5*(lastPos + currPos) / viewSize, level);
         #else
-            texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
+            //texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
+            texDepth = texelFetch(depthtex, ivec2(tracePos.xy * viewSize), 0).r;
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
@@ -132,7 +139,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         if (ignoreIfCloserThanStartAndMovingAway || ignoreIfTraceNearer || ignoreIfTooThick) {
             lastTracePos = tracePos;
 
-            #if SSR_LOD_MAX > 0
+            #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
                 lastPos = currPos;
                 currPos += ddaStep;
 
@@ -147,7 +154,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             continue;
         }
 
-        #if SSR_LOD_MAX > 0
+        #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             if (level > SSR_LodMin) {
                level--;
                continue;
