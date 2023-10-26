@@ -27,7 +27,11 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     vec3 screenRay = clipRay / screenRayLength;
 
-    float dither = 0.0 + InterleavedGradientNoise(gl_FragCoord.xy);
+    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+
+    #ifndef MATERIAL_REFLECT_HIZ
+        dither += 2.0;
+    #endif
 
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
