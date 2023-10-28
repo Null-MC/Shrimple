@@ -209,7 +209,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             // #endif
         #endif
 
-        vec3 inScattering = ambientBase;
+        //vec3 inScattering = ambientBase;
 
         #ifdef WORLD_WATER_ENABLED
             float waterDepthEye = 0.0;
@@ -220,49 +220,51 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #elif WORLD_SKY_ENABLED
                 ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * (1.0 - 0.9 * rainStrength);
             #endif
+        #endif
 
-            #if WATER_DEPTH_LAYERS > 1
-                if (isEyeInWater == 1) {
-                    isWater = traceDist < waterDepth[0] + 0.001;
-                    waterDepthEye += min(traceDist, waterDepth[0]);
+        #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+            if (isEyeInWater == 1) {
+                isWater = traceDist < waterDepth[0] + 0.001;
+                waterDepthEye += min(traceDist, waterDepth[0]);
 
-                    #if WATER_DEPTH_LAYERS >= 2
-                        if (waterDepth[1] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
-                            // TODO: waterDepthEye
-                    #endif
+                #if WATER_DEPTH_LAYERS >= 2
+                    if (waterDepth[1] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
+                        // TODO: waterDepthEye
+                #endif
 
-                    #if WATER_DEPTH_LAYERS >= 4
-                        if (waterDepth[3] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
-                            // TODO: waterDepthEye
-                    #endif
-                }
-                else {
-                    if (waterDepth[0] < farDist) {
-                        isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
-                        waterDepthEye += max(traceDist - waterDepth[0], 0.0);
-                    }
-
-                    #if WATER_DEPTH_LAYERS >= 3
-                        if (waterDepth[2] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
-                            // TODO: waterDepthEye
-                    #endif
-
-                    #if WATER_DEPTH_LAYERS >= 5
-                        if (waterDepth[4] < farDist)
-                            isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
-                            // TODO: waterDepthEye
-                    #endif
+                #if WATER_DEPTH_LAYERS >= 4
+                    if (waterDepth[3] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
+                        // TODO: waterDepthEye
+                #endif
+            }
+            else {
+                if (waterDepth[0] < farDist) {
+                    isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
+                    waterDepthEye += max(traceDist - waterDepth[0], 0.0);
                 }
 
-                VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
+                #if WATER_DEPTH_LAYERS >= 3
+                    if (waterDepth[2] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
+                        // TODO: waterDepthEye
+                #endif
 
-                inScattering = isWater ? ambientWater : phaseAir.Ambient;
-            #else
-                //vec3 inScattering = ambientBase;
+                #if WATER_DEPTH_LAYERS >= 5
+                    if (waterDepth[4] < farDist)
+                        isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
+                        // TODO: waterDepthEye
+                #endif
+            }
 
+            VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
+
+            vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
+        #else
+            vec3 inScattering = ambientBase;
+
+            #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1)
                     waterDepthEye = traceDist;
                 else {
