@@ -358,26 +358,31 @@ void main() {
                             lightValue = mixNeighbours(imgCoordPrev);
                             lightValue.rgb *= tint;
 
-                            vec4 shadowColorF = SampleShadow(blockLocalPos);
+                            vec4 shadowColorF = vec4(0.0);
+                            #ifdef WORLD_SKY_ENABLED
+                                shadowColorF = SampleShadow(blockLocalPos);
+                            #endif
 
                             #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                ivec3 bounceOffset = ivec3(sign(-localSunDirection));
-
-                                // make sure diagonals dont exist
-                                int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                                bounceOffset.xz *= 1 - bounceYF;
-                                bounceOffset.y *= bounceYF;
-
-                                float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-
                                 if (blockId != BLOCK_WATER) {
+                                    ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+
+                                    // make sure diagonals dont exist
+                                    int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                                    bounceOffset.xz *= 1 - bounceYF;
+                                    bounceOffset.y *= bounceYF;
+
+                                    float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+
                                     lightValue.rgb += skyLightColor * (0.8 * shadowColorF.rgb * bounceF + 0.2 * shadowColorF.a);
                                 }
                             #endif
 
-                            if (blockId == BLOCK_WATER) {
-                                lightValue.rgb += skyLightColor * shadowColorF.rgb * shadowColorF.a;
-                            }
+                            #ifdef WORLD_SKY_ENABLED
+                                if (blockId == BLOCK_WATER) {
+                                    lightValue.rgb += skyLightColor * shadowColorF.rgb * shadowColorF.a;
+                                }
+                            #endif
 
                             lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
                         }
