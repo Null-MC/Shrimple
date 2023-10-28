@@ -41,7 +41,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Back = 0.19;
         result.Direction = 0.09;
 
-        float scatterF = 0.02 * density;
+        float scatterF = 0.02;// * density;
         scatterF = scatterF;//mix(0.048, scatterF, skyLight);
         result.ScatterF = scatterF * vec3(0.752, 0.835, 0.889);
 
@@ -133,7 +133,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= 2.0 * WorldSkyLightColor * VolumetricBrightnessSky;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -341,7 +341,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             inScattering += sampleF * sampleColor;
         #endif
 
-        float sampleDensity = 1.0;
+        float sampleDensity = isWater ? 1.0 : VolumetricDensityF;
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             vec3 blockLightAccum = vec3(0.0);
@@ -388,7 +388,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 //vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
                 //vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
 
-                vec3 lpvLight = sqrt(saturate(lpvSample.rgb / LpvBlockLightF));
+                vec3 lpvLight = saturate(lpvSample.rgb / LpvBlockLightF);
                 //lpvLight = sqrt(lpvLight / LpvBlockLightF);
 
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
@@ -404,9 +404,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 else {
                     float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
-                    lpvLight *= smoothstep(1.0, 0.8, skyLightF)*0.84 + 0.16;
 
-                    lpvLight *= viewDistF;
+                    skyLightF = smoothstep(1.0, 0.8, skyLightF) * viewDistF;
+                    lpvLight *= skyLightF*0.88 + 0.12;
                 }
 
                 blockLightAccum += lpvLight * GetLpvFade(lpvPos);
