@@ -169,13 +169,13 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             #endif
 
             #if DYN_LIGHT_TINT_MODE == LIGHT_TINT_ABSORB
-                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW) {
+                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
                     vec3 glassTint = GetLightGlassTint(blockId);
                     color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
                 }
                 else {
             #elif DYN_LIGHT_TINT_MODE == LIGHT_TINT_BASIC
-                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW && blockId != blockIdLast) {
+                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
                     vec3 glassTint = GetLightGlassTint(blockId) * DynamicLightTintF;
                     glassTint += max(1.0 - DynamicLightTintF, 0.0);
                     color *= glassTint;
@@ -236,7 +236,7 @@ vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) 
             uint gridIndex = GetVoxelGridCellIndex(gridCell);
             uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
-            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_STAINED_GLASS_YELLOW && blockId != blockIdLast) {
+            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
                 color *= GetLightGlassTint(blockId);
             }
             else if (blockId != BLOCK_EMPTY) {

@@ -219,6 +219,7 @@ const bool colortex15Clear = true;
 #define LPV_BRIGHT_MOON 0.02
 #define LPV_FALLOFF 0.001
 #define LPV_GLASS_TINT
+#define LPV_SKYLIGHT_RANGE 48.0
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -237,7 +238,7 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_BLOCK_MODE 0 // [0 1 2 3]
 #define VOLUMETRIC_BLOCK_RANGE 50 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define VOLUMETRIC_SAMPLES 12 // [8 12 16 24]
-#define VOLUMETRIC_DENSITY 40 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800 1000]
+#define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 40 50 60 70 80 90 100 125 150 175 200 250 300 400 600 800 1000]
 #define VOLUMETRIC_RES 1 // [2 1 0]
 #define VOLUMETRIC_BRIGHT_SKY   100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_BRIGHT_BLOCK 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
@@ -550,7 +551,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #endif
 
 const float entityShadowDistanceMul = 0.25;
-const float voxelDistance = 64.0;
+const float voxelDistance = 128.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
 
@@ -577,8 +578,9 @@ float pow5(const in float x) {return x * pow4(x);}
 float pow6(const in float x) {float x2 = _pow2(x); return _pow3(x2);}
 
 float saturate(const in float x) {return clamp(x, 0.0, 1.0);}
-vec2 saturate(const in vec2 x) {return clamp(x, vec2(0.0), vec2(1.0));}
-vec3 saturate(const in vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}
+vec2 saturate(const in vec2 x) {return clamp(x, 0.0, 1.0);}
+vec3 saturate(const in vec3 x) {return clamp(x, 0.0, 1.0);}
+vec4 saturate(const in vec4 x) {return clamp(x, 0.0, 1.0);}
 
 float length2(const in vec2 vec) {return dot(vec, vec);}
 float length2(const in vec3 vec) {return dot(vec, vec);}

@@ -1,13 +1,13 @@
-vec3 SampleLpvLinear(const in vec3 lpvTexcoord) {
+vec4 SampleLpvLinear(const in vec3 lpvTexcoord) {
     return (frameCounter % 2) == 0
-        ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
-        : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+        ? textureLod(texLPV_1, lpvTexcoord, 0)
+        : textureLod(texLPV_2, lpvTexcoord, 0);
 }
 
-vec3 SampleLpvPoint(const in ivec3 lpvPos) {
+vec4 SampleLpvPoint(const in ivec3 lpvPos) {
     return (frameCounter % 2) == 0
-        ? texelFetch(texLPV_1, lpvPos, 0).rgb
-        : texelFetch(texLPV_2, lpvPos, 0).rgb;
+        ? texelFetch(texLPV_1, lpvPos, 0)
+        : texelFetch(texLPV_2, lpvPos, 0);
 }
 
 float LpvVoxelTest(const in ivec3 voxelCoord) {
@@ -19,7 +19,7 @@ float LpvVoxelTest(const in ivec3 voxelCoord) {
     return IsTraceEmptyBlock(blockId) ? 1.0 : 0.0;
 }
 
-vec3 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
+vec4 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
     #if LPV_SAMPLE_MODE == LPV_SAMPLE_LINEAR
         vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
         return SampleLpvLinear(lpvTexcoord);
@@ -29,15 +29,15 @@ vec3 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
 
         ivec3 voxelCoord = ivec3(voxelPos - 0.5 + 0.01);
 
-        vec3 sample_x1y1z1 = SampleLpvPoint(lpvCoord + ivec3(0, 0, 0));
-        vec3 sample_x2y1z1 = SampleLpvPoint(lpvCoord + ivec3(1, 0, 0));
-        vec3 sample_x1y2z1 = SampleLpvPoint(lpvCoord + ivec3(0, 1, 0));
-        vec3 sample_x2y2z1 = SampleLpvPoint(lpvCoord + ivec3(1, 1, 0));
+        vec4 sample_x1y1z1 = SampleLpvPoint(lpvCoord + ivec3(0, 0, 0));
+        vec4 sample_x2y1z1 = SampleLpvPoint(lpvCoord + ivec3(1, 0, 0));
+        vec4 sample_x1y2z1 = SampleLpvPoint(lpvCoord + ivec3(0, 1, 0));
+        vec4 sample_x2y2z1 = SampleLpvPoint(lpvCoord + ivec3(1, 1, 0));
 
-        vec3 sample_x1y1z2 = SampleLpvPoint(lpvCoord + ivec3(0, 0, 1));
-        vec3 sample_x2y1z2 = SampleLpvPoint(lpvCoord + ivec3(1, 0, 1));
-        vec3 sample_x1y2z2 = SampleLpvPoint(lpvCoord + ivec3(0, 1, 1));
-        vec3 sample_x2y2z2 = SampleLpvPoint(lpvCoord + ivec3(1, 1, 1));
+        vec4 sample_x1y1z2 = SampleLpvPoint(lpvCoord + ivec3(0, 0, 1));
+        vec4 sample_x2y1z2 = SampleLpvPoint(lpvCoord + ivec3(1, 0, 1));
+        vec4 sample_x1y2z2 = SampleLpvPoint(lpvCoord + ivec3(0, 1, 1));
+        vec4 sample_x2y2z2 = SampleLpvPoint(lpvCoord + ivec3(1, 1, 1));
 
         float voxel_x1y1z1 = LpvVoxelTest(voxelCoord + ivec3(0, 0, 0));
         float voxel_x2y1z1 = LpvVoxelTest(voxelCoord + ivec3(1, 0, 0));
@@ -61,14 +61,14 @@ vec3 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
 
         // TODO: Add special checks for avoiding diagonal blending between occluded edges/corners
 
-        vec3 sample_y1z1 = mix(sample_x1y1z1, sample_x2y1z1, lpvF.x);
-        vec3 sample_y2z1 = mix(sample_x1y2z1, sample_x2y2z1, lpvF.x);
+        vec4 sample_y1z1 = mix(sample_x1y1z1, sample_x2y1z1, lpvF.x);
+        vec4 sample_y2z1 = mix(sample_x1y2z1, sample_x2y2z1, lpvF.x);
 
-        vec3 sample_y1z2 = mix(sample_x1y1z2, sample_x2y1z2, lpvF.x);
-        vec3 sample_y2z2 = mix(sample_x1y2z2, sample_x2y2z2, lpvF.x);
+        vec4 sample_y1z2 = mix(sample_x1y1z2, sample_x2y1z2, lpvF.x);
+        vec4 sample_y2z2 = mix(sample_x1y2z2, sample_x2y2z2, lpvF.x);
 
-        vec3 sample_z1 = mix(sample_y1z1, sample_y2z1, lpvF.y);
-        vec3 sample_z2 = mix(sample_y1z2, sample_y2z2, lpvF.y);
+        vec4 sample_z1 = mix(sample_y1z1, sample_y2z1, lpvF.y);
+        vec4 sample_z2 = mix(sample_y1z2, sample_y2z2, lpvF.y);
 
         return mix(sample_z1, sample_z2, lpvF.z);
     #else //LPV_SAMPLE_MODE == LPV_SAMPLE_POINT

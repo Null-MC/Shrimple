@@ -90,7 +90,7 @@
             vec3 GetLpvAmbient(const in vec3 voxelPos, const in vec3 lpvPos) {
                 //if (saturate(lpvTexcoord) == lpvTexcoord) {
 
-                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos).rgb;
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
 
                 //lpvLight /= LpvBlockLightF;

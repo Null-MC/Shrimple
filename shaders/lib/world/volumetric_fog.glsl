@@ -42,7 +42,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.Direction = 0.09;
 
         float scatterF = 0.02 * density;
-        scatterF = mix(0.048, scatterF, skyLight);
+        scatterF = scatterF;//mix(0.048, scatterF, skyLight);
         result.ScatterF = scatterF * vec3(0.752, 0.835, 0.889);
 
         float extinctF = mix(0.002, 0.006, rainStrength) * density;
@@ -157,26 +157,30 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float localStepLength = localRayLength * inverseStepCountF;
     //float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength);
 
-    #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
-        uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
-        uint uvIndex = uint(uv.y * viewWidth + uv.x);
+    #ifdef WORLD_WATER_ENABLED
+        vec3 ambientWater = vec3(0.0);
 
-        float waterDepth[WATER_DEPTH_LAYERS+1];
-        GetAllWaterDepths(uvIndex, distTrans, waterDepth);
+        #if WATER_DEPTH_LAYERS > 1
+            uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
+            uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
-        float extinctionInvAir = rcp(phaseAir.ExtinctF);
-        float extinctionInvWater = rcp(phaseWater.ExtinctF);
+            float waterDepth[WATER_DEPTH_LAYERS+1];
+            GetAllWaterDepths(uvIndex, distTrans, waterDepth);
 
-        #ifdef WORLD_SKY_ENABLED
-            float eyeLightF = eyeBrightnessSmooth.y / 240.0;
-            vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * rainStrength);
-            vec3 ambientWater = vec3(0.2, 0.8, 1.0) * skyLightAmbient * 0.02;
+            float extinctionInvAir = rcp(phaseAir.ExtinctF);
+            float extinctionInvWater = rcp(phaseWater.ExtinctF);
+
+            #ifdef WORLD_SKY_ENABLED
+                float eyeLightF = eyeBrightnessSmooth.y / 240.0;
+                vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * rainStrength);
+                ambientWater = vec3(0.2, 0.8, 1.0) * skyLightAmbient * 0.02;
+            #else
+                ambientWater = vec3(0.0040);
+            #endif
         #else
-            vec3 ambientWater = vec3(0.0040);
+            float extinctionInv = rcp(phaseF.ExtinctF);
+            vec3 ambientBase = phaseF.Ambient;
         #endif
-    #else
-        float extinctionInv = rcp(phaseF.ExtinctF);
-        vec3 ambientBase = phaseF.Ambient;
     #endif
 
     float transmittance = 1.0;
@@ -193,42 +197,68 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         vec3 traceLocalPos = localStep * iStep + localStart;
 
-        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
+        #if LPV_SIZE > 0
+            vec3 lpvPos = GetLPVPosition(traceLocalPos);
+            vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
+            vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
+
+            float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
+            ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * lpvSkyLightF * skyLightColor * (1.0 - 0.9 * rainStrength);
+        #endif
+
+        #ifdef WORLD_WATER_ENABLED
             float traceDist = length(traceLocalPos);
+            float waterDepthEye = 0.0;
 
-            if (isEyeInWater == 1) {
-                isWater = traceDist < waterDepth[0] + 0.001;
+            #if WATER_DEPTH_LAYERS > 1
+                if (isEyeInWater == 1) {
+                    isWater = traceDist < waterDepth[0] + 0.001;
+                    waterDepthEye += min(traceDist, waterDepth[0]);
 
-                #if WATER_DEPTH_LAYERS >= 2
-                    if (waterDepth[1] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
-                #endif
+                    #if WATER_DEPTH_LAYERS >= 2
+                        if (waterDepth[1] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
+                            // TODO: waterDepthEye
+                    #endif
 
-                #if WATER_DEPTH_LAYERS >= 4
-                    if (waterDepth[3] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
-                #endif
-            }
-            else {
-                if (waterDepth[0] < farDist)
-                    isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
+                    #if WATER_DEPTH_LAYERS >= 4
+                        if (waterDepth[3] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
+                            // TODO: waterDepthEye
+                    #endif
+                }
+                else {
+                    if (waterDepth[0] < farDist) {
+                        isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
+                        waterDepthEye += max(traceDist - waterDepth[0], 0.0);
+                    }
 
-                #if WATER_DEPTH_LAYERS >= 3
-                    if (waterDepth[2] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
-                #endif
+                    #if WATER_DEPTH_LAYERS >= 3
+                        if (waterDepth[2] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
+                            // TODO: waterDepthEye
+                    #endif
 
-                #if WATER_DEPTH_LAYERS >= 5
-                    if (waterDepth[4] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
-                #endif
-            }
+                    #if WATER_DEPTH_LAYERS >= 5
+                        if (waterDepth[4] < farDist)
+                            isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
+                            // TODO: waterDepthEye
+                    #endif
+                }
 
-            VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
+                VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
 
-            vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
-        #else
-            vec3 inScattering = ambientBase;
+                vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
+            #else
+                vec3 inScattering = ambientBase;
+
+                if (isEyeInWater == 1)
+                    waterDepthEye = traceDist;
+                else {
+                    // TODO: get dist from water to trace
+                    waterDepthEye = 0.0;
+                }
+            #endif
         #endif
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -311,6 +341,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             inScattering += sampleF * sampleColor;
         #endif
 
+        float sampleDensity = 1.0;
+
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             vec3 blockLightAccum = vec3(0.0);
 
@@ -352,27 +384,39 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     }
                 }
             #elif LPV_SIZE > 0
-                vec3 lpvPos = GetLPVPosition(traceLocalPos);
-                vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
+                //vec3 lpvPos = GetLPVPosition(traceLocalPos);
+                //vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
+                //vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
 
-                vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos);
+                vec3 lpvLight = sqrt(saturate(lpvSample.rgb / LpvBlockLightF));
                 //lpvLight = sqrt(lpvLight / LpvBlockLightF);
-                lpvLight = lpvLight / LpvBlockLightF;
 
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
                 //lpvLight /= 1.0 + lpvLight;
 
                 //lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
-                lpvLight *= 0.25;
+                //lpvLight *= 0.25;
+
+                if (isWater) {
+                    lpvLight *= 0.0;//exp(-waterDepthEye * WaterAbsorbColorInv);
+                    //sampleDensity *= 2.0;
+                }
+                else {
+                    float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
+                    float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
+                    lpvLight *= smoothstep(1.0, 0.8, skyLightF)*0.84 + 0.16;
+
+                    lpvLight *= viewDistF;
+                }
+
                 blockLightAccum += lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        float sampleDensity = 1.0;
         if (!isWater) {
-            sampleDensity = 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
+            sampleDensity *= 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
         }
 
         inScattering *= phaseF.ScatterF * sampleDensity;

@@ -68,6 +68,9 @@ vec3 GetLightGlassTint(const in uint blockId) {
         case BLOCK_STAINED_GLASS_YELLOW:
             stepTint = vec3(0.965, 0.965, 0.123);
             break;
+        case BLOCK_TINTED_GLASS:
+            stepTint = vec3(0.2, 0.1, 0.2);
+            break;
     }
 
     return RGBToLinear(stepTint);

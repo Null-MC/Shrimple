@@ -377,6 +377,21 @@ void main() {
             }
 
             shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
+
+            // #if defined WATER_CAUSTICS
+            //     float causticLight = SampleWaterCaustics(vLocalPos);
+            //     causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+
+            //     float causticStrength = Water_CausticStrength;
+            //     //causticStrength *= min(waterDepth*0.5, 1.0);
+            //     //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
+                
+            //     // TODO: get shadow depth!
+            //     float texDepthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
+            //     float waterDepth = ;
+
+            //     shadowColor *= 1.0 + 1.0*causticLight * causticStrength;
+            // #endif
         }
     #endif
 

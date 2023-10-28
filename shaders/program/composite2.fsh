@@ -482,6 +482,8 @@ layout(location = 0) out vec4 outFinal;
                         float causticStrength = Water_CausticStrength;
                         //causticStrength *= min(waterDepth*0.5, 1.0);
                         //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
+                        
+                        // TODO: get shadow depth!
 
                         deferredShadow *= 0.3 + 0.7*mix(1.0, causticLight, causticStrength);
                     #endif

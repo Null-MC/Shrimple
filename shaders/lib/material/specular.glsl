@@ -118,7 +118,7 @@ float GetBlockRoughness(const in int blockId) {
             break;
     }
 
-    if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_STAINED_GLASS_YELLOW)
+    if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS)
         smoothness = 0.90;
 
     return 1.0 - smoothness;

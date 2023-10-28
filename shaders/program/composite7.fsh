@@ -18,7 +18,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     uniform sampler3D texCaustics;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -106,20 +106,24 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/buffers/water_depths.glsl"
     #endif
 
-    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
         #include "/lib/blocks.glsl"
 
+        #include "/lib/buffers/lighting.glsl"
+
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
+
+    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #ifdef DYN_LIGHT_FLICKER
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
         #endif
 
         #include "/lib/lights.glsl"
-        #include "/lib/buffers/lighting.glsl"
         #include "/lib/lighting/fresnel.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
@@ -137,11 +141,11 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
 
         #include "/lib/lighting/sampling.glsl"
-        
-        #if LPV_SIZE > 0 && VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
-            #include "/lib/lighting/voxel/lpv.glsl"
-            #include "/lib/lighting/voxel/lpv_render.glsl"
-        #endif
+    #endif
+    
+    #if LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+        #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 #endif
 
