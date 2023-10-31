@@ -646,6 +646,10 @@ layout(location = 0) out vec4 outFinal;
                         #endif
                     #endif
 
+                    #ifndef WORLD_SKY_ENABLED
+                        blockDiffuse += GetAmbientLighting(localPos, localNormal);
+                    #endif
+
                     //blockDiffuse += emission * MaterialEmissionF;
                 #else
                     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);

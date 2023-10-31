@@ -374,7 +374,7 @@ void main() {
 
                                     float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                                    lightValue.rgb += skyLightColor * (0.8 * shadowColorF.rgb * bounceF + 0.2 * shadowColorF.a);
+                                    lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
                                 }
                             #endif
 
