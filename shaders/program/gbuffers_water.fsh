@@ -438,10 +438,6 @@ void main() {
             color.a *= WorldWaterOpacityF;
 
             color = mix(color, vec4(1.0), oceanFoam);
-
-            #if WATER_DEPTH_LAYERS > 1
-                SetWaterDepth(viewDist);
-            #endif
         }
     #endif
 
@@ -559,9 +555,16 @@ void main() {
         #endif
     #endif
 
+    vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+        if (isWater && (isEyeInWater != 1 || !gl_FrontFacing))
+            SetWaterDepth(viewDist);
+    #endif
+
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
-        vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+        //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
         ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
     #endif
@@ -591,7 +594,7 @@ void main() {
         #endif
 
         outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor + dither, isWater ? 0.0 : 1.0);
+        outDeferredShadow = vec4(shadowColor + dither, isWater ? 1.0 : 0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));

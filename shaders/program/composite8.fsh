@@ -395,11 +395,11 @@ layout(location = 0) out vec4 outFinal;
 
             vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
 
-            #if WATER_DEPTH_LAYERS > 1
-                isWater = WaterDepths[waterPixelIndex].IsWater;
-            #else
-                isWater = deferredShadow.a < 0.5;
-            #endif
+            //#if WATER_DEPTH_LAYERS > 1
+            //    isWater = WaterDepths[waterPixelIndex].IsWater;
+            //#else
+                isWater = deferredShadow.a > 0.5;
+            //#endif
 
             #ifdef MATERIAL_REFRACT_ENABLED
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);

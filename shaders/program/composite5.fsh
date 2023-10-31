@@ -210,7 +210,7 @@ layout(location = 0) out vec4 outFinal;
                     bool isWater = WaterDepths[waterPixelIndex].IsWater;
                 #else
                     float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
-                    bool isWater = deferredShadowA < 0.5;
+                    bool isWater = deferredShadowA > 0.5;
                 #endif
 
                 float distOpaque = length(localPosOpaque);

@@ -214,7 +214,7 @@ void main() {
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater != 1) {
                 float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).a;
-                isWater = deferredShadowA < 0.5;
+                isWater = deferredShadowA > 0.5;
             }
         #endif
 

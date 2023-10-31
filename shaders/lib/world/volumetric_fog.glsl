@@ -15,7 +15,7 @@ struct VolumetricPhaseFactors {
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient, vlWaterScatterColorL, rcp(waterDensitySmooth), 0.09, 0.924, 0.197);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient * WorldWaterDensityF, vlWaterScatterColorL * WorldWaterDensityF, rcp(waterDensitySmooth) * WorldWaterDensityF, 0.09, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -418,7 +418,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
 
-                    skyLightF = smoothstep(1.0, 0.8, skyLightF) * viewDistF;
+                    skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
                     lpvLight *= skyLightF*0.96 + 0.04;
                 }
 
