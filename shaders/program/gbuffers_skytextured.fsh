@@ -27,7 +27,7 @@ uniform float rainStrength;
 layout(location = 0) out vec4 outColor0;
 
 void main() {
-    vec4 color = texture(gtexture, texcoord) * glcolor;
+    vec4 color = textureLod(gtexture, texcoord, 0) * glcolor;
     color.rgb = RGBToLinear(color.rgb);// * WorldSkyBrightnessF;
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
@@ -42,6 +42,9 @@ void main() {
 
         //float horizonF = GetSkyHorizonF(localSunDirection.y);
         color.rgb *= 2.0 * smoothstep(-0.1, 0.1, localSunDirection.y);
+    }
+    else if (renderStage == MC_RENDER_STAGE_CUSTOM_SKY) {
+        color.rgb *= WorldSkyBrightnessF;
     }
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)

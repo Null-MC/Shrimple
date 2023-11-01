@@ -359,26 +359,24 @@ void main() {
                             lightValue.rgb *= tint;
 
                             vec4 shadowColorF = vec4(0.0);
-                            #ifdef WORLD_SKY_ENABLED
+                            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                                 shadowColorF = SampleShadow(blockLocalPos);
-                            #endif
 
-                            #if LPV_SUN_SAMPLES > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                if (blockId != BLOCK_WATER) {
-                                    ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                                #if LPV_SUN_SAMPLES > 0
+                                    if (blockId != BLOCK_WATER) {
+                                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                                    // make sure diagonals dont exist
-                                    int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                                    bounceOffset.xz *= 1 - bounceYF;
-                                    bounceOffset.y *= bounceYF;
+                                        // make sure diagonals dont exist
+                                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                                        bounceOffset.xz *= 1 - bounceYF;
+                                        bounceOffset.y *= bounceYF;
 
-                                    float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                                    lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
-                                }
-                            #endif
+                                        lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
+                                    }
+                                #endif
 
-                            #ifdef WORLD_SKY_ENABLED
                                 if (blockId == BLOCK_WATER) {
                                     lightValue.rgb += skyLightColor * shadowColorF.rgb * shadowColorF.a;
                                 }

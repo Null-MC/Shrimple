@@ -608,14 +608,14 @@ layout(location = 0) out vec4 outFinal;
 
                                 if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
-                                float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
-                                float viewDistF = max(1.0 - viewDist/16.0, 0.0);
-                                float moveWeight = max(1.0 - cameraSpeed * viewDistF, 0.0);
+                                //float cameraSpeed = 4.0 * length(cameraOffsetPrevious);// * frameTime;
+                                //float viewDistF = max(1.0 - viewDist/16.0, 0.0);
+                                //float moveWeight = max(1.0 - cameraSpeed * viewDistF, 0.0);
 
-                                float specularCounter = diffuseCounter * moveWeight;
+                                float specularCounter = diffuseCounter;// * moveWeight;
 
                                 if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                    diffuseCounter = diffuseCounter * moveWeight;
+                                    diffuseCounter = diffuseCounter;// * moveWeight;
                                 }
 
                                 float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;

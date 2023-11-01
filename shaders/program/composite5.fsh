@@ -256,6 +256,12 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
+            // #if !(defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED)
+            //     if (isWater) {
+            //         final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+            //     }
+            // #endif
+
             #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                 float fogDist  = GetVanillaFogDistance(localPosOpaque);
 
@@ -304,11 +310,11 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #ifdef WORLD_WATER_ENABLED
-                if (isWater) {
-                    final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
-                }
-            #endif
+            // #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
+            //     if (isWater) {
+            //         final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+            //     }
+            // #endif
 
             #ifdef VL_BUFFER_ENABLED
                 #ifdef VOLUMETRIC_BLUR

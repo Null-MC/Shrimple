@@ -557,6 +557,7 @@ void main() {
             color.rgb = LinearToRGB(color.rgb);
         #else
             ApplyFog(color, vLocalPos, localViewDir);
+            color.a = 1.0;
         #endif
 
         outFinal = color;

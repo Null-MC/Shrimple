@@ -562,11 +562,11 @@ layout(location = 0) out vec4 outFinal;
                                 diffuseCounter *= depthWeight;
                                 diffuseCounter *= 1.0 - normalWeight;
 
-                                if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                    float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
-                                    float viewDistF = max(1.0 - viewDist/16.0, 0.0);
-                                    diffuseCounter *= max(1.0 - cameraSpeed * viewDistF, 0.0);
-                                }
+                                // if (HandLightType1 > 0 || HandLightType2 > 0) {
+                                //     float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
+                                //     float viewDistF = max(1.0 - viewDist/16.0, 0.0);
+                                //     diffuseCounter *= max(1.0 - cameraSpeed * viewDistF, 0.0);
+                                // }
 
                                 if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
 
@@ -774,6 +774,12 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
         }
 
+        #if !(defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED)
+            if (isEyeInWater == 1) {
+                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+            }
+        #endif
+
         final.a = 1.0;
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
@@ -826,7 +832,7 @@ layout(location = 0) out vec4 outFinal;
             //final.rgb = mix(final.rgb, fogColorFinal, fogF);
         #endif
 
-        #ifdef WORLD_WATER_ENABLED
+        #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
                 final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
             }
