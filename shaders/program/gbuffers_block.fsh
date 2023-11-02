@@ -477,7 +477,7 @@ void main() {
         float fogF = GetVanillaFogFactor(vLocalPos);
 
         outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
-        outDeferredShadow = vec4(shadowColor, 1.0) + dither;
+        outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));

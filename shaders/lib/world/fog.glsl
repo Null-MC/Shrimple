@@ -64,7 +64,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         }
 
         float GetCustomWaterFogFactor(const in float fogDist) {
-            float waterFogFar = min(waterDensitySmooth, far);
+            float waterFogFar = min(waterDensitySmooth / WorldWaterDensityF, far);
             return GetFogFactor(fogDist, 0.0, waterFogFar, 0.65);
         }
     #endif

@@ -774,7 +774,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
         }
 
-        #if !(defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED)
+        #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
                 final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
             }

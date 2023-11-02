@@ -467,8 +467,8 @@ void main() {
             color.a = 1.0;
         #endif
 
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+        outDeferredColor = color + dither;
+        outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));

@@ -261,11 +261,12 @@
 
                 vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
 
-                #if DYN_LIGHT_MODE != DYN_LIGHT_LPV
+                //#if DYN_LIGHT_MODE != DYN_LIGHT_LPV
+                    //ambientLight = _pow3(ambientLight);
                     lpvFade *= 1.0 - LpvLightmapMixF;
-                #endif
+                //#endif
 
-                #if DYN_LIGHT_MODE == DYN_LIGHT_LPV || (DYN_LIGHT_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100)
+                #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100
                     ambientLight *= 1.0 - lpvFade;
                     lpvLight *= 1.0 - LpvLightmapMixF;
                 #endif

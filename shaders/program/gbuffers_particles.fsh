@@ -356,8 +356,8 @@ void main() {
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
-        outDeferredColor = color;
-        outDeferredShadow = vec4(shadowColor, 1.0);
+        outDeferredColor = color + dither;
+        outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         outDeferredData = uvec4(
             packUnorm4x8(vec4(localNormal, sss + dither)),

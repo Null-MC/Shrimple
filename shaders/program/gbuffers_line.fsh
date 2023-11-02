@@ -80,8 +80,8 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         float fogF = GetVanillaFogFactor(vLocalPos);
         
-        outDeferredColor = color;
-        outDeferredShadow = vec4(1.0);
+        outDeferredColor = color + dither;
+        outDeferredShadow = vec4(0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, sss));

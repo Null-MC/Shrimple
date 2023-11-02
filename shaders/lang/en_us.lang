@@ -455,10 +455,6 @@ option.shadowMapResolution.comment=Resolution of the shadow map. Higher numbers 
 option.shadowDistance=Distance
 option.shadowDistance.comment=How far away shadows will be rendered.
 
-option.SHADOW_BRIGHTNESS=Brightness
-option.SHADOW_BRIGHTNESS.comment=Light levels are multiplied by this number when the surface is in shadows.
-suffix.SHADOW_BRIGHTNESS=%
-
 option.SHADOW_COLORED=Color Tinting
 option.SHADOW_COLORED.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks.
 

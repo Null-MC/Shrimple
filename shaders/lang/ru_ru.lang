@@ -190,10 +190,6 @@ value.SHADOW_FILTER.2=PCF+PCSS - best
 
 option.SHADOW_COLORED=Цветная тонировка
 
-option.SHADOW_BRIGHTNESS=Яркость
-option.SHADOW_BRIGHTNESS.comment=Уровни освещенности умножаются на это число, когда поверхность находится в тени.
-suffix.SHADOW_BRIGHTNESS=%
-
 option.SHADOW_COLOR_BLEND=Смешивание
 option.SHADOW_COLOR_BLEND.comment=Позволяет цветным теням накладывать несколько цветов. В настоящее время разрушается до тех пор, пока Sodium не поддерживает транклюцентно-сортировку.
 

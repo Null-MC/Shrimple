@@ -263,7 +263,7 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         outDeferredColor = vec4(LinearToRGB(albedo.rgb), albedo.a);
-        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+        outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
 

@@ -593,7 +593,7 @@ void main() {
             }
         #endif
 
-        outDeferredColor = color;
+        outDeferredColor = color + dither;
         outDeferredShadow = vec4(shadowColor + dither, isWater ? 1.0 : 0.0);
 
         uvec4 deferredData;

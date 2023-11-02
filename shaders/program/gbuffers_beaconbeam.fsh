@@ -79,8 +79,8 @@ void main() {
         //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         //fogColorFinal = LinearToRGB(fogColorFinal);
 
-        outDeferredColor = color;
-        outDeferredShadow = vec4(1.0);
+        outDeferredColor = color + dither;
+        outDeferredShadow = vec4(0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));

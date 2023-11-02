@@ -464,10 +464,6 @@ option.shadowMapResolution.comment=Auflösung der Schattenkarte. Höhere Zahlen 
 option.shadowDistance=Entfernung
 option.shadowDistance.comment=Wie weit entfernte Schatten gerendert werden.
 
-option.SHADOW_BRIGHTNESS=Helligkeit
-option.SHADOW_BRIGHTNESS.comment=Wenn die Oberfläche im Schatten liegt, werden die Lichtstärken mit dieser Zahl multipliziert.
-suffix.SHADOW_BRIGHTNESS=%
-
 option.SHADOW_COLORED=Farbtönung
 option.SHADOW_COLORED.comment=Bestimmt, ob Sonnen-/Mondlicht getönt wird, wenn es durch durchscheinende farbige Blöcke geht.
 
