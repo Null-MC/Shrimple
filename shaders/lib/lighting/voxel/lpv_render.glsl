@@ -61,7 +61,7 @@ vec4 SampleLpvVoxel(const in vec3 voxelPos, const in vec3 lpvPos) {
 
 
         // TODO: Add special checks for avoiding diagonal blending between occluded edges/corners
-        float voxel_y1 = LpvVoxelTest(ivec3(voxelPos) + ivec3(0, 0, 0));
+        float voxel_y1 = LpvVoxelTest(ivec3(voxelPos) + ivec3(0, -1, 0));
         sample_x1y1z1 *= voxel_y1;
         sample_x2y1z1 *= voxel_y1;
         sample_x1y1z2 *= voxel_y1;
