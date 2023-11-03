@@ -326,7 +326,7 @@ void main() {
                             vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                             float lightRange = lightRangeSize.x * 255.0;
 
-                            //lightColor = RGBToLinear(lightColor);
+                            lightColor = RGBToLinear(lightColor);
 
                             vec2 lightNoise = vec2(0.0);
                             #ifdef DYN_LIGHT_FLICKER
@@ -334,7 +334,7 @@ void main() {
                                 ApplyLightFlicker(lightColor, lightType, lightNoise);
                             #endif
 
-                            lightValue.rgb = pow(lightColor, vec3(3.0)) * lightRange * LpvBlockLightF;
+                            lightValue.rgb = lightColor * lightRange * LpvBlockLightF;
                         }
                         else {
                     #endif
