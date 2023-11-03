@@ -21,6 +21,10 @@ struct VolumetricPhaseFactors {
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     VolumetricPhaseFactors result;
 
+    result.Forward = 0.824;
+    result.Back = 0.19;
+    result.Direction = 0.09;
+
     #ifdef WORLD_SKY_ENABLED
         //float time = worldTime / 12000.0;
         //float timeShift = mod(time + 0.875, 1.0);
@@ -37,10 +41,6 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //ambientF = mix(0.004, ambientF, skyLight);
         //result.Ambient = vec3(0.004); //vec3(ambientF);
 
-        result.Forward = 0.824;
-        result.Back = 0.19;
-        result.Direction = 0.09;
-
         float scatterF = 0.02;// * density;
         //scatterF = scatterF;//mix(0.048, scatterF, skyLight);
         result.ScatterF = scatterF * vec3(0.522, 0.759, 0.894);
@@ -48,15 +48,11 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.ExtinctF = mix(0.004, 0.006, rainStrength);// * density;
         //result.ExtinctF = mix(0.008, extinctF, skyLight);
     #else
-        result.Ambient = vec3(0.96);
-
-        result.Forward = 0.6;
-        result.Back = 0.2;
-        result.Direction = 0.6;
+        result.Ambient = vec3(0.12);
 
         vec3 tint = RGBToLinear(fogColor) * 0.92 + 0.08 * 0.5;
-        result.ScatterF = 0.04 * tint;
-        result.ExtinctF = 0.06;
+        result.ScatterF = 0.08 * tint;
+        result.ExtinctF = 0.04;
     #endif
 
     return result;
@@ -403,7 +399,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 //vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
 
                 //vec3 lpvLight = saturate(lpvSample.rgb / LpvBlockLightF);
-                vec3 lpvLight = lpvSample.rgb / LpvBlockLightF;
                 //lpvLight = sqrt(lpvLight / LpvBlockLightF);
 
                 //lpvLight = sqrt(lpvLight / LpvRangeF);
@@ -412,11 +407,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 //lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
                 //lpvLight *= 0.25;
 
-                if (isWater) {
-                    lpvLight *= 0.0;//exp(-waterDepthEye * WaterAbsorbColorInv);
-                    //sampleDensity *= 2.0;
-                }
-                else {
+                vec3 lpvLight = vec3(0.0);
+
+                if (!isWater) {
+                    lpvLight = lpvSample.rgb / LpvBlockLightF;
                     float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
 
