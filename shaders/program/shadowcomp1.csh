@@ -334,7 +334,7 @@ void main() {
                                 ApplyLightFlicker(lightColor, lightType, lightNoise);
                             #endif
 
-                            lightValue.rgb = lightColor * lightRange * LpvBlockLightF;
+                            lightValue.rgb = pow(lightColor, vec3(1.5)) * lightRange * LpvBlockLightF;
                         }
                         else {
                     #endif

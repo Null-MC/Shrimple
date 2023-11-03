@@ -241,19 +241,10 @@ option.REFRACTION_SNELL=TIR/Snells Window
 screen.LIGHTING_OPTIONS=Lighting
 
 option.DYN_LIGHT_MODE=Mode
-option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. LightMap uses the vanilla lighting. LPV allows basic colored lighting. Enable ray-tracing for block-light shadows.
-value.DYN_LIGHT_MODE.0=LightMap
-value.DYN_LIGHT_MODE.1=LPV
-value.DYN_LIGHT_MODE.2=Ray-Traced
-
-option.DYN_LIGHT_TYPE=Type
-option.DYN_LIGHT_TYPE.comment=Describes the light-source shape. Point lights emit from an infinitely small point. Area lights emit a cubic shaped light with size.
-value.DYN_LIGHT_TYPE.0=Point
-value.DYN_LIGHT_TYPE.1=Area
-
-option.WORLD_LIGHT_MIN=Minimum
-option.WORLD_LIGHT_MIN.comment=The minimum amount of lighting to apply to complete darkness.
-suffix.WORLD_LIGHT_MIN=%
+option.DYN_LIGHT_MODE.comment=Describes how lighting is calculated. LightMap uses the vanilla lighting. FloodFill allows basic colored lighting. Enable ray-tracing for block-light shadows.
+value.DYN_LIGHT_MODE.0=Light Map
+value.DYN_LIGHT_MODE.1=Flood Fill
+value.DYN_LIGHT_MODE.2=Ray Traced
 
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
@@ -267,7 +258,7 @@ option.TEMP_FIRE=Torch/Fire Temp
 suffix.TEMP_FIRE=°k
 
 
-screen.LIGHTING_LIGHTMAP_OPTIONS=Lightmap Options
+screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
@@ -276,8 +267,7 @@ option.DYN_LIGHT_FALLBACK=Fallback
 option.DYN_LIGHT_FALLBACK.comment=Allows LPV or ray-traced lighting to fallback to the vanilla lightmap when out of range. If disabled, there will be no lighting beyond the LPV/RT bounds.
 
 
-screen.LIGHTING_LPV_OPTIONS=LPV Options
-screen.LIGHTING_LPV_OPTIONS.comment=Light Propagation Volume
+screen.LIGHTING_LPV_OPTIONS=FloodFill Options
 
 option.LPV_SIZE=Size
 value.LPV_SIZE.0=OFF
@@ -288,19 +278,19 @@ value.LPV_SIZE.3=Large
 option.LPV_SAMPLE_MODE=Sample Mode
 value.LPV_SAMPLE_MODE.0=Point
 value.LPV_SAMPLE_MODE.1=Linear
-value.LPV_SAMPLE_MODE.2=Voxel
+value.LPV_SAMPLE_MODE.2=Voxel-Test
 
-option.LPV_BRIGHT_BLOCK=Light Range
+option.LPV_BRIGHT_BLOCK=Light Range Scale
 option.LPV_BRIGHT_BLOCK.comment=Scale factor for how far light propagates within LPV.
 suffix.LPV_BRIGHT_BLOCK=x
 
-option.LPV_SUN_SAMPLES=Sunlight Samples
+option.LPV_SUN_SAMPLES=Sunlight Sample Count
 option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
 
-option.LPV_LIGHTMAP_MIX=Lightmap Mix
+option.LPV_LIGHTMAP_MIX=LightMap Mix
 suffix.LPV_LIGHTMAP_MIX=%
 
-option.LPV_SUN_SAMPLES=LPV Sky Samples
+option.LPV_SUN_SAMPLES=Shadow Samples
 option.LPV_SUN_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
 value.LPV_SUN_SAMPLES.0=OFF
 
