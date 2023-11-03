@@ -87,6 +87,10 @@ void main() {
                 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
                 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
                 //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+            #else
+                WorldSunLightColor = vec3(0.0);
+                WorldMoonLightColor = vec3(0.0);
+                WorldSkyLightColor = vec3(0.0);
             #endif
 
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
