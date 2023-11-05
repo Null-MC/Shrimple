@@ -176,7 +176,7 @@
 
                     //lpvLight = sqrt(lpvLight) / LpvRangeF;
                     //lpvLight /= 1.0 + luminance(lpvLight);
-                    lpvLight /= LpvBlockLightF;
+                    lpvLight /= LPV_BRIGHT_BLOCK;
                     //lpvLight /= lpvLight + 1.0;
                     blockDiffuse += mix(blockLightDefault, lpvLight, lpvFade);
                 }

@@ -373,6 +373,10 @@ void main() {
 
                                         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
+                                        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                            bounceF *= DynamicLightAmbientF;
+                                        #endif
+
                                         lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
                                     }
                                 #endif
