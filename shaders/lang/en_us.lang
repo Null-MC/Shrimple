@@ -302,6 +302,9 @@ value.DYN_LIGHT_RES.0=Full
 value.DYN_LIGHT_RES.1=Half
 value.DYN_LIGHT_RES.2=Quarter
 
+option.LIGHT_HAND_SOFT_SHADOW=Hand Soft-Shadows
+option.LIGHT_HAND_SOFT_SHADOW.comment=Enables soft-shadows cast from lights in-hand. May cause ghosting issues when moving.
+
 option.DYN_LIGHT_PENUMBRA=Penumbra Size
 option.DYN_LIGHT_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
 value.DYN_LIGHT_PENUMBRA.0=None

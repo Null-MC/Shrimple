@@ -650,6 +650,22 @@ layout(location = 0) out vec4 outFinal;
                         blockDiffuse += GetAmbientLighting(localPos, localNormal);
                     #endif
 
+                    #ifndef LIGHT_HAND_SOFT_SHADOW
+                        vec3 handDiffuse = vec3(0.0);
+                        vec3 handSpecular = vec3(0.0);
+                        SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            if (metal_f0 >= 0.5) {
+                                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                                blockSpecular *= albedo;
+                            }
+                        #endif
+
+                        blockDiffuse += handDiffuse;
+                        blockSpecular += handSpecular;
+                    #endif
+
                     //blockDiffuse += emission * MaterialEmissionF;
                 #else
                     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);

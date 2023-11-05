@@ -50,7 +50,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
+                #if defined LIGHT_HAND_SOFT_SHADOW && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
@@ -117,7 +117,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                #if DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
+                #if defined LIGHT_HAND_SOFT_SHADOW && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();

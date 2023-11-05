@@ -252,16 +252,14 @@ void main() {
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
-        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
-        
+
+        #ifdef LIGHT_HAND_SOFT_SHADOW
+            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+        #endif
+
         blockDiffuse *= 1.0 - deferredFog.a;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            // if (metal_f0 >= 0.5) {
-            //     blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            //     blockSpecular *= albedo;
-            // }
-            
             #if MATERIAL_SPECULAR == SPECULAR_LABPBR
                 if (IsMetal(metal_f0))
                     blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
