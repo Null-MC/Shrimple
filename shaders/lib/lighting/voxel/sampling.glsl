@@ -1,4 +1,4 @@
-#if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
+#if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
@@ -43,13 +43,14 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             uint interleaveCount = uint(ceil(lightCount / float(DYN_LIGHT_SAMPLE_MAX)));
 
             if (interleaveCount > 1u) {
-                float n = InterleavedGradientNoiseTime(gl_FragCoord.xy);
-                iOffset = uint(n * interleaveCount);
                 iStep = interleaveCount;
+
+                float n = InterleavedGradientNoiseTime(gl_FragCoord.xy);
+                iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
             }
         #endif
 
-        #if DYN_LIGHT_SAMPLE_MAX > 0 && DYN_LIGHT_TA > 0
+        #if DYN_LIGHT_SAMPLE_MAX > 0 //&& DYN_LIGHT_TA > 0
             const int MaxSampleCount = min(DYN_LIGHT_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
         #else
             const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
@@ -62,7 +63,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             //bool hasLight = false;
             //for (uint i2 = 0u; i2 < 16u; i2++) {
-                uint lightIndex = (i * iStep + iOffset);// % lightCount;
+                uint lightIndex = i * iStep + iOffset;// % lightCount;
                 //if (lightIndex >= lightCount) break;
 
                 lightData = GetVoxelLight(gridIndex, lightIndex % lightCount);
@@ -71,7 +72,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 lightColor = RGBToLinear(lightColor);
 
                 #ifdef DYN_LIGHT_INTERLEAVE_ENABLED
-                    lightColor *= iStep;
+                    lightColor *= interleaveCount;
+                    //lightColor *= min(iStep, lightCount);
                 #endif
 
                 float traceRange2 = lightRange + 0.5;
@@ -116,9 +118,9 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             #endif
 
             lightVec = lightFragPos - diffuseLightPos;
-            if (abs(lightVec.x) < EPSILON) lightVec.x = EPSILON;
-            if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
-            if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
+            // if (abs(lightVec.x) < EPSILON) lightVec.x = EPSILON;
+            // if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
+            // if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
 
             //lightColor = RGBToLinear(lightColor);
 

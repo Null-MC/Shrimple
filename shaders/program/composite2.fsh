@@ -582,9 +582,13 @@ layout(location = 0) out vec4 outFinal;
                             if (depthWeight < 1.0 && normalWeight < 1.0) {
                                 vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
 
-                                bool hasLightingChanged =
-                                    HandLightType1 != HandLightTypePrevious1 ||
-                                    HandLightType2 != HandLightTypePrevious2;
+                                bool hasLightingChanged = false;
+
+                                #ifdef LIGHT_HAND_SOFT_SHADOW
+                                    hasLightingChanged =
+                                        HandLightType1 != HandLightTypePrevious1 ||
+                                        HandLightType2 != HandLightTypePrevious2;
+                                #endif
 
                                 ivec3 gridCell, gridCellPrevious, blockCell;
                                 vec3 gridPos = GetVoxelBlockPosition(localPos);
