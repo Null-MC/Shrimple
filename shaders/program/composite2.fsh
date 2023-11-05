@@ -561,9 +561,9 @@ layout(location = 0) out vec4 outFinal;
                             float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
                             #if DYN_LIGHT_RES == 2
-                                const float depthWeightF = 16.0;
+                                const float depthWeightF = 4.0;
                             #else
-                                const float depthWeightF = 32.0;
+                                const float depthWeightF = 16.0;
                             #endif
 
                             float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
@@ -572,11 +572,11 @@ layout(location = 0) out vec4 outFinal;
                             vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                             if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                                 normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                                normalWeight = max(1.0 - dot(normalPrev, texNormal), 0.0);
+                                normalWeight = max(0.25 * (1.0 - dot(normalPrev, texNormal)), 0.0);
 
-                                #if DYN_LIGHT_RES == 2
-                                    normalWeight *= 0.25;
-                                #endif
+                                // #if DYN_LIGHT_RES == 2
+                                //     normalWeight *= 0.25;
+                                // #endif
                             }
 
                             if (depthWeight < 1.0 && normalWeight < 1.0) {
@@ -605,10 +605,10 @@ layout(location = 0) out vec4 outFinal;
                                         hasLightingChanged = true;
                                 }
 
-                                diffuseCounter = min(diffuseSamplePrev.a, 256.0);
+                                diffuseCounter = min(diffuseSamplePrev.a, 24000.0);
 
-                                diffuseCounter *= 1.0 - depthWeight;
-                                diffuseCounter *= 1.0 - normalWeight;
+                                // diffuseCounter *= 1.0 - depthWeight;
+                                // diffuseCounter *= 1.0 - normalWeight;
 
                                 if (hasLightingChanged) diffuseCounter = 0.0;//min(diffuseCounter, 4.0);
 
@@ -618,13 +618,19 @@ layout(location = 0) out vec4 outFinal;
 
                                 float specularCounter = diffuseCounter;// * moveWeight;
 
-                                if (HandLightType1 > 0 || HandLightType2 > 0) {
-                                    diffuseCounter = diffuseCounter;// * moveWeight;
-                                }
+                                // if (HandLightType1 > 0 || HandLightType2 > 0) {
+                                //     diffuseCounter = diffuseCounter;// * moveWeight;
+                                // }
 
-                                float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
-                                float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
-                                blockDiffuse = mix(diffuseSamplePrev.rgb, blockDiffuse, diffuseWeight);
+                                //float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
+                                const float maxDiffuseWeight = 0.25;//1.0 - 0.9*DynamicLightTemporalStrength;
+                                float diffuseWeight = rcp(1.0 + diffuseCounter*DynamicLightTemporalStrength);
+
+                                diffuseWeight *= 1.0 - depthWeight;
+                                diffuseWeight *= 1.0 - normalWeight;
+                                diffuseCounter += diffuseWeight;
+
+                                blockDiffuse = mix(diffuseSamplePrev.rgb, blockDiffuse, maxDiffuseWeight * diffuseWeight);
 
                                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                                     vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
@@ -641,7 +647,7 @@ layout(location = 0) out vec4 outFinal;
                             }
                         }
 
-                        outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
+                        outTA = vec4(blockDiffuse, diffuseCounter);
                         outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
                         outTA_Depth = vec4(depthOpaque, 0.0, 0.0, 1.0);
 

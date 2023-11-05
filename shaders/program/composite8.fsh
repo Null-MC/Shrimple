@@ -517,30 +517,34 @@ layout(location = 0) out vec4 outFinal;
                             float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
                             #if DYN_LIGHT_RES == 2
-                                const float depthWeightF = 16.0;
+                                const float depthWeightF = 8.0;
                             #else
                                 const float depthWeightF = 16.0;
                             #endif
 
-                            float depthWeight = 1.0 - saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
+                            float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
 
                             float normalWeight = 0.0;
                             vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
                             if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
                                 normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                                normalWeight = 0.25 - dot(normalPrev, texNormal) * 0.25;
+                                normalWeight = 1.0 - dot(normalPrev, texNormal);
 
                                 #if DYN_LIGHT_RES == 2
                                     normalWeight *= 0.25;
                                 #endif
                             }
 
-                            if (depthWeight > 0.0 && normalWeight < 1.0) {
+                            if (depthWeight < 1.0 && normalWeight < 1.0) {
                                 vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
 
-                                bool hasLightingChanged =
-                                    HandLightType1 != HandLightTypePrevious1 ||
-                                    HandLightType2 != HandLightTypePrevious2;
+                                bool hasLightingChanged = false;
+
+                                #ifdef LIGHT_HAND_SOFT_SHADOW
+                                    hasLightingChanged =
+                                        HandLightType1 != HandLightTypePrevious1 ||
+                                        HandLightType2 != HandLightTypePrevious2;
+                                #endif
 
                                 ivec3 gridCell, gridCellPrevious, blockCell;
                                 vec3 gridPos = GetVoxelBlockPosition(localPos);
@@ -559,7 +563,7 @@ layout(location = 0) out vec4 outFinal;
 
                                 diffuseCounter = min(diffuseSamplePrev.a, 256.0);
 
-                                diffuseCounter *= depthWeight;
+                                diffuseCounter *= 1.0 - depthWeight;
                                 diffuseCounter *= 1.0 - normalWeight;
 
                                 // if (HandLightType1 > 0 || HandLightType2 > 0) {
@@ -596,6 +600,22 @@ layout(location = 0) out vec4 outFinal;
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             outSpecularTA = vec4(blockSpecular, 1.0);
                         #endif
+                    #endif
+
+                    #ifndef LIGHT_HAND_SOFT_SHADOW
+                        vec3 handDiffuse = vec3(0.0);
+                        vec3 handSpecular = vec3(0.0);
+                        SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            if (metal_f0 >= 0.5) {
+                                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                                blockSpecular *= albedo;
+                            }
+                        #endif
+
+                        blockDiffuse += handDiffuse;
+                        blockSpecular += handSpecular;
                     #endif
 
                     //blockDiffuse += emission * MaterialEmissionF;
