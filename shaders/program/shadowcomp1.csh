@@ -166,7 +166,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
-            float shadowBias = GetShadowOffsetBias(cascade);
+            float shadowBias = (1.0/256.0);//GetShadowOffsetBias(cascade);
             const float shadowDistMax = 3.0 * far;
             float shadowDistScale = 64.0; //3.0 * far;
         #else
@@ -223,15 +223,18 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             //sampleF *= step(shadowPos.z - texDepthTrans, -0.003);
 
             // TODO: needs an actual water mask in shadow pass
-            bool isWater = shadowPos.z - texDepth < -shadowBias
-                && shadowPos.z - texDepthTrans > shadowBias;
+            // bool isWater = shadowPos.z < texDepth + EPSILON
+            //     && shadowPos.z > texDepthTrans + shadowBias;
+
+            bool isWater = texDepthTrans < texDepth - EPSILON;
 
             //if (i == 0) waterDepth = max(shadowPos.z - texDepthTrans, 0.0) * shadowDistMax;
 
             if (isWater) {
                 shadowDist = max(shadowPos.z - texDepthTrans, EPSILON) * shadowDistMax;
                 sampleColor *= exp(shadowDist * -WaterAbsorbColorInv);
-                //sampleF *= 0.1 * exp(-shadowDist);
+                sampleF *= 0.0;//DynamicLightAmbientF;// * exp(-shadowDist);
+                //sampleF = 0.0;
             }
             else {
                 sampleColor *= sampleF;
@@ -414,7 +417,13 @@ void main() {
                                 #endif
 
                                 if (blockId == BLOCK_WATER) {
-                                    lightValue.rgb += skyLightColor * shadowColorF.rgb * shadowColorF.a;
+                                    vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
+
+                                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                        waterLight *= 0.0;
+                                    #endif
+
+                                    lightValue.rgb += waterLight;
                                 }
                             #endif
 
