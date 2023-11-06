@@ -9,13 +9,8 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 16, 16);
 
-#if LPV_SIZE == 3
-    const int LPV_CHUNK_SIZE = 4;
-#elif LPV_SIZE == 2
-    const int LPV_CHUNK_SIZE = 2;
-#else
-    const int LPV_CHUNK_SIZE = 1;
-#endif
+const uint LPV_CHUNK_SIZE = uint(exp2(LPV_SIZE - 1u));
+
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #ifdef DYN_LIGHT_FLICKER
@@ -139,23 +134,11 @@ ivec3 GetLPVVoxelOffset() {
 }
 
 vec4 GetLpvValue(in ivec3 texCoord) {
-    if (clamp(texCoord, ivec3(0), SceneLPVSize) != texCoord) return vec4(0.0);
+    if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec4(0.0);
 
     return (frameCounter % 2) == 0
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
-}
-
-vec4 mixNeighbours(const in ivec3 fragCoord) {
-    vec4 nX1 = GetLpvValue(fragCoord + ivec3(-1,  0,  0));
-    vec4 nX2 = GetLpvValue(fragCoord + ivec3( 1,  0,  0));
-    vec4 nY1 = GetLpvValue(fragCoord + ivec3( 0, -1,  0));
-    vec4 nY2 = GetLpvValue(fragCoord + ivec3( 0,  1,  0));
-    vec4 nZ1 = GetLpvValue(fragCoord + ivec3( 0,  0, -1));
-    vec4 nZ2 = GetLpvValue(fragCoord + ivec3( 0,  0,  1));
-
-    vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
 float GetBlockBounceF(const in uint blockId) {
@@ -273,12 +256,37 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     }
 #endif
 
+shared vec4 lpvSharedData[6*6*6];
+
+int sumOf(ivec3 vec) {
+    return vec.x + vec.y + vec.z;
+}
+
+int getSharedCoord(ivec3 pos) {
+    const ivec3 flatten = ivec3(1, 6, 36);
+    return sumOf(pos * flatten);
+}
+
+vec4 sampleShared(ivec3 pos) {
+    return lpvSharedData[getSharedCoord(pos + 1)];
+}
+
+vec4 mixNeighbours(const in ivec3 fragCoord) {
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0));
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0));
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0));
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0));
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1));
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1));
+
+    vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
+}
+
 void main() {
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        ivec3 chunkPos = ivec3(gl_GlobalInvocationID);
-
-        ivec3 imgChunkPos = chunkPos * LPV_CHUNK_SIZE;
-        if (any(greaterThanEqual(imgChunkPos, SceneLPVSize))) return;
+        uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize * LPV_CHUNK_SIZE;
+        if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
 
         int frameIndex = frameCounter % 2;
         ivec3 imgCoordOffset = GetLPVFrameOffset();
@@ -286,6 +294,9 @@ void main() {
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
 
+        ivec3 kernelPos = ivec3(gl_LocalInvocationID + 1u);
+        ivec3 kernelEdgeDir = ivec3(step(ivec3(1), gl_LocalInvocationID)) * 2 - 1;
+        
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
             vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
             skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
@@ -296,15 +307,36 @@ void main() {
             skyLightColor *= mix(1.0, 0.1, rainStrength);
         #endif
 
-        //for (int t = 0; t < 3; t++) {
-        //    if (t > 0) memoryBarrierImage();
-
         for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
             for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
                 for (int x = 0; x < LPV_CHUNK_SIZE; x++) {
                     ivec3 iPos = ivec3(x, y, z);
+                    ivec3 imgCoord = ivec3((gl_WorkGroupID * LPV_CHUNK_SIZE + iPos) * gl_WorkGroupSize + gl_LocalInvocationID);
 
-                    ivec3 imgCoord = imgChunkPos + iPos;
+                    barrier();
+                    //memoryBarrierShared();
+
+                    ivec3 o;
+                    ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                    lpvSharedData[getSharedCoord(kernelPos)] = GetLpvValue(imgCoordPrev);
+
+                    if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 3u) {
+                        o = ivec3(kernelEdgeDir.x, 0, 0);
+                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+                    }
+
+                    if (gl_LocalInvocationID.y == 0u || gl_LocalInvocationID.y == 3u) {
+                        o = ivec3(0, kernelEdgeDir.y, 0);
+                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+                    }
+
+                    if (gl_LocalInvocationID.z == 0u || gl_LocalInvocationID.z == 3u) {
+                        o = ivec3(0, 0, kernelEdgeDir.z);
+                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+                    }
+
+                    barrier();
+
                     if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
 
                     ivec3 voxelPos = voxelOffset + imgCoord;
@@ -354,8 +386,8 @@ void main() {
                         #endif
 
                         if (allowLight) {
-                            ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                            lightValue = mixNeighbours(imgCoordPrev);
+                            //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                            lightValue = mixNeighbours(ivec3(gl_LocalInvocationID));
                             lightValue.rgb *= tint;
 
                             vec4 shadowColorF = vec4(0.0);

@@ -1,5 +1,5 @@
 #if LPV_SIZE == 3
-    const ivec3 SceneLPVSize = ivec3(256, 128, 256);
+    const ivec3 SceneLPVSize = ivec3(256);
 #elif LPV_SIZE == 2
     const ivec3 SceneLPVSize = ivec3(128);
 #elif LPV_SIZE == 1
@@ -28,7 +28,7 @@ float GetLpvFade(const in vec3 lpvPos) {
 
     vec3 lpvDist = abs(lpvPos - SceneLPVCenter - fract(cameraPosition));
     vec3 lpvDistF = max(lpvDist - lpvSizeInner, vec3(0.0));
-    return saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
+    return 1.0;//saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
 }
 
 ivec3 GetLPVFrameOffset() {
