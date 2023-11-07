@@ -109,7 +109,7 @@ const bool colortex15Clear = true;
 
 #define WATER_BLUR
 #define WATER_BLUR_SCALE 12.0
-#define WATER_BLUR_RADIUS 20 // [4 8 12 16 20 24 28 32]
+#define WATER_BLUR_RADIUS 28 // [4 8 12 16 20 24 28 32]
 #define WATER_DEPTH_LAYERS 1 // [1 2 3 4 5 6]
 
 

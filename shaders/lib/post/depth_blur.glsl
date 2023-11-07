@@ -1,3 +1,6 @@
+#define BLUR_BLIND_DIST 16.0
+
+
 mat2 GetBlurRotation() {
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
@@ -59,11 +62,21 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float radius = isWater ? WATER_BLUR_RADIUS : (distF * DIST_BLUR_RADIUS);
         //uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
 
-        radius *= distF;
+        //radius *= distF;
     #endif
+
+    if (blindness > 0.0) {
+        float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
+        //blindDistF = pow(blindDistF, 1.5);
+        distF = max(distF, blindDistF);
+
+        radius = mix(radius, max(radius, 64.0), blindness);
+    }
 
     vec3 color = vec3(0.0);
     float maxWeight = 0.0;
+    vec2 pixelRadius = radius * pixelSize;
+    float maxLod = 0.75 * log2(radius);
 
     for (uint i = 0; i < DIST_BLUR_SAMPLES; i++) {
         vec2 sampleCoord = texcoord;
@@ -77,7 +90,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             float cosine = cos(theta);
             
             diskOffset = rotation * (vec2(cosine, sine) * r);
-            sampleCoord = saturate(sampleCoord + diskOffset * radius * pixelSize);
+            sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
         //}
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
@@ -109,15 +122,22 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             }
         #endif
 
+        if (blindness > 0.0) {
+            float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
+            sampleDistF = mix(sampleDistF, max(sampleDistF, blindDistF), blindness);
+        }
+
         #if DIST_BLUR_MODE == DIST_BLUR_FAR
             sampleDistF = min(sampleDistF, distF);
         #endif
 
-        float sampleLod = 2.0 * max(sampleDistF - 0.5, 0.0);
+        float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
 
         //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
         vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
         float sampleWeight = exp(-3.0 * length2(diskOffset));
+
+        sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
 
         //if (DIST_BLUR_SAMPLES > 1) {
             #ifdef RENDER_TRANSLUCENT_POST_BLUR
