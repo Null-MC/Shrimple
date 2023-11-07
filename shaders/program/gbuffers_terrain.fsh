@@ -39,6 +39,10 @@ flat in mat2 atlasBounds;
     #endif
 #endif
 
+#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_DEPTH_WRITE
+    layout (depth_greater) out float gl_FragDepth;
+#endif
+
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
@@ -89,6 +93,7 @@ uniform int renderStage;
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
@@ -312,6 +317,8 @@ void main() {
         }
     #endif
 
+    vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
@@ -322,7 +329,28 @@ void main() {
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+
+            #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
+                float pomDist = (1.0 - traceCoordDepth.z) / max(-tanViewDir.z, 0.00001);
+
+                if (pomDist > 0.0) {
+                    float depth = -viewPos.z + pomDist * ParallaxDepthF;
+                    gl_FragDepth = 0.5 * (-gbufferProjection[2].z*depth + gbufferProjection[3].z) / depth + 0.5;
+
+                    // #ifdef RENDER_HAND
+                    //     gl_FragDepth *= MC_HAND_DEPTH;
+                    // #endif
+                }
+                else {
+                    gl_FragDepth = gl_FragCoord.z;
+                }
+            #endif
         }
+        #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
+            else {
+                gl_FragDepth = gl_FragCoord.z;
+            }
+        #endif
     #endif
 
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
@@ -457,7 +485,7 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        //vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);

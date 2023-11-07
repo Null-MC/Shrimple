@@ -180,6 +180,8 @@ suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Smooth Shadows
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows when smooth POM is enabled.
 
+option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write
+
 
 screen.MATERIAL_POROSITY_OPTIONS=Porosity
 screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
