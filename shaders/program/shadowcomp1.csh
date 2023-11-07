@@ -283,7 +283,7 @@ vec4 mixNeighbours(const in ivec3 fragCoord) {
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1));
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
+    return avgColor * (1.0/6.0);// * (1.0 - LPV_FALLOFF);
 }
 
 void main() {

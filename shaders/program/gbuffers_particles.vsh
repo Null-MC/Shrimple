@@ -14,7 +14,7 @@
 
 out vec2 lmcoord;
 out vec2 texcoord;
-out vec4 glcolor;
+//out vec4 glcolor;
 out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
@@ -99,7 +99,9 @@ uniform vec3 cameraPosition;
 void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    glcolor = gl_Color;
+    //glcolor = gl_Color;
+
+    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
 
     BasicVertex();
 

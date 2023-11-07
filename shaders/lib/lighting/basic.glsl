@@ -164,19 +164,31 @@
                 blockLightDefault = _pow3(blockLightDefault);
 
                 vec3 lpvPos = GetLPVPosition(localPos + 0.52 * localNormal);
-                vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
+                //vec3 lpvTexcoord = GetLPVTexCoord(lpvPos);
 
                 float lpvFade = GetLpvFade(lpvPos);
                 lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-                if (saturate(lpvTexcoord) == lpvTexcoord) {
-                    vec3 lpvLight = (frameCounter % 2) == 0
-                        ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
-                        : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+                if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
+                    // vec3 lpvLight = (frameCounter % 2) == 0
+                    //     ? textureLod(texLPV_1, lpvTexcoord, 0).rgb
+                    //     : textureLod(texLPV_2, lpvTexcoord, 0).rgb;
+
+                    vec3 surfacePos = localPos;
+                    surfacePos += 0.04 * localNormal;
+                    //vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
+
+                    vec4 lpvSample = SampleLpvVoxel(surfacePos, lpvPos);
+                    vec3 lpvLight = lpvSample.rgb / LPV_BRIGHT_BLOCK;
+
+                    //float lum = luminance(lpvLight);
+                    //if (lum > 1.0) {
+                    //    float lumNew = log2(lum + 1.0);
+                    //    lpvLight *= lumNew / lum;
+                    //}
 
                     //lpvLight = sqrt(lpvLight) / LpvRangeF;
                     //lpvLight /= 1.0 + luminance(lpvLight);
-                    lpvLight /= LPV_BRIGHT_BLOCK;
                     //lpvLight /= lpvLight + 1.0;
                     blockDiffuse += mix(blockLightDefault, lpvLight, lpvFade);
                 }

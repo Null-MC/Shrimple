@@ -9,7 +9,7 @@
 
 in vec2 lmcoord;
 in vec2 texcoord;
-in vec4 glcolor;
+//in vec4 glcolor;
 //in vec3 vPos;
 //in vec3 vNormal;
 //in float geoNoL;
@@ -295,7 +295,7 @@ uniform int heldBlockLightValue2;
 void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
 
-    vec4 color = texture(gtexture, texcoord) * glcolor;
+    vec4 color = texture(gtexture, texcoord);// * glcolor;
 
     #ifdef RENDER_TRANSLUCENT
         const float alphaThreshold = (1.5/255.0);
