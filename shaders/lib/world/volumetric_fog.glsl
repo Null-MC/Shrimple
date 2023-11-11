@@ -197,8 +197,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if LPV_SIZE > 0
             vec3 lpvPos = GetLPVPosition(traceLocalPos);
-            vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
-            vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
+            //vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
+            vec4 lpvSample = SampleLpv(lpvPos, vec3(0.0));
 
             // #ifdef WORLD_WATER_ENABLED
             //     float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
@@ -396,7 +396,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #elif LPV_SIZE > 0
                 //vec3 lpvPos = GetLPVPosition(traceLocalPos);
                 //vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
-                //vec4 lpvSample = SampleLpvVoxel(voxelPos, lpvPos);
+                //vec4 lpvSample = SampleLpv(voxelPos, lpvPos);
 
                 //vec3 lpvLight = saturate(lpvSample.rgb / LpvBlockLightF);
                 //lpvLight = sqrt(lpvLight / LpvBlockLightF);

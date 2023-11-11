@@ -30,7 +30,7 @@ uniform mat4 gbufferModelViewInverse;
 
 #include "/lib/material/normalmap.glsl"
 
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/common.glsl"
 
 
 void main() {

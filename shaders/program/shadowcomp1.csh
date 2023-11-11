@@ -55,6 +55,8 @@ const uint LPV_CHUNK_SIZE = uint(exp2(LPV_SIZE - 1u));
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
+    uniform vec4 lightningBoltPosition = vec4(0.0);
+
     //#ifdef DYN_LIGHT_FLICKER
         //uniform float frameTimeCounter;
 
@@ -177,10 +179,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
         uint maxSamples = LPV_SUN_SAMPLES;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
+        maxSamples = max(min(maxSamples, LPV_SUN_SAMPLES), 1);
 
         vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
-        for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
+        for (uint i = 0; i < maxSamples; i++) {
             vec3 blockLpvPos = blockLocalPos;
 
             #if LPV_SUN_SAMPLES > 1
@@ -260,6 +263,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 #endif
 
 shared vec4 lpvSharedData[6*6*6];
+//shared uint voxelBlockShared[6*6*6];
 
 int sumOf(ivec3 vec) {
     return vec.x + vec.y + vec.z;
@@ -274,16 +278,16 @@ vec4 sampleShared(ivec3 pos) {
     return lpvSharedData[getSharedCoord(pos + 1)];
 }
 
-vec4 mixNeighbours(const in ivec3 fragCoord) {
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0));
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0));
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0));
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0));
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1));
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1));
+vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0)) * ((mask     ) & 1);
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0)) * ((mask >> 1) & 1);
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0)) * ((mask >> 2) & 1);
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0)) * ((mask >> 3) & 1);
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1)) * ((mask >> 4) & 1);
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0);// * (1.0 - LPV_FALLOFF);
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
 void main() {
@@ -321,7 +325,16 @@ void main() {
 
                     ivec3 o;
                     ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                    lpvSharedData[getSharedCoord(kernelPos)] = GetLpvValue(imgCoordPrev);
+                    int k = getSharedCoord(kernelPos);
+
+                    ivec3 voxelPos = voxelOffset + imgCoord;
+                    ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
+                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
+                    ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
+                    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+
+                    lpvSharedData[k] = GetLpvValue(imgCoordPrev);
+                    //voxelBlockShared[k] = blockId;
 
                     if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 3u) {
                         o = ivec3(kernelEdgeDir.x, 0, 0);
@@ -341,13 +354,6 @@ void main() {
                     barrier();
 
                     if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
-
-                    ivec3 voxelPos = voxelOffset + imgCoord;
-
-                    ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
-                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
-                    ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-                    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
                     vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
@@ -388,46 +394,73 @@ void main() {
                             }
                         #endif
 
+                        float mixWeight = 1.0;
+                        uint mixMask = 0xFFFF;
+                        if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
+                            mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
+                            mixWeight = 0.5;
+                            allowLight = true;
+                        }
+                        else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+                            allowLight = true;
+                            mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+                        }
+                        else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
+                            allowLight = true;
+                            mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+                        }
+                        
                         if (allowLight) {
                             //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                            lightValue = mixNeighbours(ivec3(gl_LocalInvocationID));
-                            lightValue.rgb *= tint;
+                            lightValue = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+                            lightValue.rgb *= mixWeight * tint;
 
-                            vec4 shadowColorF = vec4(0.0);
-                            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                shadowColorF = SampleShadow(blockLocalPos);
+                            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
+                                //vec4 shadowColorF = vec4(0.0);
+                                vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                                #if LPV_SUN_SAMPLES > 0
-                                    if (blockId != BLOCK_WATER) {
-                                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                                // #if LPV_SUN_SAMPLES > 0
+                                //     if (blockId != BLOCK_WATER) {
+                                //         ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                                        // make sure diagonals dont exist
-                                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                                        bounceOffset.xz *= 1 - bounceYF;
-                                        bounceOffset.y *= bounceYF;
+                                //         // make sure diagonals dont exist
+                                //         int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                                //         bounceOffset.xz *= 1 - bounceYF;
+                                //         bounceOffset.y *= bounceYF;
 
-                                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                                //         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                                        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                            bounceF *= DynamicLightAmbientF;
-                                        #endif
+                                //         // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                //         //     bounceF *= DynamicLightAmbientF;
+                                //         // #endif
 
-                                        lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
-                                    }
-                                #endif
+                                //         lightValue.rgb += 16.0 * shadowColorF.rgb * shadowColorF.a * bounceF;
+                                //     }
+                                // #endif
 
-                                if (blockId == BLOCK_WATER) {
-                                    vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
+                                // if (blockId == BLOCK_WATER) {
+                                //     vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
 
-                                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                        waterLight *= 0.0;
-                                    #endif
+                                //     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                //         waterLight *= 0.0;
+                                //     #endif
 
-                                    lightValue.rgb += waterLight;
-                                }
+                                //     lightValue.rgb += waterLight;
+                                // }
+
+                                lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
                             #endif
 
-                            lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
+                            if (lightningBoltPosition.w > 0.5) {
+                                vec3 offset = lightningBoltPosition.xyz;
+                                offset.y = clamp(blockLocalPos.y, offset.y, WORLD_CLOUD_HEIGHT - cameraPosition.y);
+
+                                offset -= blockLocalPos;
+                                //offset.y = 0.0;
+
+                                float dist = length(offset);
+                                if (dist < 3.0) lightValue.rgb = vec3(64.0);
+                            }
                         }
                     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
                         }

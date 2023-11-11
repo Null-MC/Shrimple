@@ -213,6 +213,8 @@ uniform float blindness;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
+#elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/basic.glsl"
 #endif
@@ -285,6 +287,38 @@ void main() {
         #endif
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+    #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+        vec3 blockDiffuse = vBlockLight;
+        vec3 blockSpecular = vec3(0.0);
+        vec3 skyDiffuse = vec3(0.0);
+        vec3 skySpecular = vec3(0.0);
+
+        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+
+        #ifdef WORLD_SKY_ENABLED
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
+                const vec3 shadowPos = vec3(0.0);
+            #endif
+
+            //GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+        #endif
+
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+                if (IsMetal(metal_f0))
+                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+            #else
+                diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+            #endif
+
+            specularFinal *= GetMetalTint(albedo, metal_f0);
+        #endif
+
+        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
     #else
         vec3 blockDiffuse = vBlockLight;
         vec3 blockSpecular = vec3(0.0);

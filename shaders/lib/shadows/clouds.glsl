@@ -19,7 +19,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
     worldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
     worldPos.y += eyePosition.y;
 
-    float cloudHeightDifference = 192.0 - worldPos.y;
+    float cloudHeightDifference = WORLD_CLOUD_HEIGHT - worldPos.y;
 
     vec3 cloudTexPos = vec3((worldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     cloudTexPos.xy *= rcp(256.0);
@@ -31,7 +31,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
         vec3 vertexWorldPos = localPos + camOffset;
         vec3 cloudTexPos = GetCloudShadowPosition(vertexWorldPos, localDir, cloudOffset);
 
-        float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+        float cloudHeightDifference = WORLD_CLOUD_HEIGHT - vertexWorldPos.y;
 
         const int maxLod = int(log2(256));
         float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, roughness * maxLod).a;
@@ -44,7 +44,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
             //vec3 localViewDir = normalize(localPos);
 
             cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
-            cloudLocalPos.y = 192.0;
+            cloudLocalPos.y = WORLD_CLOUD_HEIGHT;
 
             #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                 float fogDist = GetVanillaFogDistance(cloudLocalPos);
@@ -75,7 +75,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
         vertexWorldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
         vertexWorldPos.y += eyePosition.y;
 
-    	float cloudHeightDifference = 192.0 - vertexWorldPos.y;
+    	float cloudHeightDifference = WORLD_CLOUD_HEIGHT - vertexWorldPos.y;
 
     	// vec3 cloudTexPos = vec3((vertexWorldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     	// cloudTexPos.xy *= rcp(256.0);
@@ -93,7 +93,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
         //     //vec3 localViewDir = normalize(localPos);
 
         //     cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
-        //     cloudLocalPos.y = 192.0;
+        //     cloudLocalPos.y = WORLD_CLOUD_HEIGHT;
 
         //     float fogDist = GetVanillaFogDistance(cloudLocalPos);
 

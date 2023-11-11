@@ -143,7 +143,7 @@ void main() {
                 else if (entityId == ENTITY_TORCH_ARROW)
                     lightType = LIGHT_TORCH_FLOOR;
 
-                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED && entityId != ENTITY_ITEM_FRAME) {
                     StaticLightData lightInfo = StaticLightMap[lightType];
                     vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
