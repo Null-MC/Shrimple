@@ -5,11 +5,18 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-const ivec3 workGroups = ivec3(16, 16, 16);
-
-const uint LPV_CHUNK_SIZE = uint(exp2(LPV_SIZE - 1u));
+#if LPV_SIZE == 3
+    const ivec3 workGroups = ivec3(16, 16, 16);
+    const uint LPV_CHUNK_SIZE = 2u;
+#elif LPV_SIZE == 2
+    const ivec3 workGroups = ivec3(16, 16, 16);
+    const uint LPV_CHUNK_SIZE = 1u;
+#else
+    const ivec3 workGroups = ivec3(8, 8, 8);
+    const uint LPV_CHUNK_SIZE = 1u;
+#endif
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -262,7 +269,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     }
 #endif
 
-shared vec4 lpvSharedData[6*6*6];
+shared vec4 lpvSharedData[10*10*10];
 //shared uint voxelBlockShared[6*6*6];
 
 int sumOf(ivec3 vec) {
@@ -270,7 +277,7 @@ int sumOf(ivec3 vec) {
 }
 
 int getSharedCoord(ivec3 pos) {
-    const ivec3 flatten = ivec3(1, 6, 36);
+    const ivec3 flatten = ivec3(1, 10, 100);
     return sumOf(pos * flatten);
 }
 
@@ -336,17 +343,17 @@ void main() {
                     lpvSharedData[k] = GetLpvValue(imgCoordPrev);
                     //voxelBlockShared[k] = blockId;
 
-                    if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 3u) {
+                    if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 7u) {
                         o = ivec3(kernelEdgeDir.x, 0, 0);
                         lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
                     }
 
-                    if (gl_LocalInvocationID.y == 0u || gl_LocalInvocationID.y == 3u) {
+                    if (gl_LocalInvocationID.y == 0u || gl_LocalInvocationID.y == 7u) {
                         o = ivec3(0, kernelEdgeDir.y, 0);
                         lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
                     }
 
-                    if (gl_LocalInvocationID.z == 0u || gl_LocalInvocationID.z == 3u) {
+                    if (gl_LocalInvocationID.z == 0u || gl_LocalInvocationID.z == 7u) {
                         o = ivec3(0, 0, kernelEdgeDir.z);
                         lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
                     }

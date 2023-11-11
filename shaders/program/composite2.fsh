@@ -474,8 +474,9 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 if (hasWaterDepth) {
-                    puddleF = 1.0;
-                    //albedo = vec3(1.0, 0.0, 0.0);
+                    #ifdef WORLD_SKY_ENABLED
+                        puddleF = 1.0;
+                    #endif
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         float causticLight = SampleWaterCaustics(localPos);
@@ -492,7 +493,8 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
+            //#if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
+            #if defined WORLD_SKY_ENABLED && (defined WORLD_WETNESS_ENABLED || defined WORLD_WATER_ENABLED)
                 //albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * sqrt(porosity)));
 
                 ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
