@@ -202,6 +202,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
+#elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/basic.glsl"
 #endif
@@ -256,6 +258,33 @@ void main() {
 
         const float emission = 0.0;
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+    #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+
+        #ifdef WORLD_SKY_ENABLED
+            #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                const vec3 shadowPos = vec3(0.0);
+            #endif
+
+            // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            //     GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+            // #else
+            //     GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+            // #endif
+        #endif
+
+        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+        vec3 specularFinal = blockSpecular + skySpecular;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            if (metal_f0 >= 0.5) {
+                diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                specularFinal *= albedo;
+            }
+        #endif
+
+        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #else
         GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, sss);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);

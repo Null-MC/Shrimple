@@ -66,7 +66,7 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/common.glsl"
 
 
 void main() {

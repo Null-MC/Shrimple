@@ -220,6 +220,8 @@ uniform int heldBlockLightValue2;
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
+#elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/basic.glsl"
 #endif
@@ -472,8 +474,9 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 if (hasWaterDepth) {
-                    puddleF = 1.0;
-                    //albedo = vec3(1.0, 0.0, 0.0);
+                    #ifdef WORLD_SKY_ENABLED
+                        puddleF = 1.0;
+                    #endif
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         float causticLight = SampleWaterCaustics(localPos);
@@ -490,7 +493,8 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
+            //#if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
+            #if defined WORLD_SKY_ENABLED && (defined WORLD_WETNESS_ENABLED || defined WORLD_WATER_ENABLED)
                 //albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * sqrt(porosity)));
 
                 ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
@@ -677,6 +681,21 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     //blockDiffuse += emission * MaterialEmissionF;
+                #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, sss, false);
+                    
+                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        if (metal_f0 >= 0.5) {
+                            blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                            blockSpecular *= albedo;
+                        }
+                    #endif
+
+                    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    //     blockDiffuse += emission * MaterialEmissionF;
+                    // #endif
                 #else
                     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
                     
@@ -699,7 +718,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyDiffuse = vec3(0.0);
                 vec3 skySpecular = vec3(0.0);
 
-                #ifdef WORLD_SKY_ENABLED
+                #if defined WORLD_SKY_ENABLED && DYN_LIGHT_MODE != DYN_LIGHT_LPV
                     vec3 shadowPos = vec3(0.0);
                     GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
                 #endif

@@ -590,6 +590,7 @@ void main() {
                 vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
                 color.a = max(color.a, luminance(skyF) * MaterialReflectionStrength);
+                color.rgb = vec3(0.0);
             }
         #endif
 

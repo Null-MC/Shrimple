@@ -115,23 +115,25 @@ void main() {
                 #endif
             #endif
 
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
+            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
                 SceneLightCount = 0u;
                 SceneLightMaxCount = 0u;
 
                 HandLightPos1 = vec3(0.0);
                 HandLightPos2 = vec3(0.0);
 
-                vec3 farClipPos[4];
-                farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));
-                farClipPos[1] = unproject(gbufferProjectionInverse * vec4( 1.0, -1.0, 1.0, 1.0));
-                farClipPos[2] = unproject(gbufferProjectionInverse * vec4(-1.0,  1.0, 1.0, 1.0));
-                farClipPos[3] = unproject(gbufferProjectionInverse * vec4( 1.0,  1.0, 1.0, 1.0));
+                #ifdef DYN_LIGHT_FRUSTUM_TEST
+                    vec3 farClipPos[4];
+                    farClipPos[0] = unproject(gbufferProjectionInverse * vec4(-1.0, -1.0, 1.0, 1.0));
+                    farClipPos[1] = unproject(gbufferProjectionInverse * vec4( 1.0, -1.0, 1.0, 1.0));
+                    farClipPos[2] = unproject(gbufferProjectionInverse * vec4(-1.0,  1.0, 1.0, 1.0));
+                    farClipPos[3] = unproject(gbufferProjectionInverse * vec4( 1.0,  1.0, 1.0, 1.0));
 
-                sceneViewUp    = normalize(cross(farClipPos[0] - farClipPos[1], farClipPos[0]));
-                sceneViewRight = normalize(cross(farClipPos[1] - farClipPos[3], farClipPos[1]));
-                sceneViewDown  = normalize(cross(farClipPos[3] - farClipPos[2], farClipPos[3]));
-                sceneViewLeft  = normalize(cross(farClipPos[2] - farClipPos[0], farClipPos[2]));
+                    sceneViewUp    = normalize(cross(farClipPos[0] - farClipPos[1], farClipPos[0]));
+                    sceneViewRight = normalize(cross(farClipPos[1] - farClipPos[3], farClipPos[1]));
+                    sceneViewDown  = normalize(cross(farClipPos[3] - farClipPos[2], farClipPos[3]));
+                    sceneViewLeft  = normalize(cross(farClipPos[2] - farClipPos[0], farClipPos[2]));
+                #endif
             #endif
         }
 

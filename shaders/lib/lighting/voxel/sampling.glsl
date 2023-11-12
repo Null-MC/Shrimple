@@ -93,19 +93,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             //if (!hasLight) continue;
 
-            #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                float pad = 0.5 - clamp(lightSize * 0.5, 0.1, 0.4);
-
-                vec3 lightMin = floor(lightPos + cameraOffset) - cameraOffset + pad;
-                vec3 lightMax = lightMin + 1.0 - 2.0*pad;
-
-                //vec3 diffuseLightPos = lightPos;
-                vec3 diffuseLightPos = clamp(lightFragPos, lightMin, lightMax);
-
-                //lightColor *= 2.0;
-            #else
-                vec3 diffuseLightPos = lightPos;
-            #endif
+            vec3 diffuseLightPos = lightPos;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
                 vec3 offset = GetLightPenumbraOffset() * lightSize * DynamicLightPenumbraF;
@@ -170,11 +158,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                     #endif
                     }
 
-                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                        lightColor *= TraceRay(traceOrigin, traceEnd, lightRange);
-                    #else
-                        lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
-                    #endif
+                    lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
                 }
             #endif
 
@@ -231,10 +215,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             float fade = minOf(min(offsetPos, VoxelBlockSize - offsetPos)) / 8.0;
             accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
             accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
-        #endif
-
-        #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-            accumSpecular *= invPI;
         #endif
 
         blockDiffuse += accumDiffuse;

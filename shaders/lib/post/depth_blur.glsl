@@ -1,4 +1,5 @@
-#define BLUR_BLIND_DIST 16.0
+#define BLUR_BLIND_DIST 12.0
+#define BLUR_BLIND_RADIUS 128.0
 
 
 mat2 GetBlurRotation() {
@@ -70,7 +71,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         //blindDistF = pow(blindDistF, 1.5);
         distF = max(distF, blindDistF);
 
-        radius = mix(radius, max(radius, 64.0), blindness);
+        radius = mix(radius, max(radius, BLUR_BLIND_RADIUS), blindness);
     }
 
     vec3 color = vec3(0.0);

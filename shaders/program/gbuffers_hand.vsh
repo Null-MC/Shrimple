@@ -106,7 +106,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/common.glsl"
 
 
 void main() {

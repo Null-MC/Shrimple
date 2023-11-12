@@ -5,11 +5,15 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-const ivec3 workGroups = ivec3(16, 16, 16);
-
-const uint LPV_CHUNK_SIZE = uint(exp2(LPV_SIZE - 1u));
+#if LPV_SIZE == 3
+    const ivec3 workGroups = ivec3(32, 32, 32);
+#elif LPV_SIZE == 2
+    const ivec3 workGroups = ivec3(16, 16, 16);
+#else
+    const ivec3 workGroups = ivec3(8, 8, 8);
+#endif
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -54,6 +58,8 @@ const uint LPV_CHUNK_SIZE = uint(exp2(LPV_SIZE - 1u));
     uniform int frameCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
+
+    uniform vec4 lightningBoltPosition = vec4(0.0);
 
     //#ifdef DYN_LIGHT_FLICKER
         //uniform float frameTimeCounter;
@@ -177,10 +183,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
         uint maxSamples = LPV_SUN_SAMPLES;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
+        maxSamples = max(min(maxSamples, LPV_SUN_SAMPLES), 1);
 
         vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
-        for (uint i = 0; i < min(maxSamples, LPV_SUN_SAMPLES); i++) {
+        for (uint i = 0; i < maxSamples; i++) {
             vec3 blockLpvPos = blockLocalPos;
 
             #if LPV_SUN_SAMPLES > 1
@@ -259,14 +266,15 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     }
 #endif
 
-shared vec4 lpvSharedData[6*6*6];
+shared vec4 lpvSharedData[10*10*10];
+//shared uint voxelBlockShared[6*6*6];
 
 int sumOf(ivec3 vec) {
     return vec.x + vec.y + vec.z;
 }
 
 int getSharedCoord(ivec3 pos) {
-    const ivec3 flatten = ivec3(1, 6, 36);
+    const ivec3 flatten = ivec3(1, 10, 100);
     return sumOf(pos * flatten);
 }
 
@@ -274,21 +282,21 @@ vec4 sampleShared(ivec3 pos) {
     return lpvSharedData[getSharedCoord(pos + 1)];
 }
 
-vec4 mixNeighbours(const in ivec3 fragCoord) {
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0));
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0));
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0));
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0));
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1));
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1));
+vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0)) * ((mask     ) & 1);
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0)) * ((mask >> 1) & 1);
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0)) * ((mask >> 2) & 1);
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0)) * ((mask >> 3) & 1);
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1)) * ((mask >> 4) & 1);
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0);// * (1.0 - LPV_FALLOFF);
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
 void main() {
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize * LPV_CHUNK_SIZE;
+        uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
         if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
 
         int frameIndex = frameCounter % 2;
@@ -310,136 +318,158 @@ void main() {
             skyLightColor *= mix(1.0, 0.1, rainStrength);
         #endif
 
-        for (int z = 0; z < LPV_CHUNK_SIZE; z++) {
-            for (int y = 0; y < LPV_CHUNK_SIZE; y++) {
-                for (int x = 0; x < LPV_CHUNK_SIZE; x++) {
-                    ivec3 iPos = ivec3(x, y, z);
-                    ivec3 imgCoord = ivec3((gl_WorkGroupID * LPV_CHUNK_SIZE + iPos) * gl_WorkGroupSize + gl_LocalInvocationID);
+        ivec3 imgCoord = ivec3(gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID);
 
-                    barrier();
-                    //memoryBarrierShared();
+        //barrier();
+        //memoryBarrierShared();
 
-                    ivec3 o;
-                    ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                    lpvSharedData[getSharedCoord(kernelPos)] = GetLpvValue(imgCoordPrev);
+        ivec3 o;
+        ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+        int k = getSharedCoord(kernelPos);
 
-                    if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 3u) {
-                        o = ivec3(kernelEdgeDir.x, 0, 0);
-                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
-                    }
+        ivec3 voxelPos = voxelOffset + imgCoord;
+        ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
+        uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
-                    if (gl_LocalInvocationID.y == 0u || gl_LocalInvocationID.y == 3u) {
-                        o = ivec3(0, kernelEdgeDir.y, 0);
-                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
-                    }
+        lpvSharedData[k] = GetLpvValue(imgCoordPrev);
+        //voxelBlockShared[k] = blockId;
 
-                    if (gl_LocalInvocationID.z == 0u || gl_LocalInvocationID.z == 3u) {
-                        o = ivec3(0, 0, kernelEdgeDir.z);
-                        lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
-                    }
+        if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 7u) {
+            o = ivec3(kernelEdgeDir.x, 0, 0);
+            lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+        }
 
-                    barrier();
+        if (gl_LocalInvocationID.y == 0u || gl_LocalInvocationID.y == 7u) {
+            o = ivec3(0, kernelEdgeDir.y, 0);
+            lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+        }
 
-                    if (any(greaterThanEqual(imgCoord, SceneLPVSize))) continue;
+        if (gl_LocalInvocationID.z == 0u || gl_LocalInvocationID.z == 7u) {
+            o = ivec3(0, 0, kernelEdgeDir.z);
+            lpvSharedData[getSharedCoord(kernelPos + o)] = GetLpvValue(imgCoordPrev + o);
+        }
 
-                    ivec3 voxelPos = voxelOffset + imgCoord;
+        barrier();
 
-                    ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
-                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
-                    ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-                    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+        if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
 
-                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
+        vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
-                    vec4 lightValue = vec4(0.0);
+        vec4 lightValue = vec4(0.0);
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                        uint lightType = GetSceneLightType(int(blockId));
-                        if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                            StaticLightData lightInfo = StaticLightMap[lightType];
-                            vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                            vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                            float lightRange = lightRangeSize.x * 255.0;
+        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+            uint lightType = GetSceneLightType(int(blockId));
+            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                StaticLightData lightInfo = StaticLightMap[lightType];
+                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                float lightRange = lightRangeSize.x * 255.0;
 
-                            lightColor = RGBToLinear(lightColor);
+                lightColor = RGBToLinear(lightColor);
 
-                            vec2 lightNoise = vec2(0.0);
-                            #ifdef DYN_LIGHT_FLICKER
-                                lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                                ApplyLightFlicker(lightColor, lightType, lightNoise);
-                            #endif
+                vec2 lightNoise = vec2(0.0);
+                #ifdef DYN_LIGHT_FLICKER
+                    lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                    ApplyLightFlicker(lightColor, lightType, lightNoise);
+                #endif
 
-                            lightValue.rgb = lightColor * lightRange * LpvBlockLightF;
-                        }
-                        else {
-                    #endif
-                        bool allowLight = false;
-                        vec3 tint = vec3(1.0);
+                lightValue.rgb = lightColor * lightRange * LpvBlockLightF;
+            }
+            else {
+        #endif
+            bool allowLight = false;
+            vec3 tint = vec3(1.0);
 
-                        #ifdef LPV_GLASS_TINT
-                            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
-                                tint = GetLightGlassTint(blockId);
-                                allowLight = true;
-                            }
-                            else {
-                        #endif
-                            allowLight = IsTraceOpenBlock(blockId);
-                        #ifdef LPV_GLASS_TINT
-                            }
-                        #endif
+            #ifdef LPV_GLASS_TINT
+                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
+                    tint = GetLightGlassTint(blockId);
+                    allowLight = true;
+                }
+                else {
+            #endif
+                allowLight = IsTraceOpenBlock(blockId);
+            #ifdef LPV_GLASS_TINT
+                }
+            #endif
 
-                        if (allowLight) {
-                            //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                            lightValue = mixNeighbours(ivec3(gl_LocalInvocationID));
-                            lightValue.rgb *= tint;
+            float mixWeight = 1.0;
+            uint mixMask = 0xFFFF;
+            if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
+                mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
+                mixWeight = 0.5;
+                allowLight = true;
+            }
+            else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+                allowLight = true;
+                mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+            }
+            else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
+                allowLight = true;
+                mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+            }
+            
+            if (allowLight) {
+                //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                lightValue = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+                lightValue.rgb *= mixWeight * tint;
 
-                            vec4 shadowColorF = vec4(0.0);
-                            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                                shadowColorF = SampleShadow(blockLocalPos);
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
+                    //vec4 shadowColorF = vec4(0.0);
+                    vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                                #if LPV_SUN_SAMPLES > 0
-                                    if (blockId != BLOCK_WATER) {
-                                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                    // #if LPV_SUN_SAMPLES > 0
+                    //     if (blockId != BLOCK_WATER) {
+                    //         ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                                        // make sure diagonals dont exist
-                                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                                        bounceOffset.xz *= 1 - bounceYF;
-                                        bounceOffset.y *= bounceYF;
+                    //         // make sure diagonals dont exist
+                    //         int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                    //         bounceOffset.xz *= 1 - bounceYF;
+                    //         bounceOffset.y *= bounceYF;
 
-                                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                    //         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                                        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                            bounceF *= DynamicLightAmbientF;
-                                        #endif
+                    //         // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                    //         //     bounceF *= DynamicLightAmbientF;
+                    //         // #endif
 
-                                        lightValue.rgb += skyLightColor * _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF;
-                                    }
-                                #endif
+                    //         lightValue.rgb += 16.0 * shadowColorF.rgb * shadowColorF.a * bounceF;
+                    //     }
+                    // #endif
 
-                                if (blockId == BLOCK_WATER) {
-                                    vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
+                    // if (blockId == BLOCK_WATER) {
+                    //     vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
 
-                                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                        waterLight *= 0.0;
-                                    #endif
+                    //     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                    //         waterLight *= 0.0;
+                    //     #endif
 
-                                    lightValue.rgb += waterLight;
-                                }
-                            #endif
+                    //     lightValue.rgb += waterLight;
+                    // }
 
-                            lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
-                        }
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                        }
-                    #endif
+                    lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
+                #endif
 
-                    if (frameIndex == 0)
-                        imageStore(imgSceneLPV_1, imgCoord, lightValue);
-                    else
-                        imageStore(imgSceneLPV_2, imgCoord, lightValue);
+                if (lightningBoltPosition.w > 0.5) {
+                    vec3 offset = lightningBoltPosition.xyz;
+                    offset.y = clamp(blockLocalPos.y, offset.y, WORLD_CLOUD_HEIGHT - cameraPosition.y);
+
+                    offset -= blockLocalPos;
+                    //offset.y = 0.0;
+
+                    float dist = length(offset);
+                    if (dist < 3.0) lightValue.rgb = vec3(64.0);
                 }
             }
-        }
+        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+            }
+        #endif
+
+        if (frameIndex == 0)
+            imageStore(imgSceneLPV_1, imgCoord, lightValue);
+        else
+            imageStore(imgSceneLPV_2, imgCoord, lightValue);
 
         //}
     #endif

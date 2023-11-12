@@ -112,7 +112,7 @@ uniform vec4 entityColor;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/common.glsl"
 
 
 void main() {
@@ -120,10 +120,10 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
-    if (entityId == ENTITY_LIGHTNING_BOLT) {
-        gl_Position = vec4(-1.0);
-        return;
-    }
+    // if (entityId == ENTITY_LIGHTNING_BOLT) {
+    //     gl_Position = vec4(-1.0);
+    //     return;
+    // }
     
     BasicVertex();
 

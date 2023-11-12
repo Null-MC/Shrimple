@@ -94,6 +94,7 @@ const bool colortex15Clear = true;
 #define WORLD_FOG_SKY_START 20 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_FOG_SKY_DENSITY 140 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define WORLD_FOG_SCALE 100 // [20 40 60 80 100 120 140 160 180 200 250 300 250 400 500 600]
+#define WORLD_CLOUD_HEIGHT 192
 
 
 // Water Options
@@ -199,7 +200,7 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_POPULATE_NEIGHBORS
-#define DYN_LIGHT_FRUSTUM_TEST
+//#define DYN_LIGHT_FRUSTUM_TEST
 #define DYN_LIGHT_PLAYER_SHADOW 2 // [0 1 2]
 #define DYN_LIGHT_FALLBACK
 //#define DYN_LIGHT_WEATHER
@@ -212,16 +213,17 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 0 // [0 1 2 3]
-#define LPV_SAMPLE_MODE 1 // [0 1 2]
+#define LPV_SAMPLE_MODE 2 // [0 1 2]
 #define LPV_SUN_SAMPLES 0 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_LIGHTMAP_MIX 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_BRIGHT_BLOCK 4 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_BRIGHT_SUN 1.0
 #define LPV_BRIGHT_MOON 0.02
-#define LPV_FALLOFF 0.001
+#define LPV_FALLOFF 0.01 // [0.001]
+#define LPV_SKYLIGHT_RANGE 96.0
 #define LPV_GLASS_TINT
-#define LPV_SKYLIGHT_RANGE 48.0
+//#define LPV_VOXEL_TEST
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -554,7 +556,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 #endif
 
 const float entityShadowDistanceMul = 0.25;
-const float voxelDistance = 64.0;
+const float voxelDistance = 128.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
 

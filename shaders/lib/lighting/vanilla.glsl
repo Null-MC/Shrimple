@@ -1,6 +1,6 @@
 #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-    vec3 GetLpvAmbient(const in vec3 voxelPos, const in vec3 lpvPos) {
-        vec3 lpvLight = SampleLpvVoxel(voxelPos, lpvPos).rgb;
+    vec3 GetLpvAmbient(const in vec3 lpvPos, const in vec3 normal) {
+        vec3 lpvLight = SampleLpv(lpvPos, normal).rgb;
         //lpvLight = log2(lpvLight + EPSILON) / LpvRangeF;
         lpvLight *= 0.1;
         lpvLight /= (lpvLight + 2.0);
@@ -49,16 +49,15 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     #endif
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-        vec3 surfacePos = localPos;
-        surfacePos += 0.501 * localNormal;// * (1.0 - sss);
+        //vec3 surfacePos = localPos;
+        //surfacePos += 0.501 * localNormal;// * (1.0 - sss);
 
-        vec3 lpvPos = GetLPVPosition(surfacePos);
-
+        vec3 lpvPos = GetLPVPosition(localPos);
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-        vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
-        vec3 lpvLight = GetLpvAmbient(voxelPos, lpvPos);
+        //vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
+        vec3 lpvLight = GetLpvAmbient(lpvPos, localNormal);
         diffuse += lpvLight * lpvFade;
     #endif
 

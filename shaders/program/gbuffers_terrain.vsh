@@ -117,7 +117,7 @@ uniform vec3 cameraPosition;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 
-#include "/lib/lighting/basic.glsl"
+#include "/lib/lighting/common.glsl"
 
 
 void main() {

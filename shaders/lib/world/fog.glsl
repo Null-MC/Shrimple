@@ -16,17 +16,17 @@ float GetFogFactor(const in float dist, const in float start, const in float end
     return smoothstep(0.0, 1.0, pow(distF, density));
 }
 
-#ifdef WORLD_SKY_ENABLED
-    vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
-        float fogF = fogify(max(viewUpF, 0.0), 0.06);
+vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
+    float fogF = fogify(max(viewUpF, 0.0), 0.06);
 
+    #ifdef WORLD_SKY_ENABLED
         fogF = mix(fogF, 1.0, rainStrength);
+    #endif
 
-        vec3 fogColorFinal = mix(skyColor, fogColor, fogF);
+    vec3 fogColorFinal = mix(skyColor, fogColor, fogF);
 
-        return fogColorFinal * WorldSkyBrightnessF;
-    }
-#endif
+    return fogColorFinal * WorldSkyBrightnessF;
+}
 
 vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     #ifdef WORLD_WATER_ENABLED //&& !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
@@ -69,8 +69,8 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
         }
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
-        vec3 GetCustomSkyFogColor(const in float sunUpF) {
+    vec3 GetCustomSkyFogColor(const in float sunUpF) {
+        #ifdef WORLD_SKY_ENABLED
             const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.7;
             const vec3 colorNight   = RGBToLinear(vec3(0.177, 0.170, 0.192));
             const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914)) * 0.5;
@@ -87,22 +87,30 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             float horizonF = smoothstep(0.0, 0.45, abs(sunUpF - 0.15));
             color = mix(colorHorizon, color, horizonF);
 
+            // TODO: blindness
+
             float weatherBrightness = 1.0 - weatherDarkF * smoothstep(0.0, 1.0, rainStrength);
             return color * weatherBrightness;
-        }
+        #else
+            return RGBToLinear(fogColor);
+        #endif
+    }
 
-        float GetCustomSkyFogFactor(const in float fogDist) {
-            #ifdef VL_BUFFER_ENABLED
-                return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
-            #else
-                const float WorldFogRainySkyDensityF = 0.5;
+    float GetCustomSkyFogFactor(const in float fogDist) {
+        #ifdef VL_BUFFER_ENABLED
+            return GetFogFactor(fogDist, 0.75 * far, far, 1.0);
+        #elif WORLD_SKY_ENABLED
+            const float WorldFogRainySkyDensityF = 0.5;
 
-                float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
-                float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
-                return GetFogFactor(fogDist, fogStart, far, density);
-            #endif
-        }
+            float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
+            float density = mix(WorldFogSkyDensityF, WorldFogRainySkyDensityF, rainStrength);
+            return GetFogFactor(fogDist, fogStart, far, density);
+        #else
+            return 0.0;
+        #endif
+    }
 
+    #ifdef WORLD_SKY_ENABLED
         void ApplyCustomRainFog(inout vec3 color, const in float fogDist, const in float sunUpF) {
             float rainFar = min(96, far);
             float fogF = GetFogFactorL(fogDist, 0.0, rainFar, 1.0);
