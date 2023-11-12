@@ -124,7 +124,7 @@ uniform float blindness;
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/basic.glsl"
+//#include "/lib/lighting/basic.glsl"
 
 
 #if DYN_LIGHT_RES == 1
@@ -246,7 +246,8 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
+        //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
+        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
         //blockDiffuse *= 1.0 - deferredFog.a;
 
         #ifdef LIGHT_HAND_SOFT_SHADOW

@@ -660,10 +660,6 @@ layout(location = 0) out vec4 outFinal;
                         #endif
                     #endif
 
-                    #ifndef WORLD_SKY_ENABLED
-                        blockDiffuse += GetAmbientLighting(localPos, localNormal);
-                    #endif
-
                     #ifndef LIGHT_HAND_SOFT_SHADOW
                         vec3 handDiffuse = vec3(0.0);
                         vec3 handSpecular = vec3(0.0);
@@ -671,14 +667,20 @@ layout(location = 0) out vec4 outFinal;
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             if (metal_f0 >= 0.5) {
-                                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                                blockSpecular *= albedo;
+                                handDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                                handSpecular *= albedo;
                             }
                         #endif
 
                         blockDiffuse += handDiffuse;
                         blockSpecular += handSpecular;
                     #endif
+
+                    #ifndef WORLD_SKY_ENABLED
+                        blockDiffuse += GetAmbientLighting(localPos, localNormal);
+                    #endif
+
+                    // TODO: convert diffuse/specular to final
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
@@ -696,21 +698,21 @@ layout(location = 0) out vec4 outFinal;
                     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     //     blockDiffuse += emission * MaterialEmissionF;
                     // #endif
-                #else
-                    GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
+                // #else
+                //     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
                     
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                //     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
 
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        if (metal_f0 >= 0.5) {
-                            blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                            blockSpecular *= albedo;
-                        }
-                    #endif
+                //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+                //         if (metal_f0 >= 0.5) {
+                //             blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                //             blockSpecular *= albedo;
+                //         }
+                //     #endif
 
-                    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //     blockDiffuse += emission * MaterialEmissionF;
-                    // #endif
+                //     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                //     //     blockDiffuse += emission * MaterialEmissionF;
+                //     // #endif
                 #endif
 
                 blockDiffuse += emission * MaterialEmissionF;
