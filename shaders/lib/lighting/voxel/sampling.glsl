@@ -8,7 +8,7 @@ float InterleavedGradientNoiseTime(const in vec2 pixel) {
     return fract(magic.z * fract(x));
 }
 
-void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss, const in vec3 blockLightDefault) {
+void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss) {//, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);
     vec3 localViewDir = -normalize(localPos);
@@ -20,7 +20,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
     uint lightCount = GetVoxelLights(lightFragPos, gridIndex);
 
-    if (gridIndex != DYN_LIGHT_GRID_MAX) {
+    //if (gridIndex != DYN_LIGHT_GRID_MAX) {
         bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
         bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
@@ -206,23 +206,23 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             }
         }
 
-        accumDiffuse *= DynamicLightBrightness;
-        accumSpecular *= DynamicLightBrightness;
+        // accumDiffuse *= DynamicLightBrightness;
+        // accumSpecular *= DynamicLightBrightness;
 
-        #ifdef DYN_LIGHT_FALLBACK
-            // TODO: shrink to shadow bounds
-            vec3 offsetPos = localPos + VoxelBlockCenter;
-            float fade = minOf(min(offsetPos, VoxelBlockSize - offsetPos)) / 8.0;
-            accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
-            accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
-        #endif
+        // #ifdef DYN_LIGHT_FALLBACK
+        //     // TODO: shrink to shadow bounds
+        //     vec3 offsetPos = localPos + VoxelBlockCenter;
+        //     float fade = minOf(min(offsetPos, VoxelBlockSize - offsetPos)) / 8.0;
+        //     accumDiffuse = mix(blockLightDefault, accumDiffuse, saturate(fade));
+        //     accumSpecular = mix(vec3(0.0), accumSpecular, saturate(fade));
+        // #endif
 
-        blockDiffuse += accumDiffuse;
-        blockSpecular += accumSpecular;
-    }
-    else {
-        #ifdef DYN_LIGHT_FALLBACK
-            blockDiffuse += blockLightDefault;
-        #endif
-    }
+        blockDiffuse += accumDiffuse * DynamicLightBrightness;
+        blockSpecular += accumSpecular * DynamicLightBrightness;
+    // }
+    // else {
+    //     #ifdef DYN_LIGHT_FALLBACK
+    //         blockDiffuse += blockLightDefault;
+    //     #endif
+    // }
 }
