@@ -677,7 +677,7 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     #ifndef WORLD_SKY_ENABLED
-                        blockDiffuse += GetAmbientLighting(localPos, localNormal);
+                        blockDiffuse += GetLpvAmbientLighting(localPos, localNormal);
                     #endif
 
                     // TODO: convert diffuse/specular to final
