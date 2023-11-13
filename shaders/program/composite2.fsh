@@ -388,7 +388,7 @@ layout(location = 0) out vec4 outFinal;
 
             #ifdef SHADOW_BLUR
                 #ifdef SHADOW_COLORED
-                    const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
+                    const vec3 shadowSigma = vec3(3.0, 3.0, 0.25);
                     vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepthOpaque, shadowSigma);
                 #else
                     float shadowSigma = 3.0 / linearDepthOpaque;
@@ -676,9 +676,9 @@ layout(location = 0) out vec4 outFinal;
                         blockSpecular += handSpecular;
                     #endif
 
-                    #ifndef WORLD_SKY_ENABLED
+                    //#ifndef WORLD_SKY_ENABLED
                         blockDiffuse += GetLpvAmbientLighting(localPos, localNormal);
-                    #endif
+                    //#endif
 
                     // TODO: convert diffuse/specular to final
 

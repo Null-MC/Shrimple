@@ -60,7 +60,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float radius = isWater ? WATER_BLUR_RADIUS : DIST_BLUR_RADIUS;
         //uint sampleCount = DIST_BLUR_SAMPLES;
     #else
-        float radius = isWater ? WATER_BLUR_RADIUS : (distF * DIST_BLUR_RADIUS);
+        float radius = distF * (isWater ? WATER_BLUR_RADIUS : DIST_BLUR_RADIUS);
         //uint sampleCount = uint(ceil(DIST_BLUR_SAMPLES * distF));
 
         //radius *= distF;
@@ -123,7 +123,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             }
         #endif
 
-        if (blindness > 0.0) {
+        if (blindness > EPSILON) {
             float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
             sampleDistF = mix(sampleDistF, max(sampleDistF, blindDistF), blindness);
         }

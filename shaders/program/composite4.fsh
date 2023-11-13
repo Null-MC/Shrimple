@@ -43,7 +43,9 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
 
         vec3 sampleViewPos = viewPos + vec3(offset, 0.0);
         vec3 sampleClipPos = unproject(gbufferProjection * vec4(sampleViewPos, 1.0)) * 0.5 + 0.5;
-        sampleClipPos = saturate(sampleClipPos);
+        //sampleClipPos = saturate(sampleClipPos);
+        if (saturate(sampleClipPos) != sampleClipPos) continue;
+        sampleCount++;
 
         float sampleClipDepth = textureLod(depthtex1, sampleClipPos.xy, 0.0).r;
         if (sampleClipDepth >= 1.0 - EPSILON) continue;
@@ -55,16 +57,20 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) * (1.0 - EFFECT_SSAO_BIAS);
         float aoF = 1.0 - saturate(sampleDist / EFFECT_SSAO_RADIUS);
-        ao += sampleNoLm * pow(aoF, 1.5);
+        ao += sampleNoLm;// * pow(aoF, 1.5);
 
-        sampleCount++;
     }
 
-    ao /= max(sampleCount, 1);
-    ao *= EFFECT_SSAO_STRENGTH;
-    ao /= ao + 0.5;
+    ao = saturate(ao / max(sampleCount, 1));
+    //ao = saturate(ao / EFFECT_SSAO_SAMPLES);
+
+    //ao = smoothstep(0.0, rcp(EFFECT_SSAO_STRENGTH), ao);
+    ao = 1.0 - pow(1.0 - ao, EFFECT_SSAO_STRENGTH);
+
+    //ao *= EFFECT_SSAO_STRENGTH;
+    //ao /= ao + 0.5;
     //ao = smoothstep(0.0, 0.2, ao);
 
     return ao * (1.0 - EFFECT_SSAO_MIN);

@@ -377,7 +377,8 @@ void main() {
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
-        occlusion = RGBToLinear(glcolor.a);
+        //occlusion = RGBToLinear(glcolor.a);
+        occlusion = glcolor.a;
     #endif
 
     float roughness, metal_f0;
