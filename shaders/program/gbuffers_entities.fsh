@@ -310,7 +310,10 @@ void main() {
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
+
         bool skipParallax = false;
+        vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
+        if (preN.a < EPSILON) skipParallax = true;
     #endif
 
     vec4 color = vec4(0.0);

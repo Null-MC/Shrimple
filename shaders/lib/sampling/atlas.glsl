@@ -4,14 +4,7 @@
         vec2 coordNMid = texcoord - coordMid;// - 0.5/atlasSize;
 
         atlasBounds[0] = min(texcoord, coordMid - coordNMid);
-        //atlasBounds[0] = coordMid - coordNMid;// - 0.5/atlasSize;
         atlasBounds[1] = abs(coordNMid) * 2.0;
-        //atlasBounds[1] = coordMid + coordNMid - atlasBounds[0];
-
-        //atlasBounds[0] -= 0.5/atlasSize;
-
-        atlasBounds[0] = floor(atlasBounds[0] * atlasSize + 0.5) / atlasSize;
-        atlasBounds[1] = floor((atlasBounds[0] + atlasBounds[1]) * atlasSize + 0.5) / atlasSize - atlasBounds[0];
 
         localCoord = sign(coordNMid) * 0.5 + 0.5;
     }

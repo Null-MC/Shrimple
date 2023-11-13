@@ -326,10 +326,12 @@ void main() {
 
     float porosity = 0.0;
     bool skipParallax = false;
-    #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || MATERIAL_PARALLAX != PARALLAX_NONE
-        vec4 preN = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-        if (preN.a < EPSILON) skipParallax = true;
-    #endif
+    // #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || MATERIAL_PARALLAX != PARALLAX_NONE
+    //     vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
+    //     if (all(lessThan(atlasBounds[1], vec2(1.0/atlasSize)))) skipParallax = true;
+    //     if (all(lessThan(abs(vLocalNormal), vec3(0.1)))) skipParallax = true;
+    //     skipParallax = true;
+    // #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
