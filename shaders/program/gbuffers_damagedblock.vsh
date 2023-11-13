@@ -24,6 +24,7 @@ flat out mat2 atlasBounds;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform ivec2 atlasSize;
 
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/tbn.glsl"

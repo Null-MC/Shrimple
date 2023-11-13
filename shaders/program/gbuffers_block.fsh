@@ -325,10 +325,18 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     float porosity = 0.0;
+    bool skipParallax = false;
+    #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || MATERIAL_PARALLAX != PARALLAX_NONE
+        vec4 preN = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+        if (preN.a < EPSILON) skipParallax = true;
+    #endif
+
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
         vec4 rippleNormalStrength;
 
+        //if (any(greaterThan(preN.rgb, vec3(EPSILON)))) {
+        if (preN.a > EPSILON) {
         //if (blockEntityId == BLOCK_CREATE_TRACK) {
             vec3 worldPos = vLocalPos + cameraPosition;
 
@@ -343,10 +351,11 @@ void main() {
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
 
                 localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
-                atlasCoord = GetAtlasCoord(localCoord);
+                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+                //atlasCoord = GetAtlasCoord(localCoord);
             #endif
         //}
+        }
     #endif
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -354,7 +363,7 @@ void main() {
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
 
-        if (viewDist < MATERIAL_PARALLAX_DISTANCE) {
+        if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif

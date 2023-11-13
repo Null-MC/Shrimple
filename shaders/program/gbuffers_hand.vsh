@@ -46,6 +46,7 @@ uniform sampler2D lightmap;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform ivec2 atlasSize;
 
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;

@@ -55,6 +55,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
         #endif
     #endif
 
+    uniform float frameTime;
     uniform int frameCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
@@ -291,7 +292,7 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF * frameTime);
 }
 
 void main() {

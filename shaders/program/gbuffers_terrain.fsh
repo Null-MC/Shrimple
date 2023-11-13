@@ -285,6 +285,7 @@ void main() {
     float viewDist = length(vLocalPos);
     vec2 atlasCoord = texcoord;
     vec2 localCoord = vLocalCoord;
+    //vec2 localCoord = GetLocalCoord(texcoord);
     vec2 lmFinal = lmcoord;
     
     vec3 localNormal = normalize(vLocalNormal);
@@ -311,7 +312,7 @@ void main() {
 
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
-                localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
+                //localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
                 if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
             #endif
         }

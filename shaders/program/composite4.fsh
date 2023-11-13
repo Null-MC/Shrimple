@@ -22,7 +22,7 @@ uniform vec2 pixelSize;
 
 float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 viewNormal) {
     const float inv = rcp(EFFECT_SSAO_SAMPLES);
-    const float rStep = inv * EFFECT_SSAO_RADIUS;
+    const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
     float rotatePhase = dither * TAU;
@@ -58,8 +58,8 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         vec3 sampleNormal = diff / sampleDist;
 
         float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) * (1.0 - EFFECT_SSAO_BIAS);
-        float aoF = 1.0 - saturate(sampleDist / EFFECT_SSAO_RADIUS);
-        ao += sampleNoLm;// * pow(aoF, 1.5);
+        float aoF = 1.0 - saturate(sampleDist / (2*EFFECT_SSAO_RADIUS));
+        ao += sampleNoLm * aoF;// * pow(aoF, 1.5);
 
     }
 
