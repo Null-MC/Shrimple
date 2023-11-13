@@ -335,8 +335,7 @@ void main() {
         float skyWetness = 0.0, puddleF = 0.0;
         vec4 rippleNormalStrength;
 
-        //if (any(greaterThan(preN.rgb, vec3(EPSILON)))) {
-        if (preN.a > EPSILON) {
+        if (!skipParallax) {
         //if (blockEntityId == BLOCK_CREATE_TRACK) {
             vec3 worldPos = vLocalPos + cameraPosition;
 
@@ -351,8 +350,8 @@ void main() {
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
 
                 localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
-                //atlasCoord = GetAtlasCoord(localCoord);
+                //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+                atlasCoord = GetAtlasCoord(localCoord);
             #endif
         //}
         }
