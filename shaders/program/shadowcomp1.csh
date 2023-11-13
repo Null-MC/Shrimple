@@ -427,7 +427,7 @@ void main() {
                         bounceOffset.y *= bounceYF;
 
                         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-                        lightValue.rgb += shadowColorF.rgb * shadowColorF.a * bounceF * 8.0 * LpvBlockLightF;
+                        lightValue.rgb += _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF * 12.0 * LpvBlockLightF;
                     }
 
                     // if (blockId == BLOCK_WATER) {
