@@ -271,7 +271,7 @@ const bool colortex15Clear = true;
 #define EFFECT_SSAO_SAMPLES 12 // [2 4 6 8 10 12 14 16 24 32]
 #define EFFECT_SSAO_RADIUS 1.5 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
 #define EFFECT_SSAO_STRENGTH 9 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
-#define EFFECT_SSAO_MIN 0.1
+#define EFFECT_SSAO_MIN 0.0
 #define EFFECT_SSAO_BIAS 0.2
 
 #define EFFECT_AUTO_EXPOSE

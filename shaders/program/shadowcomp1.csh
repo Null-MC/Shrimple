@@ -416,27 +416,19 @@ void main() {
                 lightValue.rgb *= mixWeight * tint;
 
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
-                    //vec4 shadowColorF = vec4(0.0);
                     vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                    // #if LPV_SUN_SAMPLES > 0
-                    //     if (blockId != BLOCK_WATER) {
-                    //         ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                    if (blockId != BLOCK_WATER) {
+                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                    //         // make sure diagonals dont exist
-                    //         int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                    //         bounceOffset.xz *= 1 - bounceYF;
-                    //         bounceOffset.y *= bounceYF;
+                        // make sure diagonals dont exist
+                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                        bounceOffset.xz *= 1 - bounceYF;
+                        bounceOffset.y *= bounceYF;
 
-                    //         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-
-                    //         // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                    //         //     bounceF *= DynamicLightAmbientF;
-                    //         // #endif
-
-                    //         lightValue.rgb += 16.0 * shadowColorF.rgb * shadowColorF.a * bounceF;
-                    //     }
-                    // #endif
+                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                        lightValue.rgb += shadowColorF.rgb * shadowColorF.a * bounceF * 8.0 * LpvBlockLightF;
+                    }
 
                     // if (blockId == BLOCK_WATER) {
                     //     vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;

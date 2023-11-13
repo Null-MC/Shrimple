@@ -375,7 +375,8 @@ void main() {
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
 
     #ifdef WORLD_AO_ENABLED
-        occlusion = RGBToLinear(glcolor.a);
+        //occlusion = RGBToLinear(glcolor.a);
+        occlusion = glcolor.a;
     #endif
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
