@@ -57,16 +57,17 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) * (1.0 - EFFECT_SSAO_BIAS);
         float aoF = 1.0 - saturate(sampleDist / EFFECT_SSAO_RADIUS);
-        ao += sampleNoLm * pow(aoF, 1.5);
+        ao += sampleNoLm;// * pow(aoF, 1.5);
 
     }
 
     ao = saturate(ao / max(sampleCount, 1));
     //ao = saturate(ao / EFFECT_SSAO_SAMPLES);
 
-    ao = smoothstep(0.0, rcp(EFFECT_SSAO_STRENGTH), ao);
+    //ao = smoothstep(0.0, rcp(EFFECT_SSAO_STRENGTH), ao);
+    ao = 1.0 - pow(1.0 - ao, EFFECT_SSAO_STRENGTH);
 
     //ao *= EFFECT_SSAO_STRENGTH;
     //ao /= ao + 0.5;

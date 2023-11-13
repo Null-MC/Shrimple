@@ -673,6 +673,10 @@ layout(location = 0) out vec4 outFinal;
                 float shadowF = min(luminance(deferredShadow.rgb), 1.0);
                 occlusion = max(occlusion, shadowF);
 
+                // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+                //     if (isWater) albedo = vec3(0.0);
+                // #endif
+
                 vec3 diffuseFinal = blockDiffuse + skyDiffuse;
                 vec3 specularFinal = blockSpecular + skySpecular;
                 final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);

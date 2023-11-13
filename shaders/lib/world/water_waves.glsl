@@ -11,14 +11,14 @@ const float WATER_NORMAL_STRENGTH = 0.85;
 #if   WORLD_WATER_WAVES == 3
     #define WATER_ITERATIONS_FRAGMENT 42
     const float WATER_XZ_SCALE = 0.4;
-    float WATER_DRAG_MULT = mix(0.2, 0.6, rainStrength);
+    float WATER_DRAG_MULT = 0.3;//mix(0.2, 0.6, rainStrength);
     const float WATER_DRAG_INC = 0.06;
     const float WATER_WAVE_HEIGHT = 0.9;
     const float WATER_SPEED = 1.4;
 #elif WORLD_WATER_WAVES == 2
     #define WATER_ITERATIONS_FRAGMENT 32
     const float WATER_XZ_SCALE = 0.8;
-    float WATER_DRAG_MULT = mix(0.2, 0.4, rainStrength);
+    float WATER_DRAG_MULT = 0.3;//mix(0.2, 0.4, rainStrength);
     const float WATER_DRAG_INC = 0.06;
     const float WATER_WAVE_HEIGHT = 0.5;
     const float WATER_SPEED = 2.0;
