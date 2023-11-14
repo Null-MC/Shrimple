@@ -555,7 +555,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowcolor0Nearest = false;
 #endif
 
-const float entityShadowDistanceMul = 0.25;
+//const float entityShadowDistanceMul = 0.25;
 const float voxelDistance = 128.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
