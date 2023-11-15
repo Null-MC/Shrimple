@@ -155,7 +155,7 @@ uniform int heldBlockLightValue2;
     uniform vec4 spriteBounds;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 

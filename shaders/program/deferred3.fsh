@@ -96,7 +96,7 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 

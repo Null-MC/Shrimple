@@ -300,6 +300,7 @@ const bool colortex15Clear = true;
 //#define ANIM_WORLD_TIME
 //#define MAGNIFICENT_COLORS
 //#define WATER_MULTIDEPTH_DEBUG
+#define ALPHATESTREF_ENABLED
 
 
 // INTERNAL SETTINGS
@@ -464,6 +465,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef WATER_MULTIDEPTH_DEBUG
 #endif
+#ifdef ALPHATESTREF_ENABLED
+#endif
 
 
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
@@ -560,7 +563,7 @@ const float voxelDistance = 128.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));
 
-#if MC_VERSION < 11700
+#if MC_VERSION < 11700 || !defined ALPHATESTREF_ENABLED
     const float alphaTestRef = 0.1;
 #endif
 
@@ -575,6 +578,7 @@ const float voxelDistance = 128.0;
 #define modelPart(x, y, z) (vec3(x, y, z)/16.0)
 
 float pow2(const in float x) {return x*x;}
+vec3 pow2(const in vec3 x) {return x*x;}
 uint pow3(const in uint x) {return x*x*x;}
 float pow3(const in float x) {return x*x*x;}
 vec2  pow3(const in vec2  x) {return x*x*x;}

@@ -641,3 +641,6 @@ option.DH_COMPAT_ENABLED.comment=Enables special support for the Distant Horizon
 
 option.ANIM_WORLD_TIME=World-Time Animations
 option.ANIM_WORLD_TIME.comment=Uses the worlds time counter for animations rather than a constant increment. Useful for recording mods that replay using scaled world-time.
+
+option.ALPHATESTREF_ENABLED=Vanilla AlphaTest
+option.ALPHATESTREF_ENABLED.comment=Uses the vanilla provided AlphaTest threshold for cutout blocks. Disable for hard-coded 10% threshold if not working properly.

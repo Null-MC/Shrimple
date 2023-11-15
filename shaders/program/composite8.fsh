@@ -131,7 +131,7 @@ uniform int heldBlockLightValue2;
     uniform float centerDepthSmooth;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 

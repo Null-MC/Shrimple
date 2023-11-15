@@ -16,7 +16,7 @@ uniform sampler2D gtexture;
 
 uniform int renderStage;
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
 	uniform float alphaTestRef;
 #endif
 

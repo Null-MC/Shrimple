@@ -30,7 +30,7 @@ uniform ivec2 atlasSize;
 uniform float near;
 uniform float far;
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 
