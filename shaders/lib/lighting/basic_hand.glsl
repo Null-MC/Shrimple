@@ -1,4 +1,4 @@
-void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss) {
+void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
     vec3 result = vec3(0.0);
     vec2 noiseSample = vec2(0.0);
 
@@ -26,6 +26,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
     float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
     float geoNoL;
+
+    float invAO = saturate(1.0 - occlusion);
 
     vec3 accumDiffuse = vec3(0.0);
     vec3 accumSpecular = vec3(0.0);
@@ -71,6 +73,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
+            lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
+
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
 
@@ -87,12 +91,14 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
-                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
+                float D = SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL);
+                accumDiffuse += D * lightAtt * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
+                    float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
 
-                    accumSpecular += SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
@@ -138,6 +144,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
+            lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
+
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
 
@@ -145,7 +153,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
                 vec3 F = vec3(0.0);
-                #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
                     //float invCosTheta = 1.0 - lightVoHm;
@@ -156,10 +164,11 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
                 accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
-                #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
+                    float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
 
-                    accumSpecular += max(geoNoL, 0.0) * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }

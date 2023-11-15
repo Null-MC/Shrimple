@@ -269,8 +269,8 @@ const bool colortex15Clear = true;
 
 #define EFFECT_SSAO_ENABLED
 #define EFFECT_SSAO_SAMPLES 12 // [2 4 6 8 10 12 14 16 24 32]
-#define EFFECT_SSAO_RADIUS 1.5 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
-#define EFFECT_SSAO_STRENGTH 9 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
+#define EFFECT_SSAO_RADIUS 1.0 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
+#define EFFECT_SSAO_STRENGTH 3 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
 #define EFFECT_SSAO_MIN 0.0
 #define EFFECT_SSAO_BIAS 0.04
 
@@ -555,7 +555,7 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowcolor0Nearest = false;
 #endif
 
-const float entityShadowDistanceMul = 0.25;
+//const float entityShadowDistanceMul = 0.25;
 const float voxelDistance = 128.0;
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));

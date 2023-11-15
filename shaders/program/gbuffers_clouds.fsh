@@ -180,7 +180,10 @@ uniform int heldBlockLightValue2;
 
     #include "/lib/world/sky.glsl"
     #include "/lib/lighting/basic_hand.glsl"
-    #include "/lib/lighting/basic.glsl"
+
+    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/basic.glsl"
+    #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"

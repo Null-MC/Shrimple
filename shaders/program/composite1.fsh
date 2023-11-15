@@ -232,11 +232,13 @@ void main() {
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
+        float occlusion = deferredLighting.z;
         float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            roughL = _pow2(specularMap.r);
+            float rough = specularMap.r;
+            roughL = _pow2(rough);
             metal_f0 = specularMap.g;
         #endif
 
@@ -252,7 +254,7 @@ void main() {
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
-        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef LIGHT_HAND_SOFT_SHADOW
             SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
@@ -263,7 +265,7 @@ void main() {
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #if MATERIAL_SPECULAR == SPECULAR_LABPBR
                 if (IsMetal(metal_f0))
-                    blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                    blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, rough);
             #else
                 blockDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
             #endif

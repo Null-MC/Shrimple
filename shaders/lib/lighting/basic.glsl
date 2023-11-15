@@ -36,7 +36,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
     }
 #endif
 
-void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float sss) {
+void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
     vec2 lmBlock = vec2(lmcoord.x, 0.0);
     lmBlock = saturate(lmBlock) * (15.0/16.0) + (0.5/16.0);
     vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
@@ -45,7 +45,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     #if defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
         vec3 voxelPos = GetVoxelBlockPosition(localPos);
         float voxelFade = GetVoxelFade(voxelPos);
@@ -55,7 +55,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     #endif
 
     #if LPV_SIZE > 0 //&& DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal);
+        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * _pow2(occlusion);
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
@@ -100,14 +100,16 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         if (!all(lessThan(abs(localNormal), EPSILON3)))
             geoNoL = dot(localNormal, localSkyLightDirection);
 
-        float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
+        float diffuseNoLm = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
+
+        float invAO = saturate(1.0 - occlusion);
+        diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
 
         vec3 H = normalize(-localSkyLightDirection + -localViewDir);
         float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
         float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
-        float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
+        float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
         vec3 accumDiffuse = D * skyLightColor * shadowColor;
-
 
         vec2 lmcoordFinal = saturate(lmcoord);
         lmcoordFinal.x = 0.0;

@@ -275,7 +275,7 @@ void main() {
         vec3 diffuse, specular = vec3(0.0);
         GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, normal, shadowColor, sss);
 
-        SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+        SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             // TODO: weather specular phase
@@ -294,7 +294,7 @@ void main() {
         vec3 skySpecular = vec3(0.0);
 
         GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
-        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef WORLD_SKY_ENABLED
             #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
@@ -325,8 +325,8 @@ void main() {
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, sss);
-        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+        GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+        SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef WORLD_SKY_ENABLED
             #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
