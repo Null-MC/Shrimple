@@ -469,7 +469,7 @@ layout(location = 0) out vec4 outFinal;
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
                 #endif
 
-                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
                 if (isWater) diffuse *= WorldWaterOpacityF;
                 //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
@@ -607,7 +607,7 @@ layout(location = 0) out vec4 outFinal;
                     #ifndef LIGHT_HAND_SOFT_SHADOW
                         vec3 handDiffuse = vec3(0.0);
                         vec3 handSpecular = vec3(0.0);
-                        SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                        SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             if (metal_f0 >= 0.5) {
@@ -620,11 +620,15 @@ layout(location = 0) out vec4 outFinal;
                         blockSpecular += handSpecular;
                     #endif
 
+                    #if LPV_SIZE > 0
+                        blockDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
+                    #endif
+
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, sss, tir);
 
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
                         if (metal_f0 >= 0.5) {
@@ -639,7 +643,7 @@ layout(location = 0) out vec4 outFinal;
                 #else
                     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
 
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
                         if (metal_f0 >= 0.5) {

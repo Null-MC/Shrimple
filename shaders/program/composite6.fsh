@@ -227,6 +227,7 @@ void main() {
 
         float roughL = 1.0;
         float metal_f0 = 0.04;
+        float occlusion = deferredLighting.z;
         float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -247,7 +248,7 @@ void main() {
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
-        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         //blockDiffuse *= 1.0 - deferredFog.a;
 
         #ifdef LIGHT_HAND_SOFT_SHADOW

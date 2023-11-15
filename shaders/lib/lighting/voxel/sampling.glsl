@@ -8,7 +8,7 @@ float InterleavedGradientNoiseTime(const in vec2 pixel) {
     return fract(magic.z * fract(x));
 }
 
-void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float sss) {//, const in vec3 blockLightDefault) {
+void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {//, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);
     vec3 localViewDir = -normalize(localPos);
@@ -168,6 +168,9 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             float diffuseNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
+            float invAO = saturate(1.0 - occlusion);
+            diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
+
             if (diffuseNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRange);
 
@@ -187,15 +190,15 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 accumDiffuse += SampleLightDiffuse(lightNoVm, diffuseNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                    #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                        vec3 r = reflect(-localViewDir, texNormal);
-                        vec3 L = lightPos - lightFragPos;
-                        vec3 centerToRay = dot(L, r) * r - L;
-                        vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
-                        lightDir = normalize(closestPoint);
-                    #endif
+                    // #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
+                    //     vec3 r = reflect(-localViewDir, texNormal);
+                    //     vec3 L = lightPos - lightFragPos;
+                    //     vec3 centerToRay = dot(L, r) * r - L;
+                    //     vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
+                    //     lightDir = normalize(closestPoint);
+                    // #endif
 
-                    lightH = normalize(lightDir + localViewDir);
+                    //lightH = normalize(lightDir + localViewDir);
 
                     float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                     float lightNoHm = max(dot(texNormal, lightH), EPSILON);
