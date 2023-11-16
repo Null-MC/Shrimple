@@ -376,7 +376,7 @@ void main() {
                     ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
-                lightValue.rgb = lightColor * lightRange * LpvBlockLightF;
+                lightValue.rgb = exp2(LinearToRGB(lightColor) * lightRange * (0.666 * DynamicLightRangeF)) - 1.0;// * LpvBlockLightF;
             }
             else {
         #endif
@@ -428,7 +428,7 @@ void main() {
                         bounceOffset.y *= bounceYF;
 
                         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-                        lightValue.rgb += shadowColorF.rgb * shadowColorF.a * bounceF * 2.0 * LpvBlockLightF;
+                        lightValue.rgb += exp2(LinearToRGB(shadowColorF.rgb * shadowColorF.a * bounceF) * 4.0 * DynamicLightRangeF) - 1.0;
                     }
 
                     // if (blockId == BLOCK_WATER) {

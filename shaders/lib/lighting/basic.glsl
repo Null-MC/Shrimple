@@ -18,7 +18,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal);
-        vec3 lpvLight = lpvSample.rgb / LpvBlockLightF;
+        vec3 lpvLight = GetLpvBlockLight(lpvSample);
 
         return lpvLight * lpvFade * DynamicLightAmbientF;
     }
@@ -32,7 +32,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal);
-        return sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
+        return GetLpvSkyLight(lpvSample);
     }
 #endif
 
