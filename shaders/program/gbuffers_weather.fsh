@@ -121,8 +121,11 @@ uniform float blindness;
     //uniform int isEyeInWater;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
+#endif
+
+#if MC_VERSION >= 11700
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 

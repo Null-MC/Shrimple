@@ -120,7 +120,7 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 
@@ -509,7 +509,7 @@ layout(location = 0) out vec4 outFinal;
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
                 #endif
 
-                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
                 final = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
             #else

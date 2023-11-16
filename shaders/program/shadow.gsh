@@ -36,6 +36,7 @@ uniform float far;
     uniform int currentRenderedItemId;
     uniform vec3 previousCameraPosition;
     uniform vec3 eyePosition;
+    uniform vec4 entityColor;
     uniform int entityId;
 #endif
 
@@ -58,6 +59,7 @@ uniform float far;
         #include "/lib/lights.glsl"
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/entities.glsl"
     #endif
 #endif
 
@@ -159,6 +161,11 @@ void main() {
 
                     lightValue = lightColor * lightRange * LpvBlockLightF;
                 }
+
+                vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
+
+                if (entityLightColorRange.a > EPSILON)
+                    lightValue = entityLightColorRange.rgb * entityLightColorRange.a * LpvBlockLightF;
 
                 if (any(greaterThan(lightValue, EPSILON3))) {
                     vec3 lpvPos = GetLPVPosition(originPos);

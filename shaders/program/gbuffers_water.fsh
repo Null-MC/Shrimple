@@ -171,7 +171,7 @@ uniform int heldBlockLightValue2;
     uniform mat4 shadowModelView;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 
@@ -623,7 +623,7 @@ void main() {
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
             color.a = min(color.a + luminance(specular), 1.0);
@@ -634,7 +634,7 @@ void main() {
             blockDiffuse += emission * MaterialEmissionF;
             
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);

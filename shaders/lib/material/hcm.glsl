@@ -170,7 +170,7 @@
     // }
 
     vec3 IOR_to_f0(const in vec3 ior) {
-        return pow((ior - 1.0) / (ior + 1.0), vec3(2.0));
+        return pow2((ior - 1.0) / (ior + 1.0));
     }
 
     //vec3 GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
@@ -202,7 +202,7 @@ bool IsMetal(const in float metal_f0) {
 vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
     if (hcm < 0) return vec3(1.0);
     //else if (hcm < 8) return IORToF0(ior_n[hcm]);
-    else return vec3(albedo);
+    return albedo;
 }
 
 vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {

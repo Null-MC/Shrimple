@@ -153,7 +153,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec4 spriteBounds;
 #endif
 
-#if MC_VERSION >= 11700
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 
@@ -511,7 +511,7 @@ void main() {
                 specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
@@ -523,7 +523,7 @@ void main() {
             blockDiffuse += emission * MaterialEmissionF;
 
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             #ifdef WORLD_SKY_ENABLED
                 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
