@@ -213,7 +213,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             #if LPV_SIZE > 0
                 float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
-                ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * lpvSkyLightF;
+                ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF;
             #elif WORLD_SKY_ENABLED
                 ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * (1.0 - 0.9 * rainStrength);
             #endif
