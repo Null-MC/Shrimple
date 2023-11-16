@@ -108,8 +108,9 @@ void main() {
                     shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
                     //shadowProjectionEx[0][0] = 2.0 / min(shadowDistance, far);
                     //shadowProjectionEx[1][1] = 2.0 / min(shadowDistance, far);
-                    shadowProjectionEx[2][2] = -2.0 / (2.0 * far);
+                    shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
                     shadowProjectionEx[3][2] = 0.0;//-(zFar + zNear)/(zFar - zNear);
+                    //shadowProjectionEx[2][3] = 0.0;
 
                     shadowModelViewProjection = shadowProjectionEx * shadowModelViewEx;
                 #endif

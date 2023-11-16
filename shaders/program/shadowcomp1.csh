@@ -164,7 +164,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
 
     uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-    return GetBlockBounceF(blockId) * max(dot(-blockOffset, localSkyLightDirection), 0.0);
+    return GetBlockBounceF(blockId) * max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
 }
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -428,7 +428,7 @@ void main() {
                         bounceOffset.y *= bounceYF;
 
                         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-                        lightValue.rgb += _pow2(shadowColorF.rgb) * shadowColorF.a * bounceF * 16.0 * LpvBlockLightF;
+                        lightValue.rgb += shadowColorF.rgb * shadowColorF.a * bounceF * 2.0 * LpvBlockLightF;
                     }
 
                     // if (blockId == BLOCK_WATER) {
