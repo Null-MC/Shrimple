@@ -99,17 +99,17 @@ void main() {
             #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
                 shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);
 
-                mat4 matTranslate = mat4(1.0);
+                //mat4 matTranslate = mat4(1.0);
                 //matTranslate[2][3] = -1.0;
 
-                shadowModelViewEx = matTranslate * shadowModelViewEx;
+                //shadowModelViewEx = matTranslate * shadowModelViewEx;
 
                 #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                     shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
                     //shadowProjectionEx[0][0] = 2.0 / min(shadowDistance, far);
                     //shadowProjectionEx[1][1] = 2.0 / min(shadowDistance, far);
-                    //shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
-                    //shadowProjectionEx[2][3] = 0.0;//-(zFar + zNear)/(zFar - zNear);
+                    shadowProjectionEx[2][2] = -2.0 / (2.0 * far);
+                    shadowProjectionEx[3][2] = 0.0;//-(zFar + zNear)/(zFar - zNear);
 
                     shadowModelViewProjection = shadowProjectionEx * shadowModelViewEx;
                 #endif
