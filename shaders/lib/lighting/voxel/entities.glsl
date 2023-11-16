@@ -31,7 +31,7 @@ vec4 GetSceneEntityLightColor(const in int entityId) {
     
     switch (entityId) {
         case ENTITY_BLAZE:
-            lightColor = RGBToLinear(vec3(0.854, 0.714, 0.132));
+            lightColor = RGBToLinear(vec3(0.813, 0.583, 0.180));
             lightRange = 8.0;
             break;
         case ENTITY_MAGMA_CUBE:
