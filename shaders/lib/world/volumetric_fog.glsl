@@ -208,14 +208,16 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         //vec3 inScattering = ambientBase;
 
-        #ifdef WORLD_WATER_ENABLED
+        #if defined WORLD_WATER_ENABLED
             float waterDepthEye = 0.0;
 
-            #if LPV_SIZE > 0
-                float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
-                ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF;
-            #elif WORLD_SKY_ENABLED
-                ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * (1.0 - 0.9 * rainStrength);
+            #if defined WORLD_SKY_ENABLED
+                #if LPV_SIZE > 0
+                    float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
+                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF * (1.0 - 0.9 * rainStrength);
+                #else
+                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * (1.0 - 0.9 * rainStrength);
+                #endif
             #endif
         #endif
 
