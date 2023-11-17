@@ -129,8 +129,6 @@ uniform ivec2 atlasSize;
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 
-#include "/lib/lighting/common.glsl"
-
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
@@ -138,6 +136,8 @@ uniform ivec2 atlasSize;
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
+
+#include "/lib/lighting/common.glsl"
 
 
 void main() {
@@ -169,33 +169,5 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             tanLightPos = shadowLightPosition * matViewTBN;
         #endif
-    #endif
-
-    #if defined WORLD_WATER_ENABLED
-        if (vBlockId == BLOCK_WATER) {
-            // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
-            //     gl_Position = vec4(-1.0);
-            //     return;
-            // }
-
-            vec4 finalPosition = gl_Vertex;
-
-            float distF = saturate((length(vLocalPos) - 1.0) * 0.5);
-            distF = smoothstep(0.0, 1.0, distF);
-
-            #ifdef PHYSICS_OCEAN
-                physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-
-                #ifdef WATER_DISPLACEMENT
-                    finalPosition.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
-                #endif
-
-                physics_localPosition = finalPosition.xyz;
-            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
-                finalPosition.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, lmcoord.y);
-            #endif
-
-            gl_Position = gl_ProjectionMatrix * (gl_ModelViewMatrix * finalPosition);
-        }
     #endif
 }

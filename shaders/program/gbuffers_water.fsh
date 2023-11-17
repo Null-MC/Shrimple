@@ -426,12 +426,10 @@ void main() {
         return;
     }
 
-    vec3 albedo = RGBToLinear(color.rgb * glcolor.rgb);
-
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                albedo = 0.6 * RGBToLinear(glcolor.rgb);
+                color.rgb = vec3(0.6);
                 color.a = 0.7;
             #endif
 
@@ -440,6 +438,8 @@ void main() {
             color = mix(color, vec4(1.0), oceanFoam);
         }
     #endif
+
+    vec3 albedo = RGBToLinear(color.rgb * glcolor.rgb);
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
@@ -591,7 +591,9 @@ void main() {
                 vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
                 color.a = max(color.a, luminance(skyF) * MaterialReflectionStrength);
-                color.rgb = vec3(0.0);
+
+                //color.rgb = vec3(0.0);
+                color.rgb *= 1.0 - skyF;
             }
         #endif
 

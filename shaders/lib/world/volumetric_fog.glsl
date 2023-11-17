@@ -15,7 +15,7 @@ struct VolumetricPhaseFactors {
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient * WorldWaterDensityF, 0.25*vlWaterScatterColorL * WorldWaterDensityF, rcp(waterDensitySmooth) * WorldWaterDensityF, 0.09, 0.924, 0.197);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient * WorldWaterDensityF, 0.125*vlWaterScatterColorL * WorldWaterDensityF, rcp(waterDensitySmooth) * WorldWaterDensityF, 0.09, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -308,7 +308,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
                 texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (256.0);
+                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
             #endif
 
             #ifdef SHADOW_COLORED
