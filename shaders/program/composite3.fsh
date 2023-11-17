@@ -184,7 +184,8 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    ivec2 iTex = ivec2(gl_FragCoord.xy / viewSize + 0.5);
+    //ivec2 iTex = ivec2(gl_FragCoord.xy / viewSize + 0.5);
+    ivec2 iTex = ivec2(texcoord * viewSize);
     float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
     float depthTranslucent = texelFetch(depthtex0, iTex, 0).r;
 
@@ -222,8 +223,9 @@ void main() {
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        float distNear = clamp(length(localPosTranslucent), near, far);
-        float distFar = clamp(length(localPosOpaque), near, far);
+        float farMax = far;//min(shadowDistance, far) - 0.002;
+        float distNear = clamp(distTranslucent, near, farMax);
+        float distFar = clamp(distOpaque, near, farMax);
 
         final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
     }

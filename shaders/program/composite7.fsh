@@ -220,7 +220,7 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    float farDist = clamp(viewDist, near, far);
+    float farDist = clamp(viewDist, near, min(shadowDistance, far) - 0.002);
 
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 
