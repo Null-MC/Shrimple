@@ -164,7 +164,8 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
 
     uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-    return GetBlockBounceF(blockId) * max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
+    float bounceF = max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
+    return GetBlockBounceF(blockId) * bounceF * 0.8 + 0.2;
 }
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -419,17 +420,23 @@ void main() {
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
                     vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                    if (blockId != BLOCK_WATER) {
-                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                    #ifdef LPV_GI
+                        if (blockId != BLOCK_WATER) {
+                            ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                        // make sure diagonals dont exist
-                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                        bounceOffset.xz *= 1 - bounceYF;
-                        bounceOffset.y *= bounceYF;
+                            // make sure diagonals dont exist
+                            int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                            bounceOffset.xz *= 1 - bounceYF;
+                            bounceOffset.y *= bounceYF;
 
-                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-                        lightValue.rgb += exp2(LinearToRGB(shadowColorF.rgb * shadowColorF.a * bounceF) * 4.0 * DynamicLightRangeF) - 1.0;
-                    }
+                            float skyLightBrightF = smoothstep(-0.1, 0.3, localSunDirection.y);
+                            skyLightBrightF = 4.0 * mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
+                            // TODO: make darker at night
+
+                            float bounceF = 1.0;//GetLpvBounceF(voxelPos, bounceOffset);
+                            lightValue.rgb += exp2(shadowColorF.rgb * (skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF)) - 1.0;
+                        }
+                    #endif
 
                     // if (blockId == BLOCK_WATER) {
                     //     vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;

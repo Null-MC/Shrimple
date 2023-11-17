@@ -55,7 +55,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     #endif
 
     #if LPV_SIZE > 0 //&& DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * _pow2(occlusion);
+        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
@@ -132,6 +132,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             lpvFade *= 1.0 - LpvLightmapMixF;
 
             float lpvSkyLight = GetLpvSkyLighting(localPos, localNormal);
+
+            #ifdef LPV_GI
+                lpvSkyLight *= 0.25;
+            #endif
 
             vec3 ambientSkyLight = lpvSkyLight * lpvFade * skyLightColor;
 

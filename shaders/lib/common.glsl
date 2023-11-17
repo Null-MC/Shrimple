@@ -223,6 +223,7 @@ const bool colortex15Clear = true;
 #define LPV_FALLOFF 0.01 // [0.001]
 #define LPV_SKYLIGHT_RANGE 256.0
 #define LPV_GLASS_TINT
+#define LPV_GI
 //#define LPV_VOXEL_TEST
 
 //#define DYN_LIGHT_OCTREE
