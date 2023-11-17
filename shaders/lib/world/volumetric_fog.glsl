@@ -41,7 +41,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //ambientF = mix(0.004, ambientF, skyLight);
         //result.Ambient = vec3(0.004); //vec3(ambientF);
 
-        float scatterF = 0.02;// * density;
+        float scatterF = 0.01;// * density;
         //scatterF = scatterF;//mix(0.048, scatterF, skyLight);
         result.ScatterF = scatterF * (1.0 - vec3(0.522, 0.759, 0.894));
 
@@ -415,14 +415,16 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                 if (!isWater) {
                     lpvLight = GetLpvBlockLight(lpvSample);
-                    float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
-                    float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
 
-                    skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
-                    lpvLight *= skyLightF*0.96 + 0.04;
+                    //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
+                    float skyLightF = GetLpvSkyLight(lpvSample);
+                    lpvLight += skyLightF * DynamicLightAmbientF;
+
+                    //skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
+                    //lpvLight = skyLightF*0.96 + 0.04;
                 }
 
-                blockLightAccum += 0.125 * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
