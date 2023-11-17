@@ -422,7 +422,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     lpvLight *= skyLightF*0.96 + 0.04;
                 }
 
-                blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 0.125 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
