@@ -15,7 +15,7 @@ struct VolumetricPhaseFactors {
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
 
-    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient * WorldWaterDensityF, vlWaterScatterColorL * WorldWaterDensityF, rcp(waterDensitySmooth) * WorldWaterDensityF, 0.09, 0.924, 0.197);
+    VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(vlWaterAmbient * WorldWaterDensityF, 0.25*vlWaterScatterColorL * WorldWaterDensityF, rcp(waterDensitySmooth) * WorldWaterDensityF, 0.09, 0.924, 0.197);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -41,9 +41,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //ambientF = mix(0.004, ambientF, skyLight);
         //result.Ambient = vec3(0.004); //vec3(ambientF);
 
-        float scatterF = 0.01;// * density;
+        float scatterF = 0.012;// * density;
         //scatterF = scatterF;//mix(0.048, scatterF, skyLight);
-        result.ScatterF = scatterF * (1.0 - vec3(0.522, 0.759, 0.894));
+        result.ScatterF = scatterF * (RGBToLinear(1.0 - skyColor));
 
         result.ExtinctF = mix(0.004, 0.006, rainStrength);// * density;
         //result.ExtinctF = mix(0.008, extinctF, skyLight);
@@ -130,7 +130,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= 2.0 * WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= 8.0 * WorldSkyLightColor * VolumetricBrightnessSky;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -424,7 +424,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     //lpvLight = skyLightF*0.96 + 0.04;
                 }
 
-                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
