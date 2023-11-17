@@ -377,7 +377,7 @@ void main() {
                     ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
-                lightValue.rgb = exp2(LinearToRGB(lightColor) * lightRange * (0.666 * DynamicLightRangeF)) - 1.0;// * LpvBlockLightF;
+                lightValue.rgb = lightColor * (exp2(lightRange * 0.5) - 1.0);// * LpvBlockLightF;
             }
             else {
         #endif
@@ -433,7 +433,7 @@ void main() {
                             skyLightBrightF = 4.0 * mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
                             // TODO: make darker at night
 
-                            float bounceF = 1.0;//GetLpvBounceF(voxelPos, bounceOffset);
+                            float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
                             lightValue.rgb += exp2(shadowColorF.rgb * (skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF)) - 1.0;
                         }
                     #endif
