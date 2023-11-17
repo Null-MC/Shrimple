@@ -186,7 +186,7 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    float depth = textureLod(depthtex0, texcoord, 0).r;
+    float depth = texelFetch(depthtex0, ivec2(texcoord * viewSize), 0).r;
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
     #ifndef IRIS_FEATURE_SSBO

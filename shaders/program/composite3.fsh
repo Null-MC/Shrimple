@@ -184,8 +184,9 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
-    float depthTranslucent = textureLod(depthtex0, texcoord, 0).r;
+    ivec2 iTex = ivec2(gl_FragCoord.xy / viewSize + 0.5);
+    float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
+    float depthTranslucent = texelFetch(depthtex0, iTex, 0).r;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -213,7 +214,7 @@ void main() {
         bool isWater = false;
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater != 1) {
-                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).a;
+                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
                 isWater = deferredShadowA > 0.5;
             }
         #endif
