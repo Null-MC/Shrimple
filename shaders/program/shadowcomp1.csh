@@ -431,6 +431,7 @@ void main() {
 
                             float skyLightBrightF = smoothstep(-0.1, 0.3, localSunDirection.y);
                             skyLightBrightF = 4.0 * mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
+                            skyLightBrightF *= 1.0 - 0.8 * rainStrength;
                             // TODO: make darker at night
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
@@ -459,7 +460,7 @@ void main() {
                     //offset.y = 0.0;
 
                     float dist = length(offset);
-                    if (dist < 3.0) lightValue.rgb = vec3(64.0);
+                    if (dist < 3.0) lightValue.rgb = vec3(8.0) * lightningBoltPosition.w;
                 }
             }
         #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
