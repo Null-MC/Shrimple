@@ -246,8 +246,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
+
+#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
+
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/emission.glsl"

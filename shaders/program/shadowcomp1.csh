@@ -92,7 +92,9 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         //#include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/block_light_map.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
+        #include "/lib/lighting/voxel/lights_render.glsl"
     #endif
 
     #include "/lib/lighting/voxel/tinting.glsl"
@@ -164,8 +166,8 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
 
     uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-    float bounceF = max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
-    return GetBlockBounceF(blockId) * bounceF * 0.8 + 0.2;
+    //float bounceF = max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
+    return GetBlockBounceF(blockId);// * bounceF * 0.98 + 0.02;
 }
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -180,7 +182,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         #else
             float shadowBias = (1.0/256.0);// * GetShadowOffsetBias();
             const float shadowDistMax = 256.0;
-            const float shadowDistScale = 64.0;
+            const float shadowDistScale = 128.0;
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
@@ -245,11 +247,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 sampleF *= 0.0;//DynamicLightAmbientF;// * exp(-shadowDist);
                 //sampleF = 0.0;
             }
-            else {
-                sampleColor *= sampleF;
-            }
+            // else {
+            //     sampleColor *= sampleF;
+            // }
 
-            shadowF += vec4(sampleColor, sampleF);
+            shadowF += vec4(sampleColor * sampleF, sampleF);
         }
 
         shadowF *= rcp(maxSamples);
@@ -333,7 +335,11 @@ void main() {
         ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
         uint gridIndex = GetVoxelGridCellIndex(gridCell);
         ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-        uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+        uint blockId = BLOCK_EMPTY;
+
+        //if (all(greaterThanEqual(blockCell, ivec3(0))) && all(lessThan(blockCell, VoxelBlockSize)))
+        if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
+            blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
         lpvSharedData[k] = GetLpvValue(imgCoordPrev);
         //voxelBlockShared[k] = blockId;
@@ -414,8 +420,11 @@ void main() {
             
             if (allowLight) {
                 //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                lightValue = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
-                lightValue.rgb *= mixWeight * tint;
+                // lightValue = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+                // lightValue.rgb *= mixWeight * tint;
+                vec4 lightMixed = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+                lightMixed.rgb *= mixWeight * tint;
+                lightValue += lightMixed;
 
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
                     vec4 shadowColorF = SampleShadow(blockLocalPos);
@@ -435,7 +444,12 @@ void main() {
                             // TODO: make darker at night
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-                            lightValue.rgb += exp2(shadowColorF.rgb * (skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF)) - 1.0;
+
+                            #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                bounceF *= DynamicLightAmbientF;
+                            #endif
+
+                            lightValue.rgb += shadowColorF.rgb * (exp2(skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF) - 1.0);
                         }
                     #endif
 

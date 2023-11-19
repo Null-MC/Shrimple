@@ -48,6 +48,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
 
     #if LPV_SIZE > 0
         #include "/lib/buffers/volume.glsl"

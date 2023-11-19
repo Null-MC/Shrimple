@@ -224,6 +224,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/directional.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER
@@ -247,7 +248,9 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 
+    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
     #include "/lib/lighting/voxel/items.glsl"
     #include "/lib/lighting/sampling.glsl"
 #endif

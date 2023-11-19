@@ -226,7 +226,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 

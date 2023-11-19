@@ -41,12 +41,14 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #endif
     #endif
 
+    #include "/lib/lights.glsl"
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
-    #include "/lib/lights.glsl"
 
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/voxel/block_light_map.glsl"
+    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 
     #ifdef WORLD_SKY_ENABLED

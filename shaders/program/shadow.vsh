@@ -69,16 +69,12 @@ uniform int entityId;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/light_mask.glsl"
-    #endif
-
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #include "/lib/lighting/voxel/block_light_map.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
     #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
-    //#include "/lib/world/water.glsl"
-
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
     #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
@@ -179,7 +175,6 @@ void main() {
             vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
             if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
                 uint gridIndex = GetVoxelGridCellIndex(gridCell);
-                uint lightType = GetSceneLightType(blockId);
 
                 #if defined DYN_LIGHT_FRUSTUM_TEST && DYN_LIGHT_MODE != DYN_LIGHT_NONE
                     vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos, 1.0)).xyz;
@@ -197,6 +192,8 @@ void main() {
                 #endif
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    uint lightType = GetSceneLightType(blockId);
+
                     if (lightType > 0) {
                         if (!intersects) lightType = LIGHT_IGNORED;
 

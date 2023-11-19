@@ -114,6 +114,7 @@ uniform ivec2 atlasSize;
 #endif
 
 #include "/lib/lights.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"

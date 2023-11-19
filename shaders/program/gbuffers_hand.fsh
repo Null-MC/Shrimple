@@ -199,7 +199,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_TRACED || LPV_SIZE > 0)

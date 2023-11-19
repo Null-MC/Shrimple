@@ -25,17 +25,22 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         lpvFade = smoothstep(0.0, 1.0, lpvFade);
         //lpvFade *= 1.0 - LpvLightmapMixF;
 
-        vec3 lpvLight = 0.2 * GetLpvBlockLight(lpvSample);
+        vec3 lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
 
-        #if defined WORLD_SKY_ENABLED
+        #if defined WORLD_SKY_ENABLED //&& !defined LPV_GI
             lmFinal = vec2(0.0, lmcoord.y);
             lmFinal = lmFinal * (15.0/16.0) + (0.5/16.0);
             vec3 lightSky = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             lightSky = RGBToLinear(lightSky);
 
             #if LPV_SUN_SAMPLES > 0
-                lpvLight += GetLpvSkyLight(lpvSample) * skyLightColor * DynamicLightAmbientF;
-                lpvLight = mix(lpvLight, lightSky, LpvLightmapMixF * lpvFade);
+                float lpvSkyLight = GetLpvSkyLight(lpvSample);
+
+                // #ifdef LPV_GI
+                //     lpvSkyLight *= 0.5;
+                // #endif
+
+                lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * skyLightColor * DynamicLightAmbientF;
             #else
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     lpvLight += lightSky * DynamicLightAmbientF;

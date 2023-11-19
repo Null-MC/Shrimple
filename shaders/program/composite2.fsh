@@ -192,6 +192,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
@@ -203,6 +204,8 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
 // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN

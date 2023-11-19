@@ -48,10 +48,10 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         result.ExtinctF = mix(0.004, 0.006, rainStrength);// * density;
         //result.ExtinctF = mix(0.008, extinctF, skyLight);
     #else
-        result.Ambient = vec3(0.12);
+        result.Ambient = vec3(0.08);
 
-        vec3 tint = RGBToLinear(fogColor) * 0.92 + 0.08 * 0.5;
-        result.ScatterF = 0.08 * tint;
+        vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
+        result.ScatterF = 0.75 * tint;
         result.ExtinctF = 0.04;
     #endif
 
@@ -130,7 +130,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= 8.0 * WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -424,15 +424,17 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     //lpvLight = skyLightF*0.96 + 0.04;
                 }
 
-                blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        if (!isWater) {
-            sampleDensity *= 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
-        }
+        #ifdef WORLD_SKY_ENABLED
+            if (!isWater) {
+                sampleDensity *= 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
+            }
+        #endif
 
         inScattering *= phaseF.ScatterF * sampleDensity;
         float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);
