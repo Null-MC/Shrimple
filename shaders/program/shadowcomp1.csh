@@ -439,7 +439,7 @@ void main() {
                             bounceOffset.y *= bounceYF;
 
                             float skyLightBrightF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                            skyLightBrightF = 4.0 * mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
+                            skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
                             skyLightBrightF *= 1.0 - 0.8 * rainStrength;
                             // TODO: make darker at night
 
@@ -449,7 +449,7 @@ void main() {
                                 bounceF *= DynamicLightAmbientF;
                             #endif
 
-                            lightValue.rgb += shadowColorF.rgb * (exp2(skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF) - 1.0);
+                            lightValue.rgb += shadowColorF.rgb * (exp2(8.0 * skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF) - 1.0);
                         }
                     #endif
 

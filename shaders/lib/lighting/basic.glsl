@@ -24,7 +24,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         //     lpvFade *= 0.5;
         // #endif
 
-        return lpvLight * lpvFade * DynamicLightAmbientF;
+        return lpvLight * lpvFade * (DynamicLightBrightness * DynamicLightAmbientF);
     }
 
     float GetLpvSkyLighting(const in vec3 localPos, const in vec3 localNormal) {
@@ -137,9 +137,9 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
             float lpvSkyLight = GetLpvSkyLighting(localPos, localNormal);
 
-            #ifdef LPV_GI
-                lpvSkyLight *= 0.5;
-            #endif
+            // #ifdef LPV_GI
+            //     lpvSkyLight *= 0.5;
+            // #endif
 
             vec3 ambientSkyLight = lpvSkyLight * lpvFade * skyLightColor;
 
@@ -172,7 +172,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         // if (any(greaterThan(abs(texNormal), EPSILON3)))
         //     ambientLight *= (texNormal.y * 0.3 + 0.7);
 
-        //accumDiffuse += ambientLight * DynamicLightAmbientF;// * roughL;
+        accumDiffuse += ambientLight * DynamicLightAmbientF;// * roughL;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #if MATERIAL_SPECULAR == SPECULAR_LABPBR

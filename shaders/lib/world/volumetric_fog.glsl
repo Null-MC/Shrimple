@@ -130,7 +130,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= 8.0 * WorldSkyLightColor * VolumetricBrightnessSky;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -414,7 +414,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 vec3 lpvLight = vec3(0.0);
 
                 if (!isWater) {
-                    lpvLight = GetLpvBlockLight(lpvSample);
+                    lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
 
                     //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     //float skyLightF = 0.5 * GetLpvSkyLight(lpvSample);
@@ -424,7 +424,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     //lpvLight = skyLightF*0.96 + 0.04;
                 }
 
-                blockLightAccum += lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
             #endif
 
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
