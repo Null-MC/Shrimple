@@ -303,7 +303,6 @@ void main() {
         uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
         if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
 
-        int frameIndex = frameCounter % 2;
         ivec3 imgCoordOffset = GetLPVFrameOffset();
         ivec3 voxelOffset = GetLPVVoxelOffset();
 
@@ -312,15 +311,15 @@ void main() {
         ivec3 kernelPos = ivec3(gl_LocalInvocationID + 1u);
         ivec3 kernelEdgeDir = ivec3(step(ivec3(1), gl_LocalInvocationID)) * 2 - 1;
         
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-            vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
-            skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
+        // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        //     vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
+        //     skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
 
-            float sunUpF = smoothstep(-0.2, 0.2, localSunDirection.y);
-            skyLightColor *= LpvBlockLightF * mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
+        //     float sunUpF = smoothstep(-0.2, 0.2, localSunDirection.y);
+        //     skyLightColor *= LpvBlockLightF * mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
 
-            skyLightColor *= mix(1.0, 0.1, rainStrength);
-        #endif
+        //     skyLightColor *= mix(1.0, 0.1, rainStrength);
+        // #endif
 
         ivec3 imgCoord = ivec3(gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID);
 
@@ -335,9 +334,8 @@ void main() {
         ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
         uint gridIndex = GetVoxelGridCellIndex(gridCell);
         ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-        uint blockId = BLOCK_EMPTY;
 
-        //if (all(greaterThanEqual(blockCell, ivec3(0))) && all(lessThan(blockCell, VoxelBlockSize)))
+        uint blockId = BLOCK_EMPTY;
         if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
             blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
@@ -364,6 +362,8 @@ void main() {
         if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
 
         vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
+
+        // bool clear = abs(worldTimeCurrent - worldTimePrevious) > 100;
 
         vec4 lightValue = vec4(0.0);
 
@@ -482,6 +482,11 @@ void main() {
         #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
             }
         #endif
+
+        if (abs(worldTimeCurrent - worldTimePrevious) > 100)
+            lightValue.rgb = vec3(0.0);
+
+        int frameIndex = frameCounter % 2;
 
         if (frameIndex == 0)
             imageStore(imgSceneLPV_1, imgCoord, lightValue);

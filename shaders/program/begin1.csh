@@ -17,6 +17,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
     uniform int heldItemId;
     uniform int heldItemId2;
+    uniform int worldTime;
 
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
@@ -81,6 +82,9 @@ void main() {
         }
 
         if (i == 0) {
+            worldTimePrevious = worldTimeCurrent;
+            worldTimeCurrent = uint(worldTime);
+
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
