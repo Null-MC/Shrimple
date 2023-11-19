@@ -483,8 +483,12 @@ void main() {
             }
         #endif
 
-        if (abs(worldTimeCurrent - worldTimePrevious) > 100)
-            lightValue.rgb = vec3(0.0);
+        uint timeDiff = worldTimeCurrent;
+        if (worldTimeCurrent < worldTimePrevious) timeDiff += 24000u;
+        timeDiff -= worldTimePrevious;
+
+        // if (timeDiff > 1000u)
+        //     lightValue.rgb = vec3(0.0);
 
         int frameIndex = frameCounter % 2;
 
