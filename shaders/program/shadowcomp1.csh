@@ -438,18 +438,20 @@ void main() {
                             bounceOffset.xz *= 1 - bounceYF;
                             bounceOffset.y *= bounceYF;
 
-                            float skyLightBrightF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                            skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, skyLightBrightF);
+                            float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+                            float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
                             skyLightBrightF *= 1.0 - 0.8 * rainStrength;
                             // TODO: make darker at night
+
+                            float skyLightRange = mix(1.0, 8.0, sunUpF);
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
                             #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                bounceF *= DynamicLightAmbientF;
+                                skyLightBrightF *= DynamicLightAmbientF;
                             #endif
 
-                            lightValue.rgb += shadowColorF.rgb * (exp2(8.0 * skyLightBrightF * shadowColorF.a * bounceF * DynamicLightRangeF) - 1.0);
+                            lightValue.rgb += (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
                         }
                     #endif
 
