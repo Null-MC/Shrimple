@@ -12,8 +12,8 @@
 
     uint HandLightTypePrevious1;             //  4
     uint HandLightTypePrevious2;             //  4
-    uint worldTimeCurrent;                   //  4
-    uint worldTimePrevious;                  //  4
+    int worldTimeCurrent;                    //  4
+    int worldTimePrevious;                   //  4
 
     mat4 matColorPost;                       // 64
 

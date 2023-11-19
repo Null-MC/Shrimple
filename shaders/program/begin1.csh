@@ -7,7 +7,11 @@
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(4, 1, 1);
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    const ivec3 workGroups = ivec3(4, 1, 1);
+#else
+    const ivec3 workGroups = ivec3(1, 1, 1);
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
@@ -83,7 +87,7 @@ void main() {
 
         if (i == 0) {
             worldTimePrevious = worldTimeCurrent;
-            worldTimeCurrent = uint(worldTime);
+            worldTimeCurrent = worldTime;
 
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
