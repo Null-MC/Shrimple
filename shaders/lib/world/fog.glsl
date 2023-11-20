@@ -189,6 +189,10 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
             vec3 fogColorFinal = vec3(0.0);
             float fogF = 0.0;
 
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+            #endif
+
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
                     float viewDist = length(localPos);

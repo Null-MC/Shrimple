@@ -5,10 +5,15 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-varying vec2 texcoord;
-varying vec4 glcolor;
+in vec2 texcoord;
+in vec4 glcolor;
 
 uniform sampler2D gtexture;
+
+#ifndef IRIS_FEATURE_SSBO
+    uniform mat4 gbufferModelViewInverse;
+    uniform vec3 sunPosition;
+#endif
 
 uniform int renderStage;
 uniform float rainStrength;
@@ -33,12 +38,12 @@ void main() {
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
     if (renderStage == MC_RENDER_STAGE_SUN) {
-        #ifdef IRIS_FEATURE_SSBO
-            color.rgb *= WorldSunLightColor;
-        #else
+        #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-            color.rgb *= GetSkySunColor(localSunDirection);
+            vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
         #endif
+
+        color.rgb *= WorldSunLightColor;
 
         //float horizonF = GetSkyHorizonF(localSunDirection.y);
         color.rgb *= 2.0 * smoothstep(-0.1, 0.1, localSunDirection.y);

@@ -24,6 +24,10 @@ uniform float rainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
+#ifndef IRIS_FEATURE_SSBO
+    uniform mat4 gbufferModelViewInverse;
+#endif
+
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
@@ -56,6 +60,10 @@ void main() {
         vec3 upDir = normalize(upPosition);
         float viewUpF = dot(viewDir, upDir);
         //float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        #endif
 
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT

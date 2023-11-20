@@ -82,6 +82,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #endif
 
     vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
+        #ifndef IRIS_FEATURE_SSBO
+            mat4 shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
+            shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
+            shadowProjectionEx[3][2] = 0.0;
+        #endif
+
         vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
 
         //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);

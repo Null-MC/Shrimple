@@ -131,9 +131,10 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
 
-        #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights_render.glsl"
+        #endif
 
         #ifdef VOLUMETRIC_HANDLIGHT
             #include "/lib/items.glsl"

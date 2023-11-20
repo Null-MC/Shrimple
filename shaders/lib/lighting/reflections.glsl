@@ -4,14 +4,19 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
 
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyReflectionColor(const in vec3 localPos, const in vec3 reflectDir, const in float skyLight, const in float roughness) {
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+            vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
+        #endif
+
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             vec3 reflectColor;
 
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 WorldSkyLightColor = GetSkyLightColor();
-                    #endif
+                    // #ifndef IRIS_FEATURE_SSBO
+                    //     vec3 WorldSkyLightColor = GetSkyLightColor();
+                    // #endif
 
                     vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                     reflectColor = GetCustomWaterFogColor(localSunDirection.y);
@@ -97,6 +102,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             if (reflection.z < 0.999999) {
                 vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
 
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                #endif
+
                 vec3 fogColorFinal = vec3(0.0);
                 float fogF = 0.0;
 
@@ -107,7 +116,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                         float fogDist = length(reflectViewPos - viewPos);
                         fogF = GetCustomWaterFogFactor(fogDist);
 
-                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #ifdef WORLD_SKY_ENABLED
+                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #else
+                            fogColorFinal = GetCustomWaterFogColor(-1.0);
+                        #endif
                     }
                     else {
                 #endif

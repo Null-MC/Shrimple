@@ -90,11 +90,12 @@ uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform vec3 shadowLightPosition;
+    //uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
@@ -262,6 +263,10 @@ void main() {
     const float metal_f0 = 0.04;
     const float emission = 0.0;
     const float sss = 0.4;
+
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

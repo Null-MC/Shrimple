@@ -68,6 +68,10 @@ in vec2 texcoord;
         uniform vec3 skyColor;
         uniform float rainStrength;
 
+        #ifndef IRIS_FEATURE_SSBO
+            uniform vec3 sunPosition;
+        #endif
+
         #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
             uniform vec3 cameraPosition;
             uniform float cloudTime;
@@ -265,6 +269,10 @@ layout(location = 0) out vec4 outFinal;
             #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
                 float fogDist  = GetVanillaFogDistance(localPosOpaque);
 
+                #if !defined IRIS_FEATURE_SSBO && defined WORLD_SKY_ENABLED
+                    vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                #endif
+
                 #ifndef DH_COMPAT_ENABLED
                     if (depthOpaque < 1.0) {
                         vec3 fogColorFinal = vec3(0.0);
@@ -304,7 +312,13 @@ layout(location = 0) out vec4 outFinal;
 
                         float fogDist = max(waterDepthFinal, 0.0);
                         float fogF = GetCustomWaterFogFactor(fogDist);
-                        vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+
+                        #ifdef WORLD_SKY_ENABLED
+                            vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #else
+                            vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
+                        #endif
+
                         final = mix(final, fogColorFinal, fogF);
                     }
                 #endif

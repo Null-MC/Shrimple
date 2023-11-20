@@ -468,6 +468,10 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow.rgb, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                    #endif
+
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
                 #endif
@@ -796,6 +800,10 @@ layout(location = 0) out vec4 outFinal;
         // #ifdef DH_COMPAT_ENABLED
         //     opaqueFinal = RGBToLinear(opaqueFinal);
         // #endif
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        #endif
 
         #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL
             if (tir) {

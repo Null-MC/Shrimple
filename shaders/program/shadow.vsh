@@ -159,6 +159,10 @@ void main() {
         }
     #endif
 
+    #ifndef IRIS_FEATURE_SSBO
+        mat4 shadowModelViewEx = shadowModelView;
+    #endif
+
     gl_Position = gl_ModelViewMatrix * pos;
 
     gl_Position = shadowModelViewInverse * gl_Position;

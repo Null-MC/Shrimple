@@ -98,7 +98,11 @@ uniform float blindness;
     #endif
 #endif
 
-#if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifndef IRIS_FEATURE_SSBO
+        uniform mat4 shadowModelView;
+    #endif
+#else
     uniform int worldTime;
 #endif
 
@@ -508,6 +512,10 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                    #endif
+
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
                 #endif

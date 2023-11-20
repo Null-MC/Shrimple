@@ -444,6 +444,7 @@ void main() {
                             // TODO: make darker at night
 
                             float skyLightRange = mix(1.0, 8.0, sunUpF);
+                            skyLightRange *= 1.0 - 0.8 * rainStrength;
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
