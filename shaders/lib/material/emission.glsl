@@ -11,6 +11,12 @@
 
         return range / 15.0;
     }
+
+    float GetSceneLightEmission(const in uint lightType) {
+        StaticLightData lightInfo = StaticLightMap[lightType];
+        float range = unpackUnorm4x8(lightInfo.RangeSize).x * 255.0;
+        return range / 15.0;
+    }
 #endif
 
 #ifdef RENDER_FRAG
@@ -33,10 +39,10 @@
                 emission = GetSceneBlockEmission(id);
             #elif defined RENDER_ENTITIES
                 if (currentRenderedItemId > 0) {
-                    int blockId = GetItemBlockId(currentRenderedItemId);
+                    uint lightId = GetItemLightId(currentRenderedItemId);
                     
-                    if (blockId > 0) {
-                        emission = GetSceneBlockEmission(blockId);
+                    if (lightId > 0) {
+                        emission = GetSceneLightEmission(lightId);
                     }
                     else {
                         emission = GetSceneItemLightRange(currentRenderedItemId, 0.0) / 15.0;
