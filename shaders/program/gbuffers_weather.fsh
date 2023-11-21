@@ -100,6 +100,8 @@ uniform float blindness;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
+
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #else
     //uniform int worldTime;
 #endif
@@ -250,7 +252,7 @@ uniform float blindness;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    if (color.a < (1.5/255.0)) {
+    if (color.a < (1.5/255.0) || vLocalPos.y + cameraPosition.y > cloudHeight) {
         discard;
         return;
     }
@@ -304,7 +306,7 @@ void main() {
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
-        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
+        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef WORLD_SKY_ENABLED

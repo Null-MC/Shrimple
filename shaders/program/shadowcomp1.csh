@@ -443,14 +443,19 @@ void main() {
                             skyLightBrightF *= 1.0 - 0.8 * rainStrength;
                             // TODO: make darker at night
 
-                            float skyLightRange = mix(1.0, 8.0, sunUpF);
+                            //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                                float skyLightRange = mix(1.0, 6.0, sunUpF);
+                            //#else
+                            //    float skyLightRange = mix(1.0, 16.0, sunUpF);
+                            //#endif
+
                             skyLightRange *= 1.0 - 0.8 * rainStrength;
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                            #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                            //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
                                 skyLightBrightF *= DynamicLightAmbientF;
-                            #endif
+                            //#endif
 
                             lightValue.rgb += (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
                         }
@@ -469,16 +474,16 @@ void main() {
                     lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
                 #endif
 
-                if (lightningBoltPosition.w > 0.5) {
-                    vec3 offset = lightningBoltPosition.xyz;
-                    offset.y = clamp(blockLocalPos.y, offset.y, WORLD_CLOUD_HEIGHT - cameraPosition.y);
+                // if (lightningBoltPosition.w > 0.5) {
+                //     vec3 offset = lightningBoltPosition.xyz;
+                //     offset.y = clamp(blockLocalPos.y, offset.y, cloudHeight - cameraPosition.y);
 
-                    offset -= blockLocalPos;
-                    //offset.y = 0.0;
+                //     offset -= blockLocalPos;
+                //     //offset.y = 0.0;
 
-                    float dist = length(offset);
-                    if (dist < 3.0) lightValue.rgb = vec3(8.0) * lightningBoltPosition.w;
-                }
+                //     float dist = length(offset);
+                //     if (dist < 3.0) lightValue.rgb = vec3(8.0) * lightningBoltPosition.w;
+                // }
             }
         #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
             }

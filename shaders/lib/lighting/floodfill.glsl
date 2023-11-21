@@ -1,4 +1,4 @@
-void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec2 lmcoord, const in vec3 shadowColor, const in vec3 albedo, const in float metal_f0, const in float roughL, const in float sss, const in bool tir) {
+void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec2 lmcoord, const in vec3 shadowColor, const in vec3 albedo, const in float metal_f0, const in float roughL, const in float occlusion, const in float sss, const in bool tir) {
     vec2 lmFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
     vec3 lightDefault = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
     lightDefault = RGBToLinear(lightDefault);
@@ -12,6 +12,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     vec3 localViewDir = normalize(localPos);
 
     vec3 lpvPos = GetLPVPosition(localPos);
+    vec3 skyAmbient;
 
     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
         vec3 surfaceNormal = localNormal;
@@ -36,11 +37,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             #if LPV_SUN_SAMPLES > 0
                 float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
-                // #ifdef LPV_GI
-                //     lpvSkyLight *= 0.5;
-                // #endif
+                #ifdef LPV_GI
+                    lpvSkyLight *= 0.5;
+                #endif
 
-                lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * skyLightColor * DynamicLightAmbientF;
+                lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * DynamicLightAmbientF;
             #else
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     lpvLight += lightSky * DynamicLightAmbientF;
@@ -50,9 +51,13 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             #endif
         #endif
 
-        blockDiffuse += mix(lightDefault, lpvLight, lpvFade);
+        skyAmbient = mix(lightDefault, lpvLight, lpvFade);
     }
-    else blockDiffuse += lightDefault;
+    else skyAmbient = lightDefault;
+
+    skyAmbient *= skyLightColor * occlusion;
+
+    blockDiffuse += skyAmbient;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         float geoNoL = 1.0;

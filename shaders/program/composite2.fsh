@@ -42,7 +42,11 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
-    uniform sampler2D TEX_CLOUDS;
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
 #endif
 
 uniform int frameCounter;
@@ -68,6 +72,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform int worldTime;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
@@ -95,6 +100,7 @@ uniform float blindness;
 
     #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
 #endif
 
@@ -103,7 +109,7 @@ uniform float blindness;
         uniform mat4 shadowModelView;
     #endif
 #else
-    uniform int worldTime;
+    //uniform int worldTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -122,6 +128,7 @@ uniform int heldBlockLightValue2;
     uniform bool isSpectator;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
+    //uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
@@ -218,7 +225,11 @@ uniform int heldBlockLightValue2;
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        #include "/lib/shadows/clouds.glsl"
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/world/clouds.glsl"
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/shadows/clouds.glsl"
+        #endif
     #endif
 
     //#include "/lib/utility/depth_tiles.glsl"
@@ -696,7 +707,7 @@ layout(location = 0) out vec4 outFinal;
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, sss, false);
+                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
                     
                     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 

@@ -70,8 +70,12 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    vColor = gl_Color;
+    #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        vColor = gl_Color;
 
-    BasicVertex();
+        BasicVertex();
+    #else
+        gl_Position = vec4(-1.0);
+    #endif
 }

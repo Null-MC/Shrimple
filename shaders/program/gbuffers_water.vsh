@@ -83,6 +83,7 @@ uniform ivec2 atlasSize;
 
     #ifdef IS_IRIS
         uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         //uniform vec3 eyePosition;
     #endif
 #endif

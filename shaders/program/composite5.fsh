@@ -33,7 +33,11 @@ in vec2 texcoord;
     #endif
 
     #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        uniform sampler2D TEX_CLOUDS;
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS;
+        #endif
     #endif
 
     uniform mat4 gbufferModelView;
@@ -53,6 +57,7 @@ in vec2 texcoord;
     uniform float fogStart;
     uniform float fogEnd;
 
+    uniform int worldTime;
     uniform ivec2 eyeBrightnessSmooth;
 
     #ifndef IRIS_FEATURE_SSBO
@@ -76,6 +81,7 @@ in vec2 texcoord;
             uniform vec3 cameraPosition;
             uniform float cloudTime;
             uniform vec3 eyePosition;
+            uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         #endif
     #endif
 
@@ -104,6 +110,10 @@ in vec2 texcoord;
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
+
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/world/clouds.glsl"
+        #endif
     #endif
 
     #ifdef WORLD_WATER_ENABLED
@@ -118,8 +128,10 @@ in vec2 texcoord;
             #include "/lib/material/specular.glsl"
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
             #include "/lib/shadows/clouds.glsl"
+
+            //#include "/lib/world/clouds.glsl"
         #endif
 
         #include "/lib/utility/depth_tiles.glsl"
@@ -128,8 +140,16 @@ in vec2 texcoord;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #include "/lib/sampling/bilateral_gaussian.glsl"
-    #include "/lib/world/volumetric_blur.glsl"
+    //#include "/lib/sampling/bilateral_gaussian.glsl"
+    //#include "/lib/world/volumetric_blur.glsl"
+
+    #ifdef VL_BUFFER_ENABLED
+        #ifdef VOLUMETRIC_BLUR
+            #include "/lib/world/volumetric_blur.glsl"
+        #endif
+    #else
+        //#include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 
@@ -348,6 +368,12 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
+            #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                if (isEyeInWater == 1) {
+                    float viewDist = length(localPosOpaque);
+                    vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
+                    final = final * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+                }
             #endif
         }
 
