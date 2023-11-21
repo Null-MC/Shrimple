@@ -53,7 +53,11 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
-    uniform sampler2D TEX_CLOUDS;
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
 #endif
 
 uniform int worldTime;
@@ -103,6 +107,7 @@ uniform int isEyeInWater;
 
     #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
 #endif
 
@@ -187,6 +192,10 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -195,6 +204,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
@@ -206,6 +216,8 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
@@ -214,7 +226,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
         #include "/lib/shadows/clouds.glsl"
     #endif
     
@@ -231,8 +243,12 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/basic_hand.glsl"
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 || VOLUMETRIC_BRIGHT_BLOCK > 0
-    #include "/lib/world/volumetric_blur.glsl"
+#ifdef VL_BUFFER_ENABLED
+    #ifdef VOLUMETRIC_BLUR
+        #include "/lib/world/volumetric_blur.glsl"
+    #endif
+#else
+    //#include "/lib/world/clouds.glsl"
 #endif
 
 #if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
@@ -465,6 +481,10 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow.rgb, sss);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                    #endif
+
                     float geoNoL = dot(localNormal, localSkyLightDirection);
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
                 #endif
@@ -626,7 +646,7 @@ layout(location = 0) out vec4 outFinal;
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, sss, tir);
+                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
 
                     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
@@ -794,6 +814,10 @@ layout(location = 0) out vec4 outFinal;
         //     opaqueFinal = RGBToLinear(opaqueFinal);
         // #endif
 
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        #endif
+
         #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL
             if (tir) {
                 opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
@@ -890,7 +914,7 @@ layout(location = 0) out vec4 outFinal;
                 #if VOLUMETRIC_RES == 2
                     const vec2 vlSigma = vec2(1.0, 0.00001);
                 #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
+                    const vec2 vlSigma = vec2(0.3, 0.02);
                 #else
                     const vec2 vlSigma = vec2(1.2, 0.00002);
                 #endif
@@ -901,6 +925,11 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            if (isEyeInWater != 1) {
+                vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
+                final.rgb = final.rgb * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+            }
         #endif
 
         vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);

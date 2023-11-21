@@ -21,6 +21,11 @@ value.WORLD_FOG_SHAPE.0=Default
 value.WORLD_FOG_SHAPE.1=Sphere
 value.WORLD_FOG_SHAPE.2=Cylinder
 
+option.WORLD_CLOUD_TYPE=Clouds
+value.WORLD_CLOUD_TYPE.0=None
+value.WORLD_CLOUD_TYPE.1=Vanilla
+value.WORLD_CLOUD_TYPE.2=Custom
+
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
 
@@ -644,3 +649,28 @@ option.ANIM_WORLD_TIME.comment=Uses the worlds time counter for animations rathe
 
 option.ALPHATESTREF_ENABLED=Vanilla AlphaTest
 option.ALPHATESTREF_ENABLED.comment=Uses the vanilla provided AlphaTest threshold for cutout blocks. Disable for hard-coded 10% threshold if not working properly.
+
+
+screen.LIGHT_COLORS=Light Colors
+
+option.LIGHT_COLOR_AMETHYST=Amethyst
+option.LIGHT_COLOR_BEACON=Beacon
+option.LIGHT_COLOR_BREWING_STAND=Brewing Stand
+option.LIGHT_COLOR_CAVEVINE_BERRIES=Cave Vine Berries
+option.LIGHT_COLOR_CRYING_OBSIDIAN=Crying Obsidian
+option.LIGHT_COLOR_END_ROD=End Rod
+option.LIGHT_COLOR_FROGLIGHT_OCHRE=Ochre Froglight
+option.LIGHT_COLOR_FROGLIGHT_PEARLESCENT=Pearlescent Froglight
+option.LIGHT_COLOR_FROGLIGHT_VERDANT=Verdant Froglight
+option.LIGHT_COLOR_GLOWSTONE=Glowstone
+option.LIGHT_COLOR_GLOW_LICHEN=Glow Lichen
+option.LIGHT_COLOR_JACK_O_LANTERN=Jack-O'-Lantern
+option.LIGHT_COLOR_LAVA=Lava
+option.LIGHT_COLOR_MAGMA=Magma
+option.LIGHT_COLOR_NETHER_PORTAL=Nether Portal
+option.LIGHT_COLOR_REDSTONE_LAMP=Redstone Lamp
+option.LIGHT_COLOR_REDSTONE_TORCH=Redstone Torch
+option.LIGHT_COLOR_SCULK_CATALYST=Sculk Catalyst
+option.LIGHT_COLOR_SEA_LANTERN=Sea Lantern
+option.LIGHT_COLOR_SEA_PICKLE=Sea Pickle
+option.LIGHT_COLOR_SHROOMLIGHT=Shroomlight

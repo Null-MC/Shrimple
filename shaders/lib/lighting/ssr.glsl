@@ -50,8 +50,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     else
         screenRay *= pixelSize.x / abs(screenRay.x);
 
+    int level = 0;
     #ifndef MATERIAL_REFLECT_HIZ
-        screenRay *= 8.0;
+        //screenRay *= 8.0;
+        level = max(int(log2(0.5 * maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 1);
     #endif
 
     vec3 lastTracePos = clipPos + screenRay * dither;
@@ -75,7 +77,6 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     const vec3 clipMin = vec3(0.0);
     vec3 clipMax = vec3(1.0) - vec3(pixelSize, EPSILON);
-    int level = 0;
 
     int i;
     float alpha = 0.0;
@@ -158,12 +159,12 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             continue;
         }
 
-        #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
+        //#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             if (level > SSR_LodMin) {
                level--;
                continue;
             }
-        #endif
+        //#endif
 
         //lastTracePos = tracePos;
         lastVisPos = tracePos;

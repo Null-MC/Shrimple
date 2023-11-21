@@ -79,11 +79,12 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform vec3 shadowLightPosition;
+    // uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
@@ -177,6 +178,9 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lights.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
 #include "/lib/lighting/fresnel.glsl"
@@ -238,6 +242,10 @@ void main() {
     const float sss = 0.0;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        #endif
+
         #ifdef SHADOW_COLORED
             shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
         #else
@@ -259,7 +267,7 @@ void main() {
         const float emission = 0.0;
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
+        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef WORLD_SKY_ENABLED

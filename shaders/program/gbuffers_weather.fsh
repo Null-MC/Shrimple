@@ -90,15 +90,18 @@ uniform float blindness;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform vec3 shadowLightPosition;
+    //uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
+
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #else
     //uniform int worldTime;
 #endif
@@ -187,7 +190,10 @@ uniform float blindness;
 
 #include "/lib/lights.glsl"
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
@@ -246,7 +252,7 @@ uniform float blindness;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    if (color.a < (1.5/255.0)) {
+    if (color.a < (1.5/255.0) || vLocalPos.y + cameraPosition.y > cloudHeight) {
         discard;
         return;
     }
@@ -259,6 +265,10 @@ void main() {
     const float metal_f0 = 0.04;
     const float emission = 0.0;
     const float sss = 0.4;
+
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+    #endif
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -296,7 +306,7 @@ void main() {
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
 
-        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, sss, false);
+        GetFloodfillLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
         SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef WORLD_SKY_ENABLED

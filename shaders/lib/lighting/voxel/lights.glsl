@@ -1,54 +1,3 @@
-#if !(defined RENDER_SHADOW || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS) && defined DYN_LIGHT_FLICKER && !defined RENDER_SETUP
-    void ApplyLightFlicker(inout vec3 lightColor, const in uint lightType, const in vec2 noiseSample) {
-        float flickerNoise = GetDynLightFlickerNoise(noiseSample);
-        float blackbodyTemp = 0.0;
-
-        bool isBigFireSource = (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W)
-            || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE
-            || lightType == LIGHT_LANTERN || lightType == LIGHT_STREET_LAMP;
-
-        bool isSmallFireSource = lightType == LIGHT_CANDLES_1 || lightType == LIGHT_CANDLES_2
-            || lightType == LIGHT_CANDLES_3 || lightType == LIGHT_CANDLES_4 || lightType == LIGHT_CANDLE_CAKE
-            || (lightType >= LIGHT_JACK_O_LANTERN_N && lightType <= LIGHT_JACK_O_LANTERN_W);
-
-        bool isSoulFireSource = (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)
-            || lightType == LIGHT_SOUL_FIRE || lightType == LIGHT_SOUL_CAMPFIRE
-            || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_STREET_LAMP;
-
-        if (isBigFireSource) {
-            const float tempFireMin = TEMP_FIRE - 0.5*TEMP_FIRE_RANGE;
-            const float tempFireMax = tempFireMin + TEMP_FIRE_RANGE;
-            blackbodyTemp = mix(tempFireMin, tempFireMax, flickerNoise);
-        }
-
-        if (isSoulFireSource) {
-            blackbodyTemp = mix(TEMP_SOUL_FIRE_MIN, TEMP_SOUL_FIRE_MAX, 1.0 - flickerNoise);
-        }
-
-        if (isSmallFireSource) {
-            blackbodyTemp = mix(TEMP_CANDLE_MIN, TEMP_CANDLE_MAX, flickerNoise);
-        }
-
-        vec3 blackbodyColor = vec3(1.0);
-        if (blackbodyTemp > 0.0)
-            blackbodyColor = blackbody(blackbodyTemp);
-
-        float flickerBrightness = 0.6 + 0.4 * flickerNoise;
-
-        if (isBigFireSource) {
-            lightColor = flickerBrightness * blackbodyColor;
-        }
-
-        if (isSoulFireSource) {
-            lightColor = flickerBrightness * saturate(1.0 - blackbodyColor);
-        }
-
-        if (isSmallFireSource) {
-            lightColor = 0.4 * flickerBrightness * blackbodyColor;
-        }
-    }
-#endif
-
 #ifdef RENDER_SETUP_STATIC_LIGHT
     vec3 GetSceneLightColor(const in uint lightType) {
         vec3 lightColor = vec3(0.0);
@@ -72,16 +21,12 @@
                 lightColor = vec3(0.9);
                 break;
             case LIGHT_AMETHYST_BUD_LARGE:
-                lightColor = vec3(0.464, 0.227, 0.788);
-                break;
             case LIGHT_AMETHYST_BUD_MEDIUM:
-                lightColor = vec3(0.316, 0.085, 0.631);
-                break;
             case LIGHT_AMETHYST_CLUSTER:
-                lightColor = vec3(0.624, 0.422, 0.899);
+                lightColor = lightColor_amethyst;
                 break;
             case LIGHT_BEACON:
-                lightColor = vec3(1.0);
+                lightColor = lightColor_beacon;
                 break;
             case LIGHT_BLAST_FURNACE_N:
             case LIGHT_BLAST_FURNACE_E:
@@ -90,7 +35,7 @@
                 lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_BREWING_STAND:
-                lightColor = vec3(0.636, 0.509, 0.179);
+                lightColor = lightColor_brewingStand;
                 break;
             case LIGHT_CANDLES_1:
             case LIGHT_CANDLES_2:
@@ -100,13 +45,13 @@
                 lightColor = vec3(0.758, 0.553, 0.239);
                 break;
             case LIGHT_CAVEVINE_BERRIES:
-                lightColor = 0.4 * vec3(0.717, 0.541, 0.188);
+                lightColor = lightColor_caveVineBerries;
                 break;
             case LIGHT_CRYING_OBSIDIAN:
-                lightColor = vec3(0.390, 0.065, 0.646);
+                lightColor = lightColor_obsidian;
                 break;
             case LIGHT_END_ROD:
-                lightColor = vec3(0.957, 0.929, 0.875);
+                lightColor = lightColor_endRod;
                 break;
             case LIGHT_END_STONE_LAMP:
                 lightColor = vec3(0.465, 0.143, 0.416);
@@ -116,13 +61,13 @@
                 lightColor = vec3(0.851, 0.616, 0.239);
                 break;
             case LIGHT_FROGLIGHT_OCHRE:
-                lightColor = vec3(0.768, 0.648, 0.108);
+                lightColor = lightColor_froglightOchre;
                 break;
             case LIGHT_FROGLIGHT_PEARLESCENT:
-                lightColor = vec3(0.737, 0.435, 0.658);
+                lightColor = lightColor_froglightPearlescent;
                 break;
             case LIGHT_FROGLIGHT_VERDANT:
-                lightColor = vec3(0.463, 0.763, 0.409);
+                lightColor = lightColor_froglightVerdant;
                 break;
             case LIGHT_FURNACE_N:
             case LIGHT_FURNACE_E:
@@ -131,17 +76,17 @@
                 lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_GLOWSTONE:
-                //lightColor = vec3(0.652, 0.583, 0.275);
-                lightColor = vec3(0.889, 0.611, 0.334);
+            case LIGHT_GLOWSTONE_DUST:
+                lightColor = lightColor_glowstone;
                 break;
             case LIGHT_GLOW_LICHEN:
-                lightColor = vec3(0.092, 0.217, 0.126);
+                lightColor = lightColor_glowLichen;
                 break;
             case LIGHT_JACK_O_LANTERN_N:
             case LIGHT_JACK_O_LANTERN_E:
             case LIGHT_JACK_O_LANTERN_S:
             case LIGHT_JACK_O_LANTERN_W:
-                lightColor = vec3(0.768, 0.701, 0.325);
+                lightColor = lightColor_JackOLantern;
                 break;
             case LIGHT_LANTERN:
             case LIGHT_STREET_LAMP:
@@ -152,16 +97,16 @@
                 break;
             case LIGHT_LAVA:
             case LIGHT_LAVA_CAULDRON:
-                lightColor = vec3(0.804, 0.424, 0.149);
+                lightColor = lightColor_lava;
                 break;
             case LIGHT_MAGMA:
-                lightColor = vec3(0.747, 0.323, 0.110);
+                lightColor = lightColor_magma;
                 break;
             case LIGHT_NETHER_PORTAL:
-                lightColor = vec3(0.502, 0.165, 0.831);
+                lightColor = lightColor_netherPortal;
                 break;
             case LIGHT_REDSTONE_LAMP:
-                lightColor = vec3(0.953, 0.796, 0.496);
+                lightColor = lightColor_redstoneLamp;
                 break;
             case LIGHT_REDSTONE_ORE:
             case LIGHT_REDSTONE_TORCH_FLOOR:
@@ -169,9 +114,6 @@
             case LIGHT_REDSTONE_TORCH_WALL_E:
             case LIGHT_REDSTONE_TORCH_WALL_S:
             case LIGHT_REDSTONE_TORCH_WALL_W:
-                //lightColor = vec3(0.697, 0.130, 0.051);
-                lightColor = vec3(0.939, 0.305, 0.164);
-                break;
             case LIGHT_COMPARATOR:
             case LIGHT_REPEATER:
             case LIGHT_REDSTONE_WIRE_1:
@@ -190,7 +132,7 @@
             case LIGHT_REDSTONE_WIRE_14:
             case LIGHT_REDSTONE_WIRE_15:
             case LIGHT_RAIL_POWERED:
-                lightColor = vec3(0.697, 0.130, 0.051);
+                lightColor = lightColor_redstoneTorch;
                 break;
             case LIGHT_RESPAWN_ANCHOR_4:
             case LIGHT_RESPAWN_ANCHOR_3:
@@ -199,19 +141,19 @@
                 lightColor = vec3(0.390, 0.065, 0.646);
                 break;
             case LIGHT_SCULK_CATALYST:
-                lightColor = vec3(0.181, 0.358, 0.369);
+                lightColor = lightColor_sculkCatalyst;
                 break;
             case LIGHT_SEA_LANTERN:
-                lightColor = vec3(0.553, 0.748, 0.859);
+                lightColor = lightColor_seaLantern;
                 break;
             case LIGHT_SEA_PICKLE_1:
             case LIGHT_SEA_PICKLE_2:
             case LIGHT_SEA_PICKLE_3:
             case LIGHT_SEA_PICKLE_4:
-                lightColor = vec3(0.283, 0.394, 0.212);
+                lightColor = lightColor_seaPickle;
                 break;
             case LIGHT_SHROOMLIGHT:
-                lightColor = vec3(0.848, 0.469, 0.205);
+                lightColor = lightColor_shroomlight;
                 break;
             case LIGHT_SMOKER_N:
             case LIGHT_SMOKER_E:
@@ -244,7 +186,7 @@
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {
                 case LIGHT_AMETHYST_BLOCK:
-                    lightColor = vec3(0.600, 0.439, 0.820);
+                    lightColor = lightColor_amethyst;
                     break;
                 case LIGHT_DIAMOND_BLOCK:
                     lightColor = vec3(0.489, 0.960, 0.912);
@@ -256,7 +198,7 @@
                     lightColor = vec3(0.180, 0.427, 0.813);
                     break;
                 case LIGHT_REDSTONE_BLOCK:
-                    lightColor = vec3(0.980, 0.143, 0.026);
+                    lightColor = lightColor_redstoneTorch;
                     break;
             }
         #endif
@@ -330,21 +272,21 @@
                 break;
         }
 
-        #ifdef MAGNIFICENT_COLORS
-            if (lightType == LIGHT_SEA_LANTERN) lightColor = vec3(0.2, 0.8, 1.0) * .5;
-            if (lightType == LIGHT_GLOWSTONE) lightColor = vec3(1.0, 0.7, 0.4);
-            if (lightType == LIGHT_END_ROD) lightColor = vec3(0.7, 0.5, 0.9) * 1.1;
-            if (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W) lightColor = vec3(1.00, 0.60, 0.30);
-            if (lightType >= LIGHT_REDSTONE_TORCH_FLOOR && lightType <= LIGHT_REDSTONE_TORCH_WALL_W) lightColor = vec3(1.00, 0.30, 0.10);
-            if (lightType == LIGHT_FIRE) lightColor = vec3(1.00, 0.40, 0.20);
-            if (lightType == LIGHT_CAMPFIRE || lightType == LIGHT_LANTERN || (lightType >= LIGHT_FURNACE_N && lightType <= LIGHT_FURNACE_W)) lightColor = vec3(1.00, 0.60, 0.30);
-            if (lightType == LIGHT_SOUL_CAMPFIRE || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)) lightColor = vec3(0.1, 0.8, 1.0);
-            if (lightType == LIGHT_LAVA) lightColor = vec3(1.0, 0.5, 0.2);
-            if (lightType == LIGHT_REDSTONE_LAMP) lightColor = vec3(1.0, 0.6, 0.4);
-            if (lightType == LIGHT_BEACON) lightColor = vec3(0.6, 0.7, 1.0);
-            if (lightType == LIGHT_MAGMA) lightColor = vec3(1.0, 0.2, 0.1);
-            if (lightType == LIGHT_SHROOMLIGHT) lightColor = vec3(0.8, 0.4, 0.0);
-        #endif
+        // #ifdef MAGNIFICENT_COLORS
+        //     if (lightType == LIGHT_SEA_LANTERN) lightColor = vec3(0.2, 0.8, 1.0) * .5;
+        //     if (lightType == LIGHT_GLOWSTONE) lightColor = vec3(1.0, 0.7, 0.4);
+        //     if (lightType == LIGHT_END_ROD) lightColor = vec3(0.7, 0.5, 0.9) * 1.1;
+        //     if (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W) lightColor = vec3(1.00, 0.60, 0.30);
+        //     if (lightType >= LIGHT_REDSTONE_TORCH_FLOOR && lightType <= LIGHT_REDSTONE_TORCH_WALL_W) lightColor = vec3(1.00, 0.30, 0.10);
+        //     if (lightType == LIGHT_FIRE) lightColor = vec3(1.00, 0.40, 0.20);
+        //     if (lightType == LIGHT_CAMPFIRE || lightType == LIGHT_LANTERN || (lightType >= LIGHT_FURNACE_N && lightType <= LIGHT_FURNACE_W)) lightColor = vec3(1.00, 0.60, 0.30);
+        //     if (lightType == LIGHT_SOUL_CAMPFIRE || lightType == LIGHT_SOUL_LANTERN || lightType == LIGHT_SOUL_FIRE || (lightType >= LIGHT_SOUL_TORCH_FLOOR && lightType <= LIGHT_SOUL_TORCH_WALL_W)) lightColor = vec3(0.1, 0.8, 1.0);
+        //     if (lightType == LIGHT_LAVA) lightColor = vec3(1.0, 0.5, 0.2);
+        //     if (lightType == LIGHT_REDSTONE_LAMP) lightColor = vec3(1.0, 0.6, 0.4);
+        //     if (lightType == LIGHT_BEACON) lightColor = vec3(0.6, 0.7, 1.0);
+        //     if (lightType == LIGHT_MAGMA) lightColor = vec3(1.0, 0.2, 0.1);
+        //     if (lightType == LIGHT_SHROOMLIGHT) lightColor = vec3(0.8, 0.4, 0.0);
+        // #endif
         
         return lightColor;
     }
@@ -466,6 +408,9 @@
                 break;
             case LIGHT_GLOWSTONE:
                 lightRange = 15.0;
+                break;
+            case LIGHT_GLOWSTONE_DUST:
+                lightRange = 6.0;
                 break;
             case LIGHT_GLOW_LICHEN:
                 lightRange = 7.0;
@@ -882,28 +827,6 @@
     }
 #endif
 
-    bool GetLightTraced(const in uint lightType) {
-        bool result = true;
-
-        #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
-            if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
-        #endif
-
-        #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
-            if (lightType == LIGHT_LAVA) result = false;
-        #endif
-
-        #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
-            if (lightType == LIGHT_NETHER_PORTAL) result = false;
-        #endif
-
-        #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
-            if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
-        #endif
-
-        return result;
-    }
-
     #ifdef RENDER_SHADOWCOMP
         uint BuildLightMask(const in uint lightType) {
             uint lightData = 0u;
@@ -997,30 +920,3 @@
         }
     #endif
 //#endif
-
-void ParseLightPosition(const in uvec4 data, out vec3 position) {
-    position.x = uintBitsToFloat(half2float(data.x & uint(0xffff)));
-    position.y = uintBitsToFloat(half2float(data.x >> 16u));
-    position.z = uintBitsToFloat(half2float(data.y & uint(0xffff)));
-}
-
-void ParseLightSize(const in uvec4 data, out float size) {
-    size = ((data.y >> 16u) & 255u) / 255.0;
-}
-
-void ParseLightRange(const in uvec4 data, out float range) {
-    range = ((data.y >> 24u) & 255u) / 15.0;
-}
-
-void ParseLightColor(const in uvec4 data, out vec3 color) {
-    color.r = ((data.z >>  8u) & 255u) / 255.0;
-    color.g = ((data.z >> 16u) & 255u) / 255.0;
-    color.b = ((data.z >> 24u) & 255u) / 255.0;
-}
-
-void ParseLightData(const in uvec4 data, out vec3 position, out float size, out float range, out vec3 color) {
-    ParseLightPosition(data, position);
-    ParseLightSize(data, size);
-    ParseLightRange(data, range);
-    ParseLightColor(data, color);
-}

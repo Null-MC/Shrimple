@@ -70,6 +70,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -88,7 +93,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef IS_IRIS
-    uniform float cloudTime;
     uniform vec3 eyePosition;
 #endif
 
@@ -129,9 +133,10 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
 
-        #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights_render.glsl"
+        #endif
 
         #ifdef VOLUMETRIC_HANDLIGHT
             #include "/lib/items.glsl"
@@ -184,8 +189,10 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
-    float depthTranslucent = textureLod(depthtex0, texcoord, 0).r;
+    //ivec2 iTex = ivec2(gl_FragCoord.xy / viewSize + 0.5);
+    ivec2 iTex = ivec2(texcoord * viewSize);
+    float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
+    float depthTranslucent = texelFetch(depthtex0, iTex, 0).r;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -213,7 +220,7 @@ void main() {
         bool isWater = false;
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater != 1) {
-                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).a;
+                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
                 isWater = deferredShadowA > 0.5;
             }
         #endif
@@ -221,8 +228,9 @@ void main() {
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        float distNear = clamp(length(localPosTranslucent), near, far);
-        float distFar = clamp(length(localPosOpaque), near, far);
+        float farMax = far;//min(shadowDistance, far) - 0.002;
+        float distNear = clamp(distTranslucent, near, farMax);
+        float distFar = clamp(distOpaque, near, farMax);
 
         final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
     }

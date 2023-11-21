@@ -25,6 +25,10 @@ uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
 
+#ifndef IRIS_FEATURE_SSBO
+    uniform mat4 gbufferModelViewInverse;
+#endif
+
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
 #endif

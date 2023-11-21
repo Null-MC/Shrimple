@@ -69,6 +69,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -90,7 +95,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    uniform float cloudTime;
     uniform vec3 eyePosition;
 #endif
 
@@ -131,9 +135,10 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/buffers/collissions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
 
-        #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights.glsl"
+            #include "/lib/lighting/voxel/lights_render.glsl"
+        #endif
 
         #ifdef VOLUMETRIC_HANDLIGHT
             #include "/lib/items.glsl"
@@ -186,7 +191,7 @@ uniform ivec2 eyeBrightnessSmooth;
 layout(location = 0) out vec4 outVL;
 
 void main() {
-    float depth = textureLod(depthtex0, texcoord, 0).r;
+    float depth = texelFetch(depthtex0, ivec2(texcoord * viewSize), 0).r;
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
     #ifndef IRIS_FEATURE_SSBO
@@ -220,7 +225,7 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    float farDist = clamp(viewDist, near, far);
+    float farDist = clamp(viewDist, near, min(shadowDistance, far) - 0.002);
 
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 

@@ -4,14 +4,19 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
 
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyReflectionColor(const in vec3 localPos, const in vec3 reflectDir, const in float skyLight, const in float roughness) {
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+            vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
+        #endif
+
         #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             vec3 reflectColor;
 
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 WorldSkyLightColor = GetSkyLightColor();
-                    #endif
+                    // #ifndef IRIS_FEATURE_SSBO
+                    //     vec3 WorldSkyLightColor = GetSkyLightColor();
+                    // #endif
 
                     vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                     reflectColor = GetCustomWaterFogColor(localSunDirection.y);
@@ -31,8 +36,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             reflectColor = RGBToLinear(reflectColor);
         #endif
 
-        // TODO: clouds
-        #if defined MATERIAL_REFLECT_CLOUDS && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+        #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
             const vec3 cloudColor = RGBToLinear(vec3(0.8));
@@ -78,6 +82,9 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 reflectColor = RGBToLinear(fogColor);
     #endif
 
+    float reflectDist = far;
+    float reflectDepth = 1.0;
+
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
         vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
@@ -97,6 +104,15 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             if (reflection.z < 0.999999) {
                 vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
 
+                if (reflection.a > 0.0) {
+                    reflectDist = length(reflectViewPos - viewPos);
+                    reflectDepth = reflection.z;
+                }
+
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                #endif
+
                 vec3 fogColorFinal = vec3(0.0);
                 float fogF = 0.0;
 
@@ -107,7 +123,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                         float fogDist = length(reflectViewPos - viewPos);
                         fogF = GetCustomWaterFogFactor(fogDist);
 
-                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #ifdef WORLD_SKY_ENABLED
+                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        #else
+                            fogColorFinal = GetCustomWaterFogColor(-1.0);
+                        #endif
                     }
                     else {
                 #endif
@@ -153,6 +173,13 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectColor = mix(reflectColor, col, reflection.a);
     #endif
 
-    return reflectColor;// * skyReflectF;// * pow5(skyLight);
-    //diffuse *= 1.0 - skyReflectF;
+    #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+        vec3 reflectPos = cameraPosition;
+        reflectPos.y += 2.0 * localPos.y;
+
+        vec2 cloudAbsorbScatter = SampleClouds2(reflectPos, reflectLocalDir, reflectDist, reflectDepth);
+        reflectColor = reflectColor * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+    #endif
+
+    return reflectColor;
 }

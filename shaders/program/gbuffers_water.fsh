@@ -132,6 +132,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     uniform float wetness;
 
@@ -145,7 +146,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform vec3 shadowLightPosition;
+    // uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
@@ -224,6 +225,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/directional.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER
@@ -247,7 +249,9 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 
+    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
     #include "/lib/lighting/voxel/items.glsl"
     #include "/lib/lighting/sampling.glsl"
 #endif
@@ -426,12 +430,10 @@ void main() {
         return;
     }
 
-    vec3 albedo = RGBToLinear(color.rgb * glcolor.rgb);
-
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             #if WORLD_WATER_TEXTURE == WATER_COLORED
-                albedo = 0.6 * RGBToLinear(glcolor.rgb);
+                color.rgb = vec3(0.6);
                 color.a = 0.7;
             #endif
 
@@ -440,6 +442,8 @@ void main() {
             color = mix(color, vec4(1.0), oceanFoam);
         }
     #endif
+
+    vec3 albedo = RGBToLinear(color.rgb * glcolor.rgb);
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
@@ -591,7 +595,9 @@ void main() {
                 vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
                 //color.a = min(color.a + skyF, 1.0);
                 color.a = max(color.a, luminance(skyF) * MaterialReflectionStrength);
-                color.rgb = vec3(0.0);
+
+                //color.rgb = vec3(0.0);
+                color.rgb *= 1.0 - skyF;
             }
         #endif
 

@@ -37,21 +37,21 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
         //float skyLight = eyeBrightnessSmooth.y / 240.0;
 
 
-        result.Ambient = vec3(mix(0.001, 0.03, rainStrength));// * densityF);
+        result.Ambient = vec3(mix(0.001, 0.008, rainStrength));// * densityF);
         //ambientF = mix(0.004, ambientF, skyLight);
         //result.Ambient = vec3(0.004); //vec3(ambientF);
 
-        float scatterF = 0.02;// * density;
+        float scatterF = mix(0.07, 0.11, rainStrength);// * density;
         //scatterF = scatterF;//mix(0.048, scatterF, skyLight);
-        result.ScatterF = scatterF * (1.0 - vec3(0.522, 0.759, 0.894));
+        result.ScatterF = scatterF * (RGBToLinear(1.0 - skyColor) * 0.875 + 0.125);
 
-        result.ExtinctF = mix(0.004, 0.006, rainStrength);// * density;
+        result.ExtinctF = mix(0.004, 0.015, rainStrength);// * density;
         //result.ExtinctF = mix(0.008, extinctF, skyLight);
     #else
-        result.Ambient = vec3(0.12);
+        result.Ambient = vec3(0.08);
 
-        vec3 tint = RGBToLinear(fogColor) * 0.92 + 0.08 * 0.5;
-        result.ScatterF = 0.08 * tint;
+        vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
+        result.ScatterF = 0.75 * tint;
         result.ExtinctF = 0.04;
     #endif
 
@@ -130,7 +130,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= 2.0 * WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
+        skyLightColor *= 1.0 - 0.8 * rainStrength;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -212,11 +213,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float waterDepthEye = 0.0;
 
             #if defined WORLD_SKY_ENABLED
+                float weatherF = 1.0 - 0.9 * rainStrength;
+
                 #if LPV_SIZE > 0
-                    float lpvSkyLightF = sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
-                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF * (1.0 - 0.9 * rainStrength);
+                    float lpvSkyLightF = GetLpvSkyLight(lpvSample);
+                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * weatherF * lpvSkyLightF;
                 #else
-                    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor * (1.0 - 0.9 * rainStrength);
+                    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor * weatherF;
                 #endif
             #endif
         #endif
@@ -306,7 +309,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
                 texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (256.0);
+                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
             #endif
 
             #ifdef SHADOW_COLORED
@@ -338,7 +341,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #endif
 
             #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-                if (traceLocalPos.y < WORLD_CLOUD_HEIGHT) {
+                if (traceLocalPos.y < cloudHeight) {
                     float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
                     sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                 }
@@ -392,8 +395,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         float lightPhase = DHG(lightVoL, -phaseF.Back, phaseF.Forward, phaseF.Direction);
 
                         float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += 20.0 * lightAtt * lightColor * lightPhase;
+                        blockLightAccum += lightAtt * lightColor * lightPhase;
                     }
+
+                    blockLightAccum *= 3.0 * DynamicLightBrightness;
                 }
             #elif LPV_SIZE > 0
                 //vec3 lpvPos = GetLPVPosition(traceLocalPos);
@@ -412,12 +417,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 vec3 lpvLight = vec3(0.0);
 
                 if (!isWater) {
-                    lpvLight = lpvSample.rgb / LpvBlockLightF;
-                    float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
-                    float skyLightF = sqrt(saturate(lpvSample.a/LPV_SKYLIGHT_RANGE));
+                    lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
 
-                    skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
-                    lpvLight *= skyLightF*0.96 + 0.04;
+                    //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
+                    //float skyLightF = 0.5 * GetLpvSkyLight(lpvSample);
+                    //lpvLight += skyLightF * DynamicLightAmbientF;
+
+                    //skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
+                    //lpvLight = skyLightF*0.96 + 0.04;
                 }
 
                 blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
@@ -426,9 +433,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             inScattering += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        if (!isWater) {
-            sampleDensity *= 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
-        }
+        #ifdef WORLD_SKY_ENABLED
+            if (!isWater) {
+                sampleDensity *= 1.0 - smoothstep(50.0, 420.0, traceLocalPos.y + cameraPosition.y);
+            }
+        #endif
 
         inScattering *= phaseF.ScatterF * sampleDensity;
         float sampleTransmittance = exp(-phaseF.ExtinctF * localStepLength * sampleDensity);

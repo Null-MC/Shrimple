@@ -189,3 +189,12 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 normal) {
         return SampleLpvNearest(coord);
     #endif
 }
+
+vec3 GetLpvBlockLight(const in vec4 lpvSample) {
+    const float sampleF = (1.0/15.0) / DynamicLightRangeF;
+    return sampleF * log2(max(lpvSample.rgb, vec3(0.0)) + 1.0);
+}
+
+float GetLpvSkyLight(const in vec4 lpvSample) {
+    return sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
+}

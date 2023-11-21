@@ -13,6 +13,33 @@ void BasicVertex() {
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
+    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED
+        if (vBlockId == BLOCK_WATER) {
+            // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
+            //     gl_Position = vec4(-1.0);
+            //     return;
+            // }
+
+            float distF = saturate((length(viewPos) - 1.0) * 0.5);
+            distF = smoothstep(0.0, 1.0, distF);
+
+            #ifdef PHYSICS_OCEAN
+                physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
+
+                #ifdef WATER_DISPLACEMENT
+                    pos.y += distF * physics_waveHeight(pos.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+                #endif
+
+                physics_localPosition = pos.xyz;
+            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
+                vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+                pos.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, lmcoord.y);
+            #endif
+
+            viewPos = gl_ModelViewMatrix * pos;
+        }
+    #endif
+
     vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
 
     #if !(defined RENDER_BILLBOARD || defined RENDER_CLOUDS)

@@ -7,7 +7,11 @@
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(4, 1, 1);
+#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    const ivec3 workGroups = ivec3(4, 1, 1);
+#else
+    const ivec3 workGroups = ivec3(1, 1, 1);
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
@@ -17,6 +21,7 @@ const ivec3 workGroups = ivec3(4, 1, 1);
 
     uniform int heldItemId;
     uniform int heldItemId2;
+    uniform int worldTime;
 
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
@@ -41,12 +46,14 @@ const ivec3 workGroups = ivec3(4, 1, 1);
         #endif
     #endif
 
+    #include "/lib/lights.glsl"
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
-    #include "/lib/lights.glsl"
 
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
+    #include "/lib/lighting/voxel/block_light_map.glsl"
+    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 
     #ifdef WORLD_SKY_ENABLED
@@ -79,6 +86,9 @@ void main() {
         }
 
         if (i == 0) {
+            worldTimePrevious = worldTimeCurrent;
+            worldTimeCurrent = worldTime;
+
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -99,17 +109,17 @@ void main() {
             #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
                 shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);
 
-                mat4 matTranslate = mat4(1.0);
+                //mat4 matTranslate = mat4(1.0);
                 //matTranslate[2][3] = -1.0;
 
-                shadowModelViewEx = matTranslate * shadowModelViewEx;
+                //shadowModelViewEx = matTranslate * shadowModelViewEx;
 
                 #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                     shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
                     //shadowProjectionEx[0][0] = 2.0 / min(shadowDistance, far);
                     //shadowProjectionEx[1][1] = 2.0 / min(shadowDistance, far);
-                    //shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
-                    //shadowProjectionEx[2][3] = 0.0;//-(zFar + zNear)/(zFar - zNear);
+                    shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
+                    shadowProjectionEx[3][2] = 0.0;
 
                     shadowModelViewProjection = shadowProjectionEx * shadowModelViewEx;
                 #endif

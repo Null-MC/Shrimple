@@ -20,6 +20,10 @@ flat out uint gBlockId;
     flat out vec2 gShadowTilePos;
 #endif
 
+#if defined DYN_LIGHT_FLICKER && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    uniform sampler2D noisetex;
+#endif
+
 uniform int renderStage;
 uniform mat4 gbufferModelView;
 uniform vec3 cameraPosition;
@@ -40,6 +44,14 @@ uniform float far;
     uniform int entityId;
 #endif
 
+#if defined DYN_LIGHT_FLICKER && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #else
+        uniform float frameTimeCounter;
+    #endif
+#endif
+
 #include "/lib/blocks.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
@@ -48,15 +60,26 @@ uniform float far;
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
+        #include "/lib/lights.glsl"
+
+        #ifdef DYN_LIGHT_FLICKER
+            #include "/lib/anim.glsl"
+            #include "/lib/lighting/blackbody.glsl"
+            #include "/lib/lighting/flicker.glsl"
+        #endif
         
         #include "/lib/buffers/lighting.glsl"
+        #include "/lib/lighting/voxel/block_light_map.glsl"
+        #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/lights.glsl"
+        #include "/lib/lighting/voxel/lights_render.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/lighting/voxel/items.glsl"
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
-        #include "/lib/lights.glsl"
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
@@ -137,10 +160,10 @@ void main() {
             playerOffset.y += 1.0;
 
             if (renderStage == MC_RENDER_STAGE_ENTITIES && _lengthSq(playerOffset) > 2.0) {
-                uint lightType = GetSceneLightType(currentRenderedItemId);
+                uint lightType = GetSceneItemLightType(currentRenderedItemId);
                 vec3 lightValue = vec3(0.0);
 
-                if (entityId == ENTITY_SPECTRAL_ARROW)
+                if (entityId == ENTITY_SPECTRAL_ARROW || currentRenderedItemId == ITEM_GLOW_BERRIES)
                     lightType = LIGHT_TORCH_FLOOR;
                 else if (entityId == ENTITY_TORCH_ARROW)
                     lightType = LIGHT_TORCH_FLOOR;
@@ -159,13 +182,13 @@ void main() {
                     //    ApplyLightFlicker(lightColor, lightType, lightNoise);
                     //#endif
 
-                    lightValue = lightColor * lightRange * LpvBlockLightF;
+                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.5) - 1.0);
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
                 if (entityLightColorRange.a > EPSILON)
-                    lightValue = entityLightColorRange.rgb * entityLightColorRange.a * LpvBlockLightF;
+                    lightValue = entityLightColorRange.rgb * (exp2(entityLightColorRange.a * DynamicLightRangeF * 0.5) - 1.0);
 
                 if (any(greaterThan(lightValue, EPSILON3))) {
                     vec3 lpvPos = GetLPVPosition(originPos);

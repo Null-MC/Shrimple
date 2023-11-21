@@ -48,6 +48,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
 
     #if LPV_SIZE > 0
         #include "/lib/buffers/volume.glsl"
@@ -147,7 +148,7 @@ void main() {
 
                         if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
                             ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-                            vec3 lightFinal = lightColor * lightRange * LpvBlockLightF;
+                            vec3 lightFinal = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.33) - 1.0);
                             //vec3 lightFinal = lightColor * _pow2(LpvRangeF * lightRange);
                             
                             if (frameIndex == 0)

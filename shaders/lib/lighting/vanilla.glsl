@@ -20,6 +20,10 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     vec2 lmFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
 
     #ifdef RENDER_SHADOWS_ENABLED
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 WorldSkyLightColor = GetSkyLightColor();
+        #endif
+    
         float lightMax = rcp(max(lmcoord.x + lmcoord.y, 1.0));
         const float lmEmpty = (0.5/16.0);
 
@@ -73,7 +77,12 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         const float skyLightSize = 9.5e9;
         const float skyLightDist = 151.e9;
 
-        vec3 localSkyLightDir = localSkyLightDirection;
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+        #else
+            vec3 localSkyLightDir = localSkyLightDirection;
+        #endif
+
         vec3 r = reflect(-localViewDir, texNormal);
         vec3 L = localSkyLightDir * skyLightDist;
         vec3 centerToRay = dot(L, r) * r - L;

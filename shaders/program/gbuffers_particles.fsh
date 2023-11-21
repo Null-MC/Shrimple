@@ -119,11 +119,12 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
+    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform vec3 shadowLightPosition;
+    //uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
@@ -231,7 +232,10 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#include "/lib/lighting/voxel/block_light_map.glsl"
+#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
@@ -338,6 +342,10 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        #endif
+    
         #ifdef SHADOW_COLORED
             shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
         #else

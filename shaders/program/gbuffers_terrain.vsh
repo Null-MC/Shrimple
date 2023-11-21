@@ -76,6 +76,7 @@ uniform ivec2 atlasSize;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         //uniform vec3 eyePosition;
     #endif
 #endif
@@ -114,6 +115,7 @@ uniform ivec2 atlasSize;
 #endif
 
 #include "/lib/lights.glsl"
+#include "/lib/lighting/voxel/block_light_map.glsl"
 
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
