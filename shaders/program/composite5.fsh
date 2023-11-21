@@ -79,8 +79,8 @@ in vec2 texcoord;
 
         #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
             uniform vec3 cameraPosition;
-            uniform float cloudTime;
             uniform vec3 eyePosition;
+            uniform float cloudTime;
             uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         #endif
     #endif
@@ -145,6 +145,7 @@ in vec2 texcoord;
 
     #ifdef VL_BUFFER_ENABLED
         #ifdef VOLUMETRIC_BLUR
+            #include "/lib/sampling/bilateral_gaussian.glsl"
             #include "/lib/world/volumetric_blur.glsl"
         #endif
     #else

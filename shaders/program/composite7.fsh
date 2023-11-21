@@ -69,6 +69,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -90,7 +95,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    uniform float cloudTime;
     uniform vec3 eyePosition;
 #endif
 
