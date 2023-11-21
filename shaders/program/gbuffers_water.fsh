@@ -66,17 +66,27 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    uniform sampler3D TEX_RIPPLES;
+#ifdef WORLD_SKY_ENABLED
+    #ifdef WORLD_WETNESS_ENABLED
+        uniform sampler3D TEX_RIPPLES;
+    #endif
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS;
+        #endif
+    #endif
 #endif
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined IS_IRIS && (defined SHADOW_CLOUD_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED))
-    uniform sampler2D TEX_CLOUDS;
-#endif
+// #if defined IS_IRIS && (defined SHADOW_CLOUD_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED))
+//     uniform sampler2D TEX_CLOUDS;
+// #endif
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform sampler2D texDepthNear;
@@ -137,6 +147,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float wetness;
 
     uniform float skyWetnessSmooth;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -163,9 +178,9 @@ uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 
-    #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
-        uniform float cloudTime;
-    #endif
+    // #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
+    //     uniform float cloudTime;
+    // #endif
 #endif
 
 #ifdef VL_BUFFER_ENABLED
@@ -203,9 +218,15 @@ uniform int heldBlockLightValue2;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    #include "/lib/material/porosity.glsl"
-    #include "/lib/world/wetness.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #ifdef WORLD_WETNESS_ENABLED
+        #include "/lib/material/porosity.glsl"
+        #include "/lib/world/wetness.glsl"
+    #endif
+    
+    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -496,10 +517,12 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
+            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
             #else
-                shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+                shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
             #endif
 
             #ifndef LIGHT_LEAK_FIX

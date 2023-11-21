@@ -35,6 +35,14 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
+#if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
+#endif
+
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
@@ -42,10 +50,6 @@ uniform sampler2D noisetex;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D TEX_CLOUDS;
-    #endif
     
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
@@ -55,9 +59,9 @@ uniform sampler2D noisetex;
         #endif
     #endif
     
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-    #endif
+    // #ifdef IS_IRIS
+    //     uniform float cloudTime;
+    // #endif
 #endif
 
 uniform int worldTime;
@@ -92,6 +96,11 @@ uniform float blindness;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -101,7 +110,7 @@ uniform float blindness;
         uniform mat4 shadowProjection;
     #endif
 
-    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    //uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #else
     //uniform int worldTime;
 #endif
@@ -155,6 +164,14 @@ uniform float blindness;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
     #include "/lib/material/specular.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    // #include "/lib/world/sky.glsl"
+
+    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -270,19 +287,22 @@ void main() {
         vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
     #endif
 
+    float viewDist = length(vLocalPos);
+    vec3 localViewDir = vLocalPos / viewDist;
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
         #ifdef SHADOW_COLORED
-            shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+            shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
         #else
-            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
         #endif
     #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
     float roughL = _pow2(roughness);
-
-    vec3 localViewDir = normalize(vLocalPos);
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
         vec3 diffuse, specular = vec3(0.0);
@@ -375,7 +395,6 @@ void main() {
             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
         #endif
 
-        float viewDist = length(vLocalPos);
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #endif

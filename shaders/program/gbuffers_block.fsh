@@ -49,8 +49,18 @@ uniform sampler2D lightmap;
     uniform sampler2D specular;
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    uniform sampler3D TEX_RIPPLES;
+#ifdef WORLD_SKY_ENABLED
+    #ifdef WORLD_WETNESS_ENABLED
+        uniform sampler3D TEX_RIPPLES;
+    #endif
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS;
+        #endif
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
@@ -66,10 +76,6 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D TEX_CLOUDS;
-    #endif
-
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             #ifdef RENDER_TRANSLUCENT
@@ -82,9 +88,9 @@ uniform sampler2D lightmap;
         #endif
     #endif
     
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-    #endif
+    // #ifdef IS_IRIS
+    //     uniform float cloudTime;
+    // #endif
 #endif
 
 uniform ivec2 atlasSize;
@@ -117,6 +123,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float wetness;
 
     uniform float skyWetnessSmooth;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -188,9 +199,15 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    #include "/lib/material/porosity.glsl"
-    #include "/lib/world/wetness.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #ifdef WORLD_WETNESS_ENABLED
+        #include "/lib/material/porosity.glsl"
+        #include "/lib/world/wetness.glsl"
+    #endif
+    
+    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 #if AF_SAMPLES > 1
@@ -417,10 +434,12 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
+            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+            
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
             #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 shadowColor = vec3(shadowF);
             #endif
         }

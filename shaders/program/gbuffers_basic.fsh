@@ -35,7 +35,11 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowtex1;
 
     #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D TEX_CLOUDS;
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS;
+        #endif
     #endif
 
     #ifdef SHADOW_ENABLE_HWCOMP
@@ -45,10 +49,9 @@ uniform sampler2D lightmap;
             uniform sampler2DShadow shadow;
         #endif
     #endif
-#else
-    uniform int worldTime;
 #endif
 
+uniform int worldTime;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -76,6 +79,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform vec3 sunPosition;
     uniform vec3 skyColor;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -98,6 +106,12 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/fog.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
+#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -145,10 +159,13 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
+            float viewDist = length(vLocalPos);
+            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
             #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 shadowColor = vec3(shadowF);
 
                 // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));

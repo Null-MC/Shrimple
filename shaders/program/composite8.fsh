@@ -927,7 +927,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             if (isEyeInWater != 1) {
-                vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
+                vec2 cloudAbsorbScatter = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
                 final.rgb = final.rgb * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
             }
         #endif

@@ -372,7 +372,7 @@ layout(location = 0) out vec4 outFinal;
             #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
                 if (isEyeInWater == 1) {
                     float viewDist = length(localPosOpaque);
-                    vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
+                    vec2 cloudAbsorbScatter = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
                     final = final * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
                 }
             #endif

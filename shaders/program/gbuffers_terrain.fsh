@@ -58,16 +58,22 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef SHADOW_CLOUD_ENABLED
-    uniform sampler2D TEX_CLOUDS;
+#ifdef WORLD_SKY_ENABLED
+    #ifdef WORLD_WETNESS_ENABLED
+        uniform sampler3D TEX_RIPPLES;
+    #endif
+
+    #ifdef SHADOW_CLOUD_ENABLED
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS;
+        #endif
+    #endif
 #endif
 
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
-#endif
-
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    uniform sampler3D TEX_RIPPLES;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
@@ -119,6 +125,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float wetness;
 
     uniform float skyWetnessSmooth;
+
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        uniform float cloudTime;
+        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -194,6 +205,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+
+    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -391,14 +406,14 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
+            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
             #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, sss);
+                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 shadowColor = vec3(shadowF);
             #endif
-
-            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
 
             lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
 
@@ -409,7 +424,7 @@ void main() {
                 #endif
             }
 
-            shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
+            //shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
 
             // #if defined WATER_CAUSTICS
             //     float causticLight = SampleWaterCaustics(vLocalPos);
