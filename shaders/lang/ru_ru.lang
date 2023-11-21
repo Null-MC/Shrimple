@@ -640,3 +640,31 @@ option.DH_COMPAT_ENABLED.comment=Включает специальную под�
 
 option.ANIM_WORLD_TIME=Анимация Мирового-Времени
 option.ANIM_WORLD_TIME.comment=Использует количество мирового времени для анимации чем постоянное. Очень полезная функция для записи модов, которые воспроизводятся с использованием масштабированного мирового времени.
+
+option.ALPHATESTREF_ENABLED=Ванилла АльфаТест
+option.ALPHATESTREF_ENABLED.comment=Пороговое значение AlphaTest для вырезанных блоков. Отключается для жестко-закодированного 10% порога, если не работает должным образом.
+
+
+screen.LIGHT_COLORS=Цвет Света
+
+option.LIGHT_COLOR_AMETHYST=Аметист
+option.LIGHT_COLOR_BEACON=Маяк
+option.LIGHT_COLOR_BREWING_STAND=Зельеварка
+option.LIGHT_COLOR_CAVEVINE_BERRIES=Светящиеся Ягоды
+option.LIGHT_COLOR_CRYING_OBSIDIAN=Плачущий Обсидиан
+option.LIGHT_COLOR_END_ROD=Стержень Энда
+option.LIGHT_COLOR_FROGLIGHT_OCHRE=Охристая Квампа
+option.LIGHT_COLOR_FROGLIGHT_PEARLESCENT=Перламутровая Квампа
+option.LIGHT_COLOR_FROGLIGHT_VERDANT=Малахитовая Квампа
+option.LIGHT_COLOR_GLOWSTONE=Светокамень
+option.LIGHT_COLOR_GLOW_LICHEN=Светящийся Лишайник
+option.LIGHT_COLOR_JACK_O_LANTERN=Светильник Джека
+option.LIGHT_COLOR_LAVA=Лава
+option.LIGHT_COLOR_MAGMA=Магма
+option.LIGHT_COLOR_NETHER_PORTAL=Портал в Незер
+option.LIGHT_COLOR_REDSTONE_LAMP=Редстоуновый Фонарь
+option.LIGHT_COLOR_REDSTONE_TORCH=Редстоуновый Факел
+option.LIGHT_COLOR_SCULK_CATALYST=Скалковый Катализатор
+option.LIGHT_COLOR_SEA_LANTERN=Морской Фонарь
+option.LIGHT_COLOR_SEA_PICKLE=Морские Огурцы
+option.LIGHT_COLOR_SHROOMLIGHT=Грибосвет
