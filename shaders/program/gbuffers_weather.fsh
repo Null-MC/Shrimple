@@ -167,15 +167,14 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #include "/lib/material/specular.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    // #include "/lib/world/sky.glsl"
+#include "/lib/lighting/hg.glsl"
+#include "/lib/world/sky.glsl"
 
-    #if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            #include "/lib/world/clouds.glsl"
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/shadows/clouds.glsl"
-        #endif
+#if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #include "/lib/shadows/clouds.glsl"
     #endif
 #endif
 
@@ -224,10 +223,6 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-#endif
-
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
 #endif
@@ -251,7 +246,6 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
 
 #include "/lib/lighting/basic_hand.glsl"
-#include "/lib/lighting/hg.glsl"
 
 #ifdef VL_BUFFER_ENABLED
     // #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED

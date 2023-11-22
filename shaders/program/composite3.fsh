@@ -168,12 +168,16 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
     #include "/lib/world/fog.glsl"
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/buffers/shadow.glsl"
-
-        #if defined RENDER_CLOUD_SHADOWS_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/world/clouds.glsl"
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/shadows/clouds.glsl"
         #endif
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/buffers/shadow.glsl"
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"

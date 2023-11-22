@@ -112,6 +112,7 @@ in vec2 texcoord;
         #include "/lib/world/sky.glsl"
 
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
             #include "/lib/world/clouds.glsl"
         #endif
     #endif
@@ -372,8 +373,8 @@ layout(location = 0) out vec4 outFinal;
             #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
                 if (isEyeInWater == 1) {
                     float viewDist = length(localPosOpaque);
-                    vec2 cloudAbsorbScatter = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
-                    final = final * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+                    vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
+                    final = final * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
                 }
             #endif
         }

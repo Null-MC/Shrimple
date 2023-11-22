@@ -177,8 +177,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 reflectPos = cameraPosition;
         reflectPos.y += 2.0 * localPos.y;
 
-        vec2 cloudAbsorbScatter = TraceCloudVL(reflectPos, reflectLocalDir, reflectDist, reflectDepth);
-        reflectColor = reflectColor * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+        vec4 cloudScatterTransmit = TraceCloudVL(reflectPos, reflectLocalDir, reflectDist, reflectDepth);
+        reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
     #endif
 
     return reflectColor;

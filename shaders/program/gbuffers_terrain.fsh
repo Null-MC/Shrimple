@@ -207,6 +207,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
 
     #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/lighting/hg.glsl"
         #include "/lib/world/clouds.glsl"
     #endif
 #endif

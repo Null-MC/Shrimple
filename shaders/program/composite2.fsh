@@ -226,6 +226,7 @@ uniform int heldBlockLightValue2;
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
             #include "/lib/world/clouds.glsl"
         #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/shadows/clouds.glsl"
