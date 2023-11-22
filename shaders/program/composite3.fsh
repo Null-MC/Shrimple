@@ -22,6 +22,14 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
+#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 && defined SHADOW_CLOUD_ENABLED
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if VOLUMETRIC_BRIGHT_SKY > 0
         uniform sampler2D shadowtex0;
@@ -33,14 +41,6 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
 
         #ifdef SHADOW_COLORED
             uniform sampler2D shadowcolor0;
-        #endif
-    #endif
-    
-    #ifdef SHADOW_CLOUD_ENABLED
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            uniform sampler3D TEX_CLOUDS;
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform sampler2D TEX_CLOUDS;
         #endif
     #endif
 #endif
