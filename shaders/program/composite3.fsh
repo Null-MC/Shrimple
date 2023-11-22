@@ -171,7 +171,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/buffers/shadow.glsl"
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        #if defined RENDER_CLOUD_SHADOWS_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/shadows/clouds.glsl"
         #endif
 

@@ -26,6 +26,14 @@ in vec3 vLocalPos;
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
+#if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
+#endif
+
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
 #endif
@@ -33,14 +41,6 @@ uniform sampler2D lightmap;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_CLOUD_ENABLED
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            uniform sampler3D TEX_CLOUDS;
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform sampler2D TEX_CLOUDS;
-        #endif
-    #endif
 
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS

@@ -143,12 +143,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float skyPhase = DHG(VoL, -phaseF.Back, phaseF.Forward, phaseF.Direction);
         #endif
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        #if defined RENDER_CLOUD_SHADOWS_ENABLED && WORLD_CLOUD_TYPE != CLOUDS_NONE
             //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
             vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
 
-            vec2 cloudOffset = GetCloudOffset();
-            vec3 camOffset = GetCloudCameraOffset();
+            #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                vec2 cloudOffset = GetCloudOffset();
+                vec3 camOffset = GetCloudCameraOffset();
+            #endif
         #endif
     #endif
 
@@ -340,11 +342,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 }
             #endif
 
-            #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-                if (traceLocalPos.y < cloudHeight) {
-                    float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
-                    sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-                }
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                    // TODO
+                #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                    if (traceLocalPos.y < cloudHeight) {
+                        float cloudF = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
+                        sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+                    }
+                #endif
             #endif
 
             #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED

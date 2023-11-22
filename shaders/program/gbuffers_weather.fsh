@@ -99,9 +99,10 @@ uniform float blindness;
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
 #endif
+
+uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     //uniform vec3 shadowLightPosition;
@@ -169,8 +170,12 @@ uniform float blindness;
 #ifdef WORLD_SKY_ENABLED
     // #include "/lib/world/sky.glsl"
 
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/world/clouds.glsl"
+    #if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/world/clouds.glsl"
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/shadows/clouds.glsl"
+        #endif
     #endif
 #endif
 
@@ -249,9 +254,9 @@ uniform float blindness;
 #include "/lib/lighting/hg.glsl"
 
 #ifdef VL_BUFFER_ENABLED
-    #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-        #include "/lib/shadows/clouds.glsl"
-    #endif
+    // #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
+    //     #include "/lib/shadows/clouds.glsl"
+    // #endif
 
     #include "/lib/world/volumetric_fog.glsl"
 #endif

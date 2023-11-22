@@ -224,8 +224,12 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/wetness.glsl"
     #endif
     
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/world/clouds.glsl"
+    #if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/world/clouds.glsl"
+        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/shadows/clouds.glsl"
+        #endif
     #endif
 #endif
 
@@ -314,9 +318,9 @@ uniform int heldBlockLightValue2;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
-            #include "/lib/shadows/clouds.glsl"
-        #endif
+        // #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        //     #include "/lib/shadows/clouds.glsl"
+        // #endif
     
         #include "/lib/lighting/reflections.glsl"
     #endif

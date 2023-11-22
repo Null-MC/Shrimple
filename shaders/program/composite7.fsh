@@ -105,6 +105,23 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    #if VOLUMETRIC_BRIGHT_SKY > 0
+        #include "/lib/world/sky.glsl"
+        #include "/lib/world/fog.glsl"
+    #endif
+
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+#endif
+
+#ifdef IRIS_FEATURE_SSBO
+    // #include "/lib/buffers/scene.glsl"
     
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
@@ -163,15 +180,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-    #include "/lib/world/fog.glsl"
+    // #include "/lib/world/sky.glsl"
+    // #include "/lib/world/fog.glsl"
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/buffers/shadow.glsl"
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-            #include "/lib/shadows/clouds.glsl"
-        #endif
+        // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        //     #include "/lib/shadows/clouds.glsl"
+        // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
