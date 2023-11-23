@@ -31,9 +31,11 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
-        #else
+        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
             vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
             reflectColor = RGBToLinear(reflectColor);
+        #else
+            vec3 reflectColor = RGBToLinear(skyColor);
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
@@ -132,7 +134,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     else {
                 #endif
 
-                    #ifndef DH_COMPAT_ENABLED
+                    #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
                         if (reflection.z < 1.0) {
                             vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
 

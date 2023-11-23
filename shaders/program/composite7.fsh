@@ -111,6 +111,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/lighting/hg.glsl"
+
 #ifdef WORLD_SKY_ENABLED
     #if VOLUMETRIC_BRIGHT_SKY > 0
         #include "/lib/world/sky.glsl"
@@ -204,7 +206,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lighting/hg.glsl"
 #include "/lib/world/volumetric_fog.glsl"
 
 
@@ -246,7 +247,8 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    float farDist = clamp(viewDist, near, min(shadowDistance, far) - 0.002);
+    float farMax = far;//min(shadowDistance, far);
+    float farDist = clamp(viewDist, near, farMax - 0.002);
 
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 

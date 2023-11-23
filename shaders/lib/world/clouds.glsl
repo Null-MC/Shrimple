@@ -1,10 +1,11 @@
 #define CLOUD_STEPS 24
-#define CLOUD_SHADOW_STEPS 4
+#define CLOUD_SHADOW_STEPS 6
 //#define CLOUD_CUBED
 
 const int CloudOctaves = 3;
+const float CloudAmbientF = 0.33;
 const float CloudScatterF = mix(0.72, 0.36, rainStrength);
-const float CloudAbsorbF  = mix(0.14, 0.32, rainStrength);
+const float CloudAbsorbF  = mix(0.28, 0.32, rainStrength);
 const float CloudFar = mix(1200.0, far, rainStrength);
 const float CloudHeight = 128.0;
 const float CloudSize = 10.0;
@@ -117,14 +118,16 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
                 sampleLit *= exp(shadowSampleD * CloudAbsorbF * -shadowStepLen);
             }
 
+            sampleLit += CloudAmbientF;
+
             // sampleD = smoothstep(mix(0.4, 0.1, rainStrength), 1.0, sampleD);
 
             float fogDist = GetVanillaFogDistance(tracePos);
-            //sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+            sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
             // float fogStart = WorldFogSkyStartF * far * (1.0 - rainStrength);
             // float density = mix(WorldFogSkyDensityF, 0.5, rainStrength);
             // sampleD *= 1.0 - GetFogFactor(fogDist, fogStart, CloudFar, density);
-            sampleD *= 1.0 - GetCustomSkyFogFactor(fogDist);
+            //sampleD *= 1.0 - GetCustomSkyFogFactor(fogDist);
 
             // float stepAbsorb = exp(stepLength * sampleD * -CloudAbsorbF);
 
@@ -141,6 +144,16 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
             cloudScatter += scatteringIntegral * cloudAbsorb;
             cloudAbsorb *= sampleTransmittance;
         }
+
+        //vec3 fogPos = worldPos - cameraPosition + localViewDir * cloudDistNear;
+        float fogDist = GetVanillaFogDistance(cloudNear);
+        //float fogF = GetCustomSkyFogFactor(cloudDistNear);
+        //cloudScatter = mix(cloudScatter, skyFogColor, fogF);
+        //ApplyCustomRainFog(cloudScatter, fogDist, localSunDirection.y);
+        float fogF = GetCustomRainFogFactor(fogDist);
+        vec3 fogColorFinal = GetCustomRainFogColor(localSunDirection.y);
+        cloudScatter = mix(cloudScatter, fogColorFinal, fogF);
+        cloudAbsorb *= 1.0 - fogF;
     }
 
     return vec4(cloudScatter, cloudAbsorb);
@@ -162,7 +175,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir) {
 
         vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
 
-        for (uint stepI = CLOUD_STEPS-1; stepI >= 0; stepI--) {
+        for (uint stepI = 0; stepI < CLOUD_STEPS; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
 
             float sampleD = SampleCloudOctaves(tracePos + sampleOffset);
@@ -181,5 +194,6 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir) {
         }
     }
 
-    return 1.0 - (1.0 - cloudAbsorb) * (1.0 - ShadowCloudBrightnessF);
+    //return 1.0 - (1.0 - cloudAbsorb) * (1.0 - ShadowCloudBrightnessF);
+    return cloudAbsorb;
 }

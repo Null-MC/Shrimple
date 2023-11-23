@@ -164,6 +164,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#include "/lib/lighting/hg.glsl"
+
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
     #include "/lib/world/fog.glsl"
@@ -189,7 +191,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lighting/hg.glsl"
 #include "/lib/world/volumetric_fog.glsl"
 
 
