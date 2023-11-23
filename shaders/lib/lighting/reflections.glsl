@@ -35,7 +35,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
             reflectColor = RGBToLinear(reflectColor);
         #else
-            vec3 reflectColor = RGBToLinear(skyColor);
+            vec3 reflectColor = RGBToLinear(skyColor) * WorldSkyBrightnessF;
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)

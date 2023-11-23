@@ -31,8 +31,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
     #ifdef WORLD_SKY_ENABLED
         result.Ambient = vec3(mix(0.002, 0.008, rainStrength));
-        result.ScatterF = mix(0.052, 0.120, rainStrength) * (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
-        result.ExtinctF = mix(0.004, 0.008, rainStrength);
+        result.ScatterF = mix(0.048, 0.120, rainStrength) * (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+        result.ExtinctF = mix(0.001, 0.006, rainStrength);
     #else
         result.Ambient = vec3(0.08);
 
