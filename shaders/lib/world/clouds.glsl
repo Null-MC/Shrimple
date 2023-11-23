@@ -6,12 +6,12 @@ const int CloudOctaves = 3;
 const float CloudAmbientF = 0.16;
 const float CloudScatterF = mix(4.80, 4.80, rainStrength);
 const float CloudAbsorbF  = mix(0.28, 0.56, rainStrength);
-const float CloudFar = mix(1200.0, far, rainStrength);
+const float CloudFar = mix(800.0, far, rainStrength);
 const float CloudHeight = 128.0;
-const float CloudSize = 10.0;
+const float CloudSize = 16.0;
 
 
-float SampleCloudOctaves(const in vec3 worldPos) {
+float SampleCloudOctaves(in vec3 worldPos) {
     float sampleD = 0.0;
 
     for (int octave = 0; octave < CloudOctaves; octave++) {
@@ -29,16 +29,13 @@ float SampleCloudOctaves(const in vec3 worldPos) {
         sampleD += _pow3(sampleF) * rcp(exp2(octave));
     }
 
-    const float sampleMax = 1.0 - rcp(exp2(CloudOctaves));
-    sampleD /= sampleMax;
+    const float sampleMax = rcp(1.0 - rcp(exp2(CloudOctaves)));
+    sampleD *= sampleMax;
 
     float z = saturate(worldPos.y / CloudHeight);
-    z = pow(z - z*z, 0.5) * 2.0;
-    sampleD *= z;
+    sampleD *= sqrt(z - z*z) * 2.0;
 
-    sampleD = smoothstep(mix(0.36, 0.16, rainStrength), 1.0, sampleD);
-
-    return sampleD;
+    return smoothstep(mix(0.36, 0.16, rainStrength), 1.0, sampleD);
 }
 
 void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec3 cloudNear, out vec3 cloudFar) {

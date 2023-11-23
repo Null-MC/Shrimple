@@ -250,6 +250,18 @@ void main() {
     float farMax = far;//min(shadowDistance, far);
     float farDist = clamp(viewDist, near, farMax - 0.002);
 
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        if (depth >= 0.9999) {
+            // vec3 cloudNear, cloudFar;
+            // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+
+            // farDist = length(cloudFar);
+            // if (farDist < EPSILON) farDist = CloudFar;
+            // else farDist = min(farDist, CloudFar);
+            farDist = CloudFar;
+        }
+    #endif
+
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 
     outVL = final;

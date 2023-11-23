@@ -23,10 +23,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
         vec4 lpvSample = SampleLpv(lpvPos, surfaceNormal);
         float lpvFade = GetLpvFade(lpvPos);
-        lpvFade = smoothstep(0.0, 1.0, lpvFade);
+        //lpvFade = smoothstep(0.0, 1.0, lpvFade);
         //lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec3 lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
+        blockDiffuse += lpvLight;
 
         #if defined WORLD_SKY_ENABLED //&& !defined LPV_GI
             lmFinal = vec2(0.0, lmcoord.y);

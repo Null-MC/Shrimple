@@ -31,7 +31,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
     #ifdef WORLD_SKY_ENABLED
         result.Ambient = vec3(mix(0.002, 0.008, rainStrength));
-        result.ScatterF = mix(0.060, 0.120, rainStrength) * (RGBToLinear(1.0 - skyColor) * 0.875 + 0.125);
+        result.ScatterF = mix(0.052, 0.120, rainStrength) * (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
         result.ExtinctF = mix(0.004, 0.008, rainStrength);
     #else
         result.Ambient = vec3(0.08);
@@ -115,9 +115,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 skyLightColor = RGBToLinear(fogColor);
         #endif
 
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            const float weatherF = 1.0;
+        #else
+            float weatherF = 1.0 - 0.8 * rainStrength;
+        #endif
+
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky;
-        skyLightColor *= 1.0 - 0.8 * rainStrength;
+        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky * weatherF;
         skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -139,7 +144,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #endif
         #endif
 
-        float weatherF = 1.0 - 0.9 * rainStrength;
+        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+        #endif
     #endif
 
     float stepLength = localRayLength * inverseStepCountF;
@@ -255,9 +262,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                 #if LPV_SIZE > 0
                     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
-                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * weatherF * lpvSkyLightF;
+                    ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF;
                 #else
-                    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor * weatherF;
+                    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor;
                 #endif
             #endif
         #endif
@@ -283,7 +290,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #ifdef WORLD_SKY_ENABLED
             if (!isWater) {
                 #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-                    vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+                    // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
                     vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
                     if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
@@ -291,7 +298,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
-                        sampleAmbient = 0.02 * skyLightColor * weatherF;
+                        sampleAmbient = 0.02 * skyLightColor;
                     }
                 #endif
 
