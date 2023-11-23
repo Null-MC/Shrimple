@@ -36,7 +36,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 && defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 //&& defined SHADOW_CLOUD_ENABLED
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA

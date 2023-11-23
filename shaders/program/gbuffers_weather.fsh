@@ -35,7 +35,7 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -170,7 +170,7 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #include "/lib/lighting/hg.glsl"
 #include "/lib/world/sky.glsl"
 
-#if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
+#if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/world/clouds.glsl"
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA

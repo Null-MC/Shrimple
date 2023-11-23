@@ -71,7 +71,7 @@ uniform sampler2D noisetex;
         uniform sampler3D TEX_RIPPLES;
     #endif
 
-    #ifdef SHADOW_CLOUD_ENABLED
+    #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
         #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -224,7 +224,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/wetness.glsl"
     #endif
     
-    #if defined SHADOW_CLOUD_ENABLED || MATERIAL_REFLECTIONS != REFLECT_NONE
+    #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/world/clouds.glsl"
