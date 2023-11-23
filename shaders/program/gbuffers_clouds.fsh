@@ -232,35 +232,35 @@ void main() {
     const float emission = 0.0;
     const float sss = 0.6;
 
+    float viewDist = length(vLocalPos);
+
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
     
+        float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
         #ifdef SHADOW_COLORED
-            shadowColor = GetFinalShadowColor(localSkyLightDirection, sss);
+            shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
         #else
-            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, sss));
+            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
         #endif
     #endif
 
     float fogF = 0.0;
     #if WORLD_FOG_MODE != FOG_MODE_NONE
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            float fogDist = GetVanillaFogDistance(vLocalPos);
+        float fogDist = GetVanillaFogDistance(vLocalPos);
 
+        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
             #ifdef IS_IRIS
                 fogDist *= 0.5;
             #endif
 
             fogF = GetCustomSkyFogFactor(fogDist);
         #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
-            vec3 fogPos = vLocalPos;
-            if (fogShape == 1) fogPos.y = 0.0;
-
-            float viewDist = length(fogPos);
-            fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, viewDist);
+            fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, fogDist);
         #endif
 
         albedo.a *= 1.0 - fogF;
@@ -314,7 +314,6 @@ void main() {
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
 
-            float viewDist = length(vLocalPos);
             vec3 localViewDir = normalize(vLocalPos);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;

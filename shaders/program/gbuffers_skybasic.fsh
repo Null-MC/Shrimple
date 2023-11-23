@@ -84,7 +84,7 @@ void main() {
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);
         #else
-            color = RGBToLinear(skyColor);
+            color = RGBToLinear(skyColor) * WorldSkyBrightnessF;
         #endif
     }
 

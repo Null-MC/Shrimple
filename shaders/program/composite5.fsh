@@ -32,7 +32,7 @@ in vec2 texcoord;
         uniform sampler2D BUFFER_VL;
     #endif
 
-    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
         #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -43,6 +43,7 @@ in vec2 texcoord;
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferProjectionInverse;
+    uniform vec3 cameraPosition;
     uniform vec3 upPosition;
     uniform float viewWidth;
     uniform float viewHeight;
@@ -77,11 +78,13 @@ in vec2 texcoord;
             uniform vec3 sunPosition;
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
-            uniform vec3 cameraPosition;
-            uniform vec3 eyePosition;
+        #if WORLD_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
             uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        #endif
+
+        #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+            uniform vec3 eyePosition;
         #endif
     #endif
 
@@ -112,6 +115,7 @@ in vec2 texcoord;
         #include "/lib/world/sky.glsl"
 
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
             #include "/lib/world/clouds.glsl"
         #endif
     #endif
@@ -372,8 +376,8 @@ layout(location = 0) out vec4 outFinal;
             #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
                 if (isEyeInWater == 1) {
                     float viewDist = length(localPosOpaque);
-                    vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
-                    final = final * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+                    vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
+                    final = final * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
                 }
             #endif
         }

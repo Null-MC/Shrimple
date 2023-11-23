@@ -52,7 +52,7 @@ uniform sampler2D TEX_LIGHTMAP;
     //layout(r32f) uniform readonly image2D imgDepthNear;
 #endif
 
-#if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+#if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -105,7 +105,7 @@ uniform int isEyeInWater;
     uniform float rainStrength;
     //uniform float wetness;
 
-    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
@@ -194,6 +194,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/sky.glsl"
 
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/lighting/hg.glsl"
         #include "/lib/world/clouds.glsl"
     #endif
 #endif
@@ -927,8 +928,8 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             if (isEyeInWater != 1) {
-                vec2 cloudAbsorbScatter = SampleClouds2(cameraPosition, localViewDir, viewDist, depthOpaque);
-                final.rgb = final.rgb * cloudAbsorbScatter.x + WorldSkyLightColor * cloudAbsorbScatter.y;
+                vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
+                final.rgb = final.rgb * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
             }
         #endif
 

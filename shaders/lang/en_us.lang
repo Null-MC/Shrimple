@@ -424,10 +424,10 @@ value.VOLUMETRIC_BLOCK_MODE.2=Trace [Fast]
 value.VOLUMETRIC_BLOCK_MODE.3=Trace [Full]
 
 option.VOLUMETRIC_SAMPLES=Quality
-value.VOLUMETRIC_SAMPLES.8=Low
-value.VOLUMETRIC_SAMPLES.12=Medium
-value.VOLUMETRIC_SAMPLES.16=High
-value.VOLUMETRIC_SAMPLES.24=Very High
+value.VOLUMETRIC_SAMPLES.12=Low
+value.VOLUMETRIC_SAMPLES.20=Medium
+value.VOLUMETRIC_SAMPLES.28=High
+value.VOLUMETRIC_SAMPLES.36=Very High
 
 option.VOLUMETRIC_DENSITY=Density
 option.VOLUMETRIC_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.

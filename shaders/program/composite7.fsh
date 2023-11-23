@@ -36,8 +36,12 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    uniform sampler2D TEX_CLOUDS;
+#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 //&& defined SHADOW_CLOUD_ENABLED
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
 #endif
 
 uniform int worldTime;
@@ -105,6 +109,25 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+#endif
+
+#include "/lib/lighting/hg.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #if VOLUMETRIC_BRIGHT_SKY > 0
+        #include "/lib/world/sky.glsl"
+        #include "/lib/world/fog.glsl"
+    #endif
+
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/world/clouds.glsl"
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #include "/lib/shadows/clouds.glsl"
+    #endif
+#endif
+
+#ifdef IRIS_FEATURE_SSBO
+    // #include "/lib/buffers/scene.glsl"
     
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
@@ -163,15 +186,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-    #include "/lib/world/fog.glsl"
+    // #include "/lib/world/sky.glsl"
+    // #include "/lib/world/fog.glsl"
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/buffers/shadow.glsl"
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-            #include "/lib/shadows/clouds.glsl"
-        #endif
+        // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        //     #include "/lib/shadows/clouds.glsl"
+        // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
@@ -183,7 +206,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lighting/hg.glsl"
 #include "/lib/world/volumetric_fog.glsl"
 
 
@@ -225,7 +247,20 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    float farDist = clamp(viewDist, near, min(shadowDistance, far) - 0.002);
+    float farMax = far;//min(shadowDistance, far);
+    float farDist = clamp(viewDist, near, farMax - 0.002);
+
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        if (depth >= 0.9999) {
+            // vec3 cloudNear, cloudFar;
+            // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+
+            // farDist = length(cloudFar);
+            // if (farDist < EPSILON) farDist = CloudFar;
+            // else farDist = min(farDist, CloudFar);
+            farDist = CloudFar;
+        }
+    #endif
 
     vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
 
