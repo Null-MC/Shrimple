@@ -25,7 +25,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
 
         testPos /= scale;
 
-        float sampleF = textureLod(texClouds, testPos.xzy / 8.0 * (octave+1), 0).r;
+        float sampleF = textureLod(texClouds, testPos.xzy / 2.0 * (octave+1), 0).r;
         sampleD += _pow3(sampleF) * rcp(exp2(octave));
     }
 
