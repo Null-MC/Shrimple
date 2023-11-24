@@ -6,7 +6,7 @@
 
 const int CloudOctaves = 3;
 const float CloudAmbientF = 0.02;
-const float CloudScatterF = mix(2.40, 2.40, rainStrength);
+const float CloudScatterF = mix(2.40, 1.20, rainStrength);
 const float CloudAbsorbF  = mix(0.36, 0.96, rainStrength);
 const float CloudFar = 800.0;//mix(800.0, far, rainStrength);
 const float CloudHeight = 128.0;

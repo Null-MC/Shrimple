@@ -76,9 +76,9 @@
         shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
-            #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-                shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, CLOUD_SHADOW_STEPS);
-            #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            // #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, CLOUD_SHADOW_STEPS);
+            #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
                 shadow *= SampleCloudShadow(skyLightDir, cloudPos);
             #endif
         #endif

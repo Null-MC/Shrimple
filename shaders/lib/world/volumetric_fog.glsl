@@ -301,7 +301,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         sampleDensity = mix(sampleDensity, 1.0, sampleD);
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
-                        sampleAmbient = 0.02 * skyLightColor;
+                        sampleAmbient = vec3(0.02);
                     }
                 #endif
             }
@@ -482,7 +482,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        vec3 inScattering = (sampleAmbient + sampleLit) * sampleScattering * sampleDensity;// * stepLength;
+        vec3 inScattering = (sampleAmbient * skyLightColor + sampleLit) * sampleScattering * sampleDensity;// * stepLength;
         float sampleTransmittance = exp(-sampleExtinction * stepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 
@@ -490,7 +490,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             scatteringIntegral *= isWater ? extinctionInvWater : extinctionInvAir;
         #else
             //scatteringIntegral *= extinctionInv;
-            scatteringIntegral *= rcp(sampleExtinction);
+            scatteringIntegral /= max(sampleExtinction, EPSILON);
         #endif
 
         scattering += scatteringIntegral * transmittance;

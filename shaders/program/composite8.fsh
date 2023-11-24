@@ -7,6 +7,10 @@
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     const bool colortex0MipmapEnabled = true;
+
+    #ifndef MATERIAL_REFLECT_HIZ
+        const bool depthtex0MipmapEnabled = true;
+    #endif
 #endif
 
 in vec2 texcoord;
@@ -469,6 +473,14 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #else
                 //deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            #endif
+
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                    deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                // #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
+                #endif
             #endif
 
             float occlusion = deferredLighting.z;

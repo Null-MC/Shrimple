@@ -102,15 +102,15 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE
-            if (reflection.z < 0.999999) {
-                vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
+        if (reflection.z < 0.999999) {
+            vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
 
-                if (reflection.a > 0.0) {
-                    reflectDist = length(reflectViewPos - viewPos);
-                    reflectDepth = reflection.z;
-                }
+            if (reflection.a > 0.0) {
+                reflectDist = length(reflectViewPos - viewPos);
+                reflectDepth = reflection.z;
+            }
 
+            #if WORLD_FOG_MODE != FOG_MODE_NONE
                 #ifndef IRIS_FEATURE_SSBO
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
@@ -169,18 +169,29 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 #endif
 
                 col = mix(col, fogColorFinal, fogF);
-            }
-        #endif
+            #endif
+        }
 
         reflectColor = mix(reflectColor, col, reflection.a);
     #endif
 
     #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM && (!defined RENDER_GBUFFER || defined RENDER_WATER)
-        vec3 reflectPos = cameraPosition;
-        reflectPos.y += 2.0 * localPos.y;
+        vec3 reflectPos = cameraPosition + localPos;
+        //reflectPos.y += 2.0 * localPos.y;
 
         vec4 cloudScatterTransmit = TraceCloudVL(reflectPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
         reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
+    #else
+        // TODO: fake VL
+        const float phaseAir = 0.25;
+
+        vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;// * reflectDist*0.001;
+        float sampleTransmittance = exp(-AirExtinctF * reflectDist);
+
+        vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
+        scatteringIntegral /= AirExtinctF;
+
+        reflectColor = reflectColor * sampleTransmittance + scatteringIntegral;
     #endif
 
     return reflectColor;
