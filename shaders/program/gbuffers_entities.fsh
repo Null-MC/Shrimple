@@ -16,7 +16,7 @@ in vec3 vBlockLight;
 in float vTangentW;
 flat in mat2 atlasBounds;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
     in vec3 tanViewPos;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -250,7 +250,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -326,7 +326,7 @@ void main() {
     mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
     vec2 atlasCoord = texcoord;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(tanViewPos);
@@ -347,7 +347,7 @@ void main() {
     //     color = vec4(1.0, 0.0, 0.0, 1.0);
     // }
     else {
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
+        #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
                 atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
@@ -446,7 +446,7 @@ void main() {
         if (entityId != ENTITY_PHYSICSMOD_SNOW)
             isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
+        #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
             if (!skipParallax) {
                 #if MATERIAL_PARALLAX == PARALLAX_SHARP
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);

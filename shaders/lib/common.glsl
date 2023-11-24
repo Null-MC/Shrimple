@@ -135,6 +135,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX_DISTANCE 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
 //#define MATERIAL_PARALLAX_DEPTH_WRITE
+#define MATERIAL_PARALLAX_ENTITIES
 #define MATERIAL_POROSITY 1 // [0 1 2]
 #define MATERIAL_POROSITY_DARKEN 60 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
@@ -427,6 +428,8 @@ const bool colortex15Clear = true;
 #endif
 #ifdef MATERIAL_PARALLAX_SHADOW_SMOOTH
 #endif
+#ifdef MATERIAL_PARALLAX_ENTITIES
+#endif
 #ifdef MATERIAL_REFLECT_CLOUDS
 #endif
 #ifdef REFRACTION_BLUR
@@ -647,6 +650,10 @@ uint float2half(const in uint f) {
     return ((f >> 16u) & uint(0x8000)) |
         ((((f & uint(0x7f800000)) - uint(0x38000000)) >> 13u) & uint(0x7c00)) |
         ((f >> 13u) & uint(0x03ff));
+}
+
+float smootherstep(const in float x) {
+    return _pow3(x) * (x * (6.0 * x - 15.0) + 10.0);
 }
 
 void fixNaNs(inout vec3 vec) {

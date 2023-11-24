@@ -374,11 +374,11 @@ layout(location = 0) out vec4 outFinal;
 
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
             #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-                if (isEyeInWater == 1) {
-                    float viewDist = length(localPosOpaque);
-                    vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
-                    final = final * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
-                }
+                // if (isEyeInWater == 1) {
+                //     float viewDist = length(localPosOpaque);
+                //     vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                //     final = final * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
+                // }
             #endif
         }
 

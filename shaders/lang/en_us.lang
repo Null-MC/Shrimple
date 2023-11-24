@@ -187,6 +187,9 @@ option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows wh
 
 option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write
 
+option.MATERIAL_PARALLAX_ENTITIES=Entities
+option.MATERIAL_PARALLAX_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
+
 
 screen.MATERIAL_POROSITY_OPTIONS=Porosity
 screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
