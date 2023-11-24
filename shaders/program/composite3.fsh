@@ -22,7 +22,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 //&& defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -166,30 +166,36 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/hg.glsl"
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
+#ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
     #include "/lib/world/fog.glsl"
 
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/world/clouds.glsl"
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-        #include "/lib/shadows/clouds.glsl"
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/buffers/shadow.glsl"
+    #if VOLUMETRIC_BRIGHT_SKY > 0
+        #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/shadows/clouds.glsl"
+        #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded/common.glsl"
-            #include "/lib/shadows/cascaded/render.glsl"
-        #else
-            #include "/lib/shadows/distorted/common.glsl"
-            #include "/lib/shadows/distorted/render.glsl"
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #include "/lib/buffers/shadow.glsl"
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                #include "/lib/shadows/cascaded/common.glsl"
+                #include "/lib/shadows/cascaded/render.glsl"
+            #else
+                #include "/lib/shadows/distorted/common.glsl"
+                #include "/lib/shadows/distorted/render.glsl"
+            #endif
         #endif
     #endif
 #endif
 
-#include "/lib/world/volumetric_fog.glsl"
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
 
 
 /* RENDERTARGETS: 10 */
@@ -235,11 +241,17 @@ void main() {
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        float farMax = far;//min(shadowDistance, far) - 0.002;
-        float distNear = clamp(distTranslucent, near, farMax);
-        float distFar = clamp(distOpaque, near, farMax);
+        #ifdef VL
+            float farMax = far;//min(shadowDistance, far) - 0.002;
+            float distNear = clamp(distTranslucent, near, farMax);
+            float distFar = clamp(distOpaque, near, farMax);
 
-        final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
+            final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
+        #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            if (isEyeInWater == 1) {
+                final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+            }
+        #endif
     }
 
     outVL = final;

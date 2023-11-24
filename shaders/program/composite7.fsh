@@ -36,7 +36,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && VOLUMETRIC_BRIGHT_SKY > 0 //&& defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -114,10 +114,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/hg.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    #if VOLUMETRIC_BRIGHT_SKY > 0
+    //#if VOLUMETRIC_BRIGHT_SKY > 0
         #include "/lib/world/sky.glsl"
         #include "/lib/world/fog.glsl"
-    #endif
+    //#endif
 
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/world/clouds.glsl"
@@ -206,7 +206,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/world/volumetric_fog.glsl"
+#ifdef VL_BUFFER_ENABLED
+    #include "/lib/world/volumetric_fog.glsl"
+#endif
 
 
 /* RENDERTARGETS: 10 */
@@ -262,7 +264,15 @@ void main() {
         }
     #endif
 
-    vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
+    #ifdef VL_BUFFER_ENABLED
+        vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
+    #else
+        vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
+
+        if (isEyeInWater != 1) {
+            final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+        }
+    #endif
 
     outVL = final;
 }

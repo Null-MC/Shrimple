@@ -1,4 +1,4 @@
-vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depth, const in vec2 g_sigma) {
+vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 blendTexSize, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depthL, const in vec2 g_sigma) {
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
@@ -15,19 +15,20 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
             
-            vec2 sampleTex = vec2(ix + 0.25, iy - 0.25);
+            ivec2 sampleTex = ivec2(ix, iy);
 
             //vec2 texBlend = texcoord + sampleTex * blendPixelSize;
-            vec2 texBlend = texcoord * blendTexSize + sampleTex;
+            ivec2 texBlend = ivec2(texcoord * blendTexSize) + sampleTex;
             //vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
-            vec4 sampleValue = texelFetch(blendSampler, ivec2(texBlend), 0);
+            vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
 
             //vec2 texDepth = texcoord + sampleTex * depthPixelSize;
-            vec2 texDepth = texcoord * depthTexSize + sampleTex;
+            ivec2 texDepth = ivec2(texcoord * depthTexSize) + sampleTex;
             //float sampleDepth = textureLod(depthSampler, texDepth, 0).r;
-            float sampleDepth = texelFetch(depthSampler, ivec2(texDepth), 0).r;
-                        
-            float fv = Gaussian(g_sigma.y, abs(sampleDepth - depth));
+            float sampleDepth = texelFetch(depthSampler, texDepth, 0).r;
+            float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+            
+            float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
             //float fv = Gaussian(g_sigma.y, abs(linearizeDepthFast(sampleDepth, near, far) - linearizeDepthFast(depth, near, far)));
             
             float weight = fx*fy*fv;

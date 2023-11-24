@@ -109,11 +109,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(sunDir.y);
-        #else
-            vec3 skyLightColor = RGBToLinear(fogColor);
-        #endif
+        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        //     vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(sunDir.y);
+        // #else
+        //     vec3 skyLightColor = RGBToLinear(fogColor);
+        // #endif
 
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             const float weatherF = 1.0;
@@ -122,8 +122,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        skyLightColor *= WorldSkyLightColor * VolumetricBrightnessSky * weatherF;
-        skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
+        vec3 skyLightColor = WorldSkyLightColor * VolumetricBrightnessSky * weatherF;
+        //skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
@@ -289,6 +289,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #ifdef WORLD_SKY_ENABLED
             if (!isWater) {
+                sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
+
                 #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
                     // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
                     vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
@@ -296,13 +298,12 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
                         float sampleD = SampleCloudOctaves(cloudPos);
 
+                        sampleDensity = mix(sampleDensity, 1.0, sampleD);
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
                         sampleAmbient = 0.02 * skyLightColor;
                     }
                 #endif
-
-                sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
             }
         #endif
 
@@ -334,18 +335,20 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
-                float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
+                if (length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.98) {
+                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                    sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
-                texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                }
             #endif
 
             #ifdef SHADOW_COLORED
                 float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
 
-                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON) {
+                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.98) {
                     vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
                     shadowColor = RGBToLinear(shadowColor);
 
@@ -384,7 +387,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     //     sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
                     //     sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
                     // }
-                    float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir);
+                    float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                     sampleF *= cloudShadow;
                 #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA

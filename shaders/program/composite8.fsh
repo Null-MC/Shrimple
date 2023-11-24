@@ -32,7 +32,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_TA_SPECULAR;
 #endif
 
-#ifdef VL_BUFFER_ENABLED
+#if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
     uniform sampler2D BUFFER_VL;
 #endif
 
@@ -244,7 +244,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/basic_hand.glsl"
 
-#ifdef VL_BUFFER_ENABLED
+#if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
     #ifdef VOLUMETRIC_BLUR
         #include "/lib/world/volumetric_blur.glsl"
     #endif
@@ -891,10 +891,10 @@ layout(location = 0) out vec4 outFinal;
                     #endif
                 }
 
-                #ifdef WORLD_SKY_ENABLED
-                    fogDist = min(length(localPos), far);
-                    ApplyCustomRainFog(final.rgb, fogDist, localSunDirection.y);
-                #endif
+                // #ifdef WORLD_SKY_ENABLED
+                //     fogDist = min(length(localPos), far);
+                //     ApplyCustomRainFog(final.rgb, fogDist, localSunDirection.y);
+                // #endif
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
@@ -908,29 +908,22 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #ifdef VL_BUFFER_ENABLED
+        #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #ifdef VOLUMETRIC_BLUR
                 const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+                const vec2 vlSigma = vec2(1.0, 0.002);
 
-                #if VOLUMETRIC_RES == 2
-                    const vec2 vlSigma = vec2(1.0, 0.00001);
-                #elif VOLUMETRIC_RES == 1
-                    const vec2 vlSigma = vec2(0.3, 0.02);
-                #else
-                    const vec2 vlSigma = vec2(1.2, 0.00002);
-                #endif
-
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, depth, vlSigma);
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, linearDepth, vlSigma);
             #else
                 vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
             #endif
 
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            if (isEyeInWater != 1) {
-                vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque);
-                final.rgb = final.rgb * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
-            }
+            // if (isEyeInWater != 1) {
+            //     vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+            //     final.rgb = final.rgb * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
+            // }
         #endif
 
         vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);
