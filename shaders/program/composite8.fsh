@@ -858,7 +858,14 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
-                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                const float WaterAmbientF = 0.0;
+
+                vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                vec3 transmittance = exp(-WaterAbsorbColorInv * viewDist);
+                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
+
+                final.rgb = final.rgb * transmittance + scatteringIntegral / WaterAbsorbColorInv;
             }
         #endif
 
@@ -934,10 +941,10 @@ layout(location = 0) out vec4 outFinal;
         #else
             if (isEyeInWater != 1) {
                 vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                float sampleTransmittance = exp(-AirExtinctF * viewDist);
-                vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
+                float transmittance = exp(-AirExtinctF * viewDist);
+                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
 
-                final.rgb = final.rgb * sampleTransmittance + scatteringIntegral / AirExtinctF;
+                final.rgb = final.rgb * transmittance + scatteringIntegral / AirExtinctF;
             }
         #endif
 

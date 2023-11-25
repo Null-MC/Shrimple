@@ -197,6 +197,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec4 lpvSample = SampleLpv(lpvPos, vec3(0.0));
         #endif
 
+        #if defined WORLD_WATER_ENABLED
+            float waterDepthEye = 0.0;
+        #endif
+
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             if (isEyeInWater == 1) {
                 isWater = traceDist < waterDepth[0] + 0.001;
@@ -255,7 +259,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         vec3 sampleLit = vec3(0.0);
 
         #if defined WORLD_WATER_ENABLED
-            float waterDepthEye = 0.0;
+            // float waterDepthEye = 0.0;
 
             #if defined WORLD_SKY_ENABLED
                 // float weatherF = 1.0 - 0.9 * rainStrength;
@@ -482,12 +486,12 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        vec3 inScattering = (sampleAmbient * skyLightColor + sampleLit) * sampleScattering * sampleDensity;// * stepLength;
+        vec3 inScattering = (sampleAmbient * skyLightColor + sampleLit) * sampleScattering * sampleDensity;
         float sampleTransmittance = exp(-sampleExtinction * stepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 
         #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
-            scatteringIntegral *= isWater ? extinctionInvWater : extinctionInvAir;
+            scatteringIntegral *= isWater ? extinctionInvWater : rcp(sampleExtinction);
         #else
             //scatteringIntegral *= extinctionInv;
             scatteringIntegral /= max(sampleExtinction, EPSILON);
