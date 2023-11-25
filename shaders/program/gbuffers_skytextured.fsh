@@ -25,7 +25,9 @@ uniform float rainStrength;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#include "/lib/world/sky.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
 
 
 /* RENDERTARGETS: 0 */

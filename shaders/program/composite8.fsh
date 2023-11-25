@@ -858,7 +858,14 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
-                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                #ifdef WORLD_SKY_ENABLED
+                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                #endif
+                
+                eyeSkyLightF += 0.02;
+
                 const float WaterAmbientF = 0.0;
 
                 vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
@@ -927,7 +934,7 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined VL_BUFFER_ENABLED || (defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM)
             #ifdef VOLUMETRIC_BLUR
                 const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
                 const vec2 vlSigma = vec2(1.0, 0.002);
@@ -939,13 +946,19 @@ layout(location = 0) out vec4 outFinal;
 
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #else
-            if (isEyeInWater != 1) {
-                vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater != 1) {
+            #endif
+
+                vec3 inScattering = AirScatterF * (phaseAir * WorldSkyLightColor + AirAmbientF);
                 float transmittance = exp(-AirExtinctF * viewDist);
                 vec3 scatteringIntegral = inScattering - inScattering * transmittance;
 
                 final.rgb = final.rgb * transmittance + scatteringIntegral / AirExtinctF;
-            }
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
         #endif
 
         vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);

@@ -247,7 +247,7 @@ void main() {
             float distFar = clamp(distOpaque, near, farMax);
 
             final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
-        #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #elif defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             if (isEyeInWater == 1) {
                 final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }

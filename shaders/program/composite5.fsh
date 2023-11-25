@@ -287,7 +287,14 @@ layout(location = 0) out vec4 outFinal;
                 if (isWater) {
                     //final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
 
-                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                    #ifdef WORLD_SKY_ENABLED
+                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                    #endif
+                    
+                    eyeSkyLightF += 0.02;
+
                     const float WaterAmbientF = 0.0;
 
                     vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
