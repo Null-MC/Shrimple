@@ -270,10 +270,10 @@ void main() {
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE
         #if WORLD_CLOUD_TYPE != CLOUDS_CUSTOM
-            const float CloudHeight = 8.0;
+            const float CloudHeight = 4.0;
         #endif
 
-        float cloudY = smoothstep(0.0, CloudHeight, vLocalPos.y + cameraPosition.y - cloudHeight);
+        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vLocalPos.y + cameraPosition.y - cloudHeight);
         color.a *= 1.0 - cloudY;
     #endif
 
