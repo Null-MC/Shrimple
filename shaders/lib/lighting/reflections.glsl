@@ -185,13 +185,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         // TODO: fake VL
         const float phaseAir = 0.25;
 
-        vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;// * reflectDist*0.001;
+        vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
         float sampleTransmittance = exp(-AirExtinctF * reflectDist);
-
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
-        scatteringIntegral /= AirExtinctF;
 
-        reflectColor = reflectColor * sampleTransmittance + scatteringIntegral;
+        reflectColor = reflectColor * sampleTransmittance + scatteringIntegral / AirExtinctF;
     #endif
 
     return reflectColor;

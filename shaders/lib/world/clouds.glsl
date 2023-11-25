@@ -12,9 +12,9 @@ const float CloudFar = 800.0;//mix(800.0, far, rainStrength);
 const float CloudHeight = 128.0;
 const float CloudSize = 16.0;
 
-const float AirAmbientF = 0.0;
-const float AirScatterF = mix(0.002, 0.004, rainStrength);
-const float AirExtinctF = mix(0.001, 0.008, rainStrength);
+// const float AirAmbientF = 0.0;
+// const float AirScatterF = mix(0.002, 0.004, rainStrength);
+// const float AirExtinctF = mix(0.001, 0.008, rainStrength);
 
 
 float SampleCloudOctaves(in vec3 worldPos) {

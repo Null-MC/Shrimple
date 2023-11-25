@@ -3,6 +3,11 @@ vec3 worldSunColorHorizon  = vec3(0.813, 0.540, 0.120) * WorldSunBrightnessF;
 vec3 worldMoonColorHorizon = vec3(0.717, 0.708, 0.621) * WorldMoonBrightnessF;
 vec3 worldMoonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
 
+const float AirAmbientF = 0.0;
+const float AirScatterF = mix(0.002, 0.004, rainStrength);
+const float AirExtinctF = mix(0.001, 0.008, rainStrength);
+
+
 float GetSkyHorizonF(const in float celestialUpF) {
     return smoothstep(0.0, 0.7, celestialUpF);
 }
