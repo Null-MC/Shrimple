@@ -49,6 +49,7 @@ uniform int entityId;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/shadow.glsl"
 #endif
 
@@ -69,7 +70,7 @@ uniform int entityId;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/light_mask.glsl"
-        #include "/lib/lighting/voxel/block_light_map.glsl"
+        //#include "/lib/lighting/voxel/block_light_map.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
     #endif
 #endif
@@ -196,7 +197,8 @@ void main() {
                 #endif
 
                 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    uint lightType = GetSceneLightType(blockId);
+                    //uint lightType = GetSceneLightType(blockId);
+                    uint lightType = CollissionMaps[blockId].LightId;
 
                     if (lightType > 0) {
                         if (!intersects) lightType = LIGHT_IGNORED;

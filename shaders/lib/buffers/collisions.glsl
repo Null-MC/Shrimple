@@ -1,4 +1,5 @@
 struct CollissionData {
+    uint LightId;                   // 4
     uint Count;                     // 4
     uvec2 Bounds[BLOCK_MASK_PARTS]; // 48
 };
@@ -9,5 +10,5 @@ struct CollissionData {
     layout(std430, binding = 4) readonly buffer collissionData
 #endif
 {
-    CollissionData CollissionMaps[];   // 52 * 1200 = 62400
+    CollissionData CollissionMaps[];   // 56 * 1200 = 67200
 };
