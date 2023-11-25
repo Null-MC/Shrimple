@@ -268,8 +268,14 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    float cloudY = smoothstep(0.0, CloudHeight, vLocalPos.y + cameraPosition.y - cloudHeight);
-    color.a *= 1.0 - cloudY;
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #if WORLD_CLOUD_TYPE != CLOUDS_CUSTOM
+            const float CloudHeight = 8.0;
+        #endif
+
+        float cloudY = smoothstep(0.0, CloudHeight, vLocalPos.y + cameraPosition.y - cloudHeight);
+        color.a *= 1.0 - cloudY;
+    #endif
 
     if (color.a < (1.5/255.0)) {
         discard;
