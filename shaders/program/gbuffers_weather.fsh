@@ -269,7 +269,7 @@ void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
     float cloudY = smoothstep(0.0, CloudHeight, vLocalPos.y + cameraPosition.y - cloudHeight);
-    color.a *= cloudY;
+    color.a *= 1.0 - cloudY;
 
     if (color.a < (1.5/255.0)) {
         discard;

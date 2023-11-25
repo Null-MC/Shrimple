@@ -84,7 +84,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 reflectColor = RGBToLinear(fogColor);
     #endif
 
-    float reflectDist = far;
+    float reflectDist = 0.0;
     float reflectDepth = 1.0;
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
@@ -171,6 +171,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF);
             #endif
         }
+        else reflectDist = far;
 
         reflectColor = mix(reflectColor, col, reflection.a);
     #endif
