@@ -241,7 +241,7 @@ void main() {
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        #ifdef VL
+        #ifdef VL_BUFFER_ENABLED
             float farMax = far;//min(shadowDistance, far) - 0.002;
             float distNear = clamp(distTranslucent, near, farMax);
             float distFar = clamp(distOpaque, near, farMax);

@@ -933,8 +933,6 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #else
             if (isEyeInWater != 1) {
-                const float phaseAir = 0.25;
-
                 vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
                 float sampleTransmittance = exp(-AirExtinctF * viewDist);
                 vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;

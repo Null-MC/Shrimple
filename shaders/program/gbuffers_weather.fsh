@@ -396,6 +396,8 @@ void main() {
 
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #else
+        // TODO: fake VL
     #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

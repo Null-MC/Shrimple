@@ -6,6 +6,7 @@ vec3 worldMoonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
 const float AirAmbientF = 0.0;
 const float AirScatterF = mix(0.002, 0.004, rainStrength);
 const float AirExtinctF = mix(0.001, 0.008, rainStrength);
+const float phaseAir = 0.25;
 
 
 float GetSkyHorizonF(const in float celestialUpF) {

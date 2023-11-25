@@ -182,14 +182,14 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec4 cloudScatterTransmit = TraceCloudVL(reflectPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
         reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
     #else
-        // TODO: fake VL
-        const float phaseAir = 0.25;
+        if (isEyeInWater != 1) {
+            // TODO: fake VL
+            vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            float sampleTransmittance = exp(-AirExtinctF * reflectDist);
+            vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 
-        vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
-        float sampleTransmittance = exp(-AirExtinctF * reflectDist);
-        vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
-
-        reflectColor = reflectColor * sampleTransmittance + scatteringIntegral / AirExtinctF;
+            reflectColor = reflectColor * sampleTransmittance + scatteringIntegral / AirExtinctF;
+        }
     #endif
 
     return reflectColor;

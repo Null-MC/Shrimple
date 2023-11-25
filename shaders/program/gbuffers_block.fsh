@@ -200,6 +200,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+    
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
@@ -289,9 +291,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
-    #endif
+    // #ifdef WORLD_SKY_ENABLED
+    //     #include "/lib/world/sky.glsl"
+    // #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
