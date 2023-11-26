@@ -13,7 +13,7 @@ option.sunPathRotation=Наклон Солнца
 option.sunPathRotation.comment=Наклон Солнца вдоль оси вращения.
 suffix.sunPathRotation=°
 
-option.WORLD_FOG_MODE=Обычный
+option.WORLD_FOG_MODE=Туман
 value.WORLD_FOG_MODE.0=Никакой
 value.WORLD_FOG_MODE.1=Ванильный
 value.WORLD_FOG_MODE.2=Кастомный
@@ -22,6 +22,11 @@ option.WORLD_FOG_SHAPE=Тумманая форма
 value.WORLD_FOG_SHAPE.0=Обычный
 value.WORLD_FOG_SHAPE.1=Сферический
 value.WORLD_FOG_SHAPE.2=Цилиндрический
+
+option.WORLD_CLOUD_TYPE=Облака
+value.WORLD_CLOUD_TYPE.0=Никакие
+value.WORLD_CLOUD_TYPE.1=Ванильные
+value.WORLD_CLOUD_TYPE.2=Кастомные
 
 option.WORLD_WETNESS_ENABLED=Влажность
 option.WORLD_WETNESS_ENABLED.comment=Приводит к тому, что мокрые от дождя поверхности/блоки кажутся влажными (более тёмными, блестящими).
