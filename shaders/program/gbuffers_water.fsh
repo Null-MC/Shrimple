@@ -232,7 +232,6 @@ uniform int heldBlockLightValue2;
 
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
-            #include "/lib/clouds/cloud_vars.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
