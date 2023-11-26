@@ -241,7 +241,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collisions.glsl"
+        //#include "/lib/buffers/collisions.glsl"
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
