@@ -133,7 +133,7 @@ void main() {
 
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
-    int vertexId = gl_VertexID;
+    // int vertexId = gl_VertexID;
     if (renderStage == MC_RENDER_STAGE_ENTITIES)
         blockId = BLOCK_EMPTY;
 

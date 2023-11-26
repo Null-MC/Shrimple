@@ -144,6 +144,7 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 
     #if WATER_DEPTH_LAYERS > 1
@@ -169,12 +170,13 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/world/sky.glsl"
+#include "/lib/clouds/cloud_vars.glsl"
 
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/world/clouds.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 #endif
 
@@ -211,7 +213,7 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #include "/lib/lights.glsl"
 
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"

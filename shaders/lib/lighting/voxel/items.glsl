@@ -1,16 +1,15 @@
 uint GetSceneItemLightType(const in int itemId) {
-    #if defined RENDER_HAND && defined IS_IRIS
-        return GetSceneLightType(itemId);
-    #else
+    #if !(defined RENDER_HAND && defined IS_IRIS)
         // int blockId = GetItemBlockId(itemId);
         // if (blockId != BLOCK_EMPTY)
         //     return GetSceneLightType(blockId);
 
         uint lightId = GetItemLightId(itemId);
         if (lightId != LIGHT_NONE) return lightId;
-
-        return GetSceneLightType(itemId);
     #endif
+
+    //return GetSceneLightType(itemId);
+    return CollissionMaps[itemId].LightId;
 }
 
 #if !defined RENDER_BEGIN

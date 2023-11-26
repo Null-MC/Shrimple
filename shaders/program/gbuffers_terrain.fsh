@@ -8,7 +8,7 @@
 in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
-in vec3 vBlockLight;
+//in vec3 vBlockLight;
 in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
@@ -175,6 +175,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
@@ -203,15 +204,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/wetness.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/clouds.glsl"
-    #endif
-#endif
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -235,6 +227,16 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+
+        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
+            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
+        #endif
+    #endif
+
     #include "/lib/lighting/sampling.glsl"
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
@@ -245,7 +247,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 //#include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
@@ -273,6 +275,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
     
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/world/water.glsl"
+        #endif
+
         #include "/lib/lighting/reflections.glsl"
     #endif
 
@@ -563,7 +569,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
-            vec3 blockDiffuse = vBlockLight;
+            vec3 blockDiffuse = vec3(0.0);//vBlockLight;
             vec3 blockSpecular = vec3(0.0);
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);

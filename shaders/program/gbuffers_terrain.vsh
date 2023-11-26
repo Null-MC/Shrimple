@@ -14,7 +14,7 @@ in vec3 vaPosition;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
@@ -83,6 +83,7 @@ uniform ivec2 atlasSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
@@ -102,7 +103,7 @@ uniform ivec2 atlasSize;
     #include "/lib/buffers/shadow.glsl"
 
     #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
     
     #include "/lib/shadows/common.glsl"
@@ -115,9 +116,9 @@ uniform ivec2 atlasSize;
 #endif
 
 #include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 
-#include "/lib/material/emission.glsl"
+//#include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 
 #include "/lib/lighting/common.glsl"

@@ -175,6 +175,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
@@ -199,7 +200,8 @@ uniform int heldBlockLightValue2;
 
     #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/clouds.glsl"
+        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
     #endif
 #endif
 
@@ -254,7 +256,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"

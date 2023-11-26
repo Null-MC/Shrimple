@@ -51,8 +51,9 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/voxel/block_light_map.glsl"
+    // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 

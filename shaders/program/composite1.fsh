@@ -101,8 +101,9 @@ uniform float blindness;
     #endif
 
     #include "/lib/lights.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/voxel/block_light_map.glsl"
+    // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
@@ -114,7 +115,7 @@ uniform float blindness;
 #endif
 
 #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/buffers/collisions.glsl"
+    // #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif

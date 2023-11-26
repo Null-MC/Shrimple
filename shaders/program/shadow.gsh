@@ -68,8 +68,9 @@ uniform float far;
             #include "/lib/lighting/flicker.glsl"
         #endif
         
+        #include "/lib/buffers/collisions.glsl"
         #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/voxel/block_light_map.glsl"
+        // #include "/lib/lighting/voxel/block_light_map.glsl"
         #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
@@ -159,16 +160,16 @@ void main() {
             vec3 playerOffset = originPos - (eyePosition - cameraPosition);
             playerOffset.y += 1.0;
 
-            if (renderStage == MC_RENDER_STAGE_ENTITIES && _lengthSq(playerOffset) > 2.0) {
+            if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
                 uint lightType = GetSceneItemLightType(currentRenderedItemId);
                 vec3 lightValue = vec3(0.0);
 
-                if (entityId == ENTITY_SPECTRAL_ARROW || currentRenderedItemId == ITEM_GLOW_BERRIES)
+                if (entityId == ENTITY_SPECTRAL_ARROW)
                     lightType = LIGHT_TORCH_FLOOR;
                 else if (entityId == ENTITY_TORCH_ARROW)
                     lightType = LIGHT_TORCH_FLOOR;
 
-                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED && entityId != ENTITY_ITEM_FRAME) {
+                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                     StaticLightData lightInfo = StaticLightMap[lightType];
                     vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;

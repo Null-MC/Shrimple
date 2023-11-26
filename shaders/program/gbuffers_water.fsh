@@ -193,6 +193,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 
     #if WATER_DEPTH_LAYERS > 1
@@ -227,11 +228,14 @@ uniform int heldBlockLightValue2;
     #endif
     
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
+        #include "/lib/clouds/cloud_vars.glsl"
+
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
-            #include "/lib/world/clouds.glsl"
+            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
         #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/shadows/clouds.glsl"
+            #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif
 #endif
@@ -253,7 +257,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lights.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/directional.glsl"
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER

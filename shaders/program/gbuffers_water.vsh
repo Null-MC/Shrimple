@@ -113,7 +113,7 @@ uniform ivec2 atlasSize;
     #include "/lib/buffers/shadow.glsl"
 
     #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
     
     #include "/lib/shadows/common.glsl"
@@ -126,9 +126,9 @@ uniform ivec2 atlasSize;
 #endif
 
 #include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 
-#include "/lib/material/emission.glsl"
+//#include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 
 #ifdef WORLD_WATER_ENABLED

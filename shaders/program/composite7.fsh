@@ -119,10 +119,14 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/world/fog.glsl"
     //#endif
 
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #include "/lib/clouds/cloud_vars.glsl"
+    #endif
+
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/world/clouds.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 #endif
 

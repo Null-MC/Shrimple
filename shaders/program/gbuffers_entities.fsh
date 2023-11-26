@@ -169,6 +169,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
@@ -194,15 +195,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/clouds.glsl"
-    #endif
-#endif
-
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
@@ -226,6 +218,16 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if (defined DEFERRED_BUFFER_ENABLED && defined RENDER_TRANSLUCENT) || !defined DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+
+        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
+            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
+        #endif
+    #endif
+
     #include "/lib/lighting/fresnel.glsl"
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
@@ -245,7 +247,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
