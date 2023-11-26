@@ -95,7 +95,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/shadow.glsl"
 
     #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 
 	#include "/lib/shadows/common.glsl"

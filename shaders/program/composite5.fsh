@@ -114,9 +114,13 @@ in vec2 texcoord;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
 
+        #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+            #include "/lib/clouds/cloud_vars.glsl"
+        #endif
+
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
-            #include "/lib/world/clouds.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif
 
@@ -133,7 +137,7 @@ in vec2 texcoord;
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
-            #include "/lib/shadows/clouds.glsl"
+            #include "/lib/clouds/cloud_vanilla.glsl"
 
             //#include "/lib/world/clouds.glsl"
         #endif

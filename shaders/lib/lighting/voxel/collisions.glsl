@@ -2455,6 +2455,12 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             break;
     }
 
+    if (blockId == BLOCK_SHULKER_BOX) {
+        shapeCount = 1u;
+        boundsMin[0] = modelPart( 0,  0,  0);
+        boundsMax[0] = modelPart(16, 16, 16);
+    }
+
     // CollissionMaps[blockId].Count = shapeCount;
 
     // for (uint i = 0u; i < min(shapeCount, BLOCK_MASK_PARTS); i++) {

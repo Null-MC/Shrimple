@@ -126,6 +126,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_SSS 1 // [0 1 2]
 #define MATERIAL_SSS_MAXDIST 0.8
 #define MATERIAL_SSS_SCATTER 100 // [0 10 20 30 40 50 60 70 80 90 100]
+#define MATERIAL_SSS_BOOST 200 // [100 150 200 250 300]
 #define MATERIAL_SPECULAR 1 // [0 1 2 3]
 #define MATERIAL_PARALLAX 0 // [0 1 2 3]
 #define MATERIAL_PARALLAX_SAMPLES 32 // [16 24 32 48 64 96 128]
@@ -495,6 +496,7 @@ const float MaterialMetalBrightnessF = METAL_BRIGHTNESS * 0.01;
 const float MaterialReflectionStrength = MATERIAL_REFLECT_STRENGTH * 0.01;
 const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float MaterialScatterF = MATERIAL_SSS_SCATTER * 0.01;
+const float MaterialSssBoostF = MATERIAL_SSS_BOOST * 0.01;
 const float ParallaxDepthF = MATERIAL_PARALLAX_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
 const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;

@@ -170,13 +170,17 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
     #include "/lib/world/fog.glsl"
 
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #include "/lib/clouds/cloud_vars.glsl"
+    #endif
+
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/world/clouds.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
     #endif
 
     #if VOLUMETRIC_BRIGHT_SKY > 0
         #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/shadows/clouds.glsl"
+            #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

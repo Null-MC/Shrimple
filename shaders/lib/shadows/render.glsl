@@ -37,10 +37,13 @@
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-            vec2 sssOffset = 2.0 * hash22(vec2(dither, 0.0)) - 1.0;
-            sssOffset *= MaterialScatterF;
 
-            float bias = sss * _pow2(dither);
+            float bias = sss * dither;
+
+            vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
+            sssOffset *= bias * MaterialScatterF;
+            
+            bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);
 
             //sssOffset = (sssOffset);
 
@@ -49,9 +52,7 @@
 
                 if (tile >= 0) {
                     vec3 _shadowPos = shadowPos[tile];
-                    _shadowPos.xy += 0.002 * bias * sssOffset;
-
-                    bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);
+                    _shadowPos.xy += 0.002 * sssOffset;
 
                     #ifdef SHADOW_COLORED
                         shadow = GetShadowColor(_shadowPos, tile, bias);
@@ -61,14 +62,15 @@
                 }
             #else
                 vec3 _shadowPos = shadowPos;
-                _shadowPos.xy += 0.02 * bias * sssOffset;
+                _shadowPos.xy += 0.1 * (shadowDistance / shadowMapResolution) * sssOffset;
+                _shadowPos.z -= bias;
 
-                bias *= MATERIAL_SSS_MAXDIST / (2.0 * far);
+                _shadowPos = distort(_shadowPos) * 0.5 + 0.5;
 
                 #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(_shadowPos, bias);
+                    shadow = GetShadowColor(_shadowPos, 0.0);
                 #else
-                    shadow = GetShadowFactor(_shadowPos, bias);
+                    shadow = GetShadowFactor(_shadowPos, 0.0);
                 #endif
             #endif
         #endif

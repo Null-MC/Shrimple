@@ -469,7 +469,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                 vec3 lpvLight = vec3(0.0);
 
-                if (!isWater) {
+                #ifdef LPV_GI
+                    if (!isWater) {
+                #endif
                     lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
 
                     //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
@@ -478,7 +480,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                     //skyLightF = smoothstep(1.0, 0.85, skyLightF) * viewDistF;
                     //lpvLight = skyLightF*0.96 + 0.04;
-                }
+                #ifdef LPV_GI
+                    }
+                #endif
 
                 blockLightAccum += 0.25 * lpvLight * GetLpvFade(lpvPos);
             #endif

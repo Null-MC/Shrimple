@@ -150,6 +150,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 
     #if WATER_DEPTH_LAYERS > 1
@@ -186,7 +187,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/buffers/collisions.glsl"
+    //#include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -197,9 +198,13 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #include "/lib/clouds/cloud_vars.glsl"
+    #endif
+
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/clouds.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
     #endif
 #endif
 
@@ -221,7 +226,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
-#include "/lib/lighting/voxel/block_light_map.glsl"
+// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
@@ -232,7 +237,7 @@ uniform int heldBlockLightValue2;
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        #include "/lib/shadows/clouds.glsl"
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
     
     #include "/lib/lighting/reflections.glsl"

@@ -77,6 +77,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/anim.glsl"
 
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/volume.glsl"
 
@@ -92,7 +93,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
         //#include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/block_light_map.glsl"
+        // #include "/lib/lighting/voxel/block_light_map.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/lights_render.glsl"
     #endif
@@ -368,7 +369,9 @@ void main() {
         vec4 lightValue = vec4(0.0);
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-            uint lightType = GetSceneLightType(int(blockId));
+            //uint lightType = GetSceneLightType(int(blockId));
+            uint lightType = CollissionMaps[blockId].LightId;
+
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                 StaticLightData lightInfo = StaticLightMap[lightType];
                 vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;

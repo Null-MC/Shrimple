@@ -48,10 +48,10 @@ float computeBias(vec3 pos) {
             shadowPos = (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
         #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            shadowPos = distort(shadowPos);
-        #endif
+        // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        //     shadowPos = distort(shadowPos);
+        // #endif
 
-        shadowPos = shadowPos * 0.5 + 0.5;
+        // shadowPos = shadowPos * 0.5 + 0.5;
     }
 #endif
