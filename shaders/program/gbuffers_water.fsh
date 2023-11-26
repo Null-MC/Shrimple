@@ -219,6 +219,8 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
@@ -270,7 +272,7 @@ uniform int heldBlockLightValue2;
     #endif
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/buffers/collissions.glsl"
+        #include "/lib/buffers/collisions.glsl"
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
@@ -282,9 +284,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sampling.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-#endif
+// #ifdef WORLD_SKY_ENABLED
+//     #include "/lib/world/sky.glsl"
+// #endif
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/sampling/linear.glsl"

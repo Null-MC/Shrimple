@@ -7,6 +7,10 @@
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     const bool colortex0MipmapEnabled = true;
+
+    #ifndef MATERIAL_REFLECT_HIZ
+        const bool depthtex0MipmapEnabled = true;
+    #endif
 #endif
 
 in vec2 texcoord;
@@ -182,7 +186,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/buffers/collissions.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -469,6 +473,14 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #else
                 //deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            #endif
+
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                    deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                // #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
+                #endif
             #endif
 
             float occlusion = deferredLighting.z;
@@ -846,7 +858,21 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
-                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                #ifdef WORLD_SKY_ENABLED
+                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                #endif
+                
+                eyeSkyLightF += 0.02;
+
+                const float WaterAmbientF = 0.0;
+
+                vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                vec3 transmittance = exp(-WaterAbsorbColorInv * viewDist);
+                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
+
+                final.rgb = final.rgb * transmittance + scatteringIntegral / WaterAbsorbColorInv;
             }
         #endif
 
@@ -908,7 +934,7 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined VL_BUFFER_ENABLED || (defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM)
             #ifdef VOLUMETRIC_BLUR
                 const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
                 const vec2 vlSigma = vec2(1.0, 0.002);
@@ -919,11 +945,20 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            // if (isEyeInWater != 1) {
-            //     vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-            //     final.rgb = final.rgb * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
-            // }
+        #else
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater != 1) {
+            #endif
+
+                vec3 inScattering = AirScatterF * (phaseAir * WorldSkyLightColor + AirAmbientF);
+                float transmittance = exp(-AirExtinctF * viewDist);
+                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
+
+                final.rgb = final.rgb * transmittance + scatteringIntegral / AirExtinctF;
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
         #endif
 
         vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);

@@ -6,7 +6,7 @@ const float WATER_FREQUENCY_MULT = 1.14;
 const float WATER_SPEED_MULT = 1.06;
 const float WATER_ITER_INC = 0.16 * PI * (3.0 - sqrt(5.0));
 const float WATER_WEIGHT = 0.55;
-const float WATER_NORMAL_STRENGTH = 0.85;
+const float WATER_NORMAL_STRENGTH = 0.5;
 
 #if   WORLD_WATER_WAVES == 3
     #define WATER_ITERATIONS_FRAGMENT 42

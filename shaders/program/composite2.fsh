@@ -41,7 +41,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED && defined IS_IRIS
+#if defined WORLD_SKY_ENABLED && ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
@@ -77,7 +77,7 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
 #ifdef ANIM_WORLD_TIME
-    uniform int worldTime;
+    //uniform int worldTime;
 #else
     uniform float frameTimeCounter;
 #endif
@@ -98,7 +98,7 @@ uniform float blindness;
     uniform float skyWetnessSmooth;
     uniform float wetness;
 
-    #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
+    #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
@@ -177,7 +177,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #include "/lib/buffers/collissions.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -224,7 +224,7 @@ uniform int heldBlockLightValue2;
 // #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
+    #if defined WORLD_SKY_ENABLED && defined IS_IRIS && (defined MATERIAL_REFLECT_CLOUDS || defined RENDER_CLOUD_SHADOWS_ENABLED)
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/world/clouds.glsl"
@@ -416,6 +416,14 @@ layout(location = 0) out vec4 outFinal;
             #else
                 //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            #endif
+
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                    deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                // #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
+                #endif
             #endif
 
             vec3 albedo = RGBToLinear(deferredColor);

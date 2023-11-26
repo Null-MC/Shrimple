@@ -204,7 +204,7 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #include "/lib/buffers/collissions.glsl"
+    #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -268,7 +268,16 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    if (color.a < (1.5/255.0) || vLocalPos.y + cameraPosition.y > cloudHeight) {
+    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #if WORLD_CLOUD_TYPE != CLOUDS_CUSTOM
+            const float CloudHeight = 4.0;
+        #endif
+
+        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vLocalPos.y + cameraPosition.y - cloudHeight);
+        color.a *= 1.0 - cloudY;
+    #endif
+
+    if (color.a < (1.5/255.0)) {
         discard;
         return;
     }
@@ -396,6 +405,8 @@ void main() {
 
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #else
+        // TODO: fake VL
     #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

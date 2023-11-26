@@ -28,7 +28,7 @@ in vec2 texcoord;
         #endif
     #endif
 
-    #ifdef VL_BUFFER_ENABLED
+    #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler2D BUFFER_VL;
     #endif
 
@@ -147,13 +147,11 @@ in vec2 texcoord;
     //#include "/lib/sampling/bilateral_gaussian.glsl"
     //#include "/lib/world/volumetric_blur.glsl"
 
-    #ifdef VL_BUFFER_ENABLED
+    #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #ifdef VOLUMETRIC_BLUR
             #include "/lib/sampling/bilateral_gaussian.glsl"
             #include "/lib/world/volumetric_blur.glsl"
         #endif
-    #else
-        //#include "/lib/world/clouds.glsl"
     #endif
 #endif
 
@@ -287,7 +285,23 @@ layout(location = 0) out vec4 outFinal;
 
             #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
                 if (isWater) {
-                    final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+                    //final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+
+                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                    #ifdef WORLD_SKY_ENABLED
+                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                    #endif
+                    
+                    eyeSkyLightF += 0.02;
+
+                    const float WaterAmbientF = 0.0;
+
+                    vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                    vec3 transmittance = exp(-WaterAbsorbColorInv * waterDepthFinal);
+                    vec3 scatteringIntegral = inScattering - inScattering * transmittance;
+
+                    final = final * transmittance + scatteringIntegral / WaterAbsorbColorInv;
                 }
             #endif
 
@@ -355,7 +369,7 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #ifdef VL_BUFFER_ENABLED
+            #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
                 #ifdef VOLUMETRIC_BLUR
                     const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
@@ -367,18 +381,23 @@ layout(location = 0) out vec4 outFinal;
                         const vec2 vlSigma = vec2(1.2, 0.00002);
                     #endif
 
-                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaque, vlSigma);
+                    float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaqueL, vlSigma);
                 #else
                     vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
                 #endif
 
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
-            #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-                // if (isEyeInWater == 1) {
-                //     float viewDist = length(localPosOpaque);
-                //     vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-                //     final = final * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
-                // }
+            #else
+                if (isWater && isEyeInWater == 1) {
+                    float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
+
+                    vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                    float sampleTransmittance = exp(-AirExtinctF * viewDist);
+                    vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
+
+                    final = final * sampleTransmittance + scatteringIntegral / AirExtinctF;
+                }
             #endif
         }
 

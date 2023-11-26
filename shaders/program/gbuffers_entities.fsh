@@ -195,6 +195,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+
     #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/lighting/hg.glsl"
         #include "/lib/world/clouds.glsl"
@@ -237,7 +239,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        #include "/lib/buffers/collissions.glsl"
+        #include "/lib/buffers/collisions.glsl"
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
@@ -271,9 +273,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
-    #endif
+    // #ifdef WORLD_SKY_ENABLED
+    //     #include "/lib/world/sky.glsl"
+    // #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"

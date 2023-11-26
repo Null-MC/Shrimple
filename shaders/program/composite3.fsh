@@ -134,7 +134,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
 
-            #include "/lib/buffers/collissions.glsl"
+            #include "/lib/buffers/collisions.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
 
@@ -241,13 +241,13 @@ void main() {
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        #ifdef VL
+        #ifdef VL_BUFFER_ENABLED
             float farMax = far;//min(shadowDistance, far) - 0.002;
             float distNear = clamp(distTranslucent, near, farMax);
             float distFar = clamp(distOpaque, near, farMax);
 
             final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
-        #elif WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #elif defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
             if (isEyeInWater == 1) {
                 final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }

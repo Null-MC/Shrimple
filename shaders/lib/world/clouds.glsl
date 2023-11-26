@@ -6,15 +6,11 @@
 
 const int CloudOctaves = 3;
 const float CloudAmbientF = 0.02;
-const float CloudScatterF = mix(2.40, 2.40, rainStrength);
+const float CloudScatterF = mix(2.40, 1.20, rainStrength);
 const float CloudAbsorbF  = mix(0.36, 0.96, rainStrength);
 const float CloudFar = 800.0;//mix(800.0, far, rainStrength);
 const float CloudHeight = 128.0;
 const float CloudSize = 16.0;
-
-const float AirAmbientF = 0.0;
-const float AirScatterF = mix(0.002, 0.004, rainStrength);
-const float AirExtinctF = mix(0.001, 0.008, rainStrength);
 
 
 float SampleCloudOctaves(in vec3 worldPos) {
@@ -90,8 +86,11 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
         cloudDist = min(cloudDistFar, min(viewDist, CloudFar)) - cloudDistNear;
 
+    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+
     float cloudAbsorb = 1.0;
     vec3 cloudScatter = vec3(0.0);
+    float _airScatterF = AirScatterF * eyeSkyLightF;
 
     float VoL = dot(localSkyLightDirection, localViewDir);
     float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
@@ -103,7 +102,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
         if (cloudDistNear > 0.0) {
             float stepLength = min(cloudDistNear, farMax);
 
-            vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
             float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
             vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
@@ -148,7 +147,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
 
             float inRange = step(cloudDistNear + stepLength * (stepI + dither), far);
 
-            float stepScatterF = mix(inRange * AirScatterF, CloudScatterF, sampleD);
+            float stepScatterF = mix(inRange * _airScatterF, CloudScatterF, sampleD);
             float stepExtinctF = mix(inRange * AirExtinctF, CloudAbsorbF, sampleD);
             float phase = mix(phaseAir, phaseCloud, sampleD);
 
@@ -165,7 +164,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
         if (farMax > cloudDistFar) {
             float stepLength = farMax - cloudDistFar;
 
-            vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
             float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
             vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
@@ -178,7 +177,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     else {
         float stepLength = farMax;
 
-        vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+        vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
         float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;

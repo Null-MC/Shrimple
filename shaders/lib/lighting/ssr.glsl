@@ -53,7 +53,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     int level = 0;
     #ifndef MATERIAL_REFLECT_HIZ
         //screenRay *= 8.0;
-        level = max(int(log2(0.5 * maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 1);
+        level = max(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 1);
     #endif
 
     vec3 lastTracePos = clipPos + screenRay * dither;
@@ -125,6 +125,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         #else
             //texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
             texDepth = texelFetch(depthtex, ivec2(tracePos.xy * viewSize), 0).r;
+            //texDepth = textureLod(depthtex, tracePos.xy, 4).r;
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);

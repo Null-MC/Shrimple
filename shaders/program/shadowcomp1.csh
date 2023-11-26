@@ -330,15 +330,6 @@ void main() {
         ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
         int k = getSharedCoord(kernelPos);
 
-        ivec3 voxelPos = voxelOffset + imgCoord;
-        ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
-        uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-
-        uint blockId = BLOCK_EMPTY;
-        if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
-            blockId = GetVoxelBlockMask(blockCell, gridIndex);
-
         lpvSharedData[k] = GetLpvValue(imgCoordPrev);
         //voxelBlockShared[k] = blockId;
 
@@ -360,6 +351,15 @@ void main() {
         barrier();
 
         if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
+
+        ivec3 voxelPos = voxelOffset + imgCoord;
+        ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
+
+        uint blockId = BLOCK_EMPTY;
+        if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
+            blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
         vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
