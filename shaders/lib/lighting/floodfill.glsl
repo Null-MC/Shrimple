@@ -73,6 +73,10 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
         vec3 skyDiffuse = D * skyLightColor * shadowColor;
 
+        float viewDist = length(localPos);
+        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
+        skyDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+
         #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
             vec3 f0 = GetMaterialF0(albedo, metal_f0);
 

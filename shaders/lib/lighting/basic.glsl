@@ -114,6 +114,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
         float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
         vec3 accumDiffuse = D * skyLightColor * shadowColor;
+        
+        float viewDist = length(localPos);
+        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
+        accumDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
 
         vec2 lmcoordFinal = saturate(lmcoord);
         lmcoordFinal.x = 0.0;

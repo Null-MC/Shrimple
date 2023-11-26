@@ -38,10 +38,11 @@
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-            vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
-            sssOffset *= sss * MaterialScatterF;
+            float bias = sss * dither;
 
-            float bias = sss * _pow2(dither);
+            vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
+            sssOffset *= bias * MaterialScatterF;
+            
             bias *= MATERIAL_SSS_MAXDIST / (3.0 * far);
 
             //sssOffset = (sssOffset);
