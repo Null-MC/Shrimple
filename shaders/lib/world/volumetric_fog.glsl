@@ -10,7 +10,7 @@ struct VolumetricPhaseFactors {
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
         float skyLight = eyeBrightnessSmooth.y / 240.0;
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, skyRainStrength) * skyLight;
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, skyRainStrength) * (skyLight * 0.96 + 0.04);
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
@@ -265,8 +265,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 #if LPV_SIZE > 0
                     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
                     ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF;
-                #else
-                    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor;
+                //#else
+                //    ambientWater = 0.015 * vec3(0.2, 0.8, 1.0) * skyLightColor;
                 #endif
             #endif
         #endif
@@ -311,7 +311,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float eyeLightF = eyeBrightnessSmooth.y / 240.0;
-            
+
             float sampleF = _pow2(eyeLightF);
             vec3 sampleColor = skyLightColor;
             float sampleDepth = 0.0;
