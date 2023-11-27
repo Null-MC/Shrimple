@@ -222,6 +222,9 @@ option.MATERIAL_SSS=Enabled
 option.MATERIAL_SSS_SCATTER=Scattering
 suffix.MATERIAL_SSS_SCATTER=%
 
+option.MATERIAL_SSS_BOOST=Boost
+suffix.MATERIAL_SSS_BOOST=%
+
 
 screen.MATERIAL_REFLECT_OPTIONS=Reflections
 
@@ -234,6 +237,12 @@ option.MATERIAL_REFLECT_STRENGTH=Strength
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=SSR Max Step Count
+
+option.MATERIAL_REFLECT_CLOUDS=Clouds
+option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections.
+
+option.MATERIAL_REFLECT_GLASS=Glass
+option.MATERIAL_REFLECT_GLASS.comment=Allows regular glass to have reflections on cutout/invisible areas.
 
 
 screen.MATERIAL_REFRACT_OPTIONS=Refraction
@@ -445,6 +454,9 @@ value.VOLUMETRIC_RES.2=Quarter
 option.VOLUMETRIC_BLOCK_RT=Ray Traced
 option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights; requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: will kill performance dead!
 
+option.VOLUMETRIC_BLUR=Filter
+option.VOLUMETRIC_BLUR=Applies post-filtering of volumetric lighting for a smoother result.
+
 
 screen.SHADOW_OPTIONS=Shadows
 screen.SHADOW_OPTIONS.comment=Options for shadows.
@@ -533,6 +545,9 @@ option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer 
 
 
 screen.EFFECT_OPTIONS=Effects
+
+option.EFFECT_AUTO_EXPOSE=Auto-Exposure
+option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
 
 screen.EFFECT_BLOOM_OPTIONS=Bloom

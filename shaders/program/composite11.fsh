@@ -18,6 +18,10 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 
+#ifdef EFFECT_AUTO_EXPOSE
+    uniform ivec2 eyeBrightnessSmooth;
+#endif
+
 #include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
@@ -45,9 +49,13 @@ void main() {
         color = RGBToLinear(color);
     #endif
     
-    #if POST_EXPOSURE != 0
-        color *= exp2(POST_EXPOSURE);
+    #ifdef EFFECT_AUTO_EXPOSE
+        vec2 eyeBright = eyeBrightnessSmooth / 240.0;
+        float brightF = 1.0 - max(eyeBright.x * 0.5, eyeBright.y);
+        color *= mix(1.0, 3.0, pow(brightF, 1.5));
     #endif
+
+    color *= exp2(POST_EXPOSURE);
 
     float power = EFFECT_BLOOM_POWER;
     if (isEyeInWater == 1) power = 1.0;
