@@ -9,22 +9,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
     float viewDist = length(fragLocalPos);
     vec3 localViewDir = -normalize(fragLocalPos);
     float distBiasScale = min(0.001*viewDist, 0.25);
-
-    // fragLocalPos += fragLocalNormal * 0.0002;
     
     vec3 surfacePos = fragLocalPos;
     surfacePos -= fragLocalNormal * 0.0002;
-
-    // // lightFragPos += distBiasScale*fragLocalNormal;
-    // // lightFragPos += distBiasScale*localViewDir;
-
-    // vec3 stepDir = sign(fragLocalNormal);
-    // //vec3 stepSizes = rcp(abs(direction));
-    // vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(lightFragPos)) / fragLocalNormal;
-    // float closestDist = minOf(nextDist);
-    // lightFragPos += fragLocalNormal * closestDist;
-
-    // //lightFragPos += fragLocalNormal * (sign(fragLocalNormal) - dot(fract(lightFragPos), abs(fragLocalNormal)));
 
     bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
@@ -73,17 +60,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
 
                 vec3 lightDir = normalize(lightVec);
 
-                //vec3 lightFragPos = fragLocalPos;
-                // lightFragPos += distBiasScale*fragLocalNormal;
-                // lightFragPos += distBiasScale*localViewDir;
-
-                //vec3 stepSizes = rcp(abs(direction));
                 vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - fract(surfacePos + cameraPosition)) / lightDir;
-                float closestDist = minOf(nextDist);
-
-                //lightFragPos += lightDir * closestDist;
-                //if (abs(closestDist) < 1.0)
-                    lightVec -= lightDir * closestDist;
+                lightVec -= lightDir * minOf(nextDist);
 
                 //surfacePos += fragLocalNormal * 0.0002;
 
@@ -92,12 +70,10 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
 
                 lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeR);
             #else
-                // = lightLocalPos - fragLocalPos;
                 vec3 lightDir = normalize(lightVec);
             #endif
 
             geoNoL = 1.0;
-            //vec3 lightDir = normalize(lightVec);
             if (hasGeoNormal) geoNoL = dot(fragLocalNormal, lightDir);
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
@@ -149,9 +125,6 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
             //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
-                vec3 traceEnd = traceOrigin - 0.99*lightVec;
-
                 #if defined LIGHT_HAND_SOFT_SHADOW && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
@@ -160,11 +133,22 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
                     traceOrigin += offset * lightSize * 0.5;
                 #endif
 
+                vec3 lightDir = normalize(lightVec);
+
+                vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - fract(surfacePos + cameraPosition)) / lightDir;
+                lightVec -= lightDir * minOf(nextDist);
+
+                //surfacePos += fragLocalNormal * 0.0002;
+
+                vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
+                vec3 traceEnd = traceOrigin - 0.99*lightVec;
+
                 lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeL);
+            #else
+                vec3 lightDir = normalize(lightVec);
             #endif
             
             geoNoL = 1.0;
-            vec3 lightDir = normalize(lightVec);
             if (hasGeoNormal) geoNoL = dot(fragLocalNormal, lightDir);
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
