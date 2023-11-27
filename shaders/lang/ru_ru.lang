@@ -423,10 +423,10 @@ value.VOLUMETRIC_BLOCK_MODE.2=Трассировачный [Простой]
 value.VOLUMETRIC_BLOCK_MODE.3=Трассировачный [Полный]
 
 option.VOLUMETRIC_SAMPLES=Качество
-value.VOLUMETRIC_SAMPLES.8=Низкое
-value.VOLUMETRIC_SAMPLES.12=Среднее
-value.VOLUMETRIC_SAMPLES.16=Высокое
-value.VOLUMETRIC_SAMPLES.24=Очень Высокое
+value.VOLUMETRIC_SAMPLES.12=Низкое
+value.VOLUMETRIC_SAMPLES.20=Среднее
+value.VOLUMETRIC_SAMPLES.28=Высокое
+value.VOLUMETRIC_SAMPLES.36=Очень Высокое
 
 option.VOLUMETRIC_DENSITY=Плотность
 option.VOLUMETRIC_DENSITY.comment=Плотность атмосферного тумана, используемого для объёмного освещения.
