@@ -221,6 +221,9 @@ option.MATERIAL_SSS=Включено
 option.MATERIAL_SSS_SCATTER=Рассеяние
 suffix.MATERIAL_SSS_SCATTER=%
 
+option.MATERIAL_SSS_BOOST=Скорость
+suffix.MATERIAL_SSS_BOOST=%
+
 
 screen.MATERIAL_REFLECT_OPTIONS=Отражение
 
@@ -234,6 +237,11 @@ suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=ПЭО Максимальное количество действий
 
+option.MATERIAL_REFLECT_CLOUDS=Облака
+option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях.
+
+option.MATERIAL_REFLECT_GLASS=Стекло
+option.MATERIAL_REFLECT_GLASS.comment=Позволять обычному стеклу иметь отражения в вырезанных/невидимых участках.
 
 screen.MATERIAL_REFRACT_OPTIONS=Преломление
 
@@ -441,6 +449,8 @@ value.VOLUMETRIC_RES.2=Низкое
 option.VOLUMETRIC_BLOCK_RT=Трассировка Лучей
 option.VOLUMETRIC_BLOCK_RT.comment=Включает объёмную трассировку лучей для блочного освещения; необходимо, чтобы было включено блочное освещение с трассировкой лучей. §c§lОСТОРОЖНО§r§c: может привести к снижению производительности!
 
+option.VOLUMETRIC_BLUR=Фильтр
+option.VOLUMETRIC_BLUR=Применять постфильтрацию объёмного освещения для получения более гладкого результата.
 
 screen.SHADOW_OPTIONS=Тень
 screen.SHADOW_OPTIONS.comment=Настройки для теней.
@@ -529,6 +539,9 @@ option.SHADOW_BLUR.comment=Применяет пост гауссовое раз
 
 
 screen.EFFECT_OPTIONS=Эффекты
+
+option.EFFECT_AUTO_EXPOSE=Авто-Экспозиция
+option.EFFECT_AUTO_EXPOSE.comment=Быстрый эффект авто-экспозиции, основанный на яркости в месте расположения камеры.
 
 
 screen.EFFECT_BLOOM_OPTIONS=Блюм
