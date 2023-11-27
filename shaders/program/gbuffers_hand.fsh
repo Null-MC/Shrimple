@@ -108,12 +108,6 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
-
-uniform float blindness;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifndef ANIM_WORLD_TIME
@@ -121,15 +115,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    uniform vec3 sunPosition;
-    uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     uniform float skyRainStrength;
+#endif
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
-    #endif
+#ifdef WORLD_WATER_ENABLED
+    uniform int isEyeInWater;
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -138,13 +132,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
-    uniform vec3 WaterAbsorbColor;
-    uniform vec3 WaterScatterColor;
-    uniform float waterDensitySmooth;
 #endif
 
 #ifdef IS_IRIS
@@ -161,6 +148,29 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
+#endif
+
+#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #ifdef WORLD_SKY_ENABLED
+        uniform vec3 sunPosition;
+        uniform vec3 shadowLightPosition;
+
+        #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+            uniform float cloudTime;
+            uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        #endif
+
+        #ifdef IS_IRIS
+            uniform vec4 lightningBoltPosition;
+        #endif
+    #endif
+
+    uniform int heldItemId;
+    uniform int heldItemId2;
+    uniform int heldBlockLightValue;
+    uniform int heldBlockLightValue2;
+
+    uniform float blindness;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -188,16 +198,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
-#endif
-
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/clouds/cloud_vars.glsl"
-        #include "/lib/clouds/cloud_custom.glsl"
-    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -230,6 +230,16 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/voxel/lights_render.glsl"
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+
+        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
+            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
+        #endif
+    #endif
+
     #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE == DYN_LIGHT_TRACED || LPV_SIZE > 0)
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
@@ -263,6 +273,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/specular.glsl"
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #include "/lib/lighting/scatter_transmit.glsl"
+
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif

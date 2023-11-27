@@ -118,7 +118,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //#if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         //    const float weatherF = 1.0;
         //#else
-            float weatherF = 1.0 - 0.9 * skyRainStrength;
+            float weatherF = 1.0 - 0.8 * skyRainStrength;
         //#endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);

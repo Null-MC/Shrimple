@@ -153,6 +153,10 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
+
+    #ifdef IS_IRIS
+        uniform vec4 lightningBoltPosition;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -314,6 +318,8 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
+    #include "/lib/lighting/scatter_transmit.glsl"
+
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
