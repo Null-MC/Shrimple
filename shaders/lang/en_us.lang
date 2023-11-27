@@ -222,6 +222,9 @@ option.MATERIAL_SSS=Enabled
 option.MATERIAL_SSS_SCATTER=Scattering
 suffix.MATERIAL_SSS_SCATTER=%
 
+option.MATERIAL_SSS_BOOST=Boost
+suffix.MATERIAL_SSS_BOOST=%
+
 
 screen.MATERIAL_REFLECT_OPTIONS=Reflections
 
