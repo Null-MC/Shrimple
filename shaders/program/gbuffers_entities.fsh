@@ -118,6 +118,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    uniform float skyRainStrength;
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
         uniform float cloudTime;

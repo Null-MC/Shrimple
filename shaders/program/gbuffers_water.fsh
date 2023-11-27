@@ -146,6 +146,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float wetness;
 
+    uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS

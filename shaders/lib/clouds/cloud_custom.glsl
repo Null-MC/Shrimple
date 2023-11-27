@@ -22,7 +22,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
         testPos /= scale;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
-        sampleD += pow(sampleF, 3.0 - 2.0 * rainStrength) * rcp(exp2(octave));
+        sampleD += pow(sampleF, 3.0 - 2.0 * skyRainStrength) * rcp(exp2(octave));
     }
 
     const float sampleMax = rcp(1.0 - rcp(exp2(CloudOctaves)));
@@ -31,7 +31,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
     float z = saturate(worldPos.y / CloudHeight);
     sampleD *= sqrt(z - z*z) * 2.0;
 
-    float threshold = mix(0.36, 0.74, rainStrength);
+    float threshold = mix(0.36, 0.74, skyRainStrength);
     sampleD = max(sampleD - threshold, 0.0) / threshold;
 
     return smootherstep(sampleD);

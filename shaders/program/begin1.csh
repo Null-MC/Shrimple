@@ -26,6 +26,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 shadowLightPosition;
         uniform float rainStrength;
+        uniform float skyRainStrength;
         uniform vec3 sunPosition;
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

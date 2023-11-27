@@ -92,7 +92,7 @@ void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float 
         float rippleF = 1.0 - min(viewDist * 0.06, 1.0);
         //rippleNormal = normalize(rippleNormal);
 
-        rippleF *= _pow2(puddleF) * rainStrength;
+        rippleF *= _pow2(puddleF) * skyRainStrength;
 
         return vec4(rippleNormal, rippleF);
     }

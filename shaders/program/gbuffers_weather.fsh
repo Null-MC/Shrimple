@@ -96,13 +96,18 @@ uniform float blindness;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    uniform float skyRainStrength;
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
+    #ifdef IS_IRIS
+        uniform vec4 lightningBoltPosition;
+
+        #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform float cloudTime;
+        #endif
     #endif
-#endif
 
-uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     //uniform vec3 shadowLightPosition;
@@ -218,8 +223,10 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/items.glsl"
+
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_WEATHER
     #include "/lib/lighting/voxel/sampling.glsl"
@@ -400,7 +407,7 @@ void main() {
         ApplyFog(color, vLocalPos, localViewDir);
     #endif
 
-    #ifdef VL_BUFFER_ENABLED
+    #if defined VL_BUFFER_ENABLED && defined VL_PARTICLES_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
         #endif
@@ -408,7 +415,12 @@ void main() {
         vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
         color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
     #else
-        // TODO: fake VL
+        float maxDist = min(viewDist, far);
+        // TODO: limit to < cloudNear
+
+        vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+        vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
+        color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
     #endif
 
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

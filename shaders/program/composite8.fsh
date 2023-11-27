@@ -107,11 +107,16 @@ uniform int isEyeInWater;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    uniform float skyRainStrength;
     //uniform float wetness;
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
+
+    #ifdef IS_IRIS
+        uniform vec4 lightningBoltPosition;
     #endif
 #endif
 
@@ -234,6 +239,8 @@ uniform int heldBlockLightValue2;
     #include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/ssr.glsl"
 #endif
+
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
@@ -863,6 +870,8 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
+                const float WaterAmbientF = 0.0;
+                
                 float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
                 #ifdef WORLD_SKY_ENABLED
@@ -871,13 +880,8 @@ layout(location = 0) out vec4 outFinal;
                 
                 eyeSkyLightF += 0.02;
 
-                const float WaterAmbientF = 0.0;
-
-                vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
-                vec3 transmittance = exp(-WaterAbsorbColorInv * viewDist);
-                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
-
-                final.rgb = final.rgb * transmittance + scatteringIntegral / WaterAbsorbColorInv;
+                vec3 vlLight = (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                ApplyScatteringTransmission(final.rgb, viewDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
             }
         #endif
 
@@ -955,11 +959,9 @@ layout(location = 0) out vec4 outFinal;
                 if (isEyeInWater != 1) {
             #endif
 
-                vec3 inScattering = AirScatterF * (phaseAir * WorldSkyLightColor + AirAmbientF);
-                float transmittance = exp(-AirExtinctF * viewDist);
-                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
-
-                final.rgb = final.rgb * transmittance + scatteringIntegral / AirExtinctF;
+                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirScatterF, AirExtinctF);
+                final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
             #ifdef WORLD_WATER_ENABLED
                 }

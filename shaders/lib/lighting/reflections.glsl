@@ -177,10 +177,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #endif
 
     #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM && (!defined RENDER_GBUFFER || defined RENDER_WATER)
-        vec3 reflectPos = cameraPosition + localPos;
-        //reflectPos.y += 2.0 * localPos.y;
-
-        vec4 cloudScatterTransmit = TraceCloudVL(reflectPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+        vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
         reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
     #else
         #ifdef WORLD_WATER_ENABLED
@@ -188,20 +185,17 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
                 const float WaterAmbientF = 0.0;
 
-                vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
-                vec3 transmittance = exp(-WaterAbsorbColorInv * reflectDist);
-                vec3 scatteringIntegral = inScattering - inScattering * transmittance;
-
-                reflectColor = reflectColor * transmittance + scatteringIntegral / WaterAbsorbColorInv;
+                vec3 vlLight = (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
             }
             else {
         #endif
 
-            vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
-            float transmittance = exp(-AirExtinctF * reflectDist);
-            vec3 scatteringIntegral = inScattering - inScattering * transmittance;
+            // TODO: Limit reflectDist < cloudNear
 
-            reflectColor = reflectColor * transmittance + scatteringIntegral / AirExtinctF;
+            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
+            reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
 
         #ifdef WORLD_WATER_ENABLED
             }

@@ -85,10 +85,15 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    uniform float skyRainStrength;
 
     #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
+
+    #ifdef IS_IRIS
+        uniform vec4 lightningBoltPosition;
     #endif
 #endif
 
@@ -209,6 +214,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
