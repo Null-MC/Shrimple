@@ -182,10 +182,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #else
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {
-                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
                 const float WaterAmbientF = 0.0;
 
-                vec3 vlLight = (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
                 ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
             }
             else {
@@ -193,7 +193,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
             // TODO: Limit reflectDist < cloudNear
 
-            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor * pow5(skyLight);
             vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
             reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
 

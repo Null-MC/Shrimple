@@ -265,6 +265,10 @@ value.DYN_LIGHT_MODE.0=Light Map
 value.DYN_LIGHT_MODE.1=Flood Fill
 value.DYN_LIGHT_MODE.2=Ray Traced
 
+option.WORLD_LIGHT_MIN=Minimum
+option.WORLD_LIGHT_MIN.comment=The minimum amount of light for the world.
+suffix.WORLD_LIGHT_MIN=%
+
 option.DYN_LIGHT_BRIGHTNESS=Brightness
 option.DYN_LIGHT_BRIGHTNESS.comment=The brightness of dynamic lights.
 suffix.DYN_LIGHT_BRIGHTNESS=%
