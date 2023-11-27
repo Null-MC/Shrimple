@@ -26,30 +26,30 @@ void main() {
         mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
 
         matColorPost = matSaturation * (matContrast * matBrightness);
-    #endif
-    
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        const float goldenAngle = PI * (3.0 - sqrt(5.0));
-        const float PHI = (1.0 + sqrt(5.0)) / 2.0;
+        
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            const float goldenAngle = PI * (3.0 - sqrt(5.0));
+            const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 
-        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-            float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
-            float theta = i * goldenAngle + PHI;
-            
-            float sine = sin(theta);
-            float cosine = cos(theta);
-            
-            pcfDiskOffset[i] = vec2(cosine, sine) * r;
-        }
+            for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+                float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                float theta = i * goldenAngle + PHI;
+                
+                float sine = sin(theta);
+                float cosine = cos(theta);
+                
+                pcfDiskOffset[i] = vec2(cosine, sine) * r;
+            }
 
-        for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
-            float r = sqrt((i + 0.5) / SHADOW_PCSS_SAMPLES);
-            float theta = i * goldenAngle + PHI;
-            
-            float sine = sin(theta);
-            float cosine = cos(theta);
-            
-            pcssDiskOffset[i] = vec2(cosine, sine) * r;
-        }
+            for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
+                float r = sqrt((i + 0.5) / SHADOW_PCSS_SAMPLES);
+                float theta = i * goldenAngle + PHI;
+                
+                float sine = sin(theta);
+                float cosine = cos(theta);
+                
+                pcssDiskOffset[i] = vec2(cosine, sine) * r;
+            }
+        #endif
     #endif
 }

@@ -5,8 +5,11 @@ vec3 worldMoonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
 
 const float phaseAir = 0.25;
 const float AirAmbientF = 0.0;
-float AirScatterF = mix(0.002, 0.004, rainStrength);
-float AirExtinctF = mix(0.001, 0.008, rainStrength);
+float AirScatterF = mix(0.002, 0.004, skyRainStrength);
+float AirExtinctF = mix(0.001, 0.008, skyRainStrength);
+
+const float LightningRangeInv = rcp(200.0);
+const float LightningBrightness = 20.0;
 
 
 float GetSkyHorizonF(const in float celestialUpF) {
@@ -34,7 +37,7 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
 #endif
 
 vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
-    return skyLightColor * (1.0 - 0.6*rainStrength);
+    return skyLightColor * (1.0 - 0.8*skyRainStrength);
 }
 
 #ifndef RENDER_BEGIN

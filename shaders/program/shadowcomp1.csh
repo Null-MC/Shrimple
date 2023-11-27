@@ -443,7 +443,7 @@ void main() {
 
                             float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
                             float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
-                            skyLightBrightF *= 1.0 - 0.8 * rainStrength;
+                            skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                             // TODO: make darker at night
 
                             //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
@@ -452,7 +452,7 @@ void main() {
                             //    float skyLightRange = mix(1.0, 16.0, sunUpF);
                             //#endif
 
-                            skyLightRange *= 1.0 - 0.8 * rainStrength;
+                            skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
                             float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 

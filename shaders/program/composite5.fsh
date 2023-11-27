@@ -73,6 +73,7 @@ in vec2 texcoord;
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 skyColor;
         uniform float rainStrength;
+        uniform float skyRainStrength;
 
         #ifndef IRIS_FEATURE_SSBO
             uniform vec3 sunPosition;
@@ -127,6 +128,8 @@ in vec2 texcoord;
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
     #endif
+
+    #include "/lib/lighting/scatter_transmit.glsl"
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -289,7 +292,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
                 if (isWater) {
-                    //final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+                    const float WaterAmbientF = 0.0;
 
                     float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
@@ -299,13 +302,10 @@ layout(location = 0) out vec4 outFinal;
                     
                     eyeSkyLightF += 0.02;
 
-                    const float WaterAmbientF = 0.0;
+                    float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
-                    vec3 inScattering = 0.4*vlWaterScatterColorL * (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
-                    vec3 transmittance = exp(-WaterAbsorbColorInv * waterDepthFinal);
-                    vec3 scatteringIntegral = inScattering - inScattering * transmittance;
-
-                    final = final * transmittance + scatteringIntegral / WaterAbsorbColorInv;
+                    vec3 vlLight = (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                    ApplyScatteringTransmission(final, viewDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
                 }
             #endif
 
@@ -396,11 +396,9 @@ layout(location = 0) out vec4 outFinal;
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
-                    vec3 inScattering = AirScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                    float sampleTransmittance = exp(-AirExtinctF * viewDist);
-                    vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
-
-                    final = final * sampleTransmittance + scatteringIntegral / AirExtinctF;
+                    vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirScatterF, AirExtinctF);
+                    final = final * scatterTransmit.a + scatterTransmit.rgb;
                 }
             #endif
         }

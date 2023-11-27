@@ -69,6 +69,17 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         diffuse += lpvLight * lpvFade;
     #endif
 
+    if (lightningBoltPosition.w > EPSILON) {
+        vec3 lightningOffset = lightningBoltPosition.xyz - localPos;
+        float lightningDist = length(lightningOffset);
+        float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
+        // TODO: flatten vertical distance in ground-to-cloud range?
+
+        vec3 lightningDir = lightningOffset / lightningDist;
+        float lightningNoLm = max(dot(lightningDir, localNormal), 0.0);
+        diffuse += lightningNoLm * LightningBrightness * pow5(att);
+    }
+
     //diffuse = pow(lightmapColor, vec3(rcp(DynamicLightAmbientF)));
 }
 
@@ -122,7 +133,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
                 skyNoHm = max(dot(texNormal, skyH), 0.0);
             }
 
-            skyLightColor *= 1.0 - 0.92*rainStrength;
+            skyLightColor *= 1.0 - 0.92*skyRainStrength;
 
             float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
@@ -136,6 +147,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
         #endif
+
+        // TODO: Lightning specular
 
         return specular;
     }

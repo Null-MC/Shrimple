@@ -10,7 +10,7 @@ struct VolumetricPhaseFactors {
 #ifdef WORLD_WATER_ENABLED
     #ifdef WORLD_SKY_ENABLED
         float skyLight = eyeBrightnessSmooth.y / 240.0;
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, rainStrength) * skyLight;
+        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, skyRainStrength) * skyLight;
     #else
         const vec3 vlWaterAmbient = vec3(0.0040);
     #endif
@@ -30,9 +30,9 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.Direction = 0.09;
 
     #ifdef WORLD_SKY_ENABLED
-        result.Ambient = vec3(mix(0.002, 0.008, rainStrength));
-        result.ScatterF = mix(0.048, 0.120, rainStrength) * (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
-        result.ExtinctF = mix(0.001, 0.006, rainStrength);
+        result.Ambient = vec3(mix(0.002, 0.008, skyRainStrength));
+        result.ScatterF = mix(0.048, 0.120, skyRainStrength) * (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+        result.ExtinctF = mix(0.001, 0.006, skyRainStrength);
     #else
         result.Ambient = vec3(0.08);
 
@@ -115,11 +115,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //     vec3 skyLightColor = RGBToLinear(fogColor);
         // #endif
 
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            const float weatherF = 1.0;
-        #else
-            float weatherF = 1.0 - 0.8 * rainStrength;
-        #endif
+        //#if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        //    const float weatherF = 1.0;
+        //#else
+            float weatherF = 1.0 - 0.9 * skyRainStrength;
+        //#endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         vec3 skyLightColor = WorldSkyLightColor * VolumetricBrightnessSky * weatherF;
@@ -168,7 +168,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         // #ifdef WORLD_SKY_ENABLED
         //     float eyeLightF = eyeBrightnessSmooth.y / 240.0;
-        //     vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * rainStrength);
+        //     vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * skyRainStrength);
         //     ambientWater = vec3(0.2, 0.8, 1.0) * skyLightAmbient * 0.02;
         // #else
         //     ambientWater = vec3(0.0040);
@@ -262,8 +262,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             // float waterDepthEye = 0.0;
 
             #if defined WORLD_SKY_ENABLED
-                // float weatherF = 1.0 - 0.9 * rainStrength;
-
                 #if LPV_SIZE > 0
                     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
                     ambientWater = 0.25 * vec3(0.2, 0.8, 1.0) * skyLightColor * lpvSkyLightF;
@@ -409,6 +407,22 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #endif
 
             sampleLit += sampleF * sampleColor;
+        #endif
+
+        #if defined WORLD_SKY_ENABLED
+            if (lightningBoltPosition.w > 0.5) {
+                vec3 lightningOffset = lightningBoltPosition.xyz;
+                lightningOffset.y = clamp(traceLocalPos.y, lightningOffset.y, cloudHeight - cameraPosition.y + 0.5*CloudHeight);
+                lightningOffset -= traceLocalPos;
+
+                //vec3 lightningOffset = lightningBoltPosition.xyz - traceLocalPos;
+                float lightningDist = length(lightningOffset);
+                float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
+                // TODO: flatten vertical distance in ground-to-cloud range?
+
+                //vec3 lightningDir = lightningOffset / lightningDist;
+                sampleLit += 0.01 * LightningBrightness * pow5(att);
+            }
         #endif
 
         #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO

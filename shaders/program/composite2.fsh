@@ -95,12 +95,17 @@ uniform float blindness;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
+    uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
     uniform float wetness;
 
     #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    #endif
+
+    #ifdef IS_IRIS
+        uniform vec4 lightningBoltPosition;
     #endif
 #endif
 
@@ -223,6 +228,8 @@ uniform int heldBlockLightValue2;
 // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
 //     #include "/lib/lighting/ssr.glsl"
 // #endif
+
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined WORLD_SKY_ENABLED && defined IS_IRIS && (defined MATERIAL_REFLECT_CLOUDS || defined RENDER_CLOUD_SHADOWS_ENABLED)
