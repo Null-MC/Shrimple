@@ -61,11 +61,12 @@ uniform float fogEnd;
 uniform int isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
+uniform float skyRainStrength;
 uniform float blindness;
 
-#ifdef WORLD_SKY_ENABLED
+//#ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;
-#endif
+//#endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;

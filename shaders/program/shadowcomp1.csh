@@ -27,31 +27,34 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
         //uniform float waterDensitySmooth;
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform sampler2D shadowtex0;
-        uniform sampler2D shadowtex1;
-
-        uniform sampler2D shadowcolor0;
-
-        #ifdef SHADOW_CLOUD_ENABLED
-            uniform sampler2D TEX_CLOUDS;
-        #endif
-
-        // #ifdef SHADOW_ENABLE_HWCOMP
-        //     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        //         uniform sampler2DShadow shadowtex0HW;
-        //         uniform sampler2DShadow shadowtex1HW;
-        //     #else
-        //         uniform sampler2DShadow shadow;
-        //     #endif
-        // #endif
-
-
+    #ifdef WORLD_SKY_ENABLED
         uniform float rainStrength;
-        uniform float far;
+        uniform float skyRainStrength;
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            uniform mat4 shadowModelView;
+        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            uniform sampler2D shadowtex0;
+            uniform sampler2D shadowtex1;
+
+            uniform sampler2D shadowcolor0;
+
+            #ifdef SHADOW_CLOUD_ENABLED
+                uniform sampler2D TEX_CLOUDS;
+            #endif
+
+            // #ifdef SHADOW_ENABLE_HWCOMP
+            //     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            //         uniform sampler2DShadow shadowtex0HW;
+            //         uniform sampler2DShadow shadowtex1HW;
+            //     #else
+            //         uniform sampler2DShadow shadow;
+            //     #endif
+            // #endif
+
+            uniform float far;
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                uniform mat4 shadowModelView;
+            #endif
         #endif
     #endif
 

@@ -118,17 +118,10 @@ uniform int blockEntityId;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
-    uniform vec3 sunPosition;
     uniform float rainStrength;
-    uniform float wetness;
-
     uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
-
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
-    #endif
+    uniform float wetness;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -151,9 +144,22 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float near;
 #endif
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
-    //
-#else
+#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #ifdef WORLD_SKY_ENABLED
+        uniform vec3 sunPosition;
+        // uniform float rainStrength;
+        // uniform float wetness;
+
+        #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+            uniform float cloudTime;
+            uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        #endif
+
+        #ifdef IS_IRIS
+            uniform vec4 lightningBoltPosition;
+        #endif
+    #endif
+
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -201,23 +207,15 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/utility/tbn.glsl"
 #endif
 
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-    
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
     #endif
-    
-    #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/clouds/cloud_vars.glsl"
-        #include "/lib/clouds/cloud_custom.glsl"
-    #endif
-#endif
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -273,22 +271,35 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/voxel/lights_render.glsl"
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+        
+        // #ifdef WORLD_WETNESS_ENABLED
+        //     #include "/lib/material/porosity.glsl"
+        //     #include "/lib/world/wetness.glsl"
+        // #endif
+        
+        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
+            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
+        #endif
+    #endif
+
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 #endif
-
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    //
-#else
+#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
+    #include "/lib/lighting/scatter_transmit.glsl"
 
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
