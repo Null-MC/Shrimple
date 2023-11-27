@@ -54,11 +54,7 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
         vec3 boundsMin = unpackUnorm4x8(shapeBounds.x).xyz;
         vec3 boundsMax = unpackUnorm4x8(shapeBounds.y).xyz;
 
-        #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-            hit = BoxPointTest(boundsMin, boundsMax, rayStart);
-        #else
-            hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
-        #endif
+        hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
     }
 
     return hit;

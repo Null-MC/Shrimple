@@ -95,7 +95,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             vec3 diffuseLightPos = lightPos;
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TRACE_MODE == DYN_LIGHT_TRACE_DDA && DYN_LIGHT_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
                 vec3 offset = GetLightPenumbraOffset() * DynamicLightPenumbraF;
                 diffuseLightPos += lightSize * offset;
             #endif
@@ -136,12 +136,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                                     vec3 boundsMin = vec3(-0.36, -1.0, -0.36);
                                     vec3 boundsMax = vec3( 0.36,  1.0,  0.36);
 
-                                    #if DYN_LIGHT_TRACE_METHOD == DYN_LIGHT_TRACE_RAY
-                                        bool hit = BoxPointTest(boundsMin, boundsMax, rayStart - playerPos);
-                                    #else
-                                        vec3 rayInv = rcp(traceEnd - traceOrigin);
-                                        bool hit = BoxRayTest(boundsMin, boundsMax, traceOrigin - playerPos, rayInv);
-                                    #endif
+                                    vec3 rayInv = rcp(traceEnd - traceOrigin);
+                                    bool hit = BoxRayTest(boundsMin, boundsMax, traceOrigin - playerPos, rayInv);
                                 #endif
                                 
                                 if (hit) lightColor = vec3(0.0);

@@ -200,7 +200,6 @@ const bool colortex15Clear = true;
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
 #define LIGHT_SIZE_Y 16 // [4 8 16 32]
-#define DYN_LIGHT_TRACE_METHOD 0 // [0 1]
 #define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
 #define DYN_LIGHT_POPULATE_NEIGHBORS
 //#define DYN_LIGHT_FRUSTUM_TEST
