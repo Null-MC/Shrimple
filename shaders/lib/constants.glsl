@@ -74,9 +74,6 @@
 #define DYN_LIGHT_LPV 1
 #define DYN_LIGHT_TRACED 2
 
-#define LIGHT_TYPE_POINT 0
-#define LIGHT_TYPE_AREA 1
-
 #define DYN_LIGHT_COLOR_HC 0
 #define DYN_LIGHT_COLOR_RP 1
 

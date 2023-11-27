@@ -85,6 +85,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     float cloudAbsorb = 1.0;
     vec3 cloudScatter = vec3(0.0);
     float _airScatterF = AirScatterF * eyeSkyLightF;
+    vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
 
     float VoL = dot(localSkyLightDirection, localViewDir);
     float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
@@ -96,7 +97,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
         if (cloudDistNear > 0.0) {
             float stepLength = min(cloudDistNear, farMax);
 
-            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * skyLightColor;
             float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
             vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
@@ -145,7 +146,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
             float stepExtinctF = mix(inRange * AirExtinctF, CloudAbsorbF, sampleD);
             float phase = mix(phaseAir, phaseCloud, sampleD);
 
-            vec3 inScattering = stepScatterF * (sampleLit * phase + CloudAmbientF) * WorldSkyLightColor;
+            vec3 inScattering = stepScatterF * (sampleLit * phase + CloudAmbientF) * skyLightColor;
             float sampleTransmittance = exp(-stepExtinctF * stepLength);
 
             vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
@@ -158,7 +159,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
         if (farMax > cloudDistFar) {
             float stepLength = farMax - cloudDistFar;
 
-            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * skyLightColor;
             float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
             vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
@@ -171,7 +172,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     else {
         float stepLength = farMax;
 
-        vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * WorldSkyLightColor;
+        vec3 inScattering = _airScatterF * (phaseAir + AirAmbientF) * skyLightColor;
         float sampleTransmittance = exp(-AirExtinctF * stepLength);
 
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
