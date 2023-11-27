@@ -18,6 +18,10 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 
+#ifdef EFFECT_AUTO_EXPOSE
+    uniform ivec2 eyeBrightnessSmooth;
+#endif
+
 #include "/lib/sampling/ign.glsl"
 #include "/lib/post/bloom.glsl"
 
