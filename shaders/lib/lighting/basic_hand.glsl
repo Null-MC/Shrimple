@@ -1,4 +1,4 @@
-void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
+void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
     vec3 result = vec3(0.0);
     vec2 noiseSample = vec2(0.0);
 
@@ -6,13 +6,10 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, in vec3 
         noiseSample = GetDynLightNoise(vec3(0.0));
     #endif
 
-    float viewDist = length(fragLocalPos);
-    vec3 localViewDir = -normalize(fragLocalPos);
-    float distBiasScale = min(0.001*viewDist, 0.25);
-    
     vec3 surfacePos = fragLocalPos;
     surfacePos -= fragLocalNormal * 0.0002;
 
+    vec3 localViewDir = -normalize(fragLocalPos);
     bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 

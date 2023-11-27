@@ -33,7 +33,12 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmEmpty, lmFinal.y), 0).rgb;
         lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
 
-        vec3 ambientLight = vec3(DynamicLightAmbientF);
+        float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
+
+        float ambientF = DynamicLightAmbientF;
+        ambientF = 1.0 - (1.0 - ambientF) * horizonF;
+
+        vec3 ambientLight = vec3(ambientF);
 
         if (any(greaterThan(abs(texNormal), EPSILON3)))
             ambientLight *= (texNormal.y * 0.3 + 0.7);
@@ -42,7 +47,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
         shadowColor *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
 
-        shadowColor = ambientLight + (1.0 - DynamicLightAmbientF) * shadowColor;
+        shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
         diffuse = lightmapBlock + lightmapSky * shadowColor;
     #else
@@ -177,7 +182,7 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, c
         vec3 final = albedo;
     #endif
 
-	final *= WorldMinLightF + diffuse * occlusion + emission * MaterialEmissionF;
+	final *= (WorldMinLightF + diffuse) * occlusion + emission * MaterialEmissionF;
 	final += specular;
 
 	return final;

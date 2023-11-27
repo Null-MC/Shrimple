@@ -208,45 +208,45 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     return color;
 }
 
-vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) {
-    vec3 traceRay = endPos - origin;
-    float traceRayLen = length(traceRay);
-    if (traceRayLen < EPSILON) return vec3(1.0);
+// vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) {
+//     vec3 traceRay = endPos - origin;
+//     float traceRayLen = length(traceRay);
+//     if (traceRayLen < EPSILON) return vec3(1.0);
 
-    float dither = 0.0;
-    #ifndef RENDER_COMPUTE
-        dither = InterleavedGradientNoise(gl_FragCoord.xy);
-    #endif
+//     float dither = 0.0;
+//     #ifndef RENDER_COMPUTE
+//         dither = InterleavedGradientNoise(gl_FragCoord.xy);
+//     #endif
 
-    int stepCount = int(0.5 * DYN_LIGHT_RAY_QUALITY * range);
-    vec3 stepSize = traceRay / stepCount;
-    vec3 color = vec3(1.0);
-    bool hit = false;
+//     int stepCount = int(0.5 * DYN_LIGHT_RAY_QUALITY * range);
+//     vec3 stepSize = traceRay / stepCount;
+//     vec3 color = vec3(1.0);
+//     bool hit = false;
     
-    uint blockIdLast;
-    for (int i = 1; i < stepCount && !hit; i++) {
-        vec3 gridPos = (i + dither) * stepSize + origin;
+//     uint blockIdLast;
+//     for (int i = 1; i < stepCount && !hit; i++) {
+//         vec3 gridPos = (i + dither) * stepSize + origin;
         
-        ivec3 gridCell, blockCell;
-        if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-            uint gridIndex = GetVoxelGridCellIndex(gridCell);
-            uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+//         ivec3 gridCell, blockCell;
+//         if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+//             uint gridIndex = GetVoxelGridCellIndex(gridCell);
+//             uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
-            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
-                color *= GetLightGlassTint(blockId);
-            }
-            else if (blockId != BLOCK_EMPTY) {
-                vec3 blockPos = fract(gridPos);
-                hit = TraceHitTest(blockId, blockPos, vec3(0.0));
-                if (hit) color = vec3(0.0);
-            }
+//             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
+//                 color *= GetLightGlassTint(blockId);
+//             }
+//             else if (blockId != BLOCK_EMPTY) {
+//                 vec3 blockPos = fract(gridPos);
+//                 hit = TraceHitTest(blockId, blockPos, vec3(0.0));
+//                 if (hit) color = vec3(0.0);
+//             }
 
-            blockIdLast = blockId;
-        }
-    }
+//             blockIdLast = blockId;
+//         }
+//     }
 
-    return color;
-}
+//     return color;
+// }
 
 #ifndef RENDER_COMPUTE
     vec3 GetLightPenumbraOffset() {

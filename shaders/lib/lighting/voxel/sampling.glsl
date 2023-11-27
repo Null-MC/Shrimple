@@ -12,13 +12,18 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     uint gridIndex;
     float viewDist = length(localPos);
     vec3 localViewDir = -normalize(localPos);
-    float distBiasScale = 0.02 + min(0.01*viewDist, 0.2);
+    //float distBiasScale = 0.02 + min(0.01*viewDist, 0.2);
 
-    vec3 lightFragPos = localPos;
-    lightFragPos += distBiasScale*localNormal;
+    // vec3 lightFragPos = localPos;
+    // lightFragPos += distBiasScale*localNormal;
     //lightFragPos += distBiasScale*localViewDir;
 
-    uint lightCount = GetVoxelLights(lightFragPos, gridIndex);
+    vec3 surfacePos = localPos;
+    surfacePos -= localNormal * 0.02;
+
+    vec3 surfacePosF = fract(surfacePos + cameraPosition);
+
+    uint lightCount = GetVoxelLights(surfacePos, gridIndex);
 
     //if (gridIndex != DYN_LIGHT_GRID_MAX) {
         bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
@@ -34,7 +39,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 accumDiffuse = vec3(0.0);
         vec3 accumSpecular = vec3(0.0);
 
-        vec3 traceEnd = GetVoxelBlockPosition(lightFragPos);
+        // vec3 traceEnd = GetVoxelBlockPosition(surfacePos);
         vec3 cameraOffset = fract(cameraPosition);
 
         uint iOffset = 0u;
@@ -79,7 +84,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 float traceRange2 = lightRange + 0.5;
                 traceRange2 = _pow2(traceRange2);
 
-                lightVec = lightFragPos - lightPos;
+                lightVec = surfacePos - lightPos;
                 traceDist2 = length2(lightVec);
 
                 if (traceDist2 >= traceRange2) {
@@ -100,19 +105,28 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 diffuseLightPos += lightSize * offset;
             #endif
 
-            lightVec = lightFragPos - diffuseLightPos;
+            lightVec = diffuseLightPos - (surfacePos + localNormal * 0.02);
             // if (abs(lightVec.x) < EPSILON) lightVec.x = EPSILON;
             // if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
             // if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
 
+            vec3 lightDir = normalize(lightVec);
+            vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - surfacePosF) / lightDir;
+            lightVec -= lightDir * minOf(nextDist);
+
+            //surfacePos += fragLocalNormal * 0.0002;
+
             //lightColor = RGBToLinear(lightColor);
 
-            uint traceFace = 1u << GetLightMaskFace(lightVec);
+            uint traceFace = 1u << GetLightMaskFace(-lightVec);
             if ((lightData.z & traceFace) == traceFace) continue;
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
                 if ((lightData.z & 1u) == 1u) {
-                    vec3 traceOrigin = traceEnd - lightVec;
+                    vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
+                    vec3 traceEnd = traceOrigin - 0.99*lightVec;
+
+                    //vec3 traceOrigin = traceEnd - lightVec;
 
                     if (!isSpectator) {
                     #ifdef RENDER_ENTITIES
@@ -153,7 +167,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 }
             #endif
 
-            vec3 lightDir = normalize(-lightVec);
+            //vec3 lightDir = normalize(-lightVec);
             float geoNoL = 1.0;
             if (hasGeoNormal) geoNoL = dot(localNormal, lightDir);
 
@@ -183,7 +197,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                     // #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
                     //     vec3 r = reflect(-localViewDir, texNormal);
-                    //     vec3 L = lightPos - lightFragPos;
+                    //     vec3 L = lightPos - surfacePos;
                     //     vec3 centerToRay = dot(L, r) * r - L;
                     //     vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
                     //     lightDir = normalize(closestPoint);

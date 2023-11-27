@@ -3,13 +3,19 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     vec3 lightDefault = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
     lightDefault = RGBToLinear(lightDefault);
 
-    lightDefault = _pow2(lightDefault);
+    //lightDefault = _pow2(lightDefault);
 
     #ifdef WORLD_SKY_ENABLED
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        //skyLightColor *= 1.0 - 0.92*rainStrength;
     #endif
 
     vec3 localViewDir = normalize(localPos);
+
+    float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
+
+    float ambientF = DynamicLightAmbientF;
+    ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
     vec3 lpvPos = GetLPVPosition(localPos);
     vec3 skyAmbient;
@@ -27,13 +33,15 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         //lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec3 lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
-        blockDiffuse += lpvLight;
+        blockDiffuse += lpvLight * lpvFade;
 
         #if defined WORLD_SKY_ENABLED //&& !defined LPV_GI
             lmFinal = vec2(0.0, lmcoord.y);
             lmFinal = lmFinal * (15.0/16.0) + (0.5/16.0);
             vec3 lightSky = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
             lightSky = RGBToLinear(lightSky);
+
+            //lightSky = _pow2(lightSky);
 
             #if LPV_SUN_SAMPLES > 0
                 float lpvSkyLight = GetLpvSkyLight(lpvSample);
@@ -42,10 +50,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
                     lpvSkyLight *= 0.5;
                 #endif
 
-                lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * DynamicLightAmbientF;
+                //lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * ambientF;
+                lpvLight += (lpvSkyLight + lightSky * LpvLightmapMixF) * ambientF;
             #else
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    lpvLight += lightSky * DynamicLightAmbientF;
+                    lpvLight += lightSky * ambientF;
                 #else
                     lpvLight += lightSky;
                 #endif
@@ -56,9 +65,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     }
     else skyAmbient = lightDefault;
 
-    skyAmbient *= skyLightColor * occlusion;
-
-    blockDiffuse += skyAmbient;
+    blockDiffuse += skyAmbient * skyLightColor * occlusion;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         float geoNoL = 1.0;
@@ -71,7 +78,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         float diffuseNoVm = max(dot(texNormal, -localViewDir), 0.0);
         float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
         float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
-        vec3 skyDiffuse = D * skyLightColor * shadowColor;
+        vec3 skyDiffuse = D * skyLightColor * shadowColor * (1.0 - ambientF);
 
         float viewDist = length(localPos);
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
@@ -103,10 +110,8 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
             vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
 
-            skyLightColor *= 1.0 - 0.92*rainStrength;
-
             float invGeoNoL = saturate(geoNoL*40.0);
-            blockSpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
+            blockSpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor * (1.0 - ambientF);
 
             #if MATERIAL_REFLECTIONS != REFLECT_NONE
                 vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;

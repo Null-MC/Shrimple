@@ -310,7 +310,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float sampleF = 1.0;
+            float eyeLightF = eyeBrightnessSmooth.y / 240.0;
+            
+            float sampleF = _pow2(eyeLightF);
             vec3 sampleColor = skyLightColor;
             float sampleDepth = 0.0;
 
@@ -337,7 +339,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                if (length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.98) {
+                if (length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.92) {
                     //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                     float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
