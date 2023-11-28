@@ -133,7 +133,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
     #endif
 #endif
 
@@ -192,9 +192,23 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/noise.glsl"
+
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+//#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -531,7 +545,11 @@ void main() {
         #endif
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
+
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            GetVanillaFogFactor(vLocalPos);
+        #endif
 
         color.rgb = LinearToRGB(albedo);
 
@@ -612,12 +630,12 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogDist = GetShapedFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
             color.rgb = LinearToRGB(color.rgb);
-        #else
+        #elif WORLD_FOG_MODE != FOG_MODE_NONE
             ApplyFog(color, vLocalPos, localViewDir);
             color.a = 1.0;
         #endif

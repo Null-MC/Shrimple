@@ -11,10 +11,13 @@ option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 suffix.sunPathRotation=°
 
+option.WORLD_SKY_TYPE=Sky
+value.WORLD_SKY_TYPE.0=Vanilla
+value.WORLD_SKY_TYPE.1=Custom
+
 option.WORLD_FOG_MODE=Fog
 value.WORLD_FOG_MODE.0=None
-value.WORLD_FOG_MODE.1=Vanilla
-value.WORLD_FOG_MODE.2=Custom
+value.WORLD_FOG_MODE.1=Border
 
 option.WORLD_FOG_SHAPE=Fog Shape
 value.WORLD_FOG_SHAPE.0=Default
@@ -459,7 +462,7 @@ option.VOLUMETRIC_BLOCK_RT=Ray Traced
 option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights; requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: will kill performance dead!
 
 option.VOLUMETRIC_BLUR=Filter
-option.VOLUMETRIC_BLUR=Applies post-filtering of volumetric lighting for a smoother result.
+option.VOLUMETRIC_BLUR.comment=Applies post-filtering of volumetric lighting for a smoother result.
 
 
 screen.SHADOW_OPTIONS=Shadows

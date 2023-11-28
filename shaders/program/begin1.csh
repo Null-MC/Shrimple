@@ -18,12 +18,14 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     uniform mat4 gbufferPreviousModelView;
     uniform mat4 gbufferProjectionInverse;
     uniform mat4 gbufferPreviousProjection;
+    uniform vec3 cameraPosition;
 
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int worldTime;
 
     #ifdef WORLD_SKY_ENABLED
+        uniform vec4 lightningBoltPosition = vec4(0.0);
         uniform vec3 shadowLightPosition;
         uniform float rainStrength;
         uniform float skyRainStrength;
@@ -31,7 +33,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             uniform mat4 shadowModelView;
-            uniform vec3 cameraPosition;
+            //uniform vec3 cameraPosition;
             uniform float far;
         #endif
 
@@ -99,6 +101,9 @@ void main() {
                 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
                 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
                 //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+
+                if (lightningBoltPosition.w > 0.5)
+                    lightningPosition = lightningBoltPosition.xyz + cameraPosition;
             #else
                 WorldSunLightColor = vec3(0.0);
                 WorldMoonLightColor = vec3(0.0);

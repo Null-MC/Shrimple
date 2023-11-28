@@ -1,11 +1,11 @@
-vec3 worldSunColor         = vec3(0.889, 0.864, 0.691) * WorldSunBrightnessF;
-vec3 worldSunColorHorizon  = vec3(0.813, 0.540, 0.120) * WorldSunBrightnessF;
-vec3 worldMoonColorHorizon = vec3(0.717, 0.708, 0.621) * WorldMoonBrightnessF;
-vec3 worldMoonColor        = vec3(0.864, 0.860, 0.823) * WorldMoonBrightnessF;
+const vec3 worldSunColor         = RGBToLinear(vec3(0.889, 0.864, 0.691));
+const vec3 worldHorizonColor     = RGBToLinear(vec3(0.813, 0.540, 0.120));
+const vec3 worldMoonColor        = RGBToLinear(vec3(0.864, 0.860, 0.823));
 
+const float phaseIso = 0.25;
 const float phaseAir = 0.25;
 const float AirAmbientF = 0.0;
-float AirScatterF = mix(0.002, 0.004, skyRainStrength);
+float AirScatterF = mix(0.003, 0.004, skyRainStrength);
 float AirExtinctF = mix(0.001, 0.008, skyRainStrength);
 
 const float LightningRangeInv = rcp(200.0);
@@ -13,26 +13,28 @@ const float LightningBrightness = 20.0;
 
 
 float GetSkyHorizonF(const in float celestialUpF) {
-    return smoothstep(0.0, 0.7, celestialUpF);
+    return smoothstep(0.0, 0.2, abs(celestialUpF));
 }
 
 vec3 GetSkySunColor(const in float sunUpF) {
     float horizonF = GetSkyHorizonF(sunUpF);
-    return mix(worldSunColorHorizon, worldSunColor, horizonF);
+    return mix(worldHorizonColor, worldSunColor, horizonF);
 }
 
 vec3 GetSkyMoonColor(const in float moonUpF) {
     float horizonF = GetSkyHorizonF(moonUpF);
-    return mix(worldMoonColorHorizon, worldMoonColor, horizonF);
+    return mix(worldHorizonColor, worldMoonColor, horizonF);
 }
 
 #if !defined IRIS_FEATURE_SSBO || defined RENDER_BEGIN
     vec3 CalculateSkyLightColor(const in vec3 sunDir) {
         vec3 skyLightColor = sunDir.y > 0.0 ? worldSunColor : worldMoonColor;
-        vec3 skyLightHorizonColor = sunDir.y > 0.0 ? worldSunColorHorizon : worldMoonColorHorizon;
+
+        float sunF = smoothstep(-0.1, 0.2, sunDir.y);
+        float brightness = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunF);
 
         float horizonF = GetSkyHorizonF(sunDir.y);
-        return mix(skyLightHorizonColor, skyLightColor, horizonF);
+        return mix(worldHorizonColor, skyLightColor, horizonF) * brightness;
     }
 #endif
 

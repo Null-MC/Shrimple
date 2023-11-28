@@ -7,9 +7,12 @@
 #define PUDDLES_PIXEL 2
 #define PUDDLES_FANCY 3
 
+#define SKY_TYPE_VANILLA 0
+#define SKY_TYPE_CUSTOM 1
+
 #define FOG_MODE_NONE 0
-#define FOG_MODE_VANILLA 1
-#define FOG_MODE_CUSTOM 2
+#define FOG_MODE_BORDER 1
+//#define FOG_MODE_FULL 0
 
 #define FOG_SHAPE_DEFAULT 0
 #define FOG_SHAPE_SPHERE 1

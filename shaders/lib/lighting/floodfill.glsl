@@ -113,7 +113,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             float invGeoNoL = saturate(geoNoL*40.0);
             blockSpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor * (1.0 - ambientF);
 
-            #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(defined RENDER_TEXTURED || defined RENDER_PARTICLES || defined RENDER_WEATHER)
                 vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
                 vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 

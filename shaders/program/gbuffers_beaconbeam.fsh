@@ -57,7 +57,20 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 
 #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
@@ -79,12 +92,13 @@ void main() {
     #if (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        float fogF = GetVanillaFogFactor(vLocalPos);
-        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        //fogColorFinal = LinearToRGB(fogColorFinal);
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            fogF = GetVanillaFogFactor(vLocalPos);
+        #endif
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(0.0);
+        outDeferredShadow = vec4(vec3(1.0), 0.0);
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
@@ -95,11 +109,15 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-        vec3 localViewDir = normalize(vLocalPos);
-        ApplyFog(color, vLocalPos, localViewDir);
+        #if WORLD_FOG_MODE != FOG_MODE_NONE
+            vec3 localViewDir = normalize(vLocalPos);
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
-        //ApplyPostProcessing(color.rgb);
-        color.rgb = LinearToRGB(color.rgb);
+        #ifdef DH_COMPAT_ENABLED
+            //ApplyPostProcessing(color.rgb);
+            color.rgb = LinearToRGB(color.rgb);
+        #endif
         
 		outFinal = color;
 	#endif

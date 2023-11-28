@@ -108,6 +108,10 @@ uniform int heldBlockLightValue2;
     uniform mat4 shadowModelView;
 #endif
 
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
@@ -123,7 +127,20 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/specular.glsl"
@@ -253,15 +270,15 @@ void main() {
 
     float fogF = 0.0;
     #if WORLD_FOG_MODE != FOG_MODE_NONE
-        float fogDist = GetVanillaFogDistance(vLocalPos);
+        float fogDist = GetShapedFogDistance(vLocalPos);
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             #ifdef IS_IRIS
                 fogDist *= 0.5;
             #endif
 
-            fogF = GetCustomSkyFogFactor(fogDist);
-        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+            fogF = GetCustomFogFactor(fogDist);
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, fogDist);
         #endif
 

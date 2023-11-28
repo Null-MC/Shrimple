@@ -75,13 +75,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float skyRainStrength;
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
-    #endif
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
+        uniform float cloudTime;
     #endif
 #endif
 
@@ -107,6 +105,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 eyePosition;
 #endif
 
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
+#endif
+
 #include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
@@ -119,14 +121,19 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/hg.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    //#if VOLUMETRIC_BRIGHT_SKY > 0
-        #include "/lib/world/sky.glsl"
-        #include "/lib/world/fog.glsl"
+    #include "/lib/world/sky.glsl"
+
+    //#if WORLD_FOG_MODE != FOG_MODE_NONE
+        #include "/lib/fog/fog_common.glsl"
+
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
     //#endif
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
-        #include "/lib/clouds/cloud_vars.glsl"
-    #endif
+    #include "/lib/clouds/cloud_vars.glsl"
 
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
@@ -195,15 +202,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-    // #include "/lib/world/sky.glsl"
-    // #include "/lib/world/fog.glsl"
-
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #include "/lib/buffers/shadow.glsl"
-
-        // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        //     #include "/lib/shadows/clouds.glsl"
-        // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"

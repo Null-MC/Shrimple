@@ -172,7 +172,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
 
         #ifdef IS_IRIS
-            uniform vec4 lightningBoltPosition;
+            uniform float lightningStrength;
         #endif
     #endif
 
@@ -196,8 +196,22 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
@@ -296,9 +310,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        #include "/lib/lighting/reflections.glsl"
-    #endif
+    // #if MATERIAL_REFLECTIONS != REFLECT_NONE
+    //     #include "/lib/lighting/reflections.glsl"
+    // #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
         #include "/lib/lighting/vanilla.glsl"
@@ -399,7 +413,11 @@ void main() {
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
+        
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            GetVanillaFogFactor(vLocalPos);
+        #endif
 
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
@@ -470,7 +488,7 @@ void main() {
         #endif
 
         //ApplyFog(color, vLocalPos, localViewDir);
-        #ifndef DH_COMPAT_ENABLED
+        #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
 
@@ -484,7 +502,7 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetVanillaFogDistance(vLocalPos);
+            float fogDist = GetShapedFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 

@@ -76,13 +76,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float skyRainStrength;
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
-    #endif
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
+        uniform float cloudTime;
     #endif
 #endif
 
@@ -103,6 +101,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IS_IRIS
     uniform vec3 eyePosition;
+#endif
+
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
 #endif
 
 #include "/lib/anim.glsl"
@@ -173,11 +175,20 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-    #include "/lib/world/fog.glsl"
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
-        #include "/lib/clouds/cloud_vars.glsl"
-    #endif
+    //#if WORLD_FOG_MODE != FOG_MODE_NONE
+        #include "/lib/fog/fog_common.glsl"
+
+        #ifdef WORLD_SKY_ENABLED
+            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                #include "/lib/fog/fog_custom.glsl"
+            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                #include "/lib/fog/fog_vanilla.glsl"
+            #endif
+        #endif
+    //#endif
+
+    #include "/lib/clouds/cloud_vars.glsl"
 
     #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
@@ -251,9 +262,9 @@ void main() {
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
         #ifdef VL_BUFFER_ENABLED
-            float farMax = far;//min(shadowDistance, far) - 0.002;
-            float distNear = clamp(distTranslucent, near, farMax);
-            float distFar = clamp(distOpaque, near, farMax);
+            //float farMax = far;//min(shadowDistance, far) - 0.002;
+            float distNear = clamp(distTranslucent, near, far);
+            float distFar = clamp(distOpaque, near, far);
 
             final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
         #elif defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM

@@ -89,7 +89,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
 
     float VoL = dot(localSkyLightDirection, localViewDir);
     float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
-    const float phaseAir = 0.25;
+    //float phaseAir = DHG(VoL, -0.19, 0.824, 0.051);
 
     float farMax = min(viewDist, far);
 
@@ -137,7 +137,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
                 sampleLit *= exp(shadowSampleD * CloudAbsorbF * -shadowStepLen);
             }
 
-            float fogDist = GetVanillaFogDistance(tracePos);
+            float fogDist = GetShapedFogDistance(tracePos);
             sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
             float inRange = step(cloudDistNear + stepLength * (stepI + dither), far);
@@ -209,7 +209,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             float shadowY = tracePos.y + sampleOffset.y;
             sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
-            float fogDist = GetVanillaFogDistance(tracePos);
+            float fogDist = GetShapedFogDistance(tracePos);
             sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
             float stepAbsorb = exp(cloudStepLen * sampleD * -CloudAbsorbF);

@@ -92,7 +92,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
         float result = wave * cos(x);
         vec2 force = result * weight * direction;
         
-        dx += force / pow(weight, detailF); 
+        dx -= force / pow(weight, detailF); 
         wavePos -= force * drag;
         iter += WATER_ITER_INC;
         waveSum += weight;
@@ -113,9 +113,9 @@ vec3 water_waveNormal(vec2 worldPos, const in float skyLight, const in float vie
         worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
     #endif
 
-    float totalFactor = WATER_WAVE_HEIGHT;
-    vec2 wave = -water_waveDirection(worldPos, skyLight, uvOffset);
-    vec3 normal = vec3(wave * vec2(WATER_WAVE_HEIGHT), rcp(WATER_NORMAL_STRENGTH));
+    //float totalFactor = WATER_WAVE_HEIGHT;
+    vec2 wave = water_waveDirection(worldPos, skyLight, uvOffset);
+    vec3 normal = vec3(wave * WATER_WAVE_HEIGHT, rcp(WATER_NORMAL_STRENGTH));
 
     normal = normalize(normal);
 

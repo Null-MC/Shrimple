@@ -1,4 +1,4 @@
-#define RENDER_OPAQUE_VL
+#define RENDER_OPAQUE_SSAO
 #define RENDER_DEFERRED
 #define RENDER_VERTEX
 

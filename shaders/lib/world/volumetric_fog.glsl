@@ -109,7 +109,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
         #endif
 
-        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        // #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
         //     vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(sunDir.y);
         // #else
         //     vec3 skyLightColor = RGBToLinear(fogColor);
@@ -411,9 +411,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += sampleF * sampleColor;
         #endif
 
-        #if defined WORLD_SKY_ENABLED
-            if (lightningBoltPosition.w > 0.5) {
-                vec3 lightningOffset = lightningBoltPosition.xyz;
+        #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE
+            if (lightningStrength > EPSILON) {
+                vec3 lightningOffset = lightningPosition - cameraPosition;
                 lightningOffset.y = clamp(traceLocalPos.y, lightningOffset.y, cloudHeight - cameraPosition.y + 0.5*CloudHeight);
                 lightningOffset -= traceLocalPos;
 
@@ -423,7 +423,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 // TODO: flatten vertical distance in ground-to-cloud range?
 
                 //vec3 lightningDir = lightningOffset / lightningDist;
-                sampleLit += 0.01 * LightningBrightness * pow5(att);
+                sampleLit += 0.01 * lightningStrength * LightningBrightness * pow5(att);
             }
         #endif
 

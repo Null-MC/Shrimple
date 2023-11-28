@@ -1,4 +1,4 @@
-#define RENDER_OPAQUE_VL
+#define RENDER_OPAQUE_SSAO
 #define RENDER_DEFERRED
 #define RENDER_FRAG
 
@@ -7,168 +7,71 @@
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex0;
-uniform sampler2D noisetex;
+uniform sampler2D depthtex1;
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
-    uniform sampler3D texLPV_1;
-    uniform sampler3D texLPV_2;
-#endif
-
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
-
-    #ifdef SHADOW_CLOUD_ENABLED
-        uniform sampler2D TEX_CLOUDS;
-    #endif
-
-    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex1HW;
-    #endif
-
-    #ifdef SHADOW_COLORED
-        uniform sampler2D shadowcolor0;
-    #endif
-#endif
-
-uniform int worldTime;
-uniform int frameCounter;
-uniform float frameTime;
-uniform float frameTimeCounter;
-uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferProjection;
+//uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
-uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float near;
-uniform float far;
 
-uniform vec3 skyColor;
-uniform vec3 fogColor;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int isEyeInWater;
+// #ifdef WORLD_SKY_ENABLED
+//     uniform vec3 fogColor;
+//     uniform vec3 skyColor;
+//     uniform float fogStart;
+//     uniform float fogEnd;
+//     uniform int fogShape;
+// #endif
 
-uniform mat4 shadowModelView;
-uniform mat4 shadowProjection;
-uniform vec3 shadowLightPosition;
-uniform ivec2 eyeBrightnessSmooth;
+// #ifdef WORLD_WATER_ENABLED
+//     uniform int isEyeInWater;
+// #endif
 
-#ifdef WORLD_SKY_ENABLED
-    uniform vec3 sunPosition;
-    uniform float rainStrength;
-#endif
+uniform vec2 viewSize;
+uniform vec2 pixelSize;
 
-#ifdef IS_IRIS
-    uniform vec3 eyePosition;
-    uniform float cloudTime;
-#endif
-
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
-
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        //uniform vec3 eyePosition;
-    #endif
-#endif
+// #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+//     uniform float alphaTestRef;
+// #endif
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/lighting/ssao.glsl"
 
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
+// #if WORLD_FOG_MODE != FOG_MODE_NONE
+//     #include "/lib/fog/fog_common.glsl"
 
-    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #include "/lib/blocks.glsl"
-
-        #ifdef DYN_LIGHT_FLICKER
-            #include "/lib/lighting/blackbody.glsl"
-            #include "/lib/lighting/flicker.glsl"
-        #endif
-
-        #include "/lib/lights.glsl"
-        #include "/lib/buffers/lighting.glsl"
-        #include "/lib/lighting/fresnel.glsl"
-        #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
-
-        // #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        //     #include "/lib/lighting/voxel/block_mask.glsl"
-        // #endif
-
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
-            #include "/lib/buffers/collisions.glsl"
-            #include "/lib/lighting/voxel/tinting.glsl"
-            #include "/lib/lighting/voxel/tracing.glsl"
-        #endif
-
-        #include "/lib/lighting/voxel/lights.glsl"
-
-        #ifdef VOLUMETRIC_HANDLIGHT
-            #include "/lib/items.glsl"
-            #include "/lib/lighting/voxel/items.glsl"
-        #endif
-
-        #include "/lib/lighting/sampling.glsl"
-
-        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LPV_SIZE > 0 //&& !defined VOLUMETRIC_BLOCK_RT
-            #include "/lib/lighting/voxel/lpv.glsl"
-            #include "/lib/lighting/voxel/lpv_render.glsl"
-        #endif
-    #endif
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-#endif
-
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/buffers/shadow.glsl"
-    #include "/lib/world/sky.glsl"
-    #include "/lib/world/fog.glsl"
-
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
-#endif
-
-#include "/lib/lighting/hg.glsl"
-#include "/lib/world/volumetric_fog.glsl"
+//     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+//         #include "/lib/fog/fog_custom.glsl"
+//     #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+//         #include "/lib/fog/fog_vanilla.glsl"
+//     #endif
+// #endif
 
 
-/* RENDERTARGETS: 10 */
-layout(location = 0) out vec4 outVL;
+/* RENDERTARGETS: 12 */
+layout(location = 0) out vec4 outAO;
 
 void main() {
-    float depth = textureLod(depthtex0, texcoord, 0).r;
+    float depth = textureLod(depthtex1, texcoord, 0).r;
+    float occlusion = 0.0;
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-
-    #ifndef IRIS_FEATURE_SSBO
+    if (depth < 1.0) {
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-    #else
-        vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-    #endif
+        vec3 texViewNormal = normalize(cross(dFdx(viewPos), dFdy(viewPos)));
 
-    vec3 localViewDir = normalize(localPos);
+        occlusion = GetSpiralOcclusion(texcoord, viewPos, texViewNormal);
 
-    vec3 endPos = localPos;
-    float farDist = clamp(length(endPos), near, far);
+        // #if WORLD_FOG_MODE != FOG_MODE_NONE
+        //     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        //         // TODO
+        //     #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        //         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        //         occlusion *= 1.0 - GetVanillaFogFactor(localPos);
+        //     #endif
+        // #endif
+    }
 
-    vec4 final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist);
-    outVL = final;
+    outAO = vec4(vec3(occlusion), 1.0);
 }

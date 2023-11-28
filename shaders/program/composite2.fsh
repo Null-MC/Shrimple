@@ -105,7 +105,7 @@ uniform float blindness;
     #endif
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
     #endif
 #endif
 
@@ -159,8 +159,20 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+//#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -231,18 +243,18 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/scatter_transmit.glsl"
 
-#if MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if defined WORLD_SKY_ENABLED && defined IS_IRIS && (defined MATERIAL_REFLECT_CLOUDS || defined RENDER_CLOUD_SHADOWS_ENABLED)
-        #include "/lib/clouds/cloud_vars.glsl"
+#if defined WORLD_SKY_ENABLED && defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED)
+    #include "/lib/clouds/cloud_vars.glsl"
 
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            #include "/lib/lighting/hg.glsl"
-            #include "/lib/clouds/cloud_custom.glsl"
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_vanilla.glsl"
-        #endif
+    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #include "/lib/lighting/hg.glsl"
+        #include "/lib/clouds/cloud_custom.glsl"
+    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
+#endif
 
+#if MATERIAL_REFLECTIONS != REFLECT_NONE
     //#include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/reflections.glsl"
 #endif
@@ -783,10 +795,10 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef DH_COMPAT_ENABLED
-                // float fogDist = GetVanillaFogDistance(localPos);
+                // float fogDist = GetShapedFogDistance(localPos);
                 // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
                 // final = mix(final, skyFinal, fogF);
-            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
                 vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                 vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
                 fogColorFinal = RGBToLinear(fogColorFinal);
