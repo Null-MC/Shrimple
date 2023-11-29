@@ -21,11 +21,22 @@ uniform float near;
 uniform float far;
 
 #ifdef WORLD_SKY_ENABLED
-    uniform vec3 fogColor;
     uniform vec3 skyColor;
+    uniform vec3 fogColor;
     uniform float fogStart;
     uniform float fogEnd;
     uniform int fogShape;
+
+    uniform float rainStrength;
+    uniform ivec2 eyeBrightnessSmooth;
+#endif
+
+#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #ifdef WORLD_WATER_ENABLED
+        uniform vec3 WaterAbsorbColor;
+        uniform vec3 WaterScatterColor;
+        uniform float waterDensitySmooth;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -41,6 +52,10 @@ uniform float far;
 
 #if WORLD_FOG_MODE != FOG_MODE_NONE
     #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
 
     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
@@ -65,12 +80,29 @@ void main() {
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, colortex12, viewSize, depthtex1, viewSize, linearDepth, 0.2);
 
         #if WORLD_FOG_MODE != FOG_MODE_NONE
+            vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            
             #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                // TODO
+                float fogDist = length(viewPos);
+
+                float fogF;
+                #ifdef WORLD_WATER_ENABLED
+                    if (isEyeInWater == 1) {
+                        fogF = GetCustomWaterFogFactor(fogDist);
+                    }
+                    else {
+                #endif
+
+                    fogF = GetCustomFogFactor(fogDist);
+
+                #ifdef WORLD_WATER_ENABLED
+                    }
+                #endif
+
+                occlusion *= 1.0 - fogF;
             #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
                 occlusion *= 1.0 - GetVanillaFogFactor(localPos);
             #endif
         #endif
