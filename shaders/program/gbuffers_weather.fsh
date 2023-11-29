@@ -280,9 +280,9 @@ uniform float blindness;
 
 
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 13,15 */
-    layout(location = 0) out vec4 outDepth;
-    layout(location = 1) out vec4 outFinal;
+    /* RENDERTARGETS: 15 */
+    //layout(location = 0) out vec4 outDepth; (13)
+    layout(location = 0) out vec4 outFinal;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -437,9 +437,9 @@ void main() {
         color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
     #endif
 
-    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
-    #endif
+    // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    //     outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
+    // #endif
 
     // #ifndef DH_COMPAT_ENABLED
     //     color.rgb = LinearToRGB(color.rgb);

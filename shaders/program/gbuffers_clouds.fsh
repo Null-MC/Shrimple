@@ -159,7 +159,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/shadows/render.glsl"
 #endif
 
-#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
+//#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -211,29 +211,25 @@ uniform int heldBlockLightValue2;
         #include "/lib/world/water.glsl"
     #endif
 
-    #ifdef VL_BUFFER_ENABLED
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/volumetric_fog.glsl"
-    #endif
+    #include "/lib/lighting/scatter_transmit.glsl"
+
+    // #ifdef VL_BUFFER_ENABLED
+    //     #include "/lib/lighting/hg.glsl"
+    //     #include "/lib/world/volumetric_fog.glsl"
+    // #endif
 
     #ifdef DH_COMPAT_ENABLED
         #include "/lib/post/saturation.glsl"
         #include "/lib/post/tonemap.glsl"
     #endif
-#endif
+//#endif
 
 
+layout(location = 0) out vec4 outFinal;
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
-    #endif
+    /* RENDERTARGETS: 15 */
 #else
     /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
 #endif
 
 void main() {
@@ -270,78 +266,75 @@ void main() {
 
     float fogF = 0.0;
     #if WORLD_FOG_MODE != FOG_MODE_NONE
-        float fogDist = GetShapedFogDistance(vLocalPos);
+        float fogDist = 0.5 * GetShapedFogDistance(vLocalPos);
 
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #ifdef IS_IRIS
-                fogDist *= 0.5;
-            #endif
-
             fogF = GetCustomFogFactor(fogDist);
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            fogF = 1.0 - smoothstep(fogEnd * 1.8, fogEnd * 0.5, fogDist);
+            fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
         #endif
 
         albedo.a *= 1.0 - fogF;
     #endif
 
     albedo.rgb = RGBToLinear(albedo.rgb);
-    albedo.rgb *= 1.0 - 0.7 * rainStrength;
+    //albedo.rgb *= 1.0 - 0.7 * rainStrength;
 
-    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+    // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    //     float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        outDeferredColor = vec4(LinearToRGB(albedo.rgb), albedo.a);
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
+    //     outDeferredColor = vec4(LinearToRGB(albedo.rgb), albedo.a);
+    //     outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
-        const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
+    //     const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
 
-        uvec4 deferredData;
-        deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
-        deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(normal, 1.0));
-        outDeferredData = deferredData;
+    //     uvec4 deferredData;
+    //     deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
+    //     deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
+    //     deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+    //     deferredData.a = packUnorm4x8(vec4(normal, 1.0));
+    //     outDeferredData = deferredData;
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0) + dither;
-        #endif
-    #else
+    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+    //         outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0) + dither;
+    //     #endif
+    // #else
         vec4 final = albedo;
         float roughL = _pow2(roughness);
 
         final.rgb *= shadowColor;
 
         #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            // TODO: Is this right?
-            const vec3 blockLightDefault = vec3(0.0);
-
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss, blockLightDefault);
+                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
             #endif
 
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
             
             final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
         #endif
 
-        #ifdef VL_BUFFER_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-            #endif
+        // #ifdef VL_BUFFER_ENABLED
+        //     #ifndef IRIS_FEATURE_SSBO
+        //         vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        //     #endif
 
-            vec3 localViewDir = normalize(vLocalPos);
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
-            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
+        //     vec3 localViewDir = normalize(vLocalPos);
+        //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
+        //     final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        // #else
+            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec4 scatterTransmit = ApplyScatteringTransmission(min(viewDist, far), vlLight, AirScatterF, AirExtinctF);
+            final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+        // #endif
 
         #ifdef DH_COMPAT_ENABLED
             final.rgb = LinearToRGB(final.rgb);
         #endif
         
         outFinal = final;
-    #endif
+    //#endif
 }

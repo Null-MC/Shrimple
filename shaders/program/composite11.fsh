@@ -37,13 +37,13 @@ void main() {
     GetBloomTileInnerBounds(tile, boundsMin, boundsMax);
     GetBloomTileOuterBounds(tile, outerBoundsMin, outerBoundsMax);
 
-    vec2 tex = (gl_FragCoord.xy - 0.5) * pixelSize;
-    tex = clamp(tex, boundsMin, boundsMax);
-    tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
+    // vec2 tex = texcoord - 0.5 * pixelSize;// (gl_FragCoord.xy - 0.5) * pixelSize;
+    // tex = clamp(tex, boundsMin, boundsMax);
+    // tex = (tex - boundsMin) / (boundsMax - boundsMin);
 
     //tex -= 0.5 * pixelSize;
 
-    vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
+    vec3 color = BloomBoxSample(BUFFER_FINAL, texcoord, pixelSize);
     
     #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         color = RGBToLinear(color);

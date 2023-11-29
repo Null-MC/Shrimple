@@ -46,16 +46,13 @@ uniform float blindness;
 #endif
 
 #include "/lib/world/common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
-
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-        #include "/lib/fog/fog_custom.glsl"
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-        #include "/lib/fog/fog_vanilla.glsl"
-    #endif
-//#endif
+#if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -75,36 +72,13 @@ void main() {
         vec3 viewDir = normalize(viewPos);
         vec3 upDir = normalize(upPosition);
         float viewUpF = dot(viewDir, upDir);
-        //float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-
-            // #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
-            //     vec3 skyColorFinal = RGBToLinear(skyColor);
-            //     vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-            //     color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
-            // #else
-            //     if (isEyeInWater == 1) {
-            //         color = GetCustomWaterFogColor(localSunDirection.y);
-            //     }
-            //     else {
-            //         vec3 skyColorFinal = RGBToLinear(skyColor);
-            //         vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-            //         color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
-            //     }
-            // #endif
-            // const vec3 skyColorDay   = RGBToLinear(vec3(0.388, 0.508, 0.596));
-            // const vec3 skyColorNight = RGBToLinear(vec3(0.108, 0.106, 0.121));
-
-            // float dayF = smoothstep(-0.1, 0.2, localSunDirection.y);
-            // vec3 skyColor = mix(skyColorNight, skyColorDay, dayF);
-
-            color = fogColor;
+            color = GetCustomSkyFogColor(localSunDirection.y);
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);

@@ -1,3 +1,6 @@
+const float tilePadding = 2.0;
+
+
 float GetBloomTilePos(const in int tile) {
     return 1.0 - rcp(exp2(tile));
 }
@@ -13,11 +16,11 @@ void GetBloomTileOuterBounds(const in int tile, out vec2 boundsMin, out vec2 bou
     float fx = floor(tileF * 0.5) * 2.0;
     float fy = fract(tileF * 0.5) * 2.0;
 
-    boundsMin.x = (2.0 / 3.0) * (1.0 - exp2(-fx) + fx * pixelSize.x) + fx * pixelSize.x;
-    boundsMin.y = fy * (0.5 + 4.0 * pixelSize.y);
+    boundsMin.x = (2.0 / 3.0) * (1.0 - exp2(-fx) + fx * pixelSize.x) + fx * pixelSize.x * (tilePadding + 1.0);
+    boundsMin.y = fy * (0.5 + (2.0 * tilePadding + 2.0) * pixelSize.y);
 
     float tileSize = GetBloomTileSize(tile);
-    boundsMax = boundsMin + tileSize + 2.0 * pixelSize;
+    boundsMax = boundsMin + tileSize + 2.0 * tilePadding * pixelSize;
 }
 
 void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 boundsMax) {
@@ -25,8 +28,8 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
 
     vec2 center = 0.5 * (boundsMin + boundsMax);
     
-    boundsMin = min(boundsMin + pixelSize, center);
-    boundsMax = max(boundsMax - pixelSize, center);
+    boundsMin = min(boundsMin + tilePadding*pixelSize, center);
+    boundsMax = max(boundsMax - tilePadding*pixelSize, center);
 }
 
 #ifdef RENDER_VERTEX
@@ -68,18 +71,20 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         GetBloomTileInnerBounds(tile, boundsMin, boundsMax);
         GetBloomTileOuterBounds(tile, outerBoundsMin, outerBoundsMax);
 
-        vec2 tex = (gl_FragCoord.xy - 0.5) * pixelSize;
-        tex = clamp(tex, boundsMin, boundsMax);
-        tex = (tex - outerBoundsMin) / (boundsMax - boundsMin);
+        // vec2 tex = gl_FragCoord.xy * pixelSize;
+        // tex = clamp(tex, boundsMin, boundsMax);
+        // tex = (tex - boundsMin) / (boundsMax - boundsMin);
+        vec2 tex = texcoord - 0.5 * pixelSize;
 
         vec2 srcBoundsMin, srcBoundsMax;
         vec2 srcOuterBoundsMin, srcOuterBoundsMax;
         GetBloomTileInnerBounds(tile-1, srcBoundsMin, srcBoundsMax);
         GetBloomTileOuterBounds(tile-1, srcOuterBoundsMin, srcOuterBoundsMax);
 
-        vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcOuterBoundsMin;
+        vec2 srcTex = tex * (srcBoundsMax - srcBoundsMin) + srcBoundsMin;
 
-        srcTex -= 0.25 * pixelSize;
+        //srcTex -= 0.25 * pixelSize;
+        srcTex += 0.5 * pixelSize;
 
         vec3 color = BloomBoxSample(texSrc, srcTex, pixelSize);
 

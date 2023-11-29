@@ -26,8 +26,8 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
-uniform sampler2D BUFFER_WEATHER;
-//uniform sampler2D BUFFER_WEATHER_DEPTH;
+uniform sampler2D BUFFER_OVERLAY;
+//uniform sampler2D BUFFER_OVERLAY_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -985,8 +985,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);
-        //float weatherDepth = textureLod(BUFFER_WEATHER_DEPTH, texcoord, 0).r;
+        vec4 weatherColor = textureLod(BUFFER_OVERLAY, texcoord, 0);
+        //float weatherDepth = textureLod(BUFFER_OVERLAY_DEPTH, texcoord, 0).r;
         //weatherColor.a *= step(weatherDepth, depthOpaque);
 
         final = mix(final, weatherColor, weatherColor.a);
