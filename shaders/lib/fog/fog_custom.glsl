@@ -28,7 +28,7 @@
 
 vec3 GetCustomSkyFogColor(const in float sunUpF) {
     #ifdef WORLD_SKY_ENABLED
-        const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.7;
+        const vec3 colorHorizon = RGBToLinear(vec3(0.894, 0.635, 0.360)) * 0.3;
         const vec3 colorNight   = RGBToLinear(vec3(0.177, 0.170, 0.192));
         const vec3 colorDay     = RGBToLinear(vec3(0.724, 0.891, 0.914)) * 0.5;
 

@@ -7,7 +7,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     #endif
 
     vec3 surfacePos = fragLocalPos;
-    surfacePos -= fragLocalNormal * 0.0002;
+    surfacePos -= fragLocalNormal * 0.002;
 
     vec3 localViewDir = -normalize(fragLocalPos);
     bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
@@ -52,15 +52,14 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     //lightColor *= 1.0 - length(offset);
 
                     lightLocalPos += offset * lightSize * 0.5;
-                    lightVec = lightLocalPos - surfacePos;
                 #endif
 
                 vec3 lightDir = normalize(lightVec);
 
                 vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - fract(surfacePos + cameraPosition)) / lightDir;
-                lightVec -= lightDir * minOf(nextDist);
-
-                //surfacePos += fragLocalNormal * 0.0002;
+                vec3 _surfacePos = surfacePos + lightDir * minOf(nextDist);
+                _surfacePos += fragLocalNormal * 0.0002;
+                lightVec = lightLocalPos - _surfacePos;
 
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
@@ -133,9 +132,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 lightDir = normalize(lightVec);
 
                 vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - fract(surfacePos + cameraPosition)) / lightDir;
-                lightVec -= lightDir * minOf(nextDist);
-
-                //surfacePos += fragLocalNormal * 0.0002;
+                vec3 _surfacePos = surfacePos + lightDir * minOf(nextDist);
+                _surfacePos += fragLocalNormal * 0.0002;
+                lightVec = lightLocalPos - _surfacePos;
 
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
