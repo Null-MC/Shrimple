@@ -74,15 +74,15 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         diffuse += lpvLight * lpvFade;
     #endif
 
-    if (lightningBoltPosition.w > EPSILON) {
-        vec3 lightningOffset = lightningBoltPosition.xyz - localPos;
+    if (lightningStrength > EPSILON) {
+        vec3 lightningOffset = lightningPosition - cameraPosition - localPos;
         float lightningDist = length(lightningOffset);
         float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
         // TODO: flatten vertical distance in ground-to-cloud range?
 
         vec3 lightningDir = lightningOffset / lightningDist;
         float lightningNoLm = max(dot(lightningDir, localNormal), 0.0);
-        diffuse += lightningNoLm * LightningBrightness * pow5(att);
+        diffuse += lightningNoLm * lightningStrength * LightningBrightness * pow5(att);
     }
 
     //diffuse = pow(lightmapColor, vec3(rcp(DynamicLightAmbientF)));
@@ -144,7 +144,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
         #endif
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE)
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
             vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;

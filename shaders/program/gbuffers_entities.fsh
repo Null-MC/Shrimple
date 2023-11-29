@@ -166,7 +166,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
 
         #ifdef IS_IRIS
-            uniform vec4 lightningBoltPosition;
+            uniform float lightningStrength;
         #endif
     #endif
 
@@ -190,8 +190,22 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+//#endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
@@ -503,7 +517,11 @@ void main() {
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
+        
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            GetVanillaFogFactor(vLocalPos);
+        #endif
 
         #ifndef RENDER_TRANSLUCENT
             color.a = 1.0;
@@ -588,7 +606,7 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        #ifndef DH_COMPAT_ENABLED
+        #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
 

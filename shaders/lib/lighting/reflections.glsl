@@ -9,7 +9,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             vec3 reflectColor;
 
             #ifdef WORLD_WATER_ENABLED
@@ -31,7 +31,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
-        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
             reflectColor = RGBToLinear(reflectColor);
         #else
@@ -110,7 +110,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 reflectDepth = reflection.z;
             }
 
-            #if WORLD_FOG_MODE != FOG_MODE_NONE
+            #if WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                 #ifndef IRIS_FEATURE_SSBO
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
@@ -141,16 +141,16 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                             #ifdef WORLD_SKY_ENABLED
                                 // sky fog
 
-                                #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+                                #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                                     // TODO: apply fog to reflection
 
-                                    float fogDist = GetVanillaFogDistance(reflectLocalPos);
-                                    fogF = GetCustomSkyFogFactor(fogDist);
+                                    float fogDist = GetShapedFogDistance(reflectLocalPos);
+                                    fogF = GetCustomFogFactor(fogDist);
 
                                     vec3 skyColorFinal = RGBToLinear(skyColor);
                                     fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                                     fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
-                                #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+                                #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
                                     // TODO: apply fog to reflection
                                 #endif
                             #else
@@ -174,6 +174,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         else reflectDist = far;
 
         reflectColor = mix(reflectColor, col, reflection.a);
+    #elif MATERIAL_REFLECTIONS == REFLECT_SKY
+        reflectDist = far;
     #endif
 
     #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM && (!defined RENDER_GBUFFER || defined RENDER_WATER)

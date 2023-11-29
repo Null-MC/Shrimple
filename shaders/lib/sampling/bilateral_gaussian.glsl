@@ -152,7 +152,7 @@ vec3 BilateralGaussianDepthBlurRGB_7x(const in vec2 texcoord, const in sampler2D
             float sampleDepth = texelFetch(depthSampler, iTexDepth, 0).r;
 
             iTexDepth = ivec2(texcoord * viewSize + sampleTex / blendTexScale);
-            float handClipDepth = texelFetch(depthtex2, iTexDepth, 0).r;
+            float handClipDepth = texelFetch(depthSampler, iTexDepth, 0).r;
             if (handClipDepth > sampleDepth) {
                 sampleDepth = sampleDepth * 2.0 - 1.0;
                 sampleDepth /= MC_HAND_DEPTH;

@@ -19,6 +19,12 @@ uniform int renderStage;
 uniform float rainStrength;
 uniform float skyRainStrength;
 
+// uniform vec3 skyColor;
+// uniform vec3 fogColor;
+// uniform float fogStart;
+// uniform float fogEnd;
+// uniform int fogShape;
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

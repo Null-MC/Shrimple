@@ -105,8 +105,22 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+//#endif
 
 #ifdef WORLD_SKY_ENABLED
     #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
@@ -182,7 +196,10 @@ void main() {
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        float fogF = GetVanillaFogFactor(vLocalPos);
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            fogF = GetVanillaFogFactor(vLocalPos);
+        #endif
         //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         //fogColorFinal = LinearToRGB(fogColorFinal);
 
@@ -200,11 +217,11 @@ void main() {
 
 		color.rgb *= texture(lightmap, lmcoord).rgb * shadowColor;
 
-        #ifndef DH_COMPAT_ENABLED
+        #ifdef DH_COMPAT_ENABLED
+            color.rgb = LinearToRGB(color.rgb);
+        #elif WORLD_FOG_MODE != FOG_MODE_NONE
             vec3 localViewDir = normalize(vLocalPos);
             ApplyFog(color, vLocalPos, localViewDir);
-        #else
-            color.rgb = LinearToRGB(color.rgb);
         #endif
 
 		outFinal = color;

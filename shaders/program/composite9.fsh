@@ -12,7 +12,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D BUFFER_FINAL;
-uniform sampler2D BUFFER_WEATHER_DEPTH;
+//uniform sampler2D BUFFER_OVERLAY_DEPTH;
 
 uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
@@ -46,8 +46,8 @@ void main() {
     float depth = texelFetch(depthtex0, uv, 0).r;
     //float depth = textureLod(depthtex0, texcoord, 0.0).r;
 
-    float weatherDepth = texelFetch(BUFFER_WEATHER_DEPTH, uv, 0).r;
-    depth = min(depth, weatherDepth);
+    // float weatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, uv, 0).r;
+    // depth = min(depth, weatherDepth);
 
     float depthL = linearizeDepthFast(depth, near, far);
 

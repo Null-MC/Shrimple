@@ -26,8 +26,8 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_LIGHT_NORMAL;
 uniform sampler2D BUFFER_LIGHT_DEPTH;
-uniform sampler2D BUFFER_WEATHER;
-//uniform sampler2D BUFFER_WEATHER_DEPTH;
+uniform sampler2D BUFFER_OVERLAY;
+//uniform sampler2D BUFFER_OVERLAY_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -116,7 +116,7 @@ uniform int isEyeInWater;
     #endif
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
     #endif
 #endif
 
@@ -168,8 +168,20 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+//#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -400,8 +412,8 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 albedo = RGBToLinear(deferredColor.rgb);
 
-        vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-        fogColorFinal = RGBToLinear(fogColorFinal);
+        // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+        // fogColorFinal = RGBToLinear(fogColorFinal);
 
         bool isWater = false;
         float roughness = 1.0;
@@ -732,7 +744,10 @@ layout(location = 0) out vec4 outFinal;
                 final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
             #endif
 
-            #if WORLD_FOG_MODE == FOG_MODE_VANILLA
+            #if WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                fogColorFinal = RGBToLinear(fogColorFinal);
+
                 final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
                 if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
             #endif
@@ -850,7 +865,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         // #ifdef DH_COMPAT_ENABLED
-        //     float fogDist = GetVanillaFogDistance(localPos);
+        //     float fogDist = GetShapedFogDistance(localPos);
         //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
         //     final.a *= 1.0 - fogF;
         // #endif
@@ -880,14 +895,14 @@ layout(location = 0) out vec4 outFinal;
                 
                 eyeSkyLightF += 0.02;
 
-                vec3 vlLight = (0.25 + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
+                vec3 vlLight = (phaseIso + WaterAmbientF) * eyeSkyLightF * WorldSkyLightColor;
                 ApplyScatteringTransmission(final.rgb, viewDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
             }
         #endif
 
         final.a = 1.0;
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        #if WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             //float fogF = 0.0;
 
             #ifdef WORLD_WATER_ENABLED
@@ -896,7 +911,7 @@ layout(location = 0) out vec4 outFinal;
 
                     #ifndef VL_BUFFER_ENABLED
                         vec3 skyColorFinal = RGBToLinear(skyColor);
-                        fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                        vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
                         float fogF = GetCustomWaterFogFactor(viewDist);
                         final.rgb = mix(final.rgb, fogColorFinal, fogF);
                     #endif
@@ -904,7 +919,7 @@ layout(location = 0) out vec4 outFinal;
                 else {
             #endif
                 float fogF;
-                float fogDist = GetVanillaFogDistance(localPos);
+                float fogDist = GetShapedFogDistance(localPos);
 
                 if (depth < 1.0) {
                     #ifndef DH_COMPAT_ENABLED
@@ -912,17 +927,17 @@ layout(location = 0) out vec4 outFinal;
                             // sky fog
 
                             vec3 skyColorFinal = RGBToLinear(skyColor);
-                            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
+                            vec3 fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
                             fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
                         #else
                             // no-sky fog
 
-                            fogColorFinal = RGBToLinear(fogColor);
+                            vec3 fogColorFinal = RGBToLinear(fogColor);
                             //fogF = GetVanillaFogFactor(localPos);
                         #endif
 
                         fogF = GetCustomFogFactor(fogDist);
-                        final.rgb = mix(final.rgb, fogColorFinal, fogF);
+                        final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
                     #endif
                 }
 
@@ -956,11 +971,13 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #else
             #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater != 1) {
+                if (isEyeInWater == 0) {
             #endif
 
+                float maxDist = min(viewDist, far);
+
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirScatterF, AirExtinctF);
+                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
                 final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
             #ifdef WORLD_WATER_ENABLED
@@ -968,8 +985,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        vec4 weatherColor = textureLod(BUFFER_WEATHER, texcoord, 0);
-        //float weatherDepth = textureLod(BUFFER_WEATHER_DEPTH, texcoord, 0).r;
+        vec4 weatherColor = textureLod(BUFFER_OVERLAY, texcoord, 0);
+        //float weatherDepth = textureLod(BUFFER_OVERLAY_DEPTH, texcoord, 0).r;
         //weatherColor.a *= step(weatherDepth, depthOpaque);
 
         final = mix(final, weatherColor, weatherColor.a);

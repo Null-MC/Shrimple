@@ -17,5 +17,5 @@ void main() {
 	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-	UpdateTileVertexBounds(EFFECT_BLOOM_TILE_MAX);
+	UpdateTileVertexBounds_Up(EFFECT_BLOOM_TILE_MAX);
 }

@@ -63,7 +63,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
-    uniform vec4 lightningBoltPosition = vec4(0.0);
+    // uniform vec4 lightningBoltPosition = vec4(0.0);
 
     //#ifdef DYN_LIGHT_FLICKER
         //uniform float frameTimeCounter;

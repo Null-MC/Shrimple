@@ -99,7 +99,7 @@ uniform float blindness;
     uniform float skyRainStrength;
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
 
         #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
             uniform float cloudTime;
@@ -158,15 +158,29 @@ uniform float blindness;
 #endif
 
 #include "/lib/anim.glsl"
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
-#include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+#include "/lib/world/common.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+//#endif
+
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
@@ -266,9 +280,9 @@ uniform float blindness;
 
 
 #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 13,15 */
-    layout(location = 0) out vec4 outDepth;
-    layout(location = 1) out vec4 outFinal;
+    /* RENDERTARGETS: 15 */
+    //layout(location = 0) out vec4 outDepth; (13)
+    layout(location = 0) out vec4 outFinal;
 #else
     /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
@@ -403,7 +417,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
     #endif
 
-    #ifndef DH_COMPAT_ENABLED
+    #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
         ApplyFog(color, vLocalPos, localViewDir);
     #endif
 
@@ -423,13 +437,13 @@ void main() {
         color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
     #endif
 
-    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-        outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
-    #endif
+    // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+    //     outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
+    // #endif
 
-    #ifndef DH_COMPAT_ENABLED
-        color.rgb = LinearToRGB(color.rgb);
-    #endif
+    // #ifndef DH_COMPAT_ENABLED
+    //     color.rgb = LinearToRGB(color.rgb);
+    // #endif
 
     outFinal = color;
 }

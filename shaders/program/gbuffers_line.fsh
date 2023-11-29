@@ -51,8 +51,22 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
@@ -78,8 +92,12 @@ void main() {
         const float sss = 0.0;
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-        float fogF = GetVanillaFogFactor(vLocalPos);
         
+        float fogF = 0.0;
+        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+            fogF = GetVanillaFogFactor(vLocalPos);
+        #endif
+
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(0.0);
 
@@ -100,8 +118,10 @@ void main() {
 
 		color.rgb *= texture(lightmap, lmcoord).rgb;
 
-        vec3 localViewDir = normalize(vLocalPos);
-        ApplyFog(color, vLocalPos, localViewDir);
+        #if WORLD_FOG_MODE != FOG_MODE_NONE
+            vec3 localViewDir = normalize(vLocalPos);
+            ApplyFog(color, vLocalPos, localViewDir);
+        #endif
 
 		outFinal = color;
 	#endif

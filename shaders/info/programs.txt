@@ -6,11 +6,14 @@ shadowcomp1		propagate LPV
 shadowcomp2		build light bin lists; insert lpv lights
 shadowcomp3		populate light mask neighbors
 
-deferred1		opaque deferred block-light tracing
-deferred2		opaque deferred VL tracing
-deferred3		opaque deferred final
+--deferred1		opaque deferred block-light tracing
+--deferred2		opaque deferred VL tracing
+--deferred3		opaque deferred final
 
-deferred4		hi-z
+deferred1		hi-z
+deferred4>2		opaque deferred SSAO
+deferred5>3		opaque deferred SSAO apply
+
 
 composite1		opaque deferred block-light tracing
 composite2		opaque deferred final

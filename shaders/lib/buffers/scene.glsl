@@ -33,4 +33,6 @@
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         mat4 shadowModelViewProjection;      // 64
     #endif
+
+    vec3 lightningPosition;                  // 12
 };

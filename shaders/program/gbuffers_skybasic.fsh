@@ -16,8 +16,11 @@ uniform float viewHeight;
 uniform float viewWidth;
 uniform float far;
 
-uniform vec3 fogColor;
 uniform vec3 skyColor;
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
 
 uniform int isEyeInWater;
 uniform float rainStrength;
@@ -34,12 +37,22 @@ uniform float blindness;
     uniform float waterDensitySmooth;
 #endif
 
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
 
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+#include "/lib/fog/fog_common.glsl"
+
+#if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -59,39 +72,25 @@ void main() {
         vec3 viewDir = normalize(viewPos);
         vec3 upDir = normalize(upPosition);
         float viewUpF = dot(viewDir, upDir);
-        //float viewUpF = dot(viewDir, gbufferModelView[1].xyz);
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
-        #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-            #if defined DEFERRED_BUFFER_ENABLED && defined DEFER_TRANSLUCENT
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-                color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
-            #else
-                if (isEyeInWater == 1) {
-                    color = GetCustomWaterFogColor(localSunDirection.y);
-                }
-                else {
-                    vec3 skyColorFinal = RGBToLinear(skyColor);
-                    vec3 fogColor = GetCustomSkyFogColor(localSunDirection.y);
-                    color = GetSkyFogColor(skyColorFinal, fogColor, viewUpF);
-                }
-            #endif
-        #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            color = GetCustomSkyFogColor(localSunDirection.y);
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);
-        #else
-            color = RGBToLinear(skyColor) * WorldSkyBrightnessF;
         #endif
     }
 
-    color *= 1.0 - blindness;
+    //color *= 1.0 - blindness;
 
     #ifdef DH_COMPAT_ENABLED
         color = LinearToRGB(color);
+    #else
+        color *= WorldSkyBrightnessF;
     #endif
     
     outFinal = vec4(color, 1.0);

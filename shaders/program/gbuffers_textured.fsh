@@ -93,7 +93,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #ifdef IS_IRIS
-        uniform vec4 lightningBoltPosition;
+        uniform float lightningStrength;
     #endif
 #endif
 
@@ -146,8 +146,22 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/depth.glsl"
+
 #include "/lib/world/common.glsl"
-#include "/lib/world/fog.glsl"
+
+//#if WORLD_FOG_MODE != FOG_MODE_NONE
+    #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+//#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -353,7 +367,7 @@ void main() {
 
     #ifdef DH_COMPAT_ENABLED
         color.rgb = LinearToRGB(color.rgb);
-    #else
+    #elif WORLD_FOG_MODE != FOG_MODE_NONE
         ApplyFog(color, vLocalPos, localViewDir);
     #endif
 

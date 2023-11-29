@@ -141,10 +141,10 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
 
         //if (DIST_BLUR_SAMPLES > 1) {
-            #ifdef RENDER_TRANSLUCENT_POST_BLUR
-                float sampleWeatherDepth = texelFetch(BUFFER_WEATHER_DEPTH, sampleUV, 0).r;
-                sampleDepth = min(sampleDepth, sampleWeatherDepth);
-            #endif
+            // #ifdef RENDER_TRANSLUCENT_POST_BLUR
+            //     float sampleWeatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, sampleUV, 0).r;
+            //     sampleDepth = min(sampleDepth, sampleWeatherDepth);
+            // #endif
 
             //if (sampleDepth >= minDepth) sampleWeight *= sampleDistF;
             sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;

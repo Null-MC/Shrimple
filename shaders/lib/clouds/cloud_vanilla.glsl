@@ -46,16 +46,16 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
             cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
             cloudLocalPos.y = cloudHeight;
 
-            #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
-                float fogDist = GetVanillaFogDistance(cloudLocalPos);
+            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                float fogDist = GetShapedFogDistance(cloudLocalPos);
 
                 #ifdef IS_IRIS
                     fogDist *= 0.5;
                 #endif
 
-                float fogF = GetCustomSkyFogFactor(fogDist);
+                float fogF = GetCustomFogFactor(fogDist);
                 cloudF *= 1.0 - fogF;
-            #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
                 vec3 fogPos = cloudLocalPos;
                 if (fogShape == 1) fogPos.y = 0.0;
 
@@ -88,22 +88,22 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
 
         float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
 
-        // #if WORLD_FOG_MODE == FOG_MODE_CUSTOM
+        // #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
         //     vec3 cloudLocalPos = localPos;
         //     //vec3 localViewDir = normalize(localPos);
 
         //     cloudLocalPos.xz += localDir.xz * (cloudHeightDifference / localDir.y);
         //     cloudLocalPos.y = cloudHeight;
 
-        //     float fogDist = GetVanillaFogDistance(cloudLocalPos);
+        //     float fogDist = GetShapedFogDistance(cloudLocalPos);
 
         //     #ifdef IS_IRIS
         //         fogDist *= 0.5;
         //     #endif
 
-        //     float fogF = GetCustomSkyFogFactor(fogDist);
+        //     float fogF = GetCustomFogFactor(fogDist);
         //     cloudShadow *= 1.0 - fogF;
-        // #elif WORLD_FOG_MODE == FOG_MODE_VANILLA
+        // #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
         //     vec3 fogPos = localPos;
         //     if (fogShape == 1) fogPos.y = 0.0;
 
