@@ -1,6 +1,6 @@
 //#define DEBUG_BLOOM_TILES
 
-const float tilePadding = 8.0;
+const float tilePadding = 2.0;
 
 
 float GetBloomTileScale(const in int tile) {
