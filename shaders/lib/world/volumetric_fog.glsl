@@ -368,7 +368,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         // TODO: replace traceLocalPos with water surface pos
 
-                        float causticLight = SampleWaterCaustics(traceLocalPos);
+                        float causticLight = SampleWaterCaustics(traceLocalPos, 0.0);
                         causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
                         sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, Water_CausticStrength);
                     #endif

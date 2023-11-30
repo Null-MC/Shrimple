@@ -528,7 +528,8 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        float causticLight = SampleWaterCaustics(localPos);
+                        float causticLight = SampleWaterCaustics(localPos, deferredLighting.y);
+
                         causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
 
                         float causticStrength = Water_CausticStrength;

@@ -4,7 +4,7 @@ const vec3 worldMoonColor        = RGBToLinear(vec3(0.864, 0.860, 0.823));
 
 const float phaseAir = 0.25;
 const float AirAmbientF = 0.0;
-float AirScatterF = mix(0.003, 0.004, skyRainStrength);
+float AirScatterF = mix(0.002, 0.004, skyRainStrength);
 float AirExtinctF = mix(0.001, 0.008, skyRainStrength);
 
 const float LightningRangeInv = rcp(200.0);
