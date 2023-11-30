@@ -10,7 +10,7 @@ const int SSR_LodMin = 0;
             vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
             //vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
             //return textureLod(texDepthNear, (uv + 1.0) / nearViewSize, 0).r;
-            return texelFetch(texDepthNear, ivec2(uv + 0.5), 0).r;
+            return texelFetch(texDepthNear, ivec2(uv), 0).r;
             //return imageLoad(imgDepthNear, uv).r;
         }
 
@@ -143,10 +143,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         //bool isTraceNearerThanStart = traceDepthL < sampleDepthL + 0.1;
         bool isTooThickAndMovingNearer = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
-        if (isTraceNearerThanSample && !isCloserThanStartAndMovingAway) {
-            lastVisPos = tracePos;
-            alpha = 1.0;
-        }
+        // if (isTraceNearerThanSample && !isCloserThanStartAndMovingAway) {
+        //     lastVisPos = tracePos;
+        //     alpha = 1.0;
+        // }
 
         if (isTraceNearerThanSample || isCloserThanStartAndMovingAway || isTooThickAndMovingNearer) {
             lastTracePos = tracePos;
