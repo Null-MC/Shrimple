@@ -79,6 +79,10 @@ void main() {
 
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             color = GetCustomSkyFogColor(localSunDirection.y);
+            
+            // vec3 skyColorFinal = RGBToLinear(skyColor);
+            // reflectColor = GetCustomSkyFogColor(localSunDirection.y);
+            // reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);

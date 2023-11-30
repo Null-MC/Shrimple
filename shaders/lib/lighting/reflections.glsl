@@ -24,9 +24,10 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
                 else {
             #endif
                 
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                reflectColor = GetCustomSkyFogColor(localSunDirection.y);
-                reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
+                // vec3 skyColorFinal = RGBToLinear(skyColor);
+                // reflectColor = GetCustomSkyFogColor(localSunDirection.y);
+                // reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
+                reflectColor = GetCustomSkyFogColor(localSunDirection.y) * WorldSkyBrightnessF;
 
             #ifdef WORLD_WATER_ENABLED
                 }
