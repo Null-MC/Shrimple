@@ -47,7 +47,7 @@ void main() {
 
     barrier();
 
-	if (any(greaterThanEqual(globalPos * 2 + 1, ivec2(viewSize)))) return;
+	if (any(greaterThanEqual(globalPos, ivec2(ceil(viewSize * 0.5))))) return;
 
 	float minZ = getSharedBufferMinZ(kernelPos);
 	writeNearTileMinZ(kernelPos, globalPos, minZ, 0);

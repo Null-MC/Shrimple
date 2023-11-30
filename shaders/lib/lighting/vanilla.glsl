@@ -17,9 +17,16 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     // }
 
     //lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
-    vec2 lmFinal = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
+    vec2 lmFinal = lmcoord;
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        lmFinal.y *= skyNoLm * 0.5 + 0.5;
+    #endif
+
+    lmFinal = saturate(lmFinal) * (15.0/16.0) + (0.5/16.0);
+
+    // #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 WorldSkyLightColor = GetSkyLightColor();
         #endif
@@ -50,16 +57,16 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
         diffuse = lightmapBlock + lightmapSky * shadowColor;
-    #else
-        vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-        lightmapColor = RGBToLinear(lightmapColor);
+    // #else
+    //     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+    //     lightmapColor = RGBToLinear(lightmapColor);
 
-        diffuse = lightmapColor;
+    //     diffuse = lightmapColor;
 
-        float viewDist = length(localPos);
-        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-        diffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
-    #endif
+    //     float viewDist = length(localPos);
+    //     float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
+    //     diffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+    // #endif
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
         //vec3 surfacePos = localPos;
@@ -74,16 +81,18 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         diffuse += lpvLight * lpvFade;
     #endif
 
-    if (lightningStrength > EPSILON) {
-        vec3 lightningOffset = lightningPosition - cameraPosition - localPos;
-        float lightningDist = length(lightningOffset);
-        float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
-        // TODO: flatten vertical distance in ground-to-cloud range?
+    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
+        if (lightningStrength > EPSILON) {
+            vec3 lightningOffset = lightningPosition - cameraPosition - localPos;
+            float lightningDist = length(lightningOffset);
+            float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
+            // TODO: flatten vertical distance in ground-to-cloud range?
 
-        vec3 lightningDir = lightningOffset / lightningDist;
-        float lightningNoLm = max(dot(lightningDir, localNormal), 0.0);
-        diffuse += lightningNoLm * lightningStrength * LightningBrightness * pow5(att);
-    }
+            vec3 lightningDir = lightningOffset / lightningDist;
+            float lightningNoLm = max(dot(lightningDir, localNormal), 0.0);
+            diffuse += lightningNoLm * lightningStrength * LightningBrightness * pow5(att);
+        }
+    #endif
 
     //diffuse = pow(lightmapColor, vec3(rcp(DynamicLightAmbientF)));
 }

@@ -34,8 +34,8 @@ float getSharedBufferMinZ(const in ivec2 kernelPos) {
 	minZ = min(minZ, sharedBuffer[getSharedCoord(kernelPos + ivec2(-1,  1))]);
 
 	// right
-	minZ = min(minZ, sharedBuffer[getSharedCoord(kernelPos + ivec2( 1,  0))]);
-	minZ = min(minZ, sharedBuffer[getSharedCoord(kernelPos + ivec2( 1,  1))]);
+	minZ = min(minZ, sharedBuffer[getSharedCoord(kernelPos + ivec2( 2,  0))]);
+	minZ = min(minZ, sharedBuffer[getSharedCoord(kernelPos + ivec2( 2,  1))]);
 
 	return minZ;
 }

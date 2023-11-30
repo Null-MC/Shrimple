@@ -506,7 +506,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        vec3 inScattering = (sampleAmbient * skyLightColor + sampleLit) * sampleScattering * sampleDensity;
+        #ifdef WORLD_SKY_ENABLED
+            sampleAmbient *= skyLightColor;
+        #endif
+
+        vec3 inScattering = (sampleAmbient + sampleLit) * sampleScattering * sampleDensity;
         float sampleTransmittance = exp(-sampleExtinction * stepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 

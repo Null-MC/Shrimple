@@ -532,6 +532,7 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float uint32MaxInv = 1.0 / UINT32_MAX;
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
+const float phaseIso = 0.25;
 
 const float centerDepthHalflife = 1.2;
 const float wetnessHalflife = 16000.0;

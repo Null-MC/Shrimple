@@ -196,13 +196,13 @@ uniform ivec2 eyeBrightnessSmooth;
 //#if WORLD_FOG_MODE != FOG_MODE_NONE
     #include "/lib/fog/fog_common.glsl"
 
-    #ifdef WORLD_SKY_ENABLED
+    //#ifdef WORLD_SKY_ENABLED
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             #include "/lib/fog/fog_vanilla.glsl"
         #endif
-    #endif
+    //#endif
 
     #include "/lib/fog/fog_render.glsl"
 //#endif

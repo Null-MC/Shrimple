@@ -449,7 +449,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
-            #else
+            #elif defined WORLD_WATER_ENABLED
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 

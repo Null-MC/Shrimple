@@ -2,7 +2,6 @@ const vec3 worldSunColor         = RGBToLinear(vec3(0.889, 0.864, 0.691));
 const vec3 worldHorizonColor     = RGBToLinear(vec3(0.813, 0.540, 0.120));
 const vec3 worldMoonColor        = RGBToLinear(vec3(0.864, 0.860, 0.823));
 
-const float phaseIso = 0.25;
 const float phaseAir = 0.25;
 const float AirAmbientF = 0.0;
 float AirScatterF = mix(0.003, 0.004, skyRainStrength);
