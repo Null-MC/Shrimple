@@ -19,7 +19,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     //lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
     vec2 lmFinal = lmcoord;
 
-    #ifdef WORLD_SKY_ENABLED
+    #if defined WORLD_SKY_ENABLED && !defined RENDER_SHADOWS_ENABLED
         float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
         lmFinal.y *= skyNoLm * 0.5 + 0.5;
     #endif

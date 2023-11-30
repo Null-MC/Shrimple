@@ -60,7 +60,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         level = 3;//clamp(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 0, 5);
     #endif
 
-    vec3 lastTracePos = clipPos + screenRay;// * (1.0 + dither);
+    vec3 lastTracePos = clipPos + screenRay * (1.0 + dither);
     vec3 lastVisPos = lastTracePos;
 
     float startDepthLinear = linearizeDepthFast(clipPos.z, near, far);
