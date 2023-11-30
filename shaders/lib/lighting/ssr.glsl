@@ -5,7 +5,14 @@ const int SSR_LodMin = 0;
     float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
         float depth = 1.0;
 
-        depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
+        if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
+        else {
+            ivec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
+            vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
+            return textureLod(texDepthNear, (uv + 0.5) / nearViewSize, 0).r;
+            //return texelFetch(texDepthNear, uv, 0).r;
+            //return imageLoad(imgDepthNear, uv).r;
+        }
 
         return depth;
     }
@@ -23,9 +30,9 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    #ifndef MATERIAL_REFLECT_HIZ
-        dither += 2.0;
-    #endif
+    // #ifndef MATERIAL_REFLECT_HIZ
+    //     dither += 2.0;
+    // #endif
 
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
@@ -47,7 +54,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     int level = 0;
     #ifndef MATERIAL_REFLECT_HIZ
         //screenRay *= 8.0;
-        level = clamp(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 0, 5);
+        level = 2;//clamp(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 0, 5);
     #endif
 
     vec3 lastTracePos = clipPos + screenRay * dither;
