@@ -799,12 +799,12 @@ layout(location = 0) out vec4 outFinal;
                 // float fogDist = GetShapedFogDistance(localPos);
                 // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
                 // final = mix(final, skyFinal, fogF);
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #elif WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_VANILLA
                 vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                 vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
                 fogColorFinal = RGBToLinear(fogColorFinal);
 
-                final = mix(final, fogColorFinal, deferredFog.a);
+                final = mix(final, fogColorFinal * WorldSkyBrightnessF, deferredFog.a);
             #endif
         }
         else {

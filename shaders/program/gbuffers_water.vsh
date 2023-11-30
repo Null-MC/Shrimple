@@ -18,7 +18,7 @@ out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
 out vec3 vLocalTangent;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 out float vTangentW;
 flat out int vBlockId;
 flat out mat2 atlasBounds;

@@ -11,7 +11,7 @@ in vec2 texcoord;
 in vec4 glcolor;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
-in vec3 vBlockLight;
+// in vec3 vBlockLight;
 
 #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     in vec3 cloudPos;
@@ -269,7 +269,7 @@ void main() {
     vec3 albedo = RGBToLinear(color.rgb);
     
     vec3 shadowColor = vec3(1.0);
-    vec3 blockDiffuse = vBlockLight;
+    vec3 blockDiffuse = vec3(0.0);
     vec3 blockSpecular = vec3(0.0);
     vec3 skyDiffuse = vec3(0.0);
     vec3 skySpecular = vec3(0.0);

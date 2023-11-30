@@ -9,7 +9,7 @@
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
 

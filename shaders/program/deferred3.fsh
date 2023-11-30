@@ -37,14 +37,14 @@ uniform float far;
         uniform vec3 WaterScatterColor;
         uniform float waterDensitySmooth;
     #endif
-#endif
 
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
-#endif
+    #ifdef WORLD_WATER_ENABLED
+        uniform int isEyeInWater;
+    #endif
 
-#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-    uniform float alphaTestRef;
+    #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+        uniform float alphaTestRef;
+    #endif
 #endif
 
 #include "/lib/sampling/depth.glsl"

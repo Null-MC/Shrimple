@@ -327,58 +327,26 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if WORLD_FOG_MODE != FOG_MODE_NONE //&& WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                //float fogDist = GetShapedFogDistance(localPosOpaque);
-
                 #if !defined IRIS_FEATURE_SSBO && defined WORLD_SKY_ENABLED
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
 
                 #ifndef DH_COMPAT_ENABLED
                     if (depthOpaque < 1.0) {
-                        //ApplyFog(final, localPosOpaque, localViewDir);
-
                         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                             vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                             float fogDist = GetShapedFogDistance(localPosOpaque);
                             float fogF = GetCustomFogFactor(fogDist);
-
-                            final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
                         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                            ApplyVanillaFog(final, localPosOpaque);
+                            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                            vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+                            fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
+
+                            float fogF = deferredFog.a;
                         #endif
 
-                        // vec3 fogColorFinal = vec3(0.0);
-                        // float fogF = 0.0;
-
-                        // #ifdef WORLD_SKY_ENABLED
-                        //     // sky fog
-
-                        //     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                        //         vec3 skyColorFinal = RGBToLinear(skyColor);
-                        //         fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                        //         fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-
-                        //         //float fogDist  = GetShapedFogDistance(localPosOpaque);
-                        //         fogF = GetCustomFogFactor(fogDist);
-                        //     #else
-                        //         // TODO
-                        //     #endif
-                        // #else
-                        //     // no-sky fog
-
-                        //     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                        //         fogColorFinal = RGBToLinear(fogColor);
-                        //         //fogF = GetVanillaFogFactor(localPosOpaque);
-
-                        //         //float fogDist  = GetShapedFogDistance(localPosOpaque);
-                        //         fogF = GetCustomFogFactor(fogDist);
-                        //     #else
-                        //         // TODO
-                        //     #endif
-                        // #endif
-
-                        // final = mix(final, fogColorFinal, fogF);
+                        final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
                     }
                 #endif
 

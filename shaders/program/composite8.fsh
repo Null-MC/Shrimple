@@ -902,9 +902,7 @@ layout(location = 0) out vec4 outFinal;
 
         final.a = 1.0;
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            //float fogF = 0.0;
-
+        #if WORLD_FOG_MODE != FOG_MODE_NONE && !defined DH_COMPAT_ENABLED
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 1) {
                     // water fog
@@ -918,36 +916,26 @@ layout(location = 0) out vec4 outFinal;
                 }
                 else {
             #endif
-                float fogF;
-                float fogDist = GetShapedFogDistance(localPos);
-
                 if (depth < 1.0) {
-                    #ifndef DH_COMPAT_ENABLED
-                        #ifdef WORLD_SKY_ENABLED
-                            // sky fog
+                    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                        vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
-                            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
-                        #else
-                            // no-sky fog
+                        float fogDist = GetShapedFogDistance(localPosOpaque);
+                        float fogF = GetCustomFogFactor(fogDist);
+                    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+                        fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
 
-                            vec3 fogColorFinal = RGBToLinear(fogColor);
-                            //fogF = GetVanillaFogFactor(localPos);
-                        #endif
-
-                        fogF = GetCustomFogFactor(fogDist);
-                        final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
+                        float fogF = deferredFog.a;
                     #endif
-                }
 
-                // #ifdef WORLD_SKY_ENABLED
-                //     fogDist = min(length(localPos), far);
-                //     ApplyCustomRainFog(final.rgb, fogDist, localSunDirection.y);
-                // #endif
+                    final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
+                    if (final.a > (1.5/255.0)) final.a = min(final.a + fogF, 1.0);
+                }
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
-
-            //final.rgb = mix(final.rgb, fogColorFinal, fogF);
         #endif
 
         #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
@@ -983,11 +971,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        vec4 weatherColor = textureLod(BUFFER_OVERLAY, texcoord, 0);
-        //float weatherDepth = textureLod(BUFFER_OVERLAY_DEPTH, texcoord, 0).r;
-        //weatherColor.a *= step(weatherDepth, depthOpaque);
-
-        final = mix(final, weatherColor, weatherColor.a);
+        vec4 overlayColor = textureLod(BUFFER_OVERLAY, texcoord, 0);
+        final = mix(final, overlayColor, overlayColor.a);
         
         // #ifdef DH_COMPAT_ENABLED
         //     if (deferredColor.a > (0.5/255.0) || weatherColor.a > (0.5/255.0))

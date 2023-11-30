@@ -12,7 +12,7 @@ in vec3 vLocalPos;
 in vec2 vLocalCoord;
 in vec3 vLocalNormal;
 in vec3 vLocalTangent;
-in vec3 vBlockLight;
+// in vec3 vBlockLight;
 in float vTangentW;
 
 flat in mat2 atlasBounds;
@@ -506,7 +506,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
-            vec3 blockDiffuse = vBlockLight;
+            vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);

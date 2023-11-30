@@ -11,7 +11,7 @@ out vec2 texcoord;
 out vec2 lmcoord;
 out vec4 glcolor;
 out vec3 vLocalPos;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 
 #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     out vec3 cloudPos;
