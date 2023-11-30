@@ -277,10 +277,6 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 shared vec4 lpvSharedData[10*10*10];
 //shared uint voxelBlockShared[6*6*6];
 
-int sumOf(ivec3 vec) {
-    return vec.x + vec.y + vec.z;
-}
-
 int getSharedCoord(ivec3 pos) {
     const ivec3 flatten = ivec3(1, 10, 100);
     return sumOf(pos * flatten);
@@ -332,9 +328,8 @@ void main() {
 
         ivec3 o;
         ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-        int k = getSharedCoord(kernelPos);
 
-        lpvSharedData[k] = GetLpvValue(imgCoordPrev);
+        lpvSharedData[getSharedCoord(kernelPos)] = GetLpvValue(imgCoordPrev);
         //voxelBlockShared[k] = blockId;
 
         if (gl_LocalInvocationID.x == 0u || gl_LocalInvocationID.x == 7u) {

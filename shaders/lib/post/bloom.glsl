@@ -88,7 +88,7 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         GetBloomTileInnerBounds(tile-1, srcBoundsMin, srcBoundsMax);
 
         vec2 tex = (texcoord - 0.5 * pixelSize) / (1.0 - pixelSize);
-        tex *= srcBoundsMax - srcBoundsMin + (4.0 * tilePadding * pixelSize);
+        tex *= (srcBoundsMax - srcBoundsMin) + (4.0 * tilePadding * pixelSize);
         tex += srcBoundsMin - (2.0 * tilePadding * pixelSize);
 
         #ifndef DEBUG_BLOOM_TILES
@@ -121,5 +121,9 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         vec3 color = 0.25 * (color1 + color2 + color3 + color4);
 
         return max(color, vec3(0.0));
+    }
+
+    void DitherBloom(inout vec3 color) {
+        color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
     }
 #endif

@@ -33,12 +33,13 @@ void main() {
     vec3 color4 = textureLodOffset(BUFFER_BLOOM_TILES, srcTex, 0, ivec2(1,1)).rgb;
 
     vec3 color = (color1 + color2 + color3 + color4) * 0.25;
+    color *= PostBloomStrengthF;
     
-    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
+    DitherBloom(color);
     
     // #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     //     color = RGBToLinear(color);
     // #endif
 
-    outFinal = color * PostBloomStrengthF;
+    outFinal = color;
 }

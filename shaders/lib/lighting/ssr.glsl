@@ -1,21 +1,15 @@
 const int SSR_LodMin = 0;
 
 
-#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
+//#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
     float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-        //ivec2 viewSize = ivec2(viewWidth, viewHeight);
         float depth = 1.0;
 
-        if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
-        else {
-            ivec2 uv = GetDepthTileCoord(texcoord, level - 1);
-            return texelFetch(texDepthNear, uv, 0).r;
-            //return imageLoad(imgDepthNear, uv).r;
-        }
+        depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
 
         return depth;
     }
-#endif
+//#endif
 
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
@@ -53,7 +47,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     int level = 0;
     #ifndef MATERIAL_REFLECT_HIZ
         //screenRay *= 8.0;
-        level = max(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 1);
+        level = clamp(int(log2(maxOf(viewSize) / SSR_MAXSTEPS + 1.0)), 0, 5);
     #endif
 
     vec3 lastTracePos = clipPos + screenRay * dither;
@@ -106,8 +100,8 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
 
         vec3 t = clamp(tracePos, clipMin, clipMax);
-        if (tracePos.z >= 1.0 && t != tracePos) {
-            if (level > SSR_LodMin && i < SSR_MAXSTEPS - 1) {
+        if (tracePos.z > 0.999 && t != tracePos) {
+            if (level > SSR_LodMin && i < SSR_MAXSTEPS - (level + 1)) {
                 level--;
                 continue;
             }
@@ -124,44 +118,46 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             texDepth = SampleDepthTiles(depthtex, 0.5*(lastPos + currPos) / viewSize, level);
         #else
             //texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
-            texDepth = texelFetch(depthtex, ivec2(tracePos.xy * viewSize), 0).r;
+            //texDepth = texelFetch(depthtex, ivec2(tracePos.xy * viewSize), 0).r;
             //texDepth = textureLod(depthtex, tracePos.xy, 4).r;
+
+            texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
         float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
         float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
-        bool ignoreIfCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
-        bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.02 * exp2(level);
-        //bool ignoreIfTraceNearer = traceDepthL < sampleDepthL + 0.1;
-        bool ignoreIfTooThick = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
+        bool isCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
+        bool isTraceNearerThanSample = traceDepthL < sampleDepthL - 0.02 * exp2(level);
+        //bool isTraceNearerThanStart = traceDepthL < sampleDepthL + 0.1;
+        bool isTooThick = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
-        if (!ignoreIfTraceNearer) {
+        if (isTraceNearerThanSample && !isCloserThanStartAndMovingAway) {
             lastVisPos = tracePos;
-            //alpha = 1.0;
+            alpha = 1.0;
         }
 
-        if (ignoreIfCloserThanStartAndMovingAway || ignoreIfTraceNearer || ignoreIfTooThick) {
+        if (isTraceNearerThanSample || isCloserThanStartAndMovingAway || isTooThick) {
             lastTracePos = tracePos;
 
             #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
                 lastPos = currPos;
                 currPos += ddaStep;
-
-                if (level < SSR_LOD_MAX) {
-                    //vec2 halfPos = floor(currPos + 0.5) * 0.5;
-                    //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
-
-                    level++;
-                }
             #endif
+
+            if (level < SSR_LOD_MAX) {
+                //vec2 halfPos = floor(currPos + 0.5) * 0.5;
+                //if (all(greaterThan(abs(fract(halfPos) - 0.5), vec2(0.49)))) level++;
+
+                level++;
+            }
 
             continue;
         }
 
         //#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
-            if (level > SSR_LodMin) {
+            if (level > SSR_LodMin && i < SSR_MAXSTEPS - (level + 1)) {
                level--;
                continue;
             }
@@ -182,7 +178,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         alpha *= level + 0.1;
     #endif
 
-    return vec4(lastVisPos, alpha);
+    return vec4(tracePos, alpha);
 }
 
 // uv=tracePos.xy

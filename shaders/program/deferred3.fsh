@@ -75,7 +75,6 @@ void main() {
     if (depth < 1.0) {
         //occlusion = textureLod(colortex12, texcoord, 0).r;
 
-        // TODO: filter
         float linearDepth = linearizeDepthFast(depth, near, far);
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, colortex12, viewSize, depthtex1, viewSize, linearDepth, 0.2);
 

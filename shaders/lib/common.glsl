@@ -608,6 +608,9 @@ float minOf(const in vec4 vec) {return min(min(vec[0], vec[1]), min(vec[2], vec[
 float maxOf(const in vec2 vec) {return max(vec[0], vec[1]);}
 float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
+int sumOf(ivec2 vec) {return vec.x + vec.y;}
+int sumOf(ivec3 vec) {return vec.x + vec.y + vec.z;}
+
 float RGBToLinear(const in float value) {
     return pow(value, GAMMA);
 }
