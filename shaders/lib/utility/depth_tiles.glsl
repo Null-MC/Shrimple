@@ -12,9 +12,10 @@ void GetDepthTileBounds(const in vec2 viewSize, const in int index, out ivec2 ti
     if (index > 0) tilePos += tileSize * DepthTileSizes[index - 1];
 }
 
-ivec2 GetDepthTileCoord(const in vec2 viewSize, const in vec2 texcoord, const in int index) {
+vec2 GetDepthTileCoord(const in vec2 viewSize, const in vec2 texcoord, const in int index) {
     ivec2 tilePos, tileSize;
     GetDepthTileBounds(viewSize, index, tilePos, tileSize);
-    tilePos += ivec2(texcoord * tileSize);
-    return tilePos;
+    return tilePos + texcoord * tileSize;
+    //tilePos += ivec2(texcoord * tileSize);
+    //return tilePos;
 }

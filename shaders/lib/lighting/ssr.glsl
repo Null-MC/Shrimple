@@ -7,10 +7,10 @@ const int SSR_LodMin = 0;
 
         if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
         else {
-            ivec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
-            vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
+            vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
+            //vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
             //return textureLod(texDepthNear, (uv + 1.0) / nearViewSize, 0).r;
-            return texelFetch(texDepthNear, uv, 0).r;
+            return texelFetch(texDepthNear, ivec2(uv + 0.5), 0).r;
             //return imageLoad(imgDepthNear, uv).r;
         }
 
@@ -135,17 +135,17 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
         float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
-        bool isCloserThanStartAndMovingAway = texDepth < clipPos.z && screenRay.z > 0.0;
-        bool isTraceNearerThanSample = traceDepthL < sampleDepthL - 0.04 * exp2(level) + EPSILON;
+        bool isCloserThanStartAndMovingAway = clipPos.z > texDepth + 0.002 && screenRay.z > 0.0;
+        bool isTraceNearerThanSample = tracePos.z < texDepth + 0.00002;// - 0.04 * exp2(level) + EPSILON;
         //bool isTraceNearerThanStart = traceDepthL < sampleDepthL + 0.1;
-        bool isTooThick = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
+        bool isTooThickAndMovingNearer = traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 
         if (isTraceNearerThanSample && !isCloserThanStartAndMovingAway) {
             lastVisPos = tracePos;
             alpha = 1.0;
         }
 
-        if (isTraceNearerThanSample || isCloserThanStartAndMovingAway || isTooThick) {
+        if (isTraceNearerThanSample || isCloserThanStartAndMovingAway || isTooThickAndMovingNearer) {
             lastTracePos = tracePos;
 
             #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
