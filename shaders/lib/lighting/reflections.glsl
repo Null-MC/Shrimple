@@ -27,7 +27,8 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
                 // vec3 skyColorFinal = RGBToLinear(skyColor);
                 // reflectColor = GetCustomSkyFogColor(localSunDirection.y);
                 // reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
-                reflectColor = GetCustomSkyFogColor(localSunDirection.y) * WorldSkyBrightnessF;
+                //reflectColor = GetCustomSkyFogColor(localSunDirection.y) * WorldSkyBrightnessF;
+                reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * WorldSkyBrightnessF;
 
             #ifdef WORLD_WATER_ENABLED
                 }
@@ -143,14 +144,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                                 // sky fog
 
                                 #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                                    // TODO: apply fog to reflection
+                                    fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
 
                                     float fogDist = GetShapedFogDistance(reflectLocalPos);
                                     fogF = GetCustomFogFactor(fogDist);
-
-                                    vec3 skyColorFinal = RGBToLinear(skyColor);
-                                    fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                                    fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, reflectLocalDir.y);
                                 #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
                                     // TODO: apply fog to reflection
                                 #endif

@@ -926,9 +926,7 @@ layout(location = 0) out vec4 outFinal;
                         #ifdef WORLD_SKY_ENABLED
                             // sky fog
 
-                            vec3 skyColorFinal = RGBToLinear(skyColor);
-                            vec3 fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                            fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
+                            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
                         #else
                             // no-sky fog
 

@@ -15,12 +15,7 @@ void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewD
             }
             else {
         #endif
-            fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-
-            #ifdef WORLD_SKY_ENABLED
-                vec3 skyColorFinal = RGBToLinear(skyColor);
-                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-            #endif
+            fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
             float fogDist  = GetShapedFogDistance(localPos);
             fogF = GetCustomFogFactor(fogDist);

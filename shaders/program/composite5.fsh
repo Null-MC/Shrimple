@@ -338,14 +338,7 @@ layout(location = 0) out vec4 outFinal;
                         //ApplyFog(final, localPosOpaque, localViewDir);
 
                         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                            #ifdef WORLD_SKY_ENABLED
-                                vec3 skyColorFinal = RGBToLinear(skyColor);
-                                vec3 fogColorFinal = GetCustomSkyFogColor(localSunDirection.y);
-                                fogColorFinal = GetSkyFogColor(skyColorFinal, fogColorFinal, localViewDir.y);
-                            #else
-                                vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
-                                fogColorFinal = RGBToLinear(fogColorFinal);
-                            #endif
+                            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                             float fogDist = GetShapedFogDistance(localPosOpaque);
                             float fogF = GetCustomFogFactor(fogDist);
