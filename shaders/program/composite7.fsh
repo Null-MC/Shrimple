@@ -258,21 +258,21 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
-    float farMax = far;//min(shadowDistance, far);
-    float farDist = clamp(viewDist, near, farMax - 0.002);
+    //float farMax = far;//min(shadowDistance, far);
+    float farDist = clamp(viewDist, near, far - 0.002);
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
     #ifdef VL_BUFFER_ENABLED
         #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
-            if (depth >= 0.9999) {
-                // vec3 cloudNear, cloudFar;
-                // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+            // if (depth >= 0.9999) {
+            //     // vec3 cloudNear, cloudFar;
+            //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
 
-                // farDist = length(cloudFar);
-                // if (farDist < EPSILON) farDist = CloudFar;
-                // else farDist = min(farDist, CloudFar);
-                farDist = CloudFar;
-            }
+            //     // farDist = length(cloudFar);
+            //     // if (farDist < EPSILON) farDist = CloudFar;
+            //     // else farDist = min(farDist, CloudFar);
+            //     farDist = CloudFar;
+            // }
         #endif
     
         final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);

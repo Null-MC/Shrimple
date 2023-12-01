@@ -37,14 +37,14 @@ uniform float far;
         uniform vec3 WaterScatterColor;
         uniform float waterDensitySmooth;
     #endif
-#endif
 
-#ifdef WORLD_WATER_ENABLED
-    uniform int isEyeInWater;
-#endif
+    #ifdef WORLD_WATER_ENABLED
+        uniform int isEyeInWater;
+    #endif
 
-#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-    uniform float alphaTestRef;
+    #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+        uniform float alphaTestRef;
+    #endif
 #endif
 
 #include "/lib/sampling/depth.glsl"
@@ -75,7 +75,6 @@ void main() {
     if (depth < 1.0) {
         //occlusion = textureLod(colortex12, texcoord, 0).r;
 
-        // TODO: filter
         float linearDepth = linearizeDepthFast(depth, near, far);
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, colortex12, viewSize, depthtex1, viewSize, linearDepth, 0.2);
 

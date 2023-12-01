@@ -9,7 +9,7 @@
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec3 vLocalNormal;
 
@@ -56,6 +56,8 @@ uniform vec3 cameraPosition;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/utility/lightmap.glsl"
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -84,7 +86,7 @@ void main() {
     #ifndef RENDER_TEXTURED_LIT
         lmcoord = vec2(1.0);
     #else
-        lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+        lmcoord = LightMapNorm(lmcoord);
     #endif
 
     BasicVertex();

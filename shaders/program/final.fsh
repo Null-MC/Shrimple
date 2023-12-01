@@ -12,11 +12,6 @@ uniform sampler2D colortex0;
 	uniform sampler2D depthtex0;
 #endif
 
-uniform float viewWidth;
-uniform float viewHeight;
-uniform vec2 viewSize;
-uniform vec2 pixelSize;
-
 #if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 	uniform sampler2D BUFFER_DEFERRED_COLOR;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_GEO
@@ -45,9 +40,19 @@ uniform vec2 pixelSize;
 	uniform sampler2D texDepthNear;
 #endif
 
+uniform float viewWidth;
+uniform float viewHeight;
+uniform vec2 viewSize;
+uniform vec2 pixelSize;
+
 #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
 	uniform mat4 gbufferProjectionInverse;
 	uniform int isEyeInWater;
+	uniform float far;
+#endif
+
+#if DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
+	uniform float near;
 	uniform float far;
 #endif
 
@@ -55,6 +60,10 @@ uniform vec2 pixelSize;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/text.glsl"
 #include "/lib/utility/iris.glsl"
+
+#if DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
+	#include "/lib/sampling/depth.glsl"
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
 	#if DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
@@ -109,8 +118,11 @@ void main() {
 		color /= color + 1.0;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 		vec3 color = vec3(0.0);
-		if (texcoord.x < 0.5 && texcoord.y < 0.75)
-			color = textureLod(texDepthNear, texcoord * rcp(vec2(0.5, 0.75)), 0).rgb;
+		if (texcoord.x < 0.5 && texcoord.y < 0.75) {
+			float depth = textureLod(texDepthNear, texcoord * rcp(vec2(0.5, 0.75)), 0).r;
+			depth = linearizeDepthFast(depth, near, far) / far;
+			color = vec3(depth);
+		}
 	#else
 		#ifdef FXAA_ENABLED
 			vec3 color = FXAA(texcoord);

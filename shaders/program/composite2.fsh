@@ -140,10 +140,6 @@ uniform int heldBlockLightValue2;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-#include "/lib/anim.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
@@ -154,25 +150,24 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
-
-    #ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
-    #endif
-//#endif
+#if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -528,7 +523,8 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        float causticLight = SampleWaterCaustics(localPos);
+                        float causticLight = SampleWaterCaustics(localPos, deferredLighting.y);
+
                         causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
 
                         float causticStrength = Water_CausticStrength;
@@ -798,12 +794,29 @@ layout(location = 0) out vec4 outFinal;
                 // float fogDist = GetShapedFogDistance(localPos);
                 // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
                 // final = mix(final, skyFinal, fogF);
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                fogColorFinal = RGBToLinear(fogColorFinal);
+            #elif WORLD_FOG_MODE != FOG_MODE_NONE
+                #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                    // float fogDist = max(waterDepthFinal, 0.0);
+                    // fogF = GetCustomWaterFogFactor(fogDist);
 
-                final = mix(final, fogColorFinal, deferredFog.a);
+                    // #ifdef WORLD_SKY_ENABLED
+                    //     vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    // #else
+                    //     vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
+                    // #endif
+
+                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+
+                    float fogDist = GetShapedFogDistance(localPos);
+                    float fogF = GetCustomFogFactor(fogDist);
+                #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    fogColorFinal = RGBToLinear(fogColorFinal);
+                    float fogF = deferredFog.a;
+                #endif
+
+                final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
             #endif
         }
         else {

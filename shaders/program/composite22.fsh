@@ -22,7 +22,7 @@ layout(location = 0) out vec3 outFinal;
 void main() {
     vec3 color = BloomTileUpsample(BUFFER_BLOOM_TILES, EFFECT_BLOOM_TILE_MAX-2);
     
-    color += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 32.0e3;
+    DitherBloom(color);
 
     outFinal = color;
 }

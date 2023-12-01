@@ -199,13 +199,13 @@ uniform ivec2 eyeBrightnessSmooth;
 //#if WORLD_FOG_MODE != FOG_MODE_NONE
     #include "/lib/fog/fog_common.glsl"
 
-    #ifdef WORLD_SKY_ENABLED
+    //#ifdef WORLD_SKY_ENABLED
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             #include "/lib/fog/fog_vanilla.glsl"
         #endif
-    #endif
+    //#endif
 
     #include "/lib/fog/fog_render.glsl"
 //#endif
@@ -548,7 +548,7 @@ void main() {
 
         float fogF = 0.0;
         #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
-            GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vLocalPos);
         #endif
 
         color.rgb = LinearToRGB(albedo);
@@ -562,7 +562,7 @@ void main() {
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        deferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
         deferredData.a = packUnorm4x8(vec4(texNormal, 1.0));
         outDeferredData = deferredData;
 

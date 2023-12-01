@@ -14,7 +14,7 @@ in vec3 vaPosition;
 out vec2 lmcoord;
 out vec2 texcoord;
 out vec4 glcolor;
-out vec3 vBlockLight;
+// out vec3 vBlockLight;
 out vec3 vLocalPos;
 out vec2 vLocalCoord;
 out vec3 vLocalNormal;
@@ -72,15 +72,15 @@ uniform ivec2 atlasSize;
     uniform vec3 eyePosition;
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
@@ -113,7 +113,7 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
-    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+    lmcoord = LightMapNorm(lmcoord);
 
     BasicVertex();
 

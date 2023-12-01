@@ -11,7 +11,7 @@ in vec4 glcolor;
 in vec3 vLocalPos;
 in vec3 vLocalNormal;
 in vec3 vLocalTangent;
-in vec3 vBlockLight;
+// in vec3 vBlockLight;
 in float vTangentW;
 flat in int vBlockId;
 
@@ -222,13 +222,13 @@ uniform int heldBlockLightValue2;
 //#if WORLD_FOG_MODE != FOG_MODE_NONE
     #include "/lib/fog/fog_common.glsl"
 
-    #ifdef WORLD_SKY_ENABLED
+    //#ifdef WORLD_SKY_ENABLED
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             #include "/lib/fog/fog_vanilla.glsl"
         #endif
-    #endif
+    //#endif
 
     #include "/lib/fog/fog_render.glsl"
 //#endif
@@ -692,7 +692,7 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
             color.a = min(color.a + luminance(specular), 1.0);
         #else
-            vec3 blockDiffuse = vBlockLight;
+            vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
 
             blockDiffuse += emission * MaterialEmissionF;

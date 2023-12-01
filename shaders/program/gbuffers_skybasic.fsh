@@ -24,6 +24,7 @@ uniform int fogShape;
 
 uniform int isEyeInWater;
 uniform float rainStrength;
+uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
@@ -78,7 +79,7 @@ void main() {
         #endif
 
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            color = GetCustomSkyFogColor(localSunDirection.y);
+            color = GetCustomSkyColor(localSunDirection.y, viewUpF);
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
             color = GetVanillaFogColor(fogColor, viewUpF);
             color = RGBToLinear(color);

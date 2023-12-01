@@ -11,7 +11,7 @@ in vec2 lmcoord;
 in vec2 texcoord;
 in vec4 glcolor;
 in vec3 vLocalPos;
-in vec3 vBlockLight;
+// in vec3 vBlockLight;
 
 #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     in vec3 cloudPos;
@@ -164,6 +164,8 @@ uniform float blindness;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 
@@ -352,7 +354,7 @@ void main() {
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        vec3 blockDiffuse = vBlockLight;
+        vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);
@@ -384,7 +386,7 @@ void main() {
 
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
     #else
-        vec3 blockDiffuse = vBlockLight;
+        vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         vec3 skyDiffuse = vec3(0.0);
         vec3 skySpecular = vec3(0.0);

@@ -368,7 +368,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         // TODO: replace traceLocalPos with water surface pos
 
-                        float causticLight = SampleWaterCaustics(traceLocalPos);
+                        float causticLight = SampleWaterCaustics(traceLocalPos, 0.0);
                         causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
                         sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, Water_CausticStrength);
                     #endif
@@ -506,7 +506,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
         #endif
 
-        vec3 inScattering = (sampleAmbient * skyLightColor + sampleLit) * sampleScattering * sampleDensity;
+        #ifdef WORLD_SKY_ENABLED
+            sampleAmbient *= skyLightColor;
+        #endif
+
+        vec3 inScattering = (sampleAmbient + sampleLit) * sampleScattering * sampleDensity;
         float sampleTransmittance = exp(-sampleExtinction * stepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 

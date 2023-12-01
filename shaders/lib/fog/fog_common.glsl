@@ -32,7 +32,7 @@ float GetShapedFogDistance(const in vec3 localPos) {
 }
 
 vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
-    float fogF = fogify(max(viewUpF, 0.0), 0.06);
+    float fogF = fogify(max(viewUpF, 0.0), 0.02);
 
     // #ifdef WORLD_SKY_ENABLED
     //     fogF = mix(fogF, 1.0, rainStrength);
