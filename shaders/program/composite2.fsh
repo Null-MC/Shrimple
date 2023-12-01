@@ -201,9 +201,9 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 
-    #ifdef WORLD_WETNESS_ENABLED
+    //#ifdef WORLD_WETNESS_ENABLED
         #include "/lib/world/wetness.glsl"
-    #endif
+    //#endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -452,12 +452,13 @@ layout(location = 0) out vec4 outFinal;
             //skyLightF = max(skyLightF, _pow3(deferredLighting.y)*0.7);
             //occlusion = max(occlusion, skyLightF);
 
+            float skyWetness = 0.0, puddleF = 0.0;
             #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-                float skyWetness = 0.0, puddleF = 0.0;
-                vec3 worldPos = localPos + cameraPosition;
+                skyWetness = GetSkyWetness(localPos + cameraPosition, localNormal, deferredLighting.xy);
 
-                skyWetness = GetSkyWetness(worldPos, localNormal, deferredLighting.xy);
-                puddleF = GetWetnessPuddleF(skyWetness, porosity);
+                #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+                    puddleF = GetWetnessPuddleF(skyWetness, porosity);
+                #endif
             #endif
 
             #ifdef WORLD_WATER_ENABLED
@@ -518,7 +519,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 if (hasWaterDepth) {
-                    #ifdef WORLD_SKY_ENABLED
+                    #if defined WORLD_SKY_ENABLED
                         puddleF = 1.0;
                     #endif
 

@@ -126,7 +126,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
                     //lightColor *= 1.0 - length(offset);
-                    traceOrigin += offset * lightSize * 0.5;
+                    lightLocalPos += offset * lightSize * 0.5;
                 #endif
 
                 vec3 lightDir = normalize(lightVec);

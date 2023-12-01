@@ -261,7 +261,7 @@ void main() {
         SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
         #ifdef LIGHT_HAND_SOFT_SHADOW
-            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 
         blockDiffuse *= 1.0 - deferredFog.a;

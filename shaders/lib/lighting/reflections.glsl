@@ -122,13 +122,17 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     if (isEyeInWater == 1) {
                         // water fog
 
-                        float fogDist = length(reflectViewPos - viewPos);
-                        fogF = GetCustomWaterFogFactor(fogDist);
+                        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                            float fogDist = length(reflectViewPos - viewPos);
+                            fogF = GetCustomWaterFogFactor(fogDist);
 
-                        #ifdef WORLD_SKY_ENABLED
-                            fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                            #ifdef WORLD_SKY_ENABLED
+                                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                            #else
+                                fogColorFinal = GetCustomWaterFogColor(-1.0);
+                            #endif
                         #else
-                            fogColorFinal = GetCustomWaterFogColor(-1.0);
+                            // TODO
                         #endif
                     }
                     else {
