@@ -799,12 +799,29 @@ layout(location = 0) out vec4 outFinal;
                 // float fogDist = GetShapedFogDistance(localPos);
                 // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
                 // final = mix(final, skyFinal, fogF);
-            #elif WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                fogColorFinal = RGBToLinear(fogColorFinal);
+            #elif WORLD_FOG_MODE != FOG_MODE_NONE
+                #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                    // float fogDist = max(waterDepthFinal, 0.0);
+                    // fogF = GetCustomWaterFogFactor(fogDist);
 
-                final = mix(final, fogColorFinal * WorldSkyBrightnessF, deferredFog.a);
+                    // #ifdef WORLD_SKY_ENABLED
+                    //     vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                    // #else
+                    //     vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
+                    // #endif
+
+                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+
+                    float fogDist = GetShapedFogDistance(localPos);
+                    float fogF = GetCustomFogFactor(fogDist);
+                #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    fogColorFinal = RGBToLinear(fogColorFinal);
+                    float fogF = deferredFog.a;
+                #endif
+
+                final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
             #endif
         }
         else {

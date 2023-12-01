@@ -850,6 +850,32 @@ layout(location = 0) out vec4 outFinal;
             vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
         #endif
 
+        #if WORLD_FOG_MODE != FOG_MODE_NONE && !defined DH_COMPAT_ENABLED
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 0) {
+            #endif
+                if (depth < 1.0) {
+                    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                        vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+
+                        float fogDist = GetShapedFogDistance(localPos);
+                        float fogF = GetCustomFogFactor(fogDist);
+                    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+                        fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
+
+                        float fogF = deferredFog.a;
+                    #endif
+
+                    final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
+                    if (final.a > (1.5/255.0)) final.a = min(final.a + fogF, 1.0);
+                }
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
+        #endif
+
         // #ifdef DH_COMPAT_ENABLED
         //     opaqueFinal = RGBToLinear(opaqueFinal);
         // #endif
@@ -902,45 +928,45 @@ layout(location = 0) out vec4 outFinal;
 
         final.a = 1.0;
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE && !defined DH_COMPAT_ENABLED
-            #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater == 1) {
-                    // water fog
+        // #if WORLD_FOG_MODE != FOG_MODE_NONE && !defined DH_COMPAT_ENABLED
+        //     #ifdef WORLD_WATER_ENABLED
+        //         if (isEyeInWater == 1) {
+        //             // water fog
 
-                    //#ifndef VL_BUFFER_ENABLED
-                    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                        vec3 skyColorFinal = RGBToLinear(skyColor);
-                        vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                        float fogF = GetCustomWaterFogFactor(viewDist);
-                        final.rgb = mix(final.rgb, fogColorFinal, fogF);
-                    #else
-                        // TODO
-                    #endif
-                    //#endif
-                }
-                else {
-            #endif
-                if (depth < 1.0) {
-                    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                        vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+        //             //#ifndef VL_BUFFER_ENABLED
+        //             // #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        //             //     vec3 skyColorFinal = RGBToLinear(skyColor);
+        //             //     vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+        //             //     float fogF = GetCustomWaterFogFactor(viewDist);
+        //             //     final.rgb = mix(final.rgb, fogColorFinal, fogF);
+        //             // #else
+        //             //     // TODO
+        //             // #endif
+        //             //#endif
+        //         }
+        //         else {
+        //     #endif
+        //         // if (depth < 1.0) {
+        //         //     #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        //         //         vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
-                        float fogDist = GetShapedFogDistance(localPosOpaque);
-                        float fogF = GetCustomFogFactor(fogDist);
-                    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-                        fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
+        //         //         float fogDist = GetShapedFogDistance(localPos);
+        //         //         float fogF = GetCustomFogFactor(fogDist);
+        //         //     #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        //         //         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        //         //         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
+        //         //         fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
 
-                        float fogF = deferredFog.a;
-                    #endif
+        //         //         float fogF = deferredFog.a;
+        //         //     #endif
 
-                    final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
-                    if (final.a > (1.5/255.0)) final.a = min(final.a + fogF, 1.0);
-                }
-            #ifdef WORLD_WATER_ENABLED
-                }
-            #endif
-        #endif
+        //         //     final.rgb = mix(final.rgb, fogColorFinal * WorldSkyBrightnessF, fogF);
+        //         //     if (final.a > (1.5/255.0)) final.a = min(final.a + fogF, 1.0);
+        //         // }
+        //     #ifdef WORLD_WATER_ENABLED
+        //         }
+        //     #endif
+        // #endif
 
         #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
