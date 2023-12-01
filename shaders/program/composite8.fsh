@@ -171,17 +171,13 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/world/common.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-    #ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
-    #endif
-//#endif
+#if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
 #ifdef DYN_LIGHT_FLICKER
     #include "/lib/lighting/blackbody.glsl"

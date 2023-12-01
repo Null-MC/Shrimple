@@ -114,20 +114,13 @@ in vec2 texcoord;
     #include "/lib/sampling/ign.glsl"
 
     #include "/lib/world/common.glsl"
+    #include "/lib/fog/fog_common.glsl"
 
-    //#if WORLD_FOG_MODE != FOG_MODE_NONE
-        #include "/lib/fog/fog_common.glsl"
-
-        #ifdef WORLD_SKY_ENABLED
-            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                #include "/lib/fog/fog_custom.glsl"
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                #include "/lib/fog/fog_vanilla.glsl"
-            #endif
-        #endif
-
-        //#include "/lib/fog/fog_render.glsl"
-    //#endif
+    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
+    #endif
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
@@ -158,8 +151,6 @@ in vec2 texcoord;
 
         #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
             #include "/lib/clouds/cloud_vanilla.glsl"
-
-            //#include "/lib/world/clouds.glsl"
         #endif
 
         #include "/lib/utility/depth_tiles.glsl"
@@ -167,9 +158,6 @@ in vec2 texcoord;
         #include "/lib/lighting/fresnel.glsl"
         #include "/lib/lighting/reflections.glsl"
     #endif
-
-    //#include "/lib/sampling/bilateral_gaussian.glsl"
-    //#include "/lib/world/volumetric_blur.glsl"
 
     #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #ifdef VOLUMETRIC_BLUR
