@@ -24,6 +24,7 @@ uniform int fogShape;
 
 uniform int isEyeInWater;
 uniform float rainStrength;
+uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 

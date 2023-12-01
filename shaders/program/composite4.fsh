@@ -28,6 +28,7 @@ uniform float far;
     uniform int fogShape;
 
     uniform float rainStrength;
+    uniform float skyRainStrength;
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 

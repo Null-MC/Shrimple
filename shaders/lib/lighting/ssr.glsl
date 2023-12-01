@@ -20,8 +20,8 @@ const int SSR_LodMin = 0;
 
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
-    float screenRayLength = length(clipRay);
-    if (screenRayLength < EPSILON) return vec4(0.0);
+    float screenRayLength = length(clipRay.xy);
+    if (screenRayLength < EPSILON) return vec4(clipPos, 1.0);
 
     //vec2 viewSize = vec2(viewWidth, viewHeight);
     //vec2 ssrPixelSize = rcp(viewSize);
