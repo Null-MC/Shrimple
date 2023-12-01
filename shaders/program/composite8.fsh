@@ -907,12 +907,16 @@ layout(location = 0) out vec4 outFinal;
                 if (isEyeInWater == 1) {
                     // water fog
 
-                    #ifndef VL_BUFFER_ENABLED
+                    //#ifndef VL_BUFFER_ENABLED
+                    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                         vec3 skyColorFinal = RGBToLinear(skyColor);
                         vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
                         float fogF = GetCustomWaterFogFactor(viewDist);
                         final.rgb = mix(final.rgb, fogColorFinal, fogF);
+                    #else
+                        // TODO
                     #endif
+                    //#endif
                 }
                 else {
             #endif
