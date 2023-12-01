@@ -24,7 +24,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         lmFinal.y *= skyNoLm * 0.5 + 0.5;
     #endif
 
-    lmFinal = saturate(lmFinal) * (15.0/16.0) + (0.5/16.0);
+    lmFinal = LightMapTex(lmFinal);
 
     // #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
@@ -32,12 +32,11 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         #endif
     
         float lightMax = rcp(max(lmcoord.x + lmcoord.y, 1.0));
-        const float lmEmpty = (0.5/16.0);
 
-        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmEmpty), 0).rgb;
+        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
         lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
 
-        vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmEmpty, lmFinal.y), 0).rgb;
+        vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
         lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
 
         float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));

@@ -98,10 +98,10 @@ uniform ivec2 atlasSize;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-#include "/lib/blocks.glsl"
 #include "/lib/anim.glsl"
-
+#include "/lib/blocks.glsl"
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
@@ -147,7 +147,7 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
-    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+    lmcoord = LightMapNorm(lmcoord);
 
     // if (isEyeInWater != 1 && gl_Normal.y < -0.999 && gl_Vertex.y + at_midBlock.y/64.0 > 0.5) {
     //     gl_Position = vec4(-1.0);

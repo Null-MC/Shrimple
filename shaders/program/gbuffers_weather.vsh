@@ -58,8 +58,8 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
-
 #include "/lib/sampling/noise.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/utility/matrix.glsl"
@@ -85,6 +85,8 @@ void main() {
 	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	glcolor = gl_Color;
+
+    lmcoord = LightMapNorm(lmcoord);
 
 	BasicVertex();
 }

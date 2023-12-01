@@ -110,7 +110,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             reflectDist = length(reflectViewPos - viewPos);
             reflectDepth = reflection.z;
 
-            #if WORLD_FOG_MODE != FOG_MODE_NONE && WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #if WORLD_FOG_MODE != FOG_MODE_NONE //&& WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                 #ifndef IRIS_FEATURE_SSBO
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif

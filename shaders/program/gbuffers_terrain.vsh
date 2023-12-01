@@ -92,6 +92,7 @@ uniform ivec2 atlasSize;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
@@ -129,7 +130,7 @@ void main() {
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
 
-    lmcoord = (lmcoord - (0.5/16.0)) / (15.0/16.0);
+    lmcoord = LightMapNorm(lmcoord);
 
     BasicVertex();
 

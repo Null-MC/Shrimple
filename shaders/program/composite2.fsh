@@ -140,10 +140,6 @@ uniform int heldBlockLightValue2;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
-#include "/lib/anim.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
@@ -154,14 +150,17 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
+#include "/lib/anim.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
-
 #include "/lib/fog/fog_common.glsl"
 
 #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM

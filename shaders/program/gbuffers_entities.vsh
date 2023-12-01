@@ -75,16 +75,16 @@ uniform vec4 entityColor;
     uniform vec3 eyePosition;
 #endif
 
-#include "/lib/blocks.glsl"
-#include "/lib/entities.glsl"
-#include "/lib/items.glsl"
-
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
 
+#include "/lib/blocks.glsl"
+#include "/lib/entities.glsl"
+#include "/lib/items.glsl"
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
@@ -121,6 +121,8 @@ void main() {
     texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     glcolor = gl_Color;
+
+    lmcoord = LightMapNorm(lmcoord);
 
     // if (entityId == ENTITY_LIGHTNING_BOLT) {
     //     gl_Position = vec4(-1.0);

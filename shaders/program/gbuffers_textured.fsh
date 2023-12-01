@@ -146,7 +146,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/depth.glsl"
-
+#include "/lib/utility/lightmap.glsl"
 #include "/lib/world/common.glsl"
 
 //#if WORLD_FOG_MODE != FOG_MODE_NONE
