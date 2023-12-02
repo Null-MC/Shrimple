@@ -196,12 +196,12 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-#include "/lib/utility/anim.glsl"
-
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
@@ -291,9 +291,14 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
 
-        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined SHADOW_CLOUD_ENABLED
             #include "/lib/clouds/cloud_vars.glsl"
-            #include "/lib/clouds/cloud_custom.glsl"
+
+            #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+                #include "/lib/clouds/cloud_custom.glsl"
+            #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
         #endif
     #endif
 
@@ -480,9 +485,9 @@ void main() {
                     }
                 #endif
             #else
-                GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, sss);
+                GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
                 SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            
+
                 vec3 skyDiffuse = vec3(0.0);
                 vec3 skySpecular = vec3(0.0);
 
