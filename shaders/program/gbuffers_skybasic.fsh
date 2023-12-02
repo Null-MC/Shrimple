@@ -65,29 +65,27 @@ void main() {
     vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
     vec3 viewDir = normalize(viewPos);
 
-    vec3 color;
+    vec3 upDir = normalize(upPosition);
+    float viewUpF = dot(viewDir, upDir);
+
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+    #endif
+
+    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        vec3 color = GetCustomSkyColor(localSunDirection.y, viewUpF);
+    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        vec3 color = GetVanillaFogColor(fogColor, viewUpF);
+        color = RGBToLinear(color);
+    #endif
+
     if (starData.a > 0.5) {
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
         vec3 localViewDir = normalize(localPos);
 
-        float bright = pow3(hash13(localViewDir * 0.1));
-        float temp = 2800.0 + 3200.0 * bright;
-        color = starData.rgb * blackbody(temp) * (bright * 4.0) * WorldSunBrightnessF;
-    }
-    else {
-        vec3 upDir = normalize(upPosition);
-        float viewUpF = dot(viewDir, upDir);
-
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-        #endif
-
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            color = GetCustomSkyColor(localSunDirection.y, viewUpF);
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            color = GetVanillaFogColor(fogColor, viewUpF);
-            color = RGBToLinear(color);
-        #endif
+        float bright = hash13(localViewDir * 0.2);
+        float temp = _pow2(bright) * 8000.0 + 2000.0;
+        color += starData.rgb * blackbody(temp) * (_pow3(bright) * 4.0) * WorldSunBrightnessF;
     }
 
     //color *= 1.0 - blindness;
