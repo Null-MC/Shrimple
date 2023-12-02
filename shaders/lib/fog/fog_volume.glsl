@@ -31,13 +31,13 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
 
     #ifdef WORLD_SKY_ENABLED
         result.Ambient = vec3(mix(0.002, 0.008, skyRainStrength));
-        result.ScatterF = vec3(mix(0.048, 0.120, skyRainStrength));// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+        result.ScatterF = vec3(mix(0.04, 0.12, skyRainStrength));// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
         result.ExtinctF = mix(0.001, 0.006, skyRainStrength);
 
         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            result.ScatterF *= vec3(0.98, 0.99, 1.0) * 0.25;
+            result.ScatterF *= RGBToLinear(vec3(0.828, 0.782, 0.712));
         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+            result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 1.6 + 0.3);
         #endif
     #else
         result.Ambient = vec3(0.08);
