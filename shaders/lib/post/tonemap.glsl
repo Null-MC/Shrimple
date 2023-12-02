@@ -72,7 +72,7 @@ void ApplyPostProcessing(inout vec3 color) {
     #elif POST_TONEMAP == 3
         color = tonemap_FilmicHejl2015(0.7 * color);
     #elif POST_TONEMAP == 2
-        color = tonemap_ACESFit2(color*2.0 + 0.002);
+        color = tonemap_ACESFit2(color*1.4 + 0.002);
     #elif POST_TONEMAP == 1
         color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
     #endif

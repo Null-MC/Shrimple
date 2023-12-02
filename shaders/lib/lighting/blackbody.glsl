@@ -6,10 +6,9 @@ vec3 blackbody(const in float temp) {
     uv /= 1.0 + vec2(8.42420235e-4, -2.89741816e-5) * temp + vec2(7.08145163e-7, 1.61456053e-7) * temp2;
 
     float w = 2.0*uv.x - 8.0*uv.y + 4.0;
+    vec2 uvw = vec2(3.0, 2.0) * uv / w;
 
-    vec3 XYZ = vec3(vec2(3.0, 2.0) * uv / w, 1.0);
-    XYZ.z -= XYZ.x + XYZ.y;
-    
+    vec3 XYZ = vec3(uvw.xy, 1.0 - (uvw.x + uvw.y));
     XYZ = vec3(rcp(XYZ.y) * XYZ.xz, 1.0).xzy;
 
     const mat3 XYZtoRGB = mat3( 3.2404542, -1.5371385, -0.4985314,

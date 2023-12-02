@@ -4,7 +4,14 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     lmBlockLight = RGBToLinear(lmBlockLight);
 
     #ifdef WORLD_SKY_ENABLED
-        vec2 lmSkyFinal = LightMapTex(vec2(0.0, lmcoord.y));
+        vec2 lmSkyFinal = vec2(0.0, lmcoord.y);
+
+        #ifndef RENDER_SHADOWS_ENABLED
+            float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+            lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
+        #endif
+
+        lmSkyFinal = LightMapTex(lmSkyFinal);
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
         lmSkyLight = RGBToLinear(lmSkyLight);
 
@@ -111,14 +118,15 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
             vec3 skyH = normalize(localSkyLightDir + -localViewDir);
 
-            float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
+            skyNoLm = 1.0;
+            float skyNoVm = 1.0, skyNoHm = 1.0;
             if (!all(lessThan(abs(texNormal), EPSILON3))) {
                 skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
                 skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
                 skyNoHm = max(dot(texNormal, skyH), 0.0);
             }
 
-            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #ifdef RENDER_SHADOWS_ENABLED
                 float skyVoHm = max(dot(-localViewDir, skyH), 0.0);
                 vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
 
