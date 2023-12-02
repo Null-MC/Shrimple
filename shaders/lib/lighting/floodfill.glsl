@@ -39,18 +39,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade);
 
         #if defined WORLD_SKY_ENABLED //&& !defined LPV_GI
-            // lmFinal = vec2(0.0, lmcoord.y);
-            // lmFinal = lmFinal * (15.0/16.0) + (0.5/16.0);
-            // vec3 lightSky = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-            // lightSky = RGBToLinear(lightSky);
-
-            //lightSky = _pow2(lightSky);
-
             #if LPV_SUN_SAMPLES > 0 && SHADOW_TYPE != SHADOW_TYPE_NONE
                 float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
                 #ifdef LPV_GI
-                    lpvSkyLight *= 0.5;
+                    lpvSkyLight *= 0.25;
                 #endif
 
                 //lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * ambientF;
@@ -158,7 +151,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     #endif
 }
 
-#if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
+//#if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
     vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
         #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
             vec3 final = vec3(WHITEWORLD_VALUE);
@@ -169,4 +162,4 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         // TODO: handle specular occlusion
         return final * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
     }
-#endif
+//#endif

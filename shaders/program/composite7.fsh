@@ -109,7 +109,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -216,7 +216,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
-    #include "/lib/world/volumetric_fog.glsl"
+    #include "/lib/fog/fog_volume.glsl"
 #endif
 
 

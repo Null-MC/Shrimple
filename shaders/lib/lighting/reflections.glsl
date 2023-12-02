@@ -88,6 +88,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
     float reflectDist = 0.0;
     float reflectDepth = 1.0;
+    float reflectF = 0.0;
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
@@ -103,12 +104,13 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
         vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
+        reflectF = reflection.a;
+        reflectDepth = reflection.z;
 
         if (reflection.z < 1.0 && reflection.a > 0.0) {
             vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
 
-            reflectDist = length(reflectViewPos - viewPos);
-            reflectDepth = reflection.z;
+            reflectDist = min(length(reflectViewPos - viewPos), far);
 
             #if WORLD_FOG_MODE != FOG_MODE_NONE //&& WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
                 #ifndef IRIS_FEATURE_SSBO
@@ -158,12 +160,12 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     }
                 #endif
 
-                col = mix(col, fogColorFinal, fogF);
+                col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
         else reflectDist = far;
 
-        reflectColor = mix(reflectColor, col, reflection.a);
+        reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
         reflectDist = far;
     #endif

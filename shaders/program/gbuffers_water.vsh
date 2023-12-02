@@ -98,7 +98,7 @@ uniform ivec2 atlasSize;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/lightmap.glsl"

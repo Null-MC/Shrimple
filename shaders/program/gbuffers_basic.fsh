@@ -186,9 +186,7 @@ void main() {
                 float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 shadowColor = vec3(shadowF);
 
-                // lmFinal.y = saturate((lmFinal.y - (0.5/16.0)) / (15.0/16.0));
                 // lmFinal.y = max(lmFinal.y, shadowF);
-                // lmFinal.y = saturate(lmFinal.y * (15.0/16.0) + (0.5/16.0));
             #endif
         }
     #endif

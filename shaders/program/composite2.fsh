@@ -152,7 +152,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -233,7 +233,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/voxel/items.glsl"
 
 // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-//     #include "/lib/lighting/ssr.glsl"
+//     #include "/lib/effects/ssr.glsl"
 // #endif
 
 #include "/lib/lighting/scatter_transmit.glsl"
@@ -734,6 +734,26 @@ layout(location = 0) out vec4 outFinal;
                     // TODO: convert diffuse/specular to final
 
                     //blockDiffuse += emission * MaterialEmissionF;
+                    vec3 skyDiffuse = vec3(0.0);
+                    vec3 skySpecular = vec3(0.0);
+
+                    #ifdef WORLD_SKY_ENABLED
+                        vec3 shadowPos = vec3(0.0);
+                        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            if (metal_f0 >= 0.5) {
+                                skyDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                                skySpecular *= albedo;
+                            }
+                        #endif
+                    #endif
+
+                    //float shadowF = min(luminance(deferredShadow), 1.0);
+                    //occlusion = max(occlusion, shadowF);
+
+                    blockDiffuse += skyDiffuse;
+                    blockSpecular += skySpecular;
                 #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
                     
@@ -768,27 +788,12 @@ layout(location = 0) out vec4 outFinal;
 
                 blockDiffuse += emission * MaterialEmissionF;
 
-                vec3 skyDiffuse = vec3(0.0);
-                vec3 skySpecular = vec3(0.0);
-
-                #if defined WORLD_SKY_ENABLED && DYN_LIGHT_MODE != DYN_LIGHT_LPV
-                    vec3 shadowPos = vec3(0.0);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
-
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        if (metal_f0 >= 0.5) {
-                            skyDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                            skySpecular *= albedo;
-                        }
-                    #endif
-                #endif
-
                 //float shadowF = min(luminance(deferredShadow), 1.0);
                 //occlusion = max(occlusion, shadowF);
 
-                vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-                vec3 specularFinal = blockSpecular + skySpecular;
-                final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+                // vec3 diffuseFinal = blockDiffuse + skyDiffuse;
+                // vec3 specularFinal = blockSpecular + skySpecular;
+                final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, occlusion);
             #endif
 
             #ifdef DH_COMPAT_ENABLED

@@ -154,7 +154,7 @@ in vec2 texcoord;
         #endif
 
         #include "/lib/utility/depth_tiles.glsl"
-        #include "/lib/lighting/ssr.glsl"
+        #include "/lib/effects/ssr.glsl"
         #include "/lib/lighting/fresnel.glsl"
         #include "/lib/lighting/reflections.glsl"
     #endif
@@ -162,7 +162,7 @@ in vec2 texcoord;
     #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
         #ifdef VOLUMETRIC_BLUR
             #include "/lib/sampling/bilateral_gaussian.glsl"
-            #include "/lib/world/volumetric_blur.glsl"
+            #include "/lib/sampling/fog_filter.glsl"
         #endif
     #endif
 #endif

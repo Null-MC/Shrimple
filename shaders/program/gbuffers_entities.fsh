@@ -184,12 +184,13 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 
@@ -329,7 +330,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/volumetric_fog.glsl"
+        #include "/lib/fog/fog_volume.glsl"
     #endif
 
     #ifdef DH_COMPAT_ENABLED
@@ -464,7 +465,7 @@ void main() {
 
             #ifndef LIGHT_LEAK_FIX
                 float lightF = min(luminance(shadowColor), 1.0);
-                lmFinal.y = min(max(lmFinal.y, lightF), (15.5/16.0));
+                lmFinal.y = clamp(lmFinal.y, lightF, 1.0);
             #endif
         }
     #endif

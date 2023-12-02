@@ -10,13 +10,6 @@
 #endif
 
 void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
-    // if (!all(lessThan(abs(localNormal), EPSILON3))) {
-    //     float geoNoL = dot(localNormal, localSkyLightDirection);
-    //     geoNoL = pow(max(geoNoL, 0.0), 0.2);
-    //     lmcoord.y *= max(geoNoL, DynamicLightAmbientF);
-    // }
-
-    //lmcoord = saturate(lmcoord) * (15.0/16.0) + (0.5/16.0);
     vec2 lmFinal = lmcoord;
 
     #if defined WORLD_SKY_ENABLED && !defined RENDER_SHADOWS_ENABLED

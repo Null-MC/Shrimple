@@ -56,6 +56,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 
@@ -101,7 +102,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
-        deferredData.g = packUnorm4x8(vec4(vec2(15.5/16.0), 1.0, 1.0));
+        deferredData.g = packUnorm4x8(vec4(vec2(lmCoordMax), 1.0, 1.0));
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
         outDeferredData = deferredData;

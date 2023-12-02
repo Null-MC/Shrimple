@@ -35,7 +35,7 @@ uniform vec2 pixelSize;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
-#include "/lib/lighting/ssao.glsl"
+#include "/lib/effects/ssao.glsl"
 
 // #if WORLD_FOG_MODE != FOG_MODE_NONE
 //     #include "/lib/fog/fog_common.glsl"

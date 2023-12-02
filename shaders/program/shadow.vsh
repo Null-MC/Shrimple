@@ -45,7 +45,9 @@ uniform int entityId;
 #endif
 
 #include "/lib/blocks.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
+
+#include "/lib/utility/lightmap.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -154,7 +156,7 @@ void main() {
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
                 vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
-                float skyLight = saturate((lmcoord.y - (0.5/16.0)) / (15.0/16.0));
+                float skyLight = LightMapNorm(lmcoord).y;
                 pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight);
             #endif
         }

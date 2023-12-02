@@ -157,7 +157,7 @@ uniform float blindness;
     #endif
 #endif
 
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
@@ -277,7 +277,7 @@ uniform float blindness;
     //     #include "/lib/shadows/clouds.glsl"
     // #endif
 
-    #include "/lib/world/volumetric_fog.glsl"
+    #include "/lib/fog/fog_volume.glsl"
 #endif
 
 

@@ -41,8 +41,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 #endif
 
 void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
-    vec2 lmBlock = vec2(lmcoord.x, 0.0);
-    lmBlock = saturate(lmBlock) * (15.0/16.0) + (0.5/16.0);
+    vec2 lmBlock = LightMapTex(vec2(lmcoord.x, 0.0));
     vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
     blockLightDefault = RGBToLinear(blockLightDefault);
 
@@ -119,11 +118,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
         accumDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
 
-        vec2 lmcoordFinal = saturate(lmcoord);
-        lmcoordFinal.x = 0.0;
-
-        lmcoordFinal = lmcoordFinal * (15.0/16.0) + (0.5/16.0);
-
+        vec2 lmcoordFinal = LightMapTex(vec2(0.0, lmcoord.y));
         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
         vec3 ambientLight = RGBToLinear(lightmapColor);
 

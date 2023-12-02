@@ -120,11 +120,13 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/anim.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 
@@ -215,7 +217,7 @@ uniform int heldBlockLightValue2;
 
     // #ifdef VL_BUFFER_ENABLED
     //     #include "/lib/lighting/hg.glsl"
-    //     #include "/lib/world/volumetric_fog.glsl"
+    //     #include "/lib/fog/fog_volume.glsl"
     // #endif
 
     #ifdef DH_COMPAT_ENABLED

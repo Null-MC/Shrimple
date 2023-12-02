@@ -134,7 +134,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

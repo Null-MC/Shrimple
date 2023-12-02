@@ -8,6 +8,7 @@
 in vec4 starData;
 
 uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
@@ -28,10 +29,6 @@ uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindness;
 
-#ifndef IRIS_FEATURE_SSBO
-    uniform mat4 gbufferModelViewInverse;
-#endif
-
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
@@ -46,8 +43,10 @@ uniform float blindness;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/sampling/noise.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -64,13 +63,18 @@ void main() {
     
     vec3 clipPos = vec3(texcoord * 2.0 - 1.0, 1.0);
     vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
+    vec3 viewDir = normalize(viewPos);
 
     vec3 color;
     if (starData.a > 0.5) {
-        color = starData.rgb;
+        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        vec3 localViewDir = normalize(localPos);
+
+        float bright = pow3(hash13(localViewDir * 0.1));
+        float temp = 2800.0 + 3200.0 * bright;
+        color = starData.rgb * blackbody(temp) * (bright * 4.0) * WorldSunBrightnessF;
     }
     else {
-        vec3 viewDir = normalize(viewPos);
         vec3 upDir = normalize(upPosition);
         float viewUpF = dot(viewDir, upDir);
 

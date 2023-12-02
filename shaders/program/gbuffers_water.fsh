@@ -208,13 +208,14 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
@@ -363,7 +364,7 @@ uniform int heldBlockLightValue2;
 
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/lighting/hg.glsl"
-        #include "/lib/world/volumetric_fog.glsl"
+        #include "/lib/fog/fog_volume.glsl"
     #endif
 #endif
 
@@ -559,7 +560,7 @@ void main() {
 
             #ifndef LIGHT_LEAK_FIX
                 float lightF = min(luminance(shadowColor), 1.0);
-                lmFinal.y = min(max(lmFinal.y, lightF), (15.5/16.0));
+                lmFinal.y = clamp(lmFinal.y, lightF, 1.0);
             #endif
         }
     #endif

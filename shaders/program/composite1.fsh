@@ -82,7 +82,7 @@ uniform float blindness;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"

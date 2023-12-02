@@ -161,7 +161,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/anim.glsl"
+#include "/lib/utility/anim.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -243,7 +243,7 @@ uniform int heldBlockLightValue2;
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     #include "/lib/utility/depth_tiles.glsl"
-    #include "/lib/lighting/ssr.glsl"
+    #include "/lib/effects/ssr.glsl"
 #endif
 
 #include "/lib/lighting/scatter_transmit.glsl"
@@ -268,7 +268,7 @@ uniform int heldBlockLightValue2;
 
 #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
     #ifdef VOLUMETRIC_BLUR
-        #include "/lib/world/volumetric_blur.glsl"
+        #include "/lib/sampling/fog_filter.glsl"
     #endif
 #else
     //#include "/lib/world/clouds.glsl"

@@ -63,7 +63,7 @@ uniform float far;
         #include "/lib/lights.glsl"
 
         #ifdef DYN_LIGHT_FLICKER
-            #include "/lib/anim.glsl"
+            #include "/lib/utility/anim.glsl"
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
         #endif

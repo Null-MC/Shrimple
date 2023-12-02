@@ -77,7 +77,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
     #include "/lib/blocks.glsl"
     #include "/lib/lights.glsl"
-    #include "/lib/anim.glsl"
+    #include "/lib/utility/anim.glsl"
 
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
