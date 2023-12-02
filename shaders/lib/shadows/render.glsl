@@ -1,4 +1,4 @@
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+#if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
     float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
         #ifdef RENDER_FRAG
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
@@ -78,9 +78,9 @@
         shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
-            // #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            // #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, CLOUD_SHADOW_STEPS);
-            #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 shadow *= SampleCloudShadow(skyLightDir, cloudPos);
             #endif
         #endif

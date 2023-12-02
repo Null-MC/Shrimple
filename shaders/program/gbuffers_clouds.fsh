@@ -130,13 +130,13 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/world/common.glsl"
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
     #ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
             #include "/lib/fog/fog_vanilla.glsl"
         #endif
     #endif
@@ -267,12 +267,12 @@ void main() {
     #endif
 
     float fogF = 0.0;
-    #if WORLD_FOG_MODE != FOG_MODE_NONE
+    #ifdef SKY_BORDER_FOG_ENABLED
         float fogDist = 0.5 * GetShapedFogDistance(vLocalPos);
 
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
             fogF = GetCustomFogFactor(fogDist);
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
             fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
         #endif
 

@@ -36,10 +36,10 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
     #endif
 #endif
@@ -122,22 +122,20 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-
-    //#if WORLD_FOG_MODE != FOG_MODE_NONE
-        #include "/lib/fog/fog_common.glsl"
-
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
-    //#endif
-
+    #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
 
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if VOLUMETRIC_BRIGHT_SKY > 0
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 #endif
@@ -263,7 +261,7 @@ void main() {
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
     #ifdef VL_BUFFER_ENABLED
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             // if (depth >= 0.9999) {
             //     // vec3 cloudNear, cloudFar;
             //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
@@ -276,7 +274,7 @@ void main() {
         #endif
     
         final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
-    #elif defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #elif defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif

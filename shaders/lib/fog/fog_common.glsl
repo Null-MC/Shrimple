@@ -20,9 +20,9 @@ float GetShapedFogDistance(const in vec3 localPos) {
     vec3 fogPos = localPos;
 
     #if defined WORLD_SKY_ENABLED
-        #if WORLD_FOG_SHAPE == FOG_SHAPE_CYLINDER
+        #if SKY_FOG_SHAPE == FOG_SHAPE_CYLINDER
             fogPos.y = 0.0;
-        #elif WORLD_FOG_SHAPE == FOG_SHAPE_DEFAULT
+        #elif SKY_FOG_SHAPE == FOG_SHAPE_DEFAULT
             if (fogShape == 1)
                 fogPos.y = 0.0;
         #endif

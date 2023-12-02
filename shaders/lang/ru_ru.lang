@@ -18,15 +18,15 @@ value.WORLD_FOG_MODE.0=Никакой
 value.WORLD_FOG_MODE.1=Ванильный
 value.WORLD_FOG_MODE.2=Кастомный
 
-option.WORLD_FOG_SHAPE=Тумманая форма
-value.WORLD_FOG_SHAPE.0=Обычный
-value.WORLD_FOG_SHAPE.1=Сферический
-value.WORLD_FOG_SHAPE.2=Цилиндрический
+option.SKY_FOG_SHAPE=Тумманая форма
+value.SKY_FOG_SHAPE.0=Обычный
+value.SKY_FOG_SHAPE.1=Сферический
+value.SKY_FOG_SHAPE.2=Цилиндрический
 
-option.WORLD_CLOUD_TYPE=Облака
-value.WORLD_CLOUD_TYPE.0=Никакие
-value.WORLD_CLOUD_TYPE.1=Ванильные
-value.WORLD_CLOUD_TYPE.2=Кастомные
+option.SKY_CLOUD_TYPE=Облака
+value.SKY_CLOUD_TYPE.0=Никакие
+value.SKY_CLOUD_TYPE.1=Ванильные
+value.SKY_CLOUD_TYPE.2=Кастомные
 
 option.WORLD_WETNESS_ENABLED=Влажность
 option.WORLD_WETNESS_ENABLED.comment=Приводит к тому, что мокрые от дождя поверхности/блоки кажутся влажными (более тёмными, блестящими).
@@ -49,9 +49,9 @@ value.WORLD_AMBIENT_MODE.2=Детальный
 option.WORLD_AO_ENABLED=Окклюзия окружения
 option.WORLD_AO_ENABLED.comment=Способ окклюзии окружающего освещения.
 
-option.WORLD_RAIN_OPACITY=Прозрачность каплей
-option.WORLD_RAIN_OPACITY.comment=Определяет, насколько прозрачными будут капли от дождя.
-suffix.WORLD_RAIN_OPACITY=%
+option.SKY_WEATHER_OPACITY=Прозрачность каплей
+option.SKY_WEATHER_OPACITY.comment=Определяет, насколько прозрачными будут капли от дождя.
+suffix.SKY_WEATHER_OPACITY=%
 
 option.WORLD_SKY_REFLECTIONS=Отражение неба
 option.WORLD_SKY_REFLECTIONS.comment=Позволяет отражать небо, если включены спекулярные материалы/отражающие материалы.
@@ -60,43 +60,43 @@ suffix.WORLD_SKY_REFLECTIONS=%
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Настройка яркости
 
-option.WORLD_SUN_BRIGHTNESS=Яркость Солнца
-suffix.WORLD_SUN_BRIGHTNESS=%
+option.SKY_SUN_BRIGHTNESS=Яркость Солнца
+suffix.SKY_SUN_BRIGHTNESS=%
 
-option.WORLD_MOON_BRIGHTNESS=Яркость Луны
-suffix.WORLD_MOON_BRIGHTNESS=%
+option.SKY_MOON_BRIGHTNESS=Яркость Луны
+suffix.SKY_MOON_BRIGHTNESS=%
 
-option.WORLD_SKY_BRIGHTNESS=Яркость неба
-suffix.WORLD_SKY_BRIGHTNESS=%
+option.SKY_BRIGHTNESS=Яркость неба
+suffix.SKY_BRIGHTNESS=%
 
 
 screen.WATER_OPTIONS=Вода
 screen.WATER_OPTIONS.comment=Настройки для воды.
 
-option.WORLD_WATER_TEXTURE=Поверхность
-value.WORLD_WATER_TEXTURE.0=Текстура
-value.WORLD_WATER_TEXTURE.1=Цветной
+option.WATER_SURFACE_TYPE=Поверхность
+value.WATER_SURFACE_TYPE.0=Текстура
+value.WATER_SURFACE_TYPE.1=Цветной
 
-option.WORLD_WATER_OPACITY=Прозрачность
-option.WORLD_WATER_OPACITY.comment=Насколько прозрачна будет вода.
-suffix.WORLD_WATER_OPACITY=%
+option.WATER_OPACITY=Прозрачность
+option.WATER_OPACITY.comment=Насколько прозрачна будет вода.
+suffix.WATER_OPACITY=%
 
-option.WORLD_WATER_WAVES=Волны
-value.WORLD_WATER_WAVES.0=Никакие
-value.WORLD_WATER_WAVES.1=Маленькие
-value.WORLD_WATER_WAVES.2=Средние
-value.WORLD_WATER_WAVES.3=Большие
+option.WATER_WAVE_SIZE=Волны
+value.WATER_WAVE_SIZE.0=Никакие
+value.WATER_WAVE_SIZE.1=Маленькие
+value.WATER_WAVE_SIZE.2=Средние
+value.WATER_WAVE_SIZE.3=Большие
 
-option.WORLD_WATER_PIXEL=Пиксельный
-value.WORLD_WATER_PIXEL.0=Выкл
-value.WORLD_WATER_PIXEL.8=8x (пикс.)
-value.WORLD_WATER_PIXEL.16=16x (пикс.)
-value.WORLD_WATER_PIXEL.32=32x (пикс.)
-value.WORLD_WATER_PIXEL.64=64x (пикс.)
-value.WORLD_WATER_PIXEL.128=128x (пикс.)
+option.WATER_SURFACE_PIXEL_RES=Пиксельный
+value.WATER_SURFACE_PIXEL_RES.0=Выкл
+value.WATER_SURFACE_PIXEL_RES.8=8x (пикс.)
+value.WATER_SURFACE_PIXEL_RES.16=16x (пикс.)
+value.WATER_SURFACE_PIXEL_RES.32=32x (пикс.)
+value.WATER_SURFACE_PIXEL_RES.64=64x (пикс.)
+value.WATER_SURFACE_PIXEL_RES.128=128x (пикс.)
 
-option.WORLD_WATER_DENSITY=Плотность
-suffix.WORLD_WATER_DENSITY=%
+option.WATER_FOG_DENSITY=Плотность
+suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Тень воды/Свет воды
 

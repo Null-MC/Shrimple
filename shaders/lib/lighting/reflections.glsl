@@ -9,7 +9,7 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
             vec3 reflectColor;
 
             #ifdef WORLD_WATER_ENABLED
@@ -33,14 +33,14 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
             vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
             reflectColor = RGBToLinear(reflectColor);
         #else
             vec3 reflectColor = RGBToLinear(skyColor) * WorldSkyBrightnessF;
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+        #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
             const vec3 cloudColor = RGBToLinear(vec3(0.8));
@@ -112,7 +112,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
             reflectDist = min(length(reflectViewPos - viewPos), far);
 
-            #if WORLD_FOG_MODE != FOG_MODE_NONE //&& WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #ifdef SKY_BORDER_FOG_ENABLED
                 #ifndef IRIS_FEATURE_SSBO
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
@@ -124,7 +124,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     if (isEyeInWater == 1) {
                         // water fog
 
-                        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                        #if SKY_TYPE == SKY_TYPE_CUSTOM
                             float fogDist = length(reflectViewPos - viewPos);
                             fogF = GetCustomWaterFogFactor(fogDist);
 
@@ -140,16 +140,16 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     else {
                 #endif
 
-                    #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
+                    #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
                         if (reflection.z < 1.0) {
                             vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
 
-                            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                            #if SKY_TYPE == SKY_TYPE_CUSTOM
                                 fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
 
                                 float fogDist = GetShapedFogDistance(reflectLocalPos);
                                 fogF = GetCustomFogFactor(fogDist);
-                            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                            #elif SKY_TYPE == SKY_TYPE_VANILLA
                                 fogColorFinal = RGBToLinear(fogColor);
                                 fogF = GetVanillaFogFactor(reflectLocalPos);
                             #endif
@@ -170,7 +170,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectDist = far;
     #endif
 
-    #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+    #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
         vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
         reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
     #else

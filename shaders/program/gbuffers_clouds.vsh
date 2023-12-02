@@ -70,7 +70,7 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         vColor = gl_Color;
 

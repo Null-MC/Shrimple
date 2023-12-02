@@ -1,5 +1,5 @@
 void ApplyFog(inout vec3 color, const in vec3 localPos, const in vec3 localViewDir) {
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         vec3 fogColorFinal = vec3(0.0);
         float fogF = 0.0;
 
@@ -25,13 +25,13 @@ void ApplyFog(inout vec3 color, const in vec3 localPos, const in vec3 localViewD
 
         color = mix(color, fogColorFinal * WorldSkyBrightnessF, fogF);
 
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         ApplyVanillaFog(color, localPos);
     #endif
 }
 
 void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewDir) {
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         vec3 fogColorFinal = vec3(0.0);
         float fogF = 0.0;
 
@@ -59,7 +59,7 @@ void ApplyFog(inout vec4 color, const in vec3 localPos, const in vec3 localViewD
 
         if (color.a > alphaTestRef)
             color.a = mix(color.a, 1.0, fogF);
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         ApplyVanillaFog(color, localPos);
     #endif
 }

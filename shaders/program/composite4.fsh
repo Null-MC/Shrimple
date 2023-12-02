@@ -32,7 +32,7 @@ uniform int fogShape;
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;
         uniform vec3 WaterScatterColor;
@@ -52,16 +52,16 @@ uniform int fogShape;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/effects/ssao.glsl"
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
     #endif
 
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 #endif
@@ -93,11 +93,11 @@ void main() {
 
         float occlusion = GetSpiralOcclusion(texcoord, viewPos, texViewNormal);
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE
+        #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
             float fogF = 0.0;
             
-            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
                 #ifdef WORLD_WATER_ENABLED
                     if (isEyeInWater == 1) {
                         float fogDist = length(localPos);
@@ -110,7 +110,7 @@ void main() {
                 #ifdef WORLD_WATER_ENABLED
                     }
                 #endif
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #elif SKY_TYPE == SKY_TYPE_VANILLA
                 //fogF = GetVanillaFogFactor(localPos);
                 fogF = unpackUnorm4x8(deferredData.b).a;
             #endif

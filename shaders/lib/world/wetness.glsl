@@ -72,11 +72,11 @@ void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float 
 
         float rippleTime = GetAnimationFactor() / 0.72;
 
-        // #if WORLD_WATER_PIXEL > 0
-        //     worldPos = floor(worldPos * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
-        //     vec2 rippleTex = worldPos.xz * (WORLD_WATER_PIXEL/96.0);
+        // #if WATER_SURFACE_PIXEL_RES > 0
+        //     worldPos = floor(worldPos * WATER_SURFACE_PIXEL_RES) / WATER_SURFACE_PIXEL_RES;
+        //     vec2 rippleTex = worldPos.xz * (WATER_SURFACE_PIXEL_RES/96.0);
         // #else
-            #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL || WORLD_WATER_PIXEL > 0
+            #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL || WATER_SURFACE_PIXEL_RES > 0
                 worldPos = floor(worldPos * 32.0) / 32.0;
             #endif
 

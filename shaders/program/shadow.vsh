@@ -80,7 +80,7 @@ uniform int entityId;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -152,7 +152,7 @@ void main() {
             #ifdef PHYSICS_OCEAN
                 float physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
                 pos.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
-            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
                 vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 

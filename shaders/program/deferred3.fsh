@@ -31,7 +31,7 @@ uniform float far;
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;
         uniform vec3 WaterScatterColor;
@@ -50,16 +50,16 @@ uniform float far;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
     #endif
 
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 #endif
@@ -78,12 +78,12 @@ void main() {
         float linearDepth = linearizeDepthFast(depth, near, far);
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, colortex12, viewSize, depthtex1, viewSize, linearDepth, 0.2);
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE
+        #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
             vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
             vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
             
-            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
                 float fogDist = length(viewPos);
 
                 float fogF;
@@ -101,7 +101,7 @@ void main() {
                 #endif
 
                 occlusion *= 1.0 - fogF;
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+            #elif SKY_TYPE == SKY_TYPE_VANILLA
                 occlusion *= 1.0 - GetVanillaFogFactor(localPos);
             #endif
         #endif

@@ -72,9 +72,9 @@ uniform sampler2D noisetex;
     #endif
 
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
         #endif
     #endif
@@ -149,7 +149,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+    #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
@@ -208,33 +208,28 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
-#include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
+#include "/lib/utility/tbn.glsl"
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
+#if SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
-    //#ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
-    //#endif
-
-    #include "/lib/fog/fog_render.glsl"
-//#endif
-
-#include "/lib/utility/tbn.glsl"
+#include "/lib/fog/fog_render.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -251,10 +246,10 @@ uniform int heldBlockLightValue2;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         #include "/lib/clouds/cloud_vars.glsl"
 
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif
@@ -328,7 +323,7 @@ uniform int heldBlockLightValue2;
 
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -420,11 +415,11 @@ void main() {
                 waterUvOffset = wave.worldPos - physics_localPosition.xz;
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
-            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE
+            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
                 texNormal = water_waveNormal(worldPos.xz, lmcoord.y, viewDist, waterUvOffset);
             #endif
 
-            #if defined PHYSICS_OCEAN || WORLD_WATER_WAVES != WATER_WAVES_NONE
+            #if defined PHYSICS_OCEAN || WATER_WAVE_SIZE != WATER_WAVES_NONE
                 if (localNormal.y >= 1.0 - EPSILON) {
                     localCoord += waterUvOffset;
                     atlasCoord = GetAtlasCoord(localCoord);
@@ -486,7 +481,7 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            #if WORLD_WATER_TEXTURE == WATER_COLORED
+            #if WATER_SURFACE_TYPE == WATER_COLORED
                 color.rgb = vec3(0.6);
                 color.a = 0.7;
             #endif
@@ -642,7 +637,7 @@ void main() {
         color.rgb = LinearToRGB(albedo);
 
         float fogF = 0.0;
-        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
             fogF = GetVanillaFogFactor(vLocalPos);
         #endif
 
@@ -738,7 +733,7 @@ void main() {
             }
         #endif
 
-        #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
+        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
 

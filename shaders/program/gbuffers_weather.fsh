@@ -36,9 +36,9 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
     #endif
 #endif
@@ -101,7 +101,7 @@ uniform float blindness;
     #ifdef IS_IRIS
         uniform float lightningStrength;
 
-        #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform float cloudTime;
         #endif
     #endif
@@ -168,35 +168,30 @@ uniform float blindness;
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
+#include "/lib/world/sky.glsl"
+#include "/lib/fog/fog_common.glsl"
+#include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/lighting/hg.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
-
-    #ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
+#ifdef WORLD_SKY_ENABLED
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
     #endif
+#endif
 
-    #include "/lib/fog/fog_render.glsl"
-//#endif
-
+#include "/lib/fog/fog_render.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
     #include "/lib/material/specular.glsl"
 #endif
 
-#include "/lib/lighting/hg.glsl"
-#include "/lib/world/sky.glsl"
-#include "/lib/clouds/cloud_vars.glsl"
-
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 #endif
@@ -293,8 +288,8 @@ uniform float blindness;
 void main() {
 	vec4 color = texture(gtexture, texcoord) * glcolor;
 
-    #if WORLD_CLOUD_TYPE != CLOUDS_NONE
-        #if WORLD_CLOUD_TYPE != CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE != CLOUDS_NONE
+        #if SKY_CLOUD_TYPE != CLOUDS_CUSTOM
             const float CloudHeight = 4.0;
         #endif
 
@@ -419,7 +414,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
     #endif
 
-    #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
+    #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
         ApplyFog(color, vLocalPos, localViewDir);
     #endif
 

@@ -4,30 +4,52 @@ profile.LIGHTS=Colored Light
 profile.RTX_LOW=RTX
 
 
-screen.WORLD_OPTIONS=World
-screen.WORLD_OPTIONS.comment=Options for everything else.
+screen.SKY_OPTIONS=Sky
 
 option.sunPathRotation=Sun Angle
 option.sunPathRotation.comment=The tilt of the sun along it's rotational axis.
 suffix.sunPathRotation=°
 
-option.WORLD_SKY_TYPE=Sky
-value.WORLD_SKY_TYPE.0=Vanilla
-value.WORLD_SKY_TYPE.1=Custom
+option.SKY_TYPE=Sky/Fog Type
+value.SKY_TYPE.0=Vanilla
+value.SKY_TYPE.1=Custom
 
-option.WORLD_FOG_MODE=Fog
-value.WORLD_FOG_MODE.0=None
-value.WORLD_FOG_MODE.1=Border
+option.SKY_CLOUD_TYPE=Clouds
+value.SKY_CLOUD_TYPE.0=None
+value.SKY_CLOUD_TYPE.1=Vanilla
+value.SKY_CLOUD_TYPE.2=Custom
 
-option.WORLD_FOG_SHAPE=Fog Shape
-value.WORLD_FOG_SHAPE.0=Default
-value.WORLD_FOG_SHAPE.1=Sphere
-value.WORLD_FOG_SHAPE.2=Cylinder
+option.SKY_BORDER_FOG_ENABLED=Border Fog
 
-option.WORLD_CLOUD_TYPE=Clouds
-value.WORLD_CLOUD_TYPE.0=None
-value.WORLD_CLOUD_TYPE.1=Vanilla
-value.WORLD_CLOUD_TYPE.2=Custom
+option.SKY_FOG_SHAPE=Border Fog Shape
+value.SKY_FOG_SHAPE.0=Default
+value.SKY_FOG_SHAPE.1=Sphere
+value.SKY_FOG_SHAPE.2=Cylinder
+
+option.SKY_VOL_FOG_TYPE=Volumetric Fog
+value.SKY_VOL_FOG_TYPE.0=None
+value.SKY_VOL_FOG_TYPE.1=Simple
+value.SKY_VOL_FOG_TYPE.2=Fancy
+
+option.SKY_WEATHER_OPACITY=Rain Opacity
+option.SKY_WEATHER_OPACITY.comment=Determines how transparent falling rain particles will be.
+suffix.SKY_WEATHER_OPACITY=%
+
+
+screen.SKY_BRIGHTNESS_OPTIONS=Brightness
+
+option.SKY_SUN_BRIGHTNESS=Sun Light
+suffix.SKY_SUN_BRIGHTNESS=%
+
+option.SKY_MOON_BRIGHTNESS=Moon Light
+suffix.SKY_MOON_BRIGHTNESS=%
+
+option.SKY_BRIGHTNESS=Sky
+suffix.SKY_BRIGHTNESS=%
+
+
+screen.WORLD_OPTIONS=World
+screen.WORLD_OPTIONS.comment=Options for everything else.
 
 option.WORLD_WETNESS_ENABLED=Wetness
 option.WORLD_WETNESS_ENABLED.comment=Causes surfaces to appear wet (darker, more shiny) when wet from rain.
@@ -50,54 +72,43 @@ value.WORLD_AMBIENT_MODE.2=Fancy
 option.WORLD_AO_ENABLED=Ambient Occlusion
 option.WORLD_AO_ENABLED.comment=Describes how ambient lighting is occluded.
 
-option.WORLD_RAIN_OPACITY=Rain Opacity
-option.WORLD_RAIN_OPACITY.comment=Determines how transparent falling rain particles will be.
-suffix.WORLD_RAIN_OPACITY=%
-
 option.WORLD_SKY_REFLECTIONS=Sky Reflections
 option.WORLD_SKY_REFLECTIONS.comment=Allows the sky to be reflected when specular materials are enabled.
 suffix.WORLD_SKY_REFLECTIONS=%
 
 
-screen.WORLD_BRIGHTNESS_OPTIONS=Brightness Options
-
-option.WORLD_SUN_BRIGHTNESS=Sun Light
-suffix.WORLD_SUN_BRIGHTNESS=%
-
-option.WORLD_MOON_BRIGHTNESS=Moon Light
-suffix.WORLD_MOON_BRIGHTNESS=%
-
-option.WORLD_SKY_BRIGHTNESS=Sky
-suffix.WORLD_SKY_BRIGHTNESS=%
-
-
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.
 
-option.WORLD_WATER_TEXTURE=Surface
-value.WORLD_WATER_TEXTURE.0=Textured
-value.WORLD_WATER_TEXTURE.1=Colored
+option.WATER_SURFACE_TYPE=Surface
+value.WATER_SURFACE_TYPE.0=Textured
+value.WATER_SURFACE_TYPE.1=Colored
 
-option.WORLD_WATER_OPACITY=Opacity
-option.WORLD_WATER_OPACITY.comment=Determines how transparent water blocks will be.
-suffix.WORLD_WATER_OPACITY=%
+option.WATER_OPACITY=Opacity
+option.WATER_OPACITY.comment=Determines how transparent water blocks will be.
+suffix.WATER_OPACITY=%
 
-option.WORLD_WATER_WAVES=Waves
-value.WORLD_WATER_WAVES.0=None
-value.WORLD_WATER_WAVES.1=Small
-value.WORLD_WATER_WAVES.2=Medium
-value.WORLD_WATER_WAVES.3=Large
+option.WATER_WAVE_SIZE=Waves
+value.WATER_WAVE_SIZE.0=None
+value.WATER_WAVE_SIZE.1=Small
+value.WATER_WAVE_SIZE.2=Medium
+value.WATER_WAVE_SIZE.3=Large
 
-option.WORLD_WATER_PIXEL=Pixelated
-value.WORLD_WATER_PIXEL.0=OFF
-value.WORLD_WATER_PIXEL.8=8x
-value.WORLD_WATER_PIXEL.16=16x
-value.WORLD_WATER_PIXEL.32=32x
-value.WORLD_WATER_PIXEL.64=64x
-value.WORLD_WATER_PIXEL.128=128x
+option.WATER_SURFACE_PIXEL_RES=Pixelated
+value.WATER_SURFACE_PIXEL_RES.0=OFF
+value.WATER_SURFACE_PIXEL_RES.8=8x
+value.WATER_SURFACE_PIXEL_RES.16=16x
+value.WATER_SURFACE_PIXEL_RES.32=32x
+value.WATER_SURFACE_PIXEL_RES.64=64x
+value.WATER_SURFACE_PIXEL_RES.128=128x
 
-option.WORLD_WATER_DENSITY=Density
-suffix.WORLD_WATER_DENSITY=%
+option.WATER_VOL_FOG_TYPE=Volumetric Fog
+value.WATER_VOL_FOG_TYPE.0=None
+value.WATER_VOL_FOG_TYPE.1=Simple
+value.WATER_VOL_FOG_TYPE.2=Fancy
+
+option.WATER_FOG_DENSITY=Density
+suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Caustics
 
@@ -108,18 +119,19 @@ option.WATER_DEPTH_LAYERS=Depth Layers
 
 screen.MATERIAL_OPTIONS=Materials
 
-option.MATERIAL_SPECULAR=Specular
+option.MATERIAL_NORMALS=Normal Map
+option.MATERIAL_NORMALS.comment=The type of normal-map data.
+value.MATERIAL_NORMALS.0=OFF
+value.MATERIAL_NORMALS.1=Integrated
+value.MATERIAL_NORMALS.2=Lab-PBR
+value.MATERIAL_NORMALS.3=Old-PBR
+
+option.MATERIAL_SPECULAR=Specular Map
 option.MATERIAL_SPECULAR.comment=Describes how much light is reflected from each pixel of the surface, based on its roughness, metalness, and f0.
 value.MATERIAL_SPECULAR.0=OFF
 value.MATERIAL_SPECULAR.1=Integrated
 value.MATERIAL_SPECULAR.2=Lab-PBR
 value.MATERIAL_SPECULAR.3=Old-PBR
-
-option.MATERIAL_SSS=SSS
-option.MATERIAL_SSS.comment=Describes how much light from each pixel passes into & scatters in the subsurface.
-value.MATERIAL_SSS.0=OFF
-value.MATERIAL_SSS.1=Integrated
-value.MATERIAL_SSS.2=Lab-PBR
 
 option.MATERIAL_OCCLUSION=Occlusion
 option.MATERIAL_OCCLUSION.comment=Describes how much ambient light is occluded from each pixel of the surface.
@@ -127,37 +139,21 @@ value.MATERIAL_OCCLUSION.0=OFF
 value.MATERIAL_OCCLUSION.1=Integrated
 value.MATERIAL_OCCLUSION.2=Lab-PBR
 
-option.METAL_BRIGHTNESS=Metal Brightness
-suffix.METAL_BRIGHTNESS=%
+option.MATERIAL_EMISSION=Emission
+value.MATERIAL_EMISSION.0=Integrated
+value.MATERIAL_EMISSION.1=Lab-PBR
+value.MATERIAL_EMISSION.2=Old-PBR
 
+option.MATERIAL_POROSITY=Porosity
+value.MATERIAL_POROSITY.0=OFF
+value.MATERIAL_POROSITY.1=Integrated
+value.MATERIAL_POROSITY.2=Lab-PBR
 
-screen.MATERIAL_NORMAL_OPTIONS=Normal Mapping
-screen.MATERIAL_NORMAL_OPTIONS.comment=Describes how each pixel of the surface reacts to directional lighting.
-
-option.MATERIAL_NORMALS=Type
-option.MATERIAL_NORMALS.comment=The type of normal-map data.
-value.MATERIAL_NORMALS.0=OFF
-value.MATERIAL_NORMALS.1=Integrated
-value.MATERIAL_NORMALS.2=Lab-PBR
-value.MATERIAL_NORMALS.3=Old-PBR
-
-option.MATERIAL_NORMAL_SCALE=Resolution
-option.MATERIAL_NORMAL_SCALE.comment=The texture scale which normals are generated at. Only applies to _integrated_ normal-maps.
-suffix.MATERIAL_NORMAL_SCALE=x
-
-option.MATERIAL_NORMAL_STRENGTH=Strength
-option.MATERIAL_NORMAL_STRENGTH.comment=The angular strength of generated normals. Only applies to _integrated_ normal-maps.
-suffix.MATERIAL_NORMAL_STRENGTH=%
-
-option.MATERIAL_NORMAL_EDGE=Edge-Normals
-option.MATERIAL_NORMAL_EDGE.comment=Determines how edges are handled when generating normals. Only applies to _integrated_ normal-maps.
-value.MATERIAL_NORMAL_EDGE.0=Standard
-value.MATERIAL_NORMAL_EDGE.1=High
-value.MATERIAL_NORMAL_EDGE.2=Low
-
-option.MATERIAL_NORMAL_ROUND=Round Edges
-option.MATERIAL_NORMAL_ROUND.comment=When enabled, the edges of entities will have smooth-rounded normals. Only applies to integrated normal maps.
-value.MATERIAL_NORMAL_ROUND.0=OFF
+option.MATERIAL_SSS=SSS
+option.MATERIAL_SSS.comment=Describes how much light from each pixel passes into & scatters in the subsurface.
+value.MATERIAL_SSS.0=OFF
+value.MATERIAL_SSS.1=Integrated
+value.MATERIAL_SSS.2=Lab-PBR
 
 
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
@@ -194,33 +190,49 @@ option.MATERIAL_PARALLAX_ENTITIES=Entities
 option.MATERIAL_PARALLAX_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
 
 
-screen.MATERIAL_POROSITY_OPTIONS=Porosity
-screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
+screen.MATERIAL_NORMAL_OPTIONS=Normal Map Options
+screen.MATERIAL_NORMAL_OPTIONS.comment=Describes how each pixel of the surface reacts to directional lighting.
 
-option.MATERIAL_POROSITY=Type
-value.MATERIAL_POROSITY.0=OFF
-value.MATERIAL_POROSITY.1=Integrated
-value.MATERIAL_POROSITY.2=Lab-PBR
+option.MATERIAL_NORMAL_SCALE=Resolution
+option.MATERIAL_NORMAL_SCALE.comment=The texture scale which normals are generated at. Only applies to _integrated_ normal-maps.
+suffix.MATERIAL_NORMAL_SCALE=x
+
+option.MATERIAL_NORMAL_STRENGTH=Strength
+option.MATERIAL_NORMAL_STRENGTH.comment=The angular strength of generated normals. Only applies to _integrated_ normal-maps.
+suffix.MATERIAL_NORMAL_STRENGTH=%
+
+option.MATERIAL_NORMAL_EDGE=Edge-Normals
+option.MATERIAL_NORMAL_EDGE.comment=Determines how edges are handled when generating normals. Only applies to _integrated_ normal-maps.
+value.MATERIAL_NORMAL_EDGE.0=Standard
+value.MATERIAL_NORMAL_EDGE.1=High
+value.MATERIAL_NORMAL_EDGE.2=Low
+
+option.MATERIAL_NORMAL_ROUND=Round Edges
+option.MATERIAL_NORMAL_ROUND.comment=When enabled, the edges of entities will have smooth-rounded normals. Only applies to integrated normal maps.
+value.MATERIAL_NORMAL_ROUND.0=OFF
+
+
+screen.MATERIAL_SPECULAR_OPTIONS=Specular Map Options
+
+option.METAL_BRIGHTNESS=Metal Brightness
+suffix.METAL_BRIGHTNESS=%
+
+
+screen.MATERIAL_POROSITY_OPTIONS=Porosity Options
+screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
 
 option.MATERIAL_POROSITY_DARKEN=Darkening
 suffix.MATERIAL_POROSITY_DARKEN=%
 
 
-screen.MATERIAL_EMISSION_OPTIONS=Emission
+screen.MATERIAL_EMISSION_OPTIONS=Emission Options
 screen.MATERIAL_EMISSION_OPTIONS.comment=Describes how much light is emitted from each pixel of the surface.
-
-option.MATERIAL_EMISSION=Type
-value.MATERIAL_EMISSION.0=Integrated
-value.MATERIAL_EMISSION.1=Lab-PBR
-value.MATERIAL_EMISSION.2=Old-PBR
 
 option.MATERIAL_EMISSION_BRIGHTNESS=Brightness
 suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 
-screen.MATERIAL_SSS_OPTIONS=SSS
-
-option.MATERIAL_SSS=Enabled
+screen.MATERIAL_SSS_OPTIONS=SSS Options
 
 option.MATERIAL_SSS_SCATTER=Scattering
 suffix.MATERIAL_SSS_SCATTER=%

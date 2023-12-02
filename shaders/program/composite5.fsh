@@ -28,14 +28,14 @@ in vec2 texcoord;
         #endif
     #endif
 
-    #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler2D BUFFER_VL;
     #endif
 
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
-        #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
         #endif
     #endif
@@ -79,7 +79,7 @@ in vec2 texcoord;
             uniform vec3 sunPosition;
         #endif
 
-        #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #if SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
             uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         #endif
@@ -116,20 +116,20 @@ in vec2 texcoord;
     #include "/lib/world/common.glsl"
     #include "/lib/fog/fog_common.glsl"
 
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
 
-        #if WORLD_CLOUD_TYPE != CLOUDS_NONE
+        #if SKY_CLOUD_TYPE != CLOUDS_NONE
             #include "/lib/clouds/cloud_vars.glsl"
         #endif
 
-        #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
@@ -149,7 +149,7 @@ in vec2 texcoord;
             #include "/lib/material/specular.glsl"
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && WORLD_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
 
@@ -159,7 +159,7 @@ in vec2 texcoord;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #ifdef VOLUMETRIC_BLUR
             #include "/lib/sampling/bilateral_gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
@@ -314,19 +314,19 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if WORLD_FOG_MODE != FOG_MODE_NONE //&& WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+            #ifdef SKY_BORDER_FOG_ENABLED
                 #if !defined IRIS_FEATURE_SSBO && defined WORLD_SKY_ENABLED
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
 
                 // #ifndef DH_COMPAT_ENABLED
                 //     if (depthOpaque < 1.0) {
-                //         #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                //         #if SKY_TYPE == SKY_TYPE_CUSTOM
                 //             vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                 //             float fogDist = GetShapedFogDistance(localPosOpaque);
                 //             float fogF = GetCustomFogFactor(fogDist);
-                //         #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+                //         #elif SKY_TYPE == SKY_TYPE_VANILLA
                 //             vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                 //             vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
                 //             fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
@@ -347,7 +347,7 @@ layout(location = 0) out vec4 outFinal;
                     if (isWater) {
                         // water fog from outside water
 
-                        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+                        #if SKY_TYPE == SKY_TYPE_CUSTOM
                             float fogDist = max(waterDepthFinal, 0.0);
                             float fogF = GetCustomWaterFogFactor(fogDist);
 
@@ -378,7 +378,7 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if defined VL_BUFFER_ENABLED || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+            #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                 #ifdef VOLUMETRIC_BLUR
                     const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 

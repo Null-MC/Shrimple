@@ -60,12 +60,12 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/world/common.glsl"
 
-#if WORLD_FOG_MODE != FOG_MODE_NONE
+#ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
@@ -93,7 +93,7 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         float fogF = 0.0;
-        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
             fogF = GetVanillaFogFactor(vLocalPos);
         #endif
 
@@ -109,7 +109,7 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-        #if WORLD_FOG_MODE != FOG_MODE_NONE
+        #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localViewDir = normalize(vLocalPos);
             ApplyFog(color, vLocalPos, localViewDir);
         #endif

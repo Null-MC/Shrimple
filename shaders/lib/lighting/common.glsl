@@ -31,7 +31,7 @@ void BasicVertex() {
                 #endif
 
                 physics_localPosition = pos.xyz;
-            #elif WORLD_WATER_WAVES != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
+            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
                 vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
                 pos.y += distF * water_waveHeight(vLocalPos.xz + cameraPosition.xz, lmcoord.y);
             #endif

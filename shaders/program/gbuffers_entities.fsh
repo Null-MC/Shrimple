@@ -55,9 +55,9 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
     #endif
 #endif
@@ -160,7 +160,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform vec3 sunPosition;
         uniform vec3 shadowLightPosition;
 
-        #if WORLD_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
             uniform float cloudTime;
             uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         #endif
@@ -184,33 +184,28 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/lighting.glsl"
 #endif
 
-#include "/lib/utility/anim.glsl"
+#include "/lib/blocks.glsl"
+#include "/lib/entities.glsl"
+#include "/lib/items.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-//#if WORLD_FOG_MODE != FOG_MODE_NONE
-    #include "/lib/fog/fog_common.glsl"
+#if SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
-    //#ifdef WORLD_SKY_ENABLED
-        #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
-    //#endif
-
-    #include "/lib/fog/fog_render.glsl"
-//#endif
-
-#include "/lib/blocks.glsl"
-#include "/lib/entities.glsl"
-#include "/lib/items.glsl"
+#include "/lib/fog/fog_render.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
     #include "/lib/utility/tbn.glsl"
@@ -247,7 +242,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
 
-        #if defined SHADOW_CLOUD_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_vars.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
@@ -520,7 +515,7 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
         float fogF = 0.0;
-        #if WORLD_SKY_TYPE == SKY_TYPE_VANILLA && WORLD_FOG_MODE != FOG_MODE_NONE
+        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
             fogF = GetVanillaFogFactor(vLocalPos);
         #endif
 
@@ -607,7 +602,7 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        #if !defined DH_COMPAT_ENABLED && WORLD_FOG_MODE != FOG_MODE_NONE
+        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
 

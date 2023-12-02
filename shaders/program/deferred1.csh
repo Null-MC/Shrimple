@@ -57,9 +57,9 @@ void main() {
 		memoryBarrierImage();
 
 	    ivec2 _tileSize;
-	    GetDepthTileBounds(i - 1, tilePos, _tileSize);
+	    GetDepthTileBounds(viewSize, i - 1, tilePos, _tileSize);
 
-	    GetDepthTileBounds(i, writePos, _tileSize);
+	    GetDepthTileBounds(viewSize, i, writePos, _tileSize);
 		writePos += fragWritePos;
 
 		readPos = fragWritePos * 2 + tilePos;

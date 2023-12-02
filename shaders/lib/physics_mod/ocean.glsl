@@ -133,8 +133,8 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     };
 
     WavePixelData physics_wavePixel(vec2 position, const in float factor, const in float iterations, const in float time) {
-        #if WORLD_WATER_PIXEL > 0
-            position = floor(position * WORLD_WATER_PIXEL) / WORLD_WATER_PIXEL;
+        #if WATER_SURFACE_PIXEL_RES > 0
+            position = floor(position * WATER_SURFACE_PIXEL_RES) / WATER_SURFACE_PIXEL_RES;
         #endif
 
         vec2 wavePos = (position.xy - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;

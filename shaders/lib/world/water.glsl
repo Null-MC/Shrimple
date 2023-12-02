@@ -7,13 +7,13 @@ vec3 WaterAbsorbColorInv = RGBToLinear(1.0 - WaterAbsorbColor);
 vec3 vlWaterScatterColorL = RGBToLinear(WaterScatterColor);
 
 
-#if WORLD_WATER_WAVES == 3
+#if WATER_WAVE_SIZE == 3
 	const float Water_WaveStrength = 1.00;
 	const float Water_CausticStrength = 1.00;
-#elif WORLD_WATER_WAVES == 2
+#elif WATER_WAVE_SIZE == 2
 	const float Water_WaveStrength = 0.50;
 	const float Water_CausticStrength = 0.50;
-#elif WORLD_WATER_WAVES == 1
+#elif WATER_WAVE_SIZE == 1
 	const float Water_WaveStrength = 0.25;
 	const float Water_CausticStrength = 0.25;
 #else

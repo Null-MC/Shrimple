@@ -22,10 +22,10 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || WORLD_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
-    #elif WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
     #endif
 #endif
@@ -157,7 +157,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/sampling.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0
+    #if LPV_SIZE > 0
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
@@ -175,27 +175,23 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-
-    //#if WORLD_FOG_MODE != FOG_MODE_NONE
-        #include "/lib/fog/fog_common.glsl"
-
-        #ifdef WORLD_SKY_ENABLED
-            #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
-                #include "/lib/fog/fog_custom.glsl"
-            #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
-                #include "/lib/fog/fog_vanilla.glsl"
-            #endif
-        #endif
-    //#endif
-
+    #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
 
-    #if WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+    #ifdef WORLD_SKY_ENABLED
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            #include "/lib/fog/fog_custom.glsl"
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            #include "/lib/fog/fog_vanilla.glsl"
+        #endif
+    #endif
+
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
 
     #if VOLUMETRIC_BRIGHT_SKY > 0
-        #if WORLD_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
 
@@ -267,7 +263,7 @@ void main() {
             float distFar = clamp(distOpaque, near, far);
 
             final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
-        #elif defined WORLD_SKY_ENABLED && WORLD_CLOUD_TYPE == CLOUDS_CUSTOM
+        #elif defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             if (isEyeInWater == 1) {
                 final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }

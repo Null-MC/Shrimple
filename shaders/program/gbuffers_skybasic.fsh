@@ -48,9 +48,9 @@ uniform float blindness;
 #include "/lib/fog/fog_common.glsl"
 #include "/lib/lighting/blackbody.glsl"
 
-#if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+#if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
-#elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+#elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
@@ -72,9 +72,9 @@ void main() {
         vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
-    #if WORLD_SKY_TYPE == SKY_TYPE_CUSTOM
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
         vec3 color = GetCustomSkyColor(localSunDirection.y, viewUpF);
-    #elif WORLD_SKY_TYPE == SKY_TYPE_VANILLA
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
         vec3 color = GetVanillaFogColor(fogColor, viewUpF);
         color = RGBToLinear(color);
     #endif
