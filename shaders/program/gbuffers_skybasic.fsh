@@ -79,13 +79,19 @@ void main() {
         color = RGBToLinear(color);
     #endif
 
+    float alpha = 1.0;
     if (starData.a > 0.5) {
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
         vec3 localViewDir = normalize(localPos);
 
         float bright = hash13(localViewDir * 0.2);
         float temp = _pow2(bright) * 8000.0 + 2000.0;
-        color += starData.rgb * blackbody(temp) * (_pow3(bright) * 4.0) * WorldSunBrightnessF;
+
+        bright *= (_pow3(bright) * 4.0) * WorldSunBrightnessF;
+        bright *= smoothstep(0.02, -0.16, localSunDirection.y);
+
+        color += starData.rgb * blackbody(temp) * bright;
+        alpha = min(bright, 1.0);
     }
 
     //color *= 1.0 - blindness;
@@ -96,5 +102,5 @@ void main() {
         color *= WorldSkyBrightnessF;
     #endif
     
-    outFinal = vec4(color, 1.0);
+    outFinal = vec4(color, alpha);
 }
