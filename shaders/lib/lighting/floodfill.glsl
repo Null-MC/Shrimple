@@ -6,8 +6,9 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     #ifdef WORLD_SKY_ENABLED
         vec2 lmSkyFinal = vec2(0.0, lmcoord.y);
 
+        float skyNoLm = 0.0;
         #ifndef RENDER_SHADOWS_ENABLED
-            float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+            skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
             lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
         #endif
 
