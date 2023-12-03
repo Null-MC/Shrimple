@@ -131,10 +131,13 @@ void main() {
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
+    bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
+                       || renderStage == MC_RENDER_STAGE_ENTITIES;
+
     #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
-        if (vBlockId[0] > 0 && (isRenderTerrain || renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES)) {
+        if ((vBlockId[0] > 0 || currentRenderedItemId > 0) && (isRenderTerrain || isRenderEntity)) {
             #ifdef SHADOW_FRUSTUM_CULL
                 if (vBlockId[0] > 0) {
                     vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
@@ -142,7 +145,7 @@ void main() {
                     if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
                 }
             #endif
-            
+
             bool intersects = true;
 
             #ifdef DYN_LIGHT_FRUSTUM_TEST //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE

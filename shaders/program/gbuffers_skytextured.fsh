@@ -47,7 +47,7 @@ void main() {
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
     #ifndef IRIS_FEATURE_SSBO
-        vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
     if (renderStage == MC_RENDER_STAGE_SUN) {
