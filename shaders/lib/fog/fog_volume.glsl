@@ -40,10 +40,10 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
             result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 1.6 + 0.3);
         #endif
     #else
-        result.Ambient = vec3(0.08);
+        result.Ambient = vec3(0.008);
 
         vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
-        result.ScatterF = 0.75 * tint;
+        result.ScatterF = 0.25 * tint;
         result.ExtinctF = 0.04;
     #endif
 

@@ -16,7 +16,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
     #ifdef DYN_LIGHT_FLICKER
         uniform sampler2D noisetex;
     #endif
@@ -24,7 +24,6 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;
         uniform vec3 WaterScatterColor;
-        //uniform float waterDensitySmooth;
     #endif
 
     #ifdef WORLD_SKY_ENABLED
@@ -41,15 +40,6 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
                 uniform sampler2D TEX_CLOUDS;
             #endif
 
-            // #ifdef SHADOW_ENABLE_HWCOMP
-            //     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            //         uniform sampler2DShadow shadowtex0HW;
-            //         uniform sampler2DShadow shadowtex1HW;
-            //     #else
-            //         uniform sampler2DShadow shadow;
-            //     #endif
-            // #endif
-
             uniform float far;
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -63,44 +53,16 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
 
-    // uniform vec4 lightningBoltPosition = vec4(0.0);
-
-    //#ifdef DYN_LIGHT_FLICKER
-        //uniform float frameTimeCounter;
-
-        #ifdef ANIM_WORLD_TIME
-            uniform int worldTime;
-        #else
-            uniform float frameTimeCounter;
-        #endif
-    //#endif
-
     #include "/lib/blocks.glsl"
-    #include "/lib/lights.glsl"
-    #include "/lib/utility/anim.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/volume.glsl"
-
-    #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        //#include "/lib/lighting/voxel/block_mask.glsl"
-        // #include "/lib/lighting/voxel/block_light_map.glsl"
-        #include "/lib/lighting/voxel/lights.glsl"
-        #include "/lib/lighting/voxel/lights_render.glsl"
-    #endif
-
     #include "/lib/lighting/voxel/tinting.glsl"
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -121,20 +83,12 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
-            //#include "/lib/shadows/cascaded/render.glsl"
         #else
             #include "/lib/shadows/distorted/common.glsl"
-            //#include "/lib/shadows/distorted/render.glsl"
         #endif
     #endif
 #endif
 
-
-// ivec3 GetLPVFrameOffset() {
-//     vec3 posNow = GetLPVPosition(vec3(0.0));
-//     vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
-//     return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
-// }
 
 ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
@@ -155,12 +109,7 @@ vec4 GetLpvValue(in ivec3 texCoord) {
 }
 
 float GetBlockBounceF(const in uint blockId) {
-    //float result = 1.0;
-
-    //if (blockId <= 0) result = 0.0;
-
-    //return result;
-
+    // TODO: make this better
     return step(blockId + 1, BLOCK_WATER);
 }
 
@@ -185,8 +134,8 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             float shadowDistScale = 64.0; //3.0 * far;
         #else
             float shadowBias = (1.0/256.0);// * GetShadowOffsetBias();
-            const float shadowDistMax = 256.0;
-            const float shadowDistScale = 128.0;
+            const float shadowDistMax = 3.0 * far;
+            const float shadowDistScale = 64.0;
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
