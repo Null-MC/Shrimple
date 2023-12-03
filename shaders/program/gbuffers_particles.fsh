@@ -97,12 +97,14 @@ uniform sampler2D lightmap;
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;
-uniform vec3 skyColor;
+
+uniform float viewWidth;
 uniform float near;
 uniform float far;
 
@@ -116,6 +118,7 @@ uniform int fogMode;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform vec3 skyColor;
     uniform float rainStrength;
     uniform float skyRainStrength;
 #endif
@@ -158,7 +161,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if AF_SAMPLES > 1
-    uniform float viewWidth;
+    // uniform float viewWidth;
     uniform float viewHeight;
     uniform vec4 spriteBounds;
 #endif
@@ -187,7 +190,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
 
-    uniform float blindness;
+    uniform float blindnessSmooth;
 //#endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -195,6 +198,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
+
+#include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
@@ -205,21 +211,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
-// #ifdef SKY_BORDER_FOG_ENABLED
-    #include "/lib/fog/fog_common.glsl"
+#if SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
 
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        #include "/lib/fog/fog_custom.glsl"
-    #elif SKY_TYPE == SKY_TYPE_VANILLA
-        #include "/lib/fog/fog_vanilla.glsl"
-    #endif
-
-    #include "/lib/fog/fog_render.glsl"
-// #endif
-
-#include "/lib/blocks.glsl"
-#include "/lib/items.glsl"
+#include "/lib/fog/fog_render.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -315,6 +315,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
         #include "/lib/lighting/caustics.glsl"
+        
+        #if WATER_DEPTH_LAYERS > 1
+            #include "/lib/buffers/water_depths.glsl"
+        #endif
     #endif
 
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
@@ -516,16 +520,44 @@ void main() {
         //ApplyFog(color, vLocalPos, localViewDir);
         #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vLocalPos, localViewDir);
+
+            // TODO: manually apply fog so you can inverse fogF as alpha
+
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                float fogDist = GetShapedFogDistance(vLocalPos);
+                float fogF = GetCustomFogFactor(fogDist);
+                color.a *= 1.0 - fogF;
+            #elif SKY_TYPE == SKY_TYPE_VANILLA
+                // TODO
+            #endif
         #endif
 
-        #ifdef VL_BUFFER_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        // #ifdef VL_BUFFER_ENABLED
+        //     #ifndef IRIS_FEATURE_SSBO
+        //         vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        //     #endif
+
+        //     bool isWater = isEyeInWater == 1;
+        //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far, isWater);
+        //     color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        // #endif
+
+        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 0) {
             #endif
 
-            bool isWater = isEyeInWater == 1;
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far, isWater);
-            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+                float maxDist = min(viewDist, far);
+
+                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
+                color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
+
+                color.a *= scatterTransmit.a;
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
         #endif
 
         #ifdef DH_COMPAT_ENABLED

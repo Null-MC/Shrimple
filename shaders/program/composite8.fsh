@@ -90,7 +90,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
-uniform float blindness;
+uniform float blindnessSmooth;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
 
@@ -141,7 +141,7 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#if DIST_BLUR_MODE == DIST_BLUR_DOF
+#if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
     uniform float centerDepthSmooth;
 #endif
 
@@ -267,14 +267,14 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/basic_hand.glsl"
 
 #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-    #ifdef VOLUMETRIC_BLUR
+    #ifdef VOLUMETRIC_FILTER
         #include "/lib/sampling/fog_filter.glsl"
     #endif
 #else
     //#include "/lib/world/clouds.glsl"
 #endif
 
-#if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
+#if EFFECT_BLUR_TYPE != DIST_BLUR_OFF || defined WATER_BLUR
     #include "/lib/post/depth_blur.glsl"
 #endif
 
@@ -782,7 +782,7 @@ layout(location = 0) out vec4 outFinal;
         //float transDepth = isEyeInWater == 1 ? viewDist :
         //    max(length(localPosOpaque) - viewDist, 0.0);
 
-        #if DIST_BLUR_MODE != DIST_BLUR_OFF || defined WATER_BLUR
+        #if EFFECT_BLUR_TYPE != DIST_BLUR_OFF || defined WATER_BLUR
             float blurDist = 0.0;
             if (depth < depthOpaque) {
                 float opaqueDist = length(localPosOpaque);
@@ -903,7 +903,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
         }
 
-        #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
             if (isEyeInWater == 1) {
                 const float WaterAmbientF = 0.0;
                 
@@ -962,24 +962,23 @@ layout(location = 0) out vec4 outFinal;
         //     #endif
         // #endif
 
-        #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
                 final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
             }
         #endif
 
-        #if defined VL_BUFFER_ENABLED || (defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM)
-            #ifdef VOLUMETRIC_BLUR
-                const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-                const vec2 vlSigma = vec2(1.0, 0.002);
-
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex0, viewSize, linearDepth, vlSigma);
+        #ifdef VL_BUFFER_ENABLED
+            #ifdef VOLUMETRIC_FILTER
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, depthtex0, viewSize, linearDepth);
             #else
                 vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
             #endif
 
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #else
+        #endif
+
+        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE != CLOUDS_CUSTOM
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif

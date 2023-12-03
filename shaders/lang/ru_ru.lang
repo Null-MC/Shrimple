@@ -449,8 +449,8 @@ value.VOLUMETRIC_RES.2=Низкое
 option.VOLUMETRIC_BLOCK_RT=Трассировка Лучей
 option.VOLUMETRIC_BLOCK_RT.comment=Включает объёмную трассировку лучей для блочного освещения; необходимо, чтобы было включено блочное освещение с трассировкой лучей. §c§lОСТОРОЖНО§r§c: может привести к снижению производительности!
 
-option.VOLUMETRIC_BLUR=Фильтр
-option.VOLUMETRIC_BLUR=Применять постфильтрацию объёмного освещения для получения более гладкого результата.
+option.VOLUMETRIC_FILTER=Фильтр
+option.VOLUMETRIC_FILTER=Применять постфильтрацию объёмного освещения для получения более гладкого результата.
 
 screen.SHADOW_OPTIONS=Тень
 screen.SHADOW_OPTIONS.comment=Настройки для теней.
@@ -567,17 +567,17 @@ suffix.EFFECT_BLOOM_HAND=%
 
 screen.EFFECT_BLUR_OPTIONS=Настройки Размытий
 
-option.DIST_BLUR_MODE=Режим
-value.DIST_BLUR_MODE.0=Выкл
-value.DIST_BLUR_MODE.1=Дальность
-value.DIST_BLUR_MODE.2=ГР (DOF)
+option.EFFECT_BLUR_TYPE=Режим
+value.EFFECT_BLUR_TYPE.0=Выкл
+value.EFFECT_BLUR_TYPE.1=Дальность
+value.EFFECT_BLUR_TYPE.2=ГР (DOF)
 
-option.BLUR_DOF_FOCUS_SCALE=Фокус ГР
-suffix.BLUR_DOF_FOCUS_SCALE=%
+option.EFFECT_BLUR_DOF_FOCUS_SCALE=Фокус ГР
+suffix.EFFECT_BLUR_DOF_FOCUS_SCALE=%
 
-option.DIST_BLUR_SAMPLES=Количество Образцов
+option.EFFECT_BLUR_SAMPLE_COUNT=Количество Образцов
 
-option.DIST_BLUR_RADIUS=Радиус
+option.EFFECT_BLUR_MAX_RADIUS=Радиус
 
 
 screen.EFFECT_SSAO_OPTIONS=ЭПОО

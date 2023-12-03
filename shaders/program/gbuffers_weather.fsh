@@ -90,7 +90,7 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-uniform float blindness;
+uniform float blindnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;

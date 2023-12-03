@@ -175,7 +175,7 @@ uniform ivec2 eyeBrightnessSmooth;
         //uniform ivec2 eyeBrightnessSmooth;
     #endif
 
-    uniform float blindness;
+    uniform float blindnessSmooth;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

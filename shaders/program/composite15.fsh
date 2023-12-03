@@ -13,7 +13,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 
 #include "/lib/sampling/ign.glsl"
-#include "/lib/post/bloom.glsl"
+#include "/lib/effects/bloom.glsl"
 
 
 /* RENDERTARGETS: 15 */

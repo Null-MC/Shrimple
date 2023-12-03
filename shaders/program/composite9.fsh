@@ -20,16 +20,19 @@ uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
-uniform float blindness;
 uniform float near;
 uniform float far;
 
-#if DIST_BLUR_MODE == DIST_BLUR_DOF
+#if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
     uniform float centerDepthSmooth;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform float waterDensitySmooth;
+#endif
+
+#ifdef EFFECT_BLUR_BLINDNESS
+    uniform float blindnessSmooth;
 #endif
 
 #include "/lib/sampling/depth.glsl"

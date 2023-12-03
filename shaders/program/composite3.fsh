@@ -22,7 +22,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED && (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -31,7 +31,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if VOLUMETRIC_BRIGHT_SKY > 0
+    //#if VOLUMETRIC_BRIGHT_SKY > 0
         uniform sampler2D shadowtex0;
         uniform sampler2D shadowtex1;
 
@@ -42,7 +42,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
         #ifdef SHADOW_COLORED
             uniform sampler2D shadowcolor0;
         #endif
-    #endif
+    //#endif
 #endif
 
 uniform int worldTime;
@@ -107,17 +107,17 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/utility/anim.glsl"
-
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/anim.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    #if WATER_DEPTH_LAYERS > 1
-        #include "/lib/buffers/water_depths.glsl"
-    #endif
+    // #if WATER_DEPTH_LAYERS > 1
+    //     #include "/lib/buffers/water_depths.glsl"
+    // #endif
 
     #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
         #include "/lib/blocks.glsl"
@@ -169,6 +169,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
         #include "/lib/lighting/caustics.glsl"
     #endif
+
+    #if WATER_DEPTH_LAYERS > 1
+        #include "/lib/buffers/water_depths.glsl"
+    #endif
 #endif
 
 #include "/lib/lighting/hg.glsl"
@@ -178,33 +182,31 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
 
-    #ifdef WORLD_SKY_ENABLED
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            #include "/lib/fog/fog_custom.glsl"
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            #include "/lib/fog/fog_vanilla.glsl"
-        #endif
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
 
-    #if VOLUMETRIC_BRIGHT_SKY > 0
+    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
+    #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #include "/lib/buffers/shadow.glsl"
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #include "/lib/buffers/shadow.glsl"
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                #include "/lib/shadows/cascaded/common.glsl"
-                #include "/lib/shadows/cascaded/render.glsl"
-            #else
-                #include "/lib/shadows/distorted/common.glsl"
-                #include "/lib/shadows/distorted/render.glsl"
-            #endif
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
         #endif
     #endif
 #endif
@@ -246,24 +248,38 @@ void main() {
         float distTranslucent = length(localPosTranslucent);
         vec3 localViewDir = normalize(localPosOpaque);
 
-        bool isWater = false;
-        #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS == 1
-            if (isEyeInWater != 1) {
-                float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
-                isWater = deferredShadowA > 0.5;
-            }
-        #endif
-
         //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
         //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
-        #ifdef VL_BUFFER_ENABLED
+        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            bool isWater = false;
+            #if defined WORLD_WATER_ENABLED
+                #if WATER_DEPTH_LAYERS > 1
+                    isWater = true;
+                #else
+                    if (isEyeInWater == 0) {
+                        float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
+                        isWater = deferredShadowA > 0.5;
+                    }
+                #endif
+            #endif
+
             //float farMax = far;//min(shadowDistance, far) - 0.002;
             float distNear = clamp(distTranslucent, near, far);
             float distFar = clamp(distOpaque, near, far);
 
-            final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
-        #elif defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            bool hasVl = false;
+            #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                if (isEyeInWater == 1) hasVl = true;
+            #endif
+            #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                if (isEyeInWater != 1 && isWater) hasVl = true;
+            #endif
+
+            if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
+        #endif
+
+        #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
             if (isEyeInWater == 1) {
                 final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }

@@ -160,7 +160,7 @@ in vec2 texcoord;
     #endif
 
     #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-        #ifdef VOLUMETRIC_BLUR
+        #ifdef VOLUMETRIC_FILTER
             #include "/lib/sampling/bilateral_gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
         #endif
@@ -295,7 +295,7 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
+            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
                 if (isWater && isEyeInWater == 0) {
                     const float WaterAmbientF = 0.0;
 
@@ -372,32 +372,34 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #if defined WORLD_WATER_ENABLED && defined VL_BUFFER_ENABLED
+            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
                 if (isWater) {
                     final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
                 }
             #endif
 
             #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-                #ifdef VOLUMETRIC_BLUR
-                    const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
+                #ifdef VOLUMETRIC_FILTER
+                    // const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
-                    #if VOLUMETRIC_RES == 2
-                        const vec2 vlSigma = vec2(1.0, 0.00001);
-                    #elif VOLUMETRIC_RES == 1
-                        const vec2 vlSigma = vec2(1.0, 0.00001);
-                    #else
-                        const vec2 vlSigma = vec2(1.2, 0.00002);
-                    #endif
+                    // #if VOLUMETRIC_RES == 2
+                    //     const vec2 vlSigma = vec2(1.0, 0.00001);
+                    // #elif VOLUMETRIC_RES == 1
+                    //     const vec2 vlSigma = vec2(1.0, 0.00001);
+                    // #else
+                    //     const vec2 vlSigma = vec2(1.2, 0.00002);
+                    // #endif
 
                     float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
-                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize * bufferScale, depthtex1, viewSize, depthOpaqueL, vlSigma);
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, depthtex1, viewSize, depthOpaqueL);
                 #else
                     vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
                 #endif
 
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
-            #elif defined WORLD_WATER_ENABLED
+            #endif
+
+            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE != CLOUDS_CUSTOM
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 

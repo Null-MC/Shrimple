@@ -125,13 +125,13 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
 
-    #if VOLUMETRIC_BRIGHT_SKY > 0
+    //#if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
         #elif SKY_TYPE == SKY_TYPE_VANILLA
             #include "/lib/fog/fog_vanilla.glsl"
         #endif
-    #endif
+    //#endif
 
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
@@ -199,17 +199,15 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SKY_ENABLED
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/buffers/shadow.glsl"
+#if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY)
+    #include "/lib/buffers/shadow.glsl"
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #include "/lib/shadows/cascaded/common.glsl"
-            #include "/lib/shadows/cascaded/render.glsl"
-        #else
-            #include "/lib/shadows/distorted/common.glsl"
-            #include "/lib/shadows/distorted/render.glsl"
-        #endif
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/render.glsl"
+    #else
+        #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/render.glsl"
     #endif
 #endif
 
@@ -221,8 +219,10 @@ uniform ivec2 eyeBrightnessSmooth;
 /* RENDERTARGETS: 10 */
 layout(location = 0) out vec4 outVL;
 
+// TODO: This might blow up in non-overworld worlds! add bypass?
+
 void main() {
-    float depth = texelFetch(depthtex0, ivec2(texcoord * viewSize), 0).r;
+    float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5), 0).r;
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
     #ifndef IRIS_FEATURE_SSBO
@@ -260,7 +260,7 @@ void main() {
     float farDist = clamp(viewDist, near, far - 0.002);
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
-    #ifdef VL_BUFFER_ENABLED
+    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             // if (depth >= 0.9999) {
             //     // vec3 cloudNear, cloudFar;
@@ -273,8 +273,21 @@ void main() {
             // }
         #endif
     
-        final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
-    #elif defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        bool hasVl = false;
+        // #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        //     hasVl = true;
+        // #endif
+        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            if (isEyeInWater != 1) hasVl = true;
+        #endif
+        #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            if (isEyeInWater == 1) hasVl = true;
+        #endif
+
+        if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
+    #endif
+
+    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif

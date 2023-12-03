@@ -74,7 +74,7 @@ uniform int fogMode;
 
 uniform int worldTime;
 uniform ivec2 eyeBrightnessSmooth;
-uniform float blindness;
+uniform float blindnessSmooth;
 
 #ifdef ANIM_WORLD_TIME
     //uniform int worldTime;

@@ -171,7 +171,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform vec3 eyePosition;
     #endif
 
-    uniform float blindness;
+    uniform float blindnessSmooth;
 #endif
 
 #if AF_SAMPLES > 1

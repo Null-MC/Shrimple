@@ -155,7 +155,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #if !defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE != DYN_LIGHT_TRACED
     uniform int frameCounter;
 
-    uniform float blindness;
+    uniform float blindnessSmooth;
 
     uniform int heldItemId;
     uniform int heldItemId2;

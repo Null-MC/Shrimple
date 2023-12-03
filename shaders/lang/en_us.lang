@@ -31,6 +31,11 @@ value.SKY_VOL_FOG_TYPE.0=None
 value.SKY_VOL_FOG_TYPE.1=Simple
 value.SKY_VOL_FOG_TYPE.2=Fancy
 
+option.VOLUMETRIC_DENSITY=Volumetric Density
+option.VOLUMETRIC_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
+suffix.VOLUMETRIC_DENSITY=%
+value.VOLUMETRIC_DENSITY.1000=Silent Hill
+
 option.SKY_WEATHER_OPACITY=Rain Opacity
 option.SKY_WEATHER_OPACITY.comment=Determines how transparent falling rain particles will be.
 suffix.SKY_WEATHER_OPACITY=%
@@ -437,6 +442,17 @@ option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied 
 
 screen.VOLUMETRIC_OPTIONS=Volumetric Fog
 
+option.VOLUMETRIC_RES=Resolution
+value.VOLUMETRIC_RES.0=Full
+value.VOLUMETRIC_RES.1=Half
+value.VOLUMETRIC_RES.2=Quarter
+
+option.VOLUMETRIC_SAMPLES=Quality
+value.VOLUMETRIC_SAMPLES.12=Low
+value.VOLUMETRIC_SAMPLES.20=Medium
+value.VOLUMETRIC_SAMPLES.28=High
+value.VOLUMETRIC_SAMPLES.36=Very High
+
 option.VOLUMETRIC_BRIGHT_SKY=Sun/Moon Brightness
 option.VOLUMETRIC_BRIGHT_SKY.comment=Adjusts the brightness of the sun & moon when applying volumetric lighting to fog.
 suffix.VOLUMETRIC_BRIGHT_SKY=%
@@ -454,27 +470,11 @@ value.VOLUMETRIC_BLOCK_MODE.1=Emission
 value.VOLUMETRIC_BLOCK_MODE.2=Trace [Fast]
 value.VOLUMETRIC_BLOCK_MODE.3=Trace [Full]
 
-option.VOLUMETRIC_SAMPLES=Quality
-value.VOLUMETRIC_SAMPLES.12=Low
-value.VOLUMETRIC_SAMPLES.20=Medium
-value.VOLUMETRIC_SAMPLES.28=High
-value.VOLUMETRIC_SAMPLES.36=Very High
-
-option.VOLUMETRIC_DENSITY=Density
-option.VOLUMETRIC_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
-suffix.VOLUMETRIC_DENSITY=%
-value.VOLUMETRIC_DENSITY.1000=Silent Hill
-
-option.VOLUMETRIC_RES=Resolution
-value.VOLUMETRIC_RES.0=Full
-value.VOLUMETRIC_RES.1=Half
-value.VOLUMETRIC_RES.2=Quarter
+option.VOLUMETRIC_FILTER=Filter
+option.VOLUMETRIC_FILTER.comment=Applies post-filtering of volumetric lighting for a smoother result.
 
 option.VOLUMETRIC_BLOCK_RT=Ray Traced
 option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights; requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: will kill performance dead!
-
-option.VOLUMETRIC_BLUR=Filter
-option.VOLUMETRIC_BLUR.comment=Applies post-filtering of volumetric lighting for a smoother result.
 
 
 screen.SHADOW_OPTIONS=Shadows
@@ -592,17 +592,20 @@ suffix.EFFECT_BLOOM_HAND=%
 
 screen.EFFECT_BLUR_OPTIONS=Blur
 
-option.DIST_BLUR_MODE=Mode
-value.DIST_BLUR_MODE.0=Off
-value.DIST_BLUR_MODE.1=Far
-value.DIST_BLUR_MODE.2=DOF
+option.EFFECT_BLUR_TYPE=Mode
+value.EFFECT_BLUR_TYPE.0=Off
+value.EFFECT_BLUR_TYPE.1=Far
+value.EFFECT_BLUR_TYPE.2=DOF
 
-option.BLUR_DOF_FOCUS_SCALE=DOF Focus
-suffix.BLUR_DOF_FOCUS_SCALE=%
+option.EFFECT_BLUR_DOF_FOCUS_SCALE=DOF Focus
+suffix.EFFECT_BLUR_DOF_FOCUS_SCALE=%
 
-option.DIST_BLUR_SAMPLES=Sample Count
+option.EFFECT_BLUR_SAMPLE_COUNT=Sample Count
 
-option.DIST_BLUR_RADIUS=Radius
+option.EFFECT_BLUR_MAX_RADIUS=Radius
+
+option.EFFECT_BLUR_BLINDNESS=Blindness
+option.EFFECT_BLUR_BLINDNESS.comment=Applies a heavy blur to the screen when the player receives the blindness effect.
 
 
 screen.EFFECT_SSAO_OPTIONS=SSAO

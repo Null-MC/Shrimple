@@ -62,7 +62,7 @@ uniform int isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
 uniform float skyRainStrength;
-uniform float blindness;
+uniform float blindnessSmooth;
 
 //#ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;

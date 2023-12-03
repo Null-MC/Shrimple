@@ -13,8 +13,9 @@ uniform mat4 gbufferProjectionInverse;
 uniform vec3 cameraPosition;
 uniform vec3 sunPosition;
 uniform vec3 upPosition;
-uniform float viewHeight;
-uniform float viewWidth;
+uniform vec2 viewSize;
+// uniform float viewHeight;
+// uniform float viewWidth;
 uniform float far;
 
 uniform vec3 skyColor;
@@ -27,7 +28,7 @@ uniform int isEyeInWater;
 uniform float rainStrength;
 uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
-uniform float blindness;
+uniform float blindnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
@@ -59,7 +60,7 @@ uniform float blindness;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    vec2 texcoord = gl_FragCoord.xy / vec2(viewWidth, viewHeight);
+    vec2 texcoord = gl_FragCoord.xy / viewSize;
     
     vec3 clipPos = vec3(texcoord * 2.0 - 1.0, 1.0);
     vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
@@ -81,8 +82,7 @@ void main() {
 
     float alpha = 1.0;
     if (starData.a > 0.5) {
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-        vec3 localViewDir = normalize(localPos);
+        vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
         float bright = hash13(localViewDir * 0.2);
         float temp = _pow2(bright) * 8000.0 + 2000.0;
@@ -94,7 +94,7 @@ void main() {
         alpha = min(bright, 1.0);
     }
 
-    //color *= 1.0 - blindness;
+    //color *= 1.0 - blindnessSmooth;
 
     #ifdef DH_COMPAT_ENABLED
         color = LinearToRGB(color);

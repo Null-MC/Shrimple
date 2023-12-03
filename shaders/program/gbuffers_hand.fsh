@@ -170,7 +170,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
 
-    uniform float blindness;
+    uniform float blindnessSmooth;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

@@ -73,7 +73,7 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-uniform float blindness;
+uniform float blindnessSmooth;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifndef ANIM_WORLD_TIME

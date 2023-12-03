@@ -23,7 +23,7 @@ uniform int isEyeInWater;
 #endif
 
 #include "/lib/sampling/ign.glsl"
-#include "/lib/post/bloom.glsl"
+#include "/lib/effects/bloom.glsl"
 
 
 /* RENDERTARGETS: 15 */

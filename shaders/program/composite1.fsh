@@ -49,7 +49,7 @@ uniform vec3 eyePosition;
 uniform vec3 upPosition;
 uniform vec3 fogColor;
 
-uniform float blindness;
+uniform float blindnessSmooth;
 
 #ifdef ANIM_WORLD_TIME
     uniform int worldTime;

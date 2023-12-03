@@ -129,7 +129,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
-uniform float blindness;
+uniform float blindnessSmooth;
 uniform ivec2 eyeBrightnessSmooth;
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
