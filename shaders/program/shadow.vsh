@@ -19,25 +19,14 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform int renderStage;
-//uniform float far;
 
 uniform int blockEntityId;
-//uniform vec4 entityColor;
-//uniform int entityId;
 
 #ifdef ANIM_WORLD_TIME
     uniform int worldTime;
 #else
     uniform float frameTimeCounter;
 #endif
-
-// #if defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED
-//     uniform float rainStrength;
-// #endif
-
-// #if DYN_LIGHT_MODE == DYN_LIGHT_LPV && LPV_SIZE > 0
-//     uniform int frameCounter;
-// #endif
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform mat4 gbufferProjection;
@@ -51,7 +40,6 @@ uniform int blockEntityId;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    //#include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/shadow.glsl"
 #endif
 
@@ -59,23 +47,6 @@ uniform int blockEntityId;
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
 #endif
-
-// #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
-//     #include "/lib/lights.glsl"
-//     #include "/lib/entities.glsl"
-//     #include "/lib/items.glsl"
-
-//     #include "/lib/buffers/lighting.glsl"
-//     #include "/lib/lighting/voxel/mask.glsl"
-//     #include "/lib/lighting/voxel/block_mask.glsl"
-//     #include "/lib/lighting/voxel/blocks.glsl"
-
-//     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-//         #include "/lib/lighting/voxel/light_mask.glsl"
-//         //#include "/lib/lighting/voxel/block_light_map.glsl"
-//         #include "/lib/lighting/voxel/lights.glsl"
-//     #endif
-// #endif
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
@@ -135,7 +106,6 @@ void main() {
 
     vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
 
-    // int vertexId = gl_VertexID;
     if (renderStage == MC_RENDER_STAGE_ENTITIES)
         blockId = BLOCK_EMPTY;
 
@@ -170,68 +140,4 @@ void main() {
 
     gl_Position = shadowModelViewInverse * gl_Position;
     gl_Position = shadowModelViewEx * gl_Position;
-
-    // #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
-    //     bool intersects = true;
-
-    //     if (blockId > 0 && isRenderTerrain) {
-    //         vec3 cf = fract(cameraPosition);
-    //         vec3 lightGridOrigin = floor(vOriginPos + cf) - cf + 0.5;
-
-    //         ivec3 gridCell, blockCell;
-    //         vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
-    //         if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-    //             uint gridIndex = GetVoxelGridCellIndex(gridCell);
-
-    //             #if defined DYN_LIGHT_FRUSTUM_TEST && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    //                 vec3 lightViewPos = (gbufferModelView * vec4(vOriginPos, 1.0)).xyz;
-
-    //                 const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
-    //                 //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
-    //                 if (lightViewPos.z > maxLightRange) intersects = false;
-    //                 else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
-    //                 else {
-    //                     if (dot(sceneViewUp,   lightViewPos) > maxLightRange) intersects = false;
-    //                     if (dot(sceneViewDown, lightViewPos) > maxLightRange) intersects = false;
-    //                     if (dot(sceneViewLeft,  lightViewPos) > maxLightRange) intersects = false;
-    //                     if (dot(sceneViewRight, lightViewPos) > maxLightRange) intersects = false;
-    //                 }
-    //             #endif
-
-    //             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    //                 //uint lightType = GetSceneLightType(blockId);
-    //                 uint lightType = CollissionMaps[blockId].LightId;
-
-    //                 if (lightType > 0) {
-    //                     if (!intersects) lightType = LIGHT_IGNORED;
-
-    //                     if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
-    //                         #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    //                             if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-    //                             #ifdef DYN_LIGHT_DEBUG_COUNTS
-    //                                 else atomicAdd(SceneLightMaxCount, 1u);
-    //                             #endif
-    //                         #endif
-    //                     }
-    //                 }
-    //             #endif
-
-    //             #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-    //                 if (!IsTraceEmptyBlock(blockId))
-    //                     SetVoxelBlockMask(blockCell, gridIndex, blockId);
-    //             #else
-    //                 if (intersects && !IsTraceEmptyBlock(blockId))
-    //                     SetVoxelBlockMask(blockCell, gridIndex, blockId);
-    //             #endif
-    //         }
-    //     }
-    // #endif
-
-    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //     if (isRenderTerrain) {
-    //         if (blockId == BLOCK_FIRE || blockId == BLOCK_SOUL_FIRE) gl_Position = vec4(-1.0);
-    //     }
-    // #else
-    //     gl_Position = vec4(-1.0);
-    // #endif
 }

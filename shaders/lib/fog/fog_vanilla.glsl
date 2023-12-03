@@ -10,49 +10,30 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     #endif
 }
 
-//#if !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED)
-    // float GetVanillaFogDistance(const in vec3 localPos) {
-    //     vec3 fogPos = localPos;
+float GetVanillaFogFactor(const in vec3 localPos) {
+    float fogDist = GetShapedFogDistance(localPos);
+    return GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
+}
 
-    //     #if defined WORLD_SKY_ENABLED
-    //         #if SKY_FOG_SHAPE == FOG_SHAPE_CYLINDER
-    //             fogPos.y = 0.0;
-    //         #elif SKY_FOG_SHAPE == FOG_SHAPE_DEFAULT
-    //             if (fogShape == 1)
-    //                 fogPos.y = 0.0;
-    //         #endif
-    //     #endif
+void ApplyVanillaFog(inout vec4 color, const in vec3 localPos) {
+    vec3 localViewDir = normalize(localPos);
 
-    //     return length(fogPos);// * rcp(WorldFogScaleF);
-    // }
+    float fogF = GetVanillaFogFactor(localPos);
+    vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
+    fogColorFinal = RGBToLinear(fogColorFinal);
 
-    float GetVanillaFogFactor(const in vec3 localPos) {
-        float fogDist = GetShapedFogDistance(localPos);
-        return GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
-    }
-//#endif
+    color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
-//#if defined RENDER_GBUFFER && !(defined RENDER_SKYBASIC || defined RENDER_SKYTEXTURED || defined RENDER_CLOUDS) // || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-    void ApplyVanillaFog(inout vec4 color, const in vec3 localPos) {
-        vec3 localViewDir = normalize(localPos);
+    if (color.a > alphaTestRef)
+        color.a = mix(color.a, 1.0, fogF);
+}
 
-        float fogF = GetVanillaFogFactor(localPos);
-        vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
-        fogColorFinal = RGBToLinear(fogColorFinal);
+void ApplyVanillaFog(inout vec3 color, const in vec3 localPos) {
+    vec3 localViewDir = normalize(localPos);
 
-        color.rgb = mix(color.rgb, fogColorFinal, fogF);
+    float fogF = GetVanillaFogFactor(localPos);
+    vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
+    fogColorFinal = RGBToLinear(fogColorFinal);
 
-        if (color.a > alphaTestRef)
-            color.a = mix(color.a, 1.0, fogF);
-    }
-
-    void ApplyVanillaFog(inout vec3 color, const in vec3 localPos) {
-        vec3 localViewDir = normalize(localPos);
-
-        float fogF = GetVanillaFogFactor(localPos);
-        vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
-        fogColorFinal = RGBToLinear(fogColorFinal);
-
-        color = mix(color, fogColorFinal, fogF);
-    }
-//#endif
+    color = mix(color, fogColorFinal, fogF);
+}

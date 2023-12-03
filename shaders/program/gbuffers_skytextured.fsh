@@ -52,10 +52,27 @@ void main() {
             vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
         #endif
 
-        color.rgb *= WorldSunLightColor;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            color.rgb *= 40.0 * WorldSunLightColor;
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            color.rgb *= WorldSunLightColor;
+        #endif
 
-        //float horizonF = GetSkyHorizonF(localSunDirection.y);
-        color.rgb *= 2.0 * smoothstep(-0.1, 0.1, localSunDirection.y);
+        color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);
+    }
+    else if (renderStage == MC_RENDER_STAGE_MOON) {
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            vec3 WorldMoonLightColor = GetSkyMoonColor(localSunDirection.y);
+        #endif
+
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            color.rgb *= 4.0 * WorldMoonLightColor;
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            color.rgb *= WorldMoonLightColor;
+        #endif
+
+        color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
     }
     else if (renderStage == MC_RENDER_STAGE_CUSTOM_SKY) {
         color.rgb *= WorldSkyBrightnessF;

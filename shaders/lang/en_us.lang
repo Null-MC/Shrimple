@@ -28,7 +28,7 @@ value.SKY_FOG_SHAPE.2=Cylinder
 
 option.SKY_VOL_FOG_TYPE=Volumetric Fog
 value.SKY_VOL_FOG_TYPE.0=None
-value.SKY_VOL_FOG_TYPE.1=Simple
+value.SKY_VOL_FOG_TYPE.1=Fast
 value.SKY_VOL_FOG_TYPE.2=Fancy
 
 option.VOLUMETRIC_DENSITY=Volumetric Density
@@ -109,7 +109,7 @@ value.WATER_SURFACE_PIXEL_RES.128=128x
 
 option.WATER_VOL_FOG_TYPE=Volumetric Fog
 value.WATER_VOL_FOG_TYPE.0=None
-value.WATER_VOL_FOG_TYPE.1=Simple
+value.WATER_VOL_FOG_TYPE.1=Fast
 value.WATER_VOL_FOG_TYPE.2=Fancy
 
 option.WATER_FOG_DENSITY=Density

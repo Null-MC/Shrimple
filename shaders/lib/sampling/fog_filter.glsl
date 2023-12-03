@@ -19,37 +19,21 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
 
     vec2 blendPixelSize = rcp(blendTexSize);
     vec2 depthPixelSize = rcp(depthTexSize);
-    //vec2 depthTexcoord = texcoord * depthTexSize;
-
-    //vec2 scaledViewSize = viewSize / exp2(VOLUMETRIC_RES);
-    //vec2 depthCoord = floor(texcoord * scaledViewSize) / scaledViewSize + 0.5*pixelSize;
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.x, iy);
 
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
-            
-            ivec2 sampleTex = ivec2(ix, iy);
 
-            //vec2 texBlend = texcoord + sampleTex * blendPixelSize;
-            ivec2 texBlend = ivec2(texcoord * blendTexSize) + sampleTex;
-            //vec4 sampleValue = textureLod(blendSampler, texBlend, 0);
+            ivec2 texBlend = ivec2(texcoord * blendTexSize) + ivec2(ix, iy);
             vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
 
-            // vec2 scaledViewSize = viewSize / exp2(VOLUMETRIC_RES);
-            // vec2 depthCoord = floor(texcoord * scaledViewSize) / scaledViewSize;
-
-            //vec2 texDepth = texcoord + sampleTex * depthPixelSize;
             ivec2 texDepth = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
-            //ivec2 texDepth = ivec2((texBlend + 0.5) / blendTexSize * depthTexSize + 0.5 + EPSILON);
-            //float sampleDepth = textureLod(depthSampler, texDepth, 0).r;
             float sampleDepth = texelFetch(depthSampler, texDepth, 0).r;
             float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
             
             float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
-            //float fv = max(1.0 - abs(sampleDepthL - depthL), 0.0);// Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
-            //float fv = Gaussian(g_sigma.y, abs(linearizeDepthFast(sampleDepth, near, far) - linearizeDepthFast(depth, near, far)));
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;

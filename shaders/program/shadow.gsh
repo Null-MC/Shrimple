@@ -135,13 +135,14 @@ void main() {
         vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
         if (vBlockId[0] > 0 && (isRenderTerrain || renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES)) {
-            // #ifdef SHADOW_FRUSTUM_CULL
-            //     if (vBlockId[0] > 0) {
-            //         vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
+            #ifdef SHADOW_FRUSTUM_CULL
+                if (vBlockId[0] > 0) {
+                    vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
 
-            //         if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
-            //     }
-            // #endif
+                    if (clamp(lightViewPos, shadowViewBoundsMin, shadowViewBoundsMax) != lightViewPos) return;
+                }
+            #endif
+            
             bool intersects = true;
 
             #ifdef DYN_LIGHT_FRUSTUM_TEST //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE

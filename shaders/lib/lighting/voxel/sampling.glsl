@@ -2,8 +2,8 @@
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
-float InterleavedGradientNoiseTime(const in vec2 pixel) {
-    vec2 p = pixel + frameCounter * 5.588238;
+float InterleavedGradientNoiseTime() {
+    vec2 p = gl_FragCoord.xy + frameCounter * 5.588238 * 10.0;
     float x = dot(p, magic.xy);
     return fract(magic.z * fract(x));
 }
@@ -50,7 +50,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             if (interleaveCount > 1u) {
                 iStep = interleaveCount;
 
-                float n = InterleavedGradientNoiseTime(gl_FragCoord.xy);
+                float n = InterleavedGradientNoiseTime();
                 iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
             }
         #endif
