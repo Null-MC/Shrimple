@@ -3,6 +3,8 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     vec3 lmBlockLight = textureLod(TEX_LIGHTMAP, lmBlockFinal, 0).rgb;
     lmBlockLight = RGBToLinear(lmBlockLight);
 
+    vec3 skyDiffuse = vec3(0.0);
+
     #ifdef WORLD_SKY_ENABLED
         vec2 lmSkyFinal = vec2(0.0, lmcoord.y);
 
@@ -14,7 +16,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
         lmSkyFinal = LightMapTex(lmSkyFinal);
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
-        lmSkyLight = RGBToLinear(lmSkyLight);
+        skyDiffuse = RGBToLinear(lmSkyLight);
 
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
     #endif
@@ -27,9 +29,6 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
     vec3 lpvPos = GetLPVPosition(localPos);
-    //vec3 skyAmbient;
-
-    vec3 skyDiffuse = lmSkyLight;
 
     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
         vec3 surfaceNormal = localNormal;
@@ -75,14 +74,8 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     }
 
     #ifdef WORLD_SKY_ENABLED
-        skyDiffuse *= skyLightColor;
-    #endif
+        blockDiffuse += skyDiffuse * skyLightColor * occlusion;
 
-    blockDiffuse += skyDiffuse * occlusion;
-
-    //blockDiffuse += skyAmbient * occlusion * ambientF;
-
-    #if defined WORLD_SKY_ENABLED
         skyDiffuse = vec3(0.0);
 
         float geoNoL = 1.0;

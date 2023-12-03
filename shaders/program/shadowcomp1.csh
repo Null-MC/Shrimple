@@ -366,28 +366,28 @@ void main() {
 
         vec4 lightValue = vec4(0.0);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-            //uint lightType = GetSceneLightType(int(blockId));
-            uint lightType = CollissionMaps[blockId].LightId;
+        // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+        //     //uint lightType = GetSceneLightType(int(blockId));
+        //     uint lightType = CollissionMaps[blockId].LightId;
 
-            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                StaticLightData lightInfo = StaticLightMap[lightType];
-                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                float lightRange = lightRangeSize.x * 255.0;
+        //     if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+        //         StaticLightData lightInfo = StaticLightMap[lightType];
+        //         vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+        //         vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+        //         float lightRange = lightRangeSize.x * 255.0;
 
-                lightColor = RGBToLinear(lightColor);
+        //         lightColor = RGBToLinear(lightColor);
 
-                vec2 lightNoise = vec2(0.0);
-                #ifdef DYN_LIGHT_FLICKER
-                    lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                    ApplyLightFlicker(lightColor, lightType, lightNoise);
-                #endif
+        //         vec2 lightNoise = vec2(0.0);
+        //         #ifdef DYN_LIGHT_FLICKER
+        //             lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+        //             ApplyLightFlicker(lightColor, lightType, lightNoise);
+        //         #endif
 
-                lightValue.rgb = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.5) - 1.0);// * LpvBlockLightF;
-            }
-            else {
-        #endif
+        //         lightValue.rgb = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.5) - 1.0);// * LpvBlockLightF;
+        //     }
+        //     else {
+        // #endif
             bool allowLight = false;
             vec3 tint = vec3(1.0);
 
@@ -486,9 +486,9 @@ void main() {
                 //     if (dist < 3.0) lightValue.rgb = vec3(8.0) * lightningBoltPosition.w;
                 // }
             }
-        #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-            }
-        #endif
+        // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+        //     }
+        // #endif
 
         // uint timeDiff = worldTimeCurrent;
         // if (worldTimeCurrent < worldTimePrevious) timeDiff += 24000u;

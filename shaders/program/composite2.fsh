@@ -832,7 +832,7 @@ layout(location = 0) out vec4 outFinal;
                 #ifdef WORLD_SKY_ENABLED
                     final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
                 #else
-                    final.rgb = RGBToLinear(fogColor);
+                    final.rgb = RGBToLinear(fogColor) * WorldSkyBrightnessF;
                 #endif
             #endif
         }
