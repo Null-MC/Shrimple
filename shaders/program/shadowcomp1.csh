@@ -190,12 +190,14 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         #endif
 
         float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
-        uint maxSamples = LPV_SUN_SAMPLES;//uint(viewDistF * LPV_SUN_SAMPLES) + 1;
-        maxSamples = max(min(maxSamples, LPV_SUN_SAMPLES), 1);
+        uint maxSamples = uint(1.0 - smoothstep(0.0, 40.0, viewDistF) * LPV_SUN_SAMPLES) + 1;
+        maxSamples = min(max(maxSamples, 1), LPV_SUN_SAMPLES);
 
         vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
-        for (uint i = 0; i < maxSamples; i++) {
+        for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
+            if (i >= maxSamples) break;
+
             vec3 blockLpvPos = blockLocalPos;
 
             #if LPV_SUN_SAMPLES > 1
@@ -220,10 +222,6 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 shadowPos = shadowPos * 0.5 + 0.5;
             #endif
 
-            vec3 sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
-            sampleColor = RGBToLinear(sampleColor);
-            //sampleColor = 10.0 * _pow3(sampleColor);
-
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
             float sampleF = step(shadowBias, shadowDist);
@@ -234,6 +232,13 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
             //sampleColor *= exp(shadowDist * -WaterAbsorbColorInv);
             //sampleColor *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
+
+            vec3 sampleColor = vec3(0.0);
+            #ifdef LPV_GI
+                sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
+                sampleColor = RGBToLinear(sampleColor);
+                //sampleColor = 10.0 * _pow3(sampleColor);
+            #endif
             
             //sampleF *= step(shadowPos.z - texDepthTrans, -0.003);
 
@@ -275,7 +280,6 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 #endif
 
 shared vec4 lpvSharedData[10*10*10];
-//shared uint voxelBlockShared[6*6*6];
 
 int getSharedCoord(ivec3 pos) {
     const ivec3 flatten = ivec3(1, 10, 100);
@@ -362,149 +366,89 @@ void main() {
 
         vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
 
-        // bool clear = abs(worldTimeCurrent - worldTimePrevious) > 100;
-
         vec4 lightValue = vec4(0.0);
 
-        // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        //     //uint lightType = GetSceneLightType(int(blockId));
-        //     uint lightType = CollissionMaps[blockId].LightId;
+        bool allowLight = false;
+        vec3 tint = vec3(1.0);
 
-        //     if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-        //         StaticLightData lightInfo = StaticLightMap[lightType];
-        //         vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-        //         vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-        //         float lightRange = lightRangeSize.x * 255.0;
-
-        //         lightColor = RGBToLinear(lightColor);
-
-        //         vec2 lightNoise = vec2(0.0);
-        //         #ifdef DYN_LIGHT_FLICKER
-        //             lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-        //             ApplyLightFlicker(lightColor, lightType, lightNoise);
-        //         #endif
-
-        //         lightValue.rgb = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.5) - 1.0);// * LpvBlockLightF;
-        //     }
-        //     else {
-        // #endif
-            bool allowLight = false;
-            vec3 tint = vec3(1.0);
-
-            #ifdef LPV_GLASS_TINT
-                if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
-                    tint = GetLightGlassTint(blockId);
-                    allowLight = true;
-                }
-                else {
-            #endif
-                allowLight = IsTraceOpenBlock(blockId);
-            #ifdef LPV_GLASS_TINT
-                }
-            #endif
-
-            float mixWeight = 1.0;
-            uint mixMask = 0xFFFF;
-            if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
-                mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
-                mixWeight = 0.5;
+        #ifdef LPV_GLASS_TINT
+            if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
+                tint = GetLightGlassTint(blockId);
                 allowLight = true;
             }
-            else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
-                allowLight = true;
-                mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+            else {
+        #endif
+            allowLight = IsTraceOpenBlock(blockId);
+        #ifdef LPV_GLASS_TINT
             }
-            else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
-                allowLight = true;
-                mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
-            }
-            
-            if (allowLight) {
-                //ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
-                // lightValue = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
-                // lightValue.rgb *= mixWeight * tint;
-                vec4 lightMixed = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
-                lightMixed.rgb *= mixWeight * tint;
-                lightValue += lightMixed;
+        #endif
 
-                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
-                    vec4 shadowColorF = SampleShadow(blockLocalPos);
+        float mixWeight = 1.0;
+        uint mixMask = 0xFFFF;
+        if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
+            mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
+            mixWeight = 0.5;
+            allowLight = true;
+        }
+        else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+            allowLight = true;
+            mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+        }
+        else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
+            allowLight = true;
+            mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+        }
+        
+        if (allowLight) {
+            vec4 lightMixed = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+            lightMixed.rgb *= mixWeight * tint;
+            lightValue += lightMixed;
 
-                    #ifdef LPV_GI
-                        if (blockId != BLOCK_WATER) {
-                            ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
+                vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                            // make sure diagonals dont exist
-                            int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                            bounceOffset.xz *= 1 - bounceYF;
-                            bounceOffset.y *= bounceYF;
+                #ifdef LPV_GI
+                    if (blockId != BLOCK_WATER) {
+                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                            float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                            float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
-                            skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
-                            // TODO: make darker at night
+                        // make sure diagonals dont exist
+                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                        bounceOffset.xz *= 1 - bounceYF;
+                        bounceOffset.y *= bounceYF;
 
-                            //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                float skyLightRange = mix(1.0, 6.0, sunUpF);
-                            //#else
-                            //    float skyLightRange = mix(1.0, 16.0, sunUpF);
-                            //#endif
+                        float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+                        float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
+                        skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
+                        // TODO: make darker at night
 
-                            skyLightRange *= 1.0 - 0.8 * skyRainStrength;
+                        //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                            float skyLightRange = mix(1.0, 6.0, sunUpF);
+                        //#else
+                        //    float skyLightRange = mix(1.0, 16.0, sunUpF);
+                        //#endif
 
-                            float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                        skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
-                            //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                                skyLightBrightF *= DynamicLightAmbientF;
-                            //#endif
+                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                            lightValue.rgb += (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
-                        }
-                    #endif
+                        //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                            skyLightBrightF *= DynamicLightAmbientF;
+                        //#endif
 
-                    // if (blockId == BLOCK_WATER) {
-                    //     vec3 waterLight = skyLightColor * shadowColorF.rgb * shadowColorF.a;
-
-                    //     #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-                    //         waterLight *= 0.0;
-                    //     #endif
-
-                    //     lightValue.rgb += waterLight;
-                    // }
-
-                    lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
+                        lightValue.rgb += (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
+                    }
                 #endif
 
-                // if (lightningBoltPosition.w > 0.5) {
-                //     vec3 offset = lightningBoltPosition.xyz;
-                //     offset.y = clamp(blockLocalPos.y, offset.y, cloudHeight - cameraPosition.y);
-
-                //     offset -= blockLocalPos;
-                //     //offset.y = 0.0;
-
-                //     float dist = length(offset);
-                //     if (dist < 3.0) lightValue.rgb = vec3(8.0) * lightningBoltPosition.w;
-                // }
-            }
-        // #if DYN_LIGHT_MODE == DYN_LIGHT_LPV
-        //     }
-        // #endif
-
-        // uint timeDiff = worldTimeCurrent;
-        // if (worldTimeCurrent < worldTimePrevious) timeDiff += 24000u;
-        // timeDiff -= worldTimePrevious;
-        //uint timeDiff = abs(worldTimeCurrent - worldTimePrevious);
+                lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
+            #endif
+        }
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);
 
-        int frameIndex = frameCounter % 2;
-
-        if (frameIndex == 0)
+        if (frameCounter % 2 == 0)
             imageStore(imgSceneLPV_1, imgCoord, lightValue);
         else
             imageStore(imgSceneLPV_2, imgCoord, lightValue);
-
-        //}
     #endif
 }

@@ -83,7 +83,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #ifdef WORLD_SKY_ENABLED
         vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
     #else
-        vec3 reflectColor = RGBToLinear(fogColor);
+        vec3 reflectColor = RGBToLinear(fogColor) * WorldSkyBrightnessF;
     #endif
 
     float reflectDist = 0.0;
@@ -185,11 +185,13 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             else {
         #endif
 
-            // TODO: Limit reflectDist < cloudNear
+            #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                // TODO: Limit reflectDist < cloudNear
 
-            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor * pow5(skyLight);
-            vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
-            reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor * pow5(skyLight);
+                vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
+                reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+            #endif
 
         #ifdef WORLD_WATER_ENABLED
             }
