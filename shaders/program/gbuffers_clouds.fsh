@@ -45,6 +45,7 @@ uniform sampler2D noisetex;
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTimeCounter;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
@@ -101,6 +102,7 @@ uniform int heldBlockLightValue2;
 #ifdef IS_IRIS
     uniform bool isSpectator;
     uniform bool firstPersonCamera;
+    uniform float lightningStrength;
     uniform vec3 eyePosition;
 #endif
 
@@ -207,6 +209,10 @@ uniform int heldBlockLightValue2;
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/basic.glsl"
+    #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+        #include "/lib/lighting/floodfill.glsl"
+    #else
+        #include "/lib/lighting/vanilla.glsl"
     #endif
 
     #ifdef WORLD_WATER_ENABLED
@@ -301,22 +307,49 @@ void main() {
     //         outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0) + dither;
     //     #endif
     // #else
-        vec4 final = albedo;
         float roughL = _pow2(roughness);
+        vec4 final = albedo;
 
-        final.rgb *= shadowColor;
+        // TODO: do clouds have lightmap coords?
+        const vec2 lmcoord = vec2(0.0, 1.0);
 
-        #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-            vec3 blockDiffuse = vec3(0.0);
-            vec3 blockSpecular = vec3(0.0);
+        #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            vec3 diffuse = vec3(0.0), specular = vec3(0.0);
+            GetVanillaLighting(diffuse, lmcoord, vLocalPos, normal, normal, shadowColor, sss);
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                SampleDynamicLighting(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                    float geoNoL = dot(normal, localSkyLightDirection);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+
+                specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo.rgb, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
-            
-            final.rgb += blockDiffuse * vColor.rgb + blockSpecular;
+            SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+
+            final.rgb = GetFinalLighting(albedo.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
+        #elif defined IRIS_FEATURE_SSBO
+            vec3 diffuseFinal = vec3(0.0);
+            vec3 specularFinal = vec3(0.0);
+
+            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
+                    const vec3 shadowPos = vec3(0.0);
+                #endif
+
+                GetFinalBlockLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowPos, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
+            #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                GetFloodfillLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
+                
+                //SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #endif
+
+            SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+
+            final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
         #endif
 
         // #ifdef VL_BUFFER_ENABLED
@@ -328,10 +361,12 @@ void main() {
         //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
         //     final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         // #else
+
+        #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
             vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
             vec4 scatterTransmit = ApplyScatteringTransmission(min(viewDist, far), vlLight, AirScatterF, AirExtinctF);
             final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
-        // #endif
+        #endif
 
         #ifdef DH_COMPAT_ENABLED
             final.rgb = LinearToRGB(final.rgb);

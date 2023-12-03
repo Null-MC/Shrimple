@@ -145,7 +145,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
         #endif
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
             vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;

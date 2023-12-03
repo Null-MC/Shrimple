@@ -29,6 +29,7 @@ uniform float rainStrength;
 uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
+uniform int renderStage;
 
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
@@ -64,43 +65,54 @@ void main() {
     
     vec3 clipPos = vec3(texcoord * 2.0 - 1.0, 1.0);
     vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
-    vec3 viewDir = normalize(viewPos);
-
-    vec3 upDir = normalize(upPosition);
-    float viewUpF = dot(viewDir, upDir);
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 color = GetCustomSkyColor(localSunDirection.y, viewUpF);
-    #elif SKY_TYPE == SKY_TYPE_VANILLA
-        vec3 color = GetVanillaFogColor(fogColor, viewUpF);
-        color = RGBToLinear(color);
-    #endif
+    vec4 final;
+    if (renderStage == MC_RENDER_STAGE_STARS) {
+        final = starData;
 
-    float alpha = 1.0;
-    if (starData.a > 0.5) {
-        vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
+        if (starData.a > 0.5) {
+            vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
-        float bright = hash13(localViewDir * 0.2);
-        float temp = _pow2(bright) * 8000.0 + 2000.0;
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                float bright = hash13(localViewDir * 0.2);
+                float temp = _pow2(bright) * 8000.0 + 2000.0;
 
-        bright *= (_pow3(bright) * 4.0) * WorldSunBrightnessF;
-        bright *= smoothstep(0.02, -0.16, localSunDirection.y);
+                bright *= (_pow3(bright) * 4.0) * WorldSunBrightnessF;
+                bright *= smoothstep(0.02, -0.16, localSunDirection.y);
 
-        color += starData.rgb * blackbody(temp) * bright;
-        alpha = min(bright, 1.0);
+                final.rgb = blackbody(temp) * bright;
+                final.a = min(bright, 1.0);
+            #endif
+        }
+    }
+    else {
+        final.a = 1.0;
+
+        vec3 viewDir = normalize(viewPos);
+        vec3 upDir = normalize(upPosition);
+        float viewUpF = dot(viewDir, upDir);
+
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            final.rgb = GetCustomSkyColor(localSunDirection.y, viewUpF);
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            final.rgb = GetVanillaFogColor(fogColor, viewUpF);
+            final.rgb = RGBToLinear(final.rgb);
+        #endif
+
+        #ifndef DH_COMPAT_ENABLED
+            final.rgb *= WorldSkyBrightnessF;
+        #endif
     }
 
-    //color *= 1.0 - blindnessSmooth;
+    //final.rgb *= 1.0 - blindnessSmooth;
 
     #ifdef DH_COMPAT_ENABLED
-        color = LinearToRGB(color);
-    #else
-        color *= WorldSkyBrightnessF;
+        final.rgb = LinearToRGB(final.rgb);
     #endif
     
-    outFinal = vec4(color, alpha);
+    outFinal = final;
 }
