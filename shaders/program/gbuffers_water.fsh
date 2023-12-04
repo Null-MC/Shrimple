@@ -219,6 +219,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"

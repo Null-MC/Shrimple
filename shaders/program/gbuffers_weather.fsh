@@ -157,7 +157,6 @@ uniform float blindnessSmooth;
     #endif
 #endif
 
-#include "/lib/utility/anim.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
@@ -165,8 +164,10 @@ uniform float blindnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
 #include "/lib/fog/fog_common.glsl"

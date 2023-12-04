@@ -130,6 +130,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 
 #ifdef SKY_BORDER_FOG_ENABLED

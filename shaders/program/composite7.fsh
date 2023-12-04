@@ -109,14 +109,16 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float alphaTestRef;
 #endif
 
-#include "/lib/utility/anim.glsl"
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#endif
+#include "/lib/utility/anim.glsl"
+
+#include "/lib/world/atmosphere.glsl"
 
 #include "/lib/lighting/hg.glsl"
 

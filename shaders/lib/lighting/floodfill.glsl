@@ -8,8 +8,10 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     #ifdef WORLD_SKY_ENABLED
         vec2 lmSkyFinal = vec2(0.0, lmcoord.y);
 
-        float skyNoLm = 0.0;
-        #ifndef RENDER_SHADOWS_ENABLED
+        float skyNoLm;
+        #ifdef RENDER_SHADOWS_ENABLED
+            lmSkyFinal.y = _pow3(lmSkyFinal.y);
+        #else
             skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
             lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
         #endif
@@ -56,7 +58,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
                 //lpvLight += mix(vec3(lpvSkyLight), lightSky, LpvLightmapMixF) * ambientF;
                 //lpvLight += (lpvSkyLight + lightSky * LpvLightmapMixF);
 
-                skyDiffuse = mix(skyDiffuse, vec3(lpvSkyLight), (1.0 - LpvLightmapMixF) * lpvFade);
+                skyDiffuse = mix(skyDiffuse, vec3(lpvSkyLight * ambientF), (1.0 - LpvLightmapMixF) * lpvFade);
             // #else
             //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             //         lpvLight += lightSky * ambientF;

@@ -112,6 +112,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/utility/anim.glsl"
 
+#include "/lib/world/atmosphere.glsl"
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     

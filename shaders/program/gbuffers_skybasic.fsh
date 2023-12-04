@@ -46,9 +46,13 @@ uniform int renderStage;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
+
 #include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -109,6 +113,20 @@ void main() {
     }
 
     //final.rgb *= 1.0 - blindnessSmooth;
+
+    #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater == 0) {
+        #endif
+
+            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            vec4 scatterTransmit = ApplyScatteringTransmission(far, vlLight, AirScatterF, AirExtinctF);
+            final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+
+        #ifdef WORLD_WATER_ENABLED
+            }
+        #endif
+    #endif
 
     #ifdef DH_COMPAT_ENABLED
         final.rgb = LinearToRGB(final.rgb);

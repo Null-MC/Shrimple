@@ -224,10 +224,9 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
                 if (tir) skyReflectF = vec3(1.0);
 
-                //#if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
-                //#if MATERIAL_REFLECTIONS != REFLECT_NONE //&& defined RENDER_OPAQUE_FINAL)
+                #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                     skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
-                //#endif
+                #endif
             #endif
         #endif
 
