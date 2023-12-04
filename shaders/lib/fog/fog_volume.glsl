@@ -29,23 +29,23 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.Forward = 0.824;
     result.Direction = 0.09;
 
-    #ifdef WORLD_SKY_ENABLED
-        result.Ambient = vec3(mix(0.002, 0.008, skyRainStrength));
-        result.ScatterF = vec3(mix(0.04, 0.12, skyRainStrength));// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
-        result.ExtinctF = mix(0.001, 0.006, skyRainStrength);
+    //#ifdef WORLD_SKY_ENABLED
+        result.Ambient = vec3(AirAmbientF);
+        result.ScatterF = vec3(AirScatterF);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+        result.ExtinctF = AirExtinctF;
 
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            result.ScatterF *= RGBToLinear(vec3(0.828, 0.782, 0.712));
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 1.6 + 0.3);
-        #endif
-    #else
-        result.Ambient = vec3(0.008);
+        // #if SKY_TYPE == SKY_TYPE_CUSTOM
+        //     result.ScatterF *= RGBToLinear(vec3(0.828, 0.782, 0.712));
+        // #elif SKY_TYPE == SKY_TYPE_VANILLA
+        //     result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 1.6 + 0.3);
+        // #endif
+    // #else
+    //     result.Ambient = vec3(0.008);
 
-        vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
-        result.ScatterF = 0.25 * tint;
-        result.ExtinctF = 0.04;
-    #endif
+    //     vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
+    //     result.ScatterF = 0.25 * tint;
+    //     result.ExtinctF = 0.04;
+    // #endif
 
     return result;
 }

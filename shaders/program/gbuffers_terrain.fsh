@@ -197,6 +197,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
@@ -627,15 +628,33 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
+        #if defined SKY_BORDER_FOG_ENABLED && !defined DH_COMPAT_ENABLED
+            ApplyFog(color, vLocalPos, localViewDir);
+            color.a = 1.0;
+        #endif
+
+        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+            #ifdef WORLD_WATER_ENABLED
+                if (isEyeInWater == 0) {
+            #endif
+
+                float maxDist = min(viewDist, far);
+
+                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
+                color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
+
+            #ifdef WORLD_WATER_ENABLED
+                }
+            #endif
+        #endif
+
         #ifdef DH_COMPAT_ENABLED
             float fogDist = GetShapedFogDistance(vLocalPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
             color.rgb = LinearToRGB(color.rgb);
-        #elif defined SKY_BORDER_FOG_ENABLED
-            ApplyFog(color, vLocalPos, localViewDir);
-            color.a = 1.0;
         #endif
 
         outFinal = color;
