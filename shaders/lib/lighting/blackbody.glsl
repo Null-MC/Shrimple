@@ -11,9 +11,11 @@ vec3 blackbody(const in float temp) {
     vec3 XYZ = vec3(uvw.xy, 1.0 - (uvw.x + uvw.y));
     XYZ = vec3(rcp(XYZ.y) * XYZ.xz, 1.0).xzy;
 
-    const mat3 XYZtoRGB = mat3( 3.2404542, -1.5371385, -0.4985314,
-                               -0.9692660,  1.8760108,  0.0415560,
-                                0.0556434, -0.2040259,  1.0572252);
+    const mat3 XYZtoRGB = mat3(
+         3.2404542, -1.5371385, -0.4985314,
+        -0.9692660,  1.8760108,  0.0415560,
+         0.0556434, -0.2040259,  1.0572252);
 
-    return max(XYZ * XYZtoRGB, vec3(0.0));
+    vec3 RGB = max(XYZ * XYZtoRGB, vec3(0.0));
+    return RGBToLinear(RGB);
 }

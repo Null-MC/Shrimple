@@ -152,6 +152,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -226,7 +227,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
-#include "/lib/lighting/scatter_transmit.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"

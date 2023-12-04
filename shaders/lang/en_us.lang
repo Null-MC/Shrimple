@@ -297,8 +297,8 @@ option.DYN_LIGHT_AMBIENT=Ambient
 option.DYN_LIGHT_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
 suffix.DYN_LIGHT_AMBIENT=%
 
-option.TEMP_FIRE=Torch/Fire Temp
-suffix.TEMP_FIRE=°k
+option.LIGHTING_TEMP=Torch/Fire Temp
+suffix.LIGHTING_TEMP=°k
 
 
 screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options

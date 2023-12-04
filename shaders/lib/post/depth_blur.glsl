@@ -34,6 +34,8 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     //distScale = mix(distScale, EFFECT_BLUR_BLINDNESS_SCALE, blindnessSmooth);
 
     float distF = 0.0;
+    float radius = 0.0;
+
     #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
         float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
         float centerSize = GetBlurSize(fragDepthL, centerDepthL);
@@ -48,15 +50,15 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         if (isWater) {
             float waterDistF = GetWaterDistF(viewDist);
             distF = max(distF, waterDistF);
+            radius = distF * WATER_BLUR_RADIUS;
         }
     #endif
 
-    float radius = 0.0;
     #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
         radius = isWater ? WATER_BLUR_RADIUS : EFFECT_BLUR_MAX_RADIUS;
         //uint sampleCount = EFFECT_BLUR_SAMPLE_COUNT;
     #elif EFFECT_BLUR_TYPE == DIST_BLUR_FAR
-        radius = distF * (isWater ? WATER_BLUR_RADIUS : EFFECT_BLUR_MAX_RADIUS);
+        if (!isWater) radius = distF * EFFECT_BLUR_MAX_RADIUS;
         //uint sampleCount = uint(ceil(EFFECT_BLUR_SAMPLE_COUNT * distF));
 
         //radius *= distF;

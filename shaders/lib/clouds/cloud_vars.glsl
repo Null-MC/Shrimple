@@ -1,6 +1,6 @@
 const float CloudAmbientF = 0.02;
-const float CloudScatterF = mix(2.40, 1.20, skyRainStrength);
-const float CloudAbsorbF  = mix(0.36, 0.96, skyRainStrength);
+const float CloudScatterF = mix(2.40, 8.80, skyRainStrength);
+const float CloudAbsorbF  = mix(0.36, 0.64, skyRainStrength);
 const float CloudFar = 800.0;//mix(800.0, far, skyRainStrength);
 
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM

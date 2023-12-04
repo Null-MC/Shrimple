@@ -28,6 +28,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
         vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
         lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
+        lightmapBlock *= blackbody(LIGHTING_TEMP);
 
         vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
         lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;

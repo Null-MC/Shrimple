@@ -172,7 +172,11 @@ uniform float blindnessSmooth;
 #include "/lib/world/sky.glsl"
 #include "/lib/fog/fog_common.glsl"
 #include "/lib/clouds/cloud_vars.glsl"
+
 #include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/sampling.glsl"
 
 #ifdef WORLD_SKY_ENABLED
     #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -235,10 +239,6 @@ uniform float blindnessSmooth;
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/items.glsl"
-
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
-#include "/lib/lighting/scatter_transmit.glsl"
 
 #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_WEATHER
     #include "/lib/lighting/voxel/sampling.glsl"

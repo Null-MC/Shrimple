@@ -220,7 +220,7 @@ void main() {
                     float lightRange = lightRangeSize.x * 255.0;
 
                     lightColor = RGBToLinear(lightColor);
-                    lightColor = pow(lightColor, vec3(3.0));
+                    lightColor = pow(lightColor, vec3(2.0));
 
                     //vec2 lightNoise = vec2(0.0);
                     //#ifdef DYN_LIGHT_FLICKER
