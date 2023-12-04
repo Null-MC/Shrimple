@@ -988,7 +988,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
                 float maxDist = min(viewDist, far);
-                vec3 _ambient = AirAmbientF;
+                vec3 _ambient = vec3(AirAmbientF);
+
+                vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
 
                 #ifdef WORLD_SKY_ENABLED
                     _ambient *= skyLightColor;
@@ -997,7 +999,7 @@ layout(location = 0) out vec4 outFinal;
                     _ambient *= _pow2(skyLightF);
                 #endif
 
-                vec3 vlLight = (phaseAir * WorldSkyLightColor + _ambient);
+                vec3 vlLight = (phaseAir * skyLightColor + _ambient);
                 vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
                 final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
