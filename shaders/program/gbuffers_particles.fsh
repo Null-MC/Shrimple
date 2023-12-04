@@ -170,7 +170,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float alphaTestRef;
 #endif
 
-//#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#if !(defined DEFERRED_BUFFER_ENABLED && defined DEFERRED_PARTICLES) || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 sunPosition;
         uniform vec3 shadowLightPosition;
@@ -191,7 +191,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue2;
 
     uniform float blindnessSmooth;
-//#endif
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -287,7 +287,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-//#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#if !(defined DEFERRED_BUFFER_ENABLED && defined DEFERRED_PARTICLES) || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #include "/lib/lighting/hg.glsl"
 
     #ifdef WORLD_SKY_ENABLED
@@ -349,20 +349,25 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/post/saturation.glsl"
         #include "/lib/post/tonemap.glsl"
     #endif
-//#endif
+#endif
 
 
-layout(location = 0) out vec4 outFinal;
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    /* RENDERTARGETS: 15 */
-    // layout(location = 0) out vec4 outDeferredColor;
-    // layout(location = 1) out vec4 outDeferredShadow;
-    // layout(location = 2) out uvec4 outDeferredData;
-    // #if MATERIAL_SPECULAR != SPECULAR_NONE
-    //     layout(location = 3) out vec4 outDeferredRough;
-    // #endif
+    #ifdef DEFERRED_PARTICLES
+        /* RENDERTARGETS: 1,2,3,14 */
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            layout(location = 3) out vec4 outDeferredRough;
+        #endif
+    #else
+        /* RENDERTARGETS: 15 */
+        layout(location = 0) out vec4 outFinal;
+    #endif
 #else
     /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
 #endif
 
 void main() {
@@ -429,30 +434,30 @@ void main() {
         color.a = 1.0;
     #endif
 
-    // #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    //     float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+    #if defined DEFERRED_BUFFER_ENABLED && defined DEFERRED_PARTICLES && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+        float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
-    //     float fogF = 0.0;
-    //     #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-    //         fogF = GetVanillaFogFactor(vLocalPos);
-    //     #endif
+        float fogF = 0.0;
+        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
+            fogF = GetVanillaFogFactor(vLocalPos);
+        #endif
 
-    //     if (!all(lessThan(abs(texNormal), EPSILON3)))
-    //         texNormal = texNormal * 0.5 + 0.5;
+        if (!all(lessThan(abs(texNormal), EPSILON3)))
+            texNormal = texNormal * 0.5 + 0.5;
 
-    //     outDeferredColor = 1.5 * color + dither;
-    //     outDeferredShadow = vec4(shadowColor + dither, 0.0);
+        outDeferredColor = 1.5 * color + dither;
+        outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
-    //     outDeferredData = uvec4(
-    //         packUnorm4x8(vec4(localNormal, sss + dither)),
-    //         packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither),
-    //         packUnorm4x8(vec4(fogColor, fogF + dither)),
-    //         packUnorm4x8(vec4(texNormal, 1.0)));
+        outDeferredData = uvec4(
+            packUnorm4x8(vec4(localNormal, sss + dither)),
+            packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither),
+            packUnorm4x8(vec4(fogColor, fogF + dither)),
+            packUnorm4x8(vec4(texNormal, 1.0)));
 
-    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-    //         outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
-    //     #endif
-    // #else
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
+        #endif
+    #else
         vec3 albedo = RGBToLinear(color.rgb);
         float roughL = _pow2(roughness);
 
@@ -569,5 +574,5 @@ void main() {
         #endif
 
         outFinal = color;
-    //#endif
+    #endif
 }

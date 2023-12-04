@@ -152,6 +152,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
+
+#include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -198,7 +200,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/specular.glsl"
 
 #ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 

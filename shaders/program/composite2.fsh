@@ -166,6 +166,8 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#include "/lib/lighting/blackbody.glsl"
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -173,7 +175,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
@@ -438,12 +439,8 @@ layout(location = 0) out vec4 outFinal;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
-                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-                    deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                // #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
-                #endif
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
             #endif
 
             vec3 albedo = RGBToLinear(deferredColor);

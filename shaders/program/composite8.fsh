@@ -175,6 +175,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -184,7 +185,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
@@ -695,21 +695,21 @@ layout(location = 0) out vec4 outFinal;
                     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                     //     blockDiffuse += emission * MaterialEmissionF;
                     // #endif
-                #else
-                    GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
+                // #else
+                //     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
 
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                //     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        if (metal_f0 >= 0.5) {
-                            blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                            blockSpecular *= albedo;
-                        }
-                    #endif
+                //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+                //         if (metal_f0 >= 0.5) {
+                //             blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                //             blockSpecular *= albedo;
+                //         }
+                //     #endif
 
-                    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //     blockDiffuse += emission * MaterialEmissionF;
-                    // #endif
+                //     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                //     //     blockDiffuse += emission * MaterialEmissionF;
+                //     // #endif
                 #endif
 
                 blockDiffuse += emission * MaterialEmissionF;
@@ -988,7 +988,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
                 float maxDist = min(viewDist, far);
-                vec3 _ambient = AirAmbientF;
+                vec3 _ambient = vec3(AirAmbientF);
+
+                vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
 
                 #ifdef WORLD_SKY_ENABLED
                     _ambient *= skyLightColor;
@@ -997,7 +999,7 @@ layout(location = 0) out vec4 outFinal;
                     _ambient *= _pow2(skyLightF);
                 #endif
 
-                vec3 vlLight = (phaseAir * WorldSkyLightColor + _ambient);
+                vec3 vlLight = (phaseAir * skyLightColor + _ambient);
                 vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
                 final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
