@@ -177,6 +177,7 @@ uniform float blindnessSmooth;
 #include "/lib/lighting/scatter_transmit.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #ifdef WORLD_SKY_ENABLED
     #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -216,7 +217,6 @@ uniform float blindnessSmooth;
 #endif
 
 #ifdef DYN_LIGHT_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
@@ -330,6 +330,11 @@ void main() {
         #endif
     #endif
 
+    #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        float cloudShadow = TraceCloudShadow(cameraPosition + vLocalPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+        shadowColor *= 1.0 - (1.0 - cloudShadow) * 0.8;
+    #endif
+
     vec3 albedo = RGBToLinear(color.rgb);
     float roughL = _pow2(roughness);
 
@@ -339,14 +344,29 @@ void main() {
 
         SampleHandLight(diffuse, specular, vLocalPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
 
+        // #if MATERIAL_SPECULAR != SPECULAR_NONE
+        //     // TODO: weather specular phase
+        //     float VoL = dot(localSkyLightDirection, localViewDir);
+        //     float phase = DHG(VoL, -0.32, 0.85, 0.08);
+        //     //diffuse *= phase * WorldSkyLightColor * 20.0;
+        //     diffuse *= 0.2;
+        //     specular += 1.2 * phase * shadowColor;
+        // #endif
+
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            // TODO: weather specular phase
-            float VoL = dot(localSkyLightDirection, localViewDir);
-            float phase = DHG(VoL, -0.32, 0.85, 0.08);
-            //diffuse *= phase * WorldSkyLightColor * 20.0;
-            diffuse *= 0.2;
-            specular += 1.2 * phase * shadowColor;
+            const float geoNoL = 1.0;
+
+            specular += GetSkySpecular(vLocalPos, geoNoL, normal, albedo, shadowColor, lmcoord, metal_f0, roughL);
         #endif
+
+        float VoL = dot(localSkyLightDirection, localViewDir);
+        float phase = DHG(VoL, -0.19, 0.824, 0.051);
+
+        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            phase *= cloudShadow;
+        #endif
+
+        specular += 12.0 * phase * WorldSkyLightColor;
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
@@ -363,7 +383,7 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            //GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;

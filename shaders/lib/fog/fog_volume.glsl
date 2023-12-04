@@ -131,7 +131,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //#if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         //    const float weatherF = 1.0;
         //#else
-            float weatherF = 1.0 - 0.8 * skyRainStrength;
+            float weatherF = 1.0 - 0.6 * _pow2(skyRainStrength);
         //#endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
@@ -154,6 +154,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+            float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
@@ -303,15 +304,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #endif
         #endif
 
-        #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyLightColor;
-
-            #if LPV_SIZE > 0
-                float lpvSkyLightF = GetLpvSkyLight(lpvSample);
-                sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
-            #endif
-        #endif
-
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (!isWater) {
                 sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
@@ -327,9 +319,19 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
                         sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleD);
+                        sampleSkyPhase = mix(sampleSkyPhase, phaseCloud, sampleD);
                     }
                 #endif
             }
+        #endif
+
+        #ifdef WORLD_SKY_ENABLED
+            sampleAmbient *= skyLightColor;
+
+            #if LPV_SIZE > 0
+                float lpvSkyLightF = GetLpvSkyLight(lpvSample);
+                sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
+            #endif
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
@@ -523,7 +525,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     }
                 #endif
 
-                blockLightAccum += phaseIso * 8.0*lpvLight * lpvFade;
+                blockLightAccum += phaseIso * 2.0*lpvLight * lpvFade;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;

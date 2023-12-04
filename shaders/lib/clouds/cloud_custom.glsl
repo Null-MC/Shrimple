@@ -10,6 +10,8 @@ const int CloudOctaves = 3;
 float SampleCloudOctaves(in vec3 worldPos) {
     float sampleD = 0.0;
 
+    float _str = pow(skyRainStrength, 0.333);
+
     for (int octave = 0; octave < CloudOctaves; octave++) {
         float scale = exp2(CloudOctaves + 2 - octave);
 
@@ -22,7 +24,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
         testPos /= scale;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
-        sampleD += pow(sampleF, 3.0 - 2.0 * skyRainStrength) * rcp(exp2(octave));
+        sampleD += pow(sampleF, 2.4 - 1.4 * _str) * rcp(exp2(octave));
     }
 
     const float sampleMax = rcp(1.0 - rcp(exp2(CloudOctaves)));
@@ -31,7 +33,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
     float z = saturate(worldPos.y / CloudHeight);
     sampleD *= sqrt(z - z*z) * 2.0;
 
-    float threshold = mix(0.36, 0.74, skyRainStrength);
+    float threshold = mix(0.44, 0.74, _str);
     sampleD = max(sampleD - threshold, 0.0) / threshold;
 
     return smootherstep(sampleD);
@@ -64,7 +66,7 @@ void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec
         if (localViewDir.y > 0.0) cloudFar = cloudPosHigh;
         else if (localViewDir.y < 0.0) cloudFar = cloudPosLow;
         else {
-            cloudFar = localViewDir * CloudFar;
+            cloudFar = localViewDir * far;
         }
     }
 }
@@ -78,10 +80,10 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     float cloudDist = 0.0;
 
     if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
-        cloudDist = min(cloudDistFar, min(viewDist, CloudFar)) - cloudDistNear;
+        cloudDist = min(cloudDistFar, min(viewDist, far)) - cloudDistNear;
 
     float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
-    vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
+    vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.9 * _pow2(skyRainStrength));
 
     float cloudAbsorb = 1.0;
     vec3 cloudScatter = vec3(0.0);
@@ -142,8 +144,8 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
                 sampleLit *= exp(shadowSampleD * CloudAbsorbF * -shadowStepLen);
             }
 
-            float fogDist = GetShapedFogDistance(tracePos);
-            sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+            //float fogDist = GetShapedFogDistance(tracePos);
+            //sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
             float inRange = 1.0;//step(cloudDistNear + stepLength * (stepI + dither), far);
 

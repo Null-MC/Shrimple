@@ -133,6 +133,8 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 
+#include "/lib/lighting/blackbody.glsl"
+
 #ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
@@ -166,7 +168,6 @@ uniform int heldBlockLightValue2;
 
 //#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
     #ifdef DYN_LIGHT_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
 
