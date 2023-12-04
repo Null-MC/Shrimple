@@ -206,6 +206,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #if LPV_SIZE > 0
             vec3 lpvPos = GetLPVPosition(traceLocalPos);
             vec4 lpvSample = SampleLpv(lpvPos, vec3(0.0));
+            float lpvFade = GetLpvFade(lpvPos);
         #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
@@ -307,7 +308,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             #if LPV_SIZE > 0
                 float lpvSkyLightF = GetLpvSkyLight(lpvSample);
-                sampleAmbient *= lpvSkyLightF;
+                sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
             #endif
         #endif
 
@@ -522,7 +523,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     }
                 #endif
 
-                blockLightAccum += phaseIso * 8.0*lpvLight * GetLpvFade(lpvPos);
+                blockLightAccum += phaseIso * 8.0*lpvLight * lpvFade;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
