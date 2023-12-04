@@ -1,6 +1,6 @@
 float HG(const in float VoL, const in float G) {
     float G2 = _pow2(G);
-    return rcp(4.0 * PI) * ((1.0 - G2) / (pow(1.0 + G2 - (2.0 * G) * VoL, 1.5)));
+    return phaseIso * ((1.0 - G2) / (pow(1.0 + G2 - (2.0 * G) * VoL, 1.5)));
 }
 
 float DHG(const in float VoL, const in float G_back, const in float G_forward, const in float direction) {

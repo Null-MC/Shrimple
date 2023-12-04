@@ -117,6 +117,8 @@ in vec2 texcoord;
     #include "/lib/world/common.glsl"
     #include "/lib/fog/fog_common.glsl"
 
+    #include "/lib/lighting/scatter_transmit.glsl"
+
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
     #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -139,8 +141,6 @@ in vec2 texcoord;
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
     #endif
-
-    #include "/lib/lighting/scatter_transmit.glsl"
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
         #if MATERIAL_SPECULAR != SPECULAR_NONE

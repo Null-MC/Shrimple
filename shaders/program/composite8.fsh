@@ -175,6 +175,8 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#include "/lib/lighting/scatter_transmit.glsl"
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -249,8 +251,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/utility/depth_tiles.glsl"
     #include "/lib/effects/ssr.glsl"
 #endif
-
-#include "/lib/lighting/scatter_transmit.glsl"
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
@@ -988,8 +988,16 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
                 float maxDist = min(viewDist, far);
+                vec3 _ambient = AirAmbientF;
 
-                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+                #ifdef WORLD_SKY_ENABLED
+                    _ambient *= skyLightColor;
+
+                    float skyLightF = eyeBrightnessSmooth.y / 240.0;
+                    _ambient *= _pow2(skyLightF);
+                #endif
+
+                vec3 vlLight = (phaseAir * WorldSkyLightColor + _ambient);
                 vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
                 final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 

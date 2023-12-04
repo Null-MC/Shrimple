@@ -1,10 +1,10 @@
-const float phaseAir = 0.25;
+const float phaseAir = phaseIso;
 
 #ifdef WORLD_SKY_ENABLED
-	const float AirAmbientF = mix(0.002, 0.008, skyRainStrength);
+	const float AirAmbientF = mix(0.08, 0.02, skyRainStrength);
 
-	float AirScatterF = mix(0.006, 0.016, skyRainStrength);
-	float AirExtinctF = mix(0.002, 0.008, skyRainStrength);
+	float AirScatterF = mix(0.008, 0.042, skyRainStrength);
+	float AirExtinctF = mix(0.003, 0.008, skyRainStrength);
 #else
 	vec3 tint = RGBToLinear(fogColor);// * 0.8 + 0.08;
 

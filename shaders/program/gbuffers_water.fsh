@@ -223,6 +223,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -330,8 +331,6 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
-    #include "/lib/lighting/scatter_transmit.glsl"
-
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif

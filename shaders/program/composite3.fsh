@@ -114,6 +114,9 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/world/atmosphere.glsl"
 
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
@@ -176,8 +179,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/buffers/water_depths.glsl"
     #endif
 #endif
-
-#include "/lib/lighting/hg.glsl"
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"

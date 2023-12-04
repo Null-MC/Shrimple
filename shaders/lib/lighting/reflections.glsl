@@ -188,7 +188,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 // TODO: Limit reflectDist < cloudNear
 
-                vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor * pow5(skyLight);
+                vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                vec3 vlLight = (phaseAir * skyLightColor + AirAmbientF);// * pow5(skyLight);
                 vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
                 reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
             #endif

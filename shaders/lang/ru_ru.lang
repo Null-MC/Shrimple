@@ -271,8 +271,8 @@ option.DYN_LIGHT_AMBIENT=Окружение
 option.DYN_LIGHT_AMBIENT.comment=Количество ванильного окружающего освещения, добавляемого к динамическому освещению.
 suffix.DYN_LIGHT_AMBIENT=%
 
-option.TEMP_FIRE=Факельное/Огневая Температура
-suffix.TEMP_FIRE=°k
+option.LIGHTING_TEMP=Факельное/Огневая Температура
+suffix.LIGHTING_TEMP=°k
 
 
 screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты

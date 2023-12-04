@@ -195,6 +195,7 @@ const bool colortex15Clear = true;
 #define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
 #define DYN_LIGHT_AMBIENT 30 // [0 2 4 6 8 10 12 14 16 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_LIGHT_MIN 0.6 // [0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
+#define LIGHTING_TEMP 5600 // [3000 3200 3400 3600 3800 4000 4400 4800 5200 5600 6000 6400 6800 7200 7600 8000 8400 8800]
 #define DYN_LIGHT_FLICKER
 #define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
 #define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
@@ -333,8 +334,8 @@ const bool colortex15Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define TEMP_FIRE 2600 // [2000 2200 2400 2600 2800 3000]
-#define TEMP_FIRE_RANGE 300 // [100 200 300 400 500 600]
+#define LIGHTING_TEMP_FIRE 2800
+#define TEMP_FIRE_RANGE 1200 // [100 200 300 400 500 600]
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
 #define TEMP_CANDLE_MIN 2000
@@ -533,7 +534,7 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float uint32MaxInv = 1.0 / UINT32_MAX;
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
-const float phaseIso = 0.25;
+const float phaseIso = 1.0 / (4.0 * PI);
 
 const float centerDepthHalflife = 1.2;
 const float wetnessHalflife = 16000.0;
