@@ -313,7 +313,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
                     if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
-                        float sampleD = SampleCloudOctaves(cloudPos);
+                        float sampleD = SampleCloudOctaves(cloudPos, CloudTraceOctaves);
 
                         sampleDensity = mix(sampleDensity, 1.0, sampleD);
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);

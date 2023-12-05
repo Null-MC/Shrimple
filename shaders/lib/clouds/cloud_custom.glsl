@@ -1,19 +1,23 @@
 #define CLOUD_STEPS 24
 #define CLOUD_SHADOW_STEPS 8
+#define CLOUD_GROUND_SHADOW_STEPS 4
 #define CLOUD_REFLECT_STEPS 12
 #define CLOUD_REFLECT_SHADOW_STEPS 4
 //#define CLOUD_CUBED
 
-const int CloudOctaves = 3;
+//const int CloudOctaves = 3;
+const int CloudMaxOctaves = 5;
+const int CloudTraceOctaves = 3;
+const int CloudShadowOctaves = 1;
 
 
-float SampleCloudOctaves(in vec3 worldPos) {
+float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
     float sampleD = 0.0;
 
     float _str = pow(skyRainStrength, 0.333);
 
-    for (int octave = 0; octave < CloudOctaves; octave++) {
-        float scale = exp2(CloudOctaves + 2 - octave);
+    for (int octave = 0; octave < octaveCount; octave++) {
+        float scale = exp2(CloudMaxOctaves - octave);
 
         vec3 testPos = worldPos / CloudSize;
 
@@ -27,7 +31,7 @@ float SampleCloudOctaves(in vec3 worldPos) {
         sampleD += pow(sampleF, 2.4 - 1.4 * _str) * rcp(exp2(octave));
     }
 
-    const float sampleMax = rcp(1.0 - rcp(exp2(CloudOctaves)));
+    const float sampleMax = rcp(1.0 - rcp(exp2(octaveCount)));
     sampleD *= sampleMax;
 
     float z = saturate(worldPos.y / CloudHeight);
@@ -130,13 +134,13 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + traceStep * (stepI + dither);
 
-            float sampleD = SampleCloudOctaves(tracePos + sampleOffset);
+            float sampleD = SampleCloudOctaves(tracePos + sampleOffset, CloudTraceOctaves);
 
             float sampleLit = 1.0;
             for (int shadowI = 0; shadowI < shadowStepCount; shadowI++) {
                 vec3 shadowTracePos = tracePos + shadowStep * (shadowI + dither);
 
-                float shadowSampleD = SampleCloudOctaves(shadowTracePos + sampleOffset);
+                float shadowSampleD = SampleCloudOctaves(shadowTracePos + sampleOffset, CloudShadowOctaves);
 
                 float shadowY = shadowTracePos.y + sampleOffset.y;
                 shadowSampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
@@ -184,7 +188,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     return vec4(cloudScatter, cloudAbsorb);
 }
 
-float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, const in int stepCount) {
+float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, const in int _) {
     vec3 cloudNear, cloudFar;
     GetCloudNearFar(worldPos, localLightDir, cloudNear, cloudFar);
     
@@ -195,15 +199,15 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
 
     if (cloudDist > EPSILON) {
         float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-        float cloudStepLen = cloudDist / (stepCount + 1);
+        float cloudStepLen = cloudDist / (CLOUD_GROUND_SHADOW_STEPS + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
 
-        for (uint stepI = 0; stepI < stepCount; stepI++) {
+        for (uint stepI = 0; stepI < CLOUD_GROUND_SHADOW_STEPS; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
 
-            float sampleD = SampleCloudOctaves(tracePos + sampleOffset);
+            float sampleD = SampleCloudOctaves(tracePos + sampleOffset, CloudShadowOctaves);
 
             float shadowY = tracePos.y + sampleOffset.y;
             sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
