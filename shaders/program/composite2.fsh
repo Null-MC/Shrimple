@@ -805,10 +805,10 @@ layout(location = 0) out vec4 outFinal;
             #ifdef DH_COMPAT_ENABLED
                 final = skyFinal;
             #else
-                #ifdef WORLD_SKY_ENABLED
-                    final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                #else
+                #ifdef WORLD_NETHER
                     final.rgb = RGBToLinear(fogColor) * WorldSkyBrightnessF;
+                #else
+                    final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
                 #endif
             #endif
         }

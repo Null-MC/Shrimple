@@ -230,6 +230,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
 
+    #if defined WORLD_SKY_ENABLED && defined WORLD_WATER_ENABLED
+        #include "/lib/lighting/caustics.glsl"
+    #endif
+
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded/common.glsl"
         #include "/lib/shadows/cascaded/render.glsl"
@@ -314,8 +318,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
-        #include "/lib/lighting/caustics.glsl"
-        
+
         #if WATER_DEPTH_LAYERS > 1
             #include "/lib/buffers/water_depths.glsl"
         #endif
