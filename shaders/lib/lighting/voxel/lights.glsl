@@ -901,7 +901,7 @@
             lightData.y |= bitSize << 16u;
 
             // range
-            uint bitRange = uint(clamp(range * 15.0, 0.0, 255.0) + 0.5);
+            uint bitRange = uint(clamp(range * 4.0, 0.0, 255.0) + 0.5);
             lightData.y |= bitRange << 24u;
 
             // traced

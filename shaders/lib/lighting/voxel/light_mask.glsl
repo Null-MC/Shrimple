@@ -41,7 +41,7 @@ uint GetLightMaskFace(const in vec3 normal) {
 #elif defined RENDER_SHADOWCOMP && !defined RENDER_BEGIN_LPV
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos, binPos + binSize);
-        return length2(pointDist) < _pow2(lightRange);
+        return length(pointDist) < lightRange;
     }
 #endif
 
@@ -55,7 +55,8 @@ uint GetLightMaskFace(const in vec3 normal) {
         }
 
         gridIndex = GetVoxelGridCellIndex(gridCell);
-        return min(SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount, LIGHT_BIN_MAX_COUNT);
+        //return min(SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount, LIGHT_BIN_MAX_COUNT);
+        return SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount;
     }
 
     uvec4 GetVoxelLight(const in uint gridIndex, const in uint binLightIndex) {
