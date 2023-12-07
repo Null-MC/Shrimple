@@ -300,6 +300,8 @@ layout(location = 0) out vec4 outFinal;
                 //     float waterSurfaceNoL = max(dot(waterSurfaceViewNormal, -viewDir), 0.0);
                 //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
                 // }
+            #else
+                final.rgb *= exp(waterDist * -WaterAbsorbColorInv);
             #endif
         #endif
 
