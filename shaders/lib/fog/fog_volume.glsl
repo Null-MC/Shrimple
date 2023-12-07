@@ -180,7 +180,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
         float waterDepth[WATER_DEPTH_LAYERS+1];
-        GetAllWaterDepths(uvIndex, distTrans, waterDepth);
+        GetAllWaterDepths(uvIndex, waterDepth);
 
         float extinctionInvAir = rcp(phaseAir.ExtinctF);
         float extinctionInvWater = rcp(phaseWater.ExtinctF);
@@ -222,23 +222,23 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-            if (isEyeInWater == 1) {
-                isWater = traceDist < waterDepth[0] + 0.001;
-                waterDepthEye += min(traceDist, waterDepth[0]);
+            // if (isEyeInWater == 1) {
+            //     isWater = traceDist < waterDepth[0] + 0.001;
+            //     waterDepthEye += min(traceDist, waterDepth[0]);
 
-                #if WATER_DEPTH_LAYERS >= 2
-                    if (waterDepth[1] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
-                        // TODO: waterDepthEye
-                #endif
+            //     #if WATER_DEPTH_LAYERS >= 2
+            //         if (waterDepth[1] < farDist)
+            //             isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
+            //             // TODO: waterDepthEye
+            //     #endif
 
-                #if WATER_DEPTH_LAYERS >= 4
-                    if (waterDepth[3] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
-                        // TODO: waterDepthEye
-                #endif
-            }
-            else {
+            //     #if WATER_DEPTH_LAYERS >= 4
+            //         if (waterDepth[3] < farDist)
+            //             isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
+            //             // TODO: waterDepthEye
+            //     #endif
+            // }
+            //else {
                 if (waterDepth[0] < farDist) {
                     isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
                     waterDepthEye += max(traceDist - waterDepth[0], 0.0);
@@ -255,7 +255,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
                         // TODO: waterDepthEye
                 #endif
-            }
+            //}
 
             VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
             float sampleSkyPhase = isWater ? skyPhaseWater : skyPhaseAir;

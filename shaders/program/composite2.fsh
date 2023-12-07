@@ -462,20 +462,6 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
-                // float waterDepth = isEyeInWater == 1
-                //     ? depthOpaque <= depthTranslucent
-                //     : depthTranslucent < depthOpaque;
-
-                // TODO: this needs to be linear!
-                // float waterDepth = 0.0;
-                // if (isEyeInWater == 1) {
-                //     if (depthOpaque <= depthTranslucent)
-                //         waterDepth = 1.0;
-                // }
-                // else {
-                //     waterDepth = 1.0;
-                // }
-
                 #if WATER_DEPTH_LAYERS > 1
                     uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
@@ -486,32 +472,17 @@ layout(location = 0) out vec4 outFinal;
                     float distTrans = length(localPosTrans);
 
                     float waterDepth[WATER_DEPTH_LAYERS+1];
-                    GetAllWaterDepths(waterPixelIndex, distTrans, waterDepth);
+                    GetAllWaterDepths(waterPixelIndex, waterDepth);
 
-                    // if (isEyeInWater == 1) {
-                    //     //hasWaterDepth = depthOpaque <= depthTranslucent;
+                    hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
 
-                    //     hasWaterDepth = viewDist < waterDepth[0] + 0.001;
+                    #if WATER_DEPTH_LAYERS >= 3
+                        hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
+                    #endif
 
-                    //     #if WATER_DEPTH_LAYERS >= 2
-                    //         hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
-                    //     #endif
-
-                    //     #if WATER_DEPTH_LAYERS >= 4
-                    //         hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
-                    //     #endif
-                    // }
-                    // else {
-                        hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
-
-                        #if WATER_DEPTH_LAYERS >= 3
-                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
-                        #endif
-
-                        #if WATER_DEPTH_LAYERS >= 5
-                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[4] && viewDist < waterDepth[5]);
-                        #endif
-                    //}
+                    #if WATER_DEPTH_LAYERS >= 5
+                        hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[4] && viewDist < waterDepth[5]);
+                    #endif
                 #else
                     bool hasWaterDepth = isEyeInWater == 1
                         ? depthOpaque <= depthTranslucent

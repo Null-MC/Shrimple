@@ -616,8 +616,8 @@ void main() {
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
             SetWaterDepth(viewDist);
-            discard;
-            return;
+            // discard;
+            // return;
         }
     #endif
 

@@ -183,18 +183,10 @@ void main() {
 		printBool(WaterDepths[waterUV].IsWater);
 		printLine();
 
-		float depthTrans = texelFetch(depthtex0, center, 0).r;
-		vec3 ndcPos = vec3(0.5, 0.5, depthTrans) * 2.0 - 1.0;
-		vec3 viewPos = unproject(gbufferProjectionInverse * vec4(ndcPos, 1.0));
-
-		printString((_D, _i, _s, _t, _space, _T, _colon, _space));
-		printFloat(length(viewPos));
-		printLine();
-
-		const uint charIndices[6] = uint[](_0, _1, _2, _3, _4, _5);
+		const uint charIndices[7] = uint[](_0, _1, _2, _3, _4, _5, _6);
 
         float waterDepth[WATER_DEPTH_LAYERS+1];
-		GetAllWaterDepths(waterUV, 0.0, waterDepth);
+		GetAllWaterDepths(waterUV, waterDepth);
 
 		for (int i = 0; i <= WATER_DEPTH_LAYERS; i++) {
 			printString((_D, _i, _s, _t, _space, charIndices[i], _colon, _space));

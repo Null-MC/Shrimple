@@ -789,6 +789,11 @@ layout(location = 0) out vec4 outFinal;
         //    max(length(localPosOpaque) - viewDist, 0.0);
         float opaqueDist = length(localPosOpaque);
 
+        #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+            float waterDepth[WATER_DEPTH_LAYERS+1];
+            GetAllWaterDepths(waterPixelIndex, waterDepth);
+        #endif
+
         #if EFFECT_BLUR_TYPE != DIST_BLUR_OFF || defined WATER_BLUR
             float blurDist = 0.0;
             if (depth < depthOpaque) {
@@ -799,8 +804,8 @@ layout(location = 0) out vec4 outFinal;
                     //uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     //uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
 
-                    float waterDepth[WATER_DEPTH_LAYERS+1];
-                    GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
+                    // float waterDepth[WATER_DEPTH_LAYERS+1];
+                    // GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
 
                     if (isEyeInWater == 1) {
                         if (waterDepth[1] < opaqueDist)
@@ -910,7 +915,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
         }
 
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
                 const float WaterAmbientF = 0.0;
                 
@@ -998,6 +1003,59 @@ layout(location = 0) out vec4 outFinal;
             if (isEyeInWater == 1) {
                 final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
             }
+        #endif
+
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS > 1
+            float farDist = min(viewDist, far);
+            float waterDist = 0.0;
+            //bool isWater = false;
+
+            if (waterDepth[0] < farDist) {
+                waterDist += max(min(farDist, waterDepth[1]) - waterDepth[0], 0.0);
+                //isWater = distOpaque > waterDepth[0] && distOpaque < waterDepth[1];
+            }
+
+            #if WATER_DEPTH_LAYERS >= 3
+                if (waterDepth[2] < farDist) {
+                    waterDist += max(min(farDist, waterDepth[3]) - waterDepth[2], 0.0);
+                    //isWater = isWater || (distOpaque > min(waterDepth[2], farDist) && distOpaque < min(waterDepth[3], farDist));
+                }
+            #endif
+
+            #if WATER_DEPTH_LAYERS >= 5
+                if (waterDepth[4] < farDist) {
+                    waterDist += max(min(farDist, waterDepth[5]) - waterDepth[4], 0.0);
+                    //isWater = isWater || (distOpaque > min(waterDepth[4], farDist) && distOpaque < min(waterDepth[5], farDist));
+                }
+            #endif
+
+            if (waterDist > EPSILON) {
+                const float WaterAmbientF = 0.0;
+
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                #ifdef WORLD_SKY_ENABLED
+                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                #endif
+                
+                eyeSkyLightF += 0.02;
+
+                vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
+            }
+
+            // vec3 viewDir = normalize(viewPos);
+            // float waterSurfaceDist = waterDepth[0] > EPSILON ? waterDepth[0] : waterDepth[1];
+            // vec3 waterSurfaceViewPos = viewDir * waterSurfaceDist;
+
+            // vec3 waterSurfaceDX = dFdx(waterSurfaceViewPos);
+            // vec3 waterSurfaceDY = dFdy(waterSurfaceViewPos);
+            // vec3 waterSurfaceViewNormal = normalize(cross(waterSurfaceDX, waterSurfaceDY));
+
+            // if (waterSurfaceDist < viewDist) {
+            //     float waterSurfaceNoL = max(dot(waterSurfaceViewNormal, -viewDir), 0.0);
+            //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
+            // }
         #endif
 
         #ifdef VL_BUFFER_ENABLED
