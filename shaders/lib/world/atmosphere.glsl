@@ -1,7 +1,7 @@
 const float phaseAir = phaseIso;
 
 #ifdef WORLD_SKY_ENABLED
-	const float AirAmbientF = 0.0;//mix(0.08, 0.02, skyRainStrength);
+	const float AirAmbientF = mix(0.008, 0.02, skyRainStrength);
 
 	float AirScatterF = mix(0.008, 0.028, skyRainStrength);
 	float AirExtinctF = mix(0.003, 0.008, skyRainStrength);
