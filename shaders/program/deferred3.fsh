@@ -20,12 +20,13 @@ uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
 
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+uniform int fogShape;
+
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;
-    uniform vec3 fogColor;
-    uniform float fogStart;
-    uniform float fogEnd;
-    uniform int fogShape;
 
     uniform float rainStrength;
     uniform ivec2 eyeBrightnessSmooth;

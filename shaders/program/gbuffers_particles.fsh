@@ -314,8 +314,11 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
-        #include "/lib/lighting/caustics.glsl"
-        
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_WATER_ENABLED
+            #include "/lib/lighting/caustics.glsl"
+        #endif
+
         #if WATER_DEPTH_LAYERS > 1
             #include "/lib/buffers/water_depths.glsl"
         #endif
@@ -505,7 +508,8 @@ void main() {
                         const vec3 shadowPos = vec3(0.0);
                     #endif
 
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
+                    // float shadowFade = getShadowFade(shadowPos);
+                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, false);
                 #endif
 
                 blockDiffuse += skyDiffuse;

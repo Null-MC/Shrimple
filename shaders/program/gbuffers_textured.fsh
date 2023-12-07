@@ -344,11 +344,13 @@ void main() {
                 const vec3 shadowPos = vec3(0.0);
             #endif
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos[shadowTile], shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
-            #else
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss);
-            #endif
+            // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            //     float shadowFade2 = getShadowFade(shadowPos[shadowTile]);
+            // #else
+            //     float shadowFade2 = getShadowFade(shadowPos);
+            // #endif
+
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vLocalPos, normal, normal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, false);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;

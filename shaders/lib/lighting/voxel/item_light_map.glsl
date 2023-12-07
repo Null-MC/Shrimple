@@ -85,19 +85,19 @@ uint GetItemLightId(const in int itemId) {
     #ifdef DYN_LIGHT_OREBLOCKS
         switch (itemId) {
             case ITEM_AMETHYST_BLOCK:
-                lightId = LIGHT_AMETHYST;
+                lightId = LIGHT_AMETHYST_BLOCK;
                 break;
             case ITEM_DIAMOND_BLOCK:
-                lightId = LIGHT_DIAMOND;
+                lightId = LIGHT_DIAMOND_BLOCK;
                 break;
             case ITEM_EMERALD_BLOCK:
-                lightId = LIGHT_EMERALD;
+                lightId = LIGHT_EMERALD_BLOCK;
                 break;
             case ITEM_LAPIS_BLOCK:
-                lightId = LIGHT_LAPIS;
+                lightId = LIGHT_LAPIS_BLOCK;
                 break;
             case ITEM_REDSTONE_BLOCK:
-                lightId = LIGHT_REDSTONE;
+                lightId = LIGHT_REDSTONE_BLOCK;
                 break;
         }
     #endif

@@ -614,8 +614,11 @@ void main() {
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater && (isEyeInWater != 1 || !gl_FrontFacing))
+        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
             SetWaterDepth(viewDist);
+            // discard;
+            // return;
+        }
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || DYN_LIGHT_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
@@ -704,7 +707,8 @@ void main() {
                     const vec3 shadowPos = vec3(0.0);
                 #endif
 
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss);
+                // float shadowFade = getShadowFade(shadowPos);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
             #endif
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
