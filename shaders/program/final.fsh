@@ -193,9 +193,12 @@ void main() {
 
 		const uint charIndices[6] = uint[](_0, _1, _2, _3, _4, _5);
 
-		for (int i = 0; i < WATER_DEPTH_LAYERS; i++) {
+        float waterDepth[WATER_DEPTH_LAYERS+1];
+		GetAllWaterDepths(waterUV, 0.0, waterDepth);
+
+		for (int i = 0; i <= WATER_DEPTH_LAYERS; i++) {
 			printString((_D, _i, _s, _t, _space, charIndices[i], _colon, _space));
-			printFloat(GetWaterDepth(waterUV, i));
+			printFloat(waterDepth[i]);
 			printLine();
 		}
 

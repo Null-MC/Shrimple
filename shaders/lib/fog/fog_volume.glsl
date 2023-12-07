@@ -143,6 +143,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
         #endif
 
+        float VoL = dot(localSkyLightDirection, localViewDir);
+
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
             float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
@@ -150,15 +152,20 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
         #endif
-    #endif
 
-    float VoL = dot(localSkyLightDirection, localViewDir);
-
-    #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        float skyPhaseAir = DHG(VoL, phaseAir.Back, phaseAir.Forward, phaseAir.Direction);
-        float skyPhaseWater = DHG(VoL, phaseWater.Back, phaseWater.Forward, phaseWater.Direction);
+        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            float skyPhaseAir = DHG(VoL, phaseAir.Back, phaseAir.Forward, phaseAir.Direction);
+            float skyPhaseWater = DHG(VoL, phaseWater.Back, phaseWater.Forward, phaseWater.Direction);
+        #else
+            float skyPhase = DHG(VoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
+        #endif
     #else
-        float skyPhase = DHG(VoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
+        #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            float skyPhaseAir = phaseIso;
+            float skyPhaseWater = phaseIso;
+        #else
+            float skyPhase = phaseIso;
+        #endif
     #endif
 
     float stepLength = localRayLength * inverseStepCountF;

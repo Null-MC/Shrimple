@@ -68,19 +68,24 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 }
 
 #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
-    void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
+    // float getShadowFade(const in vec3 shadowPos) {
+    //     float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
+    //     return smoothstep(0.5, 0.8, shadow);
+    // }
+
+    void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
         vec3 localViewDir = -normalize(localPos);
 
         vec2 lmSky = vec2(0.0, lmcoord.y);
 
         vec3 skyLightColor = vec3(1.0);
 
-        #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
-            shadow = 1.0 - smoothstep(0.5, 0.8, shadow);
+        // #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        // //     float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
+        // //     shadow = 1.0 - smoothstep(0.5, 0.8, shadow);
 
-            skyLightColor = mix(skyLightColor, vec3(1.0), shadow);
-        #endif
+        //     skyLightColor = mix(skyLightColor, vec3(1.0), shadowFade);
+        // #endif
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 WorldSkyLightColor = GetSkyLightColor();
@@ -233,9 +238,9 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         skyDiffuse += accumDiffuse;
     }
 
-    void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowPos, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
-        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, shadowColor, localPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, false);
-    }
+    // void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in float shadowFade, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
+    //     GetSkyLightingFinal(skyDiffuse, skySpecular, shadowFade, shadowColor, localPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, false);
+    // }
 #endif
 
 #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)

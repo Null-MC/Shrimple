@@ -22,7 +22,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -193,12 +193,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
-    #endif
-
-    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_vanilla.glsl"
-        #endif
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

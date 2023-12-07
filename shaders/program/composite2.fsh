@@ -488,20 +488,20 @@ layout(location = 0) out vec4 outFinal;
                     float waterDepth[WATER_DEPTH_LAYERS+1];
                     GetAllWaterDepths(waterPixelIndex, distTrans, waterDepth);
 
-                    if (isEyeInWater == 1) {
-                        //hasWaterDepth = depthOpaque <= depthTranslucent;
+                    // if (isEyeInWater == 1) {
+                    //     //hasWaterDepth = depthOpaque <= depthTranslucent;
 
-                        hasWaterDepth = viewDist < waterDepth[0] + 0.001;
+                    //     hasWaterDepth = viewDist < waterDepth[0] + 0.001;
 
-                        #if WATER_DEPTH_LAYERS >= 2
-                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
-                        #endif
+                    //     #if WATER_DEPTH_LAYERS >= 2
+                    //         hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[1] && viewDist < waterDepth[2]);
+                    //     #endif
 
-                        #if WATER_DEPTH_LAYERS >= 4
-                            hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
-                        #endif
-                    }
-                    else {
+                    //     #if WATER_DEPTH_LAYERS >= 4
+                    //         hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[3] && viewDist < waterDepth[4]);
+                    //     #endif
+                    // }
+                    // else {
                         hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
 
                         #if WATER_DEPTH_LAYERS >= 3
@@ -511,7 +511,7 @@ layout(location = 0) out vec4 outFinal;
                         #if WATER_DEPTH_LAYERS >= 5
                             hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[4] && viewDist < waterDepth[5]);
                         #endif
-                    }
+                    //}
                 #else
                     bool hasWaterDepth = isEyeInWater == 1
                         ? depthOpaque <= depthTranslucent
@@ -738,8 +738,10 @@ layout(location = 0) out vec4 outFinal;
                     vec3 skySpecular = vec3(0.0);
 
                     #ifdef WORLD_SKY_ENABLED
-                        vec3 shadowPos = vec3(0.0);
-                        GetSkyLightingFinal(skyDiffuse, skySpecular, shadowPos, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
+                        vec3 shadowPos = vec3(0.0); // TODO!
+
+                        // float shadowFade = getShadowFade(shadowPos);
+                        GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             if (metal_f0 >= 0.5) {

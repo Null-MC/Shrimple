@@ -341,8 +341,10 @@ void main() {
                     const vec3 shadowPos = vec3(0.0);
                 #endif
 
+                // float shadowFade = getShadowFade(shadowPos);
+
                 GetFinalBlockLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowPos, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                 GetFloodfillLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
                 
