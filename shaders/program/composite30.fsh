@@ -12,6 +12,11 @@ uniform sampler2D BUFFER_FINAL;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float playerMood;
 
+#if MC_VERSION >= 11900
+    uniform float darknessFactor;
+    uniform float darknessLightFactor;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -30,7 +35,14 @@ void main() {
         color = RGBToLinear(color);
     #endif
 
-    ApplyPostProcessing(color);
+    ApplyPostExposure(color);
+
+    ApplyPostTonemap(color);
+
+    ApplyPostGrading(color);
+
+    color = LinearToRGB(color, GAMMA_OUT);
+    //color += Bayer16(gl_FragCoord.xy) / 255.0;
 
     outFinal = color;
 }

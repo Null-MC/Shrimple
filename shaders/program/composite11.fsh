@@ -18,12 +18,18 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 
+#if MC_VERSION >= 11900
+    uniform float darknessFactor;
+    uniform float darknessLightFactor;
+#endif
+
 #ifdef EFFECT_AUTO_EXPOSE
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/effects/bloom.glsl"
+#include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 15 */
@@ -42,16 +48,10 @@ void main() {
         color = RGBToLinear(color);
     #endif
     
-    #ifdef EFFECT_AUTO_EXPOSE
-        vec2 eyeBright = eyeBrightnessSmooth / 240.0;
-        float brightF = 1.0 - max(eyeBright.x * 0.5, eyeBright.y);
-        color *= mix(1.0, 3.0, pow(brightF, 1.5));
-    #endif
-
-    color *= exp2(POST_EXPOSURE);
+    ApplyPostExposure(color);
 
     float power = EFFECT_BLOOM_POWER;
-    if (isEyeInWater == 1) power = 1.0;
+    // if (isEyeInWater == 1) power = 1.0;
 
     //const float lumMax = luminance(vec3(6.0));
     float brightness = luminance(color);// / lumMax;
