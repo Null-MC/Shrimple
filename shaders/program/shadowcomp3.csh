@@ -31,6 +31,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         const int gridSize = int(16.0 * DynamicLightRangeF) / LIGHT_BIN_SIZE + 1;
         vec3 binPos = gridCell * LIGHT_BIN_SIZE - VoxelBlockCenter - cameraOffset;
 
+        binPos += 1.0;// * LIGHT_BIN_SIZE;
+
         uint neighborCount = 0u;
         ivec3 neighborOffset;
         for (neighborOffset.z = -gridSize; neighborOffset.z <= gridSize; neighborOffset.z++) {
@@ -56,7 +58,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                         ParseLightPosition(lightData, lightPos);
                         ParseLightRange(lightData, lightRange);
                         
-                        if (LightIntersectsBin(binPos, LIGHT_BIN_SIZE, lightPos, lightRange + 0.5)) {
+                        if (LightIntersectsBin(binPos, LIGHT_BIN_SIZE, lightPos, lightRange)) {
                             SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
                             lightLocalIndex++;
                             neighborCount++;

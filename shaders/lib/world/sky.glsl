@@ -33,7 +33,13 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
         float brightness = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunF);
 
         float horizonF = GetSkyHorizonF(sunDir.y);
-        return mix(worldHorizonColor, skyLightColor, horizonF) * brightness;
+        skyLightColor = mix(worldHorizonColor, skyLightColor, horizonF) * brightness;
+
+        #if MC_VERSION > 11900
+            skyLightColor *= (1.0 - 0.99*smootherstep(darknessFactor));// + 0.04 * smootherstep(darknessLightFactor);
+        #endif
+
+        return skyLightColor;
     }
 #endif
 

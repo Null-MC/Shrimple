@@ -19,15 +19,15 @@ struct VolumetricPhaseFactors {
         vlWaterAmbient * WorldWaterDensityF,
         vlWaterScatterColorL * WorldWaterDensityF,
         rcp(waterDensitySmooth) * WorldWaterDensityF,
-        0.09, 0.924, -0.197);
+        0.074, 0.924, -0.183);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     VolumetricPhaseFactors result;
 
-    result.Back = -0.19;
-    result.Forward = 0.824;
-    result.Direction = 0.09;
+    result.Back = -0.197;
+    result.Forward = 0.924;
+    result.Direction = 0.090;
 
     //#ifdef WORLD_SKY_ENABLED
         result.Ambient = vec3(AirAmbientF);
@@ -316,6 +316,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
 
                 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    if (skyRainStrength > EPSILON) {
+                        const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+                        float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
+                        sampleExtinction = mix(sampleExtinction, AirExtinctRainF, cloudUnder * skyRainStrength);
+                        sampleDensity = mix(sampleDensity, 1.0, cloudUnder * skyRainStrength);
+                    }
+
                     // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
                     vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
@@ -337,7 +344,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             #if LPV_SIZE > 0
                 float lpvSkyLightF = GetLpvSkyLight(lpvSample);
-                sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
+                //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
             #endif
         #endif
 
@@ -442,6 +449,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             sampleLit += sampleSkyPhase * sampleF * sampleColor;
         #endif
+
+        // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        //     if (skyRainStrength > EPSILON) {
+        //         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+        //         float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
+        //         sampleExtinction = mix(sampleExtinction, 0.02, cloudUnder * skyRainStrength);
+        //     }
+        // #endif
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
             if (lightningStrength > EPSILON) {

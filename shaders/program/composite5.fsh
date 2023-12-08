@@ -241,6 +241,7 @@ layout(location = 0) out vec4 outFinal;
 
         float distOpaque = length(localPosOpaque);
         float distTranslucent = length(localPosTranslucent);
+        float waterDist = 0.0;
 
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
@@ -251,7 +252,6 @@ layout(location = 0) out vec4 outFinal;
             bool isWater = false;
 
             float farDist = min(distOpaque, far);
-            float waterDist = 0.0;
 
             if (waterDepth[0] > distTranslucent - 0.1 && waterDepth[0] < farDist) {
                 waterDist += max(min(distOpaque, waterDepth[1]) - waterDepth[0], 0.0);
@@ -271,36 +271,38 @@ layout(location = 0) out vec4 outFinal;
                     isWater = isWater || (distOpaque > min(waterDepth[4], farDist) && distOpaque < min(waterDepth[5], farDist));
                 }
             #endif
-        #endif
 
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS > 1
-            if (waterDist > EPSILON) {
-                const float WaterAmbientF = 0.0;
+            #if WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
+                if (waterDist > EPSILON) {
+                    const float WaterAmbientF = 0.0;
 
-                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                #ifdef WORLD_SKY_ENABLED
-                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                #endif
-                
-                eyeSkyLightF += 0.02;
+                    #ifdef WORLD_SKY_ENABLED
+                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                    #endif
+                    
+                    eyeSkyLightF += 0.02;
 
-                vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final, waterDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
-            }
+                    vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
+                    ApplyScatteringTransmission(final, waterDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
+                }
 
-            // vec3 viewDir = normalize(viewPosOpaque);
-            // float waterSurfaceDist = waterDepth[0] > EPSILON ? waterDepth[0] : waterDepth[1];
-            // vec3 waterSurfaceViewPos = viewDir * waterSurfaceDist;
+                // vec3 viewDir = normalize(viewPosOpaque);
+                // float waterSurfaceDist = waterDepth[0] > EPSILON ? waterDepth[0] : waterDepth[1];
+                // vec3 waterSurfaceViewPos = viewDir * waterSurfaceDist;
 
-            // vec3 waterSurfaceDX = dFdx(waterSurfaceViewPos);
-            // vec3 waterSurfaceDY = dFdy(waterSurfaceViewPos);
-            // vec3 waterSurfaceViewNormal = normalize(cross(waterSurfaceDX, waterSurfaceDY));
+                // vec3 waterSurfaceDX = dFdx(waterSurfaceViewPos);
+                // vec3 waterSurfaceDY = dFdy(waterSurfaceViewPos);
+                // vec3 waterSurfaceViewNormal = normalize(cross(waterSurfaceDX, waterSurfaceDY));
 
-            // if (waterSurfaceDist > distTranslucent && waterSurfaceDist < distOpaque) {
-            //     float waterSurfaceNoL = max(dot(waterSurfaceViewNormal, -viewDir), 0.0);
-            //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
-            // }
+                // if (waterSurfaceDist > distTranslucent && waterSurfaceDist < distOpaque) {
+                //     float waterSurfaceNoL = max(dot(waterSurfaceViewNormal, -viewDir), 0.0);
+                //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
+                // }
+            #else
+                final.rgb *= exp(waterDist * -WaterAbsorbColorInv);
+            #endif
         #endif
 
         if (depthTranslucent < depthOpaque) {
@@ -356,8 +358,13 @@ layout(location = 0) out vec4 outFinal;
                     float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
                     bool isWater = deferredShadowA > 0.5;
 
+                    // if (isWater && isEyeInWater != 1) {
+                    //     waterDist = distOpaque - distTranslucent;
+                    // }
+
                     if (isWater && isEyeInWater != 1) {
-                        waterDist = distOpaque - distTranslucent;
+                        float farDist = min(distOpaque, far);
+                        waterDist = max(farDist - distTranslucent, 0.0);
                     }
                 #endif
 
@@ -365,12 +372,12 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
-                float farDist = min(distOpaque, far);
+                // float farDist = min(distOpaque, far);
 
-                float waterDist = 0.0;
-                if (isWater && isEyeInWater != 1) {
-                    waterDist = max(farDist - distTranslucent, 0.0);
-                }
+                // //float waterDist = 0.0;
+                // if (isWater && isEyeInWater != 1) {
+                //     waterDist = max(farDist - distTranslucent, 0.0);
+                // }
 
                 if (waterDist > EPSILON) {
                     const float WaterAmbientF = 0.0;

@@ -49,6 +49,11 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
         #endif
     #endif
 
+    #if MC_VERSION >= 11900
+        uniform float darknessFactor;
+        uniform float darknessLightFactor;
+    #endif
+
     #include "/lib/lights.glsl"
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"

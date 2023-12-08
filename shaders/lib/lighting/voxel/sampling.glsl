@@ -20,7 +20,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
     vec3 surfacePos = localPos;
     #ifndef RENDER_BILLBOARD
-        //surfacePos -= localNormal * 0.002;
+        surfacePos += localNormal * 0.02;
     #endif
 
     vec3 surfacePosF = fract(surfacePos + cameraPosition);

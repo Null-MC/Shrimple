@@ -50,10 +50,10 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
 
-    #if LPV_SIZE > 0
-        #include "/lib/buffers/volume.glsl"
-        #include "/lib/lighting/voxel/lpv.glsl"
-    #endif
+    // #if LPV_SIZE > 0
+    //     #include "/lib/buffers/volume.glsl"
+    //     #include "/lib/lighting/voxel/lpv.glsl"
+    // #endif
 #endif
 
 
@@ -89,6 +89,8 @@ void main() {
             for (int y = 0; y < LIGHT_BIN_SIZE; y++) {
                 for (int x = 0; x < LIGHT_BIN_SIZE; x++) {
                     ivec3 blockCell = ivec3(x, y, z);
+
+                    if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) break;
 
                     // #ifdef DYN_LIGHT_OCTREE
                     //     uint blockType = GetSceneBlockMask(blockCell, gridIndex);
@@ -143,20 +145,20 @@ void main() {
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    #if LPV_SIZE > 0
-                        vec3 lpvPos = GetLPVPosition(blockLocalPos);
+                    // #if LPV_SIZE > 0
+                    //     vec3 lpvPos = GetLPVPosition(blockLocalPos);
 
-                        if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
-                            ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
-                            vec3 lightFinal = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.33) - 1.0);
-                            //vec3 lightFinal = lightColor * _pow2(LpvRangeF * lightRange);
+                    //     if (clamp(lpvPos, vec3(0.0), SceneLPVSize) == lpvPos) {
+                    //         ivec3 lpvCoord = GetLPVImgCoord(lpvPos);
+                    //         vec3 lightFinal = lightColor * (exp2(lightRange * DynamicLightRangeF * 0.33) - 1.0);
+                    //         //vec3 lightFinal = lightColor * _pow2(LpvRangeF * lightRange);
                             
-                            if (frameIndex == 0)
-                                imageStore(imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
-                            else
-                                imageStore(imgSceneLPV_2, lpvCoord, vec4(lightFinal, 1.0));
-                        }
-                    #endif
+                    //         if (frameIndex == 0)
+                    //             imageStore(imgSceneLPV_1, lpvCoord, vec4(lightFinal, 1.0));
+                    //         else
+                    //             imageStore(imgSceneLPV_2, lpvCoord, vec4(lightFinal, 1.0));
+                    //     }
+                    // #endif
 
                     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                         if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {

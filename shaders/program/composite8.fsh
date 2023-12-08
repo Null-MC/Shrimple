@@ -1080,10 +1080,14 @@ layout(location = 0) out vec4 outFinal;
                 #ifdef WORLD_SKY_ENABLED
                     vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
 
-                    _ambient *= skyLightColor;
-
                     float skyLightF = eyeBrightnessSmooth.y / 240.0;
-                    _ambient *= _pow2(skyLightF);
+                    skyLightF = _pow2(skyLightF);
+
+                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                        skyLightColor *= skyLightF;
+                    #endif
+
+                    _ambient *= skyLightColor;
                 #else
                     const vec3 skyLightColor = vec3(0.0);
                 #endif

@@ -57,7 +57,7 @@ vec3 tonemap_Lottes(const in vec3 color) {
     return pow(color, a) / (pow(color, a * d) * b + c);
 }
 
-void ApplyPostProcessing(inout vec3 color) {
+void ApplyPostExposure(inout vec3 color) {
     #ifdef EFFECT_AUTO_EXPOSE
         vec2 eyeBright = eyeBrightnessSmooth / 240.0;
         float brightF = 1.0 - max(eyeBright.x * 0.5, eyeBright.y);
@@ -66,6 +66,12 @@ void ApplyPostProcessing(inout vec3 color) {
 
     color *= exp2(POST_EXPOSURE);
 
+    #if MC_VERSION > 11900
+        color *= (1.0 - 0.97*smootherstep(darknessFactor)) + 0.16 * smootherstep(darknessLightFactor);
+    #endif
+}
+
+void ApplyPostTonemap(inout vec3 color) {
     #if POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);
         color = tonemap_Lottes(0.6 * color);
@@ -76,21 +82,4 @@ void ApplyPostProcessing(inout vec3 color) {
     #elif POST_TONEMAP == 1
         color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
     #endif
-
-    #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100
-        #ifdef IRIS_FEATURE_SSBO
-            color = (matColorPost * vec4(color, 1.0)).rgb;
-        #else
-            mat4 matContrast = GetContrastMatrix(PostContrastF);
-            //mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
-            mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
-
-            color *= PostBrightnessF;
-            color = (matContrast * vec4(color, 1.0)).rgb;
-            color = (matSaturation * vec4(color, 1.0)).rgb;
-        #endif
-    #endif
-
-    color = LinearToRGB(color, GAMMA_OUT);
-    //color += Bayer16(gl_FragCoord.xy) / 255.0;
 }

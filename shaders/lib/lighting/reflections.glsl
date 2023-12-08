@@ -189,7 +189,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 // TODO: Limit reflectDist < cloudNear
 
                 #ifdef WORLD_SKY_ENABLED
-                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * pow5(skyLight);
                 #else
                     const vec3 skyLightColor = vec3(0.0);
                 #endif
