@@ -471,7 +471,7 @@ void main() {
     if (isWater) alphaThreshold = -1.0;
 
     #ifdef MATERIAL_REFLECT_GLASS
-        if (vBlockId == BLOCK_GLASS) alphaThreshold = -1.0;
+        if (vBlockId == BLOCK_GLASS || vBlockId == BLOCK_GLASS_PANE) alphaThreshold = -1.0;
     #endif
 
     if (color.a < alphaThreshold) {
@@ -519,7 +519,7 @@ void main() {
     #endif
 
     #ifdef MATERIAL_REFLECT_GLASS
-        if (vBlockId == BLOCK_GLASS) {
+        if (vBlockId == BLOCK_GLASS || vBlockId == BLOCK_GLASS_PANE) {
             if (color.a < (1.5/255.0)) {
                 metal_f0 = 0.04;
                 roughness = 0.08;
