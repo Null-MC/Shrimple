@@ -14,7 +14,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) != lpvPos) return vec3(0.0);
 
         float lpvFade = GetLpvFade(lpvPos);
-        lpvFade = smoothstep(0.0, 1.0, lpvFade);
+        lpvFade = smootherstep(lpvFade);
         lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal);
@@ -24,7 +24,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         //     lpvFade *= 0.5;
         // #endif
 
-        return lpvLight * lpvFade * (DynamicLightBrightness * DynamicLightAmbientF);
+        return lpvLight * lpvFade * DynamicLightBrightness * DynamicLightAmbientF;
     }
 
     // float GetLpvSkyLighting(const in vec3 localPos, const in vec3 localNormal) {
@@ -123,11 +123,15 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
         accumDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
 
-        vec2 lmcoordFinal = LightMapTex(vec2(0.0, lmcoord.y));
+        vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
+        lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+        lmcoordFinal = LightMapTex(lmcoordFinal);
+
         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
         vec3 ambientLight = RGBToLinear(lightmapColor);
 
         //ambientLight = _pow2(ambientLight);
+
 
         #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_LPV
         //     //vec3 surfacePos = localPos;
@@ -136,14 +140,14 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             vec3 lpvPos = GetLPVPosition(localPos);
 
             float lpvFade = GetLpvFade(lpvPos);
-            lpvFade = smoothstep(0.0, 1.0, lpvFade);
+            lpvFade = smootherstep(lpvFade);
             lpvFade *= 1.0 - LpvLightmapMixF;
 
-            vec4 lpvSample = SampleLpv(lpvPos, localNormal);
+            vec4 lpvSample = SampleLpv(lpvPos, texNormal);
             float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
             #ifdef LPV_GI
-                lpvSkyLight *= 0.5;
+                lpvSkyLight *= 0.25;
             #endif
 
             ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
@@ -172,12 +176,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         ambientLight *= skyLightColor;
 
-        ambientLight *= occlusion;
-
         // if (any(greaterThan(abs(texNormal), EPSILON3)))
         //     ambientLight *= (texNormal.y * 0.3 + 0.7);
 
-        accumDiffuse += ambientLight * DynamicLightAmbientF;// * roughL;
+        accumDiffuse += ambientLight * occlusion;// * roughL;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #if MATERIAL_SPECULAR == SPECULAR_LABPBR
