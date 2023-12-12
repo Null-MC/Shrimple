@@ -133,13 +133,14 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             const float shadowDistMax = 3.0 * far;
             float shadowDistScale = 64.0; //3.0 * far;
         #else
-            float shadowBias = (1.0/256.0);// * GetShadowOffsetBias();
             const float shadowDistMax = 3.0 * far;
-            const float shadowDistScale = 64.0;
+            const float shadowDistScale = 0.25;
+            float shadowBias = -0.1 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif
 
-        float viewDistF = 1.0 - min(length(blockLocalPos) / 20.0, 1.0);
-        uint maxSamples = uint(1.0 - smoothstep(0.0, 40.0, viewDistF) * LPV_SUN_SAMPLES) + 1;
+        float viewDist = length(blockLocalPos);
+        //float viewDistF = 1.0 - min(viewDist / 20.0, 1.0);
+        uint maxSamples = uint((1.0 - smoothstep(0.0, 40.0, viewDist)) * LPV_SUN_SAMPLES) + 1;
         maxSamples = min(max(maxSamples, 1), LPV_SUN_SAMPLES);
 
         vec4 shadowF = vec4(0.0);
@@ -248,7 +249,8 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF * frameTime);
+    //return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF * frameTime);
+    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
 void main() {

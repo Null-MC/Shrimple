@@ -163,6 +163,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if LPV_SIZE > 0
+        #include "/lib/utility/jzazbz.glsl"
+        
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif

@@ -78,6 +78,7 @@ uniform float far;
         
         #include "/lib/buffers/collisions.glsl"
         #include "/lib/buffers/lighting.glsl"
+
         #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
@@ -88,6 +89,7 @@ uniform float far;
     #endif
 
     #if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+        #include "/lib/utility/jzazbz.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
@@ -220,7 +222,7 @@ void main() {
                     float lightRange = lightRangeSize.x * 255.0;
 
                     lightColor = RGBToLinear(lightColor);
-                    lightColor = pow(lightColor, vec3(2.0));
+                    //lightColor = pow(lightColor, vec3(2.0));
 
                     //vec2 lightNoise = vec2(0.0);
                     //#ifdef DYN_LIGHT_FLICKER
@@ -228,7 +230,7 @@ void main() {
                     //    ApplyLightFlicker(lightColor, lightType, lightNoise);
                     //#endif
 
-                    lightValue = lightColor * (exp2(0.8 * lightRange * DynamicLightRangeF) - 1.0);
+                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
@@ -242,6 +244,8 @@ void main() {
 
                     ivec3 imgCoordOffset = GetLPVFrameOffset();
                     ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+
+                    //lightValue = RgbToJab(lightValue);
 
                     if (frameCounter % 2 == 0)
                         imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
