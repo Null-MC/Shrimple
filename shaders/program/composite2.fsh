@@ -228,7 +228,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/jzazbz.glsl"
+    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -712,9 +712,6 @@ layout(location = 0) out vec4 outFinal;
                     vec3 skySpecular = vec3(0.0);
 
                     #ifdef WORLD_SKY_ENABLED
-                        vec3 shadowPos = vec3(0.0); // TODO!
-
-                        // float shadowFade = getShadowFade(shadowPos);
                         GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE

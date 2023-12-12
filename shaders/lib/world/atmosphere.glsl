@@ -4,8 +4,8 @@ const float phaseAir = phaseIso;
 	const float AirAmbientF = mix(0.008, 0.02, skyRainStrength);
 	const float AirExtinctRainF = 0.014;
 
-	float AirScatterF = mix(0.008, 0.028, skyRainStrength);
-	float AirExtinctF = mix(0.003, 0.008, skyRainStrength);
+	float AirScatterF = mix(0.006, 0.028, skyRainStrength);
+	float AirExtinctF = mix(0.002, 0.008, skyRainStrength);
 #else
 	vec3 tint = RGBToLinear(fogColor);// * 0.8 + 0.08;
 
