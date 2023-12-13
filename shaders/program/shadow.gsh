@@ -225,10 +225,10 @@ void main() {
                     //lightColor = pow(lightColor, vec3(2.0));
 
                     //vec2 lightNoise = vec2(0.0);
-                    //#ifdef DYN_LIGHT_FLICKER
-                    //    lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                    //    ApplyLightFlicker(lightColor, lightType, lightNoise);
-                    //#endif
+                    #ifdef DYN_LIGHT_FLICKER
+                       vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                       ApplyLightFlicker(lightColor, lightType, lightNoise);
+                    #endif
 
                     lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
                 }
