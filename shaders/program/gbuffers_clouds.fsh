@@ -339,18 +339,10 @@ void main() {
             vec3 specularFinal = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    const vec3 shadowPos = vec3(0.0);
-                #endif
-
-                // float shadowFade = getShadowFade(shadowPos);
-
                 GetFinalBlockLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                 GetFloodfillLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
-                
-                //SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
             #endif
 
             SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
@@ -375,7 +367,7 @@ void main() {
         #endif
 
         #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-            final.rgb = LinearToRGB(final.rgb);
+            final.rgb = LinearToRGB(final.rgb) / WorldSkyBrightnessF;
         #endif
         
         outFinal = final;
