@@ -80,31 +80,37 @@ void main() {
         float linearDepth = linearizeDepthFast(depth, near, far);
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, colortex12, viewSize, depthtex1, viewSize, linearDepth, 0.2);
 
-        #ifdef SKY_BORDER_FOG_ENABLED
+        #if defined SKY_BORDER_FOG_ENABLED || defined DH_COMPAT_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
             vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
             vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            
-            #if SKY_TYPE == SKY_TYPE_CUSTOM
-                float fogDist = length(viewPos);
-
-                float fogF;
-                #ifdef WORLD_WATER_ENABLED
-                    if (isEyeInWater == 1) {
-                        fogF = GetCustomWaterFogFactor(fogDist);
-                    }
-                    else {
-                #endif
-
-                    fogF = GetCustomFogFactor(fogDist);
-
-                #ifdef WORLD_WATER_ENABLED
-                    }
-                #endif
-
+    
+            #ifdef DH_COMPAT_ENABLED
+                float fogDist = GetShapedFogDistance(localPos);
+                float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
                 occlusion *= 1.0 - fogF;
-            #elif SKY_TYPE == SKY_TYPE_VANILLA
-                occlusion *= 1.0 - GetVanillaFogFactor(localPos);
+            #elif defined SKY_BORDER_FOG_ENABLED
+                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    float fogDist = length(viewPos);
+
+                    float fogF;
+                    #ifdef WORLD_WATER_ENABLED
+                        if (isEyeInWater == 1) {
+                            fogF = GetCustomWaterFogFactor(fogDist);
+                        }
+                        else {
+                    #endif
+
+                        fogF = GetCustomFogFactor(fogDist);
+
+                    #ifdef WORLD_WATER_ENABLED
+                        }
+                    #endif
+
+                    occlusion *= 1.0 - fogF;
+                #elif SKY_TYPE == SKY_TYPE_VANILLA
+                    occlusion *= 1.0 - GetVanillaFogFactor(localPos);
+                #endif
             #endif
         #endif
     }

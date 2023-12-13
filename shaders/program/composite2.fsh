@@ -228,7 +228,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/jzazbz.glsl"
+    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -375,15 +375,15 @@ layout(location = 0) out vec4 outFinal;
         #ifdef DH_COMPAT_ENABLED
             #ifdef WORLD_SKY_ENABLED
                 vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                skyFinal = RGBToLinear(skyFinal);
+                skyFinal = RGBToLinear(skyFinal) * WorldSkyBrightnessF;
             #else
                 vec3 skyFinal = RGBToLinear(fogColor);
             #endif
 
-            vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+            // vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
-            if (all(greaterThan(deferredColor, EPSILON3)))
-                skyFinal = RGBToLinear(deferredColor);
+            // if (all(greaterThan(deferredColor, EPSILON3)))
+            //     skyFinal = RGBToLinear(deferredColor) * 2.0;
         #endif
 
         if (depthOpaque < 1.0) {
@@ -712,9 +712,6 @@ layout(location = 0) out vec4 outFinal;
                     vec3 skySpecular = vec3(0.0);
 
                     #ifdef WORLD_SKY_ENABLED
-                        vec3 shadowPos = vec3(0.0); // TODO!
-
-                        // float shadowFade = getShadowFade(shadowPos);
                         GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, false);
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -749,9 +746,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef DH_COMPAT_ENABLED
-                // float fogDist = GetShapedFogDistance(localPos);
-                // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-                // final = mix(final, skyFinal, fogF);
+                float fogDist = GetShapedFogDistance(localPos);
+                float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+                final = mix(final, skyFinal, fogF);
             #elif defined SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     // float fogDist = max(waterDepthFinal, 0.0);

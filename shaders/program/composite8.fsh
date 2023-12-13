@@ -239,7 +239,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/jzazbz.glsl"
+    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -898,17 +898,24 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        // #ifdef DH_COMPAT_ENABLED
-        //     float fogDist = GetShapedFogDistance(localPos);
-        //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-        //     final.a *= 1.0 - fogF;
-        // #endif
+        #ifdef DH_COMPAT_ENABLED
+            float dh_fogDist = GetShapedFogDistance(localPos);
+            float dh_fogF = GetFogFactor(dh_fogDist, 0.6 * far, far, 1.0);
+            //final.a *= 1.0 - fogF;
+        #endif
 
         if (isWater) {
-            //final.rgb *= final.a;
+            #ifdef DH_COMPAT_ENABLED
+                final *= 1.0 - dh_fogF;
+            #endif
+
             final.rgb += opaqueFinal * (1.0 - final.a);
         }
         else {
+            #ifdef DH_COMPAT_ENABLED
+                final.a *= 1.0 - dh_fogF;
+            #endif
+
             vec3 tint = albedo;
             if (any(greaterThan(tint, EPSILON3)))
                 tint = normalize(tint) * 1.7;

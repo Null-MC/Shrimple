@@ -202,7 +202,7 @@ uniform int heldBlockLightValue2;
 
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/jzazbz.glsl"
+        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -339,18 +339,10 @@ void main() {
             vec3 specularFinal = vec3(0.0);
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    const vec3 shadowPos = vec3(0.0);
-                #endif
-
-                // float shadowFade = getShadowFade(shadowPos);
-
                 GetFinalBlockLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                 GetFloodfillLighting(diffuseFinal, specularFinal, vLocalPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
-                
-                //SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
             #endif
 
             SampleHandLight(diffuseFinal, specularFinal, vLocalPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
@@ -374,8 +366,8 @@ void main() {
             final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
         #endif
 
-        #ifdef DH_COMPAT_ENABLED
-            final.rgb = LinearToRGB(final.rgb);
+        #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+            final.rgb = LinearToRGB(final.rgb) / WorldSkyBrightnessF;
         #endif
         
         outFinal = final;

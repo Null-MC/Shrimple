@@ -89,7 +89,7 @@ uniform float far;
     #endif
 
     #if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
-        #include "/lib/utility/jzazbz.glsl"
+        #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
@@ -139,7 +139,7 @@ void main() {
     #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
-        if ((vBlockId[0] > 0 || currentRenderedItemId > 0) && (isRenderTerrain || isRenderEntity)) {
+        if ((vBlockId[0] > 0 || currentRenderedItemId > 0 || entityId > 0) && (isRenderTerrain || isRenderEntity)) {
             // #ifdef SHADOW_FRUSTUM_CULL
             //     if (vBlockId[0] > 0) {
             //         vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
@@ -225,10 +225,10 @@ void main() {
                     //lightColor = pow(lightColor, vec3(2.0));
 
                     //vec2 lightNoise = vec2(0.0);
-                    //#ifdef DYN_LIGHT_FLICKER
-                    //    lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                    //    ApplyLightFlicker(lightColor, lightType, lightNoise);
-                    //#endif
+                    #ifdef DYN_LIGHT_FLICKER
+                       vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                       ApplyLightFlicker(lightColor, lightType, lightNoise);
+                    #endif
 
                     lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
                 }
@@ -236,7 +236,7 @@ void main() {
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
                 if (entityLightColorRange.a > EPSILON)
-                    lightValue = entityLightColorRange.rgb * (exp2(entityLightColorRange.a * DynamicLightRangeF * 0.5) - 1.0);
+                    lightValue = entityLightColorRange.rgb * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
 
                 if (any(greaterThan(lightValue, EPSILON3))) {
                     vec3 lpvPos = GetLPVPosition(originPos);
@@ -245,7 +245,8 @@ void main() {
                     ivec3 imgCoordOffset = GetLPVFrameOffset();
                     ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
 
-                    //lightValue = RgbToJab(lightValue);
+                    // lightValue = RgbToHsv(lightValue/16.0);
+                    // lightValue.z = exp2(lightValue.z*16.0) - 1.0;
 
                     if (frameCounter % 2 == 0)
                         imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
