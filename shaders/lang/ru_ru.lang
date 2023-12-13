@@ -68,8 +68,8 @@ value.WORLD_WETNESS_PUDDLES.1=Обычная
 value.WORLD_WETNESS_PUDDLES.2=Пиксельная
 value.WORLD_WETNESS_PUDDLES.3=Детальная
 
-option.WORLD_WAVING_ENABLED=Развевение Растений
-option.WORLD_WAVING_ENABLED.comment=Позволяет растениям развеваться на ветру.
+option.WORLD_WAVING_ENABLED=Колышение Растений
+option.WORLD_WAVING_ENABLED.comment=Позволяет растениям колышаться на ветру.
 
 option.WORLD_AMBIENT_MODE=Окружающий Свет
 value.WORLD_AMBIENT_MODE.0=Выкл
