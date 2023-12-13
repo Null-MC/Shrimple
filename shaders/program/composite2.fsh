@@ -746,9 +746,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef DH_COMPAT_ENABLED
-                // float fogDist = GetShapedFogDistance(localPos);
-                // float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-                // final = mix(final, skyFinal, fogF);
+                float fogDist = GetShapedFogDistance(localPos);
+                float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+                final = mix(final, skyFinal, fogF);
             #elif defined SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     // float fogDist = max(waterDepthFinal, 0.0);
