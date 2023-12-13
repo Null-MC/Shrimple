@@ -374,7 +374,7 @@ void main() {
             final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
         #endif
 
-        #ifdef DH_COMPAT_ENABLED
+        #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
             final.rgb = LinearToRGB(final.rgb);
         #endif
         

@@ -375,15 +375,15 @@ layout(location = 0) out vec4 outFinal;
         #ifdef DH_COMPAT_ENABLED
             #ifdef WORLD_SKY_ENABLED
                 vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                skyFinal = RGBToLinear(skyFinal);
+                skyFinal = RGBToLinear(skyFinal) * WorldSkyBrightnessF;
             #else
                 vec3 skyFinal = RGBToLinear(fogColor);
             #endif
 
-            vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+            // vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
-            if (all(greaterThan(deferredColor, EPSILON3)))
-                skyFinal = RGBToLinear(deferredColor);
+            // if (all(greaterThan(deferredColor, EPSILON3)))
+            //     skyFinal = RGBToLinear(deferredColor) * 2.0;
         #endif
 
         if (depthOpaque < 1.0) {
