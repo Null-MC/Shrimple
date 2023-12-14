@@ -1,9 +1,9 @@
-# Provided by ShrikerChestTree
+# Provided by ShrikerChestTree v5.4
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
-profile.LIGHTS=Цветное освещение
-profile.RTX_LOW=Трассировка лучей
+profile.LIGHTS=Цветное Освещение
+profile.RTX_LOW=Трассировка Лучей
 
 
 
@@ -23,7 +23,7 @@ value.SKY_CLOUD_TYPE.2=Кастомные
 
 option.SKY_BORDER_FOG_ENABLED=Границы Тумана
 
-option.SKY_FOG_SHAPE=Граница Туманной Формы
+option.SKY_FOG_SHAPE=Границы Туманной Формы
 value.SKY_FOG_SHAPE.0=Обычный
 value.SKY_FOG_SHAPE.1=Сферический
 value.SKY_FOG_SHAPE.2=Цилиндрический
@@ -88,8 +88,8 @@ screen.WATER_OPTIONS=Настройки Воды
 screen.WATER_OPTIONS.comment=Настройки для воды.
 
 option.WATER_SURFACE_TYPE=Поверхность
-value.WATER_SURFACE_TYPE.0=Текстурная
-value.WATER_SURFACE_TYPE.1=Цветная
+value.WATER_SURFACE_TYPE.0=Текстура
+value.WATER_SURFACE_TYPE.1=Цвет
 
 option.WATER_OPACITY=Прозрачность
 option.WATER_OPACITY.comment=Насколько прозрачна будет вода.
