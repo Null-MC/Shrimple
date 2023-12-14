@@ -111,6 +111,7 @@ const bool colortex15Clear = true;
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
 #define WATER_DISPLACEMENT
+//#define WATER_TESSELLATION
 #define WATER_CAUSTICS
 
 #define WATER_BLUR
@@ -430,6 +431,8 @@ const bool colortex15Clear = true;
 #ifdef WATER_CAUSTICS
 #endif
 #ifdef WATER_BLUR
+#endif
+#ifdef WATER_TESSELLATION
 #endif
 #ifdef DIRECTIONAL_LIGHTMAP
 #endif

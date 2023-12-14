@@ -140,7 +140,7 @@ void main() {
     #endif
 
     if (gl_InvocationID == 0) {
-        #if defined WORLD_WATER_ENABLED
+        #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
             if (vIn[0].blockId == BLOCK_WATER) {
                 vec3 distance;
                 distance[0] = gl_in[0].gl_Position.z;
@@ -167,7 +167,7 @@ void main() {
 
             gl_TessLevelInner[0] = 1;
 
-        #if defined WORLD_WATER_ENABLED
+        #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
             }
         #endif
     }

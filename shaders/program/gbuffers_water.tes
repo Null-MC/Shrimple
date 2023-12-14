@@ -91,6 +91,10 @@ uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelView;
     uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
+
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -122,15 +126,15 @@ void main() {
     vOut.blockId = vIn[0].blockId;
     vOut.atlasBounds = vIn[0].atlasBounds;
 
-    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED
+    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
         if (vIn[0].blockId == BLOCK_WATER) {
             // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
             //     gl_Position = vec4(-1.0);
             //     return;
             // }
 
-            float distF = saturate((length(viewPos.xyz) - 1.0) * 0.5);
-            distF = smoothstep(0.0, 1.0, distF);
+            float distF = 1.0 - smoothstep(0.2, 2.8, length(viewPos.xyz));
+            distF = 1.0;// - _pow2(distF);
 
             #ifdef PHYSICS_OCEAN
                 vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;

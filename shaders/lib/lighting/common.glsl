@@ -13,32 +13,32 @@ vec4 BasicVertex() {
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
-    // #if defined RENDER_WATER && defined WORLD_WATER_ENABLED
-    //     if (vOut.blockId == BLOCK_WATER) {
-    //         // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
-    //         //     gl_Position = vec4(-1.0);
-    //         //     return;
-    //         // }
+    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && !defined WATER_TESSELLATION
+        if (vOut.blockId == BLOCK_WATER) {
+            // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
+            //     gl_Position = vec4(-1.0);
+            //     return;
+            // }
 
-    //         float distF = saturate((length(viewPos) - 1.0) * 0.5);
-    //         distF = smoothstep(0.0, 1.0, distF);
+            float distF = 1.0 - smoothstep(0.2, 2.8, length(viewPos.xyz));
+            distF = 1.0;// - _pow2(distF);
 
-    //         #ifdef PHYSICS_OCEAN
-    //             vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
+            #ifdef PHYSICS_OCEAN
+                vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
 
-    //             #ifdef WATER_DISPLACEMENT
-    //                 pos.y += distF * physics_waveHeight(pos.xz, PHYSICS_ITERATIONS_OFFSET, vOut.physics_localWaviness, physics_gameTime);
-    //             #endif
+                #ifdef WATER_DISPLACEMENT
+                    pos.y += distF * physics_waveHeight(pos.xz, PHYSICS_ITERATIONS_OFFSET, vOut.physics_localWaviness, physics_gameTime);
+                #endif
 
-    //             vOut.physics_localPosition = pos.xyz;
-    //         #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
-    //             vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
-    //             pos.y += distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y);
-    //         #endif
+                vOut.physics_localPosition = pos.xyz;
+            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
+                vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+                pos.y += distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y);
+            #endif
 
-    //         viewPos = gl_ModelViewMatrix * pos;
-    //     }
-    // #endif
+            viewPos = gl_ModelViewMatrix * pos;
+        }
+    #endif
 
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 

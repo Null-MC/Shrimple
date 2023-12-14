@@ -117,6 +117,8 @@ suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Caustics
 
+option.WATER_TESSELLATION=Tessellation
+
 option.WATER_BLUR=Blur
 
 option.WATER_DEPTH_LAYERS=Depth Layers

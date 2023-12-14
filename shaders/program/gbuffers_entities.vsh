@@ -136,8 +136,8 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        vec3 viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
-        vOut.viewPos_T = viewPos * matViewTBN;
+        //viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
+        vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;

@@ -6,26 +6,26 @@ const float WATER_FREQUENCY_MULT = 1.14;
 const float WATER_SPEED_MULT = 1.06;
 const float WATER_ITER_INC = 0.16 * PI * (3.0 - sqrt(5.0));
 const float WATER_WEIGHT = 0.8;
-const float WATER_NORMAL_STRENGTH = 0.5;
+const float WATER_NORMAL_STRENGTH = 0.95;
 const float WATER_DRAG_MULT = 0.6;
 
 #if   WATER_WAVE_SIZE == 3
     #define WATER_ITERATIONS_FRAGMENT 42
+    const float WATER_WAVE_HEIGHT = 0.90;
     const float WATER_XZ_SCALE = 0.6;
-    const float WATER_DRAG = 0.5;//mix(0.2, 0.6, skyRainStrength);
-    const float WATER_WAVE_HEIGHT = 0.98;
+    const float WATER_DRAG = 0.65;//mix(0.2, 0.6, skyRainStrength);
     const float WATER_SPEED = 1.4;
 #elif WATER_WAVE_SIZE == 2
+    const float WATER_WAVE_HEIGHT = 0.45;
     #define WATER_ITERATIONS_FRAGMENT 32
     const float WATER_XZ_SCALE = 0.8;
-    const float WATER_DRAG = 0.45;//mix(0.2, 0.4, skyRainStrength);
-    const float WATER_WAVE_HEIGHT = 0.5;
+    const float WATER_DRAG = 0.55;//mix(0.2, 0.4, skyRainStrength);
     const float WATER_SPEED = 2.0;
 #elif WATER_WAVE_SIZE == 1
-    #define WATER_ITERATIONS_FRAGMENT 18
-    const float WATER_XZ_SCALE = 1.6;
-    const float WATER_DRAG = 0.3;
     const float WATER_WAVE_HEIGHT = 0.25;
+    #define WATER_ITERATIONS_FRAGMENT 24
+    const float WATER_XZ_SCALE = 2.0;
+    const float WATER_DRAG = 0.45;
     const float WATER_SPEED = 2.6;
 #endif
 
@@ -65,7 +65,7 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
     }
     
     if (waveSum < EPSILON) return 0.0;
-    return ((height / waveSum) * 1.5 - step(EPSILON, lightF)) * WATER_WAVE_HEIGHT * lightF;
+    return ((height / waveSum) - 0.8 * lightF) * WATER_WAVE_HEIGHT * lightF * 1.6;
 }
 
 vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out vec2 uvOffset) {
@@ -105,7 +105,7 @@ vec2 water_waveDirection(const in vec2 worldPos, const in float skyLight, out ve
     uvOffset = (wavePos / WATER_XZ_SCALE) - worldPos;
 
     if (waveSum < EPSILON) return vec2(0.0);
-    return dx / waveSum * lightF;//pow(waveSum, 1.0 - detailF));
+    return (dx / waveSum) * 2.0 * lightF;//pow(waveSum, 1.0 - detailF));
 }
 
 vec3 water_waveNormal(vec2 worldPos, const in float skyLight, const in float viewDist, out vec2 uvOffset) {
