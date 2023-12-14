@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v5.4
+# Provided by ShrikerChestTree v6.0
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -118,6 +118,8 @@ option.WATER_FOG_DENSITY=Плотность Тумана
 suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Тень/Свет Воды
+
+option.WATER_TESSELLATION=Тесселяция
 
 option.WATER_BLUR=Размытие
 
