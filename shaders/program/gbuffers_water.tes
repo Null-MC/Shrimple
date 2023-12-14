@@ -85,8 +85,6 @@ out VertexData {
     #endif
 } vOut;
 
-uniform mat4 gbufferProjection;
-
 #ifdef WORLD_WATER_ENABLED
     uniform mat4 gbufferModelView;
     uniform float frameTimeCounter;
@@ -113,7 +111,7 @@ uniform mat4 gbufferProjection;
 
 
 void main() {
-    vec4 viewPos = _interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position);
+    gl_Position = _interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position);
 
     vOut.color = _interpolate(vIn[0].color, vIn[1].color, vIn[2].color);
     vOut.lmcoord = _interpolate(vIn[0].lmcoord, vIn[1].lmcoord, vIn[2].lmcoord);
@@ -133,7 +131,7 @@ void main() {
             //     return;
             // }
 
-            float distF = 1.0 - smoothstep(0.2, 2.8, length(viewPos.xyz));
+            float distF = 1.0 - smoothstep(0.2, 2.8, length(gl_Position.xyz));
             distF = 1.0 - _pow2(distF);
 
             #ifdef PHYSICS_OCEAN
@@ -145,11 +143,11 @@ void main() {
 
                 vOut.physics_localPosition = pos.xyz;
             #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
-                //vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+                //vOut.localPos = (gbufferModelViewInverse * gl_Position).xyz;
                 vOut.localPos.y += distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y);
             #endif
 
-            viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+            gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
 
             // TODO: update shadow pos
         }
@@ -185,5 +183,7 @@ void main() {
         #endif
     #endif
 
-    gl_Position = gbufferProjection * viewPos;
+    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
+        gl_Position = gl_ProjectionMatrix * gl_Position;
+    #endif
 }

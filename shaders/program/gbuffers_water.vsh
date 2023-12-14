@@ -151,6 +151,10 @@ void main() {
 
     gl_Position = BasicVertex();
 
+    #if !(defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION)
+        gl_Position = gl_ProjectionMatrix * gl_Position;
+    #endif
+
     PrepareNormalMap();
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
