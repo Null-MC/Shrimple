@@ -21,7 +21,7 @@ vec4 BasicVertex() {
             // }
 
             float distF = 1.0 - smoothstep(0.2, 2.8, length(viewPos.xyz));
-            distF = 1.0;// - _pow2(distF);
+            distF = 1.0 - _pow2(distF);
 
             #ifdef PHYSICS_OCEAN
                 vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
