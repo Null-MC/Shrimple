@@ -48,10 +48,10 @@
             //sssOffset = (sssOffset);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(shadowPos, ShadowMaxPcfSize);
+                int tile = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
 
                 if (tile >= 0) {
-                    vec3 _shadowPos = shadowPos[tile];
+                    vec3 _shadowPos = vIn.shadowPos[tile];
                     _shadowPos.xy += 0.002 * sssOffset;
 
                     #ifdef SHADOW_COLORED
@@ -61,7 +61,7 @@
                     #endif
                 }
             #else
-                vec3 _shadowPos = shadowPos;
+                vec3 _shadowPos = vIn.shadowPos;
                 _shadowPos.xy += 0.1 * (shadowDistance / shadowMapResolution) * sssOffset;
                 _shadowPos.z -= bias;
 
@@ -81,7 +81,7 @@
             // #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, CLOUD_SHADOW_STEPS);
             #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                shadow *= SampleCloudShadow(skyLightDir, cloudPos);
+                shadow *= SampleCloudShadow(skyLightDir, vIn.cloudPos);
             #endif
         #endif
 

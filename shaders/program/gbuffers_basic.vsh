@@ -5,23 +5,25 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-out vec2 lmcoord;
-out vec2 texcoord;
-flat out vec4 glcolor;
-out vec3 vLocalPos;
+out VertexData {
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    out vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        out vec3 shadowPos[4];
-        flat out int shadowTile;
-    #else
-        out vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vOut;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -49,6 +51,8 @@ uniform mat4 gbufferModelViewInverse;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/utility/lightmap.glsl"
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
@@ -69,22 +73,25 @@ uniform mat4 gbufferModelViewInverse;
 
 void main() {
 	gl_Position = ftransform();
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	glcolor = gl_Color;
+
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.color = gl_Color;
+
+    vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-    vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+    vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            shadowTile = -1;
+            vOut.shadowTile = -1;
         #endif
 
         vec3 localNormal = normalize(gl_NormalMatrix * gl_Normal);
         localNormal = mat3(gbufferModelViewInverse) * localNormal;
 
         const float geoNoL = 1.0;
-        ApplyShadows(vLocalPos, localNormal, geoNoL);
+        ApplyShadows(vOut.localPos, localNormal, geoNoL);
     #endif
 }

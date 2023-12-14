@@ -1,5 +1,5 @@
 #ifdef RENDER_VERTEX
-    void GetAtlasBounds(out mat2 atlasBounds, out vec2 localCoord) {
+    void GetAtlasBounds(const in vec2 texcoord, out mat2 atlasBounds, out vec2 localCoord) {
         vec2 coordMid = (gl_TextureMatrix[0] * mc_midTexCoord).xy;
         vec2 coordNMid = texcoord - coordMid;// - 0.5/atlasSize;
 
@@ -13,10 +13,10 @@
 #ifdef RENDER_FRAG
     // atlasBounds: [0]=position [1]=size
     vec2 GetAtlasCoord(const in vec2 localCoord) {
-        return fract(localCoord) * atlasBounds[1] + atlasBounds[0];
+        return fract(localCoord) * vIn.atlasBounds[1] + vIn.atlasBounds[0];
     }
 
     vec2 GetLocalCoord(const in vec2 atlasCoord) {
-        return (atlasCoord - atlasBounds[0]) / atlasBounds[1];
+        return (atlasCoord - vIn.atlasBounds[0]) / vIn.atlasBounds[1];
     }
 #endif

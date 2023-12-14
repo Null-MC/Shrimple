@@ -8,25 +8,28 @@
 in vec4 at_tangent;
 in vec4 mc_midTexCoord;
 
-out vec2 texcoord;
-out vec4 glcolor;
-out vec3 vLocalPos;
-out vec2 vLocalCoord;
-out vec3 vLocalNormal;
-out vec3 vLocalTangent;
-out float vTangentW;
+out VertexData {
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+    //float tangentW;
 
-flat out mat2 atlasBounds;
+    flat mat2 atlasBounds;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 tanViewPos;
-#endif
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        vec3 viewPos_T;
+    #endif
+} vOut;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform ivec2 atlasSize;
 
 #include "/lib/sampling/atlas.glsl"
+
 #include "/lib/utility/tbn.glsl"
 
 #include "/lib/material/normalmap.glsl"
@@ -35,21 +38,22 @@ uniform ivec2 atlasSize;
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    glcolor = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.color = gl_Color;
 
-    BasicVertex();
+    vec4 viewPos = BasicVertex();
+    gl_Position = gl_ProjectionMatrix * viewPos;
 
     PrepareNormalMap();
 
-    GetAtlasBounds(atlasBounds, vLocalCoord);
+    GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
+        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
-        tanViewPos = viewPos * matViewTBN;
+        vec3 viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
+        vOut.viewPos_T = viewPos * matViewTBN;
     #endif
 }

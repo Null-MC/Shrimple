@@ -83,7 +83,7 @@ mat4 BuildShadowProjectionMatrix() {
     //     return cloudPos;
     // }
 
-    void ApplyCloudShadows(const in vec3 localPos) {
+    vec3 ApplyCloudShadows(const in vec3 localPos) {
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
@@ -91,6 +91,6 @@ mat4 BuildShadowProjectionMatrix() {
         vec2 cloudOffset = GetCloudOffset();
         vec3 camOffset = GetCloudCameraOffset();
         vec3 worldPos = localPos + camOffset;
-        cloudPos = GetCloudShadowPosition(worldPos, localSkyLightDirection, cloudOffset);
+        return GetCloudShadowPosition(worldPos, localSkyLightDirection, cloudOffset);
     }
 #endif

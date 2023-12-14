@@ -10,7 +10,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
     float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_DISTANCE);
     int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
 
-    vec2 localSize = atlasSize * atlasBounds[1];
+    vec2 localSize = atlasSize * vIn.atlasBounds[1];
     if (all(greaterThan(localSize, EPSILON2)))
         stepCoord.y *= localSize.x / localSize.y;
 
@@ -29,7 +29,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
             //texDepth = TextureGradLinear(normals, traceAtlasCoord, atlasSize, dFdXY, 3);
 
             vec2 uv[4];
-            vec2 atlasTileSize = atlasBounds[1] * atlasSize;
+            vec2 atlasTileSize = vIn.atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localTraceCoord, atlasTileSize, uv);
 
             uv[0] = GetAtlasCoord(uv[0]);
@@ -81,7 +81,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
 }
 
 vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-    return GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceDepth);
+    return GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceDepth);
 }
 
 float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in vec3 tanLightDir) {
@@ -103,7 +103,7 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
         #if MATERIAL_PARALLAX == PARALLAX_SMOOTH && defined MATERIAL_PARALLAX_SHADOW_SMOOTH
             vec2 uv[4];
-            vec2 atlasTileSize = atlasBounds[1] * atlasSize;
+            vec2 atlasTileSize = vIn.atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localCoord, atlasTileSize, uv);
 
             uv[0] = GetAtlasCoord(uv[0]);

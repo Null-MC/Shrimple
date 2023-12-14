@@ -5,37 +5,38 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 lmcoord;
-in vec2 texcoord;
-in vec4 glcolor;
-in vec3 vLocalPos;
-in vec2 vLocalCoord;
-in vec3 vLocalNormal;
-in vec3 vLocalTangent;
-// in vec3 vBlockLight;
-in float vTangentW;
-flat in mat2 atlasBounds;
+in VertexData {
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+    //float tangentW;
+    flat mat2 atlasBounds;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
-    in vec3 tanViewPos;
+    #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+        vec3 viewPos_T;
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-        in vec3 tanLightPos;
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vec3 lightPos_T;
+        #endif
     #endif
-#endif
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    in vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        in vec3 shadowPos[4];
-        flat in int shadowTile;
-    #else
-        in vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vIn;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
@@ -121,15 +122,9 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //uniform vec3 shadowLightPosition;
-
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
-    
-    // #ifdef IS_IRIS
-    //     uniform float cloudTime;
-    // #endif
 #endif
 
 #ifdef IS_IRIS
@@ -172,7 +167,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef VL_BUFFER_ENABLED
         uniform mat4 shadowModelView;
-        //uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     uniform float blindnessSmooth;
@@ -263,13 +257,11 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-        //#include "/lib/buffers/collisions.glsl"
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 #endif
 
-// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
@@ -297,10 +289,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
-
-    // #ifdef WORLD_SKY_ENABLED
-    //     #include "/lib/world/sky.glsl"
-    // #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"
@@ -350,24 +338,24 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    vec2 atlasCoord = texcoord;
+    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    vec2 atlasCoord = vIn.texcoord;
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
-        vec3 tanViewDir = normalize(tanViewPos);
+        vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         bool skipParallax = false;
         vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
         if (preN.a < EPSILON) skipParallax = true;
     #endif
 
-    float viewDist = length(vLocalPos);
+    float viewDist = length(vIn.localPos);
 
     vec4 color = vec4(0.0);
     if (entityId == ENTITY_PHYSICSMOD_SNOW) {
-        color.rgb = GetSnowColor(vLocalPos + cameraPosition) * glcolor.rgb;
+        color.rgb = GetSnowColor(vIn.localPos + cameraPosition) * vIn.color.rgb;
         color.a = 1.0;
     }
     // else if (entityId == ENTITY_LIGHTNING_BOLT) {
@@ -376,7 +364,7 @@ void main() {
     else {
         #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
-                atlasCoord = GetParallaxCoord(vLocalCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+                atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
 
         #endif
@@ -398,7 +386,7 @@ void main() {
         //     color.a = 1.0;
         // #endif
 
-        color *= glcolor;
+        color *= vIn.color;
         color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
     }
 
@@ -406,10 +394,10 @@ void main() {
         color.rgb = vec3(WHITEWORLD_VALUE);
     #endif
 
-    vec3 localNormal = normalize(vLocalNormal);
+    vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    vec3 localViewDir = normalize(vLocalPos);
+    vec3 localViewDir = normalize(vIn.localPos);
 
     // int materialId = entityId;
     // if (currentRenderedItemId > 0) {
@@ -418,7 +406,7 @@ void main() {
     // }
 
     float occlusion = 1.0;
-    vec2 lmFinal = lmcoord;
+    vec2 lmFinal = vIn.lmcoord;
     float roughness, metal_f0, sss, emission;
     sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
     emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
@@ -426,7 +414,7 @@ void main() {
 
     #ifdef WORLD_AO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
-        occlusion = glcolor.a;
+        occlusion = vIn.color.a;
     #endif
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
@@ -486,7 +474,7 @@ void main() {
 
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
-                        vec3 tanLightDir = normalize(tanLightPos);
+                        vec3 tanLightDir = normalize(vIn.lightPos_T);
                         shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
@@ -494,8 +482,8 @@ void main() {
         #endif
 
         if (isValidNormal) {
-            vec3 localTangent = normalize(vLocalTangent);
-            mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+            vec3 localTangent = normalize(vIn.localTangent.xyz);
+            mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
             texNormal = matLocalTBN * texNormal;
         }
 
@@ -517,7 +505,7 @@ void main() {
         
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
 
         #ifndef RENDER_TRANSLUCENT
@@ -552,7 +540,7 @@ void main() {
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
+            GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -561,10 +549,10 @@ void main() {
                     float geoNoL = 1.0;
                 #endif
 
-                specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+                specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
@@ -575,16 +563,16 @@ void main() {
 
             blockDiffuse += emission * MaterialEmissionF;
 
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             #ifdef WORLD_SKY_ENABLED
-                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
-                    const vec3 shadowPos = vec3(0.0);
-                #endif
+                // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
+                //     const vec3 shadowPos = vec3(0.0);
+                // #endif
 
                 // float shadowFade = getShadowFade(shadowPos);
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
             #endif
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
@@ -605,7 +593,7 @@ void main() {
         #endif
 
         #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
-            ApplyFog(color, vLocalPos, localViewDir);
+            ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
         #ifdef VL_BUFFER_ENABLED

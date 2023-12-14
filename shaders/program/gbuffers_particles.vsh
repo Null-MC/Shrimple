@@ -12,33 +12,34 @@
     in vec4 mc_midTexCoord;
 #endif
 
-out vec2 lmcoord;
-out vec2 texcoord;
-out vec4 glcolor;
-// out vec3 vBlockLight;
-out vec3 vLocalPos;
-out vec3 vLocalNormal;
+out VertexData {
+    out vec2 lmcoord;
+    out vec2 texcoord;
+    out vec4 color;
+    out vec3 localPos;
+    out vec3 localNormal;
 
-#ifdef MATERIAL_PARTICLES
-    out vec2 vLocalCoord;
-    out vec3 vLocalTangent;
-    out float vTangentW;
+    #ifdef MATERIAL_PARTICLES
+        out vec2 localCoord;
+        out vec4 localTangent;
+        //out float tangentW;
 
-    flat out mat2 atlasBounds;
-#endif
-
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    out vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        out vec3 shadowPos[4];
-        flat out int shadowTile;
-    #else
-        out vec3 shadowPos;
+        flat out mat2 atlasBounds;
     #endif
-#endif
+
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        out vec3 cloudPos;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            out vec3 shadowPos[4];
+            flat out int shadowTile;
+        #else
+            out vec3 shadowPos;
+        #endif
+    #endif
+} vOut;
 
 uniform sampler2D lightmap;
 
@@ -100,17 +101,18 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    glcolor = gl_Color;
-    
-    lmcoord = LightMapNorm(lmcoord);
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.color = gl_Color;
 
-    BasicVertex();
+    vOut.lmcoord = LightMapNorm(vOut.lmcoord);
+
+    vec4 viewPos = BasicVertex();
+    gl_Position = gl_ProjectionMatrix * viewPos;
 
     #ifdef MATERIAL_PARTICLES
         PrepareNormalMap();
 
-        GetAtlasBounds(atlasBounds, vLocalCoord);
+        GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
     #endif
 }

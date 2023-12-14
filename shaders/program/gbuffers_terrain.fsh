@@ -5,39 +5,40 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 lmcoord;
-in vec2 texcoord;
-in vec4 glcolor;
-//in vec3 vBlockLight;
-in vec3 vLocalPos;
-in vec2 vLocalCoord;
-in vec3 vLocalNormal;
-in vec3 vLocalTangent;
-in float vTangentW;
+in VertexData {
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+    //float vTangentW;
 
-flat in int vBlockId;
-flat in mat2 atlasBounds;
+    flat int blockId;
+    flat mat2 atlasBounds;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec3 tanViewPos;
+    #if MATERIAL_PARALLAX != PARALLAX_NONE
+        vec3 viewPos_T;
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-        in vec3 tanLightPos;
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vec3 lightPos_T;
+        #endif
     #endif
-#endif
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    in vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        in vec3 shadowPos[4];
-        flat in int shadowTile;
-    #else
-        in vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vIn;
 
 #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_DEPTH_WRITE
     layout (depth_greater) out float gl_FragDepth;
@@ -186,6 +187,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/lights.glsl"
 
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -262,10 +264,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lights.glsl"
-// #include "/lib/lighting/voxel/block_light_map.glsl"
 #include "/lib/lighting/voxel/item_light_map.glsl"
-//#include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
@@ -324,19 +323,17 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    float viewDist = length(vLocalPos);
-    vec2 atlasCoord = texcoord;
-    vec2 localCoord = vLocalCoord;
-    //vec2 localCoord = GetLocalCoord(texcoord);
-    vec2 lmFinal = lmcoord;
+    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    float viewDist = length(vIn.localPos);
+    vec2 atlasCoord = vIn.texcoord;
+    vec2 localCoord = vIn.localCoord;
+    vec2 lmFinal = vIn.lmcoord;
     
-    vec3 localNormal = normalize(vLocalNormal);
+    vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     bool skipParallax = false;
-    //if (vBlockId == BLOCK_LAVA && localNormal.y < 1.0) skipParallax = true;
-    if (vBlockId == BLOCK_LAVA) skipParallax = true;
+    if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
 
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -344,12 +341,12 @@ void main() {
         vec4 rippleNormalStrength = vec4(0.0);
 
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            vec3 worldPos = vLocalPos + cameraPosition;
+            vec3 worldPos = vIn.localPos + cameraPosition;
 
             float surface_roughness, surface_metal_f0;
-            GetMaterialSpecular(vBlockId, texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
-            porosity = GetMaterialPorosity(texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
             skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
@@ -361,7 +358,7 @@ void main() {
         }
     #endif
 
-    vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+    vec3 viewPos = (gbufferModelView * vec4(vIn.localPos, 1.0)).xyz;
 
     #if MATERIAL_PARALLAX != PARALLAX_NONE
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
@@ -369,7 +366,7 @@ void main() {
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
-        vec3 tanViewDir = normalize(tanViewPos);
+        vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
             atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
@@ -404,21 +401,21 @@ void main() {
         return;
     }
 
-    color.rgb *= glcolor.rgb;
+    color.rgb *= vIn.color.rgb;
     vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
 
     float occlusion = 1.0;
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vBlockId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(vBlockId, atlasCoord, dFdXY);
-    GetMaterialSpecular(vBlockId, atlasCoord, dFdXY, roughness, metal_f0);
+    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
+    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
+    GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
 
-    if (vBlockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+    if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
 
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
-        occlusion = glcolor.a;
+        occlusion = vIn.color.a;
     #endif
     
     vec3 shadowColor = vec3(1.0);
@@ -472,7 +469,7 @@ void main() {
 
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (vBlockId != BLOCK_LAVA)
+        if (vIn.blockId != BLOCK_LAVA)
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
@@ -487,7 +484,7 @@ void main() {
 
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
-                        vec3 tanLightDir = normalize(tanLightPos);
+                        vec3 tanLightDir = normalize(vIn.lightPos_T);
                         shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
@@ -503,12 +500,12 @@ void main() {
         occlusion *= texOcclusion;
     #endif
 
-    vec3 localTangent = normalize(vLocalTangent);
-    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent);
+    vec3 localTangent = normalize(vIn.localTangent.xyz);
+    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            ApplyWetnessPuddles(texNormal, vLocalPos, skyWetness, porosity, puddleF);
+            ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
@@ -516,7 +513,7 @@ void main() {
         }
     #endif
 
-    vec3 localViewDir = normalize(vLocalPos);
+    vec3 localViewDir = normalize(vIn.localPos);
     texNormal = normalize(matLocalTBN * texNormal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -547,7 +544,7 @@ void main() {
 
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
 
         color.rgb = LinearToRGB(albedo);
@@ -582,7 +579,7 @@ void main() {
 
         #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmcoord, vLocalPos, localNormal, texNormal, shadowColor, sss);
+            GetVanillaLighting(diffuse, vIn.lmcoord, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -591,22 +588,22 @@ void main() {
                     float geoNoL = 1.0;
                 #endif
 
-                specular += GetSkySpecular(vLocalPos, geoNoL, texNormal, albedo, shadowColor, lmcoord, metal_f0, roughL);
+                specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
-            vec3 blockDiffuse = vec3(0.0);//vBlockLight;
+            vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
             vec3 skyDiffuse = vec3(0.0);
             vec3 skySpecular = vec3(0.0);
 
             blockDiffuse += emission * MaterialEmissionF;
 
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vLocalPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
+            SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
             #ifdef WORLD_SKY_ENABLED
                 #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
@@ -614,7 +611,7 @@ void main() {
                 #endif
 
                 // float shadowFade = getShadowFade(shadowPos);
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vLocalPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
+                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
             #endif
 
             vec3 diffuseFinal = blockDiffuse + skyDiffuse;
@@ -635,7 +632,7 @@ void main() {
         #endif
 
         #if defined SKY_BORDER_FOG_ENABLED && !defined DH_COMPAT_ENABLED
-            ApplyFog(color, vLocalPos, localViewDir);
+            ApplyFog(color, vIn.localPos, localViewDir);
             color.a = 1.0;
         #endif
 
@@ -656,7 +653,7 @@ void main() {
         #endif
 
         #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetShapedFogDistance(vLocalPos);
+            float fogDist = GetShapedFogDistance(vIn.localPos);
             float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
             color.a *= 1.0 - fogF;
 
