@@ -333,7 +333,7 @@ void main() {
 
             #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
                 GetFinalBlockLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vLocalPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
             #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
                 GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
             #endif
@@ -348,7 +348,7 @@ void main() {
         //         vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
         //     #endif
 
-        //     vec3 localViewDir = normalize(vLocalPos);
+        //     vec3 localViewDir = normalize(vIn.localPos);
         //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
         //     final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         // #else

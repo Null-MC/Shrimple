@@ -112,18 +112,21 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         float invAO = saturate(1.0 - occlusion);
         diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
+        
+        float viewDist = length(localPos);
+        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
 
         vec3 H = normalize(-localSkyLightDirection + -localViewDir);
         float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
         float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
         float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
-        vec3 accumDiffuse = D * skyLightColor * shadowColor;
-        
-        float viewDist = length(localPos);
-        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-        accumDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+        vec3 accumDiffuse = D * skyLightColor * shadowColor * shadowDistF;
+        accumDiffuse *= 1.0 + MaterialSssBoostF * sss;
 
         vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
+        #ifdef RENDER_SHADOWS_ENABLED
+            lmcoordFinal.y = _pow3(lmcoordFinal.y);
+        #endif
         lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
         lmcoordFinal = LightMapTex(lmcoordFinal);
 

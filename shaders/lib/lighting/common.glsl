@@ -13,8 +13,8 @@ vec4 BasicVertex() {
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
-    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && !defined WATER_TESSELLATION
-        if (vOut.blockId == BLOCK_WATER) {
+    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && !defined WATER_TESSELLATION) || defined RENDER_TERRAIN
+        if (vOut.blockId == BLOCK_WATER || vOut.blockId == BLOCK_LILY_PAD) {
             // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
             //     gl_Position = vec4(-1.0);
             //     return;

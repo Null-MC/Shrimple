@@ -118,6 +118,14 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #ifdef PHYSICS_OCEAN
+        #include "/lib/physics_mod/ocean.glsl"
+    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+        #include "/lib/world/water_waves.glsl"
+    #endif
+#endif
+
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 

@@ -408,7 +408,7 @@ void main() {
             specularFinal *= GetMetalTint(albedo, metal_f0);
         #endif
 
-        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, glcolor.a);
+        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, vIn.color.a);
     #endif
 
     #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
