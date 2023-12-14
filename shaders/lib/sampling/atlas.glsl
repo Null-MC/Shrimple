@@ -8,15 +8,13 @@
 
         localCoord = sign(coordNMid) * 0.5 + 0.5;
     }
-#endif
-
-#ifdef RENDER_FRAG
+#else
     // atlasBounds: [0]=position [1]=size
-    vec2 GetAtlasCoord(const in vec2 localCoord) {
-        return fract(localCoord) * vIn.atlasBounds[1] + vIn.atlasBounds[0];
+    vec2 GetAtlasCoord(const in vec2 localCoord, const in mat2 atlasBounds) {
+        return fract(localCoord) * atlasBounds[1] + atlasBounds[0];
     }
 
-    vec2 GetLocalCoord(const in vec2 atlasCoord) {
-        return (atlasCoord - vIn.atlasBounds[0]) / vIn.atlasBounds[1];
+    vec2 GetLocalCoord(const in vec2 atlasCoord, const in mat2 atlasBounds) {
+        return (atlasCoord - atlasBounds[0]) / atlasBounds[1];
     }
 #endif

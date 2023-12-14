@@ -25,21 +25,21 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         vec2 localTraceCoord = texcoord - i * stepCoord;
 
         #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
-            //vec2 traceAtlasCoord = GetAtlasCoord(localCoord - i * stepCoord);
+            //vec2 traceAtlasCoord = GetAtlasCoord(localCoord - i * stepCoord, vIn.atlasBounds);
             //texDepth = TextureGradLinear(normals, traceAtlasCoord, atlasSize, dFdXY, 3);
 
             vec2 uv[4];
             vec2 atlasTileSize = vIn.atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localTraceCoord, atlasTileSize, uv);
 
-            uv[0] = GetAtlasCoord(uv[0]);
-            uv[1] = GetAtlasCoord(uv[1]);
-            uv[2] = GetAtlasCoord(uv[2]);
-            uv[3] = GetAtlasCoord(uv[3]);
+            uv[0] = GetAtlasCoord(uv[0], vIn.atlasBounds);
+            uv[1] = GetAtlasCoord(uv[1], vIn.atlasBounds);
+            uv[2] = GetAtlasCoord(uv[2], vIn.atlasBounds);
+            uv[3] = GetAtlasCoord(uv[3], vIn.atlasBounds);
 
             texDepth = TextureGradLinear(normals, uv, dFdXY, f, 3);
         #else
-            vec2 traceAtlasCoord = GetAtlasCoord(localTraceCoord);
+            vec2 traceAtlasCoord = GetAtlasCoord(localTraceCoord, vIn.atlasBounds);
             texDepth = textureGrad(normals, traceAtlasCoord, dFdXY[0], dFdXY[1]).a;
             //texDepth = texture(normals, traceAtlasCoord).a;
         #endif
@@ -74,9 +74,9 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
     //return GetAtlasCoord(localCoord - i * stepCoord);
     #if MATERIAL_PARALLAX == PARALLAX_SMOOTH
         //return i == 1 ? texcoord : GetAtlasCoord(traceDepth.xy);
-        return GetAtlasCoord(traceDepth.xy);
+        return GetAtlasCoord(traceDepth.xy, vIn.atlasBounds);
     #else
-        return GetAtlasCoord(texcoord - i * stepCoord);
+        return GetAtlasCoord(texcoord - i * stepCoord, vIn.atlasBounds);
     #endif
 }
 
@@ -106,14 +106,14 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
             vec2 atlasTileSize = vIn.atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localCoord, atlasTileSize, uv);
 
-            uv[0] = GetAtlasCoord(uv[0]);
-            uv[1] = GetAtlasCoord(uv[1]);
-            uv[2] = GetAtlasCoord(uv[2]);
-            uv[3] = GetAtlasCoord(uv[3]);
+            uv[0] = GetAtlasCoord(uv[0], vIn.atlasBounds);
+            uv[1] = GetAtlasCoord(uv[1], vIn.atlasBounds);
+            uv[2] = GetAtlasCoord(uv[2], vIn.atlasBounds);
+            uv[3] = GetAtlasCoord(uv[3], vIn.atlasBounds);
 
             float texDepth = TextureGradLinear(normals, uv, dFdXY, f, 3);
         #else
-            vec2 atlasCoord = GetAtlasCoord(localCoord);
+            vec2 atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
             float texDepth = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).a;
         #endif
 
@@ -151,11 +151,11 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
             tex_y = vec2(0.0, viewSign.y);
         }
 
-        vec2 tX = GetLocalCoord(atlasCoord + tex_x * atlasPixelSize);
-        tX = GetAtlasCoord(tX);
+        vec2 tX = GetLocalCoord(atlasCoord + tex_x * atlasPixelSize, vIn.atlasBounds);
+        tX = GetAtlasCoord(tX, vIn.atlasBounds);
 
-        vec2 tY = GetLocalCoord(atlasCoord + tex_y * atlasPixelSize);
-        tY = GetAtlasCoord(tY);
+        vec2 tY = GetLocalCoord(atlasCoord + tex_y * atlasPixelSize, vIn.atlasBounds);
+        tY = GetAtlasCoord(tY, vIn.atlasBounds);
 
         float height_x = textureGrad(normals, tX, dFdXY[0], dFdXY[1]).a;
         float height_y = textureGrad(normals, tY, dFdXY[0], dFdXY[1]).a;

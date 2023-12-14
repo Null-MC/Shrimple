@@ -423,7 +423,7 @@ void main() {
             #if defined PHYSICS_OCEAN || WATER_WAVE_SIZE != WATER_WAVES_NONE
                 if (localNormal.y >= 1.0 - EPSILON) {
                     localCoord += waterUvOffset;
-                    atlasCoord = GetAtlasCoord(localCoord);
+                    atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
                 }
             #endif
         }
@@ -446,7 +446,7 @@ void main() {
             if ((localNormal.y >= 1.0 - EPSILON) || (localNormal.y <= -1.0 + EPSILON)) {
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
                 localCoord += rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                atlasCoord = GetAtlasCoord(localCoord);
+                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
             }
         #endif
     #endif

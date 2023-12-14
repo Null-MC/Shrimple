@@ -388,7 +388,7 @@ void main() {
 
                 localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
                 //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
-                atlasCoord = GetAtlasCoord(localCoord);
+                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
             #endif
         //}
         }

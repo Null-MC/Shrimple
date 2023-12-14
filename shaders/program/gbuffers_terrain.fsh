@@ -6,14 +6,13 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float vTangentW;
 
     flat int blockId;
     flat mat2 atlasBounds;
@@ -353,7 +352,7 @@ void main() {
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
                 //localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
             #endif
         }
     #endif

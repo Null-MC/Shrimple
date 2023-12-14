@@ -18,17 +18,17 @@
         vec2 tilePixelSize = rcp(tileSize);
 
         #if MATERIAL_PARALLAX != PARALLAX_NONE
-            vec2 texcoordSnapped = GetLocalCoord(texcoord);
+            vec2 texcoordSnapped = GetLocalCoord(texcoord, vIn.atlasBounds);
         #else
             vec2 texcoordSnapped = vIn.localCoord;
         #endif
 
         texcoordSnapped = floor(texcoordSnapped * tileSize) / tileSize;
 
-        vec2 texcoordX1 = GetAtlasCoord(texcoordSnapped - vec2(tilePixelSize.x, 0.0));
-        vec2 texcoordX2 = GetAtlasCoord(texcoordSnapped + vec2(tilePixelSize.x, 0.0));
-        vec2 texcoordY1 = GetAtlasCoord(texcoordSnapped - vec2(0.0, tilePixelSize.y));
-        vec2 texcoordY2 = GetAtlasCoord(texcoordSnapped + vec2(0.0, tilePixelSize.y));
+        vec2 texcoordX1 = GetAtlasCoord(texcoordSnapped - vec2(tilePixelSize.x, 0.0), vIn.atlasBounds);
+        vec2 texcoordX2 = GetAtlasCoord(texcoordSnapped + vec2(tilePixelSize.x, 0.0), vIn.atlasBounds);
+        vec2 texcoordY1 = GetAtlasCoord(texcoordSnapped - vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
+        vec2 texcoordY2 = GetAtlasCoord(texcoordSnapped + vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
 
         vec3 texColorX1 = textureGrad(gtexture, texcoordX1, dFdXY[0], dFdXY[1]).rgb;
         vec3 texColorX2 = textureGrad(gtexture, texcoordX2, dFdXY[0], dFdXY[1]).rgb;
@@ -41,7 +41,7 @@
         float texHeightY2 = luminance(texColorY2);
 
         #if MATERIAL_NORMAL_EDGE != 0
-            vec2 texcoordC = GetAtlasCoord(texcoordSnapped);
+            vec2 texcoordC = GetAtlasCoord(texcoordSnapped, vIn.atlasBounds);
             vec3 texColorC = textureGrad(gtexture, texcoordC, dFdXY[0], dFdXY[1]).rgb;
             float texHeightC = luminance(RGBToLinear(texColorC));
 
