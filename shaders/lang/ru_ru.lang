@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v6.1
+# Provided by ShrikerChestTree v6.2
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -6,7 +6,7 @@ profile.LIGHTS=Цветное Освещение
 profile.RTX_LOW=Трассировка Лучей
 
 
-
+screen.SKY_OPTIONS=Настройки Неба
 
 option.sunPathRotation=Наклон Солнца/Луны
 option.sunPathRotation.comment=Наклон Солнца/Луны вдоль оси вращения.
