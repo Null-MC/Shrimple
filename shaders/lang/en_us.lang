@@ -186,8 +186,8 @@ option.MATERIAL_PARALLAX_SAMPLES=POM Samples
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM Shadow Samples
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
 
-option.MATERIAL_PARALLAX_DISTANCE=Distance
-option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from the camera to render POM.
+option.MATERIAL_DISPLACE_MAX_DIST=Distance
+option.MATERIAL_DISPLACE_MAX_DIST.comment=The maximum distance (in blocks) from the camera to render POM.
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp POM Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]

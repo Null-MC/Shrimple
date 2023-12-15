@@ -8,7 +8,7 @@ layout (vertices=3) out;
 #include "/lib/common.glsl"
 
 const float MIN_DISTANCE = 2;
-const float MAX_DISTANCE = 16;
+//const float MAX_DISTANCE = 24;
 
 in VertexData {
     vec4 color;
@@ -123,15 +123,16 @@ void main() {
             distance[0] = gl_in[0].gl_Position.z;
             distance[1] = gl_in[1].gl_Position.z;
             distance[2] = gl_in[2].gl_Position.z;
-            distance = saturate((abs(distance) - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE));
 
-            float tessLevelOuter = mix(MATERIAL_TESSELLATION_QUALITY, 1, minOf(distance));
-            gl_TessLevelOuter[0] = 1;
-            gl_TessLevelOuter[1] = tessLevelOuter;
-            gl_TessLevelOuter[2] = 1;
+            distance = saturate((abs(distance) - MIN_DISTANCE) / (MATERIAL_DISPLACE_MAX_DIST - MIN_DISTANCE));
 
-            float tessLevelInner = mix(MATERIAL_TESSELLATION_QUALITY, 1, maxOf(distance));
-            gl_TessLevelInner[0] = tessLevelInner;
+            //float tessLevelOuter = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, maxOf(distance));
+            gl_TessLevelOuter[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[1], distance[0]));
+            gl_TessLevelOuter[1] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[0], distance[2]));
+            gl_TessLevelOuter[2] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[2], distance[1]));
+
+            //float tessLevelInner = mix(MATERIAL_TESSELLATION_QUALITY, 1, maxOf(distance));
+            gl_TessLevelInner[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, maxOf(distance));
         #else
             gl_TessLevelOuter[0] = 1;
             gl_TessLevelOuter[1] = 1;

@@ -171,8 +171,8 @@ option.MATERIAL_PARALLAX_SAMPLES=Proben
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Schattenproben
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Aus
 
-option.MATERIAL_PARALLAX_DISTANCE=Distanz
-option.MATERIAL_PARALLAX_DISTANCE.comment=Die maximale Distanz (in Blöcken) von der Kamera zum Rendern von POM.
+option.MATERIAL_DISPLACE_MAX_DIST=Distanz
+option.MATERIAL_DISPLACE_MAX_DIST.comment=Die maximale Distanz (in Blöcken) von der Kamera zum Rendern von POM.
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Scharfe Schwelle
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=Der Schwellenwert, für den die scharfe Parallaxe anwendeten Slope-Normals. [N / 255]

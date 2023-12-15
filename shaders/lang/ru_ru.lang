@@ -177,8 +177,8 @@ option.MATERIAL_PARALLAX_SAMPLES=Образцы
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Теневые образцы
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Выкл.
 
-option.MATERIAL_PARALLAX_DISTANCE=Расстояние
-option.MATERIAL_PARALLAX_DISTANCE.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
+option.MATERIAL_DISPLACE_MAX_DIST=Расстояние
+option.MATERIAL_DISPLACE_MAX_DIST.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Острый порог
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=Порог, при котором острый параллакс применяется к наклонным нормалям. [N / 255]

@@ -7,7 +7,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         float prevTexDepth;
     #endif
 
-    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_DISTANCE);
+    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_DISPLACE_MAX_DIST);
     int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
 
     vec2 localSize = atlasSize * vIn.atlasBounds[1];

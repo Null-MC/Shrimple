@@ -333,7 +333,7 @@ void main() {
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
-        if (viewDist < MATERIAL_PARALLAX_DISTANCE) {
+        if (viewDist < MATERIAL_DISPLACE_MAX_DIST) {
             atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif

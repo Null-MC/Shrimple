@@ -2,7 +2,8 @@
 #define RENDER_GBUFFER
 #define RENDER_TESS_C
 
-layout (triangles, equal_spacing, ccw) in;
+// equal_spacing, fractional_even_spacing, fractional_odd_spacing
+layout (triangles, fractional_odd_spacing, ccw) in;
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"

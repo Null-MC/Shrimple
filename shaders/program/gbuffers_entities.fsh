@@ -363,7 +363,7 @@ void main() {
     // }
     else {
         #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
-            if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
+            if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
                 atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
 
