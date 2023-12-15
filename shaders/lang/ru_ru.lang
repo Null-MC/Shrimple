@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v6.4
+# Provided by ShrikerChestTree v6.5
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -169,7 +169,7 @@ screen.MATERIAL_PARALLAX_OPTIONS=Настройки Вытеснения
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
 
 option.DISPLACE_MODE=Тип
-option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края.
+option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края. Тесселяция - делает PBR-текстуры объёмными и более гладкими!.
 value.DISPLACE_MODE.0=Выкл
 value.DISPLACE_MODE.1=Стандартный POM
 value.DISPLACE_MODE.2=Глядкий POM
