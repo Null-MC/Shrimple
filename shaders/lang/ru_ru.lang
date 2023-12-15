@@ -204,6 +204,9 @@ option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Включает более вы�
 
 option.MATERIAL_PARALLAX_DEPTH_WRITE=Глубина-Записи POM-а
 
+option.MATERIAL_PARALLAX_ENTITIES=Мобы
+option.MATERIAL_PARALLAX_ENTITIES.comment=Отключите параллакс для мобов, если он вызывает проблемы с рендерингом в некоторых модах.
+
 
 screen.MATERIAL_NORMAL_OPTIONS=Нормальное Отображение
 screen.MATERIAL_NORMAL_OPTIONS.comment=Как каждый пиксель поверхности реагирует на направлённое освещение/направлённый свет.
