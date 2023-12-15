@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v6.0
+# Provided by ShrikerChestTree v6.1
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -165,35 +165,44 @@ value.MATERIAL_SSS.1=Интегрированный
 value.MATERIAL_SSS.2=Lab-PBR
 
 
-screen.MATERIAL_PARALLAX_OPTIONS=Настройки Параллакса
+screen.MATERIAL_PARALLAX_OPTIONS=Настройки Вытеснения
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
 
 option.DISPLACE_MODE=Тип
 option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края.
 value.DISPLACE_MODE.0=Выкл
-value.DISPLACE_MODE.1=Стандартный
-value.DISPLACE_MODE.2=Глядкий
-value.DISPLACE_MODE.3=Острый
+value.DISPLACE_MODE.1=Стандартный POM
+value.DISPLACE_MODE.2=Глядкий POM
+value.DISPLACE_MODE.3=Острый POM
+value.DISPLACE_MODE.4=Тесселяция
+
 
 option.MATERIAL_PARALLAX_DEPTH=Глубина
 suffix.MATERIAL_PARALLAX_DEPTH=%
 
-option.MATERIAL_PARALLAX_SAMPLES=Образцы
+option.MATERIAL_TESSELLATION_QUALITY=Качество Тесселляции
 
-option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Теневые образцы
+option.MATERIAL_TESSELLATION_OFFSET=Смещение Тесселляции
+suffix.MATERIAL_TESSELLATION_OFFSET=%
+
+option.MATERIAL_TESSELLATION_EDGE_FADE=Затухание-Крёв Тесселляции
+
+option.MATERIAL_PARALLAX_SAMPLES=POM-ые Образцы
+
+option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM-ые Теневые Образцы
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Выкл.
 
 option.MATERIAL_DISPLACE_MAX_DIST=Расстояние
 option.MATERIAL_DISPLACE_MAX_DIST.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
 
-option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Острый Порог
+option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Острые POM Пороги
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=Порог, при котором острый параллакс применяется к наклонным нормалям. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
-option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Гладкая Тень
+option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Гладкие POM Тени
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Включает более высокое качество теней при включении плавного POM.
 
-option.MATERIAL_PARALLAX_DEPTH_WRITE=Глубина-Записи
+option.MATERIAL_PARALLAX_DEPTH_WRITE=Глубина-Записи POM-а
 
 
 screen.MATERIAL_NORMAL_OPTIONS=Нормальное Отображение
