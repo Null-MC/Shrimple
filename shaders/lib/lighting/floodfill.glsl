@@ -8,17 +8,18 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     #ifdef WORLD_SKY_ENABLED
         vec2 lmSkyFinal = vec2(0.0, lmcoord.y);
 
-        float skyNoLm;
         #ifdef RENDER_SHADOWS_ENABLED
             lmSkyFinal.y = _pow3(lmSkyFinal.y);
-        #else
-            skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
-            lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
         #endif
+
+        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
 
         lmSkyFinal = LightMapTex(lmSkyFinal);
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
         skyDiffuse = RGBToLinear(lmSkyLight);
+
+        skyDiffuse *= 1.0 + MaterialSssBoostF * sss;
 
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
     #endif
@@ -87,15 +88,17 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             float diffuseNoL = GetLightNoL(geoNoL, texNormal, localSkyLightDirection, sss);
 
+            float viewDist = length(localPos);
+            //float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
+            float shadowFade = smoothstep(0.9*shadowDistance, 0.7*shadowDistance, viewDist);
+
             vec3 H = normalize(-localSkyLightDirection + localViewDir);
             float diffuseNoVm = max(dot(texNormal, -localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
             skyDiffuse = D * skyLightColor * shadowColor * (1.0 - ambientF);
-
-            float viewDist = length(localPos);
-            float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-            skyDiffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+            skyDiffuse *= 1.0 + MaterialSssBoostF * sss;
+            skyDiffuse *= shadowFade;
         #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS

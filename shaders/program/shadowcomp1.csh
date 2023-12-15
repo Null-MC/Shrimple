@@ -135,7 +135,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         #else
             const float shadowDistMax = 3.0 * far;
             const float shadowDistScale = 0.25;
-            float shadowBias = -0.1 * rcp(shadowDistMax);// * GetShadowOffsetBias();
+            float shadowBias = 3.0 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif
 
         float viewDist = length(blockLocalPos);

@@ -168,12 +168,12 @@ value.MATERIAL_SSS.2=Lab-PBR
 screen.MATERIAL_PARALLAX_OPTIONS=Настройки Параллакса
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
 
-option.MATERIAL_PARALLAX=Тип
-option.MATERIAL_PARALLAX.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края.
-value.MATERIAL_PARALLAX.0=Выкл
-value.MATERIAL_PARALLAX.1=Стандартный
-value.MATERIAL_PARALLAX.2=Глядкий
-value.MATERIAL_PARALLAX.3=Острый
+option.DISPLACE_MODE=Тип
+option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края.
+value.DISPLACE_MODE.0=Выкл
+value.DISPLACE_MODE.1=Стандартный
+value.DISPLACE_MODE.2=Глядкий
+value.DISPLACE_MODE.3=Острый
 
 option.MATERIAL_PARALLAX_DEPTH=Глубина
 suffix.MATERIAL_PARALLAX_DEPTH=%
@@ -183,8 +183,8 @@ option.MATERIAL_PARALLAX_SAMPLES=Образцы
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Теневые образцы
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Выкл.
 
-option.MATERIAL_PARALLAX_DISTANCE=Расстояние
-option.MATERIAL_PARALLAX_DISTANCE.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
+option.MATERIAL_DISPLACE_MAX_DIST=Расстояние
+option.MATERIAL_DISPLACE_MAX_DIST.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Острый Порог
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=Порог, при котором острый параллакс применяется к наклонным нормалям. [N / 255]

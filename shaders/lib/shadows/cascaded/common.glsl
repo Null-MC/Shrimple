@@ -174,7 +174,7 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
 #endif
 
 #if defined RENDER_VERTEX && !defined RENDER_COMPOSITE
-    void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
+    void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL, out vec3 shadowPos[4], out int shadowTile) {
         for (int i = 0; i < 4; i++) {
             float bias = GetShadowNormalBias(i, geoNoL);
             vec3 offsetLocalPos = localPos + localNormal * bias;

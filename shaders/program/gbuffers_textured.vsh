@@ -6,25 +6,26 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-out vec2 lmcoord;
-out vec2 texcoord;
-out vec4 glcolor;
-// out vec3 vBlockLight;
-out vec3 vLocalPos;
-out vec3 vLocalNormal;
+out VertexData {
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
+    vec3 localNormal;
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    out vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        out vec3 shadowPos[4];
-        flat out int shadowTile;
-    #else
-        out vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vOut;
 
 uniform sampler2D lightmap;
 
@@ -79,15 +80,16 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    glcolor = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.color = gl_Color;
 
     #ifndef RENDER_TEXTURED_LIT
-        lmcoord = vec2(1.0);
+        vOut.lmcoord = vec2(1.0);
     #else
-        lmcoord = LightMapNorm(lmcoord);
+        vOut.lmcoord = LightMapNorm(vOut.lmcoord);
     #endif
 
-    BasicVertex();
+    vec4 viewPos = BasicVertex();
+    gl_Position = gl_ProjectionMatrix * viewPos;
 }

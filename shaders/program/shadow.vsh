@@ -76,6 +76,8 @@ void main() {
         }
     #endif
 
+    vec3 geoViewNormal = normalize(gl_NormalMatrix * gl_Normal);
+
     if (renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES) {
         blockId = blockEntityId;
 
@@ -91,8 +93,7 @@ void main() {
     vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
 
     if (!isRenderTerrain) {
-        vec3 geoNormal = normalize(gl_NormalMatrix * gl_Normal);
-        vOriginPos -= 0.05 * geoNormal;
+        vOriginPos -= 0.05 * geoViewNormal;
     }
 
     #ifdef SHADOW_FRUSTUM_CULL
@@ -137,6 +138,8 @@ void main() {
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;
+
+    //gl_Position.z += max(geoViewNormal.z, 0.0) * 8.0;
 
     gl_Position = shadowModelViewInverse * gl_Position;
     gl_Position = shadowModelViewEx * gl_Position;

@@ -5,24 +5,25 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 texcoord;
-in vec4 glcolor;
-in vec3 vLocalPos;
-in vec2 vLocalCoord;
-in vec3 vLocalNormal;
-in vec3 vLocalTangent;
-in float vTangentW;
+in VertexData {
+    vec4 color;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
 
-flat in mat2 atlasBounds;
+    flat mat2 atlasBounds;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    in vec3 tanViewPos;
-#endif
+    #ifdef PARALLAX_ENABLED
+        vec3 viewPos_T;
+    #endif
+} vIn;
 
 uniform sampler2D gtexture;
 uniform sampler2D depthtex0;
 
-#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || MATERIAL_PARALLAX != PARALLAX_NONE || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
     uniform sampler2D normals;
 #endif
 
@@ -39,7 +40,7 @@ uniform float far;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/tbn.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#ifdef PARALLAX_ENABLED
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -53,24 +54,24 @@ uniform float far;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(texcoord), dFdy(texcoord));
-    float viewDist = length(vLocalPos);
-    vec2 atlasCoord = texcoord;
-    vec2 localCoord = vLocalCoord;
+    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    float viewDist = length(vIn.localPos);
+    vec2 atlasCoord = vIn.texcoord;
+    vec2 localCoord = vIn.localCoord;
     
-    vec3 localNormal = normalize(vLocalNormal);
+    vec3 localNormal = normalize(vIn.localNormal);
 
     bool skipParallax = false;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
-        vec3 tanViewDir = normalize(tanViewPos);
+        vec3 tanViewDir = normalize(vIn.viewPos_T);
 
-        if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
+        if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
             atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
@@ -93,7 +94,7 @@ void main() {
         }
     #endif
 
-    color.rgb *= glcolor.rgb;
+    color.rgb *= vIn.color.rgb;
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = vec3(WHITEWORLD_VALUE);

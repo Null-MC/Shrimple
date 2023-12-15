@@ -7,23 +7,20 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-out vec2 texcoord;
-out vec3 vLocalPos;
-out vec4 vColor;
-// out vec3 vBlockLight;
+out VertexData {
+    vec2 texcoord;
+    vec3 localPos;
+    vec4 color;
 
-// #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-//     out vec3 cloudPos;
-// #endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        out vec3 shadowPos[4];
-        flat out int shadowTile;
-    #else
-        out vec3 shadowPos;
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
     #endif
-#endif
+} vOut;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -71,10 +68,11 @@ uniform vec3 cameraPosition;
 
 void main() {
     #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-        vColor = gl_Color;
+        vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+        vOut.color = gl_Color;
 
-        BasicVertex();
+        vec4 viewPos = BasicVertex();
+        gl_Position = gl_ProjectionMatrix * viewPos;
     #else
         gl_Position = vec4(-1.0);
     #endif

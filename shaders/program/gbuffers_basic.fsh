@@ -5,23 +5,25 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 lmcoord;
-in vec2 texcoord;
-flat in vec4 glcolor;
-in vec3 vLocalPos;
+in VertexData {
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec4 color;
+    vec3 localPos;
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    in vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        in vec3 shadowPos[4];
-        flat in int shadowTile;
-    #else
-        in vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vIn;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
@@ -106,8 +108,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/lightmap.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
+
 #include "/lib/fog/fog_common.glsl"
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -157,7 +162,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, texcoord) * glcolor;
+	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 	
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
@@ -174,7 +179,7 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            float viewDist = length(vLocalPos);
+            float viewDist = length(vIn.localPos);
             float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
 
             #ifdef SHADOW_COLORED
@@ -193,7 +198,7 @@ void main() {
 
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
         //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
         //fogColorFinal = LinearToRGB(fogColorFinal);
@@ -203,20 +208,21 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, 1.0, 0.0));
+        deferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, 1.0, 0.0));
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-		color.rgb *= texture(lightmap, lmcoord).rgb * shadowColor;
+        vec2 lmFinal = LightMapTex(vIn.lmcoord);
+		color.rgb *= texture(lightmap, lmFinal).rgb * shadowColor;
 
         #ifdef DH_COMPAT_ENABLED
             color.rgb = LinearToRGB(color.rgb);
         #elif defined SKY_BORDER_FOG_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
-            ApplyFog(color, vLocalPos, localViewDir);
+            vec3 localViewDir = normalize(vIn.localPos);
+            ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
 		outFinal = color;

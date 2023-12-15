@@ -11,37 +11,38 @@ in vec4 mc_Entity;
 in vec4 mc_midTexCoord;
 in vec3 vaPosition;
 
-out vec2 lmcoord;
-out vec2 texcoord;
-out vec4 glcolor;
-// out vec3 vBlockLight;
-out vec3 vLocalPos;
-out vec2 vLocalCoord;
-out vec3 vLocalNormal;
-out vec3 vLocalTangent;
-out float vTangentW;
-flat out mat2 atlasBounds;
+out VertexData {
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
-    out vec3 tanViewPos;
+    flat mat2 atlasBounds;
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-        out vec3 tanLightPos;
+    #ifdef PARALLAX_ENABLED
+        vec3 viewPos_T;
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vec3 lightPos_T;
+        #endif
     #endif
-#endif
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    out vec3 cloudPos;
-#endif
-
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        out vec3 shadowPos[4];
-        flat out int shadowTile;
-    #else
-        out vec3 shadowPos;
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
     #endif
-#endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vOut;
 
 uniform sampler2D lightmap;
 
@@ -79,10 +80,12 @@ uniform ivec2 atlasSize;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
 #include "/lib/sampling/atlas.glsl"
+
 #include "/lib/utility/lightmap.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
 #endif
 
@@ -104,33 +107,33 @@ uniform ivec2 atlasSize;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-
 #include "/lib/lighting/common.glsl"
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    glcolor = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.color = gl_Color;
 
-    lmcoord = LightMapNorm(lmcoord);
+    vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    BasicVertex();
+    vec4 viewPos = BasicVertex();
+    gl_Position = gl_ProjectionMatrix * viewPos;
 
     PrepareNormalMap();
 
-    GetAtlasBounds(atlasBounds, vLocalCoord);
+    GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent);
+        mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
-        tanViewPos = viewPos * matViewTBN;
+        //viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
+        vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
-            tanLightPos = shadowLightPosition * matViewTBN;
+            vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
     #endif
 }
