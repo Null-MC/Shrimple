@@ -101,8 +101,12 @@ void main() {
     vOut.atlasBounds = vIn[0].atlasBounds;
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
-        float edge = maxOf(2.0 * abs(vOut.localCoord - 0.5));
-        float strength = smoothstep(1.0, 0.85, edge) * ParallaxDepthF;
+        float strength = ParallaxDepthF;
+
+        #ifdef MATERIAL_TESSELLATION_EDGE_FADE
+            float edge = maxOf(2.0 * abs(vOut.localCoord - 0.5));
+            strength *= smoothstep(1.0, 0.85, edge);
+        #endif
 
         float depthSample = 0.5 - texture(normals, vOut.texcoord).a;
         depthSample *= step(-0.4999, depthSample);

@@ -7,8 +7,6 @@ layout (vertices=3) out;
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-const int MIN_TESS_LEVEL = 1;
-const int MAX_TESS_LEVEL = 128;
 const float MIN_DISTANCE = 2;
 const float MAX_DISTANCE = 16;
 
@@ -127,14 +125,12 @@ void main() {
             distance[2] = gl_in[2].gl_Position.z;
             distance = saturate((abs(distance) - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE));
 
-            float minDist = minOf(distance);
-            float tessLevelOuter = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, minDist);
-            gl_TessLevelOuter[0] = tessLevelOuter;
+            float tessLevelOuter = mix(MATERIAL_TESSELLATION_QUALITY, 1, minOf(distance));
+            gl_TessLevelOuter[0] = 1;
             gl_TessLevelOuter[1] = tessLevelOuter;
-            gl_TessLevelOuter[2] = tessLevelOuter;
+            gl_TessLevelOuter[2] = 1;
 
-            float maxDist = maxOf(distance);
-            float tessLevelInner = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, maxDist);
+            float tessLevelInner = mix(MATERIAL_TESSELLATION_QUALITY, 1, maxOf(distance));
             gl_TessLevelInner[0] = tessLevelInner;
         #else
             gl_TessLevelOuter[0] = 1;
