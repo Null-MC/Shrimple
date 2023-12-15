@@ -92,6 +92,10 @@ void main() {
         localNormal = mat3(gbufferModelViewInverse) * localNormal;
 
         const float geoNoL = 1.0;
-        ApplyShadows(vOut.localPos, localNormal, geoNoL);
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            ApplyShadows(vOut.localPos, localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+        #else
+            vOut.shadowPos = ApplyShadows(vOut.localPos, localNormal, geoNoL);
+        #endif
     #endif
 }
