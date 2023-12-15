@@ -24,7 +24,7 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -58,7 +58,7 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -94,7 +94,7 @@ void main() {
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -120,7 +120,7 @@ void main() {
     #endif
 
     if (gl_InvocationID == 0) {
-        #ifdef MATERIAL_TESSELLATION
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
             vec3 distance;
             distance[0] = gl_in[0].gl_Position.z;
             distance[1] = gl_in[1].gl_Position.z;

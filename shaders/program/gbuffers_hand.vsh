@@ -9,18 +9,17 @@ in vec4 mc_midTexCoord;
 in vec4 at_tangent;
 
 out VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
 
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -86,7 +85,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/utility/lightmap.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
 #endif
 
@@ -125,7 +124,7 @@ void main() {
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);

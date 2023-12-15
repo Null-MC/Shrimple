@@ -23,7 +23,7 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -142,7 +142,7 @@ void main() {
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
@@ -155,7 +155,7 @@ void main() {
         #endif
     #endif
 
-    #ifndef MATERIAL_TESSELLATION
+    #if DISPLACE_MODE != DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
     #endif
 }

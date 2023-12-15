@@ -156,12 +156,12 @@ value.MATERIAL_NORMAL_ROUND.0=Aus
 screen.MATERIAL_PARALLAX_OPTIONS=Parallax
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Beschreibt, wie die Tiefe jedes Pixels der Oberfläche verschoben wird.
 
-option.MATERIAL_PARALLAX=Typ
-option.MATERIAL_PARALLAX.comment=Der Typ des zu rendernden POM. Glattes POM hat weiche Kanten. Scharfes POM weist modellähnliche harte Kanten auf.
-value.MATERIAL_PARALLAX.0=Aus
-value.MATERIAL_PARALLAX.1=Standard
-value.MATERIAL_PARALLAX.2=Glatt
-value.MATERIAL_PARALLAX.3=Scharf
+option.DISPLACE_MODE=Typ
+option.DISPLACE_MODE.comment=Der Typ des zu rendernden POM. Glattes POM hat weiche Kanten. Scharfes POM weist modellähnliche harte Kanten auf.
+value.DISPLACE_MODE.0=Aus
+value.DISPLACE_MODE.1=Standard
+value.DISPLACE_MODE.2=Glatt
+value.DISPLACE_MODE.3=Scharf
 
 option.MATERIAL_PARALLAX_DEPTH=Tiefe
 suffix.MATERIAL_PARALLAX_DEPTH=%

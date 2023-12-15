@@ -6,17 +6,17 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -42,7 +42,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     uniform sampler2D normals;
 #endif
 
@@ -202,7 +202,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/fog/fog_render.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
     #include "/lib/sampling/atlas.glsl"
 #endif
@@ -268,7 +268,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+#if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -341,7 +341,7 @@ void main() {
     mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec2 atlasCoord = vIn.texcoord;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(vIn.viewPos_T);
@@ -362,7 +362,7 @@ void main() {
     //     color = vec4(1.0, 0.0, 0.0, 1.0);
     // }
     else {
-        #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+        #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
             if (!skipParallax && viewDist < MATERIAL_PARALLAX_DISTANCE) {
                 atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
@@ -461,9 +461,9 @@ void main() {
         if (entityId != ENTITY_PHYSICSMOD_SNOW)
             isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_ENTITIES
+        #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
             if (!skipParallax) {
-                #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                #if DISPLACE_MODE == DISPLACE_POM_SHARP
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {

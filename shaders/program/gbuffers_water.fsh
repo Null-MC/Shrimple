@@ -23,7 +23,7 @@ in VertexData {
     #endif
 
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -49,7 +49,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     uniform sampler2D normals;
 #endif
 
@@ -310,7 +310,7 @@ uniform int heldBlockLightValue2;
 //     #include "/lib/world/sky.glsl"
 // #endif
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#ifdef PARALLAX_ENABLED
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -451,7 +451,7 @@ void main() {
         #endif
     #endif
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
@@ -565,9 +565,9 @@ void main() {
         if (!isWater)
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
+        #ifdef PARALLAX_ENABLED
             if (!skipParallax) {
-                #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                #if DISPLACE_MODE == DISPLACE_POM_SHARP
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {

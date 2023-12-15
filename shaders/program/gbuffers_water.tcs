@@ -20,11 +20,11 @@ in VertexData {
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -59,11 +59,11 @@ out VertexData {
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -105,11 +105,10 @@ void main() {
     vOut[gl_InvocationID].localCoord = vIn[gl_InvocationID].localCoord;
     vOut[gl_InvocationID].localNormal = vIn[gl_InvocationID].localNormal;
     vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
-    //vOut[gl_InvocationID].tangentW = vIn[gl_InvocationID].tangentW;
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED

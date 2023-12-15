@@ -19,11 +19,11 @@ out VertexData {
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -159,7 +159,7 @@ void main() {
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);

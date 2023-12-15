@@ -9,17 +9,16 @@ in vec4 at_tangent;
 in vec4 mc_midTexCoord;
 
 out VertexData {
-    vec2 texcoord;
     vec4 color;
+    vec2 texcoord;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
 
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
     #endif
 } vOut;
@@ -48,7 +47,7 @@ void main() {
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);

@@ -19,7 +19,7 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -53,7 +53,7 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -75,7 +75,7 @@ out VertexData {
     #endif
 } vOut;
 
-#ifdef MATERIAL_TESSELLATION
+#if DISPLACE_MODE == DISPLACE_TESSELATION
     uniform sampler2D normals;
 
     uniform mat4 gbufferModelView;
@@ -100,9 +100,7 @@ void main() {
     vOut.blockId = vIn[0].blockId;
     vOut.atlasBounds = vIn[0].atlasBounds;
 
-    #ifdef MATERIAL_TESSELLATION
-        // vec2 coord = clamp(vOut.localCoord, EPSILON, 1.0 - EPSILON);
-        // coord = GetAtlasCoord(coord, vIn[0].atlasBounds);
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
         float edge = maxOf(2.0 * abs(vOut.localCoord - 0.5));
         float strength = smoothstep(1.0, 0.85, edge) * ParallaxDepthF;
 
@@ -116,7 +114,7 @@ void main() {
         // TODO: update shadow pos
     #endif
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vOut.viewPos_T = _interpolate(vIn[0].viewPos_T, vIn[1].viewPos_T, vIn[2].viewPos_T);
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -141,7 +139,7 @@ void main() {
         #endif
     #endif
 
-    #ifdef MATERIAL_TESSELLATION
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
     #endif
 }

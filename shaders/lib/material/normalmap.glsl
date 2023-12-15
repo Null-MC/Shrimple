@@ -17,7 +17,7 @@
         vec2 tileSize = vIn.atlasBounds[1] * texSize * MATERIAL_NORMAL_SCALE;
         vec2 tilePixelSize = rcp(tileSize);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
+        #ifdef PARALLAX_ENABLED
             vec2 texcoordSnapped = GetLocalCoord(texcoord, vIn.atlasBounds);
         #else
             vec2 texcoordSnapped = vIn.localCoord;

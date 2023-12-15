@@ -6,17 +6,16 @@
 #include "/lib/common.glsl"
 
 in VertexData {
-    vec2 texcoord;
     vec4 color;
+    vec2 texcoord;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
 
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
     #endif
 } vIn;
@@ -24,7 +23,7 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D depthtex0;
 
-#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || MATERIAL_PARALLAX != PARALLAX_NONE || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
     uniform sampler2D normals;
 #endif
 
@@ -41,7 +40,7 @@ uniform float far;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/tbn.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#ifdef PARALLAX_ENABLED
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -64,7 +63,7 @@ void main() {
 
     bool skipParallax = false;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 

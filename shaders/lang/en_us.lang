@@ -163,35 +163,36 @@ value.MATERIAL_SSS.1=Integrated
 value.MATERIAL_SSS.2=Lab-PBR
 
 
-screen.MATERIAL_PARALLAX_OPTIONS=Parallax
+screen.MATERIAL_PARALLAX_OPTIONS=Displacement
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Describes how the depth of each pixel of the surface is displaced.
 
-option.MATERIAL_PARALLAX=Type
-option.MATERIAL_PARALLAX.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
-value.MATERIAL_PARALLAX.0=OFF
-value.MATERIAL_PARALLAX.1=Standard
-value.MATERIAL_PARALLAX.2=Smooth
-value.MATERIAL_PARALLAX.3=Sharp
+option.DISPLACE_MODE=Type
+option.DISPLACE_MODE.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
+value.DISPLACE_MODE.0=None
+value.DISPLACE_MODE.1=POM
+value.DISPLACE_MODE.2=Smooth POM
+value.DISPLACE_MODE.3=Sharp POM
+value.DISPLACE_MODE.4=Tessellation
 
 option.MATERIAL_PARALLAX_DEPTH=Depth
 suffix.MATERIAL_PARALLAX_DEPTH=%
 
-option.MATERIAL_PARALLAX_SAMPLES=Samples
+option.MATERIAL_PARALLAX_SAMPLES=POM Samples
 
-option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Shadow Samples
+option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM Shadow Samples
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
 
 option.MATERIAL_PARALLAX_DISTANCE=Distance
 option.MATERIAL_PARALLAX_DISTANCE.comment=The maximum distance (in blocks) from the camera to render POM.
 
-option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp Threshold
+option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp POM Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
-option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Smooth Shadows
+option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Smooth POM Shadows
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows when smooth POM is enabled.
 
-option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write
+option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write POM
 
 option.MATERIAL_PARALLAX_ENTITIES=Entities
 option.MATERIAL_PARALLAX_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.

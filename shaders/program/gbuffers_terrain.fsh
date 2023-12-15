@@ -17,7 +17,7 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -39,14 +39,14 @@ in VertexData {
     #endif
 } vIn;
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE && defined MATERIAL_PARALLAX_DEPTH_WRITE
+#if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_DEPTH_WRITE
     layout (depth_greater) out float gl_FragDepth;
 #endif
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || MATERIAL_PARALLAX != PARALLAX_NONE || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
     uniform sampler2D normals;
 #endif
 
@@ -272,7 +272,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#ifdef PARALLAX_ENABLED
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -359,7 +359,7 @@ void main() {
 
     vec3 viewPos = (gbufferModelView * vec4(vIn.localPos, 1.0)).xyz;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
         //bool isMissingTangent = any(isnan(vLocalTangent));
 
@@ -471,9 +471,9 @@ void main() {
         if (vIn.blockId != BLOCK_LAVA)
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
+        #ifdef PARALLAX_ENABLED
             if (!skipParallax) {
-                #if MATERIAL_PARALLAX == PARALLAX_SHARP
+                #if DISPLACE_MODE == DISPLACE_POM_SHARP
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {

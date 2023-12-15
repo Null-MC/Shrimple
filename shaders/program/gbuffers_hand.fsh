@@ -6,18 +6,17 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
 
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -43,7 +42,7 @@ uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     uniform sampler2D normals;
 #endif
 
@@ -197,7 +196,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/fog/fog_render.glsl"
 
-#if MATERIAL_NORMALS != NORMALMAP_NONE || MATERIAL_PARALLAX != PARALLAX_NONE
+#if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/utility/tbn.glsl"
 #endif
@@ -264,7 +263,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/voxel/items.glsl"
 
-#if MATERIAL_PARALLAX != PARALLAX_NONE
+#ifdef PARALLAX_ENABLED
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -329,7 +328,7 @@ void main() {
 
     float viewDist = length(vIn.localPos);
     
-    #if MATERIAL_PARALLAX != PARALLAX_NONE
+    #ifdef PARALLAX_ENABLED
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(vIn.viewPos_T);
@@ -408,8 +407,8 @@ void main() {
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if MATERIAL_PARALLAX != PARALLAX_NONE
-            #if MATERIAL_PARALLAX == PARALLAX_SHARP
+        #ifdef PARALLAX_ENABLED
+            #if DISPLACE_MODE == DISPLACE_POM_SHARP
                 float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                 if (depthDiff >= ParallaxSharpThreshold) {

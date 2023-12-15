@@ -15,11 +15,11 @@ in VertexData {
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -54,11 +54,11 @@ out VertexData {
     vec2 localCoord;
     vec3 localNormal;
     vec4 localTangent;
-    //float tangentW;
+
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -153,7 +153,7 @@ void main() {
         }
     #endif
 
-    #if MATERIAL_PARALLAX != PARALLAX_NONE || defined WORLD_WATER_ENABLED
+    #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vOut.viewPos_T = _interpolate(vIn[0].viewPos_T, vIn[1].viewPos_T, vIn[2].viewPos_T);
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
