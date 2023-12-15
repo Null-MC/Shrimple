@@ -109,7 +109,7 @@ void main() {
             strength *= smoothstep(1.0, 0.85, edge);
         #endif
 
-        float depthSample = 0.5 - texture(normals, vOut.texcoord).a;
+        float depthSample = MaterialTessellationOffset - texture(normals, vOut.texcoord).a;
         depthSample *= step(-0.4999, depthSample);
 
         vOut.localPos -= vOut.localNormal * (depthSample * strength);

@@ -148,6 +148,7 @@ const bool colortex15Clear = true;
 #define METAL_BRIGHTNESS 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define MATERIAL_PARTICLES
 #define MATERIAL_TESSELLATION_QUALITY 64 // [4 6 8 12 16 24 32 48 64 96 128 172 256]
+#define MATERIAL_TESSELLATION_OFFSET 50 // [0 25 50 75 100]
 #define MATERIAL_TESSELLATION_EDGE_FADE
 
 #define MATERIAL_REFRACT_ENABLED
@@ -506,6 +507,7 @@ const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
 const float MaterialMetalBrightnessF = METAL_BRIGHTNESS * 0.01;
 const float MaterialReflectionStrength = MATERIAL_REFLECT_STRENGTH * 0.01;
+const float MaterialTessellationOffset = MATERIAL_TESSELLATION_OFFSET * 0.01;
 const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float MaterialScatterF = MATERIAL_SSS_SCATTER * 0.01;
 const float MaterialSssBoostF = MATERIAL_SSS_BOOST * 0.01;
