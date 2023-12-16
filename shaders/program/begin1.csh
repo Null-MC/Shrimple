@@ -137,7 +137,7 @@ void main() {
                 #endif
             #endif
 
-            #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            #if LIGHTING_MODE != DYN_LIGHT_NONE
                 SceneLightCount = 0u;
                 SceneLightMaxCount = 0u;
 
@@ -162,7 +162,7 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             memoryBarrierBuffer();
 
-            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
+            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && LIGHTING_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
                 if (i == 0) {
                     vec3 clipMin, clipMax;
                     mat4 matSceneToShadow = shadowModelViewEx * gbufferModelViewProjectionInverse;

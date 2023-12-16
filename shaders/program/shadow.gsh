@@ -20,7 +20,7 @@ flat out uint gBlockId;
     flat out vec2 gShadowTilePos;
 #endif
 
-#if defined DYN_LIGHT_FLICKER && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE
     uniform sampler2D noisetex;
 #endif
 
@@ -36,19 +36,19 @@ uniform float far;
     uniform float near;
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE != DYN_LIGHT_NONE
     uniform int entityId;
     uniform vec3 eyePosition;
     uniform int currentRenderedItemId;
 #endif
 
-#if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+#if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
     uniform int frameCounter;
     uniform vec3 previousCameraPosition;
     uniform vec4 entityColor;
 #endif
 
-#if defined DYN_LIGHT_FLICKER && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE
     #ifdef ANIM_WORLD_TIME
         uniform int worldTime;
     #else
@@ -61,16 +61,16 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
 
-        #ifdef DYN_LIGHT_FLICKER
+        #ifdef LIGHTING_FLICKER
             #include "/lib/utility/anim.glsl"
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
@@ -88,14 +88,14 @@ uniform float far;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/light_mask.glsl"
         //#include "/lib/lighting/voxel/lights.glsl"
     #endif
@@ -136,7 +136,7 @@ void main() {
     bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
                        || renderStage == MC_RENDER_STAGE_ENTITIES;
 
-    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
         if ((vBlockId[0] > 0 || currentRenderedItemId > 0 || entityId > 0) && (isRenderTerrain || isRenderEntity)) {
@@ -150,7 +150,7 @@ void main() {
 
             bool intersects = true;
 
-            #ifdef DYN_LIGHT_FRUSTUM_TEST //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+            #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
                 vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
                 const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
@@ -167,7 +167,7 @@ void main() {
 
             uint lightType = CollissionMaps[vBlockId[0]].LightId;
 
-            //#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            //#if LIGHTING_MODE == DYN_LIGHT_TRACED
                 vec3 cf = fract(cameraPosition);
                 vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
 
@@ -179,7 +179,7 @@ void main() {
                     if (intersects && !IsTraceEmptyBlock(vBlockId[0]))
                         SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    #if LIGHTING_MODE == DYN_LIGHT_TRACED
                         //uint lightType = GetSceneLightType(vBlockId[0]);
                         //uint lightType = CollissionMaps[vBlockId[0]].LightId;
 
@@ -197,7 +197,7 @@ void main() {
                 }
             //#endif
 
-            #if LPV_SIZE > 0 && (DYN_LIGHT_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+            #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
                 // if (!IsTraceEmptyBlock(vBlockId[0]))
                 //     SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
 
@@ -225,7 +225,7 @@ void main() {
                     //lightColor = pow(lightColor, vec3(2.0));
 
                     //vec2 lightNoise = vec2(0.0);
-                    #ifdef DYN_LIGHT_FLICKER
+                    #ifdef LIGHTING_FLICKER
                        vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
@@ -263,7 +263,7 @@ void main() {
         // else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         //     if (entityId == ENTITY_LIGHTNING_BOLT) return;
 
-        //     #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        //     #if LIGHTING_MODE != DYN_LIGHT_NONE
         //         if (entityId == ENTITY_PLAYER) {
         //             for (int i = 0; i < 3; i++) {
         //                 if (vVertexId[i] % 600 == 300) {
@@ -296,7 +296,7 @@ void main() {
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
-        // #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
         //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
         // #endif

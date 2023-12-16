@@ -30,13 +30,13 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_TA_SPECULAR;
 #endif
 
-#if DYN_LIGHT_TA > 0
+#if LIGHTING_TRACE_TEMP_ACCUM > 0
     uniform sampler2D BUFFER_LIGHT_TA;
     uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -174,7 +174,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
-#ifdef DYN_LIGHT_FLICKER
+#ifdef LIGHTING_FLICKER
     #include "/lib/lighting/flicker.glsl"
 #endif
 
@@ -183,17 +183,17 @@ uniform int heldBlockLightValue2;
     #include "/lib/material/specular.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)
+#if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/light_mask.glsl"
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
     //#include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
@@ -222,11 +222,11 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     
@@ -260,9 +260,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+#if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
-#elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+#elif LIGHTING_MODE == DYN_LIGHT_LPV
     #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/basic.glsl"
@@ -275,7 +275,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
-    const float lightBufferScale = exp2(DYN_LIGHT_RES);
+    const float lightBufferScale = exp2(LIGHTING_TRACE_RES);
     const float lightBufferScaleInv = rcp(lightBufferScale);
 
     //vec2 viewSize = vec2(viewWidth, viewHeight);
@@ -339,7 +339,7 @@ void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const 
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && DYN_LIGHT_TA > 0
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED && LIGHTING_TRACE_TEMP_ACCUM > 0
         /* RENDERTARGETS: 0,7,8,9,12 */
         layout(location = 1) out vec4 outTA;
         layout(location = 2) out vec4 outTA_Normal;
@@ -520,7 +520,7 @@ layout(location = 0) out vec4 outFinal;
                 ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
             #endif
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+            #if LIGHTING_MODE == DYN_LIGHT_NONE
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow, sss);
 
@@ -533,15 +533,17 @@ layout(location = 0) out vec4 outFinal;
                     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
                 #endif
 
-                SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                    SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                #endif
 
                 final = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
             #else
                 vec3 blockDiffuse = vec3(0.0);
                 vec3 blockSpecular = vec3(0.0);
 
-                #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-                    #ifndef LIGHT_HAND_SOFT_SHADOW
+                #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+                    #if !defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 
@@ -559,10 +561,10 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);
 
-                    #ifdef DYN_LIGHT_BLUR
+                    #ifdef LIGHTING_TRACE_FILTER
                         const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
                         BilateralGaussianBlur(sampleDiffuse, sampleSpecular, texcoord, linearDepthOpaque, texNormal, roughL, lightSigma);
-                    #elif DYN_LIGHT_RES == 0
+                    #elif LIGHTING_TRACE_RES == 0
                         sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -580,7 +582,7 @@ layout(location = 0) out vec4 outFinal;
                     //sampleSpecular = specularSample.rgb;
                     //sampleSpecular *= 1.0 - min(10.0 * abs(roughL - specularSample.a), 1.0);
 
-                    #if DYN_LIGHT_TA > 0
+                    #if LIGHTING_TRACE_TEMP_ACCUM > 0
                         vec3 cameraOffsetPrevious = cameraPosition - previousCameraPosition;
                         vec3 localPosPrev = localPos + cameraOffsetPrevious;
 
@@ -593,9 +595,9 @@ layout(location = 0) out vec4 outFinal;
 
                         vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
 
-                        // #if DYN_LIGHT_RES == 1
+                        // #if LIGHTING_TRACE_RES == 1
                         //     uvPrev.xy -= 0.5*rcp(viewSize);
-                        // #elif DYN_LIGHT_RES == 2
+                        // #elif LIGHTING_TRACE_RES == 2
                         //     uvPrev.xy -= 0.5*rcp(viewSize);
                         // #endif
 
@@ -606,7 +608,7 @@ layout(location = 0) out vec4 outFinal;
                             float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
                             float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
 
-                            #if DYN_LIGHT_RES == 2
+                            #if LIGHTING_TRACE_RES == 2
                                 const float depthWeightF = 4.0;
                             #else
                                 const float depthWeightF = 16.0;
@@ -620,7 +622,7 @@ layout(location = 0) out vec4 outFinal;
                                 normalPrev = normalize(normalPrev * 2.0 - 1.0);
                                 normalWeight = max(0.25 * (1.0 - dot(normalPrev, texNormal)), 0.0);
 
-                                // #if DYN_LIGHT_RES == 2
+                                // #if LIGHTING_TRACE_RES == 2
                                 //     normalWeight *= 0.25;
                                 // #endif
                             }
@@ -727,10 +729,12 @@ layout(location = 0) out vec4 outFinal;
 
                     blockDiffuse += skyDiffuse;
                     blockSpecular += skySpecular;
-                #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                #elif LIGHTING_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
                     
-                    SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                    #endif
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE
                         if (metal_f0 >= 0.5) {

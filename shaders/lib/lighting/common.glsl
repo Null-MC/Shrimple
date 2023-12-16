@@ -87,7 +87,7 @@ vec4 BasicVertex() {
             #endif
         #endif
 
-        // #if DYN_LIGHT_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
+        // #if LIGHTING_MODE != DYN_LIGHT_TRACED && !defined RENDER_CLOUDS
         //     vec2 lmcoordFinal = vec2(lmcoord.x, 0.0);
         //     //float lightP = rcp(max(DynamicLightAmbientF, EPSILON));
         //     //lmcoordFinal.y = pow(lmcoordFinal.y, lightP);
@@ -96,7 +96,7 @@ vec4 BasicVertex() {
         //     vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
         //     blockLightDefault = RGBToLinear(blockLightDefault);
 
-        //     #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        //     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
         //         #ifdef RENDER_ENTITIES
         //             vec4 lightColor = GetSceneEntityLightColor(entityId);
         //             vBlockLight += vec3(lightColor.a / 15.0);

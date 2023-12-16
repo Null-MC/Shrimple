@@ -26,12 +26,12 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -162,21 +162,21 @@ uniform int heldBlockLightValue2;
 #endif
 
 //#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
-    #ifdef DYN_LIGHT_FLICKER
+    #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED
             #include "/lib/lighting/voxel/light_mask.glsl"
         #endif
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
@@ -189,11 +189,11 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
         #include "/lib/utility/hsv.glsl"
 
@@ -204,9 +204,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/sky.glsl"
     #include "/lib/lighting/basic_hand.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/basic.glsl"
-    #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #elif LIGHTING_MODE == DYN_LIGHT_LPV
         #include "/lib/lighting/floodfill.glsl"
     #else
         #include "/lib/lighting/vanilla.glsl"
@@ -310,7 +310,7 @@ void main() {
         // TODO: do clouds have lightmap coords?
         const vec2 lmcoord = vec2(0.0, 1.0);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+        #if LIGHTING_MODE == DYN_LIGHT_NONE
             vec3 diffuse = vec3(0.0), specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vIn.localPos, normal, normal, shadowColor, sss);
 
@@ -324,21 +324,25 @@ void main() {
                 specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo.rgb, shadowColor, lmcoord, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #endif
 
             final.rgb = GetFinalLighting(albedo.rgb, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #elif defined IRIS_FEATURE_SSBO
             vec3 diffuseFinal = vec3(0.0);
             vec3 specularFinal = vec3(0.0);
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+            #if LIGHTING_MODE == DYN_LIGHT_TRACED
                 GetFinalBlockLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
-            #elif DYN_LIGHT_MODE == DYN_LIGHT_LPV
+            #elif LIGHTING_MODE == DYN_LIGHT_LPV
                 GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
             #endif
 
-            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+            #endif
 
             final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
         #endif

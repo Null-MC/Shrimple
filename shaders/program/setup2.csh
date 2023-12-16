@@ -15,7 +15,7 @@ const ivec3 workGroups = ivec3(5, 5, 1);
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/block_light_map.glsl"
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/collisions.glsl"
     #endif
 #endif
@@ -28,7 +28,7 @@ void main() {
 
         CollissionMaps[blockId].LightId = GetSceneLightType(blockId);
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED
             uint shapeCount = 0u;
             vec3 boundsMin[BLOCK_MASK_PARTS];
             vec3 boundsMax[BLOCK_MASK_PARTS];

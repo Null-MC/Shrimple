@@ -474,10 +474,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             }
         #endif
 
-        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
             vec3 blockLightAccum = vec3(0.0);
 
-            #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT && !defined RENDER_WEATHER
+            #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT && !defined RENDER_WEATHER
                 uint gridIndex;
                 uint lightCount = GetVoxelLights(traceLocalPos, gridIndex);
 
@@ -495,7 +495,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         vec3 lightVec = traceLocalPos - lightPos;
                         if (length2(lightVec) >= _pow2(lightRange)) continue;
                         
-                        #if defined VOLUMETRIC_BLOCK_RT && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                        #if defined VOLUMETRIC_BLOCK_RT && LIGHTING_MODE == DYN_LIGHT_TRACED
                             uint traceFace = 1u << GetLightMaskFace(lightVec);
                             if ((lightData.z & traceFace) == traceFace) continue;
 

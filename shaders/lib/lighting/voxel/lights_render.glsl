@@ -1,4 +1,4 @@
-#if defined DYN_LIGHT_FLICKER && !defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS //&& !((defined RENDER_SHADOW && defined RENDER_VERTEX) || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS || defined RENDER_SETUP)
+#if defined LIGHTING_FLICKER && !defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS //&& !((defined RENDER_SHADOW && defined RENDER_VERTEX) || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS || defined RENDER_SETUP)
     void ApplyLightFlicker(inout vec3 lightColor, const in uint lightType, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
         float blackbodyTemp = 0.0;

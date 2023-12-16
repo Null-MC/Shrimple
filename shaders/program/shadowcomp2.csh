@@ -9,8 +9,8 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
-    #ifdef DYN_LIGHT_FLICKER
+#if LIGHTING_MODE != DYN_LIGHT_NONE
+    #ifdef LIGHTING_FLICKER
         uniform sampler2D noisetex;
     #endif
 
@@ -19,7 +19,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform vec3 previousCameraPosition;
     uniform float far;
 
-    #ifdef DYN_LIGHT_FLICKER
+    #ifdef LIGHTING_FLICKER
         //uniform float frameTimeCounter;
 
         #ifdef ANIM_WORLD_TIME
@@ -38,7 +38,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     
     #include "/lib/buffers/lighting.glsl"
 
-    #ifdef DYN_LIGHT_FLICKER
+    #ifdef LIGHTING_FLICKER
         #include "/lib/utility/anim.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -58,7 +58,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 
 void main() {
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
         
@@ -70,7 +70,7 @@ void main() {
         //         sceneBlockMap.OctreeMask[i] = 0u;
         // #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED
             uint lightCount = SceneLightMaps[gridIndex].LightCount;
             if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
 
@@ -140,7 +140,7 @@ void main() {
                     lightColor = RGBToLinear(lightColor);
 
                     vec2 lightNoise = vec2(0.0);
-                    #ifdef DYN_LIGHT_FLICKER
+                    #ifdef LIGHTING_FLICKER
                         lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
@@ -160,7 +160,7 @@ void main() {
                     //     }
                     // #endif
 
-                    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+                    #if LIGHTING_MODE == DYN_LIGHT_TRACED
                         if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {
                             lightColor = LinearToRGB(lightColor);
                             vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;

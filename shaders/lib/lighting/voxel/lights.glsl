@@ -764,7 +764,7 @@
                 lightOffset = vec3(0.0, -0.2, 0.0);
                 break;
             case LIGHT_LAVA_CAULDRON:
-                #if DYN_LIGHT_PENUMBRA > 0
+                #if LIGHTING_TRACE_PENUMBRA > 0
                     lightOffset = vec3(0.0, 0.4, 0.0);
                 #else
                     lightOffset = vec3(0.0, 0.2, 0.0);

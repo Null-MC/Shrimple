@@ -57,11 +57,11 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         sampleSpecular += blockSpecular * voxelFade;
     #endif
 
-    #if LPV_SIZE > 0 //&& DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #if LPV_SIZE > 0 //&& LIGHTING_MODE == DYN_LIGHT_LPV
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
         // Required "hack" to force shadow pass on iris
         if (gl_FragCoord.x < 0) sampleDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
     #endif
@@ -144,7 +144,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         //ambientLight = _pow2(ambientLight);
 
 
-        #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_LPV
+        #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& LIGHTING_MODE != DYN_LIGHT_LPV
         //     //vec3 surfacePos = localPos;
         //     //surfacePos += 0.501 * localNormal;// * (1.0 - sss);
 
@@ -172,12 +172,12 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         //     vec3 lpvLight = lpvSample.rgb / LpvBlockLightF;
         //     //float skyLight = lpvSample.a;
 
-        //     //#if DYN_LIGHT_MODE != DYN_LIGHT_LPV
+        //     //#if LIGHTING_MODE != DYN_LIGHT_LPV
         //         //ambientLight = _pow3(ambientLight);
         //         lpvFade *= 1.0 - LpvLightmapMixF;
         //     //#endif
 
-        //     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100
+        //     #if LIGHTING_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100
         //         ambientLight *= 1.0 - lpvFade;
         //         lpvLight *= 1.0 - LpvLightmapMixF;
         //     #endif
