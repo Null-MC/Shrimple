@@ -1,4 +1,4 @@
-const vec3 worldSunColor         = RGBToLinear(vec3(0.889, 0.864, 0.691));
+const vec3 worldSunColor         = RGBToLinear(vec3(0.909, 0.900, 0.866));
 const vec3 worldHorizonColor     = RGBToLinear(vec3(0.813, 0.540, 0.120));
 const vec3 worldMoonColor        = RGBToLinear(vec3(0.864, 0.860, 0.823));
 
@@ -12,17 +12,17 @@ const float LightningBrightness = 20.0;
 
 
 float GetSkyHorizonF(const in float celestialUpF) {
-    return smoothstep(0.0, 0.2, abs(celestialUpF));
+    return 1.0 - smoothstep(0.0, 0.5, abs(celestialUpF));
 }
 
 vec3 GetSkySunColor(const in float sunUpF) {
     float horizonF = GetSkyHorizonF(sunUpF);
-    return mix(worldHorizonColor, worldSunColor, horizonF);
+    return mix(worldSunColor, worldHorizonColor, horizonF);
 }
 
 vec3 GetSkyMoonColor(const in float moonUpF) {
     float horizonF = GetSkyHorizonF(moonUpF);
-    return mix(worldHorizonColor, worldMoonColor, horizonF);
+    return mix(worldMoonColor, worldHorizonColor, horizonF);
 }
 
 #if !defined IRIS_FEATURE_SSBO || defined RENDER_BEGIN
@@ -33,7 +33,7 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
         float brightness = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunF);
 
         float horizonF = GetSkyHorizonF(sunDir.y);
-        skyLightColor = mix(worldHorizonColor, skyLightColor, horizonF) * brightness;
+        skyLightColor = mix(skyLightColor, worldHorizonColor, horizonF) * brightness;
 
         #if MC_VERSION > 11900
             skyLightColor *= (1.0 - 0.99*smootherstep(darknessFactor));// + 0.04 * smootherstep(darknessLightFactor);
