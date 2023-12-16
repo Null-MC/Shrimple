@@ -80,6 +80,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         vec3 skyLightColor = vec3(1.0);
 
+        #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+            skyLightColor *= _pow3(lmcoord.y);
+        #endif
+
         // #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         // //     float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
         // //     shadow = 1.0 - smoothstep(0.5, 0.8, shadow);
