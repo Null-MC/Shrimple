@@ -1,11 +1,11 @@
-const vec3 colorSkyDay     = RGBToLinear(vec3(0.342, 0.542, 0.783)) * 0.4;
-const vec3 colorFogDay     = RGBToLinear(vec3(0.680, 0.797, 0.823)) * 0.7;
+const vec3 colorSkyDay     = _RGBToLinear(vec3(0.342, 0.542, 0.783)) * 0.4;
+const vec3 colorFogDay     = _RGBToLinear(vec3(0.680, 0.797, 0.823)) * 0.7;
 
-const vec3 colorSkyNight   = RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;
-const vec3 colorFogNight   = RGBToLinear(vec3(0.276, 0.278, 0.288)) * 0.3;
+const vec3 colorSkyNight   = _RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;
+const vec3 colorFogNight   = _RGBToLinear(vec3(0.276, 0.278, 0.288)) * 0.3;
 
-const vec3 colorSkyHorizon = RGBToLinear(vec3(0.502, 0.370, 0.626)) * 0.4;
-const vec3 colorFogHorizon = RGBToLinear(vec3(0.854, 0.628, 0.281)) * 0.8;
+const vec3 colorSkyHorizon = _RGBToLinear(vec3(0.502, 0.370, 0.626)) * 0.4;
+const vec3 colorFogHorizon = _RGBToLinear(vec3(0.854, 0.628, 0.281)) * 0.8;
 
 
 #ifdef WORLD_WATER_ENABLED
@@ -46,7 +46,7 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
         skyColor = mix(colorSkyHorizon, skyColor, horizonF);
         fogColor = mix(colorFogHorizon, fogColor, horizonF);
 
-        const vec3 colorRainFogDay = RGBToLinear(vec3(0.04));
+        const vec3 colorRainFogDay = _RGBToLinear(vec3(0.04));
 
         vec3 rainSkyColor = mix(vec3(0.1), vec3(0.3), dayF);
         vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);

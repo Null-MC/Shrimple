@@ -147,7 +147,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define MATERIAL_PARTICLES
-#define MATERIAL_TESSELLATION_QUALITY 64 // [4 6 8 12 16 24 32 48 64 96 128 172 256]
+#define MATERIAL_TESSELLATION_QUALITY 16 // [4 6 8 12 16 24 32 48 64 96 128 172 256]
 #define MATERIAL_TESSELLATION_OFFSET 50 // [0 25 50 75 100]
 #define MATERIAL_TESSELLATION_EDGE_FADE
 
@@ -626,6 +626,8 @@ float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
 int sumOf(ivec2 vec) {return vec.x + vec.y;}
 int sumOf(ivec3 vec) {return vec.x + vec.y + vec.z;}
+
+#define _RGBToLinear(color) (pow((color), vec3(GAMMA)))
 
 float RGBToLinear(const in float value) {
     return pow(value, GAMMA);

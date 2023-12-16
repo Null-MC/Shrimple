@@ -43,8 +43,8 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
         #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
-            const vec3 cloudColor = RGBToLinear(vec3(0.8));
-            const vec3 cloudColorRain = RGBToLinear(vec3(0.139, 0.184, 0.192));
+            const vec3 cloudColor = _RGBToLinear(vec3(0.8));
+            const vec3 cloudColorRain = _RGBToLinear(vec3(0.139, 0.184, 0.192));
 
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();

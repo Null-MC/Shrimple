@@ -1,11 +1,11 @@
 #define RENDER_SHADOW
 #define RENDER_GEOMETRY
 
-#include "/lib/constants.glsl"
-#include "/lib/common.glsl"
-
 layout(triangles) in;
 layout(triangle_strip, max_vertices=12) out;
+
+#include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 in vec4 vColor[3];
 in vec2 vTexcoord[3];
