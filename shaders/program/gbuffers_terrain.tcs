@@ -126,12 +126,10 @@ void main() {
 
             distance = saturate((abs(distance) - MIN_DISTANCE) / (MATERIAL_DISPLACE_MAX_DIST - MIN_DISTANCE));
 
-            //float tessLevelOuter = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, maxOf(distance));
-            gl_TessLevelOuter[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[1], distance[0]));
-            gl_TessLevelOuter[1] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[0], distance[2]));
-            gl_TessLevelOuter[2] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[2], distance[1]));
+            gl_TessLevelOuter[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[1], distance[2]));
+            gl_TessLevelOuter[1] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[2], distance[0]));
+            gl_TessLevelOuter[2] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[0], distance[1]));
 
-            //float tessLevelInner = mix(MATERIAL_TESSELLATION_QUALITY, 1, maxOf(distance));
             gl_TessLevelInner[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, maxOf(distance));
         #else
             gl_TessLevelOuter[0] = 1;

@@ -22,7 +22,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D shadowcolor0;
 #endif
 
-// #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+// #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
 //     uniform sampler3D texLPV_1;
 //     uniform sampler3D texLPV_2;
 // #endif
@@ -94,8 +94,8 @@ uniform float blindnessSmooth;
     #include "/lib/material/specular.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_LPV || DYN_LIGHT_MODE == DYN_LIGHT_TRACED
-    #ifdef DYN_LIGHT_FLICKER
+#if LIGHTING_MODE == DYN_LIGHT_LPV || LIGHTING_MODE == DYN_LIGHT_TRACED
+    #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
@@ -114,13 +114,13 @@ uniform float blindnessSmooth;
     #include "/lib/lighting/voxel/items.glsl"
 #endif
 
-#if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE == DYN_LIGHT_TRACED
     // #include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
-// #if LPV_SIZE > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+// #if LPV_SIZE > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
 //     #include "/lib/buffers/volume.glsl"
 //     #include "/lib/lighting/voxel/lpv.glsl"
 // #endif
@@ -128,7 +128,7 @@ uniform float blindnessSmooth;
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
@@ -140,14 +140,14 @@ uniform float blindnessSmooth;
 //#include "/lib/lighting/basic.glsl"
 
 
-#if DYN_LIGHT_RES != 0
-    #if DYN_LIGHT_RES == 1
+#if LIGHTING_TRACE_RES != 0
+    #if LIGHTING_TRACE_RES == 1
         const ivec2 offsetList[4] = ivec2[](
             ivec2(0, 0),
             ivec2(1, 0),
             ivec2(0, 1),
             ivec2(1, 1));
-    #elif DYN_LIGHT_RES == 2
+    #elif LIGHTING_TRACE_RES == 2
         const ivec2 offsetList[16] = ivec2[](
             ivec2(0, 0),
             ivec2(2, 0),
@@ -187,15 +187,15 @@ layout(location = 2) out vec4 outDepth;
 
 void main() {
     //vec2 viewSize = vec2(viewWidth, viewHeight);
-    const int resScale = int(exp2(DYN_LIGHT_RES));
+    const int resScale = int(exp2(LIGHTING_TRACE_RES));
 
     vec2 tex2 = texcoord;
-    #if DYN_LIGHT_TA > 0 //&& DYN_LIGHT_PENUMBRA > 0
+    #if LIGHTING_TRACE_TEMP_ACCUM > 0 //&& LIGHTING_TRACE_PENUMBRA > 0
         //vec2 pixelSize = rcp(viewSize);
 
-        #if DYN_LIGHT_RES == 2
+        #if LIGHTING_TRACE_RES == 2
             tex2 += GetTemporalOffset(4) * pixelSize * 0.25;
-        #elif DYN_LIGHT_RES == 1
+        #elif LIGHTING_TRACE_RES == 1
             tex2 += GetTemporalOffset(2) * pixelSize * 0.5;
         #endif
     #endif
@@ -260,7 +260,7 @@ void main() {
         //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
         SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
-        #ifdef LIGHT_HAND_SOFT_SHADOW
+        #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
             SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 

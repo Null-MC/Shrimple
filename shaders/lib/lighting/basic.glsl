@@ -57,11 +57,11 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         sampleSpecular += blockSpecular * voxelFade;
     #endif
 
-    #if LPV_SIZE > 0 //&& DYN_LIGHT_MODE == DYN_LIGHT_LPV
+    #if LPV_SIZE > 0 //&& LIGHTING_MODE == DYN_LIGHT_LPV
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
         // Required "hack" to force shadow pass on iris
         if (gl_FragCoord.x < 0) sampleDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
     #endif
@@ -79,6 +79,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         vec2 lmSky = vec2(0.0, lmcoord.y);
 
         vec3 skyLightColor = vec3(1.0);
+
+        #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+            skyLightColor *= _pow3(lmcoord.y);
+        #endif
 
         // #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         // //     float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
@@ -124,10 +128,14 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         accumDiffuse *= 1.0 + MaterialSssBoostF * sss;
 
         vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
-        #ifdef RENDER_SHADOWS_ENABLED
-            lmcoordFinal.y = _pow3(lmcoordFinal.y);
-        #endif
-        lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+        // #ifdef RENDER_SHADOWS_ENABLED
+        //     lmcoordFinal.y = _pow3(lmcoordFinal.y);
+        // #endif
+
+        // lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+        float sunAngleRange = 0.5 * localSkyLightDirection.y;
+        lmcoordFinal.y *= diffuseNoLm * sunAngleRange + (1.0 - sunAngleRange);
+
         lmcoordFinal = LightMapTex(lmcoordFinal);
 
         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
@@ -136,7 +144,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         //ambientLight = _pow2(ambientLight);
 
 
-        #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_LPV
+        #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& LIGHTING_MODE != DYN_LIGHT_LPV
         //     //vec3 surfacePos = localPos;
         //     //surfacePos += 0.501 * localNormal;// * (1.0 - sss);
 
@@ -164,12 +172,12 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         //     vec3 lpvLight = lpvSample.rgb / LpvBlockLightF;
         //     //float skyLight = lpvSample.a;
 
-        //     //#if DYN_LIGHT_MODE != DYN_LIGHT_LPV
+        //     //#if LIGHTING_MODE != DYN_LIGHT_LPV
         //         //ambientLight = _pow3(ambientLight);
         //         lpvFade *= 1.0 - LpvLightmapMixF;
         //     //#endif
 
-        //     #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100
+        //     #if LIGHTING_MODE == DYN_LIGHT_TRACED && LPV_LIGHTMAP_MIX != 100
         //         ambientLight *= 1.0 - lpvFade;
         //         lpvLight *= 1.0 - LpvLightmapMixF;
         //     #endif

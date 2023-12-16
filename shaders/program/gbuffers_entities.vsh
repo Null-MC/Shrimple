@@ -107,7 +107,7 @@ uniform vec4 entityColor;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
     #include "/lib/entities.glsl"
 
     #include "/lib/lighting/voxel/entities.glsl"

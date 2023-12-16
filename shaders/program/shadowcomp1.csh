@@ -17,7 +17,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
-    #ifdef DYN_LIGHT_FLICKER
+    #ifdef LIGHTING_FLICKER
         uniform sampler2D noisetex;
     #endif
 
@@ -254,7 +254,7 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
 }
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
         uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
         if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
 
@@ -266,7 +266,7 @@ void main() {
         ivec3 kernelPos = ivec3(gl_LocalInvocationID + 1u);
         ivec3 kernelEdgeDir = ivec3(step(ivec3(1), gl_LocalInvocationID)) * 2 - 1;
         
-        // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& LIGHTING_MODE == DYN_LIGHT_TRACED
         //     vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.96*rainStrength);
         //     skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
 
@@ -372,7 +372,7 @@ void main() {
                         skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
 
-                        //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                        //#if LIGHTING_MODE == DYN_LIGHT_LPV
                             float skyLightRange = mix(1.0, 6.0, sunUpF);
                         //#else
                         //    float skyLightRange = mix(1.0, 16.0, sunUpF);
@@ -382,7 +382,7 @@ void main() {
 
                         float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
-                        //#if DYN_LIGHT_MODE == DYN_LIGHT_LPV
+                        //#if LIGHTING_MODE == DYN_LIGHT_LPV
                             skyLightBrightF *= DynamicLightAmbientF;
                         //#endif
 

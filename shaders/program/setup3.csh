@@ -9,7 +9,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 const ivec3 workGroups = ivec3(2, 2, 1);
 
-#ifdef IRIS_FEATURE_SSBO //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#ifdef IRIS_FEATURE_SSBO //&& LIGHTING_MODE != DYN_LIGHT_NONE
     #include "/lib/blocks.glsl"
 
     #include "/lib/lights.glsl"
@@ -20,7 +20,7 @@ const ivec3 workGroups = ivec3(2, 2, 1);
 
 
 void main() {
-    #ifdef IRIS_FEATURE_SSBO //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #ifdef IRIS_FEATURE_SSBO //&& LIGHTING_MODE != DYN_LIGHT_NONE
         uint lightType = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 16);
         if (lightType >= 256) return;
 

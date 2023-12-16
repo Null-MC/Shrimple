@@ -13,7 +13,10 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         #endif
 
         float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
-        lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
+        
+        // lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
+        float sunAngleRange = 0.5 * localSkyLightDirection.y;
+        lmSkyFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
 
         lmSkyFinal = LightMapTex(lmSkyFinal);
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
@@ -152,7 +155,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         blockDiffuse += skyDiffuse;
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
         // Required "hack" to force shadow pass on iris
         if (gl_FragCoord.x < 0) blockDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
     #endif

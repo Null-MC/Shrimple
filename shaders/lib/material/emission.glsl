@@ -29,7 +29,7 @@
         #elif MATERIAL_EMISSION == EMISSION_LABPBR
             emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).a;
             if (emission > (254.5/255.0)) emission = 0.0;
-        #elif DYN_LIGHT_MODE != DYN_LIGHT_NONE
+        #elif LIGHTING_MODE != DYN_LIGHT_NONE
             int materialId = id;
             //if (currentRenderedItemId > 0)
             //    materialId = currentRenderedItemId;

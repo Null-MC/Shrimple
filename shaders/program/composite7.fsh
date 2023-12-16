@@ -89,7 +89,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -150,7 +150,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/buffers/water_depths.glsl"
     #endif
 
-    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE)
+    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
         #include "/lib/blocks.glsl"
 
         #include "/lib/buffers/lighting.glsl"
@@ -160,8 +160,8 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 
-    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && DYN_LIGHT_MODE != DYN_LIGHT_NONE
-        #ifdef DYN_LIGHT_FLICKER
+    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
+        #ifdef LIGHTING_FLICKER
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
         #endif
@@ -169,7 +169,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lights.glsl"
         #include "/lib/lighting/fresnel.glsl"
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
 
             #include "/lib/buffers/collisions.glsl"
@@ -265,6 +265,7 @@ void main() {
     float farDist = clamp(viewDist, near, far - 0.002);
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
+
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             // if (depth >= 0.9999) {
@@ -292,12 +293,44 @@ void main() {
         if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
     #endif
 
-    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif
 
-            final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+            vec3 cloudNear, cloudFar;
+            GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+            
+            float cloudDistNear = length(cloudNear);
+            float cloudDistFar = length(cloudFar);
+
+            #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                cloudDistNear = max(cloudDistNear, far);
+            #endif
+
+            cloudDistFar = min(cloudDistFar, 2000.0);
+
+            if (depth < 1.0) {
+                cloudDistFar = min(cloudDistFar, viewDist);
+
+                if (cloudDistNear >= viewDist) {
+                    cloudDistNear = 0.0;
+                    cloudDistFar = 0.0;
+                }
+            }
+
+            if (cloudDistFar > cloudDistNear) {
+                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                    vec4 scatterTransmit = _TraceClouds(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                #else
+                    vec4 scatterTransmit = _TraceCloudVL(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                #endif
+
+                final.rgb += scatterTransmit.rgb * final.a;
+                final.a *= scatterTransmit.a;
+            }
+
+            //final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
 
         #ifdef WORLD_WATER_ENABLED
             }

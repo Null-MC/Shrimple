@@ -21,7 +21,7 @@ struct StaticLightData {
     StaticLightData StaticLightMap[];
 };
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE != DYN_LIGHT_NONE
     #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
         layout(std430, binding = 3) restrict buffer globalLightingData
     #elif defined RENDER_BEGIN
@@ -41,12 +41,12 @@ struct StaticLightData {
         vec3 sceneViewDown;         // 16
         vec3 sceneViewLeft;         // 16
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED
             uvec4 SceneLights[];
         #endif
     };
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         struct LightCellData {
             uint LightCount;
             uint LightNeighborCount;
@@ -71,7 +71,7 @@ struct StaticLightData {
     #endif
 #endif
 
-#if DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
+#if LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
     #if defined RENDER_BEGIN || defined RENDER_SHADOW
         layout(r16ui) uniform restrict writeonly uimage2D imgLocalBlockMask;
     #elif defined RENDER_SHADOWCOMP

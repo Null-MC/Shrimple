@@ -50,7 +50,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -117,7 +117,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || DYN_LIGHT_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE != DYN_LIGHT_NONE
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -228,7 +228,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lights.glsl"
 #include "/lib/physics_mod/snow.glsl"
 
-#ifdef DYN_LIGHT_FLICKER
+#ifdef LIGHTING_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
@@ -246,17 +246,17 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #include "/lib/lighting/fresnel.glsl"
 
-    #if DYN_LIGHT_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED
             #include "/lib/lighting/voxel/light_mask.glsl"
         #endif
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/tinting.glsl"
         #include "/lib/lighting/voxel/tracing.glsl"
     #endif
@@ -286,7 +286,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
@@ -294,7 +294,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/world/water.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& DYN_LIGHT_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -304,7 +304,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+    #if LIGHTING_MODE == DYN_LIGHT_NONE
         #include "/lib/lighting/vanilla.glsl"
     #else
         #include "/lib/lighting/basic.glsl"
@@ -538,7 +538,7 @@ void main() {
             }
         #endif
 
-        #if DYN_LIGHT_MODE == DYN_LIGHT_NONE
+        #if LIGHTING_MODE == DYN_LIGHT_NONE
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
@@ -552,7 +552,9 @@ void main() {
                 specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL);
             #endif
 
-            SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            #endif
 
             color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #else
@@ -564,7 +566,10 @@ void main() {
             blockDiffuse += emission * MaterialEmissionF;
 
             GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-            SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            #endif
 
             #ifdef WORLD_SKY_ENABLED
                 // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED

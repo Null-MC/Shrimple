@@ -147,7 +147,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define MATERIAL_PARTICLES
-#define MATERIAL_TESSELLATION_QUALITY 64 // [4 6 8 12 16 24 32 48 64 96 128 172 256]
+#define MATERIAL_TESSELLATION_QUALITY 16 // [4 6 8 12 16 24 32 48 64 96 128]
 #define MATERIAL_TESSELLATION_OFFSET 50 // [0 25 50 75 100]
 #define MATERIAL_TESSELLATION_EDGE_FADE
 
@@ -192,35 +192,33 @@ const bool colortex15Clear = true;
 #define SHADOW_CLOUD_BRIGHTNESS 30 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
-// Dynamic Lighting
-#define DYN_LIGHT_MODE 0 // [0 1 2]
-#define DYN_LIGHT_TYPE 0 // [0 1]
-#define DYN_LIGHT_COLOR_MODE 0 // [0 1]
-#define DYN_LIGHT_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define DYN_LIGHT_AMBIENT 30 // [0 2 4 6 8 10 12 14 16 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define WORLD_LIGHT_MIN 0.6 // [0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
+// Lighting
+#define LIGHTING_MODE 0 // [0 1 2]
+#define LIGHTING_MODE_HAND 2 // [0 1 2]
+#define LIGHTING_BRIGHTNESS 200 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
+#define LIGHTING_AMBIENT 30 // [0 2 4 6 8 10 12 14 16 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define LIGHTING_MIN 0.6 // [0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
 #define LIGHTING_TEMP 5600 // [3000 3200 3400 3600 3800 4000 4400 4800 5200 5600 6000 6400 6800 7200 7600 8000 8400 8800]
-#define DYN_LIGHT_FLICKER
-#define DYN_LIGHT_TINT_MODE 1 // [0 1 2]
-#define DYN_LIGHT_TINT 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
-#define DYN_LIGHT_PENUMBRA 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define DYN_LIGHT_RES 1 // [2 1 0]
+#define LIGHTING_RANGE 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 180 200 220 240 260 280 300 350 400]
+#define LIGHTING_FLICKER
+#define LIGHTING_TINT_MODE 1 // [0 1 2]
+#define LIGHTING_TINT_STRENGTH 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
+
+// Traced Lighting
+#define LIGHTING_TRACE_RES 1 // [2 1 0]
+#define LIGHTING_TRACE_PENUMBRA 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define LIGHTING_TRACE_TEMP_ACCUM 85 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define LIGHTING_TRACE_SAMPLE_MAX 16 // [0 2 4 8 12 16 24 32 48 64 96 128]
+#define LIGHTING_TRACED_PLAYER_SHADOW 2 // [0 1 2]
+#define LIGHTING_TRACE_FILTER
 #define LIGHT_BIN_MAX_COUNT 128 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
 #define LIGHT_SIZE_Y 16 // [4 8 16 32]
-#define DYN_LIGHT_RAY_QUALITY 2 // [1 2 4 8]
-#define DYN_LIGHT_POPULATE_NEIGHBORS
-//#define DYN_LIGHT_FRUSTUM_TEST
-#define DYN_LIGHT_PLAYER_SHADOW 2 // [0 1 2]
-#define DYN_LIGHT_FALLBACK
-//#define DYN_LIGHT_WEATHER
-//#define DYN_LIGHT_BLOCK_ENTITIES
-#define DYN_LIGHT_SAMPLE_MAX 16 // [0 2 4 8 12 16 24 32 48 64 96 128]
-#define DYN_LIGHT_BLUR
-#define DYN_LIGHT_RANGE 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 180 200 220 240 260 280 300 350 400]
-#define DYN_LIGHT_TA 85 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define LIGHT_HAND_SOFT_SHADOW
+//#define DYN_LIGHT_FRUSTUM_TEST
+//#define DYN_LIGHT_BLOCK_ENTITIES
+//#define DYN_LIGHT_WEATHER
 
 // Dynamic LPV
 #define LPV_SIZE 0 // [0 1 2 3]
@@ -234,8 +232,8 @@ const bool colortex15Clear = true;
 #define LPV_FALLOFF 0.2 // [0.001]
 #define LPV_SKYLIGHT_RANGE 256.0
 #define LPV_GLASS_TINT
-//#define LPV_GI
 //#define LPV_VOXEL_TEST
+//#define LPV_GI
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -253,11 +251,11 @@ const bool colortex15Clear = true;
 //#define VOLUMETRIC_CELESTIAL
 #define VOLUMETRIC_BLOCK_MODE 0 // [0 1 2 3]
 #define VOLUMETRIC_BLOCK_RANGE 50 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
-#define VOLUMETRIC_SAMPLES 12 // [12 20 28 36]
+#define VOLUMETRIC_SAMPLES 20 // [12 20 28 36]
 #define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250 300 400 600 800 1000]
 #define VOLUMETRIC_RES 1 // [2 1 0]
 #define VOLUMETRIC_BRIGHT_SKY   100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
-#define VOLUMETRIC_BRIGHT_BLOCK 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
+#define VOLUMETRIC_BRIGHT_BLOCK 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_FILTER
 //#define VOLUMETRIC_BLOCK_RT
 //#define VOLUMETRIC_HANDLIGHT
@@ -416,7 +414,7 @@ const bool colortex15Clear = true;
     #define VL_BUFFER_ENABLED
 #endif
 
-#if defined MATERIAL_REFRACT_ENABLED || (defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR) || defined VL_BUFFER_ENABLED || defined FORCE_DEFERRED
+#if defined MATERIAL_REFRACT_ENABLED || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR) || defined VL_BUFFER_ENABLED || defined FORCE_DEFERRED
     #define DEFERRED_BUFFER_ENABLED
 #endif
 
@@ -467,7 +465,7 @@ const bool colortex15Clear = true;
 #endif
 #ifdef DYN_LIGHT_WEATHER
 #endif
-#ifdef DYN_LIGHT_BLUR
+#ifdef LIGHTING_TRACE_FILTER
 #endif
 #ifdef DYN_LIGHT_OREBLOCKS
 #endif
@@ -494,7 +492,7 @@ const bool colortex15Clear = true;
 const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
 const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
 
-const float WorldMinLightF = WORLD_LIGHT_MIN * 0.01;
+const float WorldMinLightF = LIGHTING_MIN * 0.01;
 const float WorldSunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
 const float WorldMoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
 const float WorldSkyBrightnessF = SKY_BRIGHTNESS * 0.01;
@@ -518,12 +516,12 @@ const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
 const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
 const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
 const float VolumetricSkyDayDensityF = VOLUMETRIC_SKY_DAY_DENSITY * 0.01;
-const float DynamicLightAmbientF = DYN_LIGHT_AMBIENT * 0.01;
-const float DynamicLightTintF = DYN_LIGHT_TINT * 0.01;
-const float DynamicLightPenumbraF = DYN_LIGHT_PENUMBRA * 0.01;
-const float DynamicLightBrightness = DYN_LIGHT_BRIGHTNESS * 0.01;
-const float DynamicLightTemporalStrength = DYN_LIGHT_TA * 0.01;
-const float DynamicLightRangeF = DYN_LIGHT_RANGE * 0.01;
+const float DynamicLightAmbientF = LIGHTING_AMBIENT * 0.01;
+const float DynamicLightTintF = LIGHTING_TINT_STRENGTH * 0.01;
+const float DynamicLightPenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
+const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
+const float DynamicLightTemporalStrength = LIGHTING_TRACE_TEMP_ACCUM * 0.01;
+const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
 //const float LpvRangeF = LPV_RANGE * 0.01;
@@ -544,6 +542,7 @@ const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float uint32MaxInv = 1.0 / UINT32_MAX;
+//const float GAMMA_INV = 1.0 / GAMMA;
 const vec2 EPSILON2 = vec2(EPSILON);
 const vec3 EPSILON3 = vec3(EPSILON);
 const float phaseIso = 1.0 / (4.0 * PI);
@@ -625,6 +624,8 @@ float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
 int sumOf(ivec2 vec) {return vec.x + vec.y;}
 int sumOf(ivec3 vec) {return vec.x + vec.y + vec.z;}
+
+#define _RGBToLinear(color) (pow((color), vec3(GAMMA)))
 
 float RGBToLinear(const in float value) {
     return pow(value, GAMMA);

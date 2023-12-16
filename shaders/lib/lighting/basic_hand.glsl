@@ -2,7 +2,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     vec3 result = vec3(0.0);
     vec2 noiseSample = vec2(0.0);
 
-    #ifdef DYN_LIGHT_FLICKER
+    #ifdef LIGHTING_FLICKER
         noiseSample = GetDynLightNoise(vec3(0.0));
     #endif
 
@@ -44,8 +44,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             //lightColor = RGBToLinear(lightColor);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if defined LIGHT_HAND_SOFT_SHADOW && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
+            #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && LIGHTING_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+                #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
@@ -120,8 +120,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             //lightColor = RGBToLinear(lightColor);
 
-            #if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if defined LIGHT_HAND_SOFT_SHADOW && DYN_LIGHT_PENUMBRA > 0 && DYN_LIGHT_MODE == DYN_LIGHT_TRACED && !defined RENDER_TRANSLUCENT
+            #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && LIGHTING_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+                #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
