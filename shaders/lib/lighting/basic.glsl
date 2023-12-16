@@ -124,10 +124,14 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         accumDiffuse *= 1.0 + MaterialSssBoostF * sss;
 
         vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
-        #ifdef RENDER_SHADOWS_ENABLED
-            lmcoordFinal.y = _pow3(lmcoordFinal.y);
-        #endif
-        lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+        // #ifdef RENDER_SHADOWS_ENABLED
+        //     lmcoordFinal.y = _pow3(lmcoordFinal.y);
+        // #endif
+
+        // lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+        float sunAngleRange = 0.5 * localSkyLightDirection.y;
+        lmcoordFinal.y *= diffuseNoLm * sunAngleRange + (1.0 - sunAngleRange);
+
         lmcoordFinal = LightMapTex(lmcoordFinal);
 
         vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
