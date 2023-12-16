@@ -114,7 +114,9 @@ void main() {
 
     //final.rgb *= 1.0 - blindnessSmooth;
 
-    #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+    #ifdef DH_COMPAT_ENABLED
+        final.rgb = LinearToRGB(final.rgb);
+    #elif !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 0) {
         #endif
@@ -126,10 +128,6 @@ void main() {
         #ifdef WORLD_WATER_ENABLED
             }
         #endif
-    #endif
-
-    #ifdef DH_COMPAT_ENABLED
-        final.rgb = LinearToRGB(final.rgb);
     #endif
     
     outFinal = final;

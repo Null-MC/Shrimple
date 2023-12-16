@@ -135,8 +135,8 @@ void main() {
 		// #endif
 	#endif
 
-    //color.rgb += (GetScreenBayerValue() * 2.0 - 1.0) / 255.0;
-    color.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 255.0;
+    color += (GetScreenBayerValue(ivec2(2,1)) - 0.5) / 255.0;
+    //color.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 255.0;
 
 	#if defined IRIS_FEATURE_SSBO && DYN_LIGHT_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 		beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewHeight/2 - 24));

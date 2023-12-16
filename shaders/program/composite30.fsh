@@ -21,6 +21,8 @@ uniform float playerMood;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/sampling/bayer.glsl"
+
 #include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 
@@ -42,7 +44,9 @@ void main() {
     ApplyPostGrading(color);
 
     color = LinearToRGB(color, GAMMA_OUT);
-    //color += Bayer16(gl_FragCoord.xy) / 255.0;
+
+    //color += (Bayer16(gl_FragCoord.xy) - 0.5) / 255.0;
+    color += (GetScreenBayerValue(ivec2(2,1)) - 0.5) / 255.0;
 
     outFinal = color;
 }
