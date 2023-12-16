@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v6.5
+# Provided by ShrikerChestTree v7.0
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -298,6 +298,12 @@ option.LIGHTING_MODE.comment=Как рассчитывается освещен�
 value.LIGHTING_MODE.0=Световая Карта
 value.LIGHTING_MODE.1=Наливное Заполнение (LPV GI)
 value.LIGHTING_MODE.2=Трассировка лучей
+
+option.LIGHTING_MODE_HAND=Рука
+value.LIGHTING_MODE_HAND.0=Никакое
+value.LIGHTING_MODE_HAND.1=Простой
+value.LIGHTING_MODE_HAND.2=Трассировка-Лучей
+
 
 option.LIGHTING_MIN=Минимум
 option.LIGHTING_MIN.comment=Минимальное количество света для мира.
