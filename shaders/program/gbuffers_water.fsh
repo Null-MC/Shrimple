@@ -677,14 +677,14 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
-            #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    geoNoL = dot(localNormal, localSkyLightDirection);
+                    float geoNoL = dot(localNormal, localSkyLightDirection);
                 #else
-                    geoNoL = 1.0;
+                    float geoNoL = 1.0;
                 #endif
             
-                specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL);
+                specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL) * _pow3(lmFinal.y);
             #endif
 
             SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
