@@ -1,6 +1,18 @@
-const vec3 worldSunColor         = RGBToLinear(vec3(0.909, 0.900, 0.866));
-const vec3 worldHorizonColor     = RGBToLinear(vec3(0.813, 0.540, 0.120));
-const vec3 worldMoonColor        = RGBToLinear(vec3(0.864, 0.860, 0.823));
+#define SKY_LIGHT_COLOR_DAY_R 0.909 // [0.0]
+#define SKY_LIGHT_COLOR_DAY_G 0.900 // [0.0]
+#define SKY_LIGHT_COLOR_DAY_B 0.866 // [0.0]
+
+#define SKY_LIGHT_COLOR_HORIZON_R 0.813 // [0.0]
+#define SKY_LIGHT_COLOR_HORIZON_G 0.540 // [0.0]
+#define SKY_LIGHT_COLOR_HORIZON_B 0.120 // [0.0]
+
+#define SKY_LIGHT_COLOR_NIGHT_R 0.864 // [0.0]
+#define SKY_LIGHT_COLOR_NIGHT_G 0.860 // [0.0]
+#define SKY_LIGHT_COLOR_NIGHT_B 0.823 // [0.0]
+
+const vec3 worldSunColor     = RGBToLinear(vec3(SKY_LIGHT_COLOR_DAY_R, SKY_LIGHT_COLOR_DAY_G, SKY_LIGHT_COLOR_DAY_B));
+const vec3 worldHorizonColor = RGBToLinear(vec3(SKY_LIGHT_COLOR_HORIZON_R, SKY_LIGHT_COLOR_HORIZON_G, SKY_LIGHT_COLOR_HORIZON_B));
+const vec3 worldMoonColor    = RGBToLinear(vec3(SKY_LIGHT_COLOR_NIGHT_R, SKY_LIGHT_COLOR_NIGHT_G, SKY_LIGHT_COLOR_NIGHT_B));
 
 // const float phaseAir = 0.25;
 // const float AirAmbientF = 0.0;

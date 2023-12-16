@@ -577,7 +577,7 @@ void main() {
 
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
-                        vec3 tanLightDir = normalize(tanLightPos);
+                        vec3 tanLightDir = normalize(vIn.lightPos_T);
                         shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
