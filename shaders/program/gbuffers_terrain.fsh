@@ -410,7 +410,9 @@ void main() {
     float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
 
-    if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+    #if MATERIAL_EMISSION == EMISSION_NONE
+        if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+    #endif
 
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
