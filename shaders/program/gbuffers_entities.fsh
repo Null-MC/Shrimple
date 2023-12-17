@@ -421,10 +421,10 @@ void main() {
         sss = max(sss, 1.0 - color.a);
     #endif
 
-    #ifdef RENDER_ENTITIES_GLOWING
-        emission = 1.0;
-        color.rgb = vec3(1.0, 0.0, 0.0);
-    #endif
+    // #ifdef RENDER_ENTITIES_GLOWING
+    //     emission = 1.0;
+    //     color.rgb = vec3(1.0, 0.0, 0.0);
+    // #endif
 
     if (entityId == ENTITY_LIGHTNING_BOLT) {
         roughness = 1.0;

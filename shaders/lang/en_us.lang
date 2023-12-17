@@ -321,9 +321,6 @@ screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
 
-option.DYN_LIGHT_FALLBACK=Fallback
-option.DYN_LIGHT_FALLBACK.comment=Allows LPV or ray-traced lighting to fallback to the vanilla lightmap when out of range. If disabled, there will be no lighting beyond the LPV/RT bounds.
-
 
 screen.LIGHTING_LPV_OPTIONS=FloodFill Options
 

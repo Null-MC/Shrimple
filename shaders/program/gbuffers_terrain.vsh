@@ -138,22 +138,28 @@ void main() {
 
     gl_Position = BasicVertex();
 
-    if (vOut.blockId == BLOCK_POWDER_SNOW) {
-        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-        vec3 viewDir = normalize(gl_Position.xyz);
+    vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 viewDir = normalize(gl_Position.xyz);
 
-        if (dot(viewNormal, -viewDir) < 0.0) {
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        #ifdef WIREFRAME_DEBUG
+            const bool backfaceCull = true;
+        #else
+            bool backfaceCull = vOut.blockId == BLOCK_POWDER_SNOW;
+        #endif
+
+        if (backfaceCull && dot(viewNormal, -viewDir) < 0.0) {
             gl_Position = vec4(-1.0);
             return;
         }
-    }
+    #endif
 
     PrepareNormalMap();
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
     #ifdef PARALLAX_ENABLED
-        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+        //vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 

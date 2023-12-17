@@ -85,10 +85,11 @@ uniform mat4 gbufferModelView;
 
 
 void main() {
-    #ifdef WIREFRAME_DEBUG
-        vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
-        if (viewNormal.z <= 0.0) return;
-    #endif
+    // #ifdef WIREFRAME_DEBUG
+    //     vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
+    //     if (viewNormal.z <= 0.0) return;
+    // #endif
+    if (all(lessThanEqual(gl_in[0].gl_Position, vec4(0.0)))) return;
 
     for(int i = 0; i < 3; i++) {
         gl_Position = gl_in[i].gl_Position;

@@ -312,6 +312,7 @@ const bool colortex15Clear = true;
 //#define MAGNIFICENT_COLORS
 //#define WATER_MULTIDEPTH_DEBUG
 #define ALPHATESTREF_ENABLED
+//#define WIREFRAME_DEBUG
 
 
 // INTERNAL SETTINGS
@@ -574,10 +575,10 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
     const bool shadowHardwareFiltering = true;
     //const bool shadowHardwareFiltering0 = true;
     //const bool shadowHardwareFiltering1 = true;
-    const bool shadowtex0Nearest = false;
-    const bool shadowtex1Nearest = false;
-    const bool shadowcolor0Nearest = false;
 #endif
+const bool shadowtex0Nearest = false;
+const bool shadowtex1Nearest = false;
+const bool shadowcolor0Nearest = false;
 
 //const float entityShadowDistanceMul = 0.25;
 const float voxelDistance = 128.0;
