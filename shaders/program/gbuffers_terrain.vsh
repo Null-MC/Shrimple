@@ -138,6 +138,16 @@ void main() {
 
     gl_Position = BasicVertex();
 
+    if (vOut.blockId == BLOCK_POWDER_SNOW) {
+        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+        vec3 viewDir = normalize(gl_Position.xyz);
+
+        if (dot(viewNormal, -viewDir) < 0.0) {
+            gl_Position = vec4(-1.0);
+            return;
+        }
+    }
+
     PrepareNormalMap();
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);

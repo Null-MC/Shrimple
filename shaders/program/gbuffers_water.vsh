@@ -151,7 +151,7 @@ void main() {
 
     gl_Position = BasicVertex();
 
-    #if !(defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION)
+    #if !(defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) && DISPLACE_MODE != DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
     #endif
 
