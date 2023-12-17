@@ -129,11 +129,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
-            float shadowBias = (1.0/256.0);//GetShadowOffsetBias(cascade);
-            const float shadowDistMax = 3.0 * far;
-            float shadowDistScale = 64.0; //3.0 * far;
+            const float shadowBias = (1.0/256.0);//GetShadowOffsetBias(cascade);
+            float shadowDistMax = 3.0 * far;
+            const float shadowDistScale = 64.0; //3.0 * far;
         #else
-            const float shadowDistMax = 3.0 * far;
+            float shadowDistMax = 3.0 * far;
             const float shadowDistScale = 0.25;
             float shadowBias = 3.0 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif

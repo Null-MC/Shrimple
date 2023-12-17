@@ -3,7 +3,12 @@
 #define RENDER_GEOMETRY
 
 layout (triangles) in;
-layout (line_strip, max_vertices=3) out;
+
+#ifdef WIREFRAME_DEBUG
+    layout (line_strip, max_vertices=3) out;
+#else
+    layout (triangle_strip, max_vertices=3) out;
+#endif
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
@@ -80,8 +85,10 @@ uniform mat4 gbufferModelView;
 
 
 void main() {
-    vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
-    if (viewNormal.z <= 0.0) return;
+    #ifdef WIREFRAME_DEBUG
+        vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
+        if (viewNormal.z <= 0.0) return;
+    #endif
 
     for(int i = 0; i < 3; i++) {
         gl_Position = gl_in[i].gl_Position;

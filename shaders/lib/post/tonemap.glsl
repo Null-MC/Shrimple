@@ -3,7 +3,7 @@ void setLuminance(inout vec3 color, const in float targetLuminance) {
 }
 
 vec3 tonemap_Tech(const in vec3 color, const in float contrast) {
-    const float c = rcp(contrast);
+    float c = rcp(contrast);
     vec3 a = color * min(vec3(1.0), 1.0 - exp(-c * color));
     a = mix(a, color, color * color);
     return a / (a + 0.6);
