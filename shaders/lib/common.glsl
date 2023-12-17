@@ -285,7 +285,7 @@ const bool colortex15Clear = true;
 #define EFFECT_SSAO_MIN 0.0
 #define EFFECT_SSAO_BIAS 0.04
 
-#define EFFECT_AUTO_EXPOSE
+//#define EFFECT_AUTO_EXPOSE
 
 
 // Post-Processing
