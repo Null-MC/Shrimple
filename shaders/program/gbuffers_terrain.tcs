@@ -1,6 +1,6 @@
 #define RENDER_TERRAIN
 #define RENDER_GBUFFER
-#define RENDER_TESS_C
+#define RENDER_TESS_CONTROL
 
 layout (vertices=3) out;
 
@@ -78,6 +78,8 @@ out VertexData {
     #endif
 } vOut[];
 
+#include "/lib/utility/tessellation.glsl"
+
 
 void main() {
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
@@ -119,18 +121,8 @@ void main() {
 
     if (gl_InvocationID == 0) {
         #if DISPLACE_MODE == DISPLACE_TESSELATION
-            vec3 distance;
-            distance[0] = gl_in[0].gl_Position.z;
-            distance[1] = gl_in[1].gl_Position.z;
-            distance[2] = gl_in[2].gl_Position.z;
-
-            distance = saturate((abs(distance) - MIN_DISTANCE) / (MATERIAL_DISPLACE_MAX_DIST - MIN_DISTANCE));
-
-            gl_TessLevelOuter[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[1], distance[2]));
-            gl_TessLevelOuter[1] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[2], distance[0]));
-            gl_TessLevelOuter[2] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, max(distance[0], distance[1]));
-
-            gl_TessLevelInner[0] = mix(MATERIAL_TESSELLATION_QUALITY, 1.0, maxOf(distance));
+            vec3 distances = GetPatchDistances(MIN_DISTANCE, MATERIAL_DISPLACE_MAX_DIST);
+            ApplyPatchControl(distances, MATERIAL_TESSELLATION_QUALITY);
         #else
             gl_TessLevelOuter[0] = 1;
             gl_TessLevelOuter[1] = 1;

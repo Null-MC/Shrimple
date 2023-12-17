@@ -15,7 +15,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
         
         // lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
-        float sunAngleRange = 0.5 * localSkyLightDirection.y;
+        float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
         lmSkyFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
 
         lmSkyFinal = LightMapTex(lmSkyFinal);

@@ -230,7 +230,7 @@ void main() {
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
+                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);

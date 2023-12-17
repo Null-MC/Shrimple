@@ -37,15 +37,19 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
 }
 
 void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float skyWetness, const in float puddleF) {
-    float saturation = max(1.4 * skyWetness, 2.0 * puddleF) * sqrt(porosity);
-    albedo = pow(albedo, vec3(1.0 + MaterialPorosityDarkenF * saturation));
+    //float saturation = max(1.4 * skyWetness, 2.0 * puddleF) * porosity;
+    float saturation = max(sqrt(puddleF), smoothstep(0.0, 1.0, skyWetness)) * porosity;
+    //float saturation = sqrt(puddleF) * porosity;
+    saturation = MaterialPorosityDarkenF * saturation;
+
+    albedo = pow(albedo, vec3(1.0 + saturation)) / (1 + saturation);
 }
 
 #if defined RENDER_GBUFFER
     void ApplyWetnessPuddles(inout vec3 texNormal, const in vec3 localPos, const in float skyWetness, const in float porosity, const in float puddleF) {
         vec3 puddleNormal = vec3(0.0, 0.0, 1.0);
 
-        #if WORLD_WETNESS_PUDDLES != PUDDLES_PIXEL
+        #if WORLD_WETNESS_PUDDLES == PUDDLES_FANCY
             float puddleF2 = smoothstep(0.6, 0.8, skyWetness);
             float puddleHeight = pow(puddleF2, 0.06) / (puddleF2 + 8.0);
 

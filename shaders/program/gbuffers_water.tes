@@ -1,6 +1,6 @@
 #define RENDER_WATER
 #define RENDER_GBUFFER
-#define RENDER_TESS_C
+#define RENDER_TESS_EVAL
 
 layout (triangles, fractional_odd_spacing, ccw) in;
 
@@ -85,8 +85,13 @@ out VertexData {
     #endif
 } vOut;
 
+#if DISPLACE_MODE == DISPLACE_TESSELATION
+    uniform sampler2D normals;
+#endif
+
+uniform mat4 gbufferModelView;
+
 #ifdef WORLD_WATER_ENABLED
-    uniform mat4 gbufferModelView;
     uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
 
@@ -95,9 +100,9 @@ out VertexData {
     #endif
 #endif
 
+#include "/lib/blocks.glsl"
+
 #ifdef WORLD_WATER_ENABLED
-    #include "/lib/blocks.glsl"
-    
     #include "/lib/utility/anim.glsl"
 
     #ifdef PHYSICS_OCEAN
@@ -107,7 +112,11 @@ out VertexData {
     #endif
 #endif
 
-#define _interpolate(v0, v1, v2) (gl_TessCoord.x * (v0) + gl_TessCoord.y * (v1) + gl_TessCoord.z * (v2))
+#if DISPLACE_MODE == DISPLACE_TESSELATION
+    #include "/lib/sampling/atlas.glsl"
+#endif
+
+#include "/lib/utility/tessellation.glsl"
 
 
 void main() {
@@ -124,8 +133,8 @@ void main() {
     vOut.blockId = vIn[0].blockId;
     vOut.atlasBounds = vIn[0].atlasBounds;
 
-    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
-        if (vIn[0].blockId == BLOCK_WATER) {
+    if (vIn[0].blockId == BLOCK_WATER) {
+        #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
             // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
             //     gl_Position = vec4(-1.0);
             //     return;
@@ -150,8 +159,17 @@ void main() {
             gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
 
             // TODO: update shadow pos
-        }
-    #endif
+        #endif
+    }
+    else {
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
+            vOut.localPos += GetSampleOffset();
+
+            gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
+
+            // TODO: update shadow pos
+        #endif
+    }
 
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vOut.viewPos_T = _interpolate(vIn[0].viewPos_T, vIn[1].viewPos_T, vIn[2].viewPos_T);
@@ -183,7 +201,7 @@ void main() {
         #endif
     #endif
 
-    #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
+    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
     #endif
 }
