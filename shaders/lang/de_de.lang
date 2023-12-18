@@ -296,9 +296,6 @@ suffix.DYN_LIGHT_DIRECTIONAL=%
 option.DYN_LIGHT_WEATHER=Wetter
 option.DYN_LIGHT_WEATHER.comment=Bestimmt, ob dynamische Beleuchtung auf Wetterpartikel angewendet wird. Die Aktivierung dieser Option beeinträchtigt die Leistung!
 
-option.DYN_LIGHT_FALLBACK=Rückfall
-option.DYN_LIGHT_FALLBACK.comment=Wenn diese Option aktiviert ist, wird farbiges Licht in das Vanillalicht am Rand der Lichtgrenzen gemischt. Bei Deaktivierung erfolgt keine Beleuchtung außerhalb der Lichtgrenzen.
-
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment=Wenn diese Option aktiviert ist, wird versucht, eine gerichtete Beleuchtung mit der Vanilla-Lightmap vorzutäuschen. Gilt nur für Standardbeleuchtung.
 
