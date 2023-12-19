@@ -20,6 +20,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -53,6 +57,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -102,6 +110,8 @@ void main() {
     vOut.atlasBounds = vIn[0].atlasBounds;
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vOut.surfacePos = vOut.localPos;
+
         vOut.localPos += GetSampleOffset();
 
         gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);

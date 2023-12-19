@@ -25,6 +25,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -59,6 +63,10 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -87,12 +95,6 @@ uniform mat4 gbufferModelView;
 
 
 void main() {
-    // #ifdef WIREFRAME_DEBUG
-    //     vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
-    //     if (viewNormal.z <= 0.0) return;
-    // #endif
-    //if (all(lessThan(gl_in[0].gl_Position, vec4(-1.0)))) return;
-
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         #ifdef WIREFRAME_DEBUG
             const bool backfaceCull = true;

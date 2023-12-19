@@ -21,6 +21,10 @@ in VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -55,6 +59,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;

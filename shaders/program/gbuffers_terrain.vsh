@@ -22,6 +22,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -136,23 +140,7 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    gl_Position = BasicVertex();
-
-    // vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-    // vec3 viewDir = normalize(gl_Position.xyz);
-
-    // #if DISPLACE_MODE == DISPLACE_TESSELATION
-    //     #ifdef WIREFRAME_DEBUG
-    //         const bool backfaceCull = true;
-    //     #else
-    //         bool backfaceCull = vOut.blockId == BLOCK_POWDER_SNOW;
-    //     #endif
-
-    //     if (backfaceCull && dot(viewNormal, -viewDir) < 0.0) {
-    //         gl_Position = vec4(-10.0);
-    //         return;
-    //     }
-    // #endif
+    vec4 viewPos = BasicVertex();
 
     PrepareNormalMap();
 
@@ -163,8 +151,7 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        //viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
-        vOut.viewPos_T = gl_Position.xyz * matViewTBN;
+        vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
@@ -173,5 +160,7 @@ void main() {
 
     #if DISPLACE_MODE != DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
+    #else
+        gl_Position = viewPos;
     #endif
 }
