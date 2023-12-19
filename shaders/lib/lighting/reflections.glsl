@@ -1,5 +1,5 @@
 vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - sqrt(roughL));
+    return F_schlickRough(NoVm, f0, roughL);// * MaterialReflectionStrength * (1.0 - sqrt(roughL));
 }
 
 #ifdef WORLD_SKY_ENABLED

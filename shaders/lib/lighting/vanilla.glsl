@@ -142,7 +142,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
                 skyNoHm = max(dot(texNormal, skyH), 0.0);
             }
 
-            skyLightColor *= 1.0 - 0.92*skyRainStrength;
+            //skyLightColor *= 1.0 - 0.92*skyRainStrength;
 
             float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;

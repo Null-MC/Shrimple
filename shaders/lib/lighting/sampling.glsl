@@ -41,16 +41,25 @@ float SampleLightDiffuse(const in float NoV, const in float NoL, const in float 
     return light_scatter * view_scatter * NoL;
 }
 
+float GGX_D(const in float NoHm, const in float alpha) {
+    float alpha2 = _pow2(alpha);
+
+    float denom = _pow2(NoHm) * (alpha2 - 1.0) + 1.0;
+    return alpha2 / (PI * _pow2(denom));
+}
+
+float GGX_V(const in float NoVm, const in float NoLm, const in float alpha) {
+    float k = 0.5 * alpha;
+    float gNoV = rcp(NoVm * (1.0 - k)  + k);
+    float gNoL = rcp(NoLm * (1.0 - k)  + k);
+    return gNoV*gNoL;
+}
+
 vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in vec3 F, const in float roughL) {
-    float roughLm = max(roughL, ROUGH_MIN);
+    float alpha = max(roughL, ROUGH_MIN);
+    //alpha = _pow2(alpha);
 
-    float a = NoHm * roughLm;
-    float k = roughLm / max(1.0 - _pow2(NoHm) + _pow2(a), 0.004);
-    float D = min(_pow2(k) * invPI, 65504.0);
-
-    float GGX_V = NoLm * (NoVm * (1.0 - roughLm) + roughLm);
-    float GGX_L = NoVm * (NoLm * (1.0 - roughLm) + roughLm);
-    float G = saturate(0.5 / (GGX_V + GGX_L));
-
-    return D * G * F;
+    float D = GGX_D(NoHm, alpha);
+    float V = GGX_V(NoVm, NoLm, alpha);
+    return NoLm * D * F * V;
 }

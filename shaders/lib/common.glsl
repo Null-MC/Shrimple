@@ -573,9 +573,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 
 #ifdef SHADOW_ENABLE_HWCOMP
     const bool shadowHardwareFiltering = true;
-    //const bool shadowHardwareFiltering0 = true;
-    //const bool shadowHardwareFiltering1 = true;
 #endif
+
 const bool shadowtex0Nearest = false;
 const bool shadowtex1Nearest = false;
 const bool shadowcolor0Nearest = false;
