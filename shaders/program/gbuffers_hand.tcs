@@ -1,0 +1,131 @@
+#define RENDER_TERRAIN
+#define RENDER_GBUFFER
+#define RENDER_TESS_CONTROL
+
+layout (vertices=3) out;
+
+#include "/lib/constants.glsl"
+#include "/lib/common.glsl"
+
+const float MIN_DISTANCE = 2;
+
+in VertexData {
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+
+    flat mat2 atlasBounds;
+
+    #ifdef PARALLAX_ENABLED
+        vec3 viewPos_T;
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vec3 lightPos_T;
+        #endif
+    #endif
+
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vIn[];
+
+out VertexData {
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+
+    flat mat2 atlasBounds;
+
+    #ifdef PARALLAX_ENABLED
+        vec3 viewPos_T;
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vec3 lightPos_T;
+        #endif
+    #endif
+
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vec3 cloudPos;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vOut[];
+
+#include "/lib/utility/tessellation.glsl"
+
+
+void main() {
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+    vOut[gl_InvocationID].color = vIn[gl_InvocationID].color;
+    vOut[gl_InvocationID].lmcoord = vIn[gl_InvocationID].lmcoord;
+    vOut[gl_InvocationID].texcoord = vIn[gl_InvocationID].texcoord;
+    vOut[gl_InvocationID].localPos = vIn[gl_InvocationID].localPos;
+    vOut[gl_InvocationID].localCoord = vIn[gl_InvocationID].localCoord;
+    vOut[gl_InvocationID].localNormal = vIn[gl_InvocationID].localNormal;
+    vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
+
+    vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
+
+    #ifdef PARALLAX_ENABLED
+        vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;
+
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+            vOut[gl_InvocationID].lightPos_T = vIn[gl_InvocationID].lightPos_T;
+        #endif
+    #endif
+
+    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vOut[gl_InvocationID].shadowPos[0] = vIn[gl_InvocationID].shadowPos[0];
+            vOut[gl_InvocationID].shadowPos[1] = vIn[gl_InvocationID].shadowPos[1];
+            vOut[gl_InvocationID].shadowPos[2] = vIn[gl_InvocationID].shadowPos[2];
+            vOut[gl_InvocationID].shadowPos[3] = vIn[gl_InvocationID].shadowPos[3];
+
+            vOut[gl_InvocationID].shadowTile = vIn[gl_InvocationID].shadowTile;
+        #else
+            vOut[gl_InvocationID].shadowPos = vIn[gl_InvocationID].shadowPos;
+        #endif
+    #endif
+
+    if (gl_InvocationID == 0) {
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
+            vec3 distances = GetPatchDistances(MIN_DISTANCE, MATERIAL_DISPLACE_MAX_DIST);
+            ApplyPatchControl(distances, MATERIAL_TESSELLATION_QUALITY);
+        #else
+            gl_TessLevelOuter[0] = 1;
+            gl_TessLevelOuter[1] = 1;
+            gl_TessLevelOuter[2] = 1;
+
+            gl_TessLevelInner[0] = 1;
+        #endif
+    }
+}

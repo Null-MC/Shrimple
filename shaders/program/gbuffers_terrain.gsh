@@ -83,13 +83,26 @@ out VertexData {
 
 uniform mat4 gbufferModelView;
 
+#include "/lib/blocks.glsl"
+
 
 void main() {
     // #ifdef WIREFRAME_DEBUG
     //     vec3 viewNormal = mat3(gbufferModelView) * vIn[0].localNormal;
     //     if (viewNormal.z <= 0.0) return;
     // #endif
-    if (all(lessThanEqual(gl_in[0].gl_Position, vec4(0.0)))) return;
+    //if (all(lessThan(gl_in[0].gl_Position, vec4(-1.0)))) return;
+
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        #ifdef WIREFRAME_DEBUG
+            const bool backfaceCull = true;
+        #else
+            bool backfaceCull = vIn[0].blockId == BLOCK_POWDER_SNOW;
+        #endif
+
+        vec3 viewDir = normalize(vIn[0].localPos);
+        if (backfaceCull && dot(vIn[0].localNormal, -viewDir) <= 0.0) return;
+    #endif
 
     for(int i = 0; i < 3; i++) {
         gl_Position = gl_in[i].gl_Position;

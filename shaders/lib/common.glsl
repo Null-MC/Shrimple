@@ -311,7 +311,7 @@ const bool colortex15Clear = true;
 //#define ANIM_WORLD_TIME
 //#define MAGNIFICENT_COLORS
 //#define WATER_MULTIDEPTH_DEBUG
-#define ALPHATESTREF_ENABLED
+//#define ALPHATESTREF_ENABLED
 //#define WIREFRAME_DEBUG
 
 
