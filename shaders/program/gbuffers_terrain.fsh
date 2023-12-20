@@ -344,7 +344,11 @@ void main() {
         vec4 rippleNormalStrength = vec4(0.0);
 
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            vec3 worldPos = vIn.surfacePos + cameraPosition;
+            #if DISPLACE_MODE == DISPLACE_TESSELATION
+                vec3 worldPos = vIn.surfacePos + cameraPosition;
+            #else
+                vec3 worldPos = vIn.localPos + cameraPosition;
+            #endif
 
             float surface_roughness, surface_metal_f0;
             GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
@@ -510,7 +514,11 @@ void main() {
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
+            #if DISPLACE_MODE == DISPLACE_TESSELATION
+                ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
+            #else
+                ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+            #endif
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);

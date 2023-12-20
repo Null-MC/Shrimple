@@ -57,7 +57,6 @@ float GGX_V(const in float NoVm, const in float NoLm, const in float alpha) {
 
 vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in vec3 F, const in float roughL) {
     float alpha = max(roughL, ROUGH_MIN);
-    //alpha = _pow2(alpha);
 
     float D = GGX_D(NoHm, alpha);
     float V = GGX_V(NoVm, NoLm, alpha);
