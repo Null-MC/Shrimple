@@ -107,11 +107,11 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 localSkyLightDir = localSkyLightDirection;
         #endif
 
-        vec3 r = reflect(-localViewDir, texNormal);
-        vec3 L = localSkyLightDir * skyLightDist;
-        vec3 centerToRay = dot(L, r) * r - L;
-        vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
-        localSkyLightDir = normalize(closestPoint);
+        // vec3 r = reflect(-localViewDir, texNormal);
+        // vec3 L = localSkyLightDir * skyLightDist;
+        // vec3 centerToRay = dot(L, r) * r - L;
+        // vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+        // localSkyLightDir = normalize(closestPoint);
 
         vec3 skyH = normalize(localSkyLightDir + localViewDir);
         float skyVoHm = max(dot(localViewDir, skyH), 0.0);
@@ -148,10 +148,13 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
         #endif
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER) //&& !(defined MATERIAL_PARTICLES || defined RENDER_TEXTURED || defined RENDER_PARTICLES)
         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
             vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
-            vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+
+            vec3 texViewNormal = vec3(0.0, 0.0, 1.0);
+            if (!all(lessThan(abs(texNormal), EPSILON3)))
+                texViewNormal = mat3(gbufferModelView) * texNormal;
 
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;

@@ -133,6 +133,7 @@
 #define DEBUG_VIEW_DEPTH_TILES 14
 #define DEBUG_VIEW_WHITEWORLD 15
 
+#define BUFFER_FINAL colortex0
 #define BUFFER_DEFERRED_COLOR colortex1
 #define BUFFER_DEFERRED_SHADOW colortex2
 #define BUFFER_DEFERRED_DATA colortex3

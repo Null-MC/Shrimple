@@ -1,5 +1,5 @@
 vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL);// * MaterialReflectionStrength * (1.0 - sqrt(roughL));
+    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - _pow2(roughL));
 }
 
 #ifdef WORLD_SKY_ENABLED
@@ -72,7 +72,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 randomVec = normalize(hash32(gl_FragCoord.xy) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = pow3(roughness) * ReflectionRoughScatterF;// * (1.0 - distF);
+        float roughScatterF = pow5(roughness);// * ReflectionRoughScatterF;// * (1.0 - distF);
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif

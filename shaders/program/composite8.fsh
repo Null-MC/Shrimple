@@ -7,10 +7,6 @@
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     const bool colortex0MipmapEnabled = true;
-
-    #ifndef MATERIAL_REFLECT_HIZ
-        const bool depthtex0MipmapEnabled = true;
-    #endif
 #endif
 
 in vec2 texcoord;
