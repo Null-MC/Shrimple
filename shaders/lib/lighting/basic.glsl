@@ -24,7 +24,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         //     lpvFade *= 0.5;
         // #endif
 
-        return lpvLight * lpvFade * DynamicLightBrightness * DynamicLightAmbientF;
+        return 0.1*lpvLight * lpvFade * DynamicLightBrightness * DynamicLightAmbientF;
     }
 
     // float GetLpvSkyLighting(const in vec3 localPos, const in vec3 localNormal) {
