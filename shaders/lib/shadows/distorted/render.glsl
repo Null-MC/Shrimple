@@ -7,16 +7,19 @@ float SampleDepth(const in vec2 shadowPos) {
 }
 
 // returns: [0] when depth occluded, [1] otherwise
-float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float bias) {
+float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias) {
+    shadowPos += vec3(offset, -bias);
+    shadowPos = distort(shadowPos) * 0.5 + 0.5;
+
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         #ifdef RENDER_TRANSLUCENT
-            return texture(shadowtex0HW, shadowPos + vec3(offset, -bias)).r;
+            return texture(shadowtex0HW, shadowPos).r;
         #else
-            return texture(shadowtex1HW, shadowPos + vec3(offset, -bias)).r;
+            return texture(shadowtex1HW, shadowPos).r;
         #endif
     #else
-        float texDepth = SampleDepth(shadowPos.xy + offset);
-        return step(shadowPos.z - bias, texDepth);
+        float texDepth = SampleDepth(shadowPos.xy);
+        return step(shadowPos.z, texDepth);
     #endif
 }
 
@@ -74,6 +77,8 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             float shadow = 0.0;
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
                 vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
+                vec3 samplePos = distort(shadowPos) * 0.5 + 0.5;
+
                 shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
             }
 
@@ -91,10 +96,10 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
 
         //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
-        float maxRes = shadowMapSize / SHADOW_DISTORT_FACTOR;
+        //float maxRes = shadowMapSize / SHADOW_DISTORT_FACTOR;
 
-        vec2 pixelPerBlockScale = maxRes / shadowProjectionSize;
-        return blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
+        vec2 pixelPerBlockScale = shadowMapSize / shadowProjectionSize;
+        return 2.0 * blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
     }
 #endif
 
@@ -116,8 +121,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
             vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
 
-            float texDepth = SampleDepth(shadowPos.xy + pixelOffset);
-            float hitDist = max((shadowPos.z - bias) - texDepth, 0.0);
+            vec3 _shadowPos = shadowPos;
+            _shadowPos.xy += pixelOffset;
+            _shadowPos = distort(_shadowPos) * 0.5 + 0.5;
+
+            float texDepth = SampleDepth(_shadowPos.xy);
+            float hitDist = max((_shadowPos.z - bias) - texDepth, 0.0);
 
             avgBlockerDistance += hitDist * (2.0 * far);
             blockers += step(0.0, hitDist);
@@ -136,10 +145,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             float blockerDistance = FindBlockerDistance(shadowPos, maxPixelRadius, offsetBias);
 
             if (blockerDistance <= 0.0) {
-                float depthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
-                if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
+                vec3 _shadowPos = distort(shadowPos) * 0.5 + 0.5;
 
-                vec4 shadowColor = textureLod(shadowcolor0, shadowPos.xy, 0);
+                float depthTrans = textureLod(shadowtex0, _shadowPos.xy, 0).r;
+                if (_shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
+
+                vec4 shadowColor = textureLod(shadowcolor0, _shadowPos.xy, 0);
                 shadowColor.rgb = RGBToLinear(shadowColor.rgb);
 
                 shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
@@ -184,8 +195,9 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 #elif SHADOW_FILTER == 0
     // Unfiltered
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in float bias) {
+        vec3 GetShadowColor(in vec3 shadowPos, const in float bias) {
             float offsetBias = GetShadowOffsetBias() + bias;
+            shadowPos = distort(shadowPos) * 0.5 + 0.5;
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
             if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);

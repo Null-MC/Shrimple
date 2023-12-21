@@ -22,12 +22,12 @@ vec3 distort(const in vec3 pos) {
     // return vec3(pos.xy / fac, pos.z);
 }
 
-float computeBias(vec3 pos) {
-    const float SHADOW_DISTORTED_BIAS = 1.0;
+// float computeBias(vec3 pos) {
+//     const float SHADOW_DISTORTED_BIAS = 1.0;
 
-    float numerator = length(pos.xy) + SHADOW_DISTORT_FACTOR;
-    return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / SHADOW_DISTORT_FACTOR;
-}
+//     float numerator = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+//     return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / SHADOW_DISTORT_FACTOR;
+// }
 
 #if defined RENDER_VERTEX && !defined RENDER_SHADOW
     vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
