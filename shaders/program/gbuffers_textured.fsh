@@ -31,6 +31,10 @@ uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
+#ifdef MATERIAL_PARTICLES
+    uniform sampler2D specular;
+#endif
+
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
@@ -198,6 +202,14 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/material/hcm.glsl"
+
+#ifdef MATERIAL_PARTICLES
+    //#include "/lib/material/hcm.glsl"
+    #include "/lib/material/emission.glsl"
+    #include "/lib/material/subsurface.glsl"
+    //#include "/lib/material/specular.glsl"
+#endif
+
 #include "/lib/material/specular.glsl"
 
 #ifdef LIGHTING_FLICKER
@@ -276,10 +288,22 @@ void main() {
     vec3 localViewDir = normalize(vIn.localPos);
 
     const vec3 normal = vec3(0.0);
-    const float roughL = 1.0;
-    const float metal_f0 = 0.04;
-    float occlusion = vIn.color.a;
-    const float sss = 0.0;
+    float roughL = 1.0;
+    float metal_f0 = 0.04;
+    float occlusion = 1.0;//vIn.color.a;
+    float emission = 0.0;
+    float sss = 0.0;
+
+    #ifdef MATERIAL_PARTICLES
+        mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+        float roughness;
+
+        sss = GetMaterialSSS(-1, vIn.texcoord, dFdXY);
+        emission = GetMaterialEmission(-1, vIn.texcoord, dFdXY);
+        GetMaterialSpecular(-1, vIn.texcoord, dFdXY, roughness, metal_f0);
+
+        roughL = _pow2(roughness);
+    #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifndef IRIS_FEATURE_SSBO
@@ -309,7 +333,6 @@ void main() {
             SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 
-        const float emission = 0.0;
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif LIGHTING_MODE == DYN_LIGHT_LPV
         GetFloodfillLighting(blockDiffuse, blockSpecular, vIn.localPos, normal, normal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);

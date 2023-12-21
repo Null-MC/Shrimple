@@ -402,10 +402,13 @@ void main() {
 
     #if defined MATERIAL_PARTICLES && MATERIAL_NORMALS != NORMALMAP_NONE
         GetMaterialNormal(vIn.texcoord, dFdXY, texNormal);
+        texNormal = mat3(gbufferModelViewInverse) * texNormal;
 
-        vec3 localTangent = normalize(vIn.localTangent.xyz);
-        mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
-        texNormal = normalize(matLocalTBN * texNormal);
+        // vec3 localNormal2 = -normalize(vIn.localPos);
+
+        // vec3 localTangent = normalize(vIn.localTangent.xyz);
+        // mat3 matLocalTBN = GetLocalTBN(localNormal2, localTangent, vIn.localTangent.w);
+        // texNormal = normalize(matLocalTBN * texNormal);
     #endif
 
     vec3 shadowColor = vec3(1.0);
@@ -459,11 +462,11 @@ void main() {
             GetVanillaLighting(diffuse, vIn.lmcoord, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    float geoNoL = dot(localNormal, localSkyLightDirection);
-                #else
+                // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                //     float geoNoL = dot(localNormal, localSkyLightDirection);
+                // #else
                     float geoNoL = 1.0;
-                #endif
+                // #endif
             
                 specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
             #endif

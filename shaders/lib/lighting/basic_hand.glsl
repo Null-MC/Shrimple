@@ -74,7 +74,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
-            lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
+            //lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
 
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
@@ -83,7 +83,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
                 vec3 F = vec3(0.0);
-                #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
                     //float invCosTheta = 1.0 - lightVoHm;
@@ -95,11 +95,12 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 float D = SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL);
                 accumDiffuse += D * lightAtt * lightColor * (1.0 - F);
 
-                #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
-                    float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
+                    //float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
 
-                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    float invGeoNoL = 1.0;// - saturate(-geoNoL*40.0);
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, lightVoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }
@@ -173,7 +174,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                     float lightNoHm = max(dot(texNormal, lightH), 0.0);
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
 
-                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, lightVoHm, F, roughL) * lightAtt * lightColor;
                 #endif
             }
         }

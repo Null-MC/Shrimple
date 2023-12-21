@@ -356,7 +356,7 @@ void main() {
             phase *= cloudShadow;
         #endif
 
-        specular += 12.0 * phase * WorldSkyLightColor;
+        specular += phase * WorldSkyLightColor;
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif LIGHTING_MODE == DYN_LIGHT_LPV

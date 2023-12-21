@@ -8,7 +8,6 @@ layout (vertices=3) out;
 #include "/lib/common.glsl"
 
 const float MIN_DISTANCE = 2;
-//const float MAX_DISTANCE = 24;
 
 in VertexData {
     vec4 color;
@@ -19,12 +18,7 @@ in VertexData {
     vec3 localNormal;
     vec4 localTangent;
 
-    flat int blockId;
     flat mat2 atlasBounds;
-    
-    #if DISPLACE_MODE == DISPLACE_TESSELATION
-        vec3 surfacePos;
-    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -57,12 +51,7 @@ out VertexData {
     vec3 localNormal;
     vec4 localTangent;
 
-    flat int blockId;
     flat mat2 atlasBounds;
-
-    #if DISPLACE_MODE == DISPLACE_TESSELATION
-        vec3 surfacePos;
-    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -99,7 +88,7 @@ void main() {
     vOut[gl_InvocationID].localCoord = vIn[gl_InvocationID].localCoord;
     vOut[gl_InvocationID].localNormal = vIn[gl_InvocationID].localNormal;
     vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
-    vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
+
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
 
     #ifdef PARALLAX_ENABLED

@@ -145,9 +145,9 @@ const bool colortex15Clear = true;
 #define MATERIAL_POROSITY 1 // [0 1 2]
 #define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
-#define METAL_BRIGHTNESS 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-//#define MATERIAL_PARTICLES
-#define MATERIAL_TESSELLATION_QUALITY 16 // [4 6 8 12 16 24 32 48 64 96 128]
+#define METAL_BRIGHTNESS 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define MATERIAL_PARTICLES
+#define MATERIAL_TESSELLATION_QUALITY 24 // [4 6 8 12 16 20 24 28 32 40 48 56 64]
 #define MATERIAL_TESSELLATION_OFFSET 50 // [0 25 50 75 100]
 #define MATERIAL_TESSELLATION_EDGE_FADE
 
@@ -311,7 +311,7 @@ const bool colortex15Clear = true;
 //#define ANIM_WORLD_TIME
 //#define MAGNIFICENT_COLORS
 //#define WATER_MULTIDEPTH_DEBUG
-#define ALPHATESTREF_ENABLED
+//#define ALPHATESTREF_ENABLED
 //#define WIREFRAME_DEBUG
 
 
@@ -324,9 +324,10 @@ const bool colortex15Clear = true;
 #define REFLECTION_ROUGH_SCATTER 30
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED
-#define DEFERRED_PARTICLES
+//#define DEFERRED_PARTICLES
 #define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
+#define ROUGH_REFLECT_SAMPLES 2
 //#define HCM_LAZANYI
 
 #define UINT32_MAX 4294967295u
@@ -573,9 +574,8 @@ const float shadowPixelSize = 1.0 / shadowMapSize;
 
 #ifdef SHADOW_ENABLE_HWCOMP
     const bool shadowHardwareFiltering = true;
-    //const bool shadowHardwareFiltering0 = true;
-    //const bool shadowHardwareFiltering1 = true;
 #endif
+
 const bool shadowtex0Nearest = false;
 const bool shadowtex1Nearest = false;
 const bool shadowcolor0Nearest = false;

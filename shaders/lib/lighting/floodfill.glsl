@@ -133,7 +133,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
                 vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
 
                 float invGeoNoL = saturate(geoNoL*40.0);
-                blockSpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor * (1.0 - ambientF);
+                blockSpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyVoHm, skyF, roughL) * skyLightColor * shadowColor * (1.0 - ambientF);
             #endif
 
             #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(defined RENDER_TEXTURED || defined RENDER_PARTICLES || defined RENDER_WEATHER)

@@ -1,5 +1,5 @@
 vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - sqrt(roughL));
+    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
 }
 
 #ifdef WORLD_SKY_ENABLED
@@ -68,11 +68,13 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //float distF = 32.0 / (viewDist + 32.0);
     //roughness = pow(roughness, 0.5 + 0.5 * distF);
 
+    vec3 reflectAccum = vec3(0.0);
+    for (int i = 0; i < ROUGH_REFLECT_SAMPLES; i++) {
     #if REFLECTION_ROUGH_SCATTER > 0
-        vec3 randomVec = normalize(hash32(gl_FragCoord.xy) * 2.0 - 1.0);
+        vec3 randomVec = normalize(hash33(vec3(gl_FragCoord.xy, i)) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = pow3(roughness) * ReflectionRoughScatterF;// * (1.0 - distF);
+        float roughScatterF = pow3(roughness);// * ReflectionRoughScatterF;// * (1.0 - distF);
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif
@@ -99,8 +101,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         //return clipRay * 0.5 + 0.5;
 
         //vec2 viewSize = vec2(viewWidth, viewHeight);
-        int maxLod = int(log2(minOf(viewSize)));
-        float roughMip = roughness * maxLod + 0.5;
+        float maxLod = log2(minOf(viewSize));
+        float roughMip = sqrt(roughness) * maxLod;
 
         vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
@@ -204,5 +206,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         #endif
     #endif
 
-    return reflectColor;
+    reflectAccum += reflectColor;
+    }
+
+    return reflectAccum / ROUGH_REFLECT_SAMPLES;
 }

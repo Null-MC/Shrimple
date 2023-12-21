@@ -118,7 +118,6 @@ void main() {
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     vec4 viewPos = BasicVertex();
-    gl_Position = gl_ProjectionMatrix * viewPos;
 
     PrepareNormalMap();
 
@@ -129,11 +128,16 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        //viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
         vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
+    #endif
+
+    #if DISPLACE_MODE != DISPLACE_TESSELATION
+        gl_Position = gl_ProjectionMatrix * viewPos;
+    #else
+        gl_Position = viewPos;
     #endif
 }

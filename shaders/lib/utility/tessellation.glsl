@@ -9,12 +9,16 @@
         return smoothstep(distMin, distMax, abs(distances));
     }
 
-    void ApplyPatchControl(const in vec3 distance, const in float maxQuality) {
-        gl_TessLevelOuter[0] = mix(maxQuality, 1.0, max(distance[1], distance[2]));
-        gl_TessLevelOuter[1] = mix(maxQuality, 1.0, max(distance[2], distance[0]));
-        gl_TessLevelOuter[2] = mix(maxQuality, 1.0, max(distance[0], distance[1]));
+    float GetTessellationQuality(const in float distance, const in float maxQuality) {
+        return mix(1.0, maxQuality, pow5(1.0 - distance));
+    }
 
-        gl_TessLevelInner[0] = mix(maxQuality, 1.0, maxOf(distance));
+    void ApplyPatchControl(const in vec3 distance, const in float maxQuality) {
+        gl_TessLevelOuter[0] = GetTessellationQuality(maxOf(distance.yz), maxQuality);
+        gl_TessLevelOuter[1] = GetTessellationQuality(maxOf(distance.zx), maxQuality);
+        gl_TessLevelOuter[2] = GetTessellationQuality(maxOf(distance.xy), maxQuality);
+
+        gl_TessLevelInner[0] = GetTessellationQuality(maxOf(distance), maxQuality);
     }
 #endif
 

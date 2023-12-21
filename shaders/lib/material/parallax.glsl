@@ -1,6 +1,6 @@
 vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-    vec2 stepCoord = tanViewDir.xy * ParallaxDepthF / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
-    const float stepDepth = rcp(MATERIAL_PARALLAX_SAMPLES);
+    vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * MaterialTessellationOffset) / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
+    const float stepDepth = MaterialTessellationOffset / MATERIAL_PARALLAX_SAMPLES;
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 atlasPixelSize = rcp(atlasSize);
@@ -44,7 +44,8 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
             //texDepth = texture(normals, traceAtlasCoord).a;
         #endif
 
-        depthDist = 1.0 - i * stepDepth - texDepth;
+        depthDist = MaterialTessellationOffset - i * stepDepth - texDepth;
+        //depthDist *= rcp(MaterialTessellationOffset);
         //if (texDepth >= 1.0 - i * stepDepth) break;
     }
 
@@ -55,9 +56,9 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 currentTraceOffset = texcoord - i * stepCoord;
-        float currentTraceDepth = 1.0 - i * stepDepth;
+        float currentTraceDepth = max(MaterialTessellationOffset - i * stepDepth, 0.0);
         vec2 prevTraceOffset = texcoord - pI * stepCoord;
-        float prevTraceDepth = 1.0 - pI * stepDepth;
+        float prevTraceDepth = max(MaterialTessellationOffset - pI * stepDepth, 0.0);
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
         t = clamp(t, 0.0, 1.0);
@@ -68,7 +69,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         // shadow_tex.xy = prevTraceOffset;
         // shadow_tex.z = prevTraceDepth;
         traceDepth.xy = texcoord - pI * stepCoord;
-        traceDepth.z = 1.0 - pI * stepDepth;
+        traceDepth.z = max(MaterialTessellationOffset - pI * stepDepth, 0.0);
     #endif
 
     //return GetAtlasCoord(localCoord - i * stepCoord);

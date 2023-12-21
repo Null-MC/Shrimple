@@ -17,6 +17,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vec3 surfacePos;
+    #endif
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -340,7 +344,11 @@ void main() {
         vec4 rippleNormalStrength = vec4(0.0);
 
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            vec3 worldPos = vIn.localPos + cameraPosition;
+            #if DISPLACE_MODE == DISPLACE_TESSELATION
+                vec3 worldPos = vIn.surfacePos + cameraPosition;
+            #else
+                vec3 worldPos = vIn.localPos + cameraPosition;
+            #endif
 
             float surface_roughness, surface_metal_f0;
             GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
@@ -506,7 +514,11 @@ void main() {
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
         if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+            #if DISPLACE_MODE == DISPLACE_TESSELATION
+                ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
+            #else
+                ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+            #endif
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
@@ -530,10 +542,15 @@ void main() {
     #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-        //vec3 viewPos = (gbufferModelView * vec4(vLocalPos, 1.0)).xyz;
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
+            vec3 surfaceViewPos = (gbufferModelView * vec4(vIn.surfacePos, 1.0)).xyz;
+        #else
+            vec3 surfaceViewPos = viewPos;
+        #endif
+
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
         vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-        ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
+        ApplyDirectionalLightmap(lmFinal.x, surfaceViewPos, geoViewNormal, texViewNormal);
     #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED

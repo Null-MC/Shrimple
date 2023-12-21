@@ -35,22 +35,74 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
 }
 
 float SampleLightDiffuse(const in float NoV, const in float NoL, const in float LoH, const in float roughL) {
-    float f90 = 0.5 + roughL * _pow2(LoH);
+    float f90 = 0.5 + 2.0*roughL * _pow2(LoH);
     float light_scatter = F_schlick(NoL, 1.0, f90);
     float view_scatter = F_schlick(NoV, 1.0, f90);
-    return light_scatter * view_scatter * NoL;
+    return invPI * light_scatter * view_scatter * NoL;
 }
 
-vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, const in float NoHm, const in vec3 F, const in float roughL) {
-    float roughLm = max(roughL, ROUGH_MIN);
+float GGX_D(const in float NoHm, const in float alpha) {
+    float alpha2 = _pow2(alpha);
 
-    float a = NoHm * roughLm;
-    float k = roughLm / max(1.0 - _pow2(NoHm) + _pow2(a), 0.004);
-    float D = min(_pow2(k) * invPI, 65504.0);
+    float denom = _pow2(NoHm) * (alpha2 - 1.0) + 1.0;
+    return (alpha2 * NoHm) / (PI * _pow2(denom));
+}
 
-    float GGX_V = NoLm * (NoVm * (1.0 - roughLm) + roughLm);
-    float GGX_L = NoVm * (NoLm * (1.0 - roughLm) + roughLm);
-    float G = saturate(0.5 / (GGX_V + GGX_L));
+float SmithG(const in float NoV, const in float alpha2) {
+    float a = _pow2(alpha2);
+    float b = _pow2(NoV);
 
-    return D * G * F;
+    return (2.0 * NoV) / (NoV + sqrt(a + b - a * b));
+}
+
+float GGX_V(const in float NoLm, const in float NoVm, const in float alpha) {
+    //float k = 0.5 * alpha;
+    // float gNoL = rcp(NoLm * (1.0 - k)  + k);
+    // float gNoV = rcp(NoVm * (1.0 - k)  + k);
+    float alpha2 = _pow2(alpha);
+    float gNoL = SmithG(NoLm, alpha2);
+    float gNoV = SmithG(NoVm, alpha2);
+    return gNoL * gNoV;
+}
+
+// vec3 sample_ggx_ndf(vec2 Xi, float alpha) {
+//     float alpha_sqr = alpha * alpha;
+        
+//     float phi = 2.0 * PI * Xi.x;
+                 
+//     float cos_theta = sqrt((1.0 - Xi.y) / (1.0 + (alpha_sqr - 1.0) * Xi.y));
+//     float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+    
+//     //Microfacet normal
+//     vec3 H;
+//     {
+//         H.x = sin_theta * cos(phi);
+//         H.y = sin_theta * sin(phi);
+//         H.z = cos_theta;
+//     }
+//     return H; 
+// }
+
+float NDF_GGX(const in float NoHm, const in float alpha) {
+    float denominator = (NoHm * alpha - NoHm) * NoHm + 1.0;
+    return alpha / max(PI * _pow2(denominator), EPSILON);
+}
+
+float ggx_smith_pdf(const in float NoHm, const in float alpha) {
+   return NDF_GGX(NoHm, alpha) * NoHm;
+}
+
+vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, float NoHm, const in float VoHm, const in vec3 F, const in float roughL) {
+    if (NoLm < EPSILON || NoVm < EPSILON) return vec3(0.0);
+    //NoHm = min(NoHm, 0.99);
+
+    float alpha = max(roughL, 0.02);
+    float D = GGX_D(NoHm, alpha);
+    float V = GGX_V(NoLm, NoVm, alpha);
+
+    float denominator = max(4.0 * NoLm * NoVm, EPSILON);
+    vec3 brdf = (D * F * V) / denominator;
+
+    float pdf = ggx_smith_pdf(NoHm, alpha) / max(4.0 * VoHm, EPSILON);
+    return NoLm * brdf / max(pdf, EPSILON);
 }

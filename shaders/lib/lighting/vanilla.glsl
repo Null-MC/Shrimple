@@ -107,11 +107,11 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 localSkyLightDir = localSkyLightDirection;
         #endif
 
-        vec3 r = reflect(-localViewDir, texNormal);
-        vec3 L = localSkyLightDir * skyLightDist;
-        vec3 centerToRay = dot(L, r) * r - L;
-        vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
-        localSkyLightDir = normalize(closestPoint);
+        // vec3 r = reflect(-localViewDir, texNormal);
+        // vec3 L = localSkyLightDir * skyLightDist;
+        // vec3 centerToRay = dot(L, r) * r - L;
+        // vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+        // localSkyLightDir = normalize(closestPoint);
 
         vec3 skyH = normalize(localSkyLightDir + localViewDir);
         float skyVoHm = max(dot(localViewDir, skyH), 0.0);
@@ -142,16 +142,19 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
                 skyNoHm = max(dot(texNormal, skyH), 0.0);
             }
 
-            skyLightColor *= 1.0 - 0.92*skyRainStrength;
+            //skyLightColor *= 1.0 - 0.92*skyRainStrength;
 
             float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
-            specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
+            specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyVoHm, skyF, roughL) * skyLightColor * shadowColor;
         #endif
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_TEXTURED || defined RENDER_WEATHER || defined RENDER_PARTICLES)
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER) //&& !(defined MATERIAL_PARTICLES || defined RENDER_TEXTURED || defined RENDER_PARTICLES)
         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
             vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
-            vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+
+            vec3 texViewNormal = vec3(0.0, 0.0, 1.0);
+            if (!all(lessThan(abs(texNormal), EPSILON3)))
+                texViewNormal = mat3(gbufferModelView) * texNormal;
 
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
@@ -166,12 +169,12 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-            if (IsMetal(metal_f0))
-                diffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+            float metalF = IsMetal(metal_f0) ? 1.0 : 0.0;
         #else
-            diffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+            float metalF = metal_f0;
         #endif
 
+        diffuse *= mix(1.0, MaterialMetalBrightnessF, metalF * (1.0 - _pow2(roughL)));
         specular *= GetMetalTint(albedo, metal_f0);
     
         // if (metal_f0 >= 0.5) {
