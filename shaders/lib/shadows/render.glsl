@@ -63,14 +63,14 @@
             #else
                 vec3 _shadowPos = vIn.shadowPos;
                 _shadowPos.xy += 0.1 * (shadowDistance / shadowMapResolution) * sssOffset;
-                _shadowPos.z -= bias;
+                //_shadowPos.z -= bias;
 
                 // _shadowPos = distort(_shadowPos) * 0.5 + 0.5;
 
                 #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(_shadowPos, 0.0);
+                    shadow = GetShadowColor(_shadowPos, bias);
                 #else
-                    shadow = GetShadowFactor(_shadowPos, 0.0);
+                    shadow = GetShadowFactor(_shadowPos, bias);
                 #endif
             #endif
         #endif

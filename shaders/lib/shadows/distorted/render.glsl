@@ -8,8 +8,8 @@ float SampleDepth(const in vec2 shadowPos) {
 
 // returns: [0] when depth occluded, [1] otherwise
 float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias) {
-    shadowPos += vec3(offset, -bias);
-    shadowPos = distort(shadowPos) * 0.5 + 0.5;
+    shadowPos = distort(shadowPos + vec3(offset, -bias));
+    shadowPos = shadowPos * 0.5 + 0.5;
 
     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
         #ifdef RENDER_TRANSLUCENT

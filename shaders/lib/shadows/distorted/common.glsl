@@ -33,13 +33,13 @@ vec3 distort(const in vec3 pos) {
     vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
         float bias = GetShadowNormalBias(geoNoL);
 
-        float viewDist = 1.0;
+        // float viewDist = 1.0;
 
-        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            viewDist += length(localPos);
-        #endif
+        // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        //     viewDist += length(localPos);
+        // #endif
 
-        vec3 offsetLocalPos = localPos + localNormal * viewDist * bias;
+        vec3 offsetLocalPos = localPos + localNormal * bias;// * viewDist;
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
