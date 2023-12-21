@@ -327,6 +327,7 @@ const bool colortex15Clear = true;
 //#define DEFERRED_PARTICLES
 #define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
+#define ROUGH_REFLECT_SAMPLES 2
 //#define HCM_LAZANYI
 
 #define UINT32_MAX 4294967295u

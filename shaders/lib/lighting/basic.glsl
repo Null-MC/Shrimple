@@ -230,7 +230,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             skyLightColor *= 1.0 - 0.92*rainStrength;
 
             float invGeoNoL = saturate(geoNoL*40.0);
-            skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyF, roughL) * skyLightColor * shadowColor;
+            skySpecular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyVoHm, skyF, roughL) * skyLightColor * shadowColor;
 
             #if MATERIAL_REFLECTIONS != REFLECT_NONE
                 vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
