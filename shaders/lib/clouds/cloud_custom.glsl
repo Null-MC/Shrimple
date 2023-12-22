@@ -81,8 +81,14 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     // if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
     //     cloudDist = min(cloudDistFar, min(viewDist, far)) - cloudDistNear;
 
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+    #else
+        float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
+    #endif
+
     float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
-    vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.9 * _pow2(skyRainStrength));
+    vec3 skyLightColor = WorldSkyLightColor * weatherF;
 
     float cloudAbsorb = 1.0;
     vec3 cloudScatter = vec3(0.0);

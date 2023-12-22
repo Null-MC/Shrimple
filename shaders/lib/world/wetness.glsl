@@ -119,7 +119,7 @@ void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float 
         surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));
 
         float _roughL = _pow2(roughness);
-        _roughL = mix(_roughL, 0.06, surfaceWetness);
+        _roughL = mix(_roughL, 0.0, surfaceWetness);
         roughness = sqrt(_roughL);
     }
 
