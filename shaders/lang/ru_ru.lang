@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.0
+# Provided by ShrikerChestTree v7.1
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -557,7 +557,7 @@ option.SHADOW_FILTER=Фильтрация
 option.SHADOW_FILTER.comment=Тип фильтрации для применения к выборке теней.
 value.SHADOW_FILTER.0=Никакой
 value.SHADOW_FILTER.1=Мягко-Фиксированный
-value.SHADOW_FILTER.2=Магко-Динамический
+value.SHADOW_FILTER.2=Мягко-Динамический
 
 option.SHADOW_ENABLE_HWCOMP=Ускоренная-АФ
 option.SHADOW_ENABLE_HWCOMP.comment=При включении этой функции тени будут использовать аппаратную фильтрацию для повышения качества и производительности.
