@@ -214,6 +214,8 @@ uniform int heldBlockLightValue2;
     #if SKY_CLOUD_TYPE != CLOUDS_NONE
         #include "/lib/clouds/cloud_vars.glsl"
     #endif
+    
+    #include "/lib/world/lightning.glsl"
 
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/lighting/hg.glsl"

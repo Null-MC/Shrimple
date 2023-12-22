@@ -99,6 +99,7 @@ uniform int heldBlockLightValue2;
     uniform bool firstPersonCamera;
     uniform float lightningStrength;
     uniform vec3 eyePosition;
+    uniform float cloudHeight;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
@@ -127,6 +128,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
+
+#include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/world/sky.glsl"
+#include "/lib/world/lightning.glsl"
 
 #include "/lib/lighting/blackbody.glsl"
 
@@ -201,7 +206,6 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
-    #include "/lib/world/sky.glsl"
     #include "/lib/lighting/basic_hand.glsl"
 
     #if LIGHTING_MODE == DYN_LIGHT_TRACED
@@ -223,10 +227,10 @@ uniform int heldBlockLightValue2;
     //     #include "/lib/fog/fog_volume.glsl"
     // #endif
 
-    #ifdef DH_COMPAT_ENABLED
-        #include "/lib/post/saturation.glsl"
-        #include "/lib/post/tonemap.glsl"
-    #endif
+    // #ifdef DH_COMPAT_ENABLED
+    //     #include "/lib/post/saturation.glsl"
+    //     #include "/lib/post/tonemap.glsl"
+    // #endif
 //#endif
 
 

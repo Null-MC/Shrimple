@@ -119,6 +119,10 @@ void main() {
         vOut.blockId = vIn[i].blockId;
         vOut.atlasBounds = vIn[i].atlasBounds;
 
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
+            vOut.surfacePos = vIn[i].surfacePos;
+        #endif
+
         #ifdef PARALLAX_ENABLED
             vOut.viewPos_T = vIn[i].viewPos_T;
 

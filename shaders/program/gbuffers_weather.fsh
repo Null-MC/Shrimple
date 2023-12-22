@@ -160,8 +160,10 @@ uniform float blindnessSmooth;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
+
 #include "/lib/fog/fog_common.glsl"
 #include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/world/lightning.glsl"
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"

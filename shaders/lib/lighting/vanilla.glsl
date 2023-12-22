@@ -78,14 +78,9 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
     #if defined WORLD_SKY_ENABLED && defined IS_IRIS
         if (lightningStrength > EPSILON) {
-            vec3 lightningOffset = lightningPosition - cameraPosition - localPos;
-            float lightningDist = length(lightningOffset);
-            float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
-            // TODO: flatten vertical distance in ground-to-cloud range?
-
-            vec3 lightningDir = lightningOffset / lightningDist;
-            float lightningNoLm = max(dot(lightningDir, localNormal), 0.0);
-            diffuse += lightningNoLm * lightningStrength * LightningBrightness * pow5(att);
+            vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
+            float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
+            diffuse += lightningNoLm * lightningDirectionStrength.w * _pow2(lmcoord.y);
         }
     #endif
 

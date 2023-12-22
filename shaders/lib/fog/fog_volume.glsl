@@ -460,17 +460,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
             if (lightningStrength > EPSILON) {
-                vec3 lightningOffset = lightningPosition - cameraPosition;
-                lightningOffset.y = clamp(traceLocalPos.y, lightningOffset.y, cloudHeight - cameraPosition.y + 0.5*CloudHeight);
-                lightningOffset -= traceLocalPos;
+                vec4 lightningDirectionStrength = GetLightningDirectionStrength(traceLocalPos);
+                sampleLit += 0.04 * phaseIso * lightningDirectionStrength.w;
 
-                //vec3 lightningOffset = lightningBoltPosition.xyz - traceLocalPos;
-                float lightningDist = length(lightningOffset);
-                float att = max(1.0 - lightningDist * LightningRangeInv, 0.0);
-                // TODO: flatten vertical distance in ground-to-cloud range?
-
-                //vec3 lightningDir = lightningOffset / lightningDist;
-                sampleLit += 0.01 * lightningStrength * LightningBrightness * pow5(att);
+                // TODO: use phase function?
             }
         #endif
 

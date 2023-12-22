@@ -158,8 +158,10 @@ void main() {
         #endif
     #endif
 
-    gl_Position = viewPos;
-    #if DISPLACE_MODE != DISPLACE_TESSELATION
-        gl_Position = gl_ProjectionMatrix * gl_Position;
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vOut.surfacePos = viewPos.xyz;
+        gl_Position = viewPos;
+    #else
+        gl_Position = gl_ProjectionMatrix * viewPos;
     #endif
 }

@@ -102,6 +102,10 @@ void main() {
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
 
+    #if DISPLACE_MODE == DISPLACE_TESSELATION
+        vOut[gl_InvocationID].surfacePos = vIn[gl_InvocationID].surfacePos;
+    #endif
+
     #ifdef PARALLAX_ENABLED
         vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;
 
