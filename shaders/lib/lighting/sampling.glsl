@@ -38,7 +38,7 @@ float SampleLightDiffuse(const in float NoV, const in float NoL, const in float 
     float f90 = 0.5 + 2.0*roughL * _pow2(LoH);
     float light_scatter = F_schlick(NoL, 1.0, f90);
     float view_scatter = F_schlick(NoV, 1.0, f90);
-    return invPI * light_scatter * view_scatter * NoL;
+    return light_scatter * view_scatter * NoL;
 }
 
 float GGX_D(const in float NoHm, const in float alpha) {
@@ -56,9 +56,6 @@ float SmithG(const in float NoV, const in float alpha2) {
 }
 
 float GGX_V(const in float NoLm, const in float NoVm, const in float alpha) {
-    //float k = 0.5 * alpha;
-    // float gNoL = rcp(NoLm * (1.0 - k)  + k);
-    // float gNoV = rcp(NoVm * (1.0 - k)  + k);
     float alpha2 = _pow2(alpha);
     float gNoL = SmithG(NoLm, alpha2);
     float gNoV = SmithG(NoVm, alpha2);

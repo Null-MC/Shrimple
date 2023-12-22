@@ -254,8 +254,8 @@ screen.MATERIAL_SSS_OPTIONS=Настройки ПР
 option.MATERIAL_SSS_SCATTER=Рассеяние
 suffix.MATERIAL_SSS_SCATTER=%
 
-option.MATERIAL_SSS_BOOST=Скорость
-suffix.MATERIAL_SSS_BOOST=%
+option.MATERIAL_SSS_STRENGTH=Скорость
+suffix.MATERIAL_SSS_STRENGTH=%
 
 
 screen.MATERIAL_REFLECT_OPTIONS=Отражение

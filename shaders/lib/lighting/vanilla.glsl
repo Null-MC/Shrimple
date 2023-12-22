@@ -47,7 +47,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
         float viewDist = length(localPos);
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-        shadowColor *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+        shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
 
         shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
@@ -60,7 +60,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
     //     float viewDist = length(localPos);
     //     float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-    //     diffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+    //     diffuse *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
     // #endif
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0

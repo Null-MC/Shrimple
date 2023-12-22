@@ -488,21 +488,21 @@ void main() {
         }
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        float skyTexNoL = 1.0;
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     float skyTexNoL = 1.0;
 
-        if (isValidNormal) {
-            skyTexNoL = dot(texNormal, localSkyLightDirection);
-        }
+    //     if (isValidNormal) {
+    //         skyTexNoL = dot(texNormal, localSkyLightDirection);
+    //     }
 
-        #if MATERIAL_SSS != SSS_NONE
-            skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
-        #else
-            skyTexNoL = max(skyTexNoL, 0.0);
-        #endif
+    //     #if MATERIAL_SSS != SSS_NONE
+    //         skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
+    //     #else
+    //         skyTexNoL = max(skyTexNoL, 0.0);
+    //     #endif
 
-        shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
-    #endif
+    //     shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    // #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
 

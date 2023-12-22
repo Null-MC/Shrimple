@@ -252,8 +252,11 @@ screen.MATERIAL_SSS_OPTIONS=SSS Options
 option.MATERIAL_SSS_SCATTER=Scattering
 suffix.MATERIAL_SSS_SCATTER=%
 
-option.MATERIAL_SSS_BOOST=Boost
-suffix.MATERIAL_SSS_BOOST=%
+option.MATERIAL_SSS_STRENGTH=Boost
+suffix.MATERIAL_SSS_STRENGTH=%
+
+option.MATERIAL_SSS_MAXDIST=Max Distance
+option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can penetrate through blocks.
 
 
 screen.MATERIAL_REFLECT_OPTIONS=Reflections
