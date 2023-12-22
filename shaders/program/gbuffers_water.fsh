@@ -240,6 +240,8 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/world/lightning.glsl"
 
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
@@ -247,8 +249,6 @@ uniform int heldBlockLightValue2;
     #endif
     
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #include "/lib/clouds/cloud_vars.glsl"
-
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
