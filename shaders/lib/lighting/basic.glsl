@@ -249,6 +249,12 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         #endif
 
         skyDiffuse += accumDiffuse;
+
+        if (lightningStrength > EPSILON) {
+            vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
+            float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
+            skyDiffuse += lightningNoLm * lightningDirectionStrength.w * _pow2(lmcoord.y);
+        }
     }
 
     // void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in float shadowFade, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {

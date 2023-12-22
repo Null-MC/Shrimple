@@ -152,6 +152,12 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             #endif
         #endif
 
+        if (lightningStrength > EPSILON) {
+            vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
+            float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
+            skyDiffuse += lightningNoLm * lightningDirectionStrength.w * _pow2(lmcoord.y);
+        }
+
         blockDiffuse += skyDiffuse;
     #endif
 

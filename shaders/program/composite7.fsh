@@ -128,6 +128,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/world/lightning.glsl"
 
     //#if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_TYPE == SKY_TYPE_CUSTOM

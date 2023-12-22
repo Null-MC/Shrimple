@@ -204,10 +204,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-
-    //#ifdef WORLD_WETNESS_ENABLED
-        #include "/lib/world/wetness.glsl"
-    //#endif
+    #include "/lib/world/wetness.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -244,14 +241,17 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/scatter_transmit.glsl"
 
-#if defined WORLD_SKY_ENABLED && defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED)
+#if defined WORLD_SKY_ENABLED && defined IS_IRIS
     #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/world/lightning.glsl"
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-        #include "/lib/lighting/hg.glsl"
-        #include "/lib/clouds/cloud_custom.glsl"
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        #include "/lib/clouds/cloud_vanilla.glsl"
+    #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/lighting/hg.glsl"
+            #include "/lib/clouds/cloud_custom.glsl"
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/clouds/cloud_vanilla.glsl"
+        #endif
     #endif
 #endif
 

@@ -286,16 +286,14 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
+        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/world/lightning.glsl"
 
-        //#if defined SHADOW_CLOUD_ENABLED
-            #include "/lib/clouds/cloud_vars.glsl"
-
-            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-                #include "/lib/clouds/cloud_custom.glsl"
-            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                #include "/lib/clouds/cloud_vanilla.glsl"
-            #endif
-        //#endif
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            #include "/lib/clouds/cloud_custom.glsl"
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/clouds/cloud_vanilla.glsl"
+        #endif
     #endif
 
     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
