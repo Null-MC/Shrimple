@@ -3,7 +3,7 @@ float GetShadowNormalBias(const in float geoNoL) {
 }
 
 float GetShadowOffsetBias() {
-    return (0.00004 * SHADOW_BIAS_SCALE);
+    return 0.0002 * SHADOW_BIAS_SCALE;
 }
 
 vec3 distort(const in vec3 pos) {
@@ -32,27 +32,13 @@ vec3 distort(const in vec3 pos) {
 #if defined RENDER_VERTEX && !defined RENDER_SHADOW
     vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
         float bias = GetShadowNormalBias(geoNoL);
-
-        // float viewDist = 1.0;
-
-        // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-        //     viewDist += length(localPos);
-        // #endif
-
-        vec3 offsetLocalPos = localPos + localNormal * bias;// * viewDist;
+        vec3 offsetLocalPos = localPos + localNormal * bias;
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
-            vec3 shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
+            return (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
         #else
-            vec3 shadowPos = (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
+            return (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
         #endif
-
-        // #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-        //     shadowPos = distort(shadowPos);
-        // #endif
-
-        // shadowPos = shadowPos * 0.5 + 0.5;
-        return shadowPos;
     }
 #endif

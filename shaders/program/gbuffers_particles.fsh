@@ -57,13 +57,13 @@ uniform sampler2D lightmap;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    #ifdef SHADOW_CLOUD_ENABLED
+    //#ifdef SHADOW_CLOUD_ENABLED
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
         #endif
-    #endif
+    //#endif
 
     #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined IS_IRIS
         uniform sampler3D texCaustics;
@@ -287,7 +287,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
 
-        #if defined SHADOW_CLOUD_ENABLED
+        //#if defined SHADOW_CLOUD_ENABLED
             #include "/lib/clouds/cloud_vars.glsl"
 
             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
@@ -295,7 +295,7 @@ uniform ivec2 eyeBrightnessSmooth;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_vanilla.glsl"
             #endif
-        #endif
+        //#endif
     #endif
 
     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED

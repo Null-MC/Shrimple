@@ -96,7 +96,7 @@ vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, float NoHm, c
     if (NoLm < EPSILON || NoVm < EPSILON) return vec3(0.0);
     //NoHm = min(NoHm, 0.99);
 
-    float alpha = max(roughL, 0.02);
+    float alpha = max(roughL, 0.04);
     float D = GGX_D(NoHm, alpha);
     float V = GGX_V(NoLm, NoVm, alpha);
 
@@ -104,5 +104,5 @@ vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, float NoHm, c
     vec3 brdf = (D * F * V) / denominator;
 
     float pdf = ggx_smith_pdf(NoHm, alpha) / max(4.0 * VoHm, EPSILON);
-    return invPI * NoLm * brdf / max(pdf, EPSILON);
+    return NoLm * brdf / max(pdf, EPSILON);
 }

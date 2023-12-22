@@ -529,17 +529,17 @@ void main() {
     vec3 localViewDir = normalize(vIn.localPos);
     texNormal = normalize(matLocalTBN * texNormal);
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        float skyNoL = dot(texNormal, localSkyLightDirection);
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     float skyNoL = dot(texNormal, localSkyLightDirection);
 
-        #if MATERIAL_SSS != SSS_NONE
-            skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
-        #else
-            skyNoL = max(skyNoL, 0.0);
-        #endif
+    //     #if MATERIAL_SSS != SSS_NONE
+    //         skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
+    //     #else
+    //         skyNoL = max(skyNoL, 0.0);
+    //     #endif
 
-        shadowColor *= 1.2 * pow(skyNoL, 0.8);
-    #endif
+    //     shadowColor *= 1.2 * pow(skyNoL, 0.8);
+    // #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
         #if DISPLACE_MODE == DISPLACE_TESSELATION

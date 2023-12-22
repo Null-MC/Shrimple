@@ -43,14 +43,17 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
                 vec4 sampleColor = vec4(1.0);
 
-                float depthOpaque = textureLod(shadowtex1, shadowPos.xy + pixelOffset, 0).r;
+                vec3 samplePos = shadowPos + vec3(pixelOffset, -bias);
+                samplePos = distort(samplePos) * 0.5 + 0.5;
 
-                if (shadowPos.z - bias > depthOpaque) sampleColor.rgb = vec3(0.0);
+                float depthOpaque = textureLod(shadowtex1, samplePos.xy, 0).r;
+
+                if (samplePos.z > depthOpaque) sampleColor.rgb = vec3(0.0);
                 else {
-                    float depthTrans = textureLod(shadowtex0, shadowPos.xy + pixelOffset, 0).r;
-                    if (shadowPos.z - bias < depthTrans) sampleColor.rgb = vec3(1.0);
+                    float depthTrans = textureLod(shadowtex0, samplePos.xy, 0).r;
+                    if (samplePos.z < depthTrans) sampleColor.rgb = vec3(1.0);
                     else {
-                        sampleColor = textureLod(shadowcolor0, shadowPos.xy + pixelOffset, 0);
+                        sampleColor = textureLod(shadowcolor0, samplePos.xy, 0);
                         sampleColor.rgb = RGBToLinear(sampleColor.rgb);
                         
                         sampleColor.rgb = mix(sampleColor.rgb, vec3(0.0), _pow2(sampleColor.a));
@@ -77,7 +80,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             float shadow = 0.0;
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
                 vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
-                vec3 samplePos = distort(shadowPos) * 0.5 + 0.5;
+                // vec3 samplePos = distort(shadowPos) * 0.5 + 0.5;
 
                 shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
             }
