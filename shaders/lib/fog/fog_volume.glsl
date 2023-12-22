@@ -128,14 +128,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //     vec3 skyLightColor = RGBToLinear(fogColor);
         // #endif
 
-        //#if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-        //    const float weatherF = 1.0;
-        //#else
-            float weatherF = 1.0 - 0.6 * _pow2(skyRainStrength);
-        //#endif
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+        #else
+            float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
+        #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        vec3 skyLightColor = WorldSkyLightColor * VolumetricBrightnessSky * weatherF;
+        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
         //skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
