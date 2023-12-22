@@ -78,6 +78,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
     #ifdef IS_IRIS
+        uniform vec3 eyePosition;
         uniform float lightningStrength;
         uniform float cloudTime;
     #endif
@@ -101,9 +102,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
-    uniform vec3 eyePosition;
-#endif
+// #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
+//     uniform vec3 eyePosition;
+// #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;

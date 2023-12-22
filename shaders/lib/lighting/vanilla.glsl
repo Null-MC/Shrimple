@@ -47,7 +47,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
         float viewDist = length(localPos);
         float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-        shadowColor *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+        shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
 
         shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
@@ -60,7 +60,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
     //     float viewDist = length(localPos);
     //     float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-    //     diffuse *= 1.0 + MaterialSssBoostF * sss * shadowDistF;
+    //     diffuse *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
     // #endif
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
@@ -98,8 +98,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
         vec3 localViewDir = -normalize(localPos);
 
-        const float skyLightSize = 9.5e9;
-        const float skyLightDist = 151.e9;
+        const float skyLightSize = 8.0;
+        const float skyLightDist = 100.0;
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -107,11 +107,13 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
             vec3 localSkyLightDir = localSkyLightDirection;
         #endif
 
-        // vec3 r = reflect(-localViewDir, texNormal);
-        // vec3 L = localSkyLightDir * skyLightDist;
-        // vec3 centerToRay = dot(L, r) * r - L;
-        // vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
-        // localSkyLightDir = normalize(closestPoint);
+        if (!all(lessThan(abs(texNormal), EPSILON3))) {
+            vec3 r = reflect(-localViewDir, texNormal);
+            vec3 L = localSkyLightDir * skyLightDist;
+            vec3 centerToRay = dot(L, r) * r - L;
+            vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+            localSkyLightDir = normalize(closestPoint);
+        }
 
         vec3 skyH = normalize(localSkyLightDir + localViewDir);
         float skyVoHm = max(dot(localViewDir, skyH), 0.0);

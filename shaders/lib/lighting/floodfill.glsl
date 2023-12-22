@@ -22,7 +22,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
         skyDiffuse = RGBToLinear(lmSkyLight);
 
-        skyDiffuse *= 1.0 + MaterialSssBoostF * sss;
+        skyDiffuse *= 1.0 + MaterialSssStrengthF * sss;
 
         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
     #endif
@@ -100,7 +100,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
             skyDiffuse = D * skyLightColor * shadowColor * (1.0 - ambientF);
-            skyDiffuse *= 1.0 + MaterialSssBoostF * sss;
+            skyDiffuse *= 1.0 + MaterialSssStrengthF * sss;
             skyDiffuse *= shadowFade;
         #endif
 

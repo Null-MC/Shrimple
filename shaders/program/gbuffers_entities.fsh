@@ -492,17 +492,17 @@ void main() {
             texNormal = matLocalTBN * texNormal;
         }
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = dot(texNormal, localSkyLightDirection);
+        // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        //     float skyTexNoL = dot(texNormal, localSkyLightDirection);
 
-            #if MATERIAL_SSS != SSS_NONE
-                skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
-            #else
-                skyTexNoL = max(skyTexNoL, 0.0);
-            #endif
+        //     #if MATERIAL_SSS != SSS_NONE
+        //         skyTexNoL = mix(max(skyTexNoL, 0.0), abs(skyTexNoL), sss);
+        //     #else
+        //         skyTexNoL = max(skyTexNoL, 0.0);
+        //     #endif
 
-            shadowColor *= 1.2 * pow(max(skyTexNoL, 0.0), 0.8);
-        #endif
+        //     shadowColor *= 1.2 * pow(max(skyTexNoL, 0.0), 0.8);
+        // #endif
     #endif
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))

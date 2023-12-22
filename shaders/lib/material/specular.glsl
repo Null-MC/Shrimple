@@ -217,6 +217,9 @@ vec3 GetMaterialF0(const in vec3 albedo, const in float metal_f0) {
             int hcm = int(metal_f0 * 255.0 + 0.5) - 230;
             f0 = GetHCM_f0(albedo, hcm);
         }
+        else if (metal_f0 < (1.5/255.0)) {
+            f0 = vec3(0.04);
+        }
 
         return f0;
     #else
