@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.4
+# Provided by ShrikerChestTree v7.5
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -291,12 +291,12 @@ option.REFRACTION_BLUR=Преломленное размытие
 option.REFRACTION_SNELL=TIR/Снеллсовое окно
 
 
-screen.LIGHTING_OPTIONS=Освещение
+screen.LIGHTING_OPTIONS=Настройка Освещения
 
 option.LIGHTING_MODE=Режим
-option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ GI/LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
+option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
 value.LIGHTING_MODE.0=Световая Карта
-value.LIGHTING_MODE.1=Наливное Заполнение (LPV GI)
+value.LIGHTING_MODE.1=Наливное Заполнение (LPV/LPV GI)
 value.LIGHTING_MODE.2=Трассировка лучей
 
 option.LIGHTING_MODE_HAND=Рука
@@ -354,7 +354,7 @@ option.LPV_LIGHTMAP_MIX=Микс СветовойКарты
 suffix.LPV_LIGHTMAP_MIX=%
 
 option.LPV_SUN_SAMPLES=Образцы Теней
-option.LPV_SUN_SAMPLES.comment=Сколько образцов использовать на блок при определении видимости солнца/луны.
+option.LPV_SUN_SAMPLES.comment=Сколько образцов использовать на блок при определении видимости солнца/луны (GI).
 value.LPV_SUN_SAMPLES.0=Выкл
 
 option.LPV_VOXEL_TEST=Воксельное Тестирование
@@ -396,7 +396,7 @@ option.LIGHTING_TRACE_TEMP_ACCUM.comment=Если эта функция вклю
 suffix.LIGHTING_TRACE_TEMP_ACCUM=%
 value.LIGHTING_TRACE_TEMP_ACCUM.0=Выкл
 
-option.LIGHTING_FLICKER=Динамические
+option.LIGHTING_FLICKER=Динамический
 option.LIGHTING_FLICKER.comment=Позволяет источникам света иметь динамическую яркость/цвет; например, факелам, свечам, огню и т.д.
 
 
@@ -583,7 +583,7 @@ option.SHADOW_BLUR=Сглаживание
 option.SHADOW_BLUR.comment=Применяет пост гауссовое размытие к буферу затенения для дополнительного сглаживания размытия. Применяется ко всем типам теней.
 
 
-screen.EFFECT_OPTIONS=Эффекты
+screen.EFFECT_OPTIONS=Настройка Эффектов
 
 option.EFFECT_AUTO_EXPOSE=Авто-Экспозиция
 option.EFFECT_AUTO_EXPOSE.comment=Быстрый эффект авто-экспозиции, основанный на яркости в месте расположения камеры.
