@@ -31,7 +31,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
     //     NoL = mix(1.0, NoL, DynamicLightDirectionalF);
     // #endif
 
-    return NoL;
+    return saturate(NoL);
 }
 
 float SampleLightDiffuse(const in float NoV, const in float NoL, const in float LoH, const in float roughL) {

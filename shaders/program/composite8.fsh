@@ -106,9 +106,10 @@ uniform int isEyeInWater;
     uniform float skyRainStrength;
     //uniform float wetness;
 
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+
     #if SKY_CLOUD_TYPE != CLOUDS_NONE //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
 
     #ifdef IS_IRIS
@@ -211,9 +212,9 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE
+    //#if SKY_CLOUD_TYPE != CLOUDS_NONE
         #include "/lib/clouds/cloud_vars.glsl"
-    #endif
+    //#endif
     
     #include "/lib/world/lightning.glsl"
 

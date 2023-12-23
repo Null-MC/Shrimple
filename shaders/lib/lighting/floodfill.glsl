@@ -55,7 +55,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade);
 
         #if defined WORLD_SKY_ENABLED //&& !defined LPV_GI
-            #if LPV_SUN_SAMPLES > 0 && SHADOW_TYPE != SHADOW_TYPE_NONE
+            #if LPV_SUN_SAMPLES > 0 && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_CLOUDS
                 float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
                 #ifdef LPV_GI
@@ -98,7 +98,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             //float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
             float shadowFade = smoothstep(0.9*shadowDistance, 0.7*shadowDistance, viewDist);
 
-            vec3 H = normalize(-localSkyLightDirection + localViewDir);
+            vec3 H = normalize(localSkyLightDirection + -localViewDir);
             float diffuseNoVm = max(dot(texNormal, -localViewDir), 0.0);
             float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
             float D = SampleLightDiffuse(diffuseNoVm, diffuseNoL, diffuseLoHm, roughL);
