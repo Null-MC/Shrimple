@@ -50,7 +50,7 @@ vec4 BasicVertex() {
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         //vBlockLight = vec3(0.0);
 
-        #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+        #if defined RENDER_BILLBOARD //|| defined RENDER_CLOUDS
             vec3 _vLocalNormal = mat3(gbufferModelViewInverse) * viewNormal;
         #else
             vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;

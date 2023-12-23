@@ -10,6 +10,7 @@
 in VertexData {
     vec2 texcoord;
     vec3 localPos;
+    vec3 localNormal;
     vec4 color;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -250,7 +251,7 @@ void main() {
     }
 
     const float roughness = 0.9;
-    const vec3 normal = vec3(0.0);
+    const vec3 normal = normalize(vIn.localNormal);
     const float metal_f0 = 0.04;
     const float occlusion = 1.0;
     const float emission = 0.0;
