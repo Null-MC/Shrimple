@@ -145,7 +145,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         //ambientLight = _pow2(ambientLight);
 
-        ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+        ambientLight *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
         //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
 
