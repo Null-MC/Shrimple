@@ -12,11 +12,12 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             lmSkyFinal.y = _pow3(lmSkyFinal.y);
         #endif
 
-        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        //float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        // float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
         
         // lmSkyFinal.y *= skyNoLm * 0.5 + 0.5;
-        float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
-        lmSkyFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
+        // float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
+        // lmSkyFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
 
         lmSkyFinal = LightMapTex(lmSkyFinal);
         vec3 lmSkyLight = textureLod(TEX_LIGHTMAP, lmSkyFinal, 0).rgb;
@@ -32,6 +33,8 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
 
     float ambientF = DynamicLightAmbientF;
+    ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+    //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
     ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
     vec3 lpvPos = GetLPVPosition(localPos);
@@ -120,7 +123,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
             vec3 skyH = normalize(localSkyLightDir + -localViewDir);
 
-            skyNoLm = 1.0;
+            float skyNoLm = 1.0;
             float skyNoVm = 1.0, skyNoHm = 1.0;
             if (!all(lessThan(abs(texNormal), EPSILON3))) {
                 skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);

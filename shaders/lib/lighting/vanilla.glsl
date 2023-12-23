@@ -12,12 +12,13 @@
 void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     vec2 lmFinal = lmcoord;
 
-    #if defined WORLD_SKY_ENABLED && !defined RENDER_SHADOWS_ENABLED
-        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+    // #if defined WORLD_SKY_ENABLED //&& !defined RENDER_SHADOWS_ENABLED
+    //     float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+    //     //float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
-        float sunAngleRange = 0.5 * localSkyLightDirection.y;
-        lmFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
-    #endif
+    //     float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
+    //     lmFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
+    // #endif
 
     lmFinal = LightMapTex(lmFinal);
 
@@ -38,6 +39,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
 
         float ambientF = DynamicLightAmbientF;
+        ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+        //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
         ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
         vec3 ambientLight = vec3(ambientF);

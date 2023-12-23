@@ -324,6 +324,9 @@ screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
 option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
 
+option.LIGHTING_OLD=Old Lighting
+option.LIGHTING_OLD.comment=Enables vanilla directional sky-light.
+
 
 screen.LIGHTING_LPV_OPTIONS=FloodFill Options
 

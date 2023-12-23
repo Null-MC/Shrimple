@@ -194,7 +194,7 @@ vec3 GetLpvBlockLight(const in vec4 lpvSample) {
     //const float sampleF = (1.0/15.0) / DynamicLightRangeF;
 
     float lum = luminance(lpvSample.rgb);
-    float lum2 = sqrt(lum) / 15.0;
+    float lum2 = sqrt(lum) / (15.0 * DynamicLightRangeF);
     return (lpvSample.rgb / max(lum, EPSILON)) * lum2;
 
     // vec3 hsv = lpvSample.rgb;

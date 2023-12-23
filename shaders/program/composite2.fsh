@@ -98,10 +98,11 @@ uniform float blindnessSmooth;
     uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
     uniform float wetness;
+    
+    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
     #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
 
     #ifdef IS_IRIS

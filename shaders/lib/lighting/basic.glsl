@@ -132,9 +132,11 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         //     lmcoordFinal.y = _pow3(lmcoordFinal.y);
         // #endif
 
+        // float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
+
         // lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
-        float sunAngleRange = 0.5 * localSkyLightDirection.y;
-        lmcoordFinal.y *= diffuseNoLm * sunAngleRange + (1.0 - sunAngleRange);
+        // float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
+        // lmcoordFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
 
         lmcoordFinal = LightMapTex(lmcoordFinal);
 
@@ -142,6 +144,9 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         vec3 ambientLight = RGBToLinear(lightmapColor);
 
         //ambientLight = _pow2(ambientLight);
+
+        ambientLight *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+        //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
 
         #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& LIGHTING_MODE != DYN_LIGHT_LPV
@@ -218,7 +223,8 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             vec3 skyH = normalize(localSkyLightDir + localViewDir);
             float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
-            float skyNoLm = 1.0, skyNoVm = 1.0, skyNoHm = 1.0;
+            float skyNoLm = 1.0;
+            float skyNoVm = 1.0, skyNoHm = 1.0;
             if (!all(lessThan(abs(texNormal), EPSILON3))) {
                 skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
                 skyNoVm = max(dot(texNormal, localViewDir), 0.0);

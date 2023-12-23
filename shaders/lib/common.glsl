@@ -204,6 +204,9 @@ const bool colortex15Clear = true;
 #define LIGHTING_TINT_MODE 1 // [0 1 2]
 #define LIGHTING_TINT_STRENGTH 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 
+#define DIRECTIONAL_LIGHTMAP
+//#define LIGHTING_OLD
+
 // Traced Lighting
 #define LIGHTING_TRACE_RES 1 // [2 1 0]
 #define LIGHTING_TRACE_PENUMBRA 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
@@ -325,7 +328,6 @@ const bool colortex15Clear = true;
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED
 //#define DEFERRED_PARTICLES
-#define DIRECTIONAL_LIGHTMAP
 #define RIPPLE_STRENGTH 0.03
 #define ROUGH_REFLECT_SAMPLES 2
 //#define HCM_LAZANYI
@@ -442,6 +444,8 @@ const bool colortex15Clear = true;
 #ifdef WATER_TESSELLATION
 #endif
 #ifdef DIRECTIONAL_LIGHTMAP
+#endif
+#ifdef LIGHTING_OLD
 #endif
 #ifdef MATERIAL_PARALLAX_SHADOW_SMOOTH
 #endif
