@@ -326,6 +326,9 @@ screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты
 option.DIRECTIONAL_LIGHTMAP=Направление СветовойКарты
 option.DIRECTIONAL_LIGHTMAP.comment=Если эта опция включена, она пытается сымитировать направленное освещение с помощью ванильной световойкарты. Применяется только к освещению по умолчанию.
 
+option.LIGHTING_OLD=Старое Освещение
+option.LIGHTING_OLD.comment=Ванильное направлённое небесное-освещение.
+
 
 screen.LIGHTING_LPV_OPTIONS=Настройки НаливногоЗаполнения
 
