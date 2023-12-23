@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.2
+# Provided by ShrikerChestTree v7.4
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -172,7 +172,7 @@ option.DISPLACE_MODE=Тип
 option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края. Тесселяция - делает PBR-текстуры объёмными и более гладкими!.
 value.DISPLACE_MODE.0=Выкл
 value.DISPLACE_MODE.1=Стандартный POM
-value.DISPLACE_MODE.2=Глядкий POM
+value.DISPLACE_MODE.2=Гладкий POM
 value.DISPLACE_MODE.3=Острый POM
 value.DISPLACE_MODE.4=Тесселяция
 
