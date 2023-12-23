@@ -145,7 +145,8 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         //ambientLight = _pow2(ambientLight);
 
-        ambientLight *= dot(texNormal, localSkyLightDirection) * 0.25 + 0.75;
+        ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+        //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
 
         #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 //&& LIGHTING_MODE != DYN_LIGHT_LPV

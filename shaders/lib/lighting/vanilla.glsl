@@ -39,7 +39,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
 
         float ambientF = DynamicLightAmbientF;
-        ambientF *= dot(texNormal, localSkyLightDirection) * 0.25 + 0.75;
+        ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
+        //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
         ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
         vec3 ambientLight = vec3(ambientF);
