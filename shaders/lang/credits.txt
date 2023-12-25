@@ -1,3 +1,2 @@
 DE:	Wolf
-OLD RU: $km.yas
-NEW RU: ShrikerChestTree
+RU: ShrikerChestTree; $km.yas
