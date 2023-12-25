@@ -134,8 +134,8 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             const float shadowDistScale = 64.0; //3.0 * far;
         #else
             float shadowDistMax = 3.0 * far;
-            const float shadowDistScale = 0.25;
-            float shadowBias = 3.0 * rcp(shadowDistMax);// * GetShadowOffsetBias();
+            const float shadowDistScale = 0.15;
+            float shadowBias = 1.5 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif
 
         float viewDist = length(blockLocalPos);
@@ -148,7 +148,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
             if (i >= maxSamples) break;
 
-            vec3 blockLpvPos = blockLocalPos;
+            vec3 blockLpvPos = blockLocalPos + 0.5;
 
             #if LPV_SUN_SAMPLES > 1
                 //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
@@ -175,7 +175,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
             float sampleF = step(shadowBias, shadowDist);
-            sampleF *= max(1.0 - abs(shadowDist) * shadowDistScale, 0.0);
+            sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * shadowDistScale, 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;

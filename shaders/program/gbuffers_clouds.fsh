@@ -363,7 +363,15 @@ void main() {
         // #else
 
         #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+            #else
+                float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
+            #endif
+        
+            vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+
+            vec3 vlLight = (phaseAir + AirAmbientF) * skyLightColor;
             vec4 scatterTransmit = ApplyScatteringTransmission(min(viewDist, far), vlLight, AirScatterF, AirExtinctF);
             final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
         #endif

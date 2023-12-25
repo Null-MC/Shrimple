@@ -110,14 +110,14 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
 
         vec3 t = clamp(tracePos, clipMin, clipMax);
-        if (tracePos.z > 0.999 && t != tracePos) {
+        if (t != tracePos) {
             if (level > SSR_LodMin && i < SSR_MAXSTEPS - (level + 1)) {
                 level--;
                 continue;
             }
 
             lastVisPos = t;
-            alpha = 1.0;
+            if (tracePos.z >= 1.0) alpha = 1.0;
             break;
         }
 

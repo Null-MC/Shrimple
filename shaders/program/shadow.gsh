@@ -7,18 +7,24 @@ layout(triangle_strip, max_vertices=12) out;
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 vColor[3];
-in vec2 vTexcoord[3];
-flat in int vBlockId[3];
-flat in vec3 vOriginPos[3];
+in VertexData {
+    vec4 color;
+    vec2 texcoord;
 
-out vec2 gTexcoord;
-out vec4 gColor;
-flat out uint gBlockId;
+    flat int blockId;
+    flat vec3 originPos;
+} vIn[];
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    flat out vec2 gShadowTilePos;
-#endif
+out VertexData {
+    vec2 texcoord;
+    vec4 color;
+
+    flat uint blockId;
+
+    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        flat vec2 shadowTilePos;
+    #endif
+} vOut;
 
 #if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE
     uniform sampler2D noisetex;
@@ -128,18 +134,19 @@ uniform float far;
 #endif
 
 void main() {
+    vec3 originPos = (vIn[0].originPos + vIn[1].originPos + vIn[2].originPos) * rcp(3.0);
+
     bool isRenderTerrain = renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
-                       || renderStage == MC_RENDER_STAGE_ENTITIES;
-
     #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
-        vec3 originPos = (vOriginPos[0] + vOriginPos[1] + vOriginPos[2]) / 3.0;
 
-        if ((vBlockId[0] > 0 || currentRenderedItemId > 0 || entityId > 0) && (isRenderTerrain || isRenderEntity)) {
+        bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
+                           || renderStage == MC_RENDER_STAGE_ENTITIES;
+
+        if ((vIn[0].blockId > 0 || currentRenderedItemId > 0 || entityId > 0) && (isRenderTerrain || isRenderEntity)) {
             // #ifdef SHADOW_FRUSTUM_CULL
             //     if (vBlockId[0] > 0) {
             //         vec2 lightViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xy;
@@ -165,7 +172,7 @@ void main() {
                 }
             #endif
 
-            uint lightType = CollissionMaps[vBlockId[0]].LightId;
+            uint lightType = CollissionMaps[vIn[0].blockId].LightId;
 
             //#if LIGHTING_MODE == DYN_LIGHT_TRACED
                 vec3 cf = fract(cameraPosition);
@@ -176,8 +183,8 @@ void main() {
                 if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
                     uint gridIndex = GetVoxelGridCellIndex(gridCell);
 
-                    if (intersects && !IsTraceEmptyBlock(vBlockId[0]))
-                        SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
+                    if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
+                        SetVoxelBlockMask(blockCell, gridIndex, vIn[0].blockId);
 
                     #if LIGHTING_MODE == DYN_LIGHT_TRACED
                         //uint lightType = GetSceneLightType(vBlockId[0]);
@@ -287,7 +294,7 @@ void main() {
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         if (isRenderTerrain) {
             // TODO: use emission as inv of alpha instead?
-            if (vBlockId[0] == BLOCK_FIRE || vBlockId[0] == BLOCK_SOUL_FIRE) return;
+            if (vIn[0].blockId == BLOCK_FIRE || vIn[0].blockId == BLOCK_SOUL_FIRE) return;
         }
     #else
         return;
@@ -302,7 +309,7 @@ void main() {
         // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
+            vec3 originShadowViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xyz;
 
             int shadowTile = GetShadowRenderTile(originShadowViewPos);
             if (shadowTile < 0) return;
@@ -328,11 +335,11 @@ void main() {
                 vec2 shadowTilePos = shadowProjectionPos[c];
 
                 for (int v = 0; v < 3; v++) {
-                    gShadowTilePos = shadowTilePos;
+                    vOut.shadowTilePos = shadowTilePos;
 
-                    gTexcoord = vTexcoord[v];
-                    gColor = vColor[v];
-                    gBlockId = vBlockId[v];
+                    vOut.texcoord = vIn[v].texcoord;
+                    vOut.color = vIn[v].color;
+                    vOut.blockId = vIn[v].blockId;
 
                     gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
 
@@ -347,9 +354,9 @@ void main() {
             }
         #else
             for (int v = 0; v < 3; v++) {
-                gTexcoord = vTexcoord[v];
-                gColor = vColor[v];
-                gBlockId = vBlockId[v];
+                vOut.texcoord = vIn[v].texcoord;
+                vOut.color = vIn[v].color;
+                vOut.blockId = vIn[v].blockId;
 
                 #ifdef IRIS_FEATURE_SSBO
                     gl_Position = shadowProjectionEx * gl_in[v].gl_Position;

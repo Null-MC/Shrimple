@@ -8,10 +8,13 @@ in vec4 mc_Entity;
 in vec3 vaPosition;
 in vec3 at_midBlock;
 
-out vec4 vColor;
-out vec2 vTexcoord;
-flat out int vBlockId;
-flat out vec3 vOriginPos;
+out VertexData {
+    vec4 color;
+    vec2 texcoord;
+
+    flat int blockId;
+    flat vec3 originPos;
+} vOut;
 
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
@@ -58,8 +61,8 @@ uniform int blockEntityId;
 
 
 void main() {
-    vTexcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    vColor = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.color = gl_Color;
 
     bool isRenderTerrain = renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
@@ -85,32 +88,32 @@ void main() {
             blockId = BLOCK_EMPTY;
     }
 
-    vOriginPos = gl_Vertex.xyz;
+    vOut.originPos = gl_Vertex.xyz;
     if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && isRenderTerrain) {
-        vOriginPos += at_midBlock / 64.0;
+        vOut.originPos += at_midBlock / 64.0;
     }
 
-    vOriginPos = (gl_ModelViewMatrix * vec4(vOriginPos, 1.0)).xyz;
+    vOut.originPos = (gl_ModelViewMatrix * vec4(vOut.originPos, 1.0)).xyz;
 
     if (!isRenderTerrain) {
-        vOriginPos -= 0.05 * geoViewNormal;
+        vOut.originPos -= 0.05 * geoViewNormal;
     }
 
     #ifdef SHADOW_FRUSTUM_CULL
-        if (isRenderTerrain && vBlockId > 0) {
-            if (clamp(vOriginPos.xy, shadowViewBoundsMin, shadowViewBoundsMax) != vOriginPos.xy) {
+        if (isRenderTerrain && blockId > 0) {
+            if (clamp(vOut.originPos.xy, shadowViewBoundsMin, shadowViewBoundsMax) != vOut.originPos.xy) {
                 gl_Position = vec4(-1.0);
                 return;
             }
         }
     #endif
 
-    vOriginPos = (shadowModelViewInverse * vec4(vOriginPos, 1.0)).xyz;
+    vOut.originPos = (shadowModelViewInverse * vec4(vOut.originPos, 1.0)).xyz;
 
     if (renderStage == MC_RENDER_STAGE_ENTITIES)
         blockId = BLOCK_EMPTY;
 
-    vBlockId = blockId;
+    vOut.blockId = blockId;
 
     vec4 pos = gl_Vertex;
 
