@@ -310,7 +310,7 @@ void main() {
                 cloudDistNear = max(cloudDistNear, far);
             #endif
 
-            cloudDistFar = min(cloudDistFar, 2000.0);
+            cloudDistFar = min(cloudDistFar, CloudFar);
 
             if (depth < 1.0) {
                 cloudDistFar = min(cloudDistFar, viewDist);
