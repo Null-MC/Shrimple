@@ -174,13 +174,14 @@ value.DISPLACE_MODE.2=Smooth POM
 value.DISPLACE_MODE.3=Sharp POM
 value.DISPLACE_MODE.4=Tessellation
 
-option.MATERIAL_PARALLAX_DEPTH=Depth
-suffix.MATERIAL_PARALLAX_DEPTH=%
+option.MATERIAL_DISPLACE_DEPTH=Depth
+suffix.MATERIAL_DISPLACE_DEPTH=%
+
+option.MATERIAL_DISPLACE_OFFSET=Surface Offset
+suffix.MATERIAL_DISPLACE_OFFSET=%
 
 option.MATERIAL_TESSELLATION_QUALITY=Tess Quality
-
-option.MATERIAL_TESSELLATION_OFFSET=Tess Offset
-suffix.MATERIAL_TESSELLATION_OFFSET=%
+suffix.MATERIAL_TESSELLATION_QUALITY=x
 
 option.MATERIAL_TESSELLATION_EDGE_FADE=Tess Edge-Fade
 
@@ -189,7 +190,7 @@ option.MATERIAL_PARALLAX_SAMPLES=POM Samples
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM Shadow Samples
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
 
-option.MATERIAL_DISPLACE_MAX_DIST=Distance
+option.MATERIAL_DISPLACE_MAX_DIST=Max Distance
 option.MATERIAL_DISPLACE_MAX_DIST.comment=The maximum distance (in blocks) from the camera to render POM.
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp POM Threshold
@@ -201,8 +202,8 @@ option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows wh
 
 option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write POM
 
-option.MATERIAL_PARALLAX_ENTITIES=Entities
-option.MATERIAL_PARALLAX_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
+option.MATERIAL_DISPLACE_ENTITIES=Entities
+option.MATERIAL_DISPLACE_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
 
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Map Options

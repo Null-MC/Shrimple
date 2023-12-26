@@ -16,7 +16,7 @@ in VertexData {
 
     flat mat2 atlasBounds;
 
-    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -269,7 +269,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/voxel/entities.glsl"
 #include "/lib/lighting/voxel/items.glsl"
 
-#if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+#if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
     #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
@@ -342,7 +342,7 @@ void main() {
     mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec2 atlasCoord = vIn.texcoord;
 
-    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(vIn.viewPos_T);
@@ -363,7 +363,7 @@ void main() {
     //     color = vec4(1.0, 0.0, 0.0, 1.0);
     // }
     else {
-        #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+        #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
             if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
                 atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
@@ -467,7 +467,7 @@ void main() {
         if (entityId != ENTITY_PHYSICSMOD_SNOW)
             isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+        #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
             if (!skipParallax) {
                 #if DISPLACE_MODE == DISPLACE_POM_SHARP
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);

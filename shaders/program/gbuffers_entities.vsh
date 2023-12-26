@@ -19,7 +19,7 @@ out VertexData {
 
     flat mat2 atlasBounds;
 
-    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
         vec3 viewPos_T;
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
@@ -131,7 +131,7 @@ void main() {
 
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
-    #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_ENTITIES
+    #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);

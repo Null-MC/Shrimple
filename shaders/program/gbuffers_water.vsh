@@ -149,10 +149,16 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    gl_Position = BasicVertex();
+    vec4 viewPos = BasicVertex();
 
-    #if !(defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) && DISPLACE_MODE != DISPLACE_TESSELATION
-        gl_Position = gl_ProjectionMatrix * gl_Position;
+    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
+        gl_Position = viewPos;
+        #if DISPLACE_MODE != DISPLACE_TESSELATION
+            if (vOut.blockId != BLOCK_WATER)
+                gl_Position = gl_ProjectionMatrix * gl_Position;
+        #endif
+    #else
+        gl_Position = gl_ProjectionMatrix * viewPos;
     #endif
 
     PrepareNormalMap();
@@ -164,8 +170,8 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        vec3 viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
-        vOut.viewPos_T = viewPos * matViewTBN;
+        //vec3 viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
+        vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
