@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.5
+# Provided by ShrikerChestTree v7.6
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -180,10 +180,11 @@ value.DISPLACE_MODE.4=Тесселяция
 option.MATERIAL_DISPLACE_DEPTH=Глубина
 suffix.MATERIAL_DISPLACE_DEPTH=%
 
-option.MATERIAL_TESSELLATION_QUALITY=Качество Тесселляции
-
-option.MATERIAL_DISPLACE_OFFSET=Смещение Тесселляции
+option.MATERIAL_DISPLACE_OFFSET=Смещение Поверхности
 suffix.MATERIAL_DISPLACE_OFFSET=%
+
+option.MATERIAL_TESSELLATION_QUALITY=Качество Тесселляции
+MATERIAL_TESSELLATION_QUALITY=x
 
 option.MATERIAL_TESSELLATION_EDGE_FADE=Затухание-Крёв Тесселляции
 
