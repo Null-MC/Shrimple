@@ -202,6 +202,9 @@ void main() {
     #endif
 
     #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
+        #if DISPLACE_MODE != DISPLACE_TESSELATION
+            if (vOut.blockId == BLOCK_WATER)
+        #endif
         gl_Position = gl_ProjectionMatrix * gl_Position;
     #endif
 }

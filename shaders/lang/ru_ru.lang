@@ -177,13 +177,13 @@ value.DISPLACE_MODE.3=Острый POM
 value.DISPLACE_MODE.4=Тесселяция
 
 
-option.MATERIAL_PARALLAX_DEPTH=Глубина
-suffix.MATERIAL_PARALLAX_DEPTH=%
+option.MATERIAL_DISPLACE_DEPTH=Глубина
+suffix.MATERIAL_DISPLACE_DEPTH=%
 
 option.MATERIAL_TESSELLATION_QUALITY=Качество Тесселляции
 
-option.MATERIAL_TESSELLATION_OFFSET=Смещение Тесселляции
-suffix.MATERIAL_TESSELLATION_OFFSET=%
+option.MATERIAL_DISPLACE_OFFSET=Смещение Тесселляции
+suffix.MATERIAL_DISPLACE_OFFSET=%
 
 option.MATERIAL_TESSELLATION_EDGE_FADE=Затухание-Крёв Тесселляции
 
