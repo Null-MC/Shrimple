@@ -135,9 +135,11 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
         //float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
-        lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
-        float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
-        lmcoordFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
+        #ifdef LIGHTING_OLD
+            lmcoordFinal.y *= 0.5 + 0.5 * diffuseNoLm;
+            float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
+            lmcoordFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
+        #endif
 
         lmcoordFinal = LightMapTex(lmcoordFinal);
 
