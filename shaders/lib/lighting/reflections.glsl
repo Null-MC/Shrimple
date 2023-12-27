@@ -206,7 +206,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     const float WaterAmbientF = 0.0;
 
                     vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
-                    ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
+                    ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
                 }
                 else {
             #endif

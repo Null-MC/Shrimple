@@ -29,28 +29,14 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.Forward = 0.924;
     result.Direction = 0.090;
 
-    //#ifdef WORLD_SKY_ENABLED
-        result.Ambient = vec3(AirAmbientF);
-        result.ScatterF = vec3(AirScatterF);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
-        result.ExtinctF = AirExtinctF;
+    result.Ambient = vec3(AirAmbientF);
+    result.ScatterF = vec3(AirScatterF);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+    result.ExtinctF = AirExtinctF;
 
-        #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
-            float skyLightF = eyeBrightnessSmooth.y / 240.0;
-            result.Ambient *= _pow2(skyLightF);
-        #endif
-
-        // #if SKY_TYPE == SKY_TYPE_CUSTOM
-        //     result.ScatterF *= RGBToLinear(vec3(0.828, 0.782, 0.712));
-        // #elif SKY_TYPE == SKY_TYPE_VANILLA
-        //     result.ScatterF *= (RGBToLinear(1.0 - skyColor) * 1.6 + 0.3);
-        // #endif
-    // #else
-    //     result.Ambient = vec3(0.008);
-
-    //     vec3 tint = RGBToLinear(fogColor) * 0.8 + 0.08;
-    //     result.ScatterF = 0.25 * tint;
-    //     result.ExtinctF = 0.04;
-    // #endif
+    #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
+        float skyLightF = eyeBrightnessSmooth.y / 240.0;
+        result.Ambient *= _pow2(skyLightF);
+    #endif
 
     return result;
 }
@@ -75,8 +61,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
     //int stepCount = VOLUMETRIC_SAMPLES;
-    int stepCount = VOLUMETRIC_SAMPLES;//int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
-    float inverseStepCountF = rcp(stepCount);
+    //int stepCount = VOLUMETRIC_SAMPLES;//int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
+    const float inverseStepCountF = rcp(VOLUMETRIC_SAMPLES);
     
     vec3 localStep = localViewDir * (localRayLength * inverseStepCountF);
 
@@ -201,8 +187,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
     float transmittance = 1.0;
     vec3 scattering = vec3(0.0);
 
-    for (int i = 0; i <= stepCount; i++) {
-        if (i == stepCount) {
+    for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
+        if (i == VOLUMETRIC_SAMPLES) {
             stepLength *= 1.0 - dither;
             dither = 0.0;
         }
