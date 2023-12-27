@@ -309,9 +309,9 @@ uniform int heldBlockLightValue2;
                 #endif
 
                 #if LIGHTING_TRACE_RES == 2
-                    ivec2 sampleTex = GetTemporalSampleCoord();// * 4 * pixelSize;
+                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 4 * pixelSize;
                 #elif LIGHTING_TRACE_RES == 1
-                    ivec2 sampleTex = GetTemporalSampleCoord();// * 2 * pixelSize;
+                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 2 * pixelSize;
                 #else
                     ivec2 sampleTex = ivec2(gl_FragCoord.xy);
                 #endif
@@ -322,17 +322,17 @@ uniform int heldBlockLightValue2;
                 sampleDepth = linearizeDepthFast(sampleDepth, near, far);
                 
                 float normalWeight = 1.0;
-                if (hasNormal) {
-                    //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
-                    uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, sampleTex, 0).r;
-                    vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
+                // if (hasNormal) {
+                //     //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
+                //     uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, sampleTex, 0).r;
+                //     vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
 
-                    if (any(greaterThan(sampleNormal, EPSILON3))) {
-                        sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
+                //     if (any(greaterThan(sampleNormal, EPSILON3))) {
+                //         sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
 
-                        normalWeight = max(dot(normal, sampleNormal), 0.0);
-                    }
-                }
+                //         normalWeight = max(dot(normal, sampleNormal), 0.0);
+                //     }
+                // }
                 
                 float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
                 
@@ -347,9 +347,15 @@ uniform int heldBlockLightValue2;
             }
         }
         
-        total = max(total, EPSILON);
-        blockDiffuse = accumDiffuse / total;
-        blockSpecular = accumSpecular / total;
+        //total = max(total, EPSILON);
+        if (total > EPSILON) {
+            blockDiffuse = accumDiffuse / total;
+            blockSpecular = accumSpecular / total;
+        }
+        else {
+            blockDiffuse = vec3(0.0);
+            blockSpecular = vec3(0.0);
+        }
     }
 #endif
 
@@ -579,7 +585,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleSpecular = vec3(0.0);
 
                     #ifdef LIGHTING_TRACE_FILTER
-                        const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
+                        const vec3 lightSigma = vec3(0.6, 0.6, 0.2);
                         BilateralGaussianBlur(sampleDiffuse, sampleSpecular, texcoord, linearDepthOpaque, texNormal, roughL, lightSigma);
                     #elif LIGHTING_TRACE_RES == 0
                         sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;

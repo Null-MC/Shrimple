@@ -124,8 +124,9 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
         float diffuseLoHm = max(dot(localSkyLightDirection, H), 0.0);
         float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
+        D *= mix(1.0, MaterialSssStrengthF, sss);
         vec3 accumDiffuse = D * skyLightColor * shadowColor * shadowDistF;
-        accumDiffuse *= 1.0 + MaterialSssStrengthF * sss;
+        //accumDiffuse *= 1.0 + MaterialSssStrengthF * sss;
 
         vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
         // #ifdef RENDER_SHADOWS_ENABLED
@@ -150,6 +151,8 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
         ambientLight *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
         //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
+
+        ambientLight *= DynamicLightAmbientF;
 
 
         #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != DYN_LIGHT_LPV

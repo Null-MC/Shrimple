@@ -183,7 +183,6 @@ void main() {
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
         vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
 
         vec3 albedo = RGBToLinear(deferredColor);
@@ -227,7 +226,10 @@ void main() {
             SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 
-        blockDiffuse *= 1.0 - deferredFog.a;
+        #if SKY_TYPE == SKY_VANILLA
+            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+            blockDiffuse *= 1.0 - deferredFog.a;
+        #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #if MATERIAL_SPECULAR == SPECULAR_LABPBR
@@ -240,8 +242,8 @@ void main() {
             blockSpecular *= GetMetalTint(albedo, metal_f0);
         #endif
 
-        if (!all(lessThan(abs(texNormal), EPSILON3)))
-            texNormal = texNormal * 0.5 + 0.5;
+        // if (!all(lessThan(abs(texNormal), EPSILON3)))
+        //     texNormal = texNormal * 0.5 + 0.5;
 
         outDiffuse = vec4(blockDiffuse, 1.0);
         // outNormal = vec4(texNormal, 1.0);
