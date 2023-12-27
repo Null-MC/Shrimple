@@ -169,7 +169,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
             #ifdef LPV_GI
-                lpvSkyLight *= 0.25;
+                lpvSkyLight *= 0.5;
             #endif
 
             ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
