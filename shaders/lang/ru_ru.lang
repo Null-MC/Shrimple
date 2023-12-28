@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.6
+# Provided by ShrikerChestTree v7.7
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -255,11 +255,14 @@ suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 screen.MATERIAL_SSS_OPTIONS=Настройки ПР
 
-option.MATERIAL_SSS_SCATTER=Рассеяние
-suffix.MATERIAL_SSS_SCATTER=%
-
-option.MATERIAL_SSS_STRENGTH=Скорость
+option.MATERIAL_SSS_STRENGTH=Сила
 suffix.MATERIAL_SSS_STRENGTH=%
+
+option.MATERIAL_SSS_SCATTER=Рассеяние
+option.MATERIAL_SSS_MAXDIST.comment=Максимальное расстояние [в блоках], на которое ПР может рассеиваться наружу.
+
+option.MATERIAL_SSS_MAXDIST=Максимальная Дистанция
+option.MATERIAL_SSS_MAXDIST.comment=Максимальная дистанция [в блоках], на которое ПР может проникнуть сквозь блоки.
 
 
 screen.MATERIAL_REFLECT_OPTIONS=Отражение
@@ -273,6 +276,9 @@ option.MATERIAL_REFLECT_STRENGTH=Сила
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=ПЭО Максимальное Количество Действий
+
+option.ROUGH_REFLECT_SAMPLES=Жёсткие Образцы
+option.ROUGH_REFLECT_SAMPLES.comment=Как много образцов/трассировок использовать для жёстких отражений. Сильно затратный.
 
 option.MATERIAL_REFLECT_CLOUDS=Облака
 option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях.
