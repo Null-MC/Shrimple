@@ -70,6 +70,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
     vec3 reflectAccum = vec3(0.0);
     for (int i = 0; i < ROUGH_REFLECT_SAMPLES; i++) {
+        if (i > 0 && roughness < 0.1) break;
         #if REFLECTION_ROUGH_SCATTER > 0
             vec3 randomVec = normalize(hash33(vec3(gl_FragCoord.xy, i)) * 2.0 - 1.0);
             if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
