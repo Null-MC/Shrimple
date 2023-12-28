@@ -39,8 +39,8 @@ ivec2 GetTemporalOffset() {
     return offsetList[i % _pow2(tempOffsetSize)];
 }
 
-ivec2 GetTemporalSampleCoord() {
-    ivec2 coord = ivec2(gl_FragCoord.xy) / tempOffsetSize;
+ivec2 GetTemporalSampleCoord(const in ivec2 fragCoord) {
+    ivec2 coord = fragCoord / tempOffsetSize;
     int i = int(frameCounter + coord.x + tempOffsetSize*coord.y);
     ivec2 offset = offsetList[i % _pow2(tempOffsetSize)];
     return coord * tempOffsetSize + offset;

@@ -250,11 +250,11 @@ suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
 screen.MATERIAL_SSS_OPTIONS=SSS Options
 
-option.MATERIAL_SSS_SCATTER=Scattering
-suffix.MATERIAL_SSS_SCATTER=%
-
-option.MATERIAL_SSS_STRENGTH=Boost
+option.MATERIAL_SSS_STRENGTH=Strength
 suffix.MATERIAL_SSS_STRENGTH=%
+
+option.MATERIAL_SSS_SCATTER=Scattering
+option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can scatter outward.
 
 option.MATERIAL_SSS_MAXDIST=Max Distance
 option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can penetrate through blocks.
@@ -271,6 +271,9 @@ option.MATERIAL_REFLECT_STRENGTH=Strength
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=SSR Max Step Count
+
+option.ROUGH_REFLECT_SAMPLES=Rough Samples
+option.ROUGH_REFLECT_SAMPLES.comment=How many samples/traces to use for rough reflections. Very expensive.
 
 option.MATERIAL_REFLECT_CLOUDS=Clouds
 option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections.
@@ -316,14 +319,15 @@ option.LIGHTING_AMBIENT=Ambient
 option.LIGHTING_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
 suffix.LIGHTING_AMBIENT=%
 
-option.LIGHTING_TEMP=Torch/Fire Temp
-suffix.LIGHTING_TEMP=°k
-
 
 screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 
-option.DIRECTIONAL_LIGHTMAP=Directional Lightmap
-option.DIRECTIONAL_LIGHTMAP.comment=When enabled, attempts to fake directional lighting with the vanilla lightmap. Only applies to default lighting.
+option.DIRECTIONAL_LIGHTMAP=Directional
+option.DIRECTIONAL_LIGHTMAP.comment=Enables fake directional lighting with the vanilla lightmap.
+
+option.LIGHTING_TEMP=Temperature
+option.LIGHTING_TEMP.comment=The warm/cool temperature of lighting, in degrees kelvin.
+suffix.LIGHTING_TEMP=°k
 
 option.LIGHTING_OLD=Old Lighting
 option.LIGHTING_OLD.comment=Enables vanilla directional sky-light.

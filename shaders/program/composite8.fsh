@@ -320,9 +320,9 @@ uniform int heldBlockLightValue2;
                 #endif
 
                 #if LIGHTING_TRACE_RES == 2
-                    ivec2 sampleTex = GetTemporalSampleCoord();// * 4 * pixelSize;
+                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 4 * pixelSize;
                 #elif LIGHTING_TRACE_RES == 1
-                    ivec2 sampleTex = GetTemporalSampleCoord();// * 2 * pixelSize;
+                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 2 * pixelSize;
                 #else
                     ivec2 sampleTex = ivec2(gl_FragCoord.xy);
                 #endif
@@ -975,7 +975,7 @@ layout(location = 0) out vec4 outFinal;
                 //#endif
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
             }
         #endif
 
@@ -1063,7 +1063,7 @@ layout(location = 0) out vec4 outFinal;
                 eyeSkyLightF += 0.02;
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 0.4*vlWaterScatterColorL, WaterAbsorbColorInv);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
             }
 
             // vec3 viewDir = normalize(viewPos);

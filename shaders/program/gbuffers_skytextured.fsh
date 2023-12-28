@@ -58,7 +58,7 @@ void main() {
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             color.rgb *= 40.0 * WorldSunLightColor;
         #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= WorldSkyBrightnessF;
+            color.rgb *= 10.0 * WorldSkyBrightnessF;
         #endif
 
         color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);

@@ -121,6 +121,10 @@ void main() {
             #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
                 shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);
 
+                shadowModelViewEx[3][0] = 0.0;
+                shadowModelViewEx[3][1] = 0.0;
+                shadowModelViewEx[3][2] = 0.0;
+
                 //mat4 matTranslate = mat4(1.0);
                 //matTranslate[2][3] = -1.0;
 
