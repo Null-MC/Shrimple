@@ -26,7 +26,7 @@ out VertexData {
     #endif
 } vOut;
 
-#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined LIGHTING_FLICKER && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
     uniform sampler2D noisetex;
 #endif
 
@@ -42,7 +42,7 @@ uniform float far;
     uniform float near;
 #endif
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
     uniform int entityId;
     uniform vec3 eyePosition;
     uniform int currentRenderedItemId;
@@ -54,7 +54,7 @@ uniform float far;
     uniform vec4 entityColor;
 #endif
 
-#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
     #ifdef ANIM_WORLD_TIME
         uniform int worldTime;
     #else
@@ -71,7 +71,7 @@ uniform float far;
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
@@ -94,7 +94,7 @@ uniform float far;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
