@@ -109,7 +109,12 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     vec3 cloudNear = localViewDir * distMin;
     float farMax = min(distMax, far);
 
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    #ifdef TAA_ENABLED
+        float dither = InterleavedGradientNoiseTime();
+    #else
+        float dither = InterleavedGradientNoise();
+    #endif
+
     float stepLength = cloudDist / (stepCount + 1);
     vec3 traceStep = localViewDir * stepLength;
 
@@ -198,7 +203,12 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             cloudAbsorb *= scatterTransmit.a;
         }
 
-        float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+        #ifdef TAA_ENABLED
+            float dither = InterleavedGradientNoiseTime();
+        #else
+            float dither = InterleavedGradientNoise();
+        #endif
+
         float stepLength = cloudDist / (stepCount + 1);
         vec3 traceStep = localViewDir * stepLength;
 
@@ -297,7 +307,12 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudAbsorb = 1.0;
 
     if (cloudDist > EPSILON) {
-        float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+        #ifdef TAA_ENABLED
+            float dither = InterleavedGradientNoiseTime();
+        #else
+            float dither = InterleavedGradientNoise();
+        #endif
+    
         float cloudStepLen = cloudDist / (CLOUD_GROUND_SHADOW_STEPS + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 

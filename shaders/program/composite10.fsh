@@ -14,6 +14,7 @@ uniform sampler2D depthtex0;
 
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform int frameCounter;
 
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
@@ -25,9 +26,12 @@ uniform float far;
 #endif
 
 #include "/lib/sampling/depth.glsl"
+#include "/lib/effects/taa.glsl"
+
 
 vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
+    //clipPos.xy += getJitterOffset(frameCounter);
 
     #ifdef IRIS_FEATURE_SSBO
         vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
@@ -39,11 +43,14 @@ vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
     vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
 
     #ifdef IRIS_FEATURE_SSBO
-        vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+        vec4 clipPosPrev = gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0);
     #else
-        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+        vec4 viewPosPrev = gbufferPreviousModelView * vec4(localPosPrev, 1.0);
+        vec4 clipPosPrev = gbufferPreviousProjection * viewPosPrev;
     #endif
+
+    // clipPosPrev.xy += getJitterOffset(frameCounter-1) * clipPosPrev.w;
+    clipPosPrev.xyz /= clipPosPrev.w;
 
     return clipPosPrev.xy * 0.5 + 0.5;
 }
@@ -82,12 +89,12 @@ float neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) 
         }
     }
 
-    minDepth = linearizeDepthFast(minDepth, near, far) - 0.02;
-    maxDepth = linearizeDepthFast(maxDepth, near, far) + 0.02;
+    minDepth = linearizeDepthFast(minDepth, near, far) - 0.1;
+    maxDepth = linearizeDepthFast(maxDepth, near, far) + 0.1;
     
     // return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
     float dist = max(minDepth - depthPrevL, 0.0) + max(depthPrevL - maxDepth, 0.0);
-    return max(1.0 - 2.0*dist, 0.0);
+    return max(1.0 - _pow2(2.0*dist), 0.0);
 }
 
 
@@ -97,29 +104,37 @@ layout(location = 1) out vec4 outFinalPrev;
 layout(location = 2) out float outDepthPrev;
 
 void main() {
-    vec3 colorNow = textureLod(BUFFER_FINAL, texcoord, 0).rgb;
-    float depthNow = textureLod(depthtex0, texcoord, 0).r;
+    float TAA_MaxFrameAccum = 30.0;
+    TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
 
-    vec2 uvPrev = getReprojectedUV(texcoord, depthNow);
+    vec2 uvNow = texcoord;
+    //vec2 offset = getJitterOffset(frameCounter);
+
+    vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
+    float depthNow = textureLod(depthtex0, uvNow, 0).r;
+
+    //uvNow += offset*0.5;
+    vec2 uvPrev = getReprojectedUV(uvNow, depthNow);
     float depthNowL = linearizeDepthFast(depthNow, near, far);
 
     vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
-    float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
-    float counter = clamp(colorPrev.a, 0.0, 60.0);
-
-    // neighboorhoodClampColor(colorPrev.rgb, texcoord);
-
-    counter *= neighboorhoodDepthTest(depthPrevL, texcoord);
-
+    float counter = clamp(colorPrev.a, 0.0, TAA_MaxFrameAccum);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
+
+    neighboorhoodClampColor(colorPrev.rgb, uvNow);
+
+    // uvPrev += getJitterOffset(frameCounter);
+    // uvPrev -= getJitterOffset(frameCounter-1);
+    //float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
+    //counter *= neighboorhoodDepthTest(depthPrevL, uvNow);
 
     float weight = 1.0 - rcp(1.0 + counter);
 
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
-    float depthFinal = mix(depthNowL, depthPrevL, weight);
+    //float depthFinal = mix(depthNowL, depthPrevL, weight);
     counter += 1.0;
 
     outFinal = colorFinal;
     outFinalPrev = vec4(colorFinal, counter);
-    outDepthPrev = depthFinal;
+    outDepthPrev = depthNowL;
 }

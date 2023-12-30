@@ -58,7 +58,11 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
     #endif
 
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    #ifdef TAA_ENABLED
+        float dither = InterleavedGradientNoiseTime();
+    #else
+        float dither = InterleavedGradientNoise();
+    #endif
 
     //int stepCount = VOLUMETRIC_SAMPLES;
     //int stepCount = VOLUMETRIC_SAMPLES;//int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
