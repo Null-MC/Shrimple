@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v7.7
+# Provided by ShrikerChestTree v8.0
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -595,6 +595,12 @@ screen.EFFECT_OPTIONS=Настройка Эффектов
 option.EFFECT_AUTO_EXPOSE=Авто-Экспозиция
 option.EFFECT_AUTO_EXPOSE.comment=Быстрый эффект авто-экспозиции, основанный на яркости в месте расположения камеры.
 
+option.TAA_ENABLED=ВС (TAA)
+option.TAA_ENABLED.comment=Включает временное сглаживание (TAA). Может вызывать эффект "призрака"/"следа" на движущихся объектах.
+
+option.FXAA_ENABLED=БНС (FXAA)
+option.FXAA_ENABLED.comment=Включает быстрое, но низкокачественное сглаживание.
+
 
 screen.EFFECT_BLOOM_OPTIONS=Блюм (Разцветение/Bloom)
 
@@ -718,6 +724,10 @@ option.ALPHATESTREF_ENABLED.comment=Пороговое значение AlphaTes
 
 
 screen.LIGHT_COLORS=Цвет Света
+
+option.LIGHT_COLOR_MESSAGE=https://editor.balintcsala.com
+option.LIGHT_COLOR_MESSAGE.comment=Используйте приведённую выше ссылку для редактирования цветов света.
+value.LIGHT_COLOR_MESSAGE.0=Перейти к Ссылке
 
 option.LIGHT_COLOR_AMETHYST=Аметист
 option.LIGHT_COLOR_BEACON=Маяк
