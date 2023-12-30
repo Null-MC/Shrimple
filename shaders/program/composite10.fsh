@@ -31,7 +31,7 @@ uniform float far;
 
 vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-    //clipPos.xy += getJitterOffset(frameCounter);
+    clipPos.xy -= 0.25*getJitterOffset(frameCounter);
 
     #ifdef IRIS_FEATURE_SSBO
         vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
@@ -49,8 +49,8 @@ vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
         vec4 clipPosPrev = gbufferPreviousProjection * viewPosPrev;
     #endif
 
-    // clipPosPrev.xy += getJitterOffset(frameCounter-1) * clipPosPrev.w;
     clipPosPrev.xyz /= clipPosPrev.w;
+    clipPosPrev.xy -= 0.25*getJitterOffset(frameCounter-1);
 
     return clipPosPrev.xy * 0.5 + 0.5;
 }
