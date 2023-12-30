@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v8.0
+# Provided by ShrikerChestTree v8.0.1
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
@@ -596,10 +596,10 @@ option.EFFECT_AUTO_EXPOSE=Авто-Экспозиция
 option.EFFECT_AUTO_EXPOSE.comment=Быстрый эффект авто-экспозиции, основанный на яркости в месте расположения камеры.
 
 option.TAA_ENABLED=ВС (TAA)
-option.TAA_ENABLED.comment=Включает временное сглаживание (TAA). Может вызывать эффект "призрака"/"следа" на движущихся объектах.
+option.TAA_ENABLED.comment=Включает временное сглаживание (TAA/ВС). Может вызывать эффект "призрака"/"следа" на движущихся объектах.
 
 option.FXAA_ENABLED=БНС (FXAA)
-option.FXAA_ENABLED.comment=Включает быстрое, но низкокачественное сглаживание.
+option.FXAA_ENABLED.comment=Включает быстрое, но низкокачественное сглаживание (FXAA/БНС).
 
 
 screen.EFFECT_BLOOM_OPTIONS=Блюм (Разцветение/Bloom)
