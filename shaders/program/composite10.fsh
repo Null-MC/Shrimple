@@ -85,7 +85,9 @@ float neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) 
     minDepth = linearizeDepthFast(minDepth, near, far) - 0.02;
     maxDepth = linearizeDepthFast(maxDepth, near, far) + 0.02;
     
-    return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
+    // return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
+    float dist = max(minDepth - depthPrevL, 0.0) + max(depthPrevL - maxDepth, 0.0);
+    return max(1.0 - 4.0*dist, 0.0);
 }
 
 
