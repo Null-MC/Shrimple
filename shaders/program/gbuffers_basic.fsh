@@ -68,6 +68,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform int frameCounter;
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform vec3 shadowLightPosition;

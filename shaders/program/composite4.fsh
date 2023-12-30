@@ -17,6 +17,7 @@ uniform mat4 gbufferProjectionInverse;
 
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
+uniform int frameCounter;
 uniform float near;
 uniform float far;
 

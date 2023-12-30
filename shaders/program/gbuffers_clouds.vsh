@@ -45,6 +45,11 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#ifdef TAA_ENABLED
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -66,6 +71,10 @@ uniform vec3 cameraPosition;
 
 #include "/lib/lighting/common.glsl"
 
+#ifdef TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -74,6 +83,10 @@ void main() {
 
         vec4 viewPos = BasicVertex();
         gl_Position = gl_ProjectionMatrix * viewPos;
+
+        #ifdef TAA_ENABLED
+            jitter(gl_Position);
+        #endif
     #else
         gl_Position = vec4(-1.0);
     #endif

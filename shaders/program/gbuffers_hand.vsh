@@ -75,6 +75,11 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef TAA_ENABLED
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
@@ -109,6 +114,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
+#ifdef TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -137,6 +146,10 @@ void main() {
 
     #if DISPLACE_MODE != DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * viewPos;
+
+        #ifdef TAA_ENABLED
+            jitter(gl_Position);
+        #endif
     #else
         gl_Position = viewPos;
     #endif

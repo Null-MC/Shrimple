@@ -48,17 +48,17 @@ uniform float far;
     uniform int currentRenderedItemId;
 #endif
 
-#if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
     uniform int frameCounter;
     uniform vec3 previousCameraPosition;
     uniform vec4 entityColor;
-#endif
 
-#if defined LIGHTING_FLICKER && LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
-    #ifdef ANIM_WORLD_TIME
-        uniform int worldTime;
-    #else
-        uniform float frameTimeCounter;
+    #ifdef LIGHTING_FLICKER
+        #ifdef ANIM_WORLD_TIME
+            uniform int worldTime;
+        #else
+            uniform float frameTimeCounter;
+        #endif
     #endif
 #endif
 

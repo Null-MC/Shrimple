@@ -27,6 +27,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform int frameCounter;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;

@@ -36,7 +36,11 @@
     #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            #ifdef TAA_ENABLED
+                float dither = InterleavedGradientNoiseTime();
+            #else
+                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            #endif
 
             // float bias = sss * dither;
 

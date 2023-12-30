@@ -24,6 +24,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform int frameCounter;
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;

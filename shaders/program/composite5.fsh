@@ -59,6 +59,7 @@ in vec2 texcoord;
     uniform float fogEnd;
 
     uniform int worldTime;
+    uniform int frameCounter;
     uniform ivec2 eyeBrightnessSmooth;
 
     #ifndef IRIS_FEATURE_SSBO

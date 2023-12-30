@@ -20,6 +20,7 @@ uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
+uniform int frameCounter;
 uniform float near;
 uniform float far;
 

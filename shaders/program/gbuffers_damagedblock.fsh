@@ -28,6 +28,7 @@ uniform sampler2D depthtex0;
 #endif
 
 uniform ivec2 atlasSize;
+uniform int frameCounter;
 uniform float near;
 uniform float far;
 

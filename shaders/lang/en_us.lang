@@ -591,6 +591,12 @@ screen.EFFECT_OPTIONS=Effects
 option.EFFECT_AUTO_EXPOSE=Auto-Exposure
 option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
+option.TAA_ENABLED=TAA
+option.TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghosting/trailing with moving objects.
+
+option.FXAA_ENABLED=FXAA
+option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
+
 
 screen.EFFECT_BLOOM_OPTIONS=Bloom
 
@@ -670,9 +676,6 @@ value.POST_TONEMAP.1=Reinhard
 value.POST_TONEMAP.2=ACES
 value.POST_TONEMAP.3=Heijl
 value.POST_TONEMAP.4=Lottes
-
-option.FXAA_ENABLED=FXAA
-option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
 
 option.POST_WHITE_POINT=White-Point
 suffix.POST_WHITE_POINT=%

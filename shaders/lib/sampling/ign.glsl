@@ -6,14 +6,18 @@ float InterleavedGradientNoise(const in vec2 pixel) {
     return fract(magic.z * fract(x));
 }
 
-// float InterleavedGradientNoiseTime(const in vec2 pixel) {
-//     vec2 p = pixel + frameCounter * 5.588238;
-//     float x = dot(p, magic.xy);
-//     return fract(magic.z * fract(x));
-// }
+float InterleavedGradientNoiseTime(const in vec2 pixel) {
+    vec2 p = pixel + frameCounter * 55.88238;
+    float x = dot(p, magic.xy);
+    return fract(magic.z * fract(x));
+}
 
 #ifndef RENDER_COMPUTE
     float InterleavedGradientNoise() {
         return InterleavedGradientNoise(gl_FragCoord.xy);
+    }
+    
+    float InterleavedGradientNoiseTime() {
+        return InterleavedGradientNoiseTime(gl_FragCoord.xy);
     }
 #endif

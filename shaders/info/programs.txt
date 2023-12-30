@@ -26,6 +26,7 @@ composite6		translucent deferred block-light tracing
 composite7		translucent deferred VL tracing
 composite8		translucent deferred final + pre distance blur
 composite9		post distance blur
+composite10		taa resolve
 
 composite11		bloom downscale 1/2
 composite12		bloom downscale 1/4

@@ -8,9 +8,20 @@
 varying vec2 texcoord;
 varying vec4 glcolor;
 
+#ifdef TAA_ENABLED
+    uniform int frameCounter;
+	uniform vec2 pixelSize;
+
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
 	gl_Position = ftransform();
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	glcolor = gl_Color;
+
+    #ifdef TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 }
