@@ -12,16 +12,13 @@ uniform sampler2D BUFFER_FINAL_PREV;
 uniform sampler2D BUFFER_DEPTH_PREV;
 uniform sampler2D depthtex0;
 
+uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
+
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
-
-uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
-
-// #include "/lib/sampling/ign.glsl"
-// #include "/lib/effects/taa.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -51,7 +48,7 @@ vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
     return clipPosPrev.xy * 0.5 + 0.5;
 }
 
-float clampNeighboorhood(inout vec3 colorPrev, const in vec2 texcoord) {
+void neighboorhoodClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
     vec3 minColor = vec3(+9999.0);
     vec3 maxColor = vec3(-9999.0);
 
@@ -65,17 +62,20 @@ float clampNeighboorhood(inout vec3 colorPrev, const in vec2 texcoord) {
         }
     }
     
-    return distance(colorPrev, clamp(colorPrev, minColor, maxColor));
+    colorPrev = clamp(colorPrev, minColor, maxColor);
 }
 
-bool neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) {
+float neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) {
     float minDepth = 1.0;
     float maxDepth = 0.0;
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
-            ivec2 sampleCoord = ivec2(gl_FragCoord.xy) + ivec2(x, y);
-            float sampleDepth = texelFetch(depthtex0, sampleCoord, 0).r;
+            vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
+            float sampleDepth = textureLod(depthtex0, sampleCoord, 0).r;
+
+            // ivec2 sampleCoord = ivec2(gl_FragCoord.xy) + ivec2(x, y);
+            // float sampleDepth = texelFetch(depthtex0, sampleCoord, 0).r;
 
             minDepth = min(minDepth, sampleDepth);
             maxDepth = max(maxDepth, sampleDepth);
@@ -85,7 +85,7 @@ bool neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) {
     minDepth = linearizeDepthFast(minDepth, near, far) - 0.02;
     maxDepth = linearizeDepthFast(maxDepth, near, far) + 0.02;
     
-    return depthPrevL >= minDepth && depthPrevL <= maxDepth;
+    return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
 }
 
 
@@ -103,21 +103,13 @@ void main() {
 
     vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
-
     float counter = clamp(colorPrev.a, 0.0, 60.0);
 
-    // if (clampNeighboorhood(colorPrev.rgb, texcoord) > 0.2) {
-    //     weight = 0.0;
-    //     counter = 1.0;
-    // }
+    // neighboorhoodClampColor(colorPrev.rgb, texcoord);
 
-    if (!neighboorhoodDepthTest(depthPrevL, texcoord)) {
-        counter = 0.0;
-    }
+    counter *= neighboorhoodDepthTest(depthPrevL, texcoord);
 
-    if (saturate(uvPrev) != uvPrev) {
-        counter = 0.0;
-    }
+    if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
     float weight = 1.0 - rcp(2.0 + counter);
 

@@ -2,7 +2,12 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
     const float inv = rcp(EFFECT_SSAO_SAMPLES);
     const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
 
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    #ifdef TAA_ENABLED
+        float dither = InterleavedGradientNoiseTime();
+    #else
+        float dither = InterleavedGradientNoise();
+    #endif
+
     float rotatePhase = dither * TAU;
 
     float radius = rStep;

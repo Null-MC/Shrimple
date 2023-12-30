@@ -118,6 +118,7 @@ uniform int fogShape;
 uniform int fogMode;
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform int frameCounter;
 
 #ifndef ANIM_WORLD_TIME
     uniform float frameTimeCounter;
@@ -157,8 +158,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != DYN_LIGHT_TRACED
-    uniform int frameCounter;
-
     uniform float blindnessSmooth;
 
     uniform int heldItemId;
