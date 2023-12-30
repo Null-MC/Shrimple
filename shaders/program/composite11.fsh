@@ -17,6 +17,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
+uniform int frameCounter;
 
 #if MC_VERSION >= 11900
     uniform float darknessFactor;

@@ -28,8 +28,7 @@ colortex3		RGBA32UI	1.0		deferred data
 
 colortex4		RGB16F		 *	 	block-light diffuse
 colortex11		RGBA16F		 *	 	block-light specular
---colortex5		RGB8		 *		block-light normal
---colortex6		R32F		 *		block-light depth
+colortex5		RGBA16F		1.0		final previous [taa]
 colortex7		RGBA16F		1.0	 	block-light temporal diffuse
 colortex12		RGB16F		1.0	 	block-light temporal specular | vanilla SSAO
 colortex8		RGB8		1.0		block-light temporal normal

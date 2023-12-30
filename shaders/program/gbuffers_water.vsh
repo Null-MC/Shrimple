@@ -93,6 +93,11 @@ uniform ivec2 atlasSize;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef TAA_ENABLED
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
@@ -141,6 +146,10 @@ uniform ivec2 atlasSize;
 
 #include "/lib/lighting/common.glsl"
 
+#ifdef TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -153,12 +162,22 @@ void main() {
 
     #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = viewPos;
+        
         #if DISPLACE_MODE != DISPLACE_TESSELATION
-            if (vOut.blockId != BLOCK_WATER)
+            if (vOut.blockId != BLOCK_WATER) {
                 gl_Position = gl_ProjectionMatrix * gl_Position;
+        
+                #ifdef TAA_ENABLED
+                    jitter(gl_Position);
+                #endif
+            }
         #endif
     #else
         gl_Position = gl_ProjectionMatrix * viewPos;
+
+        #ifdef TAA_ENABLED
+            jitter(gl_Position);
+        #endif
     #endif
 
     PrepareNormalMap();

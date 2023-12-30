@@ -44,6 +44,7 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
+uniform int frameCounter;
 
 #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
 	uniform mat4 gbufferProjectionInverse;

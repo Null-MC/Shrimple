@@ -84,6 +84,11 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
+#ifdef TAA_ENABLED
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
@@ -132,6 +137,10 @@ uniform ivec2 atlasSize;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
+#ifdef TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -163,5 +172,9 @@ void main() {
         gl_Position = viewPos;
     #else
         gl_Position = gl_ProjectionMatrix * viewPos;
+
+        #ifdef TAA_ENABLED
+            jitter(gl_Position);
+        #endif
     #endif
 }

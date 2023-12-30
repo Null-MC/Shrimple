@@ -2,22 +2,23 @@ const float sunPathRotation = -20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -
 
 /*
 const int shadowcolor0Format = RGBA8;
+
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
 const int colortex2Format  = RGBA8;
 const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
-const int colortex5Format  = RGB8;
-const int colortex6Format  = R32F;
+const int colortex5Format  = RGBA16F;
+const int colortex6Format  = R16F;
 const int colortex7Format  = RGBA16F;
 const int colortex8Format  = RGB8;
 const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16F;
-const int colortex11Format  = RGBA16F;
-const int colortex12Format  = RGB16F;
-const int colortex13Format  = R32F;
-const int colortex14Format  = RGB8;
-const int colortex15Format  = RGBA16F;
+const int colortex11Format = RGBA16F;
+const int colortex12Format = RGB16F;
+const int colortex13Format = R32F;
+const int colortex14Format = RGB8;
+const int colortex15Format = RGBA16F;
 */
 
 const bool generateShadowMipmap = false;
@@ -44,7 +45,7 @@ const bool colortex3Clear = true;
 const vec4 colortex4ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex4Clear = false;
 
-const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex5Clear = false;
 
 const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -299,9 +300,11 @@ const bool colortex15Clear = true;
 #define POST_BRIGHTNESS 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
-#define GAMMA_OUT 2.2 // [1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.2 3.4 3.6]
+#define GAMMA_OUT 2.2 // [0.6 0.8 1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.4 3.8 4.2 4.6 5.0 6.0 7.0 8.0]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
 #define POST_EXPOSURE -0.6 // [-4.0 -3.0 -2.5 -2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.4 -0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 4.0]
+//#define TAA_ENABLED
+
 
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
@@ -321,6 +324,7 @@ const bool colortex15Clear = true;
 
 
 // INTERNAL SETTINGS
+#define LIGHT_COLOR_MESSAGE 0 // [0]
 #define PHYSICS_OCEAN_SUPPORT
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1

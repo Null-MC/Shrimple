@@ -2,12 +2,6 @@
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
-float InterleavedGradientNoiseTime() {
-    vec2 p = gl_FragCoord.xy + frameCounter * 5.588238 * 10.0;
-    float x = dot(p, magic.xy);
-    return fract(magic.z * fract(x));
-}
-
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {//, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);

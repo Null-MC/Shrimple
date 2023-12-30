@@ -1,18 +1,18 @@
-#define SKY_LIGHT_COLOR_DAY_R 0.909 // [0.0]
-#define SKY_LIGHT_COLOR_DAY_G 0.900 // [0.0]
-#define SKY_LIGHT_COLOR_DAY_B 0.866 // [0.0]
+#define SKY_LIGHT_COLOR_DAY_R 232 // [0]
+#define SKY_LIGHT_COLOR_DAY_G 230 // [0]
+#define SKY_LIGHT_COLOR_DAY_B 221 // [0]
 
-#define SKY_LIGHT_COLOR_HORIZON_R 0.813 // [0.0]
-#define SKY_LIGHT_COLOR_HORIZON_G 0.540 // [0.0]
-#define SKY_LIGHT_COLOR_HORIZON_B 0.120 // [0.0]
+#define SKY_LIGHT_COLOR_HORIZON_R 207 // [0]
+#define SKY_LIGHT_COLOR_HORIZON_G 138 // [0]
+#define SKY_LIGHT_COLOR_HORIZON_B 31  // [0]
 
-#define SKY_LIGHT_COLOR_NIGHT_R 0.864 // [0.0]
-#define SKY_LIGHT_COLOR_NIGHT_G 0.860 // [0.0]
-#define SKY_LIGHT_COLOR_NIGHT_B 0.823 // [0.0]
+#define SKY_LIGHT_COLOR_NIGHT_R 220 // [0]
+#define SKY_LIGHT_COLOR_NIGHT_G 219 // [0]
+#define SKY_LIGHT_COLOR_NIGHT_B 210 // [0]
 
-const vec3 worldSunColor     = _RGBToLinear(vec3(SKY_LIGHT_COLOR_DAY_R, SKY_LIGHT_COLOR_DAY_G, SKY_LIGHT_COLOR_DAY_B));
-const vec3 worldHorizonColor = _RGBToLinear(vec3(SKY_LIGHT_COLOR_HORIZON_R, SKY_LIGHT_COLOR_HORIZON_G, SKY_LIGHT_COLOR_HORIZON_B));
-const vec3 worldMoonColor    = _RGBToLinear(vec3(SKY_LIGHT_COLOR_NIGHT_R, SKY_LIGHT_COLOR_NIGHT_G, SKY_LIGHT_COLOR_NIGHT_B));
+const vec3 worldSunColor     = _RGBToLinear(vec3(SKY_LIGHT_COLOR_DAY_R, SKY_LIGHT_COLOR_DAY_G, SKY_LIGHT_COLOR_DAY_B) / 255.0);
+const vec3 worldHorizonColor = _RGBToLinear(vec3(SKY_LIGHT_COLOR_HORIZON_R, SKY_LIGHT_COLOR_HORIZON_G, SKY_LIGHT_COLOR_HORIZON_B) / 255.0);
+const vec3 worldMoonColor    = _RGBToLinear(vec3(SKY_LIGHT_COLOR_NIGHT_R, SKY_LIGHT_COLOR_NIGHT_G, SKY_LIGHT_COLOR_NIGHT_B) / 255.0);
 
 // const float phaseAir = 0.25;
 // const float AirAmbientF = 0.0;

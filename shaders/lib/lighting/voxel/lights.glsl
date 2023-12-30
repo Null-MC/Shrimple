@@ -23,10 +23,10 @@
             case LIGHT_AMETHYST_BUD_LARGE:
             case LIGHT_AMETHYST_BUD_MEDIUM:
             case LIGHT_AMETHYST_CLUSTER:
-                lightColor = lightColor_amethyst;
+                lightColor = LIGHT_COLOR_AMETHYST;
                 break;
             case LIGHT_BEACON:
-                lightColor = lightColor_beacon;
+                lightColor = LIGHT_COLOR_BEACON;
                 break;
             case LIGHT_BLAST_FURNACE_N:
             case LIGHT_BLAST_FURNACE_E:
@@ -35,7 +35,7 @@
                 lightColor = vec3(0.798, 0.519, 0.289);
                 break;
             case LIGHT_BREWING_STAND:
-                lightColor = lightColor_brewingStand;
+                lightColor = LIGHT_COLOR_BREWING_STAND;
                 break;
             case LIGHT_CANDLES_1:
             case LIGHT_CANDLES_2:
@@ -45,13 +45,13 @@
                 lightColor = vec3(0.758, 0.553, 0.239);
                 break;
             case LIGHT_CAVEVINE_BERRIES:
-                lightColor = lightColor_caveVineBerries;
+                lightColor = LIGHT_COLOR_CAVEVINE_BERRIES;
                 break;
             case LIGHT_CRYING_OBSIDIAN:
-                lightColor = lightColor_obsidian;
+                lightColor = LIGHT_COLOR_CRYING_OBSIDIAN;
                 break;
             case LIGHT_END_ROD:
-                lightColor = lightColor_endRod;
+                lightColor = LIGHT_COLOR_END_ROD;
                 break;
             case LIGHT_END_STONE_LAMP:
                 lightColor = vec3(0.465, 0.143, 0.416);
@@ -61,13 +61,13 @@
                 lightColor = vec3(0.851, 0.616, 0.239);
                 break;
             case LIGHT_FROGLIGHT_OCHRE:
-                lightColor = lightColor_froglightOchre;
+                lightColor = LIGHT_COLOR_FROGLIGHT_OCHRE;
                 break;
             case LIGHT_FROGLIGHT_PEARLESCENT:
-                lightColor = lightColor_froglightPearlescent;
+                lightColor = LIGHT_COLOR_FROGLIGHT_PEARLESCENT;
                 break;
             case LIGHT_FROGLIGHT_VERDANT:
-                lightColor = lightColor_froglightVerdant;
+                lightColor = LIGHT_COLOR_FROGLIGHT_VERDANT;
                 break;
             case LIGHT_FURNACE_N:
             case LIGHT_FURNACE_E:
@@ -77,16 +77,16 @@
                 break;
             case LIGHT_GLOWSTONE:
             case LIGHT_GLOWSTONE_DUST:
-                lightColor = lightColor_glowstone;
+                lightColor = LIGHT_COLOR_GLOWSTONE;
                 break;
             case LIGHT_GLOW_LICHEN:
-                lightColor = lightColor_glowLichen;
+                lightColor = LIGHT_COLOR_GLOW_LICHEN;
                 break;
             case LIGHT_JACK_O_LANTERN_N:
             case LIGHT_JACK_O_LANTERN_E:
             case LIGHT_JACK_O_LANTERN_S:
             case LIGHT_JACK_O_LANTERN_W:
-                lightColor = lightColor_JackOLantern;
+                lightColor = LIGHT_COLOR_JACK_O_LANTERN;
                 break;
             case LIGHT_LANTERN:
             case LIGHT_STREET_LAMP:
@@ -97,16 +97,16 @@
                 break;
             case LIGHT_LAVA:
             case LIGHT_LAVA_CAULDRON:
-                lightColor = lightColor_lava;
+                lightColor = LIGHT_COLOR_LAVA;
                 break;
             case LIGHT_MAGMA:
-                lightColor = lightColor_magma;
+                lightColor = LIGHT_COLOR_MAGMA;
                 break;
             case LIGHT_NETHER_PORTAL:
-                lightColor = lightColor_netherPortal;
+                lightColor = LIGHT_COLOR_NETHER_PORTAL;
                 break;
             case LIGHT_REDSTONE_LAMP:
-                lightColor = lightColor_redstoneLamp;
+                lightColor = LIGHT_COLOR_REDSTONE_LAMP;
                 break;
             case LIGHT_REDSTONE_ORE:
             case LIGHT_REDSTONE_TORCH_FLOOR:
@@ -132,7 +132,7 @@
             case LIGHT_REDSTONE_WIRE_14:
             case LIGHT_REDSTONE_WIRE_15:
             case LIGHT_RAIL_POWERED:
-                lightColor = lightColor_redstoneTorch;
+                lightColor = LIGHT_COLOR_REDSTONE_TORCH;
                 break;
             case LIGHT_RESPAWN_ANCHOR_4:
             case LIGHT_RESPAWN_ANCHOR_3:
@@ -141,19 +141,19 @@
                 lightColor = vec3(0.390, 0.065, 0.646);
                 break;
             case LIGHT_SCULK_CATALYST:
-                lightColor = lightColor_sculkCatalyst;
+                lightColor = LIGHT_COLOR_SCULK_CATALYST;
                 break;
             case LIGHT_SEA_LANTERN:
-                lightColor = lightColor_seaLantern;
+                lightColor = LIGHT_COLOR_SEA_LANTERN;
                 break;
             case LIGHT_SEA_PICKLE_1:
             case LIGHT_SEA_PICKLE_2:
             case LIGHT_SEA_PICKLE_3:
             case LIGHT_SEA_PICKLE_4:
-                lightColor = lightColor_seaPickle;
+                lightColor = LIGHT_COLOR_SEA_PICKLE;
                 break;
             case LIGHT_SHROOMLIGHT:
-                lightColor = lightColor_shroomlight;
+                lightColor = LIGHT_COLOR_SHROOMLIGHT;
                 break;
             case LIGHT_SMOKER_N:
             case LIGHT_SMOKER_E:
@@ -186,7 +186,7 @@
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {
                 case LIGHT_AMETHYST_BLOCK:
-                    lightColor = lightColor_amethyst;
+                    lightColor = LIGHT_COLOR_AMETHYST;
                     break;
                 case LIGHT_DIAMOND_BLOCK:
                     lightColor = vec3(0.489, 0.960, 0.912);
@@ -198,7 +198,7 @@
                     lightColor = vec3(0.180, 0.427, 0.813);
                     break;
                 case LIGHT_REDSTONE_BLOCK:
-                    lightColor = lightColor_redstoneTorch;
+                    lightColor = LIGHT_COLOR_REDSTONE_TORCH;
                     break;
             }
         #endif

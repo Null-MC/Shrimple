@@ -18,6 +18,7 @@ uniform sampler2D gtexture;
 uniform int renderStage;
 uniform float rainStrength;
 uniform float skyRainStrength;
+uniform int frameCounter;
 
 // uniform vec3 skyColor;
 // uniform vec3 fogColor;

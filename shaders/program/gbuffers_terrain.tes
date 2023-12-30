@@ -90,6 +90,10 @@ out VertexData {
     uniform mat4 gbufferModelView;
 
     #include "/lib/sampling/atlas.glsl"
+
+    #ifdef TAA_ENABLED
+        #include "/lib/effects/taa.glsl"
+    #endif
 #endif
 
 #include "/lib/utility/tessellation.glsl"
@@ -146,5 +150,9 @@ void main() {
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
+        
+        #ifdef TAA_ENABLED
+            jitter(gl_Position);
+        #endif
     #endif
 }
