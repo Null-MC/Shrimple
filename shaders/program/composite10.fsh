@@ -87,7 +87,7 @@ float neighboorhoodDepthTest(const in float depthPrevL, const in vec2 texcoord) 
     
     // return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
     float dist = max(minDepth - depthPrevL, 0.0) + max(depthPrevL - maxDepth, 0.0);
-    return max(1.0 - 4.0*dist, 0.0);
+    return max(1.0 - 2.0*dist, 0.0);
 }
 
 
@@ -113,7 +113,7 @@ void main() {
 
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
-    float weight = 1.0 - rcp(2.0 + counter);
+    float weight = 1.0 - rcp(1.0 + counter);
 
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
     float depthFinal = mix(depthNowL, depthPrevL, weight);
