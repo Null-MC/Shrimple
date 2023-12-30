@@ -716,6 +716,10 @@ option.ALPHATESTREF_ENABLED.comment=Uses the vanilla provided AlphaTest threshol
 
 screen.LIGHT_COLORS=Light Colors
 
+option.LIGHT_COLOR_MESSAGE=https://editor.balintcsala.com
+option.LIGHT_COLOR_MESSAGE.comment=Use the link above to edit light colors.
+value.LIGHT_COLOR_MESSAGE.0=Follow Link
+
 option.LIGHT_COLOR_AMETHYST=Amethyst
 option.LIGHT_COLOR_BEACON=Beacon
 option.LIGHT_COLOR_BREWING_STAND=Brewing Stand

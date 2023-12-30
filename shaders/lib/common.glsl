@@ -321,6 +321,7 @@ const bool colortex15Clear = true;
 
 
 // INTERNAL SETTINGS
+#define LIGHT_COLOR_MESSAGE 0 // [0]
 #define PHYSICS_OCEAN_SUPPORT
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
