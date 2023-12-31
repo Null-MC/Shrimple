@@ -23,6 +23,10 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
     
+    #ifdef TAA_ENABLED
+        vec3 velocity;
+    #endif
+
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
     #endif
@@ -85,6 +89,7 @@ uniform ivec2 atlasSize;
 #endif
 
 #ifdef TAA_ENABLED
+    uniform float frameTime;
     uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
@@ -149,6 +154,7 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
+    vOut.velocity = vec3(0.0);
     vec4 viewPos = BasicVertex();
 
     PrepareNormalMap();

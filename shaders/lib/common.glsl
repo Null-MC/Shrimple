@@ -11,8 +11,6 @@ const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
 const int colortex6Format  = R16F;
 const int colortex7Format  = RGBA16F;
-const int colortex8Format  = RGB8;
-const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16F;
 const int colortex11Format = RGBA16F;
 const int colortex12Format = RGB16F;
@@ -52,13 +50,13 @@ const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex6Clear = false;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex7Clear = false;
+const bool colortex7Clear = true;
 
 const vec4 colortex8ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex8Clear = false;
+const bool colortex8Clear = true;
 
 const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex9Clear = false;
+const bool colortex9Clear = true;
 
 const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex10Clear = true;
@@ -67,7 +65,7 @@ const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex11Clear = false;
 
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex12Clear = false;
+const bool colortex12Clear = true;
 
 const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex13Clear = true;
@@ -307,7 +305,7 @@ const bool colortex15Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT

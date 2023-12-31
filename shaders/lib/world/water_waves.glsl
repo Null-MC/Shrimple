@@ -30,10 +30,10 @@ const float WATER_DRAG_MULT = 0.4;
 #endif
 
 
-float water_waveHeight(const in vec2 worldPos, const in float skyLight) {
+float water_waveHeight(const in vec2 worldPos, const in float skyLight, const in float time) {
     //float time = frameTimeCounter;
-    float modifiedTime = GetAnimationFactor() / 3.6;
-    modifiedTime *= WATER_TIME_MULTIPLICATOR;
+    // float modifiedTime = GetAnimationFactor();
+    float modifiedTime = time / 3.6 * WATER_TIME_MULTIPLICATOR;
 
     vec2 position = worldPos * WATER_XZ_SCALE;
     float lightF = mix(skyLight, 1.0, WATER_WAVE_MIN);

@@ -10,7 +10,9 @@ in vec2 texcoord;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_FINAL_PREV;
 uniform sampler2D BUFFER_DEPTH_PREV;
+uniform sampler2D BUFFER_VELOCITY;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
 uniform vec3 cameraPosition;
@@ -30,7 +32,7 @@ uniform float far;
 #include "/lib/effects/taa.glsl"
 
 
-vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
+vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow, const in vec3 velocity) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
     //clipPos.xy -= 0.25*getJitterOffset(frameCounter);
 
@@ -41,7 +43,7 @@ vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
     #endif
 
-    vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+    vec3 localPosPrev = localPos - velocity + cameraPosition - previousCameraPosition;
 
     #ifdef IRIS_FEATURE_SSBO
         vec4 clipPosPrev = gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0);
@@ -171,8 +173,10 @@ void main() {
     //vec2 offset = getJitterOffset(frameCounter);
 
     float depthNow = textureLod(depthtex0, uvNow, 0).r;
+
+    float depthNowTrans = textureLod(depthtex1, uvNow, 0).r;
     float depthNowHand = textureLod(depthtex2, uvNow, 0).r;
-    bool isHand = abs(depthNow - depthNowHand) > EPSILON;
+    bool isHand = abs(depthNowTrans - depthNowHand) > EPSILON;
 
     if (isHand) {
         depthNow = depthNow * 2.0 - 1.0;
@@ -181,10 +185,12 @@ void main() {
 
         uvNow += 0.5*getJitterOffset(frameCounter);
     }
+
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
+    vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
     //uvNow += offset*0.5;
-    vec2 uvPrev = getReprojectedUV(uvNow, depthNow);
+    vec2 uvPrev = getReprojectedUV(uvNow, depthNow, velocity.xyz);
     float depthNowL = linearizeDepthFast(depthNow, near, far);
 
     //vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);

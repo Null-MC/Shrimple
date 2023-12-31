@@ -19,6 +19,10 @@ in VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -57,6 +61,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -112,6 +120,10 @@ void main() {
 
     vOut.blockId = vIn[0].blockId;
     vOut.atlasBounds = vIn[0].atlasBounds;
+
+    #ifdef TAA_ENABLED
+        vOut.velocity = _interpolate(vIn[0].velocity, vIn[1].velocity, vIn[2].velocity);
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vOut.surfacePos = vOut.localPos;

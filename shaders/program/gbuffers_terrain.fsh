@@ -16,6 +16,10 @@ in VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -313,16 +317,33 @@ uniform int frameCounter;
 
 
 #ifdef DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
+    #ifdef TAA_ENABLED
+        /* RENDERTARGETS: 1,2,3,7,14 */
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 3) out vec4 outVelocity;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            layout(location = 4) out vec4 outDeferredRough;
+        #endif
+    #else
+        /* RENDERTARGETS: 1,2,3,14 */
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            layout(location = 3) out vec4 outDeferredRough;
+        #endif
     #endif
 #else
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
+    #ifdef TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 0) out vec4 outFinal;
+        layout(location = 1) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 0 */
+        layout(location = 0) out vec4 outFinal;
+    #endif
 #endif
 
 void main() {
@@ -580,6 +601,10 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal, 1.0));
         outDeferredData = deferredData;
 
+        #ifdef TAA_ENABLED
+            outVelocity = vec4(vIn.velocity, 0.0);
+        #endif
+
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, porosity, 1.0) + dither;
         #endif
@@ -684,5 +709,9 @@ void main() {
         #endif
 
         outFinal = color;
+
+        #ifdef TAA_ENABLED
+            outVelocity = vec4(vIn.velocity, 0.0);
+        #endif
     #endif
 }

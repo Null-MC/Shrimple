@@ -7,7 +7,9 @@ vec4 BasicVertex() {
 
     #if defined RENDER_TERRAIN || defined RENDER_WATER
         #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
-            ApplyWavingOffset(pos.xyz, vOut.blockId);
+            vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+
+            ApplyWavingOffset(pos.xyz, localPos, vOut.blockId);
         #endif
     #endif
 
@@ -28,7 +30,15 @@ vec4 BasicVertex() {
                 vOut.physics_localPosition = pos.xyz;
             #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
                 vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
-                pos.y += distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y);
+                float time = GetAnimationFactor();
+                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time);
+                pos.y += waveOffset;
+
+                #if defined TAA_ENABLED && defined RENDER_TERRAIN
+                    float timePrev = time - frameTime;
+                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, timePrev);
+                    vOut.velocity.y += waveOffset - waveOffsetPrev;
+                #endif
             #endif
 
             viewPos = gl_ModelViewMatrix * pos;

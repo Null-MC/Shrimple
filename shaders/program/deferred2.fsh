@@ -15,6 +15,7 @@ uniform mat4 gbufferProjectionInverse;
 
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
+uniform int frameCounter;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"

@@ -128,10 +128,11 @@
 #define DEBUG_VIEW_DEFERRED_VL 9
 #define DEBUG_VIEW_BLOCK_DIFFUSE 10
 #define DEBUG_VIEW_BLOCK_SPECULAR 11
-#define DEBUG_VIEW_SHADOW_COLOR 12
-#define DEBUG_VIEW_BLOOM_TILES 13
-#define DEBUG_VIEW_DEPTH_TILES 14
-#define DEBUG_VIEW_WHITEWORLD 15
+#define DEBUG_VIEW_VELOCITY 12
+#define DEBUG_VIEW_SHADOW_COLOR 13
+#define DEBUG_VIEW_BLOOM_TILES 14
+#define DEBUG_VIEW_DEPTH_TILES 15
+#define DEBUG_VIEW_WHITEWORLD 16
 
 #define BUFFER_FINAL colortex0
 #define BUFFER_DEFERRED_COLOR colortex1
@@ -140,12 +141,13 @@
 #define BUFFER_BLOCK_DIFFUSE colortex4
 #define BUFFER_FINAL_PREV colortex5
 #define BUFFER_DEPTH_PREV colortex6
-#define BUFFER_LIGHT_TA colortex7
-#define BUFFER_LIGHT_TA_NORMAL colortex8
-#define BUFFER_LIGHT_TA_DEPTH colortex9
+#define BUFFER_VELOCITY colortex7
+// #define BUFFER_LIGHT_TA colortex7
+// #define BUFFER_LIGHT_TA_NORMAL colortex8
+// #define BUFFER_LIGHT_TA_DEPTH colortex9
 #define BUFFER_VL colortex10
 #define BUFFER_BLOCK_SPECULAR colortex11
-#define BUFFER_TA_SPECULAR colortex12
+// #define BUFFER_TA_SPECULAR colortex12
 //#define BUFFER_OVERLAY_DEPTH colortex13
 #define BUFFER_ROUGHNESS colortex14
 #define BUFFER_BLOOM_TILES colortex15
