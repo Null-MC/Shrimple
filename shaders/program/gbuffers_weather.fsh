@@ -263,12 +263,23 @@ uniform float blindnessSmooth;
 #endif
 
 
-#if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 15 */
+#ifdef TAA_ENABLED
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        /* RENDERTARGETS: 15,7 */
+    #else
+        /* RENDERTARGETS: 0,7 */
+    #endif
 #else
-    /* RENDERTARGETS: 0 */
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        /* RENDERTARGETS: 15 */
+    #else
+        /* RENDERTARGETS: 0 */
+    #endif
 #endif
 layout(location = 0) out vec4 outFinal;
+#ifdef TAA_ENABLED
+    layout(location = 1) out vec4 outVelocity;
+#endif
 
 void main() {
 	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
@@ -450,4 +461,8 @@ void main() {
     // #endif
 
     outFinal = color;
+
+    #ifdef TAA_ENABLED
+        outVelocity = vec4(vec3(0.0), 1.0);
+    #endif
 }

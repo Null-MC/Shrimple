@@ -115,7 +115,8 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
-		vec3 color = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz * 100.0 + 0.5;
+		vec4 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0);
+		vec3 color = (velocity.xyz * 100.0 + 0.5) * (1.0 - velocity.w);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES

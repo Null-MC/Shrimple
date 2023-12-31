@@ -198,6 +198,8 @@ void main() {
     float counter = clamp(colorPrev.a, 0.0, TAA_MaxFrameAccum);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
+    counter *= 1.0 - velocity.w;
+
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
