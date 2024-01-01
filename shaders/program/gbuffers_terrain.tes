@@ -97,6 +97,11 @@ out VertexData {
 
     uniform mat4 gbufferModelView;
 
+    #ifdef TAA_ENABLED
+        uniform vec2 pixelSize;
+        uniform int frameCounter;
+    #endif
+
     #include "/lib/sampling/atlas.glsl"
 
     #ifdef TAA_ENABLED
