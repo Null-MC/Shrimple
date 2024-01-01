@@ -157,7 +157,7 @@ void main() {
     const int resScale = int(exp2(LIGHTING_TRACE_RES));
 
     vec2 tex2 = texcoord;
-    #if LIGHTING_TRACE_TEMP_ACCUM > 0 //&& LIGHTING_TRACE_PENUMBRA > 0
+    // #if LIGHTING_TRACE_TEMP_ACCUM > 0 //&& LIGHTING_TRACE_PENUMBRA > 0
         //vec2 pixelSize = rcp(viewSize);
 
         #if LIGHTING_TRACE_RES == 2
@@ -165,7 +165,7 @@ void main() {
         #elif LIGHTING_TRACE_RES == 1
             tex2 += GetTemporalOffset(2) * pixelSize * 0.5;
         #endif
-    #endif
+    // #endif
 
     float depth = textureLod(depthtex0, tex2, 0).r;
     //float handClipDepth = textureLod(depthtex2, tex2, 0).r;

@@ -394,11 +394,6 @@ value.LIGHTING_TRACED_PLAYER_SHADOW.0=None
 value.LIGHTING_TRACED_PLAYER_SHADOW.1=Cuboid
 value.LIGHTING_TRACED_PLAYER_SHADOW.2=Cylinder
 
-option.LIGHTING_TRACE_TEMP_ACCUM=Temporal Accumulation
-option.LIGHTING_TRACE_TEMP_ACCUM.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
-suffix.LIGHTING_TRACE_TEMP_ACCUM=%
-value.LIGHTING_TRACE_TEMP_ACCUM.0=OFF
-
 option.LIGHTING_FLICKER=Dynamic
 option.LIGHTING_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
 

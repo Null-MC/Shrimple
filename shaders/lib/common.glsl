@@ -211,8 +211,7 @@ const bool colortex15Clear = true;
 // Traced Lighting
 #define LIGHTING_TRACE_RES 1 // [2 1 0]
 #define LIGHTING_TRACE_PENUMBRA 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define LIGHTING_TRACE_TEMP_ACCUM 85 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define LIGHTING_TRACE_SAMPLE_MAX 16 // [0 2 4 8 12 16 24 32 48 64 96 128]
+#define LIGHTING_TRACE_SAMPLE_MAX 0 // [0 2 4 8 12 16 24 32 48 64 96 128]
 #define LIGHTING_TRACED_PLAYER_SHADOW 2 // [0 1 2]
 //#define LIGHTING_TRACE_FILTER
 #define LIGHT_BIN_MAX_COUNT 128 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
@@ -528,7 +527,6 @@ const float DynamicLightAmbientF = LIGHTING_AMBIENT * 0.01;
 const float DynamicLightTintF = LIGHTING_TINT_STRENGTH * 0.01;
 const float DynamicLightPenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
 const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
-const float DynamicLightTemporalStrength = LIGHTING_TRACE_TEMP_ACCUM * 0.01;
 const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);

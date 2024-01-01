@@ -30,12 +30,6 @@ uniform sampler2D TEX_LIGHTMAP;
     //uniform sampler2D BUFFER_TA_SPECULAR;
 #endif
 
-// #if LIGHTING_TRACE_TEMP_ACCUM > 0
-//     uniform sampler2D BUFFER_LIGHT_TA;
-//     uniform sampler2D BUFFER_LIGHT_TA_NORMAL;
-//     uniform sampler2D BUFFER_LIGHT_TA_DEPTH;
-// #endif
-
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;

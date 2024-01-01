@@ -379,11 +379,6 @@ value.LIGHTING_TRACED_PLAYER_SHADOW.0=Никакое
 value.LIGHTING_TRACED_PLAYER_SHADOW.1=Кубическое
 value.LIGHTING_TRACED_PLAYER_SHADOW.2=Цилиндрическое
 
-option.LIGHTING_TRACE_TEMP_ACCUM=Временной Буфер
-option.LIGHTING_TRACE_TEMP_ACCUM.comment=Если эта функция включена, то буфер освещения будет смешиваться по нескольким кадрам для уменьшения шума мягких-теней.
-suffix.LIGHTING_TRACE_TEMP_ACCUM=%
-value.LIGHTING_TRACE_TEMP_ACCUM.0=Выкл
-
 option.LIGHTING_FLICKER=Динамические
 option.LIGHTING_FLICKER.comment=Позволяет источникам света иметь динамическую яркость/цвет; например, факелам, свечам, огню и т.д.
 
