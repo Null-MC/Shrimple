@@ -38,7 +38,7 @@ float SampleLightDiffuse(const in float NoV, const in float NoL, const in float 
     float f90 = 0.5 + 2.0*roughL * _pow2(LoH);
     float light_scatter = F_schlick(NoL, 1.0, f90);
     float view_scatter = F_schlick(NoV, 1.0, f90);
-    return light_scatter * view_scatter * NoL;
+    return invPI * light_scatter * view_scatter * NoL;
 }
 
 float GGX_D(const in float NoHm, const in float alpha) {
