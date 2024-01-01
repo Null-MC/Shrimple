@@ -274,7 +274,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef EFFECT_BLUR_ENABLED
-    #include "/lib/post/depth_blur.glsl"
+    #include "/lib/effects/blur.glsl"
 #endif
 
 #include "/lib/utility/temporal_offset.glsl"

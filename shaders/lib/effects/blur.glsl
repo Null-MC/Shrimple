@@ -34,11 +34,11 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     //     float centerSize = GetBlurSize(fragDepthL, centerDepthL);
     // #endif
 
-    #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
+    #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
         if (isWater) {
             float waterDistF = GetWaterDistF(viewDist);
             distF = max(distF, waterDistF);
-            maxRadius = WATER_BLUR_RADIUS;
+            maxRadius = EFFECT_BLUR_WATER_RADIUS;
         }
     #endif
 
@@ -115,7 +115,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         //     }
         // #endif
 
-        #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
+        #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
             if (isWater) {
                 float sampleWaterDistF = GetWaterDistF(max(sampleDepthL - minDepth, 0.0));
                 sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);

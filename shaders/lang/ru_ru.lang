@@ -121,8 +121,6 @@ option.WATER_CAUSTICS=Тень/Свет Воды
 
 option.WATER_TESSELLATION=Тесселяция
 
-option.WATER_BLUR=Размытие
-
 option.WATER_DEPTH_LAYERS=Плотность Слоёв
 
 

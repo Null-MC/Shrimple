@@ -422,7 +422,7 @@ void main() {
         #endif
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
 
     if (color.a < alphaTestRef) {
         discard;

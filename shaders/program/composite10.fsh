@@ -54,22 +54,22 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     return clipPosPrev * 0.5 + 0.5;
 }
 
-void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
-    vec3 minColor = vec3(+9999.0);
-    vec3 maxColor = vec3(-9999.0);
+// void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
+//     vec3 minColor = vec3(+9999.0);
+//     vec3 maxColor = vec3(-9999.0);
 
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
-            vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
-            vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
+//     for (int x = -1; x <= 1; ++x) {
+//         for (int y = -1; y <= 1; ++y) {
+//             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
+//             vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
 
-            minColor = min(minColor, sampleColor);
-            maxColor = max(maxColor, sampleColor);
-        }
-    }
+//             minColor = min(minColor, sampleColor);
+//             maxColor = max(maxColor, sampleColor);
+//         }
+//     }
     
-    colorPrev = clamp(colorPrev, minColor, maxColor);
-}
+//     colorPrev = clamp(colorPrev, minColor, maxColor);
+// }
 
 float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
     vec3 minColor = vec3(+9999.0);
@@ -121,11 +121,11 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
     // simultaneously evaluate the middle 2 samples from the 4x4 grid.
     vec2 w12 = w1 + w2;
-    vec2 offset12 = w2 / max(w1 + w2, EPSILON);
+    vec2 offset12 = w2 / max(w12, EPSILON);
 
     // Compute the final UV coordinates we'll use for sampling the texture
-    vec2 texPos0 = (texPos1 - 1.0) * pixelSize;
-    vec2 texPos3 = (texPos1 + 2.0) * pixelSize;
+    vec2 texPos0  = (texPos1 - 1.0) * pixelSize;
+    vec2 texPos3  = (texPos1 + 2.0) * pixelSize;
     vec2 texPos12 = (texPos1 + offset12) * pixelSize;
 
     vec4 result = vec4(0.0);

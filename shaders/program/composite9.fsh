@@ -41,7 +41,7 @@ uniform float skyRainStrength;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#include "/lib/post/depth_blur.glsl"
+#include "/lib/effects/blur.glsl"
 
 
 /* RENDERTARGETS: 0 */

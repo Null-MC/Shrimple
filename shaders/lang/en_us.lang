@@ -119,8 +119,6 @@ option.WATER_CAUSTICS=Caustics
 
 option.WATER_TESSELLATION=Tessellation
 
-option.WATER_BLUR=Blur
-
 option.WATER_DEPTH_LAYERS=Depth Layers
 
 
@@ -623,6 +621,9 @@ option.EFFECT_BLUR_SAMPLE_COUNT=Sample Count
 
 option.EFFECT_BLUR_MAX_RADIUS=Radius
 suffix.EFFECT_BLUR_MAX_RADIUS=px
+
+option.EFFECT_BLUR_WATER_RADIUS=Water Radius
+suffix.EFFECT_BLUR_WATER_RADIUS=px
 
 option.EFFECT_BLUR_RADIUS_WEATHER=Weather Radius
 suffix.EFFECT_BLUR_RADIUS_WEATHER=px
