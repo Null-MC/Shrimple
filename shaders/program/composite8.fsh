@@ -132,9 +132,9 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
-    uniform float centerDepthSmooth;
-#endif
+// #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
+//     uniform float centerDepthSmooth;
+// #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
@@ -273,7 +273,7 @@ uniform int heldBlockLightValue2;
     //#include "/lib/world/clouds.glsl"
 #endif
 
-#if EFFECT_BLUR_TYPE != DIST_BLUR_OFF || defined WATER_BLUR
+#ifdef EFFECT_BLUR_ENABLED
     #include "/lib/post/depth_blur.glsl"
 #endif
 
@@ -793,7 +793,7 @@ layout(location = 0) out vec4 outFinal;
             GetAllWaterDepths(waterPixelIndex, waterDepth);
         #endif
 
-        #if EFFECT_BLUR_TYPE != DIST_BLUR_OFF || defined WATER_BLUR
+        #ifdef EFFECT_BLUR_ENABLED
             float blurDist = 0.0;
             if (depth < depthOpaque) {
                 // float opaqueDist = length(localPosOpaque);

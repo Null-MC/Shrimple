@@ -613,20 +613,19 @@ suffix.EFFECT_BLOOM_HAND=%
 
 screen.EFFECT_BLUR_OPTIONS=Blur
 
-option.EFFECT_BLUR_TYPE=Mode
-value.EFFECT_BLUR_TYPE.0=Off
-value.EFFECT_BLUR_TYPE.1=Far
-value.EFFECT_BLUR_TYPE.2=DOF
-
-option.EFFECT_BLUR_DOF_FOCUS_SCALE=DOF Focus
-suffix.EFFECT_BLUR_DOF_FOCUS_SCALE=%
+option.EFFECT_BLUR_ENABLED=Enabled
 
 option.EFFECT_BLUR_SAMPLE_COUNT=Sample Count
 
 option.EFFECT_BLUR_MAX_RADIUS=Radius
+suffix.EFFECT_BLUR_MAX_RADIUS=px
 
-option.EFFECT_BLUR_BLINDNESS=Blindness
-option.EFFECT_BLUR_BLINDNESS.comment=Applies a heavy blur to the screen when the player receives the blindness effect.
+option.EFFECT_BLUR_RADIUS_WEATHER=Weather Radius
+suffix.EFFECT_BLUR_RADIUS_WEATHER=px
+
+option.EFFECT_BLUR_RADIUS_BLIND=Blindness Radius
+option.EFFECT_BLUR_RADIUS_BLIND.comment=Applies a heavy blur to the screen when the player receives the blindness effect.
+suffix.EFFECT_BLUR_RADIUS_BLIND=px
 
 
 screen.EFFECT_SSAO_OPTIONS=SSAO

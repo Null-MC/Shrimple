@@ -292,7 +292,7 @@ void main() {
         float cloudY = smoothstep(0.0, CloudHeight * 0.5, vIn.localPos.y + cameraPosition.y - cloudHeight);
         color.a *= 1.0 - cloudY;
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined SKY_WEATHER_CLOUD_ONLY
             const vec3 worldUp = vec3(0.0, 1.0, 0.0);
             float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_SHADOW_STEPS);
             color.a *= _pow2(cloudUnder);

@@ -19,20 +19,22 @@ uniform float viewWidth;
 uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
-uniform int isEyeInWater;
-uniform int frameCounter;
 uniform float near;
 uniform float far;
 
-#if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
-    uniform float centerDepthSmooth;
-#endif
+uniform int isEyeInWater;
+uniform int frameCounter;
+uniform float skyRainStrength;
+
+// #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
+//     uniform float centerDepthSmooth;
+// #endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef EFFECT_BLUR_BLINDNESS
+#if EFFECT_BLUR_RADIUS_BLIND > 0
     uniform float blindnessSmooth;
 #endif
 

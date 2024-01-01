@@ -1,5 +1,4 @@
 #define BLUR_BLIND_DIST 12.0
-#define BLUR_BLIND_RADIUS 128.0
 
 
 mat2 GetBlurRotation() {
@@ -27,57 +26,46 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 #endif
 
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
-    //vec2 viewSize = vec2(viewWidth, viewHeight);
-    // vec2 pixelSize = rcp(viewSize);
+    float distF = min(viewDist / far, 1.0);
+    float maxRadius = EFFECT_BLUR_MAX_RADIUS;
 
-    // #if defined WATER_BLUR && EFFECT_BLUR_TYPE == DIST_BLUR_NONE
-    //     if (!isWater) return texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
+    // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
+    //     float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
+    //     float centerSize = GetBlurSize(fragDepthL, centerDepthL);
     // #endif
-
-    //float distScale = isWater ? WATER_BLUR_SCALE : far;
-    //distScale = mix(distScale, EFFECT_BLUR_BLINDNESS_SCALE, blindnessSmooth);
-
-    float distF = 0.0;
-    float radius = 0.0;
-
-    #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
-        float centerDepthL = linearizeDepthFast(centerDepthSmooth, near, far);
-        float centerSize = GetBlurSize(fragDepthL, centerDepthL);
-    #elif EFFECT_BLUR_TYPE == DIST_BLUR_FAR
-        if (!isWater) {
-            distF = min(viewDist / far, 1.0);
-            distF = pow(distF, EFFECT_BLUR_FAR_POW);
-        }
-    #endif
 
     #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
         if (isWater) {
             float waterDistF = GetWaterDistF(viewDist);
             distF = max(distF, waterDistF);
-            radius = distF * WATER_BLUR_RADIUS;
+            maxRadius = WATER_BLUR_RADIUS;
         }
     #endif
 
-    #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
-        radius = isWater ? WATER_BLUR_RADIUS : EFFECT_BLUR_MAX_RADIUS;
-        //uint sampleCount = EFFECT_BLUR_SAMPLE_COUNT;
-    #elif EFFECT_BLUR_TYPE == DIST_BLUR_FAR
-        if (!isWater) radius = distF * EFFECT_BLUR_MAX_RADIUS;
-        //uint sampleCount = uint(ceil(EFFECT_BLUR_SAMPLE_COUNT * distF));
+    // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
+    //     maxRadius = isWater ? WATER_BLUR_RADIUS : EFFECT_BLUR_MAX_RADIUS;
+    //     //uint sampleCount = EFFECT_BLUR_SAMPLE_COUNT;
+    // #else //if EFFECT_BLUR_TYPE == DIST_BLUR_FAR
+    //     if (!isWater) maxRadius = EFFECT_BLUR_MAX_RADIUS;
+    //     //uint sampleCount = uint(ceil(EFFECT_BLUR_SAMPLE_COUNT * distF));
 
-        //radius *= distF;
+    //     //maxRadius *= distF;
+    // #endif
+
+    #if EFFECT_BLUR_RADIUS_WEATHER > 0
+        if (!isWater) maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER), skyRainStrength);
     #endif
 
-    #ifdef EFFECT_BLUR_BLINDNESS
+    #if EFFECT_BLUR_RADIUS_BLIND > 0
         if (blindnessSmooth > EPSILON) {
             float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
-            //blindDistF = pow(blindDistF, 1.5);
             distF = max(distF, blindDistF);
 
-            radius = mix(radius, max(radius, BLUR_BLIND_RADIUS), blindnessSmooth);
+            maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_BLIND), blindnessSmooth);
         }
     #endif
 
+    float radius = maxRadius * distF;
     if (radius < EPSILON) return texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
 
     vec3 color = vec3(0.0);
@@ -95,7 +83,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         vec2 diskOffset = vec2(0.0);
 
         //if (EFFECT_BLUR_SAMPLE_COUNT > 1) {
-            float r = sqrt((i + 0.5) / EFFECT_BLUR_SAMPLE_COUNT);
+            float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
             float theta = i * goldenAngle + PHI;
             
             float sine = sin(theta);
@@ -111,21 +99,21 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
         float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
 
-        float sampleDistF = 0.0;
-        #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
-            float sampleSize = GetBlurSize(sampleDepthL, centerDepthL);
+        float sampleDistF = saturate((sampleDepthL - minDepth) / far);
+        // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
+        //     float sampleSize = GetBlurSize(sampleDepthL, centerDepthL);
 
-            if (sampleDepthL > fragDepthL)
-                sampleSize = clamp(sampleSize, 0.0, centerSize*2.0);
+        //     if (sampleDepthL > fragDepthL)
+        //         sampleSize = clamp(sampleSize, 0.0, centerSize*2.0);
 
 
-            sampleDistF = sampleSize;
-        #elif EFFECT_BLUR_TYPE == DIST_BLUR_FAR
-            if (!isWater) {
-                sampleDistF = saturate((sampleDepthL - minDepth) / far);
-                sampleDistF = pow(sampleDistF, EFFECT_BLUR_FAR_POW);
-            }
-        #endif
+        //     sampleDistF = sampleSize;
+        // #else //elif EFFECT_BLUR_TYPE == DIST_BLUR_FAR
+        //     if (!isWater) {
+        //         sampleDistF = saturate((sampleDepthL - minDepth) / far);
+        //         //sampleDistF = pow(sampleDistF, EFFECT_BLUR_FAR_POW);
+        //     }
+        // #endif
 
         #if defined WATER_BLUR && defined WORLD_WATER_ENABLED
             if (isWater) {
@@ -134,34 +122,27 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
             }
         #endif
 
-        #ifdef EFFECT_BLUR_BLINDNESS
+        #if EFFECT_BLUR_RADIUS_BLIND > 0
             if (blindnessSmooth > EPSILON) {
                 float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
                 sampleDistF = mix(sampleDistF, max(sampleDistF, blindDistF), blindnessSmooth);
             }
         #endif
 
-        #if EFFECT_BLUR_TYPE == DIST_BLUR_FAR
+        //#if EFFECT_BLUR_TYPE == DIST_BLUR_FAR
             sampleDistF = min(sampleDistF, distF);
+        //#endif
+
+        #ifdef EFFECT_TAA_ENABLED
+            vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+        #else
+            float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+            vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
         #endif
 
-        float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
-
-        //vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
-        vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
         float sampleWeight = exp(-3.0 * length2(diskOffset));
 
         sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
-
-        //if (EFFECT_BLUR_SAMPLE_COUNT > 1) {
-            // #ifdef RENDER_TRANSLUCENT_POST_BLUR
-            //     float sampleWeatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, sampleUV, 0).r;
-            //     sampleDepth = min(sampleDepth, sampleWeatherDepth);
-            // #endif
-
-            //if (sampleDepth >= minDepth) sampleWeight *= sampleDistF;
-            sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
-        //}
 
         color += sampleColor * sampleWeight;
         maxWeight += sampleWeight;
