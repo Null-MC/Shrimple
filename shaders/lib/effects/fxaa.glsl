@@ -1,7 +1,6 @@
 #define FXAA_EDGE_THRESHOLD_MIN 0.0312
 #define FXAA_EDGE_THRESHOLD_MAX 0.125
 #define FXAA_SUBPIXEL_QUALITY 0.9
-#define FXAA_ITERATIONS 12
 
 #define FXAA_QUALITY(q) ((q) < 5 ? 1.0 : ((q) > 5 ? ((q) < 10 ? 2.0 : ((q) < 11 ? 4.0 : 8.0)) : 1.5))
 
@@ -126,7 +125,7 @@ vec3 FXAA(const in vec2 uv) {
 	
 	// If both sides have not been reached, continue to explore.
 	if (!reachedBoth) {
-		for (int i = 2; i < FXAA_ITERATIONS; i++) {
+		for (int i = 2; i < EFFECT_FXAA_ITERATIONS; i++) {
 			// If needed, read luma in 1st direction, compute delta.
 			if (!reached1) {
 				lumaEnd1 = sampleLuma(uv1);

@@ -586,8 +586,12 @@ screen.EFFECT_OPTIONS=Effects
 option.EFFECT_AUTO_EXPOSE=Auto-Exposure
 option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
-option.EFFECT_FXAA_ENABLED=FXAA
-option.EFFECT_FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
+
+screen.EFFECT_FXAA_OPTIONS=FXAA
+
+option.EFFECT_FXAA_ENABLED=Enabled
+
+option.EFFECT_FXAA_ITERATIONS=Iterations
 
 
 screen.EFFECT_BLOOM_OPTIONS=Bloom
