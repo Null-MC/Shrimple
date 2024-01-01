@@ -14,6 +14,8 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferPreviousModelView;
     uniform mat4 gbufferProjectionInverse;
@@ -42,8 +44,6 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            uniform mat4 gbufferModelView;
-            uniform mat4 gbufferProjection;
             uniform float near;
             //uniform float far;
         #endif
@@ -115,8 +115,10 @@ void main() {
                 WorldSkyLightColor = vec3(0.0);
             #endif
 
+            //gbufferModelViewProjection = gbufferModelView * gbufferProjection;
             gbufferModelViewProjectionInverse = gbufferModelViewInverse * gbufferProjectionInverse;
             gbufferPreviousModelViewProjection = gbufferPreviousProjection * gbufferPreviousModelView;
+            //gbufferPreviousModelViewProjectionInverse = inverse(gbufferPreviousModelViewProjection);
 
             #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
                 shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);

@@ -154,7 +154,10 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vOut.velocity = vec3(0.0);
+    #ifdef TAA_ENABLED
+        vOut.velocity = vec3(0.0);
+    #endif
+
     vec4 viewPos = BasicVertex();
 
     PrepareNormalMap();
