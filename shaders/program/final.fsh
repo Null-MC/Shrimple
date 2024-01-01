@@ -79,7 +79,7 @@ uniform int frameCounter;
 #endif
 
 #ifdef EFFECT_FXAA_ENABLED
-	#include "/lib/post/fxaa.glsl"
+	#include "/lib/effects/fxaa.glsl"
 #endif
 
 
