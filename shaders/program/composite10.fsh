@@ -152,11 +152,7 @@ layout(location = 1) out vec4 outFinalPrev;
 layout(location = 2) out float outDepthPrev;
 
 void main() {
-    //float TAA_MaxFrameAccum = EFFECT_TAA_MAX_ACCUM;
-    //TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
-
     vec2 uvNow = texcoord;
-    //vec2 offset = getJitterOffset(frameCounter);
 
     float depthNow = textureLod(depthtex0, uvNow, 0).r;
 
@@ -175,29 +171,28 @@ void main() {
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
     vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
-    float depthNowL = linearizeDepthFast(depthNow, near, far);
+    float depthMin, depthMax;
+    getNeighborDepthRange(texcoord, depthMin, depthMax);
 
-    vec3 clipPosPrev = getReprojectedClipPos(uvNow, depthNow, velocity.xyz);
-    vec2 uvPrev = clipPosPrev.xy;
+    vec3 clipPosReproMin = getReprojectedClipPos(uvNow, depthMin, velocity.xyz);
+    float reproDepthMin = linearizeDepthFast(clipPosReproMin.z, near, far);
+
+    vec3 clipPosReproMax = getReprojectedClipPos(uvNow, depthMax, velocity.xyz);
+    float reproDepthMax = linearizeDepthFast(clipPosReproMax.z, near, far);
+
+    vec2 uvPrev = clipPosReproMax.xy;
+
+    float depthNowL = linearizeDepthFast(depthNow, near, far);
+    float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
 
     vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
     float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
-    //counter *= 1.0 - 0.5*velocity.w;
     if (velocity.w > 0.5) counter = min(counter, 4);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
-
-    float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
-
-    float depthMin, depthMax;
-    getNeighborDepthRange(texcoord, depthMin, depthMax);
-    vec3 clipPosReproMin = getReprojectedClipPos(uvNow, depthMin, velocity.xyz);
-    vec3 clipPosReproMax = getReprojectedClipPos(uvNow, depthMax, velocity.xyz);
-    float reproDepthMin = linearizeDepthFast(clipPosReproMin.z, near, far);
-    float reproDepthMax = linearizeDepthFast(clipPosReproMax.z, near, far);
 
     float depthTest = step(reproDepthMin - 0.2, depthPrevL) * step(depthPrevL, reproDepthMax + 0.2);
     if (depthNow >= 1.0 && depthPrevL >= far * 0.99) depthTest = 1.0;
