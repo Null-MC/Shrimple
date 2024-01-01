@@ -1,2 +1,2 @@
 DE:	Wolf
-RU: $km.yas
+RU: ShrikerChestTree; $km.yas
