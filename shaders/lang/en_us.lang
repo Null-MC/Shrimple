@@ -233,6 +233,9 @@ screen.MATERIAL_SPECULAR_OPTIONS=Specular Map Options
 option.METAL_BRIGHTNESS=Metal Brightness
 suffix.METAL_BRIGHTNESS=%
 
+option.MATERIAL_HCM_ALBEDO_TINT=HCM Albedo Tint
+option.MATERIAL_HCM_ALBEDO_TINT.comment=Enables albedo-tinting for LabPBR hard-coded-metals. Usage varies with resource-pack.
+
 
 screen.MATERIAL_POROSITY_OPTIONS=Porosity Options
 screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
@@ -271,9 +274,6 @@ option.MATERIAL_REFLECT_STRENGTH=Strength
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=SSR Max Step Count
-
-option.ROUGH_REFLECT_SAMPLES=Rough Samples
-option.ROUGH_REFLECT_SAMPLES.comment=How many samples/traces to use for rough reflections. Very expensive.
 
 option.MATERIAL_REFLECT_CLOUDS=Clouds
 option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections.

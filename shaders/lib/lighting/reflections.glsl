@@ -69,176 +69,173 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //roughness = pow(roughness, 0.5 + 0.5 * distF);
 
     vec3 reflectAccum = vec3(0.0);
-    for (int i = 0; i < ROUGH_REFLECT_SAMPLES; i++) {
-        if (i > 0 && roughness < 0.1) break;
-        #if REFLECTION_ROUGH_SCATTER > 0
-            #ifdef TAA_ENABLED
-                vec3 seed = vec3(gl_FragCoord.xy, i + frameCounter);
-            #else
-                vec3 seed = vec3(gl_FragCoord.xy, i);
-            #endif
-
-            vec3 randomVec = normalize(hash33(seed) * 2.0 - 1.0);
-            if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
-
-            float roughScatterF = pow3(roughness);// * ReflectionRoughScatterF;// * (1.0 - distF);
-            reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
-            reflectViewDir = normalize(reflectViewDir);
-        #endif
-
-        vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
-        //return reflectLocalDir * 0.5 + 0.5;
-
-        #ifdef WORLD_SKY_ENABLED
-            vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
+    #if REFLECTION_ROUGH_SCATTER > 0
+        #ifdef TAA_ENABLED
+            vec3 seed = vec3(gl_FragCoord.xy, 1.0 + frameCounter);
         #else
-            vec3 reflectColor = RGBToLinear(fogColor) * WorldSkyBrightnessF;
+            vec3 seed = vec3(gl_FragCoord.xy, 1.0);
         #endif
 
-        float reflectDist = 0.0;
-        float reflectDepth = 1.0;
-        float reflectF = 0.0;
+        vec3 randomVec = normalize(hash33(seed) * 2.0 - 1.0);
+        if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
-            vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
-            vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
-            vec3 clipRay = reflectClipPos - clipPos;
+        float roughScatterF = pow3(roughness);// * ReflectionRoughScatterF;// * (1.0 - distF);
+        reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
+        reflectViewDir = normalize(reflectViewDir);
+    #endif
 
-            //if (length2(clipRay) > EPSILON) clipRay = normalize(clipRay);
-            //return clipRay * 0.5 + 0.5;
+    vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
+    //return reflectLocalDir * 0.5 + 0.5;
 
-            //vec2 viewSize = vec2(viewWidth, viewHeight);
-            float maxLod = log2(minOf(viewSize));
-            float roughMip = sqrt(roughness) * maxLod;
+    #ifdef WORLD_SKY_ENABLED
+        vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
+    #else
+        vec3 reflectColor = RGBToLinear(fogColor) * WorldSkyBrightnessF;
+    #endif
 
-            vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
-            vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
-            reflectF = reflection.a;
-            reflectDepth = reflection.z;
+    float reflectDist = 0.0;
+    float reflectDepth = 1.0;
+    float reflectF = 0.0;
 
-            if (reflection.z < 1.0 && reflection.a > 0.0) {
-                vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
+        vec3 clipPos = unproject(gbufferProjection * vec4(viewPos, 1.0)) * 0.5 + 0.5;
+        vec3 reflectClipPos = unproject(gbufferProjection * vec4(viewPos + reflectViewDir, 1.0)) * 0.5 + 0.5;
+        vec3 clipRay = reflectClipPos - clipPos;
 
-                reflectDist = min(length(reflectViewPos - viewPos), far);
+        //if (length2(clipRay) > EPSILON) clipRay = normalize(clipRay);
+        //return clipRay * 0.5 + 0.5;
 
-                #ifdef SKY_BORDER_FOG_ENABLED
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-                    #endif
+        //vec2 viewSize = vec2(viewWidth, viewHeight);
+        float maxLod = log2(minOf(viewSize));
+        float roughMip = sqrt(roughness) * maxLod;
 
-                    vec3 fogColorFinal = vec3(0.0);
-                    float fogF = 0.0;
+        vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
+        vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
+        reflectF = reflection.a;
+        reflectDepth = reflection.z;
 
-                    #ifdef WORLD_WATER_ENABLED
-                        if (isEyeInWater == 1) {
-                            // water fog
+        if (reflection.z < 1.0 && reflection.a > 0.0) {
+            vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
+
+            reflectDist = min(length(reflectViewPos - viewPos), far);
+
+            #ifdef SKY_BORDER_FOG_ENABLED
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+                #endif
+
+                vec3 fogColorFinal = vec3(0.0);
+                float fogF = 0.0;
+
+                #ifdef WORLD_WATER_ENABLED
+                    if (isEyeInWater == 1) {
+                        // water fog
+
+                        #if SKY_TYPE == SKY_TYPE_CUSTOM
+                            float fogDist = length(reflectViewPos - viewPos);
+                            fogF = GetCustomWaterFogFactor(fogDist);
+
+                            #ifdef WORLD_SKY_ENABLED
+                                fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+                            #else
+                                fogColorFinal = GetCustomWaterFogColor(-1.0);
+                            #endif
+                        #else
+                            // TODO
+                        #endif
+                    }
+                    else {
+                #endif
+
+                    #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+                        if (reflection.z < 1.0) {
+                            vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
 
                             #if SKY_TYPE == SKY_TYPE_CUSTOM
-                                float fogDist = length(reflectViewPos - viewPos);
-                                fogF = GetCustomWaterFogFactor(fogDist);
+                                fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
 
-                                #ifdef WORLD_SKY_ENABLED
-                                    fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                                #else
-                                    fogColorFinal = GetCustomWaterFogColor(-1.0);
-                                #endif
-                            #else
-                                // TODO
+                                float fogDist = GetShapedFogDistance(reflectLocalPos);
+                                fogF = GetCustomFogFactor(fogDist);
+                            #elif SKY_TYPE == SKY_TYPE_VANILLA
+                                fogColorFinal = RGBToLinear(fogColor);
+                                fogF = GetVanillaFogFactor(reflectLocalPos);
                             #endif
                         }
-                        else {
                     #endif
 
-                        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
-                            if (reflection.z < 1.0) {
-                                vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
-
-                                #if SKY_TYPE == SKY_TYPE_CUSTOM
-                                    fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
-
-                                    float fogDist = GetShapedFogDistance(reflectLocalPos);
-                                    fogF = GetCustomFogFactor(fogDist);
-                                #elif SKY_TYPE == SKY_TYPE_VANILLA
-                                    fogColorFinal = RGBToLinear(fogColor);
-                                    fogF = GetVanillaFogFactor(reflectLocalPos);
-                                #endif
-                            }
-                        #endif
-
-                    #ifdef WORLD_WATER_ENABLED
-                        }
-                    #endif
-
-                    col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
-                #endif
-            }
-            else reflectDist = far;
-
-            reflectColor = mix(reflectColor, col, reflectF);
-        #elif MATERIAL_REFLECTIONS == REFLECT_SKY
-            reflectDist = far;
-        #endif
-
-        #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
-            vec3 worldPos = cameraPosition + localPos;
-
-            vec3 cloudNear, cloudFar;
-            GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
-            
-            float cloudDistNear = length(cloudNear);
-            float cloudDistFar = length(cloudFar);
-
-            cloudDistNear = min(cloudDistNear, CloudFar);
-            cloudDistFar = min(cloudDistFar, CloudFar);
-
-            if (reflectDist < far) cloudDistFar = min(cloudDistFar, reflectDist);
-            // if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
-            //     cloudDistFar = min(cloudDistFar, min(viewDist, CloudFar));
-            // else {
-            //     cloudDistNear = 0.0;
-            //     cloudDistFar = 0.0;
-            // }
-
-            //float farMax = min(viewDist, far);
-
-            if (cloudDistFar > cloudDistNear) {
-                //vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-                vec4 cloudScatterTransmit = _TraceCloudVL(worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-                reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
-            }
-        #else
-            #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater == 1) {
-                    //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
-                    const float WaterAmbientF = 0.0;
-
-                    vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
-                    ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
-                }
-                else {
-            #endif
-
-                #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                    // TODO: Limit reflectDist < cloudNear
-
-                    #ifdef WORLD_SKY_ENABLED
-                        vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * pow5(skyLight);
-                    #else
-                        const vec3 skyLightColor = vec3(0.0);
-                    #endif
-
-                    vec3 vlLight = (phaseAir * skyLightColor + AirAmbientF);// * pow5(skyLight);
-                    vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
-                    reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+                #ifdef WORLD_WATER_ENABLED
+                    }
                 #endif
 
-            #ifdef WORLD_WATER_ENABLED
-                }
+                col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
+        }
+        else reflectDist = far;
+
+        reflectColor = mix(reflectColor, col, reflectF);
+    #elif MATERIAL_REFLECTIONS == REFLECT_SKY
+        reflectDist = far;
+    #endif
+
+    #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+        vec3 worldPos = cameraPosition + localPos;
+
+        vec3 cloudNear, cloudFar;
+        GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
+        
+        float cloudDistNear = length(cloudNear);
+        float cloudDistFar = length(cloudFar);
+
+        cloudDistNear = min(cloudDistNear, CloudFar);
+        cloudDistFar = min(cloudDistFar, CloudFar);
+
+        if (reflectDist < far) cloudDistFar = min(cloudDistFar, reflectDist);
+        // if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
+        //     cloudDistFar = min(cloudDistFar, min(viewDist, CloudFar));
+        // else {
+        //     cloudDistNear = 0.0;
+        //     cloudDistFar = 0.0;
+        // }
+
+        //float farMax = min(viewDist, far);
+
+        if (cloudDistFar > cloudDistNear) {
+            //vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+            vec4 cloudScatterTransmit = _TraceCloudVL(worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+            reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
+        }
+    #else
+        #ifdef WORLD_WATER_ENABLED
+            if (isEyeInWater == 1) {
+                //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                const float WaterAmbientF = 0.0;
+
+                vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
+                ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+            }
+            else {
         #endif
 
-        reflectAccum += reflectColor;
-    }
+            #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                // TODO: Limit reflectDist < cloudNear
 
-    return reflectAccum / ROUGH_REFLECT_SAMPLES;
+                #ifdef WORLD_SKY_ENABLED
+                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * pow5(skyLight);
+                #else
+                    const vec3 skyLightColor = vec3(0.0);
+                #endif
+
+                vec3 vlLight = (phaseAir * skyLightColor + AirAmbientF);// * pow5(skyLight);
+                vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
+                reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+            #endif
+
+        #ifdef WORLD_WATER_ENABLED
+            }
+        #endif
+    #endif
+
+    reflectAccum += reflectColor;
+
+    return reflectAccum;
 }
