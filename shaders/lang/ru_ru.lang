@@ -119,7 +119,7 @@ suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Тень/Свет Воды
 
-option.WATER_TESSELLATION=Тесселяция
+option.WATER_TESSELLATION_QUALITY=Тесселяция
 
 option.WATER_DEPTH_LAYERS=Плотность Слоёв
 

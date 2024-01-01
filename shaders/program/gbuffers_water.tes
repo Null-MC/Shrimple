@@ -143,7 +143,7 @@ void main() {
     vOut.atlasBounds = vIn[0].atlasBounds;
 
     if (vIn[0].blockId == BLOCK_WATER) {
-        #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
+        #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0
             // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
             //     gl_Position = vec4(-1.0);
             //     return;
@@ -211,7 +211,7 @@ void main() {
         #endif
     #endif
 
-    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
+    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0) || DISPLACE_MODE == DISPLACE_TESSELATION
         #if DISPLACE_MODE != DISPLACE_TESSELATION
             if (vOut.blockId == BLOCK_WATER) {
         #endif

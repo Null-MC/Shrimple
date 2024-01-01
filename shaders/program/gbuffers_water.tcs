@@ -145,7 +145,7 @@ void main() {
             maxQuality = MATERIAL_TESSELLATION_QUALITY;
         #endif
 
-        #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION
+        #if defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0
             if (vIn[0].blockId == BLOCK_WATER)
                 maxQuality = MAX_TESS_LEVEL;
         #endif

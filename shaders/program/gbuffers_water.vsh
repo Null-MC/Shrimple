@@ -160,7 +160,7 @@ void main() {
 
     vec4 viewPos = BasicVertex();
 
-    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION) || DISPLACE_MODE == DISPLACE_TESSELATION
+    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0) || DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = viewPos;
         
         #if DISPLACE_MODE != DISPLACE_TESSELATION

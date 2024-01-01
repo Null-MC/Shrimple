@@ -117,7 +117,8 @@ suffix.WATER_FOG_DENSITY=%
 
 option.WATER_CAUSTICS=Caustics
 
-option.WATER_TESSELLATION=Tessellation
+option.WATER_TESSELLATION_QUALITY=Tessellation Quality
+value.WATER_TESSELLATION_QUALITY.0=OFF
 
 option.WATER_DEPTH_LAYERS=Depth Layers
 
