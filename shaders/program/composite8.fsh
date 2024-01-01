@@ -480,7 +480,7 @@ layout(location = 0) out vec4 outFinal;
                 const float metal_f0 = 0.04;
             #endif
 
-            #if defined SHADOW_BLUR && !defined TAA_ENABLED
+            #if defined SHADOW_BLUR && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
                     deferredShadow.rgb = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);

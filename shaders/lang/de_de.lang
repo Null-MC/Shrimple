@@ -547,8 +547,8 @@ option.EFFECT_BLOOM_THRESHOLD=Schwelle
 option.EFFECT_BLOOM_THRESHOLD.comment=Der Helligkeitsschwellenwert des Lichts muss überschritten werden, um zur Blüte beizutragen.
 suffix.EFFECT_BLOOM_THRESHOLD=%
 
-option.FXAA_ENABLED=FXAA
-option.FXAA_ENABLED.comment=Ermöglicht ein schnelles, aber minderwertiges Anti-Aliasing.
+option.EFFECT_FXAA_ENABLED=FXAA
+option.EFFECT_FXAA_ENABLED.comment=Ermöglicht ein schnelles, aber minderwertiges Anti-Aliasing.
 
 
 screen.DEBUG_OPTIONS=Shrimple

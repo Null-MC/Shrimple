@@ -263,7 +263,7 @@ uniform float blindnessSmooth;
 #endif
 
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
         /* RENDERTARGETS: 15,7 */
     #else
@@ -277,7 +277,7 @@ uniform float blindnessSmooth;
     #endif
 #endif
 layout(location = 0) out vec4 outFinal;
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     layout(location = 1) out vec4 outVelocity;
 #endif
 
@@ -462,7 +462,7 @@ void main() {
 
     outFinal = color;
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         outVelocity = vec4(vec3(0.0), 1.0);
     #endif
 }

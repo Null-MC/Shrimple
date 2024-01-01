@@ -78,7 +78,7 @@ uniform int frameCounter;
     #endif
 #endif
 
-#ifdef FXAA_ENABLED
+#ifdef EFFECT_FXAA_ENABLED
 	#include "/lib/post/fxaa.glsl"
 #endif
 
@@ -130,7 +130,7 @@ void main() {
 			color = vec3(depth);
 		}
 	#else
-		#ifdef FXAA_ENABLED
+		#ifdef EFFECT_FXAA_ENABLED
 			vec3 color = FXAA(texcoord);
 		#else
 			vec3 color = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).rgb;

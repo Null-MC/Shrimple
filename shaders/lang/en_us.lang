@@ -586,11 +586,11 @@ screen.EFFECT_OPTIONS=Effects
 option.EFFECT_AUTO_EXPOSE=Auto-Exposure
 option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
-option.TAA_ENABLED=TAA
-option.TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghosting/trailing with moving objects.
+option.EFFECT_TAA_ENABLED=TAA
+option.EFFECT_TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghosting/trailing with moving objects.
 
-option.FXAA_ENABLED=FXAA
-option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
+option.EFFECT_FXAA_ENABLED=FXAA
+option.EFFECT_FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
 
 
 screen.EFFECT_BLOOM_OPTIONS=Bloom

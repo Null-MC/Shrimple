@@ -23,7 +23,7 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
     
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         vec3 velocity;
     #endif
 
@@ -88,7 +88,7 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform float frameTime;
     uniform int frameCounter;
     uniform vec2 pixelSize;
@@ -142,7 +142,7 @@ uniform ivec2 atlasSize;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -154,7 +154,7 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         vOut.velocity = vec3(0.0);
     #endif
 
@@ -182,7 +182,7 @@ void main() {
     #else
         gl_Position = gl_ProjectionMatrix * viewPos;
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             jitter(gl_Position);
         #endif
     #endif

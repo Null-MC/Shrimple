@@ -152,7 +152,7 @@ layout(location = 1) out vec4 outFinalPrev;
 layout(location = 2) out float outDepthPrev;
 
 void main() {
-    float TAA_MaxFrameAccum = 30.0;
+    //float TAA_MaxFrameAccum = EFFECT_TAA_MAX_ACCUM;
     //TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
 
     vec2 uvNow = texcoord;
@@ -181,10 +181,11 @@ void main() {
     vec2 uvPrev = clipPosPrev.xy;
 
     vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
-    float counter = clamp(colorPrev.a, 0.0, TAA_MaxFrameAccum);
+    float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
-    counter *= 1.0 - 0.5*velocity.w;
+    //counter *= 1.0 - 0.5*velocity.w;
+    if (velocity.w > 0.5) counter = min(counter, 4);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);

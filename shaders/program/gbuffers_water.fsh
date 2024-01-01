@@ -367,7 +367,7 @@ uniform int heldBlockLightValue2;
 
 
 #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 1,2,3,7,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
@@ -386,7 +386,7 @@ uniform int heldBlockLightValue2;
         #endif
     #endif
 #else
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 0,7 */
         layout(location = 0) out vec4 outFinal;
         layout(location = 1) out vec4 outVelocity;
@@ -793,7 +793,7 @@ void main() {
         outFinal = color;
     #endif
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         outVelocity = vec4(vec3(0.0), vIn.blockId == BLOCK_WATER ? 1.0 : 0.0);
     #endif
 }

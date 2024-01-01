@@ -36,7 +36,7 @@
     #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #ifdef TAA_ENABLED
+            #ifdef EFFECT_TAA_ENABLED
                 float dither = InterleavedGradientNoiseTime();
             #else
                 float dither = InterleavedGradientNoise();

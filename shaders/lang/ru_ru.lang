@@ -650,8 +650,8 @@ value.POST_TONEMAP.2=ACES
 value.POST_TONEMAP.3=Heijl
 value.POST_TONEMAP.4=Lottes
 
-option.FXAA_ENABLED=FXAA Сглаживание
-option.FXAA_ENABLED.comment=Включает быстрое, но низкокачественное FXAA сглаживание.
+option.EFFECT_FXAA_ENABLED=FXAA Сглаживание
+option.EFFECT_FXAA_ENABLED.comment=Включает быстрое, но низкокачественное FXAA сглаживание.
 
 option.POST_WHITE_POINT=Белая-Точка
 suffix.POST_WHITE_POINT=%

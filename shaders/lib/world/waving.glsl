@@ -103,7 +103,7 @@ void ApplyWavingOffset(inout vec3 vertexPos, const in vec3 localPos, const in in
     float time = GetAnimationFactor();
     vec3 offset = waving_fbm(worldPos, time / 3.6);
 
-    #if defined TAA_ENABLED && defined RENDER_TERRAIN
+    #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
         float timePrev = time - frameTime;
         vec3 offsetPrev = waving_fbm(worldPos, timePrev / 3.6);
     #endif
@@ -122,14 +122,14 @@ void ApplyWavingOffset(inout vec3 vertexPos, const in vec3 localPos, const in in
         float baseOffset = -at_midBlock.y / 64.0 + attachOffset;
         offset *= saturate(baseOffset);
 
-        #if defined TAA_ENABLED && defined RENDER_TERRAIN
+        #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
             offsetPrev *= saturate(baseOffset);
         #endif
     }
 
     vertexPos += offset;
 
-    #if defined TAA_ENABLED && defined RENDER_TERRAIN
+    #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
         vOut.velocity += offset - offsetPrev;
     #endif
 }

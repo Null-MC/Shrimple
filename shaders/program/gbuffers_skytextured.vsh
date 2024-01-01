@@ -8,7 +8,7 @@
 varying vec2 texcoord;
 varying vec4 glcolor;
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
 	uniform vec2 pixelSize;
 
@@ -21,7 +21,7 @@ void main() {
 	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 	glcolor = gl_Color;
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
     #endif
 }

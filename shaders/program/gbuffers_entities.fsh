@@ -326,7 +326,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 1,2,3,7,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
@@ -345,7 +345,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
     #endif
 #else
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 0,7 */
         layout(location = 0) out vec4 outFinal;
         layout(location = 1) out vec4 outVelocity;
@@ -545,7 +545,7 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             outVelocity = vec4(vec3(0.0), 1.0);
         #endif
 
@@ -645,7 +645,7 @@ void main() {
 
         outFinal = color;
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             outVelocity = vec4(vec3(0.0), 1.0);
         #endif
     #endif

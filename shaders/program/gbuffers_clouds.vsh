@@ -45,7 +45,7 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
@@ -71,7 +71,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/lighting/common.glsl"
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -84,7 +84,7 @@ void main() {
         vec4 viewPos = BasicVertex();
         gl_Position = gl_ProjectionMatrix * viewPos;
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             jitter(gl_Position);
         #endif
     #else

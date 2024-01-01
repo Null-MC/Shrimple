@@ -24,7 +24,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
 #endif
 
@@ -32,7 +32,7 @@ uniform vec2 pixelSize;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -64,7 +64,7 @@ void main() {
         vLocalPos = (gbufferModelViewInverse * vec4(vLocalPos, 1.0)).xyz;
     #endif
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
     #endif
 }

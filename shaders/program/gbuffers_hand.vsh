@@ -75,7 +75,7 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
@@ -114,7 +114,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -147,7 +147,7 @@ void main() {
     #if DISPLACE_MODE != DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * viewPos;
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             jitter(gl_Position);
         #endif
     #else

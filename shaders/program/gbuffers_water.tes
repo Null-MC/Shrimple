@@ -100,7 +100,7 @@ uniform mat4 gbufferModelView;
     #endif
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
@@ -121,7 +121,7 @@ uniform mat4 gbufferModelView;
     #include "/lib/sampling/atlas.glsl"
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -217,7 +217,7 @@ void main() {
         #endif
             gl_Position = gl_ProjectionMatrix * gl_Position;
 
-            #ifdef TAA_ENABLED
+            #ifdef EFFECT_TAA_ENABLED
                 jitter(gl_Position);
             #endif
         #if DISPLACE_MODE != DISPLACE_TESSELATION

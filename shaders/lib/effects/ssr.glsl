@@ -28,7 +28,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     vec3 screenRay = clipRay / screenRayLength;
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         float dither = InterleavedGradientNoiseTime();
     #else
         float dither = InterleavedGradientNoise();

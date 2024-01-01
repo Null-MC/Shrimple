@@ -435,7 +435,7 @@ layout(location = 0) out vec4 outFinal;
                 const float porosity = 0.0;
             #endif
 
-            #if defined SHADOW_BLUR && !defined TAA_ENABLED
+            #if defined SHADOW_BLUR && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(3.0, 3.0, 0.25);
                     vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, linearDepthOpaque, shadowSigma);

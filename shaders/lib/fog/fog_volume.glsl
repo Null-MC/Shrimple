@@ -58,7 +58,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         VolumetricPhaseFactors phaseF = GetVolumetricPhaseFactors();
     #endif
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         float dither = InterleavedGradientNoiseTime();
     #else
         float dither = InterleavedGradientNoise();

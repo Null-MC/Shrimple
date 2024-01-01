@@ -34,7 +34,7 @@ vec4 BasicVertex() {
                 float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time);
                 pos.y += waveOffset;
 
-                #if defined TAA_ENABLED && defined RENDER_TERRAIN
+                #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
                     float timePrev = time - frameTime;
                     float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, timePrev);
                     vOut.velocity.y += waveOffset - waveOffsetPrev;

@@ -73,7 +73,7 @@ uniform ivec2 atlasSize;
     uniform vec3 eyePosition;
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform vec2 pixelSize;
     uniform int frameCounter;
 #endif
@@ -114,7 +114,7 @@ uniform ivec2 atlasSize;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -146,7 +146,7 @@ void main() {
         #endif
     #endif
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
     #endif
 }

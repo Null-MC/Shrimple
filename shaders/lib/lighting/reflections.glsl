@@ -70,7 +70,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
     vec3 reflectAccum = vec3(0.0);
     #if REFLECTION_ROUGH_SCATTER > 0
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             vec3 seed = vec3(gl_FragCoord.xy, 1.0 + frameCounter);
         #else
             vec3 seed = vec3(gl_FragCoord.xy, 1.0);
