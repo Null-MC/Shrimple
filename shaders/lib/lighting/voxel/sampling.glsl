@@ -192,7 +192,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             #endif
 
             //accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
-            accumDiffuse += SampleLightDiffuse(lightNoVm, diffuseNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
+            accumDiffuse += invPI * SampleLightDiffuse(lightNoVm, diffuseNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                 // #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
