@@ -21,7 +21,11 @@ in VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
-    
+        
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
+
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
     #endif
@@ -59,6 +63,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -101,6 +109,10 @@ void main() {
     vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
+
+    #ifdef EFFECT_TAA_ENABLED
+        vOut[gl_InvocationID].velocity = vIn[gl_InvocationID].velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vOut[gl_InvocationID].surfacePos = vIn[gl_InvocationID].surfacePos;

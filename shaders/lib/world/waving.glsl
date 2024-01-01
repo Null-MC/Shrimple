@@ -1,9 +1,9 @@
 const float wavingScale = 8.0;
 const float wavingHeight = 0.6;
 
-vec3 waving_fbm(const in vec3 worldPos) {
+vec3 waving_fbm(const in vec3 worldPos, const in float time) {
     vec2 position = worldPos.xz * rcp(wavingScale);
-    float time = GetAnimationFactor() / 3.6;
+    // float time = GetAnimationFactor() / 3.6;
 
     float iter = 0.0;
     float frequency = 3.0;
@@ -94,20 +94,19 @@ float GetWavingRange(const in int blockId, out uint attachment) {
     return range;
 }
 
-void ApplyWavingOffset(inout vec3 position, const in int blockId) {
+void ApplyWavingOffset(inout vec3 vertexPos, const in vec3 localPos, const in int blockId) {
     uint attachment;
     float range = GetWavingRange(blockId, attachment);
     if (range < EPSILON) return;
 
-    #if defined RENDER_SHADOW
-        vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
-        vec3 worldPos = localPos + cameraPosition;
-    #else
-        vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
-        vec3 worldPos = localPos + cameraPosition;
-    #endif
+    vec3 worldPos = localPos + cameraPosition;
+    float time = GetAnimationFactor();
+    vec3 offset = waving_fbm(worldPos, time / 3.6);
 
-    vec3 offset = waving_fbm(worldPos);
+    #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
+        float timePrev = time - frameTime;
+        vec3 offsetPrev = waving_fbm(worldPos, timePrev / 3.6);
+    #endif
 
     if (attachment != 0) {
         float attachOffset = 0.0;
@@ -122,7 +121,15 @@ void ApplyWavingOffset(inout vec3 position, const in int blockId) {
 
         float baseOffset = -at_midBlock.y / 64.0 + attachOffset;
         offset *= saturate(baseOffset);
+
+        #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
+            offsetPrev *= saturate(baseOffset);
+        #endif
     }
 
-    position += offset;
+    vertexPos += offset;
+
+    #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
+        vOut.velocity += offset - offsetPrev;
+    #endif
 }

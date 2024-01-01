@@ -11,8 +11,6 @@ const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
 const int colortex6Format  = R16F;
 const int colortex7Format  = RGBA16F;
-const int colortex8Format  = RGB8;
-const int colortex9Format  = R32F;
 const int colortex10Format = RGBA16F;
 const int colortex11Format = RGBA16F;
 const int colortex12Format = RGB16F;
@@ -52,13 +50,13 @@ const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex6Clear = false;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
-const bool colortex7Clear = false;
+const bool colortex7Clear = true;
 
 const vec4 colortex8ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex8Clear = false;
+const bool colortex8Clear = true;
 
 const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex9Clear = false;
+const bool colortex9Clear = true;
 
 const vec4 colortex10ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex10Clear = true;
@@ -67,7 +65,7 @@ const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex11Clear = false;
 
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex12Clear = false;
+const bool colortex12Clear = true;
 
 const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
 const bool colortex13Clear = true;
@@ -148,6 +146,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define MATERIAL_OCCLUSION 1 // [0 1 2]
 #define METAL_BRIGHTNESS 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define MATERIAL_HCM_ALBEDO_TINT
 #define MATERIAL_PARTICLES
 #define MATERIAL_TESSELLATION_QUALITY 24 // [4 6 8 12 16 20 24 28 32 40 48 56 64]
 #define MATERIAL_TESSELLATION_EDGE_FADE
@@ -159,7 +158,6 @@ const bool colortex15Clear = true;
 
 #define MATERIAL_REFLECTIONS 2 // [0 1 2]
 #define MATERIAL_REFLECT_STRENGTH 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define ROUGH_REFLECT_SAMPLES 2 // [1 2 3]
 //#define MATERIAL_REFLECT_CLOUDS
 //#define MATERIAL_REFLECT_HIZ
 //#define MATERIAL_REFLECT_GLASS
@@ -213,8 +211,7 @@ const bool colortex15Clear = true;
 // Traced Lighting
 #define LIGHTING_TRACE_RES 1 // [2 1 0]
 #define LIGHTING_TRACE_PENUMBRA 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define LIGHTING_TRACE_TEMP_ACCUM 85 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define LIGHTING_TRACE_SAMPLE_MAX 16 // [0 2 4 8 12 16 24 32 48 64 96 128]
+#define LIGHTING_TRACE_SAMPLE_MAX 0 // [0 2 4 8 12 16 24 32 48 64 96 128]
 #define LIGHTING_TRACED_PLAYER_SHADOW 2 // [0 1 2]
 //#define LIGHTING_TRACE_FILTER
 #define LIGHT_BIN_MAX_COUNT 128 // [16 32 48 64 96 128 160 192 224 256 320 384 448 512]
@@ -279,7 +276,7 @@ const bool colortex15Clear = true;
 #define EFFECT_BLUR_TYPE 0 // [0 1 2]
 #define EFFECT_BLUR_SAMPLE_COUNT 8 // [2 4 8 12 16 20 24 28 32]
 #define EFFECT_BLUR_MAX_RADIUS 4 // [2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26 28 30 32]
-#define EFFECT_BLUR_FAR_POW 1.2
+#define EFFECT_BLUR_FAR_POW 1.0
 #define EFFECT_BLUR_DOF_FOCUS_SCALE 40 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define EFFECT_BLUR_BLINDNESS
 #define EFFECT_BLUR_BLINDNESS_SCALE 6.0
@@ -293,21 +290,24 @@ const bool colortex15Clear = true;
 
 //#define EFFECT_AUTO_EXPOSE
 
+#define EFFECT_TAA_ENABLED
+#define EFFECT_TAA_MAX_ACCUM 30 // [8 16 30 60]
+
+//#define EFFECT_FXAA_ENABLED
+
 
 // Post-Processing
 #define POST_TONEMAP 4 // [0 1 2 3 4]
-#define FXAA_ENABLED
 #define POST_BRIGHTNESS 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [0.6 0.8 1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.4 3.8 4.2 4.6 5.0 6.0 7.0 8.0]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
 #define POST_EXPOSURE -0.6 // [-4.0 -3.0 -2.5 -2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.4 -0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 4.0]
-//#define TAA_ENABLED
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
@@ -530,7 +530,6 @@ const float DynamicLightAmbientF = LIGHTING_AMBIENT * 0.01;
 const float DynamicLightTintF = LIGHTING_TINT_STRENGTH * 0.01;
 const float DynamicLightPenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
 const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
-const float DynamicLightTemporalStrength = LIGHTING_TRACE_TEMP_ACCUM * 0.01;
 const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);

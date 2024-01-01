@@ -50,7 +50,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         }
     #endif
 
-    #if LIGHTING_TRACE_SAMPLE_MAX > 0 //&& LIGHTING_TRACE_TEMP_ACCUM > 0
+    #if LIGHTING_TRACE_SAMPLE_MAX > 0
         const int MaxSampleCount = min(LIGHTING_TRACE_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
     #else
         const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;

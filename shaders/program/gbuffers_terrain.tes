@@ -19,6 +19,10 @@ in VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -57,6 +61,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vec3 surfacePos;
@@ -89,9 +97,14 @@ out VertexData {
 
     uniform mat4 gbufferModelView;
 
+    #ifdef EFFECT_TAA_ENABLED
+        uniform vec2 pixelSize;
+        uniform int frameCounter;
+    #endif
+
     #include "/lib/sampling/atlas.glsl"
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         #include "/lib/effects/taa.glsl"
     #endif
 #endif
@@ -112,6 +125,10 @@ void main() {
 
     vOut.blockId = vIn[0].blockId;
     vOut.atlasBounds = vIn[0].atlasBounds;
+
+    #ifdef EFFECT_TAA_ENABLED
+        vOut.velocity = _interpolate(vIn[0].velocity, vIn[1].velocity, vIn[2].velocity);
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vOut.surfacePos = vOut.localPos;
@@ -151,7 +168,7 @@ void main() {
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;
         
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             jitter(gl_Position);
         #endif
     #endif

@@ -311,16 +311,33 @@ uniform ivec2 eyeBrightnessSmooth;
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    /* RENDERTARGETS: 1,2,3,14 */
-    layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 3) out vec4 outDeferredRough;
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 1,2,3,7,14 */
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 3) out vec4 outVelocity;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            layout(location = 4) out vec4 outDeferredRough;
+        #endif
+    #else
+        /* RENDERTARGETS: 1,2,3,14 */
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            layout(location = 3) out vec4 outDeferredRough;
+        #endif
     #endif
 #else
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 0) out vec4 outFinal;
+        layout(location = 1) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 0 */
+        layout(location = 0) out vec4 outFinal;
+    #endif
 #endif
 
 void main() {
@@ -545,5 +562,9 @@ void main() {
         #endif
 
         outFinal = color;
+    #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(vec3(0.0), 1.0);
     #endif
 }

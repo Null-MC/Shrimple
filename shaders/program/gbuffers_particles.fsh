@@ -345,21 +345,44 @@ uniform ivec2 eyeBrightnessSmooth;
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    #ifdef DEFERRED_PARTICLES
-        /* RENDERTARGETS: 1,2,3,14 */
-        layout(location = 0) out vec4 outDeferredColor;
-        layout(location = 1) out vec4 outDeferredShadow;
-        layout(location = 2) out uvec4 outDeferredData;
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            layout(location = 3) out vec4 outDeferredRough;
+    #ifdef EFFECT_TAA_ENABLED
+        #ifdef DEFERRED_PARTICLES
+            /* RENDERTARGETS: 1,2,3,7,14 */
+            layout(location = 0) out vec4 outDeferredColor;
+            layout(location = 1) out vec4 outDeferredShadow;
+            layout(location = 2) out uvec4 outDeferredData;
+            layout(location = 3) out vec4 outVelocity;
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                layout(location = 4) out vec4 outDeferredRough;
+            #endif
+        #else
+            /* RENDERTARGETS: 7,15 */
+            layout(location = 0) out vec4 outVelocity;
+            layout(location = 1) out vec4 outFinal;
         #endif
     #else
-        /* RENDERTARGETS: 15 */
-        layout(location = 0) out vec4 outFinal;
+        #ifdef DEFERRED_PARTICLES
+            /* RENDERTARGETS: 1,2,3,14 */
+            layout(location = 0) out vec4 outDeferredColor;
+            layout(location = 1) out vec4 outDeferredShadow;
+            layout(location = 2) out uvec4 outDeferredData;
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                layout(location = 3) out vec4 outDeferredRough;
+            #endif
+        #else
+            /* RENDERTARGETS: 15 */
+            layout(location = 0) out vec4 outFinal;
+        #endif
     #endif
 #else
-    /* RENDERTARGETS: 0 */
-    layout(location = 0) out vec4 outFinal;
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 0) out vec4 outFinal;
+        layout(location = 1) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 0 */
+        layout(location = 0) out vec4 outFinal;
+    #endif
 #endif
 
 void main() {
@@ -448,6 +471,10 @@ void main() {
             packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither),
             packUnorm4x8(vec4(fogColor, fogF + dither)),
             packUnorm4x8(vec4(texNormal, 1.0)));
+
+        #ifdef EFFECT_TAA_ENABLED
+            outVelocity = vec4(vec3(0.0), 1.0);
+        #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
@@ -577,5 +604,9 @@ void main() {
         #endif
 
         outFinal = color;
+
+        #ifdef EFFECT_TAA_ENABLED
+            outVelocity = vec4(vec3(0.0), 1.0);
+        #endif
     #endif
 }

@@ -25,8 +25,10 @@
     vec3 WorldSkyLightColor;                 // 12
     //vec3 WeatherSkyLightColor;             // 12
 
+    //mat4 gbufferModelViewProjection;         // 64
     mat4 gbufferModelViewProjectionInverse;  // 64
     mat4 gbufferPreviousModelViewProjection; // 64
+    //mat4 gbufferPreviousModelViewProjectionInverse; // 64
     mat4 shadowModelViewEx;                  // 64
     mat4 shadowProjectionEx;                 // 64
 

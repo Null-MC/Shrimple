@@ -28,7 +28,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     #ifdef SHADOW_COLORED
         vec3 GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
             #ifdef RENDER_FRAG
-                #ifdef TAA_ENABLED
+                #ifdef EFFECT_TAA_ENABLED
                     float dither = InterleavedGradientNoiseTime();
                 #else
                     float dither = InterleavedGradientNoise();
@@ -72,7 +72,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     #else
         float GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
             #ifdef RENDER_FRAG
-                #ifdef TAA_ENABLED
+                #ifdef EFFECT_TAA_ENABLED
                     float dither = InterleavedGradientNoiseTime();
                 #else
                     float dither = InterleavedGradientNoise();
@@ -118,7 +118,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     // PCF + PCSS
     float FindBlockerDistance(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
         #ifdef RENDER_FRAG
-            #ifdef TAA_ENABLED
+            #ifdef EFFECT_TAA_ENABLED
                 float dither = InterleavedGradientNoiseTime();
             #else
                 float dither = InterleavedGradientNoise();

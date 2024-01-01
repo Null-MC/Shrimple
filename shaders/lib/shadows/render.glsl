@@ -36,16 +36,16 @@
     #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #ifdef TAA_ENABLED
+            #ifdef EFFECT_TAA_ENABLED
                 float dither = InterleavedGradientNoiseTime();
             #else
-                float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+                float dither = InterleavedGradientNoise();
             #endif
 
             // float bias = sss * dither;
 
             vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
-            sssOffset *= sss * dither * MATERIAL_SSS_SCATTER;
+            sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
             float bias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / (3.0 * far);
 
@@ -66,7 +66,7 @@
                 }
             #else
                 vec3 _shadowPos = vIn.shadowPos;
-                _shadowPos.xy += (shadowDistance*2.0 / shadowMapResolution) * sssOffset;
+                _shadowPos.xy += (shadowDistance / shadowMapResolution) * sssOffset;
                 //_shadowPos.z -= bias;
 
                 // _shadowPos = distort(_shadowPos) * 0.5 + 0.5;

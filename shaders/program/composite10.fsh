@@ -10,7 +10,9 @@ in vec2 texcoord;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_FINAL_PREV;
 uniform sampler2D BUFFER_DEPTH_PREV;
+uniform sampler2D BUFFER_VELOCITY;
 uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
 uniform vec3 cameraPosition;
@@ -30,9 +32,8 @@ uniform float far;
 #include "/lib/effects/taa.glsl"
 
 
-vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
+vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-    //clipPos.xy -= 0.25*getJitterOffset(frameCounter);
 
     #ifdef IRIS_FEATURE_SSBO
         vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
@@ -41,19 +42,16 @@ vec2 getReprojectedUV(const in vec2 texcoord, const in float depthNow) {
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
     #endif
 
-    vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+    vec3 localPosPrev = localPos - velocity + cameraPosition - previousCameraPosition;
 
     #ifdef IRIS_FEATURE_SSBO
-        vec4 clipPosPrev = gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0);
+        vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
     #else
-        vec4 viewPosPrev = gbufferPreviousModelView * vec4(localPosPrev, 1.0);
-        vec4 clipPosPrev = gbufferPreviousProjection * viewPosPrev;
+        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
     #endif
 
-    clipPosPrev.xyz /= clipPosPrev.w;
-    //clipPosPrev.xy -= 0.25*getJitterOffset(frameCounter-1);
-
-    return clipPosPrev.xy * 0.5 + 0.5;
+    return clipPosPrev * 0.5 + 0.5;
 }
 
 void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
@@ -92,29 +90,19 @@ float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
     return max(1.0 - 2.0*luminance(diff), 0.0);
 }
 
-float neighborDepthTest(const in float depthPrevL, const in vec2 texcoord) {
-    float minDepth = 1.0;
-    float maxDepth = 0.0;
+void getNeighborDepthRange(const in vec2 texcoord, out float depthMin, out float depthMax) {
+    depthMin = 1.0;
+    depthMax = 0.0;
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
             float sampleDepth = textureLod(depthtex0, sampleCoord, 0).r;
 
-            // ivec2 sampleCoord = ivec2(gl_FragCoord.xy) + ivec2(x, y);
-            // float sampleDepth = texelFetch(depthtex0, sampleCoord, 0).r;
-
-            minDepth = min(minDepth, sampleDepth);
-            maxDepth = max(maxDepth, sampleDepth);
+            depthMin = min(depthMin, sampleDepth);
+            depthMax = max(depthMax, sampleDepth);
         }
     }
-
-    minDepth = linearizeDepthFast(minDepth, near, far) - 0.1;
-    maxDepth = linearizeDepthFast(maxDepth, near, far) + 0.1;
-    
-    // return step(minDepth, depthPrevL) * step(depthPrevL, maxDepth);
-    float dist = max(minDepth - depthPrevL, 0.0) + max(depthPrevL - maxDepth, 0.0);
-    return max(1.0 - _pow2(2.0*dist), 0.0);
 }
 
 vec4 sampleHistoryCatmullRom(const in vec2 uv) {
@@ -164,49 +152,65 @@ layout(location = 1) out vec4 outFinalPrev;
 layout(location = 2) out float outDepthPrev;
 
 void main() {
-    float TAA_MaxFrameAccum = 30.0;
-    TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
+    //float TAA_MaxFrameAccum = EFFECT_TAA_MAX_ACCUM;
+    //TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
 
     vec2 uvNow = texcoord;
     //vec2 offset = getJitterOffset(frameCounter);
 
     float depthNow = textureLod(depthtex0, uvNow, 0).r;
+
+    float depthNowTrans = textureLod(depthtex1, uvNow, 0).r;
     float depthNowHand = textureLod(depthtex2, uvNow, 0).r;
-    bool isHand = abs(depthNow - depthNowHand) > EPSILON;
+    bool isHand = abs(depthNowTrans - depthNowHand) > EPSILON;
 
-    if (isHand) {
-        depthNow = depthNow * 2.0 - 1.0;
-        depthNow /= MC_HAND_DEPTH;
-        depthNow = depthNow * 0.5 + 0.5;
+    // if (isHand) {
+    //     depthNow = depthNow * 2.0 - 1.0;
+    //     depthNow /= MC_HAND_DEPTH;
+    //     depthNow = depthNow * 0.5 + 0.5;
 
-        uvNow += 0.5*getJitterOffset(frameCounter);
-    }
+    //     uvNow += 0.5*getJitterOffset(frameCounter);
+    // }
+
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
+    vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
-    //uvNow += offset*0.5;
-    vec2 uvPrev = getReprojectedUV(uvNow, depthNow);
     float depthNowL = linearizeDepthFast(depthNow, near, far);
 
-    //vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
+    vec3 clipPosPrev = getReprojectedClipPos(uvNow, depthNow, velocity.xyz);
+    vec2 uvPrev = clipPosPrev.xy;
+
     vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
-    float counter = clamp(colorPrev.a, 0.0, TAA_MaxFrameAccum);
+    float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
+
+    //counter *= 1.0 - 0.5*velocity.w;
+    if (velocity.w > 0.5) counter = min(counter, 4);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
-    // uvPrev += getJitterOffset(frameCounter);
-    // uvPrev -= getJitterOffset(frameCounter-1);
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
-    counter *= neighborDepthTest(depthPrevL, uvNow);
+
+    float depthMin, depthMax;
+    getNeighborDepthRange(texcoord, depthMin, depthMax);
+    vec3 clipPosReproMin = getReprojectedClipPos(uvNow, depthMin, velocity.xyz);
+    vec3 clipPosReproMax = getReprojectedClipPos(uvNow, depthMax, velocity.xyz);
+    float reproDepthMin = linearizeDepthFast(clipPosReproMin.z, near, far);
+    float reproDepthMax = linearizeDepthFast(clipPosReproMax.z, near, far);
+
+    float depthTest = step(reproDepthMin - 0.2, depthPrevL) * step(depthPrevL, reproDepthMax + 0.2);
+    if (depthNow >= 1.0 && depthPrevL >= far * 0.99) depthTest = 1.0;
+    counter *= depthTest;
 
     counter = max(counter + 1.0, 1.0);
     float weight = 1.0 - rcp(counter);
 
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
-    //float depthFinal = mix(depthNowL, depthPrevL, weight);
+    float depthFinal = mix(depthNowL, depthPrevL, weight);
 
     outFinal = colorFinal;
+    //outFinal = vec3(1.0 - depthTest);
     outFinalPrev = vec4(colorFinal, counter);
-    outDepthPrev = depthNowL;
+    outDepthPrev = depthFinal;
 }

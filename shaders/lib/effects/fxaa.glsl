@@ -1,8 +1,9 @@
 #define FXAA_EDGE_THRESHOLD_MIN 0.0312
 #define FXAA_EDGE_THRESHOLD_MAX 0.125
-#define FXAA_QUALITY(q) ((q) < 5 ? 1.0 : ((q) > 5 ? ((q) < 10 ? 2.0 : ((q) < 11 ? 4.0 : 8.0)) : 1.5))
 #define FXAA_SUBPIXEL_QUALITY 0.9
 #define FXAA_ITERATIONS 12
+
+#define FXAA_QUALITY(q) ((q) < 5 ? 1.0 : ((q) > 5 ? ((q) < 10 ? 2.0 : ((q) < 11 ? 4.0 : 8.0)) : 1.5))
 
 
 float sampleLuma(const in vec2 uv) {

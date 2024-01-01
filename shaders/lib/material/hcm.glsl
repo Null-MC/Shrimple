@@ -157,15 +157,30 @@ bool IsMetal(const in float metal_f0) {
     #endif
 }
 
-vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
-    if (hcm < 0) return vec3(1.0);
-    //else if (hcm < 8) return IORToF0(ior_n[hcm]);
-    return albedo;
-}
+// vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
+//     if (hcm < 0) return vec3(1.0);
+//     //else if (hcm < 8) return IORToF0(ior_n[hcm]);
+
+//     #ifndef MATERIAL_HCM_ALBEDO_TINT
+//         if (hcm < 8) return vec3(1.0);
+//     #endif
+
+//     return albedo;
+// }
 
 vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        return IsMetal(metal_f0) ? albedo : vec3(1.0);
+
+        #ifndef MATERIAL_HCM_ALBEDO_TINT
+            int hcm = int(metal_f0 * 255.0 + 0.5) - 230;
+            //if (hcm < 0) return vec3(1.0);
+            if (hcm < 8) return vec3(1.0);
+        #else
+            if (!IsMetal(metal_f0)) return vec3(1.0);
+        #endif
+
+        //return IsMetal(metal_f0) ? albedo : vec3(1.0);
+        return albedo;
     #else
         return mix(vec3(1.0), albedo, metal_f0);
     #endif

@@ -3,7 +3,11 @@
 
 
 mat2 GetBlurRotation() {
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    #ifdef EFFECT_TAA_ENABLED
+        float dither = InterleavedGradientNoiseTime();
+    #else
+        float dither = InterleavedGradientNoise();
+    #endif
 
     float angle = dither * TAU;
     float s = sin(angle), c = cos(angle);

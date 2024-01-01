@@ -73,6 +73,11 @@ uniform ivec2 atlasSize;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 pixelSize;
+    uniform int frameCounter;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/lighting.glsl"
@@ -109,6 +114,10 @@ uniform ivec2 atlasSize;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -135,5 +144,9 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
+    #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
     #endif
 }

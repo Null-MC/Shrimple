@@ -24,7 +24,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
 #endif
 
@@ -32,7 +32,7 @@ uniform vec2 pixelSize;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -56,15 +56,15 @@ void main() {
     if (gl_VertexID % 2 != 0) lineOffset = -lineOffset;
     gl_Position = vec4((ndc1 + vec3(lineOffset, 0.0)) * linePosStart.w, linePosStart.w);
 
-    #ifdef TAA_ENABLED
-        jitter(gl_Position);
-    #endif
-
     #ifdef IRIS_FEATURE_SSBO
         // TODO: Does this need perspective divide?
         vLocalPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
     #else
         vLocalPos = (gbufferProjectionInverse * gl_Position).xyz;
         vLocalPos = (gbufferModelViewInverse * vec4(vLocalPos, 1.0)).xyz;
+    #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
     #endif
 }

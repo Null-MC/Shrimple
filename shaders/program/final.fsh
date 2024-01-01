@@ -32,6 +32,8 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
+#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
+	uniform sampler2D BUFFER_VELOCITY;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 	uniform sampler2D shadowcolor0;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
@@ -76,8 +78,8 @@ uniform int frameCounter;
     #endif
 #endif
 
-#ifdef FXAA_ENABLED
-	#include "/lib/post/fxaa.glsl"
+#ifdef EFFECT_FXAA_ENABLED
+	#include "/lib/effects/fxaa.glsl"
 #endif
 
 
@@ -112,6 +114,9 @@ void main() {
 		vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
+		vec4 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0);
+		vec3 color = (velocity.xyz * 100.0 + 0.5) * (1.0 - velocity.w);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
@@ -125,7 +130,7 @@ void main() {
 			color = vec3(depth);
 		}
 	#else
-		#ifdef FXAA_ENABLED
+		#ifdef EFFECT_FXAA_ENABLED
 			vec3 color = FXAA(texcoord);
 		#else
 			vec3 color = texelFetch(colortex0, ivec2(gl_FragCoord.xy), 0).rgb;

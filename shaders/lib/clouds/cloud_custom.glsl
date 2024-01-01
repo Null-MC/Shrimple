@@ -109,7 +109,7 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     vec3 cloudNear = localViewDir * distMin;
     float farMax = min(distMax, far);
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         float dither = InterleavedGradientNoiseTime();
     #else
         float dither = InterleavedGradientNoise();
@@ -203,7 +203,7 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             cloudAbsorb *= scatterTransmit.a;
         }
 
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             float dither = InterleavedGradientNoiseTime();
         #else
             float dither = InterleavedGradientNoise();
@@ -307,7 +307,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudAbsorb = 1.0;
 
     if (cloudDist > EPSILON) {
-        #ifdef TAA_ENABLED
+        #ifdef EFFECT_TAA_ENABLED
             float dither = InterleavedGradientNoiseTime();
         #else
             float dither = InterleavedGradientNoise();

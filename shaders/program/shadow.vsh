@@ -118,7 +118,9 @@ void main() {
     vec4 pos = gl_Vertex;
 
     #ifdef WORLD_WAVING_ENABLED
-        ApplyWavingOffset(pos.xyz, blockId);
+        vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+
+        ApplyWavingOffset(pos.xyz, localPos, blockId);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
@@ -130,8 +132,9 @@ void main() {
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
                 vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
+                float time = GetAnimationFactor();
                 float skyLight = LightMapNorm(lmcoord).y;
-                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight);
+                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time);
             #endif
         }
     #endif

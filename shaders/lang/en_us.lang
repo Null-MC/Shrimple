@@ -233,6 +233,9 @@ screen.MATERIAL_SPECULAR_OPTIONS=Specular Map Options
 option.METAL_BRIGHTNESS=Metal Brightness
 suffix.METAL_BRIGHTNESS=%
 
+option.MATERIAL_HCM_ALBEDO_TINT=HCM Albedo Tint
+option.MATERIAL_HCM_ALBEDO_TINT.comment=Enables albedo-tinting for LabPBR hard-coded-metals. Usage varies with resource-pack.
+
 
 screen.MATERIAL_POROSITY_OPTIONS=Porosity Options
 screen.MATERIAL_POROSITY_OPTIONS.comment=Describes how much water is absorbed by each pixel of the surface.
@@ -271,9 +274,6 @@ option.MATERIAL_REFLECT_STRENGTH=Strength
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
 option.SSR_MAXSTEPS=SSR Max Step Count
-
-option.ROUGH_REFLECT_SAMPLES=Rough Samples
-option.ROUGH_REFLECT_SAMPLES.comment=How many samples/traces to use for rough reflections. Very expensive.
 
 option.MATERIAL_REFLECT_CLOUDS=Clouds
 option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections.
@@ -393,11 +393,6 @@ option.LIGHTING_TRACED_PLAYER_SHADOW=Player Shadow
 value.LIGHTING_TRACED_PLAYER_SHADOW.0=None
 value.LIGHTING_TRACED_PLAYER_SHADOW.1=Cuboid
 value.LIGHTING_TRACED_PLAYER_SHADOW.2=Cylinder
-
-option.LIGHTING_TRACE_TEMP_ACCUM=Temporal Accumulation
-option.LIGHTING_TRACE_TEMP_ACCUM.comment=When enabled, the lighting buffer will be blended across multiple frames to reduce soft-shadow noise.
-suffix.LIGHTING_TRACE_TEMP_ACCUM=%
-value.LIGHTING_TRACE_TEMP_ACCUM.0=OFF
 
 option.LIGHTING_FLICKER=Dynamic
 option.LIGHTING_FLICKER.comment=Allows light sources to have dynamic brightness/color; like torches, candles, fire, etc.
@@ -591,11 +586,8 @@ screen.EFFECT_OPTIONS=Effects
 option.EFFECT_AUTO_EXPOSE=Auto-Exposure
 option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
-option.TAA_ENABLED=TAA
-option.TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghosting/trailing with moving objects.
-
-option.FXAA_ENABLED=FXAA
-option.FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
+option.EFFECT_FXAA_ENABLED=FXAA
+option.EFFECT_FXAA_ENABLED.comment=Enables a fast but low-quality anti-aliasing.
 
 
 screen.EFFECT_BLOOM_OPTIONS=Bloom
@@ -650,6 +642,16 @@ option.EFFECT_SSAO_STRENGTH=Strength
 suffix.EFFECT_SSAO_STRENGTH=x
 
 
+screen.EFFECT_TAA_OPTIONS=TAA
+screen.EFFECT_TAA_OPTIONS.comment=Temporal Anti-Aliasing Options
+
+option.EFFECT_TAA_ENABLED=Enabled
+option.EFFECT_TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghosting/trailing with moving objects.
+
+option.EFFECT_TAA_MAX_ACCUM=Max Frames
+option.EFFECT_TAA_MAX_ACCUM.comment=The maximum number of frames that can be accumulated/combined.
+
+
 screen.POST_OPTIONS=Post-Processing
 
 option.POST_BRIGHTNESS=Brightness
@@ -697,10 +699,11 @@ value.DEBUG_VIEW.8=Deferred Rough/Metal
 value.DEBUG_VIEW.9=Deferred VL
 value.DEBUG_VIEW.10=Deferred Diffuse
 value.DEBUG_VIEW.11=Deferred Specular
-value.DEBUG_VIEW.12=Shadow Color
-value.DEBUG_VIEW.13=Bloom Tiles
-value.DEBUG_VIEW.14=Depth Tiles
-value.DEBUG_VIEW.15=White-World
+value.DEBUG_VIEW.12=Velocity
+value.DEBUG_VIEW.13=Shadow Color
+value.DEBUG_VIEW.14=Bloom Tiles
+value.DEBUG_VIEW.15=Depth Tiles
+value.DEBUG_VIEW.16=White-World
 
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 

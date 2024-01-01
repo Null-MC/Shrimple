@@ -67,7 +67,7 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 
@@ -204,7 +204,7 @@ void main() {
                 }
             //#endif
 
-            #if LPV_SIZE > 0 && (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
                 // if (!IsTraceEmptyBlock(vBlockId[0]))
                 //     SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
 

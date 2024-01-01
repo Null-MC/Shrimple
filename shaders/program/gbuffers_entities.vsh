@@ -75,7 +75,7 @@ uniform vec4 entityColor;
     uniform vec3 eyePosition;
 #endif
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     uniform vec2 pixelSize;
     uniform int frameCounter;
 #endif
@@ -121,7 +121,7 @@ uniform vec4 entityColor;
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
 
-#ifdef TAA_ENABLED
+#ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
@@ -136,7 +136,7 @@ void main() {
     vec4 viewPos = BasicVertex();
     gl_Position = gl_ProjectionMatrix * viewPos;
 
-    #ifdef TAA_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
     #endif
 
