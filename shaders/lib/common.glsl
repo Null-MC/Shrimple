@@ -290,10 +290,10 @@ const bool colortex15Clear = true;
 
 //#define EFFECT_AUTO_EXPOSE
 
-//#define EFFECT_TAA_ENABLED
+#define EFFECT_TAA_ENABLED
 #define EFFECT_TAA_MAX_ACCUM 30 // [8 16 30 60]
 
-#define EFFECT_FXAA_ENABLED
+//#define EFFECT_FXAA_ENABLED
 
 
 // Post-Processing
