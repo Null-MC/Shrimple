@@ -41,6 +41,10 @@ uniform int renderStage;
     uniform float alphaTestRef;
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec3 previousCameraPosition;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -61,8 +65,14 @@ uniform int renderStage;
 #endif
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outFinal;
+#ifdef EFFECT_TAA_ENABLED
+    /* RENDERTARGETS: 0,7 */
+    layout(location = 0) out vec4 outFinal;
+    layout(location = 1) out vec4 outVelocity;
+#else
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+#endif
 
 void main() {
     vec2 texcoord = gl_FragCoord.xy / viewSize;
@@ -131,4 +141,8 @@ void main() {
     #endif
     
     outFinal = final;
+
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(cameraPosition - previousCameraPosition, 0.0);
+    #endif
 }
