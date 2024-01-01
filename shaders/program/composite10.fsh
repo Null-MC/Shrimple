@@ -153,7 +153,7 @@ layout(location = 2) out float outDepthPrev;
 
 void main() {
     float TAA_MaxFrameAccum = 30.0;
-    TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
+    //TAA_MaxFrameAccum /= 1.0 + 100.0*_lengthSq(cameraPosition - previousCameraPosition);
 
     vec2 uvNow = texcoord;
     //vec2 offset = getJitterOffset(frameCounter);
