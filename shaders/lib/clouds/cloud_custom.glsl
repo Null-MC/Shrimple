@@ -3,7 +3,6 @@
 #define CLOUD_GROUND_SHADOW_STEPS 4
 #define CLOUD_REFLECT_STEPS 12
 #define CLOUD_REFLECT_SHADOW_STEPS 4
-//#define CLOUD_CUBED
 
 //const int CloudOctaves = 3;
 const int CloudMaxOctaves = 5;

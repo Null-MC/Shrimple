@@ -12,69 +12,57 @@
 void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     vec2 lmFinal = lmcoord;
 
-    // #if defined WORLD_SKY_ENABLED //&& !defined RENDER_SHADOWS_ENABLED
-    //     float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
-    //     //float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
+    #ifdef WORLD_SKY_ENABLED
+        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        //float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
-    //     float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
-    //     lmFinal.y *= skyNoLm * sunAngleRange + (1.0 - sunAngleRange);
-    // #endif
+        // #ifndef RENDER_SHADOWS_ENABLED
+        //     float sunAngleRange = (1.0 - DynamicLightAmbientF) * localSkyLightDirection.y;
+        //     lmFinal.y *= 1.0 - (1.0 - skyNoLm) * localSkyLightDirection.y * 0.5;// * sunAngleRange + (1.0 - sunAngleRange);
+        // #endif
+    #endif
 
     lmFinal = LightMapTex(lmFinal);
 
-    // #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 WorldSkyLightColor = GetSkyLightColor();
-        #endif
-    
-        float lightMax = 1.0;//rcp(max(lmcoord.x + lmcoord.y, 1.0));
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 WorldSkyLightColor = GetSkyLightColor();
+    #endif
 
-        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
-        lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness * lightMax;
-        lightmapBlock *= blackbody(LIGHTING_TEMP);
+    vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
+    lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness;
+    lightmapBlock *= blackbody(LIGHTING_TEMP);
 
-        vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
-        lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor * lightMax;
+    vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
+    lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor;
 
-        float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
+    float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
 
-        float ambientF = DynamicLightAmbientF;
-        ambientF *= max(dot(texNormal, localSkyLightDirection), 0.0) * 0.5 + 0.5;
-        //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
-        ambientF = 1.0 - (1.0 - ambientF) * horizonF;
+    float ambientF = DynamicLightAmbientF;
+    ambientF *= skyNoLm * 0.5 + 0.5;
+    //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
+    ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
-        vec3 ambientLight = vec3(ambientF);
+    vec3 ambientLight = vec3(ambientF * smootherstep(lmcoord.y));
 
-        if (any(greaterThan(abs(texNormal), EPSILON3)))
-            ambientLight *= (texNormal.y * 0.3 + 0.7);
+    // if (any(greaterThan(abs(texNormal), EPSILON3)))
+    //     ambientLight *= (texNormal.y * 0.3 + 0.7);
 
+    #ifdef RENDER_SHADOWS_ENABLED
         float viewDist = length(localPos);
-        float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-        shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
+        float shadowDistF = saturate(viewDist / shadowDistance);
+        shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
+        //shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
+    #endif
 
-        shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
+    shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
-        diffuse = lightmapBlock + lightmapSky * shadowColor;
-    // #else
-    //     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
-    //     lightmapColor = RGBToLinear(lightmapColor);
-
-    //     diffuse = lightmapColor;
-
-    //     float viewDist = length(localPos);
-    //     float shadowDistF = 1.0 - saturate(viewDist / shadowDistance);
-    //     diffuse *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
-    // #endif
+    diffuse = lightmapBlock + lightmapSky * shadowColor;
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
-        //vec3 surfacePos = localPos;
-        //surfacePos += 0.501 * localNormal;// * (1.0 - sss);
-
         vec3 lpvPos = GetLPVPosition(localPos);
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smoothstep(0.0, 1.0, lpvFade);
 
-        //vec3 voxelPos = GetVoxelBlockPosition(surfacePos);
         vec3 lpvLight = GetLpvAmbient(lpvPos, localNormal);
         diffuse += lpvLight * lpvFade;
     #endif
@@ -189,7 +177,7 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, c
         vec3 final = albedo;
     #endif
 
-	final *= (WorldMinLightF + diffuse) * occlusion + emission * MaterialEmissionF;
+	final *= (WorldMinLightF + diffuse) * _pow2(occlusion) + emission * MaterialEmissionF;
 	final += specular;
 
 	return final;

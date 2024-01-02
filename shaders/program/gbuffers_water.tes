@@ -186,7 +186,7 @@ void main() {
 
             gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
 
-            // TODO: update shadow pos
+            // TODO: is this really worth it?
             #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     vOut.shadowTile = -1;
