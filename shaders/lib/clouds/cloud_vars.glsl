@@ -5,7 +5,7 @@ const float CloudFar = 2000.0;//mix(800.0, far, skyRainStrength);
 
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
     const float CloudHeight = 128.0;
-    const float CloudSize = 32.0;
+    const float CloudSize = 24.0;
 #else
     const float CloudHeight = 4.0;
     const float CloudSize = 4.0;

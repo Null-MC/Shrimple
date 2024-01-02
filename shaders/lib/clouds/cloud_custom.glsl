@@ -218,8 +218,8 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
         // float VoL = dot(localSkyLightDirection, localViewDir);
         // float phase = DHG(VoL, -0.19, 0.824, 0.09);
 
-        float shadowStepLen = 2.0;
-        vec3 shadowStep = localSkyLightDirection * shadowStepLen;
+        // float shadowStepLen = 8.0;
+        // vec3 shadowStep = localSkyLightDirection * shadowStepLen;
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + traceStep * (stepI + dither);
@@ -228,6 +228,8 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
 
             float sampleLit = 1.0;
             for (int shadowI = 0; shadowI < shadowStepCount; shadowI++) {
+                float shadowStepLen = exp2(shadowI) * 4.0;
+                vec3 shadowStep = localSkyLightDirection * shadowStepLen;
                 vec3 shadowTracePos = tracePos + shadowStep * (shadowI + dither);
 
                 float shadowSampleD = SampleCloudOctaves(shadowTracePos + sampleOffset, CloudShadowOctaves);
