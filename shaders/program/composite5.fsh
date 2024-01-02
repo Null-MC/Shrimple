@@ -28,12 +28,12 @@ in vec2 texcoord;
         #endif
     #endif
 
-    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler2D BUFFER_VL;
     #endif
 
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             uniform sampler3D TEX_CLOUDS;
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
@@ -133,7 +133,7 @@ in vec2 texcoord;
             #include "/lib/clouds/cloud_vars.glsl"
         #endif
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
@@ -161,7 +161,7 @@ in vec2 texcoord;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #ifdef VOLUMETRIC_FILTER
             #include "/lib/sampling/bilateral_gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
@@ -460,7 +460,7 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 #ifdef VOLUMETRIC_FILTER
                     // const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
 
@@ -481,7 +481,7 @@ layout(location = 0) out vec4 outFinal;
                 final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
             #endif
 
-            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE <= CLOUDS_VANILLA
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 

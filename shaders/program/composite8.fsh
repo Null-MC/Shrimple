@@ -32,7 +32,7 @@ uniform sampler2D TEX_LIGHTMAP;
     //uniform sampler2D BUFFER_TA_SPECULAR;
 #endif
 
-#if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
     uniform sampler2D BUFFER_VL;
 #endif
 
@@ -47,7 +47,7 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -216,7 +216,7 @@ uniform int heldBlockLightValue2;
     
     #include "/lib/world/lightning.glsl"
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/lighting/hg.glsl"
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
@@ -272,7 +272,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
-#if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
     #ifdef VOLUMETRIC_FILTER
         #include "/lib/sampling/fog_filter.glsl"
     #endif
@@ -500,7 +500,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
-                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 // #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
@@ -1081,7 +1081,7 @@ layout(location = 0) out vec4 outFinal;
             final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && (!defined WORLD_SKY_ENABLED || SKY_CLOUD_TYPE != CLOUDS_CUSTOM)
+        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && (!defined WORLD_SKY_ENABLED || SKY_CLOUD_TYPE <= CLOUDS_VANILLA)
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif

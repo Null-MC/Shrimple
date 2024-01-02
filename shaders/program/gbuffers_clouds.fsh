@@ -363,7 +363,7 @@ void main() {
         // #else
 
         #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
             #else
                 float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);

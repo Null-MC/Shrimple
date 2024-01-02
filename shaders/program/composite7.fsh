@@ -36,8 +36,8 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -138,7 +138,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
     //#endif
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/clouds/cloud_custom.glsl"
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
@@ -269,7 +269,7 @@ void main() {
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             // if (depth >= 0.9999) {
             //     // vec3 cloudNear, cloudFar;
             //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
@@ -282,7 +282,7 @@ void main() {
         #endif
     
         bool hasVl = false;
-        // #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     hasVl = true;
         // #endif
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
@@ -295,7 +295,7 @@ void main() {
         if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
     #endif
 
-    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif

@@ -22,8 +22,8 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE == CLOUDS_CUSTOM) //&& defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+#if defined WORLD_SKY_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -194,7 +194,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/clouds/cloud_custom.glsl"
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
@@ -281,7 +281,7 @@ void main() {
             if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
         #endif
 
-        #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+        #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
             if (isEyeInWater == 1) {
                 final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }

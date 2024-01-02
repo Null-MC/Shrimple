@@ -126,7 +126,7 @@ void main() {
 
     #ifdef DH_COMPAT_ENABLED
         final.rgb = LinearToRGB(final.rgb);
-    #elif !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+    #elif !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 0) {
         #endif

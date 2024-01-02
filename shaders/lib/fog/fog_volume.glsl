@@ -118,7 +118,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //     vec3 skyLightColor = RGBToLinear(fogColor);
         // #endif
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
         #else
             float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
@@ -135,7 +135,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
             float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
@@ -305,7 +305,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             if (!isWater) {
                 sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
 
-                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     if (skyRainStrength > EPSILON) {
                         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
                         float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
@@ -407,7 +407,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
-                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
                     // vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
@@ -440,7 +440,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             sampleLit += sampleSkyPhase * sampleF * sampleColor;
         #endif
 
-        // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     if (skyRainStrength > EPSILON) {
         //         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
         //         float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);

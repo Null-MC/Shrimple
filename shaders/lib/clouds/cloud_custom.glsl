@@ -21,7 +21,7 @@ float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
 
         vec3 testPos = worldPos / CloudSize;
 
-        #ifdef CLOUD_CUBED
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
             testPos = floor(testPos);
         #endif
 
@@ -81,7 +81,7 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     // if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
     //     cloudDist = min(cloudDistFar, min(viewDist, far)) - cloudDistNear;
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
     #else
         float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);

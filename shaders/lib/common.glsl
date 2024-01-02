@@ -79,7 +79,7 @@ const bool colortex15Clear = true;
 
 // Sky Options
 #define SKY_TYPE 1 // [0 1]
-#define SKY_CLOUD_TYPE 1 // [0 1 2]
+#define SKY_CLOUD_TYPE 1 // [0 1 2 3]
 #define SKY_BORDER_FOG_ENABLED
 #define SKY_VOL_FOG_TYPE 1 // [0 1 2]
 #define SKY_FOG_SHAPE 0 // [0 1 2]
@@ -418,7 +418,7 @@ const bool colortex15Clear = true;
     #define PARALLAX_ENABLED
 #endif
 
-#if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY || (defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM)
+#if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY || (defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA)
     #define VL_BUFFER_ENABLED
 #endif
 

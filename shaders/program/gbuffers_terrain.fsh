@@ -72,7 +72,7 @@ uniform sampler2D noisetex;
     #endif
 
     #ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             uniform sampler3D TEX_CLOUDS;
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
@@ -257,7 +257,7 @@ uniform int frameCounter;
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
 
-        #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
@@ -613,7 +613,7 @@ void main() {
     #else
         float roughL = _pow2(roughness);
         
-        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
             deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
         #endif
@@ -686,7 +686,7 @@ void main() {
             color.a = 1.0;
         #endif
 
-        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif

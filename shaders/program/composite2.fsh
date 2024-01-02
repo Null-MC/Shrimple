@@ -36,7 +36,7 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if defined WORLD_SKY_ENABLED && ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -248,7 +248,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/lightning.glsl"
 
     #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -456,7 +456,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
             #endif

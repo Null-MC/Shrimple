@@ -36,7 +36,7 @@ uniform sampler2D lightmap;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -183,7 +183,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
 
-    #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/lighting/hg.glsl"
         #include "/lib/clouds/cloud_custom.glsl"
     #endif

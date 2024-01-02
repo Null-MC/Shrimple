@@ -54,7 +54,7 @@ uniform sampler2D lightmap;
 
 #ifdef WORLD_SKY_ENABLED
     //#ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             uniform sampler3D TEX_CLOUDS;
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS;
@@ -294,7 +294,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
@@ -578,7 +578,7 @@ void main() {
         //     color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         // #endif
 
-        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif

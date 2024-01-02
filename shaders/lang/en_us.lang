@@ -18,6 +18,7 @@ option.SKY_CLOUD_TYPE=Clouds
 value.SKY_CLOUD_TYPE.0=None
 value.SKY_CLOUD_TYPE.1=Vanilla
 value.SKY_CLOUD_TYPE.2=Custom
+value.SKY_CLOUD_TYPE.3=Custom Cubed
 
 option.SKY_BORDER_FOG_ENABLED=Border Fog
 

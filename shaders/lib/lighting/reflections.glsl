@@ -177,7 +177,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectDist = far;
     #endif
 
-    #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+    #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
         vec3 worldPos = cameraPosition + localPos;
 
         vec3 cloudNear, cloudFar;

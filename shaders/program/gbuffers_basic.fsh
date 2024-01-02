@@ -29,7 +29,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -125,7 +125,7 @@ uniform int frameCounter;
 #include "/lib/fog/fog_render.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/world/sky.glsl"
         #include "/lib/lighting/hg.glsl"
         #include "/lib/lighting/scatter_transmit.glsl"

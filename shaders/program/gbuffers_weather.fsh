@@ -37,7 +37,7 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
@@ -189,7 +189,7 @@ uniform float blindnessSmooth;
 #endif
 
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/clouds/cloud_custom.glsl"
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
@@ -294,14 +294,14 @@ void main() {
 	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
     #if SKY_CLOUD_TYPE != CLOUDS_NONE
-        #if SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             const float CloudHeight = 4.0;
         #endif
 
         float cloudY = smoothstep(0.0, CloudHeight * 0.5, vIn.localPos.y + cameraPosition.y - cloudHeight);
         color.a *= 1.0 - cloudY;
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined SKY_WEATHER_CLOUD_ONLY
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
             const vec3 worldUp = vec3(0.0, 1.0, 0.0);
             float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
             color.a *= _pow2(cloudUnder);
@@ -340,7 +340,7 @@ void main() {
         #endif
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
         shadowColor *= 1.0 - (1.0 - cloudShadow) * 0.8;
     #endif
@@ -374,7 +374,7 @@ void main() {
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phase = DHG(VoL, -0.19, 0.824, 0.051);
 
-        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             phase *= cloudShadow;
         #endif
 
