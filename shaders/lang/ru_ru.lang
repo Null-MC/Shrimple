@@ -627,9 +627,6 @@ option.EFFECT_BLUR_SAMPLE_COUNT=Количество Образцов
 
 option.EFFECT_BLUR_MAX_RADIUS=Радиус
 
-option.EFFECT_BLUR_BLINDNESS=Эффект Слепоты
-option.EFFECT_BLUR_BLINDNESS.comment=Сильное размытие в экране, когда игрок получает эффект слепоты.
-
 screen.EFFECT_SSAO_OPTIONS=ЭПОО
 screen.EFFECT_SSAO_OPTIONS.comment=Опции для Экранного-Пространства Окружающей Окколюзии
 
