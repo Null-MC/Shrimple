@@ -68,7 +68,7 @@
         // #elif defined RENDER_HAND
         //     roughness = GetItemRoughness(heldItemId);
         //     metal_f0 = GetItemMetalF0(heldItemId);
-        #elif !defined RENDER_PARTICLES
+        #elif !defined RENDER_BILLBOARD
             StaticBlockData blockData = StaticBlockMap[blockId];
             roughness = blockData.materialRough;
             metal_f0 = blockData.materialMetalF0;

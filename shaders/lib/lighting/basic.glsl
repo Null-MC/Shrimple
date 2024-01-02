@@ -61,10 +61,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-        // Required "hack" to force shadow pass on iris
-        if (gl_FragCoord.x < 0) sampleDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
-    #endif
+    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
+    //     // Required "hack" to force shadow pass on iris
+    //     if (gl_FragCoord.x < 0) sampleDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
+    // #endif
 }
 
 #if defined WORLD_SKY_ENABLED && !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
