@@ -153,6 +153,7 @@ layout(location = 2) out float outDepthPrev;
 
 void main() {
     vec2 uvNow = texcoord;
+    //uvNow -= 0.5*getJitterOffset(frameCounter);
 
     float depthNow = textureLod(depthtex0, uvNow, 0).r;
 
@@ -172,7 +173,7 @@ void main() {
     vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
     float depthMin, depthMax;
-    getNeighborDepthRange(texcoord, depthMin, depthMax);
+    getNeighborDepthRange(uvNow, depthMin, depthMax);
 
     vec3 clipPosReproMin = getReprojectedClipPos(uvNow, depthMin, velocity.xyz);
     float reproDepthMin = linearizeDepthFast(clipPosReproMin.z, near, far);
@@ -197,10 +198,12 @@ void main() {
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
-    const float depthBias = 1.6;
-    float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
-    if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 1.0;
-    counter *= depthTest;
+    const float depthBias = 0.2;
+    //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
+    float depthTest = max((reproDepthMin - depthBias) - depthPrevL, 0.0) + max(depthPrevL - (reproDepthMax + depthBias), 0.0);
+    if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
+    depthTest = saturate(depthTest);
+    counter *= 1.0 - depthTest;
 
     counter = max(counter + 1.0, 1.0);
     float weight = 1.0 - rcp(counter);
@@ -209,7 +212,7 @@ void main() {
     float depthFinal = mix(depthNowL, depthPrevL, weight);
 
     outFinal = colorFinal;
-    //outFinal = vec3(1.0 - depthTest);
+    //outFinal = vec3(depthTest);
     outFinalPrev = vec4(colorFinal, counter);
     outDepthPrev = depthFinal;
 }
