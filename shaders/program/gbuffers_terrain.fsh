@@ -136,12 +136,9 @@ uniform int frameCounter;
     uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
 
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+    #ifdef IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
-    #endif
-
-    #ifdef IS_IRIS
         uniform float lightningStrength;
     #endif
 #endif

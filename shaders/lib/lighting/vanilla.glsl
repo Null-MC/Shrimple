@@ -79,7 +79,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 }
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 albedo, const in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
+    vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 albedo, in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
         vec3 specular = vec3(0.0);
 
         vec3 localViewDir = -normalize(localPos);
@@ -129,6 +129,11 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
                 skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
                 skyNoHm = max(dot(texNormal, skyH), 0.0);
             }
+
+            float viewDist = length(localPos);
+            float shadowDistF = saturate(viewDist / shadowDistance);
+            //shadowColor *= 1.0 - smoothstep(0.6, 1.0, shadowDistF);
+            shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
 
             //skyLightColor *= 1.0 - 0.92*skyRainStrength;
 
