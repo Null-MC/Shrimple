@@ -181,7 +181,7 @@ uniform float blindnessSmooth;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
-    #include "/lib/material/specular.glsl"
+    #include "/lib/material/fresnel.glsl"
 #endif
 
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED

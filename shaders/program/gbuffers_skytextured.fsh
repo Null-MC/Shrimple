@@ -5,8 +5,10 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 texcoord;
-in vec4 glcolor;
+in VertexData {
+    vec4 color;
+    vec2 texcoord;
+} vIn;
 
 uniform sampler2D gtexture;
 
@@ -19,12 +21,6 @@ uniform int renderStage;
 uniform float rainStrength;
 uniform float skyRainStrength;
 uniform int frameCounter;
-
-// uniform vec3 skyColor;
-// uniform vec3 fogColor;
-// uniform float fogStart;
-// uniform float fogEnd;
-// uniform int fogShape;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -42,7 +38,7 @@ uniform int frameCounter;
 layout(location = 0) out vec4 outColor0;
 
 void main() {
-    vec4 color = textureLod(gtexture, texcoord, 0) * glcolor;
+    vec4 color = textureLod(gtexture, vIn.texcoord, 0) * vIn.color;
     color.rgb = RGBToLinear(color.rgb);// * WorldSkyBrightnessF;
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));

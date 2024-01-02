@@ -13,9 +13,9 @@ struct StaticLightData {
 };
 
 #ifdef RENDER_SETUP
-    layout(std430, binding = 2) restrict writeonly buffer staticLightData
+    layout(std430, binding = 3) restrict writeonly buffer staticLightData
 #else
-    layout(std430, binding = 2) restrict readonly buffer staticLightData
+    layout(std430, binding = 3) restrict readonly buffer staticLightData
 #endif
 {
     StaticLightData StaticLightMap[];
@@ -23,11 +23,11 @@ struct StaticLightData {
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE
     #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
-        layout(std430, binding = 3) restrict buffer globalLightingData
+        layout(std430, binding = 4) restrict buffer globalLightingData
     #elif defined RENDER_BEGIN
-        layout(std430, binding = 3) restrict writeonly buffer globalLightingData
+        layout(std430, binding = 4) restrict writeonly buffer globalLightingData
     #else
-        layout(std430, binding = 3) restrict readonly buffer globalLightingData
+        layout(std430, binding = 4) restrict readonly buffer globalLightingData
     #endif
     {
         uint SceneLightCount;       // 4
@@ -55,9 +55,9 @@ struct StaticLightData {
         };
 
         #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW || defined RENDER_BEGIN
-            layout(std430, binding = 5) restrict buffer localLightingData
+            layout(std430, binding = 6) restrict buffer localLightingData
         #else
-            layout(std430, binding = 5) restrict readonly buffer localLightingData
+            layout(std430, binding = 6) restrict readonly buffer localLightingData
         #endif
         {
             LightCellData SceneLightMaps[];     // 16 * N

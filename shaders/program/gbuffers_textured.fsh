@@ -7,9 +7,9 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec3 localNormal;
 
@@ -140,6 +140,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
@@ -209,10 +210,10 @@ uniform ivec2 eyeBrightnessSmooth;
     //#include "/lib/material/hcm.glsl"
     #include "/lib/material/emission.glsl"
     #include "/lib/material/subsurface.glsl"
-    //#include "/lib/material/specular.glsl"
+    #include "/lib/material/specular.glsl"
 #endif
 
-#include "/lib/material/specular.glsl"
+#include "/lib/material/fresnel.glsl"
 
 #ifdef LIGHTING_FLICKER
     #include "/lib/lighting/flicker.glsl"

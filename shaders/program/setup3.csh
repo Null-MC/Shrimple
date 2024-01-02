@@ -1,4 +1,4 @@
-#define RENDER_SETUP_STATIC_LIGHT
+#define RENDER_SETUP_STATIC_BLOCK
 #define RENDER_SETUP
 #define RENDER_COMPUTE
 
@@ -7,33 +7,32 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(2, 2, 1);
+const ivec3 workGroups = ivec3(4, 4, 1);
 
-#ifdef IRIS_FEATURE_SSBO //&& LIGHTING_MODE != DYN_LIGHT_NONE
+#ifdef IRIS_FEATURE_SSBO
     #include "/lib/blocks.glsl"
 
-    #include "/lib/lights.glsl"
-    #include "/lib/lighting/colors.glsl"
-    #include "/lib/buffers/lighting.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/buffers/static_block.glsl"
+
+    #include "/lib/world/waving_blocks.glsl"
+    #include "/lib/material/specular_blocks.glsl"
+    #include "/lib/material/subsurface_blocks.glsl"
 #endif
 
 
 void main() {
-    #ifdef IRIS_FEATURE_SSBO //&& LIGHTING_MODE != DYN_LIGHT_NONE
-        uint lightType = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 16);
-        if (lightType >= 256) return;
+    #ifdef IRIS_FEATURE_SSBO
+        uint blockId = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 32);
+        if (blockId >= 1024) return;
 
-        vec3 lightOffset = GetSceneLightOffset(lightType);
-        vec3 lightColor = GetSceneLightColor(lightType);
-        float lightRange = GetSceneLightRange(lightType);
-        float lightSize = GetSceneLightSize(lightType);
+        StaticBlockData block;
 
-        StaticLightData light;
-        light.Offset = packSnorm4x8(vec4(lightOffset, 0.0));
-        light.Color = packUnorm4x8(vec4(lightColor, 0.0));
-        light.RangeSize = packUnorm4x8(vec4(lightRange/255.0, lightSize, 0.0, 0.0));
+        GetBlockWavingRangeAttachment(blockId, block.wavingRange, block.wavingAttachment);
 
-        StaticLightMap[lightType] = light;
+        block.materialRough = GetBlockRoughness(blockId);
+        block.materialMetalF0 = GetBlockMetalF0(blockId);
+        block.materialSSS = GetBlockSSS(blockId);
+
+        StaticBlockMap[blockId] = block;
     #endif
 }

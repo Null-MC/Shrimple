@@ -111,6 +111,7 @@ uniform ivec2 atlasSize;
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/world/waving.glsl"
 #endif
 

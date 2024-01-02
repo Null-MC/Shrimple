@@ -13,30 +13,29 @@
 #endif
 
 out VertexData {
-    out vec2 lmcoord;
-    out vec2 texcoord;
-    out vec4 color;
-    out vec3 localPos;
-    out vec3 localNormal;
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec3 localNormal;
 
     #ifdef MATERIAL_PARTICLES
-        out vec2 localCoord;
-        out vec4 localTangent;
-        //out float tangentW;
+        vec2 localCoord;
+        vec4 localTangent;
 
-        flat out mat2 atlasBounds;
+        flat mat2 atlasBounds;
     #endif
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        out vec3 cloudPos;
+        vec3 cloudPos;
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            out vec3 shadowPos[4];
-            flat out int shadowTile;
+            vec3 shadowPos[4];
+            flat int shadowTile;
         #else
-            out vec3 shadowPos;
+            vec3 shadowPos;
         #endif
     #endif
 } vOut;
@@ -65,6 +64,12 @@ uniform vec3 cameraPosition;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         uniform vec3 eyePosition;
     #endif
+#endif
+
+#ifdef EFFECT_TAA_ENABLED
+    uniform float frameTime;
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -99,6 +104,10 @@ uniform vec3 cameraPosition;
 
 #include "/lib/lighting/common.glsl"
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -114,5 +123,9 @@ void main() {
         PrepareNormalMap();
 
         GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
+    #endif
+    
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
     #endif
 }

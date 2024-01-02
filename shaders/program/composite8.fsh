@@ -181,7 +181,7 @@ uniform int heldBlockLightValue2;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
-    #include "/lib/material/specular.glsl"
+    #include "/lib/material/fresnel.glsl"
 #endif
 
 #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)

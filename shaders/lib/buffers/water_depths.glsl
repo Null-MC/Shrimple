@@ -4,11 +4,11 @@ struct WaterDepthPixelData {
 };
 
 #ifdef RENDER_WATER
-    layout(std430, binding = 6) buffer waterDepths
+    layout(std430, binding = 7) buffer waterDepths
 #elif defined RENDER_BEGIN
-    layout(std430, binding = 6) writeonly buffer waterDepths
+    layout(std430, binding = 7) writeonly buffer waterDepths
 #else
-    layout(std430, binding = 6) readonly buffer waterDepths
+    layout(std430, binding = 7) readonly buffer waterDepths
 #endif
 {
     WaterDepthPixelData WaterDepths[];

@@ -91,7 +91,7 @@ uniform float blindnessSmooth;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
-    #include "/lib/material/specular.glsl"
+    #include "/lib/material/fresnel.glsl"
 #endif
 
 #if LIGHTING_MODE == DYN_LIGHT_LPV || LIGHTING_MODE == DYN_LIGHT_TRACED

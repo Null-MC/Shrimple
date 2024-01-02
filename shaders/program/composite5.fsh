@@ -148,7 +148,7 @@ in vec2 texcoord;
             #include "/lib/blocks.glsl"
             #include "/lib/items.glsl"
             #include "/lib/material/hcm.glsl"
-            #include "/lib/material/specular.glsl"
+            #include "/lib/material/fresnel.glsl"
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS

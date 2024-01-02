@@ -1,3 +1,8 @@
+setup1			setup static scene
+setup2			build voxel part collissions
+setup3			build static block data
+setup4			build static light data
+
 begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
 begin3			clear water depths

@@ -172,6 +172,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
@@ -274,6 +275,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/material/hcm.glsl"
+#include "/lib/material/fresnel.glsl"
 #include "/lib/material/emission.glsl"
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"

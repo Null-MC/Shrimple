@@ -5,10 +5,12 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 lmcoord;
-in vec2 texcoord;
-flat in vec4 glcolor;
-in vec3 vLocalPos;
+in VertexData {
+    flat vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+} vIn;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
@@ -83,7 +85,7 @@ uniform int frameCounter;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, texcoord) * glcolor;
+	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         const vec3 normal = vec3(0.0);
@@ -95,7 +97,7 @@ void main() {
         
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
 
         outDeferredColor = color + dither;
@@ -103,7 +105,7 @@ void main() {
 
         uvec4 deferredData;
         deferredData.r = packUnorm4x8(vec4(normal, sss));
-        deferredData.g = packUnorm4x8(vec4(lmcoord + dither, occlusion, emission));
+        deferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, occlusion, emission));
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         deferredData.a = packUnorm4x8(vec4(normal, 1.0));
         outDeferredData = deferredData;
@@ -116,11 +118,11 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-		color.rgb *= texture(lightmap, lmcoord).rgb;
+		color.rgb *= texture(lightmap, vIn.lmcoord).rgb;
 
         #ifdef SKY_BORDER_FOG_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
-            ApplyFog(color, vLocalPos, localViewDir);
+            vec3 localViewDir = normalize(vIn.localPos);
+            ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
 		outFinal = color;

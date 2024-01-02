@@ -11,10 +11,12 @@
 in vec3 vaPosition;
 in vec3 vaNormal;
 
-out vec2 lmcoord;
-out vec2 texcoord;
-flat out vec4 glcolor;
-out vec3 vLocalPos;
+out VertexData {
+    flat vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+} vOut;
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -38,9 +40,9 @@ uniform vec2 pixelSize;
 
 
 void main() {
-    texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    glcolor = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.color = gl_Color;
 
     vec4 linePosStart = projectionMatrix * (VIEW_SCALE * (modelViewMatrix * vec4(vaPosition, 1.0)));
     vec3 ndc1 = unproject(linePosStart);
@@ -58,10 +60,10 @@ void main() {
 
     #ifdef IRIS_FEATURE_SSBO
         // TODO: Does this need perspective divide?
-        vLocalPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
+        vOut.localPos = (gbufferModelViewProjectionInverse * gl_Position).xyz;
     #else
-        vLocalPos = (gbufferProjectionInverse * gl_Position).xyz;
-        vLocalPos = (gbufferModelViewInverse * vec4(vLocalPos, 1.0)).xyz;
+        vOut.localPos = (gbufferProjectionInverse * gl_Position).xyz;
+        vOut.localPos = (gbufferModelViewInverse * vec4(vOut.localPos, 1.0)).xyz;
     #endif
 
     #ifdef EFFECT_TAA_ENABLED

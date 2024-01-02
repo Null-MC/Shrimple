@@ -7,9 +7,9 @@
 #include "/lib/common.glsl"
 
 out VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
     vec3 localNormal;
 

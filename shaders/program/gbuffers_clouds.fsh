@@ -8,10 +8,10 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 texcoord;
     vec3 localPos;
     vec3 localNormal;
-    vec4 color;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -151,7 +151,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/material/hcm.glsl"
-#include "/lib/material/specular.glsl"
+#include "/lib/material/fresnel.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"

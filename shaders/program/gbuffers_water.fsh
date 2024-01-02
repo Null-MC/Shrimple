@@ -200,6 +200,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 
@@ -223,7 +224,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
-#include "/lib/world/foliage.glsl"
+// #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
@@ -317,6 +318,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #include "/lib/material/hcm.glsl"
+#include "/lib/material/fresnel.glsl"
 #include "/lib/material/emission.glsl"
 #include "/lib/material/normalmap.glsl"
 #include "/lib/material/specular.glsl"

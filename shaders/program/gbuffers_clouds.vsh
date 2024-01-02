@@ -8,10 +8,10 @@
 #include "/lib/common.glsl"
 
 out VertexData {
+    vec4 color;
     vec2 texcoord;
     vec3 localPos;
     vec3 localNormal;
-    vec4 color;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

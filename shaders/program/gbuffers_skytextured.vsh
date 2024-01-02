@@ -5,8 +5,10 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-varying vec2 texcoord;
-varying vec4 glcolor;
+out VertexData {
+	vec4 color;
+	vec2 texcoord;
+} vOut;
 
 #ifdef EFFECT_TAA_ENABLED
     uniform int frameCounter;
@@ -18,8 +20,9 @@ varying vec4 glcolor;
 
 void main() {
 	gl_Position = ftransform();
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	glcolor = gl_Color;
+	
+	vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	vOut.color = gl_Color;
 
     #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
