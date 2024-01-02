@@ -25,12 +25,12 @@ struct VolumetricPhaseFactors {
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     VolumetricPhaseFactors result;
 
-    result.Back = -0.197;
-    result.Forward = 0.924;
-    result.Direction = 0.090;
+    result.Back = -0.14;
+    result.Forward = 0.86;
+    result.Direction = 0.16;
 
     result.Ambient = vec3(AirAmbientF);
-    result.ScatterF = vec3(AirScatterF);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+    result.ScatterF = vec3(AirScatterF * 2.0);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
     result.ExtinctF = AirExtinctF;
 
     #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
