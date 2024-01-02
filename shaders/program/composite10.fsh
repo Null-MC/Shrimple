@@ -142,7 +142,7 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos3.y), 0) * w12.x * w3.y;
     result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos3.y), 0) * w3.x * w3.y;
 
-    return result;
+    return clamp(result, vec4(0.0), vec4(0xFFFF));
 }
 
 
@@ -160,13 +160,13 @@ void main() {
     float depthNowHand = textureLod(depthtex2, uvNow, 0).r;
     bool isHand = abs(depthNowTrans - depthNowHand) > EPSILON;
 
-    // if (isHand) {
-    //     depthNow = depthNow * 2.0 - 1.0;
-    //     depthNow /= MC_HAND_DEPTH;
-    //     depthNow = depthNow * 0.5 + 0.5;
+    if (isHand) {
+        depthNow = depthNow * 2.0 - 1.0;
+        depthNow /= MC_HAND_DEPTH;
+        depthNow = depthNow * 0.5 + 0.5;
 
-    //     uvNow += 0.5*getJitterOffset(frameCounter);
-    // }
+        // uvNow += 0.5*getJitterOffset(frameCounter);
+    }
 
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
     vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
@@ -185,6 +185,9 @@ void main() {
     float depthNowL = linearizeDepthFast(depthNow, near, far);
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
 
+    depthNowL = clamp(depthNowL, near, far);
+
+    //vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
     vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
     float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
@@ -195,7 +198,7 @@ void main() {
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
     float depthTest = step(reproDepthMin - 0.2, depthPrevL) * step(depthPrevL, reproDepthMax + 0.2);
-    if (depthNow >= 1.0 && depthPrevL >= far * 0.99) depthTest = 1.0;
+    if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 1.0;
     counter *= depthTest;
 
     counter = max(counter + 1.0, 1.0);

@@ -15,6 +15,10 @@ in VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -565,6 +569,6 @@ void main() {
     #endif
 
     #ifdef EFFECT_TAA_ENABLED
-        outVelocity = vec4(vec3(0.0), 1.0);
+        outVelocity = vec4(vIn.velocity, 1.0);
     #endif
 }

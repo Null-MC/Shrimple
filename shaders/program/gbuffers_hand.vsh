@@ -18,6 +18,10 @@ out VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -76,6 +80,8 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
+    uniform mat4 gbufferPreviousModelView;
+    uniform vec3 previousCameraPosition;
     uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
@@ -142,6 +148,16 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
+    #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        vOut.velocity = vec3(0.0);
+
+        // mat4 gbufferPreviousModelViewInverse = inverse(gbufferPreviousModelView);
+        // vec3 localPosPrev = (gbufferPreviousModelViewInverse * viewPos).xyz;
+        // vOut.velocity += vOut.localPos - localPosPrev;
+
+        vOut.velocity += cameraPosition - previousCameraPosition;
     #endif
 
     #if DISPLACE_MODE != DISPLACE_TESSELATION

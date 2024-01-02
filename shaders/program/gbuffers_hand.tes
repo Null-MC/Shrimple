@@ -18,6 +18,10 @@ in VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -51,6 +55,10 @@ out VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -97,6 +105,10 @@ void main() {
     vOut.localTangent = _interpolate(vIn[0].localTangent, vIn[1].localTangent, vIn[2].localTangent);
 
     vOut.atlasBounds = vIn[0].atlasBounds;
+
+    #ifdef EFFECT_TAA_ENABLED
+        vOut.velocity = _interpolate(vIn[0].velocity, vIn[1].velocity, vIn[2].velocity);
+    #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         vOut.localPos += 0.5 * GetSampleOffset();

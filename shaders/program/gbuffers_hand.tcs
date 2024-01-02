@@ -19,6 +19,10 @@ in VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -52,6 +56,10 @@ out VertexData {
     vec4 localTangent;
 
     flat mat2 atlasBounds;
+    
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
@@ -90,6 +98,10 @@ void main() {
     vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
 
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
+
+    #ifdef EFFECT_TAA_ENABLED
+        vOut[gl_InvocationID].velocity = vIn[gl_InvocationID].velocity;
+    #endif
 
     #ifdef PARALLAX_ENABLED
         vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;
