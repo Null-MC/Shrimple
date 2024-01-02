@@ -299,7 +299,7 @@ vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in f
     return _TraceCloudVL(worldPos, localViewDir, cloudDistNear, cloudDistFar, stepCount, shadowStepCount);
 }
 
-float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, const in int _) {
+float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, const in int stepCount) {
     vec3 cloudNear, cloudFar;
     GetCloudNearFar(worldPos, localLightDir, cloudNear, cloudFar);
     
@@ -315,12 +315,12 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             float dither = InterleavedGradientNoise();
         #endif
     
-        float cloudStepLen = cloudDist / (CLOUD_GROUND_SHADOW_STEPS + 1);
+        float cloudStepLen = cloudDist / (stepCount + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
 
-        for (uint stepI = 0; stepI < CLOUD_GROUND_SHADOW_STEPS; stepI++) {
+        for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
 
             float sampleD = SampleCloudOctaves(tracePos + sampleOffset, CloudShadowOctaves);

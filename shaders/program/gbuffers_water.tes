@@ -98,6 +98,11 @@ uniform mat4 gbufferModelView;
     #ifdef ANIM_WORLD_TIME
         uniform int worldTime;
     #endif
+
+    #if defined WORLD_SHADOW_ENABLED && WATER_TESSELLATION_QUALITY > 0
+        uniform vec3 shadowLightPosition;
+        uniform float far;
+    #endif
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
@@ -114,6 +119,19 @@ uniform mat4 gbufferModelView;
         #include "/lib/physics_mod/ocean.glsl"
     #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
         #include "/lib/world/water_waves.glsl"
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && WATER_TESSELLATION_QUALITY > 0
+        #include "/lib/utility/matrix.glsl"
+        #include "/lib/buffers/scene.glsl"
+        #include "/lib/buffers/shadow.glsl"
+        #include "/lib/shadows/common.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+        #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+            #include "/lib/shadows/distorted/common.glsl"
+        #endif
     #endif
 #endif
 
@@ -169,6 +187,33 @@ void main() {
             gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
 
             // TODO: update shadow pos
+            #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    vOut.shadowTile = -1;
+                #endif
+
+                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+                    vec3 viewNormal = mat3(gbufferModelView) * normalize(vOut.localNormal);
+                    vec3 skyLightDir = normalize(shadowLightPosition);
+                    float geoNoL = dot(skyLightDir, viewNormal);
+                #else
+                    float geoNoL = 1.0;
+                #endif
+
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+                        ApplyShadows(vOut.localPos, _vLocalNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+                    #else
+                        ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+                    #endif
+                #else
+                    #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+                        vOut.shadowPos = ApplyShadows(vOut.localPos, _vLocalNormal, geoNoL);
+                    #else
+                        vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
+                    #endif
+                #endif
+            #endif
         #endif
     }
     else {

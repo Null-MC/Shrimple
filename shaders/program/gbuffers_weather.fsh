@@ -303,7 +303,7 @@ void main() {
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM && defined SKY_WEATHER_CLOUD_ONLY
             const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-            float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_SHADOW_STEPS);
+            float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
             color.a *= _pow2(cloudUnder);
         #endif
     #endif
@@ -341,7 +341,7 @@ void main() {
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-        float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+        float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
         shadowColor *= 1.0 - (1.0 - cloudShadow) * 0.8;
     #endif
 

@@ -29,7 +29,7 @@ vec3 distort(const in vec3 pos) {
 //     return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / SHADOW_DISTORT_FACTOR;
 // }
 
-#if defined RENDER_VERTEX && !defined RENDER_SHADOW
+#if (defined RENDER_VERTEX || defined RENDER_TESS_EVAL) && !defined RENDER_SHADOW
     vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
         float bias = GetShadowNormalBias(geoNoL);
         vec3 offsetLocalPos = localPos + localNormal * bias;
