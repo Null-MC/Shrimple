@@ -197,7 +197,8 @@ void main() {
     //neighborClampColor(colorPrev.rgb, uvNow);
     counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
-    float depthTest = step(reproDepthMin - 0.2, depthPrevL) * step(depthPrevL, reproDepthMax + 0.2);
+    const float depthBias = 1.6;
+    float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
     if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 1.0;
     counter *= depthTest;
 

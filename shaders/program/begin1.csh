@@ -59,7 +59,6 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    //#include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 
     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
