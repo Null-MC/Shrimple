@@ -115,6 +115,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -188,10 +192,14 @@ uniform int heldBlockLightValue2;
     #endif
 
     #include "/lib/lights.glsl"
-    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
+
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/lighting/voxel/item_light_map.glsl"
+        #include "/lib/lighting/voxel/items.glsl"
+    #endif
+
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
 
@@ -207,7 +215,9 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 
-    #include "/lib/lighting/basic_hand.glsl"
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/lighting/basic_hand.glsl"
+    #endif
 
     #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/basic.glsl"
@@ -222,16 +232,6 @@ uniform int heldBlockLightValue2;
     #endif
 
     #include "/lib/lighting/scatter_transmit.glsl"
-
-    // #ifdef VL_BUFFER_ENABLED
-    //     #include "/lib/lighting/hg.glsl"
-    //     #include "/lib/fog/fog_volume.glsl"
-    // #endif
-
-    // #ifdef DH_COMPAT_ENABLED
-    //     #include "/lib/post/saturation.glsl"
-    //     #include "/lib/post/tonemap.glsl"
-    // #endif
 //#endif
 
 

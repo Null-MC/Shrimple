@@ -9,7 +9,7 @@ uint GetSceneItemLightType(const in int itemId) {
     #endif
 
     //return GetSceneLightType(itemId);
-    return CollissionMaps[itemId].LightId;
+    return StaticBlockMap[itemId].lightType;
 }
 
 #if !defined RENDER_BEGIN

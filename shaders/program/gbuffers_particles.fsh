@@ -188,9 +188,12 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    //#include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -272,10 +275,13 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
 
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
@@ -329,7 +335,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/vanilla.glsl"
     #endif
 
-    #include "/lib/lighting/basic_hand.glsl"
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/lighting/basic_hand.glsl"
+    #endif
 
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/fog/fog_volume.glsl"

@@ -1,4 +1,4 @@
-uint GetSceneLightType(const in int blockId) {
+uint GetSceneLightType(const in uint blockId) {
     uint lightType = LIGHT_NONE;
     if (blockId < 1) return lightType;
 

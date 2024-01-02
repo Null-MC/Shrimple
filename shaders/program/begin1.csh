@@ -59,11 +59,15 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/collisions.glsl"
+    //#include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
-    // #include "/lib/lighting/voxel/block_light_map.glsl"
-    #include "/lib/lighting/voxel/item_light_map.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
+
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+
+        #include "/lib/lighting/voxel/item_light_map.glsl"
+        #include "/lib/lighting/voxel/items.glsl"
+    #endif
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
@@ -85,14 +89,16 @@ void main() {
     int i = int(gl_GlobalInvocationID.x);
 
     #ifdef IRIS_FEATURE_SSBO
-        if (i == 0) {
-            HandLightTypePrevious1 = HandLightType1;
-            HandLightType1 = GetSceneItemLightType(heldItemId);
-        }
-        else if (i == 1) {
-            HandLightTypePrevious2 = HandLightType2;
-            HandLightType2 = GetSceneItemLightType(heldItemId2);
-        }
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            if (i == 0) {
+                HandLightTypePrevious1 = HandLightType1;
+                HandLightType1 = GetSceneItemLightType(heldItemId);
+            }
+            else if (i == 1) {
+                HandLightTypePrevious2 = HandLightType2;
+                HandLightType2 = GetSceneItemLightType(heldItemId2);
+            }
+        #endif
 
         if (i == 0) {
             worldTimePrevious = worldTimeCurrent;

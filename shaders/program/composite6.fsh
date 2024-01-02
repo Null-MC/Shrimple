@@ -101,14 +101,15 @@ uniform float blindnessSmooth;
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
     // #include "/lib/lighting/voxel/block_light_map.glsl"
-    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
+    
+    // #include "/lib/lighting/voxel/item_light_map.glsl"
+    // #include "/lib/lighting/voxel/items.glsl"
 #endif
 
 #if LIGHTING_MODE == DYN_LIGHT_TRACED
@@ -128,7 +129,7 @@ uniform float blindnessSmooth;
     #include "/lib/world/sky.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
+//#include "/lib/lighting/basic_hand.glsl"
 //#include "/lib/lighting/basic.glsl"
 
 #if LIGHTING_TRACE_RES != 0
@@ -231,9 +232,9 @@ void main() {
         SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         //blockDiffuse *= 1.0 - deferredFog.a;
 
-        #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
+        // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+        //     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+        // #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             if (metal_f0 >= 0.5) {

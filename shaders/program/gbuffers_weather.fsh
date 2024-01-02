@@ -141,6 +141,10 @@ uniform float blindnessSmooth;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
@@ -223,10 +227,13 @@ uniform float blindnessSmooth;
 
 #include "/lib/lights.glsl"
 
-#include "/lib/lighting/voxel/item_light_map.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_WEATHER
     #include "/lib/lighting/voxel/sampling.glsl"
@@ -256,7 +263,9 @@ uniform float blindnessSmooth;
     #include "/lib/lighting/vanilla.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/basic_hand.glsl"
+#endif
 
 #ifdef VL_BUFFER_ENABLED
     #include "/lib/fog/fog_volume.glsl"

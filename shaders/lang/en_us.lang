@@ -370,9 +370,6 @@ value.LIGHTING_TRACE_RES.0=Full
 value.LIGHTING_TRACE_RES.1=Half
 value.LIGHTING_TRACE_RES.2=Quarter
 
-option.LIGHT_HAND_SOFT_SHADOW=Hand Soft-Shadows
-option.LIGHT_HAND_SOFT_SHADOW.comment=Enables soft-shadows cast from lights in-hand. May cause ghosting issues when moving.
-
 option.LIGHTING_TRACE_PENUMBRA=Penumbra Size
 option.LIGHTING_TRACE_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
 value.LIGHTING_TRACE_PENUMBRA.0=None

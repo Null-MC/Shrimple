@@ -1,8 +1,3 @@
-// float GetBlockSSS(const in int blockId) {
-//     StaticBlockData blockData = StaticBlockMap[blockId];
-//     return blockData.materialSSS;
-// }
-
 #ifdef RENDER_ENTITIES
     float GetEntitySSS(const in int entityId) {
         float sss = 0.0;

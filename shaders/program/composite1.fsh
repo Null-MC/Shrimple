@@ -78,6 +78,10 @@ uniform float blindnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    
+    // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+    //     #include "/lib/buffers/static_block.glsl"
+    // #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -104,14 +108,17 @@ uniform float blindnessSmooth;
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
     // #include "/lib/lighting/voxel/block_light_map.glsl"
-    #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
+
+    // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+    //     #include "/lib/lighting/voxel/item_light_map.glsl"
+    //     #include "/lib/lighting/voxel/items.glsl"
+    // #endif
 #endif
 
 #if LIGHTING_MODE == DYN_LIGHT_TRACED
@@ -136,7 +143,7 @@ uniform float blindnessSmooth;
     #include "/lib/world/sky.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
+//#include "/lib/lighting/basic_hand.glsl"
 //#include "/lib/lighting/basic.glsl"
 
 #include "/lib/utility/temporal_offset.glsl"
@@ -222,9 +229,9 @@ void main() {
         //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
         SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
-        #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
+        // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+        //     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+        // #endif
 
         #if SKY_TYPE == SKY_VANILLA
             vec4 deferredFog = unpackUnorm4x8(deferredData.b);

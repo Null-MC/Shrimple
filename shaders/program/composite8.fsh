@@ -144,6 +144,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
@@ -238,9 +242,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
-// #include "/lib/lighting/voxel/block_light_map.glsl"
-#include "/lib/lighting/voxel/item_light_map.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     #include "/lib/utility/depth_tiles.glsl"
@@ -263,7 +268,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/basic_hand.glsl"
+#endif
 
 #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE == CLOUDS_CUSTOM
     #ifdef VOLUMETRIC_FILTER
@@ -656,7 +663,7 @@ layout(location = 0) out vec4 outFinal;
                     //     #endif
                     // #endif
 
-                    #if !defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                    #if LIGHTING_MODE_HAND == HAND_LIGHT_SIMPLE
                         vec3 handDiffuse = vec3(0.0);
                         vec3 handSpecular = vec3(0.0);
                         SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);

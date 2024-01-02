@@ -32,13 +32,6 @@ vec3 waving_fbm(const in vec3 worldPos, const in float time) {
     return vec3(position.x, height / waveSum * wavingHeight - 0.5 * wavingHeight, position.y);
 }
 
-// float GetWavingRange(const in int blockId, out uint attachment) {
-//     StaticBlockData blockData = StaticBlockMap[blockId];
-
-//     attachment = blockData.wavingAttachment;
-//     return blockData.wavingRange;
-// }
-
 void ApplyWavingOffset(inout vec3 vertexPos, const in vec3 localPos, const in int blockId) {
     StaticBlockData blockData = StaticBlockMap[blockId];
     uint attachment = blockData.wavingAttachment;

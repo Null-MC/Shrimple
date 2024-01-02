@@ -373,9 +373,6 @@ value.LIGHTING_TRACE_RES.0=Высокое
 value.LIGHTING_TRACE_RES.1=Среднее
 value.LIGHTING_TRACE_RES.2=Низкое
 
-option.LIGHT_HAND_SOFT_SHADOW=Мягкие-Тени в Руках
-option.LIGHT_HAND_SOFT_SHADOW.comment=Обеспечивает мягкие-тени, отбрасываемые от света в руках. При движении могут возникать проблемы с призраками.
-
 option.LIGHTING_TRACE_PENUMBRA=Размер Полутени
 option.LIGHTING_TRACE_PENUMBRA.comment=Размер полутени для мягких теней, отслеженных по технологии DDA.
 value.LIGHTING_TRACE_PENUMBRA.0=Выкл

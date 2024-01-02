@@ -45,7 +45,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && LIGHTING_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+                #if LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();
@@ -122,7 +122,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && LIGHTING_MODE != DYN_LIGHT_NONE && defined RENDER_FRAG && (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
+                #if LIGHTING_TRACE_PENUMBRA > 0 && !defined RENDER_TRANSLUCENT
                     float lightSize = GetSceneItemLightSize(heldItemId2);
                     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
                     vec3 offset = GetLightPenumbraOffset();

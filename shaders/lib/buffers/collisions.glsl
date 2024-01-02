@@ -1,10 +1,6 @@
 struct CollissionData {
-    uint LightId;                       // 4
-
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
-        uint Count;                     // 4
-        uvec2 Bounds[BLOCK_MASK_PARTS]; // 48
-    #endif
+    uint Count;                     // 4
+    uvec2 Bounds[BLOCK_MASK_PARTS]; // 48
 };
 
 #ifdef RENDER_SETUP
@@ -13,5 +9,5 @@ struct CollissionData {
     layout(std430, binding = 5) readonly buffer collissionData
 #endif
 {
-    CollissionData CollissionMaps[];   // 56 * 1200 = 67200
+    CollissionData CollissionMaps[];   // 52 * 1200 = 62400
 };

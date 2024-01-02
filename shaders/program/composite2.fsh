@@ -141,6 +141,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
     
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
+
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
     #endif
@@ -227,9 +231,11 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
-// #include "/lib/lighting/voxel/block_light_map.glsl"
-#include "/lib/lighting/voxel/item_light_map.glsl"
-#include "/lib/lighting/voxel/items.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    // #include "/lib/lighting/voxel/block_light_map.glsl"
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+#endif
 
 // #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
 //     #include "/lib/effects/ssr.glsl"
@@ -264,7 +270,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic.glsl"
 #endif
 
-#include "/lib/lighting/basic_hand.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/basic_hand.glsl"
+#endif
 
 #include "/lib/utility/temporal_offset.glsl"
 
@@ -550,7 +558,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 blockSpecular = vec3(0.0);
 
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
-                    #if !defined LIGHT_HAND_SOFT_SHADOW && LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 

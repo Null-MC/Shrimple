@@ -66,6 +66,10 @@ uniform float far;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/static_block.glsl"
+    #endif
 
     #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
@@ -82,7 +86,7 @@ uniform float far;
             #include "/lib/lighting/flicker.glsl"
         #endif
         
-        #include "/lib/buffers/collisions.glsl"
+        // #include "/lib/buffers/collisions.glsl"
         #include "/lib/buffers/lighting.glsl"
 
         #include "/lib/lighting/voxel/item_light_map.glsl"
@@ -172,7 +176,7 @@ void main() {
                 }
             #endif
 
-            uint lightType = CollissionMaps[vIn[0].blockId].LightId;
+            uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
 
             //#if LIGHTING_MODE == DYN_LIGHT_TRACED
                 vec3 cf = fract(cameraPosition);
@@ -188,7 +192,7 @@ void main() {
 
                     #if LIGHTING_MODE == DYN_LIGHT_TRACED
                         //uint lightType = GetSceneLightType(vBlockId[0]);
-                        //uint lightType = CollissionMaps[vBlockId[0]].LightId;
+                        //uint lightType = StaticBlockMap[vBlockId[0]].lightType;
 
                         if (lightType > 0) {
                             if (!intersects) lightType = LIGHT_IGNORED;
