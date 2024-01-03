@@ -188,8 +188,12 @@ void main() {
 
     depthNowL = clamp(depthNowL, near, far);
 
-    vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
-    //vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
+    #ifdef EFFECT_TAA_SHARPEN
+        vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
+    #else
+        vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
+    #endif
+    
     float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
     if (saturate(uvPrev) != uvPrev) counter = 0.0;
 
