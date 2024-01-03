@@ -627,6 +627,7 @@ float maxOf(const in vec3 vec) {return max(max(vec[0], vec[1]), vec[2]);}
 
 int sumOf(ivec2 vec) {return vec.x + vec.y;}
 int sumOf(ivec3 vec) {return vec.x + vec.y + vec.z;}
+float sumOf(vec3 vec) {return vec.x + vec.y + vec.z;}
 
 #define _RGBToLinear(color) (pow((color), vec3(GAMMA)))
 

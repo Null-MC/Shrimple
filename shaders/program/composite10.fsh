@@ -72,22 +72,26 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
 // }
 
 float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
-    vec3 minColor = vec3(+9999.0);
-    vec3 maxColor = vec3(-9999.0);
+    float deltaMin = 1.0;
+
+    vec3 colorPrevN = normalize(colorPrev + EPSILON);
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
             vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
+            vec3 sampleColorN = normalize(sampleColor + EPSILON);
 
-            minColor = min(minColor, sampleColor);
-            maxColor = max(maxColor, sampleColor);
+            vec3 deltaRGB = abs(colorPrevN - sampleColorN);
+            float sampleRgbDelta = 2.0 * luminance(deltaRGB);
+
+            // TODO: add luminance test?
+
+            deltaMin = min(deltaMin, sampleRgbDelta);
         }
     }
     
-    //return all(greaterThanEqual(colorPrev, minColor)) && all(lessThanEqual(colorPrev, maxColor)) ? 1.0 : 0.0;
-    vec3 diff = max(minColor - colorPrev, 0.0) + max(colorPrev - maxColor, 0.0);
-    return max(1.0 - 2.0*luminance(diff), 0.0);
+    return max(1.0 - deltaMin, 0.0);
 }
 
 void getNeighborDepthRange(const in vec2 texcoord, out float depthMin, out float depthMax) {
@@ -200,9 +204,9 @@ void main() {
     if (velocity.w > 0.5) counter = min(counter, 2);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
-    //counter *= neighborColorTest(colorPrev.rgb, uvNow);
+    counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
-    const float depthBias = 0.2;
+    const float depthBias = 0.1;
     //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
     float depthTest = max((reproDepthMin - depthBias) - depthPrevL, 0.0) + max(depthPrevL - (reproDepthMax + depthBias), 0.0);
     if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
