@@ -255,6 +255,8 @@ uniform float blindnessSmooth;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
+#include "/lib/lighting/sky_lighting.glsl"
+
 #if LIGHTING_MODE == DYN_LIGHT_TRACED
     #include "/lib/lighting/basic.glsl"
 #elif LIGHTING_MODE == DYN_LIGHT_LPV
@@ -365,10 +367,15 @@ void main() {
         //     specular += 1.2 * phase * shadowColor;
         // #endif
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            const float geoNoL = 1.0;
+        // #if MATERIAL_SPECULAR != SPECULAR_NONE
+        //     const float geoNoL = 1.0;
 
-            specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
+        //     specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
+        // #endif
+
+        #ifdef RENDER_SHADOWS_ENABLED
+            const bool tir = false; // TODO: ?
+            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
         #endif
 
         float VoL = dot(localSkyLightDirection, localViewDir);

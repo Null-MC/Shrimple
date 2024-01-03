@@ -219,6 +219,8 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/basic_hand.glsl"
     #endif
 
+    #include "/lib/lighting/sky_lighting.glsl"
+
     #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/lighting/basic.glsl"
     #elif LIGHTING_MODE == DYN_LIGHT_LPV
@@ -319,14 +321,19 @@ void main() {
             vec3 diffuse = vec3(0.0), specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmcoord, vIn.localPos, normal, normal, shadowColor, sss);
 
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    float geoNoL = dot(normal, localSkyLightDirection);
-                #else
-                    float geoNoL = 1.0;
-                #endif
+            // #if MATERIAL_SPECULAR != SPECULAR_NONE
+            //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            //         float geoNoL = dot(normal, localSkyLightDirection);
+            //     #else
+            //         float geoNoL = 1.0;
+            //     #endif
 
-                specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo.rgb, shadowColor, lmcoord, metal_f0, roughL);
+            //     specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo.rgb, shadowColor, lmcoord, metal_f0, roughL);
+            // #endif
+
+            #ifdef RENDER_SHADOWS_ENABLED
+                const bool tir = false; // TODO: ?
+                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, tir);
             #endif
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

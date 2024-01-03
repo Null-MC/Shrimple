@@ -13,7 +13,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     vec2 lmFinal = lmcoord;
 
     #ifdef WORLD_SKY_ENABLED
-        float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+        //float skyNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
         //float skyNoLm = dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
 
         // #ifndef RENDER_SHADOWS_ENABLED
@@ -24,39 +24,39 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
     lmFinal = LightMapTex(lmFinal);
 
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 WorldSkyLightColor = GetSkyLightColor();
-    #endif
+    // #ifndef IRIS_FEATURE_SSBO
+    //     vec3 WorldSkyLightColor = GetSkyLightColor();
+    // #endif
 
     vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
     lightmapBlock = RGBToLinear(lightmapBlock) * DynamicLightBrightness;
     lightmapBlock *= blackbody(LIGHTING_TEMP);
 
-    vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
-    lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor;
+    // vec3 lightmapSky = textureLod(TEX_LIGHTMAP, vec2(lmCoordMin, lmFinal.y), 0).rgb;
+    // lightmapSky = RGBToLinear(lightmapSky) * WorldSkyLightColor;
 
-    float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
+    // float horizonF = smoothstep(0.0, 0.12, abs(localSkyLightDirection.y));
 
-    float ambientF = DynamicLightAmbientF;
-    ambientF *= skyNoLm * 0.5 + 0.5;
-    //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
-    ambientF = 1.0 - (1.0 - ambientF) * horizonF;
+    // float ambientF = DynamicLightAmbientF;
+    // ambientF *= skyNoLm * 0.5 + 0.5;
+    // //ambientF *= dot(texNormal, localSkyLightDirection) * 0.5 + 0.5;
+    // ambientF = 1.0 - (1.0 - ambientF) * horizonF;
 
-    vec3 ambientLight = vec3(ambientF * smootherstep(lmcoord.y));
+    // vec3 ambientLight = vec3(ambientF * smootherstep(lmcoord.y));
 
-    // if (any(greaterThan(abs(texNormal), EPSILON3)))
-    //     ambientLight *= (texNormal.y * 0.3 + 0.7);
+    // // if (any(greaterThan(abs(texNormal), EPSILON3)))
+    // //     ambientLight *= (texNormal.y * 0.3 + 0.7);
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        float viewDist = length(localPos);
-        float shadowDistF = saturate(viewDist / shadowDistance);
-        shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
-        //shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     float viewDist = length(localPos);
+    //     float shadowDistF = saturate(viewDist / shadowDistance);
+    //     shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
+    //     //shadowColor *= 1.0 + MaterialSssStrengthF * sss * shadowDistF;
+    // #endif
 
-    shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
+    // shadowColor = ambientLight + (1.0 - ambientF) * shadowColor;
 
-    diffuse = lightmapBlock + lightmapSky * shadowColor;
+    diffuse = lightmapBlock;// + lightmapSky * shadowColor;
 
     #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
         vec3 lpvPos = GetLPVPosition(localPos);
@@ -67,97 +67,97 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
         diffuse += lpvLight * lpvFade;
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
-        if (lightningStrength > EPSILON) {
-            vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
-            float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
-            diffuse += lightningNoLm * lightningDirectionStrength.w * _pow2(lmcoord.y);
-        }
-    #endif
+    // #if defined WORLD_SKY_ENABLED && defined IS_IRIS
+    //     if (lightningStrength > EPSILON) {
+    //         vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
+    //         float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
+    //         diffuse += lightningNoLm * lightningDirectionStrength.w * _pow2(lmcoord.y);
+    //     }
+    // #endif
 
     //diffuse = pow(lightmapColor, vec3(rcp(DynamicLightAmbientF)));
 }
 
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 albedo, in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
-        vec3 specular = vec3(0.0);
+// #if MATERIAL_SPECULAR != SPECULAR_NONE
+//     vec3 GetSkySpecular(const in vec3 localPos, const in float geoNoL, const in vec3 texNormal, const in vec3 albedo, in vec3 shadowColor, const in vec2 lmcoord, const in float metal_f0, const in float roughL) {
+//         vec3 specular = vec3(0.0);
 
-        vec3 localViewDir = -normalize(localPos);
+//         vec3 localViewDir = -normalize(localPos);
 
-        const float skyLightSize = 8.0;
-        const float skyLightDist = 100.0;
+//         const float skyLightSize = 8.0;
+//         const float skyLightDist = 100.0;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-        #else
-            vec3 localSkyLightDir = localSkyLightDirection;
-        #endif
+//         #ifndef IRIS_FEATURE_SSBO
+//             vec3 localSkyLightDir = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+//         #else
+//             vec3 localSkyLightDir = localSkyLightDirection;
+//         #endif
 
-        if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            vec3 r = reflect(-localViewDir, texNormal);
-            vec3 L = localSkyLightDir * skyLightDist;
-            vec3 centerToRay = dot(L, r) * r - L;
-            vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
-            localSkyLightDir = normalize(closestPoint);
-        }
+//         if (!all(lessThan(abs(texNormal), EPSILON3))) {
+//             vec3 r = reflect(-localViewDir, texNormal);
+//             vec3 L = localSkyLightDir * skyLightDist;
+//             vec3 centerToRay = dot(L, r) * r - L;
+//             vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+//             localSkyLightDir = normalize(closestPoint);
+//         }
 
-        vec3 skyH = normalize(localSkyLightDir + localViewDir);
-        float skyVoHm = max(dot(localViewDir, skyH), 0.0);
+//         vec3 skyH = normalize(localSkyLightDir + localViewDir);
+//         float skyVoHm = max(dot(localViewDir, skyH), 0.0);
 
-        float skyNoVm = 1.0;
-        if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            skyNoVm = max(dot(texNormal, localViewDir), 0.0);
-        }
+//         float skyNoVm = 1.0;
+//         if (!all(lessThan(abs(texNormal), EPSILON3))) {
+//             skyNoVm = max(dot(texNormal, localViewDir), 0.0);
+//         }
 
-        #ifdef HCM_LAZANYI
-            vec3 f0, f82;
-            F_LazanyiRough(skyVoHm, f0, f82, roughL);
-        #else
-            vec3 f0 = GetMaterialF0(albedo, metal_f0);
-            vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
-        #endif
+//         #ifdef HCM_LAZANYI
+//             vec3 f0, f82;
+//             F_LazanyiRough(skyVoHm, f0, f82, roughL);
+//         #else
+//             vec3 f0 = GetMaterialF0(albedo, metal_f0);
+//             vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);
+//         #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 WorldSkyLightColor = GetSkyLightColor();
-            #endif
+//         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+//             #ifndef IRIS_FEATURE_SSBO
+//                 vec3 WorldSkyLightColor = GetSkyLightColor();
+//             #endif
 
-            vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
+//             vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
 
-            float skyNoLm = 1.0, skyNoHm = 1.0;
-            if (!all(lessThan(abs(texNormal), EPSILON3))) {
-                skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
-                skyNoHm = max(dot(texNormal, skyH), 0.0);
-            }
+//             float skyNoLm = 1.0, skyNoHm = 1.0;
+//             if (!all(lessThan(abs(texNormal), EPSILON3))) {
+//                 skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
+//                 skyNoHm = max(dot(texNormal, skyH), 0.0);
+//             }
 
-            float viewDist = length(localPos);
-            float shadowDistF = saturate(viewDist / shadowDistance);
-            //shadowColor *= 1.0 - smoothstep(0.6, 1.0, shadowDistF);
-            shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
+//             float viewDist = length(localPos);
+//             float shadowDistF = saturate(viewDist / shadowDistance);
+//             //shadowColor *= 1.0 - smoothstep(0.6, 1.0, shadowDistF);
+//             shadowColor = mix(shadowColor, vec3(pow5(lmcoord.y) * (skyNoLm * 0.7 + 0.3)), smoothstep(0.6, 1.0, shadowDistF));
 
-            //skyLightColor *= 1.0 - 0.92*skyRainStrength;
+//             //skyLightColor *= 1.0 - 0.92*skyRainStrength;
 
-            float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
-            specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyVoHm, skyF, roughL) * skyLightColor * shadowColor;
-        #endif
+//             float invGeoNoL = 1.0 - saturate(-geoNoL*40.0);
+//             specular += invGeoNoL * SampleLightSpecular(skyNoVm, skyNoLm, skyNoHm, skyVoHm, skyF, roughL) * skyLightColor * shadowColor;
+//         #endif
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER) //&& !(defined MATERIAL_PARTICLES || defined RENDER_TEXTURED || defined RENDER_PARTICLES)
-        //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
-            vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
+//         #if MATERIAL_REFLECTIONS != REFLECT_NONE && !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL && defined RENDER_COMPOSITE) && !(defined RENDER_CLOUDS || defined RENDER_WEATHER) //&& !(defined MATERIAL_PARTICLES || defined RENDER_TEXTURED || defined RENDER_PARTICLES)
+//         //#if MATERIAL_REFLECTIONS == REFLECT_SKY || (MATERIAL_REFLECTIONS == REFLECT_SCREEN && !defined DEFERRED_BUFFER_ENABLED)
+//             vec3 viewPos = (gbufferModelView * vec4(localPos, 1.0)).xyz;
 
-            vec3 texViewNormal = vec3(0.0, 0.0, 1.0);
-            if (!all(lessThan(abs(texNormal), EPSILON3)))
-                texViewNormal = mat3(gbufferModelView) * texNormal;
+//             vec3 texViewNormal = vec3(0.0, 0.0, 1.0);
+//             if (!all(lessThan(abs(texNormal), EPSILON3)))
+//                 texViewNormal = mat3(gbufferModelView) * texNormal;
 
-            vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
-            specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
-        #endif
+//             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+//             specular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;
+//         #endif
 
-        // TODO: Lightning specular
+//         // TODO: Lightning specular
 
-        return specular;
-    }
-#endif
+//         return specular;
+//     }
+// #endif
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
     #if MATERIAL_SPECULAR != SPECULAR_NONE

@@ -265,6 +265,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
+#include "/lib/lighting/sky_lighting.glsl"
+
 #if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
 #elif LIGHTING_MODE == DYN_LIGHT_LPV
@@ -335,9 +337,14 @@ void main() {
         vec3 diffuse, specular = vec3(0.0);
         GetVanillaLighting(diffuse, vIn.lmcoord, vIn.localPos, normal, normal, shadowColor, sss);
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            const float geoNoL = 1.0;
-            specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
+        // #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        //     const float geoNoL = 1.0;
+        //     specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
+        // #endif
+
+        #ifdef RENDER_SHADOWS_ENABLED
+            const bool tir = false; // TODO: ?
+            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
         #endif
 
         #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

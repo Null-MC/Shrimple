@@ -262,6 +262,8 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
+#include "/lib/lighting/sky_lighting.glsl"
+
 #if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
 #elif LIGHTING_MODE == DYN_LIGHT_LPV
@@ -315,11 +317,11 @@ uniform int heldBlockLightValue2;
                 #elif LIGHTING_TRACE_RES == 1
                     ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 2 * pixelSize;
                 #else
-                    ivec2 sampleTex = ivec2(gl_FragCoord.xy);
+                    ivec2 sampleTex = ivec2(gl_FragCoord.xy + vec2(ix, iy));
                 #endif
 
-                //float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
-                float sampleDepth = texelFetch(depthtex1, sampleTex, 0).r;
+                float sampleDepth = textureLod(depthtex1, sampleBlendTex, 0).r;
+                //float sampleDepth = texelFetch(depthtex1, sampleTex, 0).r;
 
                 sampleDepth = linearizeDepthFast(sampleDepth, near, far);
                 
@@ -336,7 +338,7 @@ uniform int heldBlockLightValue2;
                 //     }
                 // }
                 
-                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
+                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth));
                 
                 float weight = fx*fy*fv;
                 accumDiffuse += weight * sampleDiffuse;
@@ -539,13 +541,18 @@ layout(location = 0) out vec4 outFinal;
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow, sss);
 
-                #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-                    #endif
+                // #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+                //     #ifndef IRIS_FEATURE_SSBO
+                //         vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                //     #endif
 
-                    float geoNoL = dot(localNormal, localSkyLightDirection);
-                    specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                //     float geoNoL = dot(localNormal, localSkyLightDirection);
+                //     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
+                // #endif
+
+                #ifdef RENDER_SHADOWS_ENABLED
+                    const bool tir = false; // TODO: ?
+                    GetSkyLightingFinal(diffuse, specular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
 
                 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
@@ -577,7 +584,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleSpecular = vec3(0.0);
 
                     #ifdef LIGHTING_TRACE_FILTER
-                        const vec3 lightSigma = vec3(0.6, 0.6, 0.2);
+                        const vec3 lightSigma = vec3(2.6, 2.6, 0.2);
                         BilateralGaussianBlur(sampleDiffuse, sampleSpecular, texcoord, linearDepthOpaque, texNormal, roughL, lightSigma);
                     #elif LIGHTING_TRACE_RES == 0
                         sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
@@ -747,6 +754,9 @@ layout(location = 0) out vec4 outFinal;
                 #elif LIGHTING_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
                     
+                    const bool tir = false; // TODO: ?
+                    GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif

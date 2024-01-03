@@ -45,8 +45,9 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         if (interleaveCount > 1u) {
             iStep = interleaveCount;
 
-            float n = InterleavedGradientNoiseTime();
+            float n = InterleavedGradientNoise();
             iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
+            //iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
         }
     #endif
 
@@ -63,7 +64,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         //bool hasLight = false;
         //for (uint i2 = 0u; i2 < 16u; i2++) {
-            uint lightIndex = i * iStep + iOffset;// % lightCount;
+            uint lightIndex = (i * iStep + iOffset) % lightCount;
+            if (i * iStep >= lightCount) break;
             //if (lightIndex >= lightCount) break;
 
             lightData = GetVoxelLight(gridIndex, lightIndex % lightCount);
