@@ -48,7 +48,7 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, c
         vec3 final = albedo;
     #endif
 
-	final *= (WorldMinLightF + diffuse) * _pow2(occlusion) + emission * MaterialEmissionF;
+	final *= (WorldMinLightF + diffuse) * occlusion + emission * MaterialEmissionF;
 	final += specular;
 
 	return final;

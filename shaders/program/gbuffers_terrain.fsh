@@ -446,7 +446,7 @@ void main() {
 
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
-        occlusion = vIn.color.a;
+        occlusion = _pow2(vIn.color.a);
     #endif
     
     vec3 shadowColor = vec3(1.0);
@@ -530,6 +530,8 @@ void main() {
         float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
         occlusion *= texOcclusion;
     #endif
+
+    occlusion = max(occlusion, luminance(shadowColor));
 
     vec3 localTangent = normalize(vIn.localTangent.xyz);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);

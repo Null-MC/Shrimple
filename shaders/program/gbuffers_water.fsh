@@ -520,7 +520,7 @@ void main() {
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
-        occlusion = vIn.color.a;
+        occlusion = _pow2(vIn.color.a);
     #endif
 
     vec3 localViewDir = normalize(vIn.localPos);
