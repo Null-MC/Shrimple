@@ -26,18 +26,6 @@ float GetVoxelFade(const in vec3 voxelPos) {
 
         return lpvLight * lpvFade * DynamicLightBrightness * DynamicLightAmbientF;
     }
-
-    // float GetLpvSkyLighting(const in vec3 localPos, const in vec3 localNormal) {
-    //     vec3 lpvPos = GetLPVPosition(localPos);
-    //     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) != lpvPos) return 0.0;
-
-    //     float lpvFade = GetLpvFade(lpvPos);
-    //     lpvFade = smoothstep(0.0, 1.0, lpvFade);
-    //     lpvFade *= 1.0 - LpvLightmapMixF;
-
-    //     vec4 lpvSample = SampleLpv(lpvPos, localNormal);
-    //     return GetLpvSkyLight(lpvSample);
-    // }
 #endif
 
 void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
@@ -60,11 +48,6 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     #if LPV_SIZE > 0 //&& LIGHTING_MODE == DYN_LIGHT_LPV
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
-
-    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) && !(defined RENDER_CLOUDS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-    //     // Required "hack" to force shadow pass on iris
-    //     if (gl_FragCoord.x < 0) sampleDiffuse = texelFetch(shadowcolor0, ivec2(0.0), 0).rgb;
-    // #endif
 }
 
 #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)

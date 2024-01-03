@@ -94,6 +94,8 @@ float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
     return max(1.0 - deltaMin, 0.0);
 }
 
+// TODO: combine neighbor tests
+
 void getNeighborDepthRange(const in vec2 texcoord, out float depthMin, out float depthMax) {
     depthMin = 1.0;
     depthMax = 0.0;
@@ -186,6 +188,7 @@ void main() {
     float reproDepthMax = linearizeDepthFast(clipPosReproMax.z, near, far);
 
     vec2 uvPrev = clipPosReproMax.xy;
+    // TODO: find nearest matching depth offset before sampling
 
     float depthNowL = linearizeDepthFast(depthNow, near, far);
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
