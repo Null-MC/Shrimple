@@ -47,6 +47,7 @@ uniform sampler2D lightmap;
     uniform sampler2D noisetex;
 #endif
 
+uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -92,7 +93,7 @@ uniform vec4 entityColor;
 
 #ifdef EFFECT_TAA_ENABLED
     uniform vec2 pixelSize;
-    uniform int frameCounter;
+    // uniform int frameCounter;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

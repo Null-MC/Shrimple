@@ -59,6 +59,7 @@ uniform sampler2D lightmap;
     uniform sampler2D noisetex;
 #endif
 
+uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -98,7 +99,7 @@ uniform ivec2 atlasSize;
 
 #ifdef EFFECT_TAA_ENABLED
     uniform float frameTime;
-    uniform int frameCounter;
+    // uniform int frameCounter;
     uniform vec2 pixelSize;
 #endif
 
