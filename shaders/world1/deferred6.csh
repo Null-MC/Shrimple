@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "end.glsl"
-#include "/program/deferred6.csh"
+#include "/program/deferred_near-z_3.csh"

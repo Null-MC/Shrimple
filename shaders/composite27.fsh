@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/composite27.fsh"
+#include "/program/composite_bloom_down_7.fsh"

@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/deferred4.csh"
+#include "/program/deferred_near-z_1.csh"

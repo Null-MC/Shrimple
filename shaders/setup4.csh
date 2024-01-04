@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/setup4.csh"
+#include "/program/setup_static_light.csh"

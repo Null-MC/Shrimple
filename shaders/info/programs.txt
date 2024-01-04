@@ -7,8 +7,7 @@ begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
 begin3			clear water depths
 
-shadowcomp1		propagate LPV
-shadowcomp2		build light bin lists; insert lpv lights
+shadowcomp2		build light bin lists
 shadowcomp3		populate light mask neighbors
 
 deferred1		hi-z DDA
@@ -20,36 +19,41 @@ deferred6		near-z [3]
 deferred7		near-z [4]
 deferred8		near-z [5]
 
-composite1		opaque deferred block-light tracing
-composite2		opaque deferred final
-composite3		opaque deferred VL tracing
 
-composite4		opaque SSAO
+composite1		propagate LPV
 
-composite5		opaque apply reflections, VL, & water absorption
-composite6		translucent deferred block-light tracing
-composite7		translucent deferred VL tracing
-composite8		translucent deferred final + pre distance blur
-composite9		post distance blur
-composite10		taa resolve
+composite11		opaque deferred block-light tracing
+composite12		opaque deferred final
+composite13		opaque deferred VL tracing
 
-composite11		bloom downscale 1/2
-composite12		bloom downscale 1/4
-composite13		bloom downscale 1/8
-composite14		bloom downscale 1/16
-composite15		bloom downscale 1/32
-composite16		bloom downscale 1/64
-composite17		bloom downscale 1/128
-composite18		bloom downscale 1/256
-composite20		bloom upscale 1/128
-composite21		bloom upscale 1/64
-composite22		bloom upscale 1/32
-composite23		bloom upscale 1/16
-composite24		bloom upscale 1/8
-composite25		bloom upscale 1/4
-composite26		bloom upscale 1/2
-composite27		bloom upscale final
-composite30		post-processing
-composite31		[debug] bloom tile merge
+composite14		opaque SSAO
+
+composite15		opaque apply reflections, VL, & water absorption
+composite16		translucent deferred block-light tracing
+composite17		translucent deferred VL tracing
+composite18		translucent deferred final + pre distance blur
+composite19		post distance blur
+composite20		taa resolve
+
+composite21		bloom downscale 1/2
+composite22		bloom downscale 1/4
+composite23		bloom downscale 1/8
+composite24		bloom downscale 1/16
+composite25		bloom downscale 1/32
+composite26		bloom downscale 1/64
+composite27		bloom downscale 1/128
+composite28		bloom downscale 1/256
+
+composite31		bloom upscale 1/128
+composite32		bloom upscale 1/64
+composite33		bloom upscale 1/32
+composite34		bloom upscale 1/16
+composite35		bloom upscale 1/8
+composite36		bloom upscale 1/4
+composite37		bloom upscale 1/2
+composite38		bloom upscale final
+
+composite40		post-processing
+composite41		[debug] bloom tile merge
 
 final			final / debug output

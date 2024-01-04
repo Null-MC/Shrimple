@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "end.glsl"
-#include "/program/composite26.fsh"
+#include "/program/composite_bloom_down_6.fsh"

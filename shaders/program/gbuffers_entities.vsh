@@ -43,6 +43,10 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+    uniform sampler2D noisetex;
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -50,6 +54,12 @@ uniform ivec2 atlasSize;
 
 uniform int entityId;
 uniform vec4 entityColor;
+
+#ifdef ANIM_WORLD_TIME
+    uniform int worldTime;
+#else
+    uniform float frameTimeCounter;
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     uniform mat4 shadowModelView;
@@ -70,6 +80,11 @@ uniform vec4 entityColor;
     #endif
 #endif
 
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+    uniform vec3 previousCameraPosition;
+    uniform int currentRenderedItemId;
+#endif
+
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
@@ -88,14 +103,16 @@ uniform vec4 entityColor;
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
 #include "/lib/items.glsl"
+
 #include "/lib/sampling/atlas.glsl"
+
 #include "/lib/utility/lightmap.glsl"
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
@@ -110,13 +127,39 @@ uniform vec4 entityColor;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
-#endif
+#elif LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+    #include "/lib/buffers/static_block.glsl"
+    #include "/lib/buffers/volume.glsl"
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
-    #include "/lib/entities.glsl"
+    #ifdef LIGHTING_FLICKER
+        #include "/lib/utility/anim.glsl"
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
 
+    #include "/lib/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
+
+    //#include "/lib/lighting/voxel/mask.glsl"
+    //#include "/lib/lighting/voxel/block_mask.glsl"
+    //#include "/lib/lighting/voxel/blocks.glsl"
+
+    #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/entities.glsl"
+    #include "/lib/lighting/voxel/item_light_map.glsl"
+    #include "/lib/lighting/voxel/items.glsl"
+
+    // #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    //     #include "/lib/lighting/voxel/lights.glsl"
+    //     #include "/lib/lighting/voxel/light_mask.glsl"
+    // #endif
 #endif
+
+// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
+//     #include "/lib/entities.glsl"
+
+//     #include "/lib/lighting/voxel/entities.glsl"
+// #endif
 
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/common.glsl"
@@ -155,5 +198,81 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
+    #endif
+
+
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0 && !defined RENDER_SHADOWS_ENABLED
+        if (entityId > 0 || currentRenderedItemId > 0) {
+            vec3 originPos = vOut.localPos; // TODO: offset by normal?
+            bool intersects = true;
+
+            // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
+            //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+
+            //     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+            //     //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
+            //     if (lightViewPos.z > maxLightRange) intersects = false;
+            //     else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
+            //     else {
+            //         if (dot(sceneViewUp,   lightViewPos) > maxLightRange) intersects = false;
+            //         if (dot(sceneViewDown, lightViewPos) > maxLightRange) intersects = false;
+            //         if (dot(sceneViewLeft,  lightViewPos) > maxLightRange) intersects = false;
+            //         if (dot(sceneViewRight, lightViewPos) > maxLightRange) intersects = false;
+            //     }
+            // #endif
+
+            uint lightType = LIGHT_NONE;//StaticBlockMap[vOut.blockId].lightType;
+            vec3 lightValue = vec3(0.0);
+
+            vec3 playerOffset = originPos - (eyePosition - cameraPosition);
+            playerOffset.y += 1.0;
+
+            // if (entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
+            if (entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
+                uint itemLightType = GetSceneItemLightType(currentRenderedItemId);
+                if (itemLightType > 0) lightType = itemLightType;
+
+                if (entityId == ENTITY_SPECTRAL_ARROW)
+                    lightType = LIGHT_TORCH_FLOOR;
+                else if (entityId == ENTITY_TORCH_ARROW)
+                    lightType = LIGHT_TORCH_FLOOR;
+            }
+
+            vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
+
+            if (entityLightColorRange.a > EPSILON)
+                lightValue = _pow2(entityLightColorRange.rgb) * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+
+            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                StaticLightData lightInfo = StaticLightMap[lightType];
+                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                float lightRange = lightRangeSize.x * 255.0;
+
+                lightColor = RGBToLinear(lightColor);
+                //lightColor = pow(lightColor, vec3(2.0));
+
+                //vec2 lightNoise = vec2(0.0);
+                #ifdef LIGHTING_FLICKER
+                   vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                   ApplyLightFlicker(lightColor, lightType, lightNoise);
+                #endif
+
+                lightValue = _pow2(lightColor) * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+            }
+
+            if (any(greaterThan(lightValue, EPSILON3))) {
+                vec3 lpvPos = GetLPVPosition(originPos);
+                ivec3 imgCoord = GetLPVImgCoord(lpvPos);
+
+                ivec3 imgCoordOffset = GetLPVFrameOffset();
+                ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+
+                if (frameCounter % 2 == 0)
+                    imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                else
+                    imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+            }
+        }
     #endif
 }

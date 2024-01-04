@@ -55,6 +55,10 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+    uniform sampler2D noisetex;
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -88,6 +92,10 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+    uniform vec3 previousCameraPosition;
+#endif
+
 #ifdef EFFECT_TAA_ENABLED
     uniform float frameTime;
     uniform int frameCounter;
@@ -96,6 +104,7 @@ uniform ivec2 atlasSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/collisions.glsl"
     #include "/lib/buffers/lighting.glsl"
 #endif
@@ -111,11 +120,10 @@ uniform ivec2 atlasSize;
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
-    #include "/lib/buffers/static_block.glsl"
     #include "/lib/world/waving.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
@@ -130,6 +138,31 @@ uniform ivec2 atlasSize;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
+#elif LIGHTING_MODE != DYN_LIGHT_NONE
+    #ifdef LIGHTING_FLICKER
+        #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
+
+    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/lighting/voxel/block_mask.glsl"
+    #include "/lib/lighting/voxel/blocks.glsl"
+
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+        #include "/lib/lighting/voxel/lpv.glsl"
+        // #include "/lib/lighting/voxel/entities.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #include "/lib/lighting/voxel/lights.glsl"
+        #include "/lib/lighting/voxel/light_mask.glsl"
+    #endif
+
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+        #include "/lib/buffers/volume.glsl"
+    #endif
+
+    #include "/lib/lighting/voxel/lights_render.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -185,6 +218,89 @@ void main() {
 
         #ifdef EFFECT_TAA_ENABLED
             jitter(gl_Position);
+        #endif
+    #endif
+
+
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+        uint blockId = vOut.blockId;
+        if (blockId <= 0) blockId = BLOCK_SOLID;
+
+        vec3 originPos = vOut.localPos + at_midBlock/64.0;
+        bool intersects = true;
+
+        // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
+        //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+
+        //     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+        //     //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
+        //     if (lightViewPos.z > maxLightRange) intersects = false;
+        //     else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
+        //     else {
+        //         if (dot(sceneViewUp,   lightViewPos) > maxLightRange) intersects = false;
+        //         if (dot(sceneViewDown, lightViewPos) > maxLightRange) intersects = false;
+        //         if (dot(sceneViewLeft,  lightViewPos) > maxLightRange) intersects = false;
+        //         if (dot(sceneViewRight, lightViewPos) > maxLightRange) intersects = false;
+        //     }
+        // #endif
+
+        uint lightType = StaticBlockMap[blockId].lightType;
+
+        ivec3 gridCell, blockCell;
+        vec3 gridPos = GetVoxelBlockPosition(originPos);
+        if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+            uint gridIndex = GetVoxelGridCellIndex(gridCell);
+
+            if (intersects && !IsTraceEmptyBlock(blockId))
+                SetVoxelBlockMask(blockCell, gridIndex, blockId);
+
+            #if LIGHTING_MODE == DYN_LIGHT_TRACED
+                if (lightType > 0) {
+                    if (!intersects) lightType = LIGHT_IGNORED;
+
+                    if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
+                        if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                        #ifdef DYN_LIGHT_DEBUG_COUNTS
+                            else atomicAdd(SceneLightMaxCount, 1u);
+                        #endif
+                    }
+                }
+            #endif
+        }
+
+        #if LPV_SIZE > 0
+            vec3 playerOffset = originPos - (eyePosition - cameraPosition);
+            playerOffset.y += 1.0;
+
+            vec3 lightValue = vec3(0.0);
+            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                StaticLightData lightInfo = StaticLightMap[lightType];
+                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                float lightRange = lightRangeSize.x * 255.0;
+
+                lightColor = RGBToLinear(lightColor);
+
+                #ifdef LIGHTING_FLICKER
+                   vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                   ApplyLightFlicker(lightColor, lightType, lightNoise);
+                #endif
+
+                lightValue = _pow2(lightColor) * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+            }
+
+            if (any(greaterThan(lightValue, EPSILON3))) {
+                vec3 lpvPos = GetLPVPosition(originPos);
+                ivec3 imgCoord = GetLPVImgCoord(lpvPos);
+
+                ivec3 imgCoordOffset = GetLPVFrameOffset();
+                ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+
+                if (frameCounter % 2 == 0)
+                    imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                else
+                    imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+            }
         #endif
     #endif
 }

@@ -59,8 +59,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
 
     #ifdef RENDER_SHADOWS_ENABLED
         skyLightShadowColor *= mix(1.0, pow5(lmcoord.y) * skyNoLm, smoothstep(0.6, 1.0, shadowDistF));
-    // #else
-    //     skyLightShadowColor *= pow5(lmcoord.y) * skyNoLm;
+    #else
+        skyLightShadowColor *= pow5(lmcoord.y);// * skyNoLm;
+        //skyLightShadowColor *= smootherstep(lmcoord.y);
     #endif
 
     skyLightShadowColor *= skyLightColor;

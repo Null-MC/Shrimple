@@ -1,0 +1,4 @@
+#version 430 compatibility
+
+#include "nether.glsl"
+#include "/program/composite_bloom_up_3.vsh"

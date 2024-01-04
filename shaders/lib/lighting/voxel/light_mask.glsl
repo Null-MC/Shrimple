@@ -26,7 +26,7 @@ uint GetLightMaskFace(const in vec3 normal) {
     return normal.z > 0 ? LIGHT_MASK_SOUTH : LIGHT_MASK_NORTH;
 }
 
-#ifdef RENDER_SHADOW
+#if defined RENDER_GEOMETRY || defined RENDER_VERTEX
     bool SetVoxelLightMask(const in ivec3 blockCell, const in uint gridIndex, const in uint lightType) {
         uint maskIndex = (blockCell.z << (LightMaskBitCount * 2)) | (blockCell.y << LightMaskBitCount) | blockCell.x;
         maskIndex *= DYN_LIGHT_MASK_STRIDE;
@@ -45,7 +45,7 @@ uint GetLightMaskFace(const in vec3 normal) {
     }
 #endif
 
-#if !defined RENDER_SHADOW && !defined RENDER_BEGIN && LIGHTING_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE == DYN_LIGHT_TRACED && !(defined RENDER_BEGIN || defined RENDER_GEOMETRY || defined RENDER_VERTEX)
     uint GetVoxelLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetVoxelBlockPosition(position);

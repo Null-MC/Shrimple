@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "nether.glsl"
-#include "/program/composite23.fsh"
+#include "/program/composite_bloom_down_3.fsh"

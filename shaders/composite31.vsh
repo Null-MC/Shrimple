@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/composite31.vsh"
+#include "/program/composite_bloom_up_1.vsh"

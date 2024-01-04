@@ -137,7 +137,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
-            float phaseCloud = DHG(VoL, -0.19, 0.824, 0.09);
+            float phaseCloud = GetCloudPhase(VoL);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
@@ -212,48 +212,27 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-            // if (isEyeInWater == 1) {
-            //     isWater = traceDist < waterDepth[0] + 0.001;
-            //     waterDepthEye += min(traceDist, waterDepth[0]);
+            if (waterDepth[0] < farDist) {
+                isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
+                waterDepthEye += max(traceDist - waterDepth[0], 0.0);
+            }
 
-            //     #if WATER_DEPTH_LAYERS >= 2
-            //         if (waterDepth[1] < farDist)
-            //             isWater = isWater || (traceDist > min(waterDepth[1], farDist) && traceDist < min(waterDepth[2], farDist));
-            //             // TODO: waterDepthEye
-            //     #endif
+            #if WATER_DEPTH_LAYERS >= 3
+                if (waterDepth[2] < farDist)
+                    isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
+                    // TODO: waterDepthEye
+            #endif
 
-            //     #if WATER_DEPTH_LAYERS >= 4
-            //         if (waterDepth[3] < farDist)
-            //             isWater = isWater || (traceDist > min(waterDepth[3], farDist) && traceDist < min(waterDepth[4], farDist));
-            //             // TODO: waterDepthEye
-            //     #endif
-            // }
-            //else {
-                if (waterDepth[0] < farDist) {
-                    isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
-                    waterDepthEye += max(traceDist - waterDepth[0], 0.0);
-                }
-
-                #if WATER_DEPTH_LAYERS >= 3
-                    if (waterDepth[2] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[2], farDist) && traceDist < min(waterDepth[3], farDist));
-                        // TODO: waterDepthEye
-                #endif
-
-                #if WATER_DEPTH_LAYERS >= 5
-                    if (waterDepth[4] < farDist)
-                        isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
-                        // TODO: waterDepthEye
-                #endif
-            //}
+            #if WATER_DEPTH_LAYERS >= 5
+                if (waterDepth[4] < farDist)
+                    isWater = isWater || (traceDist > min(waterDepth[4], farDist) && traceDist < min(waterDepth[5], farDist));
+                    // TODO: waterDepthEye
+            #endif
 
             VolumetricPhaseFactors phaseF = isWater ? phaseWater : phaseAir;
             float sampleSkyPhase = isWater ? skyPhaseWater : skyPhaseAir;
-
-            // vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
         #else
             float sampleSkyPhase = skyPhase;
-            // vec3 inScattering = ambientBase;
 
             // #ifdef WORLD_WATER_ENABLED
             //     if (isEyeInWater == 1)
@@ -309,6 +288,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     if (skyRainStrength > EPSILON) {
                         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
                         float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
+                        sampleScattering = mix(sampleScattering, vec3(AirScatterRainF), cloudUnder * skyRainStrength);
                         sampleExtinction = mix(sampleExtinction, AirExtinctRainF, cloudUnder * skyRainStrength);
                         sampleDensity = mix(sampleDensity, 1.0, cloudUnder * skyRainStrength);
                     }
@@ -531,7 +511,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //     sampleAmbient *= skyLightColor;
         // #endif
 
-        vec3 inScattering = sampleScattering * (sampleLit + sampleAmbient) * sampleDensity;
+        vec3 inScattering = sampleScattering * (sampleLit + phaseIso * sampleAmbient) * sampleDensity;
         float sampleTransmittance = exp(-sampleExtinction * stepLength * sampleDensity);
         vec3 scatteringIntegral = inScattering - inScattering * sampleTransmittance;
 

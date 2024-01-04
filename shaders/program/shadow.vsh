@@ -140,14 +140,16 @@ void main() {
         }
     #endif
 
-    #ifndef IRIS_FEATURE_SSBO
-        mat4 shadowModelViewEx = shadowModelView;
-    #endif
-
     gl_Position = gl_ModelViewMatrix * pos;
 
     //gl_Position.z += max(geoViewNormal.z, 0.0) * 8.0;
 
-    gl_Position = shadowModelViewInverse * gl_Position;
-    gl_Position = shadowModelViewEx * gl_Position;
+    #ifdef RENDER_SHADOWS_ENABLED
+        #ifndef IRIS_FEATURE_SSBO
+            mat4 shadowModelViewEx = shadowModelView;
+        #endif
+
+        gl_Position = shadowModelViewInverse * gl_Position;
+        gl_Position = shadowModelViewEx * gl_Position;
+    #endif
 }

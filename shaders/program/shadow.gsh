@@ -89,12 +89,13 @@ uniform float far;
         // #include "/lib/buffers/collisions.glsl"
         #include "/lib/buffers/lighting.glsl"
 
-        #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/lights_render.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+
+        #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
@@ -215,7 +216,8 @@ void main() {
                 vec3 playerOffset = originPos - (eyePosition - cameraPosition);
                 playerOffset.y += 1.0;
 
-                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
+                //if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
+                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
                     uint itemLightType = GetSceneItemLightType(currentRenderedItemId);
                     if (itemLightType > 0) lightType = itemLightType;
 
@@ -241,13 +243,13 @@ void main() {
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                    lightValue = _pow2(lightColor) * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
                 if (entityLightColorRange.a > EPSILON)
-                    lightValue = entityLightColorRange.rgb * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+                    lightValue = _pow2(entityLightColorRange.rgb) * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
 
                 if (any(greaterThan(lightValue, EPSILON3))) {
                     vec3 lpvPos = GetLPVPosition(originPos);
@@ -295,7 +297,7 @@ void main() {
         // }
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         if (isRenderTerrain) {
             // TODO: use emission as inv of alpha instead?
             if (vIn[0].blockId == BLOCK_FIRE || vIn[0].blockId == BLOCK_SOUL_FIRE) return;
