@@ -910,7 +910,7 @@ layout(location = 0) out vec4 outFinal;
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
-        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL
+        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL && defined WORLD_WATER_ENABLED
             if (tir) {
                 opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
             }

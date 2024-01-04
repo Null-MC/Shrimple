@@ -491,7 +491,11 @@ void main() {
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
     float alphaThreshold = 0.1;//(1.5/255.0);
-    if (isWater) alphaThreshold = -1.0;
+
+    if (isWater) {
+        alphaThreshold = -1.0;
+        // color.a = max(color.a, 0.02);
+    }
 
     #ifdef MATERIAL_REFLECT_GLASS
         if (vIn.blockId == BLOCK_GLASS || vIn.blockId == BLOCK_GLASS_PANE) alphaThreshold = -1.0;
@@ -510,6 +514,7 @@ void main() {
             #endif
 
             color.a *= WorldWaterOpacityF;
+            color.a = max(color.a, 0.02);
 
             color = mix(color, vec4(1.0), oceanFoam);
         }
@@ -670,11 +675,11 @@ void main() {
         // TODO: should this also apply to forward?
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
-                vec3 f0 = GetMaterialF0(albedo, metal_f0);
+                //vec3 f0 = GetMaterialF0(albedo, metal_f0);
                 float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
+                float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
                 //color.a = min(color.a + skyF, 1.0);
-                color.a = clamp(color.a, luminance(skyF) * MaterialReflectionStrength, 1.0);
+                color.a = clamp(color.a, skyF * MaterialReflectionStrength, 1.0);
 
                 //color.rgb = vec3(0.0);
                 color.rgb *= 1.0 - skyF;

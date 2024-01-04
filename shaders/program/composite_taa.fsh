@@ -127,7 +127,7 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
     // simultaneously evaluate the middle 2 samples from the 4x4 grid.
     vec2 w12 = w1 + w2;
-    vec2 offset12 = w2 / max(w12, EPSILON);
+    vec2 offset12 = w2 / max(w12, 0.001);
 
     // Compute the final UV coordinates we'll use for sampling the texture
     vec2 texPos0  = (texPos1 - 1.0) * pixelSize;
@@ -148,7 +148,7 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos3.y), 0) * w12.x * w3.y;
     result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos3.y), 0) * w3.x * w3.y;
 
-    return clamp(result, vec4(0.0), vec4(0xFFFF));
+    return clamp(result, 0.0, 65000.0);
 }
 
 
@@ -222,7 +222,7 @@ void main() {
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
     float depthFinal = mix(depthNowL, depthPrevL, weight);
 
-    outFinal = colorFinal;
+    outFinal = clamp(colorFinal, 0.0, 65000.0);
     //outFinal = vec3(depthTest);
     outFinalPrev = vec4(colorFinal, counter);
     outDepthPrev = depthFinal;
