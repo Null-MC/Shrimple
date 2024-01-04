@@ -350,6 +350,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 vec3 traceShadowClipPos = vec3(-1.0);
 
                 int cascade = GetShadowCascade(shadowViewPos, -0.01);
+                float shadowDistF = 0.0;
                 
                 if (cascade >= 0) {
                     float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
@@ -360,6 +361,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                     texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
                     sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                    shadowDistF = 1.0;
                 }
             #else
                 float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
@@ -368,7 +370,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                if (length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.92) {
+                float shadowDistF = length(traceShadowClipPos.xy * 2.0 - 1.0);
+
+                if (shadowDistF < 0.92) {
                     //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                     float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
@@ -381,7 +385,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #ifdef SHADOW_COLORED
                 float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
 
-                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && length(traceShadowClipPos.xy * 2.0 - 1.0) < 0.98) {
+                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowDistF < 0.92)) {
                     vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
                     shadowColor = RGBToLinear(shadowColor);
 
@@ -500,19 +504,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     blockLightAccum *= 9.0 * DynamicLightBrightness;
                 }
             #elif LPV_SIZE > 0
-                //vec3 lpvPos = GetLPVPosition(traceLocalPos);
-                //vec3 voxelPos = GetVoxelBlockPosition(traceLocalPos);
-                //vec4 lpvSample = SampleLpv(voxelPos, lpvPos);
-
-                //vec3 lpvLight = saturate(lpvSample.rgb / LpvBlockLightF);
-                //lpvLight = sqrt(lpvLight / LpvBlockLightF);
-
-                //lpvLight = sqrt(lpvLight / LpvRangeF);
-                //lpvLight /= 1.0 + lpvLight;
-
-                //lpvLight *= 0.3*LPV_BRIGHT_BLOCK;
-                //lpvLight *= 0.25;
-
                 vec3 lpvLight = vec3(0.0);
 
                 #ifdef LPV_GI

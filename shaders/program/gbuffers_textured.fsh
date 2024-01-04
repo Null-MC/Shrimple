@@ -265,7 +265,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#include "/lib/lighting/sky_lighting.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky_lighting.glsl"
+#endif
 
 #if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
@@ -342,7 +344,7 @@ void main() {
         //     specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
         // #endif
 
-        #ifdef RENDER_SHADOWS_ENABLED
+        #ifdef WORLD_SKY_ENABLED
             const bool tir = false; // TODO: ?
             GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
         #endif

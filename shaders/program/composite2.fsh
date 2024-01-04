@@ -262,7 +262,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#include "/lib/lighting/sky_lighting.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky_lighting.glsl"
+#endif
 
 #if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
@@ -338,7 +340,7 @@ uniform int heldBlockLightValue2;
                 //     }
                 // }
                 
-                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth));
+                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
                 
                 float weight = fx*fy*fv;
                 accumDiffuse += weight * sampleDiffuse;
@@ -550,7 +552,7 @@ layout(location = 0) out vec4 outFinal;
                 //     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow, deferredLighting.xy, metal_f0, roughL);
                 // #endif
 
-                #ifdef RENDER_SHADOWS_ENABLED
+                #ifdef WORLD_SKY_ENABLED
                     const bool tir = false; // TODO: ?
                     GetSkyLightingFinal(diffuse, specular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
@@ -754,8 +756,10 @@ layout(location = 0) out vec4 outFinal;
                 #elif LIGHTING_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
                     
-                    const bool tir = false; // TODO: ?
-                    GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #ifdef WORLD_SKY_ENABLED
+                        const bool tir = false; // TODO: ?
+                        GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #endif
 
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);

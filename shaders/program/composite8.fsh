@@ -260,7 +260,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#include "/lib/lighting/sky_lighting.glsl"
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/lighting/sky_lighting.glsl"
+#endif
 
 #if LIGHTING_MODE == DYN_LIGHT_NONE
     #include "/lib/lighting/vanilla.glsl"
@@ -327,7 +329,7 @@ uniform int heldBlockLightValue2;
                 #elif LIGHTING_TRACE_RES == 1
                     ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 2 * pixelSize;
                 #else
-                    ivec2 sampleTex = ivec2(gl_FragCoord.xy);
+                    ivec2 sampleTex = ivec2(gl_FragCoord.xy + vec2(ix, iy));
                 #endif
 
                 // float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
@@ -528,8 +530,10 @@ layout(location = 0) out vec4 outFinal;
                 //     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
                 // #endif
 
-                const bool tir = false; // TODO: ?
-                GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                #ifdef WORLD_SKY_ENABLED
+                    const bool tir = false; // TODO: ?
+                    GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                #endif
 
                 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                     SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
@@ -692,8 +696,10 @@ layout(location = 0) out vec4 outFinal;
                 #elif LIGHTING_MODE == DYN_LIGHT_LPV
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
 
-                    const bool tir = false; // TODO: ?
-                    GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #ifdef WORLD_SKY_ENABLED
+                        const bool tir = false; // TODO: ?
+                        GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #endif
 
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
