@@ -4,9 +4,9 @@ struct CollissionData {
 };
 
 #ifdef RENDER_SETUP
-    layout(std430, binding = 5) writeonly buffer collissionData
+    layout(binding = 5) writeonly buffer collissionData
 #else
-    layout(std430, binding = 5) readonly buffer collissionData
+    layout(binding = 5) readonly buffer collissionData
 #endif
 {
     CollissionData CollissionMaps[];   // 52 * 1200 = 62400

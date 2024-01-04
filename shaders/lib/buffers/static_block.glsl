@@ -10,9 +10,9 @@ struct StaticBlockData {        // 24 x 1280
 };
 
 #ifdef RENDER_SETUP
-    layout(std430, binding = 2) restrict writeonly buffer staticBlockData
+    layout(binding = 2) restrict writeonly buffer staticBlockData
 #else
-    layout(std430, binding = 2) restrict readonly buffer staticBlockData
+    layout(binding = 2) restrict readonly buffer staticBlockData
 #endif
 {
     StaticBlockData StaticBlockMap[];

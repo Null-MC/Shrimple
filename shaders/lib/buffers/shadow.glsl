@@ -1,7 +1,7 @@
 #if defined RENDER_SETUP || defined RENDER_BEGIN || defined RENDER_SHADOW
-    layout(std430, binding = 1) buffer shadowData
+    layout(binding = 1) buffer shadowData
 #else
-    layout(std430, binding = 1) readonly buffer shadowData
+    layout(binding = 1) readonly buffer shadowData
 #endif
 {
     //#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

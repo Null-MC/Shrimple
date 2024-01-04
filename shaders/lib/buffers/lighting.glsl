@@ -13,9 +13,9 @@ struct StaticLightData {
 };
 
 #ifdef RENDER_SETUP
-    layout(std430, binding = 3) restrict writeonly buffer staticLightData
+    layout(binding = 3) writeonly buffer staticLightData
 #else
-    layout(std430, binding = 3) restrict readonly buffer staticLightData
+    layout(binding = 3) readonly buffer staticLightData
 #endif
 {
     StaticLightData StaticLightMap[];
@@ -23,11 +23,11 @@ struct StaticLightData {
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE
     #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
-        layout(std430, binding = 4) restrict buffer globalLightingData
+        layout(binding = 4) buffer globalLightingData
     #elif defined RENDER_BEGIN
-        layout(std430, binding = 4) restrict writeonly buffer globalLightingData
+        layout(binding = 4) writeonly buffer globalLightingData
     #else
-        layout(std430, binding = 4) restrict readonly buffer globalLightingData
+        layout(binding = 4) readonly buffer globalLightingData
     #endif
     {
         uint SceneLightCount;       // 4
@@ -55,9 +55,9 @@ struct StaticLightData {
         };
 
         #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW || defined RENDER_BEGIN
-            layout(std430, binding = 6) restrict buffer localLightingData
+            layout(binding = 6) buffer localLightingData
         #else
-            layout(std430, binding = 6) restrict readonly buffer localLightingData
+            layout(binding = 6) readonly buffer localLightingData
         #endif
         {
             LightCellData SceneLightMaps[];     // 16 * N
@@ -65,18 +65,18 @@ struct StaticLightData {
     #endif
 
     #if defined RENDER_BEGIN || defined RENDER_SHADOWCOMP || defined RENDER_GEOMETRY || defined RENDER_VERTEX
-        layout(r32ui) uniform restrict uimage2D imgLocalLightMask;
+        layout(r32ui) uniform uimage2D imgLocalLightMask;
     #else
-        layout(r32ui) uniform restrict readonly uimage2D imgLocalLightMask;
+        layout(r32ui) uniform readonly uimage2D imgLocalLightMask;
     #endif
 #endif
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0
     #ifdef RENDER_SHADOWCOMP
-        layout(r16ui) uniform restrict uimage2D imgLocalBlockMask;
+        layout(r16ui) uniform uimage2D imgLocalBlockMask;
     #elif defined RENDER_BEGIN || defined RENDER_GEOMETRY || defined RENDER_VERTEX
-        layout(r16ui) uniform restrict writeonly uimage2D imgLocalBlockMask;
+        layout(r16ui) uniform writeonly uimage2D imgLocalBlockMask;
     #else
-        layout(r16ui) uniform restrict readonly uimage2D imgLocalBlockMask;
+        layout(r16ui) uniform readonly uimage2D imgLocalBlockMask;
     #endif
 #endif

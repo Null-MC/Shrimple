@@ -1,7 +1,7 @@
 #if defined RENDER_SETUP || defined RENDER_BEGIN
-    layout(std430, binding = 0) buffer sceneData
+    layout(binding = 0) buffer sceneData
 #else
-    layout(std430, binding = 0) readonly buffer sceneData
+    layout(binding = 0) readonly buffer sceneData
 #endif
 {
     vec3 HandLightPos1;                      // 12
