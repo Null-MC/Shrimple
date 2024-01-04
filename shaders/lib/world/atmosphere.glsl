@@ -10,8 +10,8 @@ const float phaseAir = phaseIso;
 #else
 	vec3 tint = RGBToLinear(fogColor);// * 0.8 + 0.08;
 
-	const vec3 AirAmbientF = tint;
+	const vec3 AirAmbientF = tint * 4.0;
 
-	float AirScatterF = 0.09;// * tint;
-	float AirExtinctF = 0.04;
+	float AirScatterF = 0.07;// * tint;
+	float AirExtinctF = 0.02;
 #endif

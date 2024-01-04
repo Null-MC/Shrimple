@@ -312,10 +312,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #ifdef WORLD_SKY_ENABLED
             sampleAmbient *= skyLightColor;
 
-            #if LPV_SIZE > 0
-                float lpvSkyLightF = GetLpvSkyLight(lpvSample);
-                //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
-            #endif
+            // #if LPV_SIZE > 0
+            //     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
+            //     //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
+            // #endif
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
