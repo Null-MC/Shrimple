@@ -4,9 +4,15 @@ float CloudAbsorbF  = mix(0.6, 1.4, skyRainStrength);// * (1.0 - RGBToLinear(vec
 const float CloudFar = 2000.0;//mix(800.0, far, skyRainStrength);
 
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    const int CloudMaxOctaves = 5;
+    const int CloudTraceOctaves = 3;
+    const int CloudShadowOctaves = 2;
     const float CloudHeight = 128.0;
     const float CloudSize = 24.0;
 #elif SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
+    const int CloudMaxOctaves = 6;
+    const int CloudTraceOctaves = 2;
+    const int CloudShadowOctaves = 2;
     const float CloudHeight = 128.0;
     const float CloudSize = 24.0;
 #else

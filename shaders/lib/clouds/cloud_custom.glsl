@@ -5,9 +5,9 @@
 #define CLOUD_REFLECT_SHADOW_STEPS 4
 
 //const int CloudOctaves = 3;
-const int CloudMaxOctaves = 5;
-const int CloudTraceOctaves = 4;
-const int CloudShadowOctaves = 2;
+// const int CloudMaxOctaves = 5;
+// const int CloudTraceOctaves = 4;
+// const int CloudShadowOctaves = 2;
 
 
 float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.08, 0.92, 0.09);}
@@ -145,8 +145,8 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
             sampleLit *= exp(shadowSampleD * CloudAbsorbF * -shadowStepLen);
         }
 
-        //float fogDist = GetShapedFogDistance(tracePos);
-        //sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+        // float fogDist = GetShapedFogDistance(tracePos);
+        // sampleD *= 1.0 - GetFogFactor(fogDist, 0.5 * CloudFar, CloudFar, 1.0);
 
         float inRange = step(distMin + stepLength * (stepI + dither), far);
 
