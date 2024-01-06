@@ -175,9 +175,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
 
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
 
-            accumDiffuse *= 1.0 - skyReflectF;
-
             if (tir) skyReflectF = vec3(1.0);
+
+            accumDiffuse *= 1.0 - skyReflectF;
 
             #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                 skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, lmcoord.y, sqrt(roughL)) * skyReflectF;

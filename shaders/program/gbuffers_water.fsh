@@ -411,6 +411,14 @@ void main() {
     vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = vIn.lmcoord;
 
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
+            SetWaterDepth(viewDist);
+            // discard;
+            // return;
+        }
+    #endif
+
     bool isWater = false;
     if (vIn.blockId == BLOCK_WATER) {
         isWater = true;
@@ -640,14 +648,6 @@ void main() {
     #endif
 
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-
-    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
-            SetWaterDepth(viewDist);
-            // discard;
-            // return;
-        }
-    #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;

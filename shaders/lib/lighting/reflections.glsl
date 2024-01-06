@@ -53,8 +53,10 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             reflectColor = mix(reflectColor, cloudColorFinal, cloudF);
         #endif
 
-        float m = skyLight * 0.25;
-        reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
+        if (isEyeInWater != 1) {
+            float m = skyLight * 0.25;
+            reflectColor *= smoothstep(-0.4, 0.0, reflectDir.y) * (1.0 - m) + m;
+        }
 
         return reflectColor * pow5(skyLight);
     }
@@ -68,7 +70,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //float distF = 32.0 / (viewDist + 32.0);
     //roughness = pow(roughness, 0.5 + 0.5 * distF);
 
-    vec3 reflectAccum = vec3(0.0);
     #if REFLECTION_ROUGH_SCATTER > 0
         #ifdef EFFECT_TAA_ENABLED
             vec3 seed = vec3(gl_FragCoord.xy, 1.0 + frameCounter);
@@ -177,6 +178,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectDist = far;
     #endif
 
+    //if (isEyeInWater != 1) {
     #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
         vec3 worldPos = cameraPosition + localPos;
 
@@ -207,10 +209,22 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #else
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {
-                //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+                // const float WaterAmbientF = 0.0;
+
+                // vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
+                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+                
                 const float WaterAmbientF = 0.0;
 
-                vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                #ifdef WORLD_SKY_ENABLED
+                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                #endif
+                
+                eyeSkyLightF += 0.02;
+
+                vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
                 ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
             }
             else {
@@ -225,7 +239,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     const vec3 skyLightColor = vec3(0.0);
                 #endif
 
-                vec3 vlLight = (phaseAir * skyLightColor + AirAmbientF);// * pow5(skyLight);
+                vec3 vlLight = (phaseAir + phaseIso * AirAmbientF) * skyLightColor;// * pow5(skyLight);
                 vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
                 reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
             #endif
@@ -234,8 +248,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             }
         #endif
     #endif
+    //}
 
-    reflectAccum += reflectColor;
-
-    return reflectAccum;
+    return reflectColor;
 }

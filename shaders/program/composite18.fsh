@@ -531,7 +531,7 @@ layout(location = 0) out vec4 outFinal;
                 // #endif
 
                 #ifdef WORLD_SKY_ENABLED
-                    const bool tir = false; // TODO: ?
+                    //const bool tir = false; // TODO: ?
                     GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
 
@@ -539,7 +539,7 @@ layout(location = 0) out vec4 outFinal;
                     SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                 #endif
 
-                if (isWater) diffuse *= WorldWaterOpacityF;
+                //if (isWater) diffuse *= WorldWaterOpacityF;
                 //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
 
                 final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
@@ -697,7 +697,7 @@ layout(location = 0) out vec4 outFinal;
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
 
                     #ifdef WORLD_SKY_ENABLED
-                        const bool tir = false; // TODO: ?
+                        //const bool tir = false; // TODO: ?
                         GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                     #endif
 
@@ -910,11 +910,11 @@ layout(location = 0) out vec4 outFinal;
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
-        #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL && defined WORLD_WATER_ENABLED
-            if (tir) {
-                opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
-            }
-        #endif
+        // #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL && defined WORLD_WATER_ENABLED
+        //     if (tir) {
+        //         opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
+        //     }
+        // #endif
 
         #ifdef DH_COMPAT_ENABLED
             float dh_fogDist = GetShapedFogDistance(localPos);
@@ -926,6 +926,8 @@ layout(location = 0) out vec4 outFinal;
             #ifdef DH_COMPAT_ENABLED
                 final *= 1.0 - dh_fogF;
             #endif
+
+            if (tir) final.a = 1.0;
 
             final.rgb += opaqueFinal * (1.0 - final.a);
         }
