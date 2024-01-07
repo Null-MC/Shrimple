@@ -104,6 +104,11 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#if LPV_SIZE > 0
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferPreviousModelView;
+#endif
+
 // #if defined RENDER_CLOUD_SHADOWS_ENABLED && defined WORLD_SKY_ENABLED
 //     uniform vec3 eyePosition;
 // #endif

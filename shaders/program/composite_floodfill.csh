@@ -1,5 +1,5 @@
-#define RENDER_SHADOWCOMP_LPV
-#define RENDER_SHADOWCOMP
+#define RENDER_COMPOSITE_LPV
+#define RENDER_COMPOSITE
 #define RENDER_COMPUTE
 
 #include "/lib/constants.glsl"
@@ -52,6 +52,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     uniform int frameCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferPreviousModelView;
 
     #include "/lib/blocks.glsl"
 
@@ -94,11 +96,28 @@ ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
     ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
 
-    vec3 lpvCameraOffset = fract(cameraPosition);
-    ivec3 lpvOrigin = ivec3(lpvCameraOffset + SceneLPVCenter + 0.5);
+    // vec3 lpvCameraOffset = fract(cameraPosition);
+    // ivec3 lpvOrigin = ivec3(lpvCameraOffset + SceneLPVCenter + 0.5);
+
+    // ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * 0.5));
+    // ivec3 lpvOrigin = ivec3((SceneLPVCenter + offset) + lpvCameraOffset + 0.5);
+
+    vec3 viewDir = getCameraViewDir(gbufferModelView);
+    ivec3 lpvOrigin = ivec3(GetLpvCenter(cameraPosition, viewDir) + 0.5);
 
     return voxelOrigin - lpvOrigin;
 }
+
+// ivec3 GetLPVFrameOffset() {
+//     vec3 viewDir = gbufferModelView[2].xyz;
+//     vec3 posNow = GetLpvCenter(cameraPosition, viewDir);
+
+//     vec3 viewDirPrev = gbufferPreviousModelView[2].xyz;
+//     //vec3 posLast = GetLpvCenter(previousCameraPosition, viewDirPrev) - (cameraPosition - previousCameraPosition);
+//     vec3 posLast = posNow - (cameraPosition - previousCameraPosition);
+
+//     return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
+// }
 
 vec4 GetLpvValue(in ivec3 texCoord) {
     if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec4(0.0);
@@ -241,6 +260,8 @@ vec4 sampleShared(ivec3 pos) {
 }
 
 vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
+    //return sampleShared(fragCoord);
+
     vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0)) * ((mask     ) & 1);
     vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0)) * ((mask >> 1) & 1);
     vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0)) * ((mask >> 2) & 1);

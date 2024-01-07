@@ -55,7 +55,7 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
     uniform sampler2D noisetex;
 #endif
 
@@ -93,8 +93,9 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
     uniform vec3 previousCameraPosition;
+    uniform mat4 gbufferPreviousModelView;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
@@ -138,7 +139,9 @@ uniform ivec2 atlasSize;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
-#elif LIGHTING_MODE != DYN_LIGHT_NONE
+#endif
+
+#if LIGHTING_MODE != DYN_LIGHT_NONE
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -222,7 +225,7 @@ void main() {
     #endif
 
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
@@ -290,11 +293,9 @@ void main() {
             }
 
             if (any(greaterThan(lightValue, EPSILON3))) {
-                vec3 lpvPos = GetLPVPosition(originPos);
-                ivec3 imgCoord = GetLPVImgCoord(lpvPos);
-
-                ivec3 imgCoordOffset = GetLPVFrameOffset();
-                ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                vec3 viewDir = getCameraViewDir(gbufferModelView);
+                vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
+                ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
                 if (frameCounter % 2 == 0)
                     imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));

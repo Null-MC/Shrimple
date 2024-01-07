@@ -10,6 +10,9 @@ begin3			clear water depths
 shadowcomp2		build light bin lists
 shadowcomp3		populate light mask neighbors
 
+prepare1		fog/sky color
+>>prepare2		propagate LPV
+
 deferred1		hi-z DDA
 deferred2		non-deferred SSAO
 deferred3		non-deferred SSAO apply
@@ -20,7 +23,7 @@ deferred7		near-z [4]
 deferred8		near-z [5]
 
 
-composite1		propagate LPV
+--composite1		propagate LPV
 
 composite11		opaque deferred block-light tracing
 composite12		opaque deferred final

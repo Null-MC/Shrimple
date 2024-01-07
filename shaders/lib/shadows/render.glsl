@@ -83,7 +83,7 @@
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
             // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, CLOUD_SHADOW_STEPS);
+            //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, time, CLOUD_SHADOW_STEPS);
             #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 shadow *= SampleCloudShadow(skyLightDir, vIn.cloudPos);
             #endif

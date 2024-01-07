@@ -44,13 +44,11 @@ uniform float far;
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
     uniform int entityId;
-    uniform vec3 eyePosition;
-    uniform int currentRenderedItemId;
-#endif
-
-#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
     uniform int frameCounter;
+    uniform vec3 eyePosition;
     uniform vec3 previousCameraPosition;
+    uniform mat4 gbufferPreviousModelView;
+    uniform int currentRenderedItemId;
     uniform vec4 entityColor;
 
     #ifdef LIGHTING_FLICKER
@@ -252,11 +250,9 @@ void main() {
                     lightValue = _pow2(entityLightColorRange.rgb) * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
 
                 if (any(greaterThan(lightValue, EPSILON3))) {
-                    vec3 lpvPos = GetLPVPosition(originPos);
-                    ivec3 imgCoord = GetLPVImgCoord(lpvPos);
-
-                    ivec3 imgCoordOffset = GetLPVFrameOffset();
-                    ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                    vec3 viewDir = getCameraViewDir(gbufferModelView);
+                    vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
+                    ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
                     // lightValue = RgbToHsv(lightValue/16.0);
                     // lightValue.z = exp2(lightValue.z*16.0) - 1.0;

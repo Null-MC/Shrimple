@@ -10,11 +10,11 @@ const float CloudFar = 2000.0;//mix(800.0, far, skyRainStrength);
     const float CloudHeight = 256.0;
     const float CloudSize = 24.0;
 #elif SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
-    const int CloudMaxOctaves = 6;
+    const int CloudMaxOctaves = 5;
     const int CloudTraceOctaves = 2;
     const int CloudShadowOctaves = 2;
-    const float CloudHeight = 128.0;
-    const float CloudSize = 24.0;
+    const float CloudHeight = 256.0;
+    const float CloudSize = 20.0;
 #else
     const float CloudHeight = 4.0;
     const float CloudSize = 4.0;

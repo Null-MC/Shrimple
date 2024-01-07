@@ -136,7 +136,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         float VoL = dot(localSkyLightDirection, localViewDir);
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+            vec3 cloudOffset = vec3(0.0, -cloudHeight, 0.0);
             float phaseCloud = GetCloudPhase(VoL);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();
@@ -406,7 +406,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     // vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
                     // if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
-                    //     float sampleD = SampleCloudOctaves(cloudPos);
+                    //     float sampleD = SampleCloudOctaves(cloudPos, time);
                     //     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * cloudF;
 
                     //     //sampleColor *= exp(stepLength * sampleD * -CloudAbsorbF);

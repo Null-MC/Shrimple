@@ -84,6 +84,7 @@ uniform vec4 entityColor;
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
     uniform vec3 previousCameraPosition;
     uniform int currentRenderedItemId;
+    uniform mat4 gbufferPreviousModelView;
 #endif
 
 #ifdef IS_IRIS
@@ -263,11 +264,9 @@ void main() {
             }
 
             if (any(greaterThan(lightValue, EPSILON3))) {
-                vec3 lpvPos = GetLPVPosition(originPos);
-                ivec3 imgCoord = GetLPVImgCoord(lpvPos);
-
-                ivec3 imgCoordOffset = GetLPVFrameOffset();
-                ivec3 imgCoordPrev = imgCoord + imgCoordOffset;
+                vec3 viewDir = getCameraViewDir(gbufferModelView);
+                vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
+                ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
                 if (frameCounter % 2 == 0)
                     imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));

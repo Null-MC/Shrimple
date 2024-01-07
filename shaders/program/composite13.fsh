@@ -101,6 +101,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform bool firstPersonCamera;
 #endif
 
+#if LPV_SIZE > 0
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferPreviousModelView;
+#endif
+
 #ifdef IS_IRIS
     uniform vec3 eyePosition;
 #endif

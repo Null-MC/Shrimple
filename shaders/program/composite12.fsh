@@ -71,6 +71,11 @@ uniform int worldTime;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
 
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
 #ifdef ANIM_WORLD_TIME
     //uniform int worldTime;
 #else
@@ -105,6 +110,10 @@ uniform float blindnessSmooth;
     #endif
 #endif
 
+#if LPV_SIZE > 0
+    uniform mat4 gbufferPreviousModelView;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #ifndef IRIS_FEATURE_SSBO
         uniform mat4 shadowModelView;
@@ -119,11 +128,6 @@ uniform float blindnessSmooth;
     uniform vec3 WaterScatterColor;
     uniform float waterDensitySmooth;
 #endif
-
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
 
 #ifdef IS_IRIS
     uniform bool isSpectator;

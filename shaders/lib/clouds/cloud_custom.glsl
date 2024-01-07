@@ -4,10 +4,12 @@
 #define CLOUD_REFLECT_STEPS 12
 #define CLOUD_REFLECT_SHADOW_STEPS 4
 
+const float CloudSpeed = 0.01;
+
 
 float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.08, 0.92, 0.09);}
 
-float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
+float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
     float sampleD = 0.0;
 
     float _str = pow(skyRainStrength, 0.333);
@@ -16,6 +18,8 @@ float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
         float scale = exp2(CloudMaxOctaves - octave);
 
         vec3 testPos = worldPos / CloudSize;
+
+        testPos += CloudSpeed*worldTime * vec3(0.8, 0.2, 0.1);
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
             testPos = floor(testPos);
@@ -111,7 +115,7 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     float stepLength = cloudDist / (stepCount + 1);
     vec3 traceStep = localViewDir * stepLength;
 
-    vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+    vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
 
     //float extinctionInv = rcp(CloudAbsorbF);
     // float VoL = dot(localSkyLightDirection, localViewDir);
@@ -208,7 +212,7 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
         float stepLength = cloudDist / (stepCount + 1);
         vec3 traceStep = localViewDir * stepLength;
 
-        vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+        vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
 
         //float extinctionInv = rcp(CloudAbsorbF);
         // float VoL = dot(localSkyLightDirection, localViewDir);
@@ -314,7 +318,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         float cloudStepLen = cloudDist / (stepCount + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 
-        vec3 sampleOffset = worldPos + vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
+        vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
