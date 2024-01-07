@@ -499,7 +499,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 #ifdef LPV_GI
                     if (!isWater) {
                 #endif
-                    lpvLight = 10.0 * GetLpvBlockLight(lpvSample, 2.0) * DynamicLightBrightness;
+                    lpvLight = 8.0 * GetLpvBlockLight(lpvSample, 2.0) * DynamicLightBrightness;
 
                     //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     //float skyLightF = 0.5 * GetLpvSkyLight(lpvSample);

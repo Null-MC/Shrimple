@@ -346,7 +346,7 @@ const bool colortex15Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define LIGHTING_TEMP_FIRE 2600
+#define LIGHTING_TEMP_FIRE 2200
 #define TEMP_FIRE_RANGE 400 // [100 200 300 400 500 600]
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
