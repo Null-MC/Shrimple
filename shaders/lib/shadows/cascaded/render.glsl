@@ -161,7 +161,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             vec2 pixelRadius = minPixelRadius + (maxPixelRadius - minPixelRadius) * min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
             float shadow = GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
             //return 1.0 - shadow;
-            return 1.0 - smoothstep(0.0, 1.0, shadow);
+            return 1.0 - _smoothstep(shadow);
         }
     #endif
 #elif SHADOW_FILTER == 1

@@ -13,7 +13,7 @@ float GetFogFactor(const in float dist, const in float start, const in float end
     if (dist >= end) return 1.0;
 
     float distF = saturate((dist - start) / (end - start));
-    return smoothstep(0.0, 1.0, pow(distF, density));
+    return _smoothstep(pow(distF, density));
 }
 
 float GetShapedFogDistance(const in vec3 localPos) {

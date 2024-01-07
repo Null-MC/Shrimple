@@ -23,7 +23,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
     // #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
     //     vec3 lpvPos = GetLPVPosition(localPos);
     //     float lpvFade = GetLpvFade(lpvPos);
-    //     lpvFade = smoothstep(0.0, 1.0, lpvFade);
+    //     lpvFade = _smoothstep(lpvFade);
 
     //     vec3 lpvLight = GetLpvAmbient(lpvPos, localNormal);
     //     diffuse += lpvLight * lpvFade;

@@ -346,7 +346,7 @@ const bool colortex15Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define LIGHTING_TEMP_FIRE 2200
+#define LIGHTING_TEMP_FIRE 2600
 #define TEMP_FIRE_RANGE 400 // [100 200 300 400 500 600]
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
@@ -595,13 +595,14 @@ const float voxelDistance = 128.0;
 #endif
 
 
-#define rcp(x) (1.0 / (x))
 
 #define _pow2(x) (x*x)
 #define _pow3(x) (x*x*x)
 
 #define _lengthSq(x) dot((x), (x))
 
+#define rcp(x) (1.0 / (x))
+#define _smoothstep(x) smoothstep(0.0, 1.0, (x))
 #define modelPart(x, y, z) (vec3(x, y, z)/16.0)
 
 float pow2(const in float x) {return x*x;}
@@ -679,6 +680,8 @@ uint float2half(const in uint f) {
         ((((f & uint(0x7f800000)) - uint(0x38000000)) >> 13u) & uint(0x7c00)) |
         ((f >> 13u) & uint(0x03ff));
 }
+
+// float _smoothstep(const in float x) {return smoothstep(0.0, 1.0, x);}
 
 float smootherstep(const in float x) {
     return _pow3(x) * (x * (6.0 * x - 15.0) + 10.0);

@@ -27,5 +27,5 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
     sampleD *= sampleMax;
 
     //return smootherstep(sampleD);
-    return _pow3(smoothstep(0.0, 1.0, sampleD)) + 0.04;
+    return _pow3(_smoothstep(sampleD)) + 0.04;
 }

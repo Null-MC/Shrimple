@@ -33,10 +33,10 @@ float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
     float z = saturate(worldPos.y / CloudHeight);
     sampleD *= sqrt(z - z*z) * 2.0;
 
-    float threshold = mix(0.44, 0.74, _str);
+    float threshold = mix(0.38, 0.64, _str);
     sampleD = max(sampleD - threshold, 0.0) / threshold;
 
-    return smootherstep(sampleD);
+    return pow(_smoothstep(sampleD), 4.0);
 }
 
 void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec3 cloudNear, out vec3 cloudFar) {

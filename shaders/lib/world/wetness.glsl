@@ -1,7 +1,7 @@
 float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 lmcoord) {
     float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
 
-    skyWetness *= smoothstep(0.0, 1.0, skyWetnessSmooth);//max(rainStrength, wetness);
+    skyWetness *= _smoothstep(skyWetnessSmooth);//max(rainStrength, wetness);
 
     // #ifdef WORLD_WATER_ENABLED
     //     if (blockId == BLOCK_WATER) return skyWetness;
@@ -38,8 +38,8 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
 
 void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float skyWetness, const in float puddleF) {
     //float saturation = max(1.4 * skyWetness, 2.0 * puddleF) * porosity;
-    //float saturation = max(sqrt(puddleF), smoothstep(0.0, 1.0, skyWetness)) * porosity;
-    float saturation = min(pow(puddleF, 0.3) + smoothstep(0.0, 1.0, skyWetness), 1.0) * porosity;
+    //float saturation = max(sqrt(puddleF), _smoothstep(skyWetness)) * porosity;
+    float saturation = min(pow(puddleF, 0.3) + _smoothstep(skyWetness), 1.0) * porosity;
     //float saturation = sqrt(puddleF) * porosity;
     saturation = MaterialPorosityDarkenF * saturation;//pow(saturation, 0.25);
 
