@@ -190,12 +190,12 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 normal) {
     #endif
 }
 
-vec3 GetLpvBlockLight(const in vec4 lpvSample) {
+vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float power) {
     //const float sampleF = (1.0/15.0) / DynamicLightRangeF;
 
     float lum = max(luminance(lpvSample.rgb), EPSILON);
     float lum2 = log2(lum + 1.0) / (15.0 * DynamicLightRangeF);
-    return saturate(lpvSample.rgb / lum) * lum2;
+    return saturate(lpvSample.rgb / lum) * pow(lum2, power);
 
     // vec3 hsv = lpvSample.rgb;
     // hsv.z = log2(hsv.z + 1.0) * sampleF * 0.1;
@@ -204,6 +204,10 @@ vec3 GetLpvBlockLight(const in vec4 lpvSample) {
     //return pow2(sampleF * sqrt(max(lpvSample.rgb, vec3(0.0))));
     //vec3 jab = sampleF * log2(max(lpvSample.rgb, vec3(0.0)) + 1.0);
     //return JabToRgb(jab);
+}
+
+vec3 GetLpvBlockLight(const in vec4 lpvSample) {
+    return GetLpvBlockLight(lpvSample, 1.0);
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {

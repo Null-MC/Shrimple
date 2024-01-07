@@ -156,6 +156,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #else
             float skyPhase = phaseIso;
         #endif
+
+        float time = GetAnimationFactor();
     #endif
 
     float stepLength = localRayLength * inverseStepCountF;
@@ -316,8 +318,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             //     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
             //     //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
             // #endif
-        #else
-            float smokeF = SampleSmokeOctaves(traceLocalPos + cameraPosition, SmokeTraceOctaves);
+        #elif defined WORLD_SMOKE
+            float smokeF = SampleSmokeOctaves(traceLocalPos + cameraPosition, SmokeTraceOctaves, time);
 
             sampleDensity = smokeF;
             sampleScattering = vec3(SmokeScatterF);
@@ -497,7 +499,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 #ifdef LPV_GI
                     if (!isWater) {
                 #endif
-                    lpvLight = 8.0 * GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
+                    lpvLight = 10.0 * GetLpvBlockLight(lpvSample, 2.0) * DynamicLightBrightness;
 
                     //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     //float skyLightF = 0.5 * GetLpvSkyLight(lpvSample);

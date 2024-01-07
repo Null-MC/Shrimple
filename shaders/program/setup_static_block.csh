@@ -24,7 +24,7 @@ const ivec3 workGroups = ivec3(4, 5, 1);
         #include "/lib/world/waving_blocks.glsl"
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
         #include "/lib/lighting/voxel/collisions.glsl"
     #endif
 #endif
@@ -47,7 +47,7 @@ void main() {
             GetBlockWavingRangeAttachment(blockId, block.wavingRange, block.wavingAttachment);
         #endif
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == DYN_LIGHT_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
             block.Collisions.Count = 0u;
 
             vec3 boundsMin[BLOCK_MASK_PARTS];

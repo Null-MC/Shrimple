@@ -52,8 +52,12 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
     //     //maxRadius *= distF;
     // #endif
 
-    #if EFFECT_BLUR_RADIUS_WEATHER > 0 && defined WORLD_SKY_ENABLED
-        if (!isWater) maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER), skyRainStrength);
+    #ifdef WORLD_SKY_ENABLED
+        #if EFFECT_BLUR_RADIUS_WEATHER > 0
+            if (!isWater) maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER), skyRainStrength);
+        #endif
+    #elif defined WORLD_SMOKE
+        if (!isWater) maxRadius = max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER);
     #endif
 
     #if EFFECT_BLUR_RADIUS_BLIND > 0

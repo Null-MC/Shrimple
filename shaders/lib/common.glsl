@@ -99,6 +99,7 @@ const bool colortex15Clear = true;
 #define WORLD_AO_ENABLED
 //#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
+#define WORLD_SMOKE
 
 
 // Water Options
@@ -345,8 +346,8 @@ const bool colortex15Clear = true;
 #define EPSILON 1e-6
 #define GAMMA 2.2
 
-#define LIGHTING_TEMP_FIRE 3200
-#define TEMP_FIRE_RANGE 600 // [100 200 300 400 500 600]
+#define LIGHTING_TEMP_FIRE 2600
+#define TEMP_FIRE_RANGE 400 // [100 200 300 400 500 600]
 #define TEMP_SOUL_FIRE_MIN 1200
 #define TEMP_SOUL_FIRE_MAX 1800
 #define TEMP_CANDLE_MIN 2000
@@ -440,6 +441,8 @@ const bool colortex15Clear = true;
 #ifdef WORLD_WETNESS_ENABLED
 #endif
 #ifdef WORLD_AO_ENABLED
+#endif
+#ifdef WORLD_SMOKE
 #endif
 #ifdef WATER_CAUSTICS
 #endif
