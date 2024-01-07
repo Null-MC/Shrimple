@@ -4,11 +4,6 @@
 #define CLOUD_REFLECT_STEPS 12
 #define CLOUD_REFLECT_SHADOW_STEPS 4
 
-//const int CloudOctaves = 3;
-// const int CloudMaxOctaves = 5;
-// const int CloudTraceOctaves = 4;
-// const int CloudShadowOctaves = 2;
-
 
 float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.08, 0.92, 0.09);}
 

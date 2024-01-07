@@ -64,6 +64,8 @@ uniform sampler2D lightmap;
     #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined IS_IRIS
         uniform sampler3D texCaustics;
     #endif
+#elif defined VL_BUFFER_ENABLED
+    uniform sampler3D TEX_CLOUDS;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -344,6 +346,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #ifdef VL_BUFFER_ENABLED
+        #ifndef WORLD_SKY_ENABLED
+            #include "/lib/fog/fog_smoke.glsl"
+        #endif
+    
         #include "/lib/fog/fog_volume.glsl"
     #endif
 #endif

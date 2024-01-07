@@ -42,6 +42,8 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS;
     #endif
+#elif defined VL_BUFFER_ENABLED
+    uniform sampler3D TEX_CLOUDS;
 #endif
 
 uniform int worldTime;
@@ -219,6 +221,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
+    #ifndef WORLD_SKY_ENABLED
+        #include "/lib/fog/fog_smoke.glsl"
+    #endif
+
     #include "/lib/fog/fog_volume.glsl"
 #endif
 

@@ -316,6 +316,14 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             //     float lpvSkyLightF = GetLpvSkyLight(lpvSample);
             //     //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
             // #endif
+        #else
+            float smokeF = SampleSmokeOctaves(traceLocalPos + cameraPosition, SmokeTraceOctaves);
+
+            sampleDensity = smokeF;
+            sampleScattering = vec3(SmokeScatterF);
+            sampleExtinction = SmokeAbsorbF;
+            sampleAmbient = SmokeAmbientF * (0.25 + 0.75*fogColor);
+            sampleSkyPhase = phaseIso;
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
@@ -489,7 +497,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 #ifdef LPV_GI
                     if (!isWater) {
                 #endif
-                    lpvLight = 2.0 * GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
+                    lpvLight = 8.0 * GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
 
                     //float viewDistF = max(1.0 - traceDist*rcp(LPV_BLOCK_SIZE/2), 0.0);
                     //float skyLightF = 0.5 * GetLpvSkyLight(lpvSample);
