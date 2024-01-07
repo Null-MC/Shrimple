@@ -1,5 +1,5 @@
 setup1			setup static scene
-setup2			build voxel part collissions
+--setup2			build voxel part collissions
 setup3			build static block data
 setup4			build static light data
 

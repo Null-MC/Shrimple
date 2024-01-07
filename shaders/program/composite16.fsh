@@ -98,8 +98,10 @@ uniform float blindnessSmooth;
     #endif
 
     #include "/lib/lights.glsl"
-    #include "/lib/buffers/collisions.glsl"
+
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/lighting.glsl"
+    
     // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"

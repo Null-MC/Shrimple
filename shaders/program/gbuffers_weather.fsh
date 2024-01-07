@@ -139,12 +139,12 @@ uniform float blindnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/collisions.glsl"
+    #include "/lib/buffers/static_block.glsl"
     #include "/lib/buffers/lighting.glsl"
     
-    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        #include "/lib/buffers/static_block.glsl"
-    #endif
+    // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    //     #include "/lib/buffers/static_block.glsl"
+    // #endif
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"

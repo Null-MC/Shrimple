@@ -46,13 +46,14 @@ bool CylinderRayTest(const in vec3 rayOrigin, const in vec3 rayVec, const in flo
 }
 
 bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 rayInv) {
-    uint shapeCount = CollissionMaps[blockId].Count;
+    BlockCollisionData blockData = StaticBlockMap[blockId].Collisions;
+    //uint shapeCount = blockData.Count;
 
     bool hit = false;
-    for (uint i = 0u; i < min(shapeCount, BLOCK_MASK_PARTS) && !hit; i++) {
-        uvec2 shapeBounds = CollissionMaps[blockId].Bounds[i];
-        vec3 boundsMin = unpackUnorm4x8(shapeBounds.x).xyz;
-        vec3 boundsMax = unpackUnorm4x8(shapeBounds.y).xyz;
+    for (uint i = 0u; i < min(blockData.Count, BLOCK_MASK_PARTS) && !hit; i++) {
+        //uvec2 shapeBounds = blockData.Bounds[i];
+        vec3 boundsMin = unpackUnorm4x8(blockData.Bounds[i].x).xyz;
+        vec3 boundsMax = unpackUnorm4x8(blockData.Bounds[i].y).xyz;
 
         hit = BoxRayTest(boundsMin, boundsMax, rayStart, rayInv);
     }
