@@ -404,10 +404,10 @@ value.VOLUMETRIC_BLOCK_MODE.2=Trace [Schnell]
 value.VOLUMETRIC_BLOCK_MODE.3=Trace [Voll]
 
 option.VOLUMETRIC_SAMPLES=Qualität
-value.VOLUMETRIC_SAMPLES.8=Niedrig
-value.VOLUMETRIC_SAMPLES.12=Mittel
-value.VOLUMETRIC_SAMPLES.16=Hoch
-value.VOLUMETRIC_SAMPLES.24=Sehr Hoch
+value.VOLUMETRIC_SAMPLES.12=Niedrig
+value.VOLUMETRIC_SAMPLES.24=Mittel
+value.VOLUMETRIC_SAMPLES.36=Hoch
+value.VOLUMETRIC_SAMPLES.48=Sehr Hoch
 
 option.VOLUMETRIC_DENSITY=Dichte
 option.VOLUMETRIC_DENSITY.comment=Beschreibt die Dichte des atmosphärischen Nebels, der für die volumetrische Beleuchtung verwendet wird.

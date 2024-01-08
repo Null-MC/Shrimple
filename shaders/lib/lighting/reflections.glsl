@@ -225,7 +225,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 eyeSkyLightF += 0.02;
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+                ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
             }
             else {
         #endif
@@ -240,8 +240,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 #endif
 
                 vec3 vlLight = (phaseAir + phaseIso * AirAmbientF) * skyLightColor;// * pow5(skyLight);
-                vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirScatterF, AirExtinctF);
-                reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+                vec4 scatterTransmit = ApplyScatteringTransmission(reflectDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
+                reflectColor = (reflectColor + scatterTransmit.rgb) * scatterTransmit.a;
             #endif
 
         #ifdef WORLD_WATER_ENABLED

@@ -471,9 +471,9 @@ value.VOLUMETRIC_RES.2=Quarter
 
 option.VOLUMETRIC_SAMPLES=Quality
 value.VOLUMETRIC_SAMPLES.12=Low
-value.VOLUMETRIC_SAMPLES.20=Medium
-value.VOLUMETRIC_SAMPLES.28=High
-value.VOLUMETRIC_SAMPLES.36=Very High
+value.VOLUMETRIC_SAMPLES.24=Medium
+value.VOLUMETRIC_SAMPLES.36=High
+value.VOLUMETRIC_SAMPLES.48=Very High
 
 option.VOLUMETRIC_BRIGHT_SKY=Sun/Moon Brightness
 option.VOLUMETRIC_BRIGHT_SKY.comment=Adjusts the brightness of the sun & moon when applying volumetric lighting to fog.

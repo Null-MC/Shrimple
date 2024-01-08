@@ -600,8 +600,10 @@ void main() {
 
                 float maxDist = min(viewDist, far);
 
+                // TODO: apply water VL when in water
+
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
+                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
                 color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
                 color.a *= scatterTransmit.a;

@@ -83,6 +83,11 @@ uniform vec3 cameraPosition;
 
 
 void main() {
+	if (SKY_WEATHER_OPACITY == 0) {
+		gl_Position = vec4(-1.0);
+		return;
+	}
+
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     vOut.color = gl_Color;

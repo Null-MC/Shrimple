@@ -466,9 +466,9 @@ value.VOLUMETRIC_RES.2=Низкое
 
 option.VOLUMETRIC_SAMPLES=Качество
 value.VOLUMETRIC_SAMPLES.12=Низкое
-value.VOLUMETRIC_SAMPLES.20=Среднее
-value.VOLUMETRIC_SAMPLES.28=Высокое
-value.VOLUMETRIC_SAMPLES.36=Очень Высокое
+value.VOLUMETRIC_SAMPLES.24=Среднее
+value.VOLUMETRIC_SAMPLES.36=Высокое
+value.VOLUMETRIC_SAMPLES.48=Очень Высокое
 
 option.VOLUMETRIC_BRIGHT_SKY=Яркость Солнца/Луны
 option.VOLUMETRIC_BRIGHT_SKY.comment=Регулирует яркость солнца и луны при применении объёмного освещения к туману.

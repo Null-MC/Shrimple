@@ -1,16 +1,18 @@
 const float phaseAir = phaseIso;
+const float AirDensityF = 0.025;
 
 #ifdef WORLD_SKY_ENABLED
-	float AirAmbientF = mix(0.008, 0.02, skyRainStrength);
-	const float AirScatterRainF = 0.036;
-	const float AirExtinctRainF = 0.009;
+	const float AirDensityRainF = 0.05;
+	const float AirScatterRainF = 1.00;
+	const float AirExtinctRainF = 0.12;
 
-	float AirScatterF = mix(0.010, 0.028, skyRainStrength);
-	float AirExtinctF = mix(0.002, 0.006, skyRainStrength);
+	float AirAmbientF = 0.02;//mix(0.04, 0.02, skyRainStrength);
+	float AirScatterF = 0.40;//mix(1.00, 0.028, skyRainStrength);
+	float AirExtinctF = 0.06;//mix(0.02, 0.006, skyRainStrength);
 #else
 	vec3 tint = RGBToLinear(fogColor);// * 0.8 + 0.08;
 
-	const vec3 AirAmbientF = tint * 4.0;
+	const vec3 AirAmbientF = tint;
 
 	float AirScatterF = 0.07;// * tint;
 	float AirExtinctF = 0.02;

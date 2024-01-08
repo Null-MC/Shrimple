@@ -299,7 +299,7 @@ void main() {
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (isEyeInWater != 1) hasVl = true;
         #endif
-        #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (isEyeInWater == 1) hasVl = true;
         #endif
 
