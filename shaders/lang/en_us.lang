@@ -84,6 +84,11 @@ suffix.WORLD_SKY_REFLECTIONS=%
 
 option.WORLD_SMOKE=Nether/End Smoke
 
+option.WORLD_NETHER_AMBIENT=Nether Ambient
+suffix.WORLD_NETHER_AMBIENT=%
+
+option.WORLD_END_AMBIENT=End Ambient
+suffix.WORLD_END_AMBIENT=%
 
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.

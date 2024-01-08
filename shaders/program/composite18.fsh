@@ -705,6 +705,8 @@ layout(location = 0) out vec4 outFinal;
                     #ifdef WORLD_SKY_ENABLED
                         //const bool tir = false; // TODO: ?
                         GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #else
+                        blockDiffuse += WorldAmbientF;
                     #endif
 
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

@@ -99,6 +99,8 @@ const bool colortex15Clear = true;
 #define WORLD_AO_ENABLED
 //#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
+#define WORLD_NETHER_AMBIENT 10 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
+#define WORLD_END_AMBIENT 10 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
 #define WORLD_SMOKE
 
 
@@ -413,6 +415,14 @@ const bool colortex15Clear = true;
     #define DYN_LIGHT_GRID_MAX -1u
 #else
     #define DYN_LIGHT_GRID_MAX uint(-1)
+#endif
+
+#ifdef WORLD_NETHER
+    const float WorldAmbientF = WORLD_NETHER_AMBIENT * 0.01;
+#elif defined WORLD_END
+    const float WorldAmbientF = WORLD_END_AMBIENT * 0.01;
+#else
+    const float WorldAmbientF = 0.0;
 #endif
 
 #if DISPLACE_MODE == DISPLACE_POM || DISPLACE_MODE == DISPLACE_POM_SMOOTH || DISPLACE_MODE == DISPLACE_POM_SHARP

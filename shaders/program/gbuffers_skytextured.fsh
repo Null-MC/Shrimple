@@ -73,9 +73,13 @@ void main() {
 
         color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
     }
-    else if (renderStage == MC_RENDER_STAGE_CUSTOM_SKY) {
+    else {
         color.rgb *= WorldSkyBrightnessF;
     }
+
+    // #ifdef WORLD_END
+    //     color.rgb *= WorldSkyBrightnessF;
+    // #endif
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;

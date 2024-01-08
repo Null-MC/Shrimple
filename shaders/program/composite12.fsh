@@ -752,6 +752,8 @@ layout(location = 0) out vec4 outFinal;
                                 skySpecular *= albedo;
                             }
                         #endif
+                    // #else
+                    //     skyDiffuse += 4.0;
                     #endif
 
                     //float shadowF = min(luminance(deferredShadow), 1.0);
@@ -765,6 +767,8 @@ layout(location = 0) out vec4 outFinal;
                     #ifdef WORLD_SKY_ENABLED
                         const bool tir = false; // TODO: ?
                         GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #else
+                        blockDiffuse += WorldAmbientF;
                     #endif
 
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
