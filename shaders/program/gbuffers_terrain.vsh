@@ -297,10 +297,12 @@ void main() {
                 vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
                 ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
-                if (frameCounter % 2 == 0)
-                    imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-                else
-                    imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
+                    if (frameCounter % 2 == 0)
+                        imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                    else
+                        imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                }
             }
         #endif
     #endif
