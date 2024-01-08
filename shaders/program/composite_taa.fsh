@@ -264,7 +264,7 @@ void main() {
     //const float depthBias = 0.2;
     //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
     float depthTest = max((reproDepthMin - 0.2) - depthPrevL, 0.0);
-    depthTest += max(depthPrevL - (reproDepthMax + 0.8), 0.0);
+    depthTest += max(depthPrevL - (reproDepthMax + 0.2), 0.0);
     //if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
 
     depthTest = saturate(1.0 - depthTest);

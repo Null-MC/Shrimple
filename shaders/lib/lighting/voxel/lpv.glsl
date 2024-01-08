@@ -15,7 +15,6 @@ vec3 getCameraViewDir(const in mat4 matModelView) {
 }
 
 vec3 GetLpvCenter(const in vec3 viewPos, const in vec3 viewDir) {
-    //ivec3 offset = ivec3(0);
     ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * 0.4));
     return (SceneLPVCenter + offset) + fract(viewPos);
 }
