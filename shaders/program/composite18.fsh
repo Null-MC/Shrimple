@@ -745,11 +745,12 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyDiffuse = vec3(0.0);
                 vec3 skySpecular = vec3(0.0);
 
-                #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != DYN_LIGHT_LPV
-                    vec3 shadowPos = vec3(0.0); // TODO!
-
-                    // float shadowFade = getShadowFade(shadowPos);
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                #if LIGHTING_MODE != DYN_LIGHT_LPV
+                    #ifdef WORLD_SKY_ENABLED
+                        GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    #else
+                        blockDiffuse += WorldAmbientF;
+                    #endif
                 #endif
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE

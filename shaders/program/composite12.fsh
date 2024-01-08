@@ -752,8 +752,8 @@ layout(location = 0) out vec4 outFinal;
                                 skySpecular *= albedo;
                             }
                         #endif
-                    // #else
-                    //     skyDiffuse += 4.0;
+                    #else
+                        blockDiffuse += WorldAmbientF;
                     #endif
 
                     //float shadowF = min(luminance(deferredShadow), 1.0);
