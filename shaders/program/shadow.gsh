@@ -234,6 +234,7 @@ void main() {
 
                     lightColor = RGBToLinear(lightColor);
                     //lightColor = pow(lightColor, vec3(2.0));
+                    lightColor = _pow2(lightColor);
 
                     //vec2 lightNoise = vec2(0.0);
                     #ifdef LIGHTING_FLICKER
@@ -241,7 +242,7 @@ void main() {
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    lightValue = _pow2(lightColor) * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);

@@ -285,13 +285,14 @@ void main() {
                 float lightRange = lightRangeSize.x * 255.0;
 
                 lightColor = RGBToLinear(lightColor);
+                lightColor = _pow2(lightColor);
 
                 #ifdef LIGHTING_FLICKER
                    vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
-                lightValue = _pow2(lightColor) * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
             }
 
             if (any(greaterThan(lightValue, EPSILON3))) {
