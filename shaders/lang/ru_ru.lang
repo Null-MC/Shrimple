@@ -33,10 +33,9 @@ value.SKY_VOL_FOG_TYPE.0=Никакие
 value.SKY_VOL_FOG_TYPE.1=Быстрые
 value.SKY_VOL_FOG_TYPE.2=Детальные
 
-option.VOLUMETRIC_DENSITY=Объёмная Плотность
-option.VOLUMETRIC_DENSITY.comment=Плотность объёмного тумана, используемого для объёмного освещения.
-suffix.VOLUMETRIC_DENSITY=%
-value.VOLUMETRIC_DENSITY.1000=Silent Hill (Игра)
+option.SKY_DENSITY=Объёмная Плотность
+option.SKY_DENSITY.comment=Плотность объёмного тумана, используемого для объёмного освещения.
+suffix.SKY_DENSITY=%
 
 option.SKY_WEATHER_OPACITY=Прозрачность Каплей
 option.SKY_WEATHER_OPACITY.comment=Определяет, насколько прозрачными будут капли от дождя.

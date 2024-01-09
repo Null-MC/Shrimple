@@ -7,7 +7,17 @@
 const float CloudSpeed = 0.01;
 
 
-float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.08, 0.92, 0.09);}
+float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.24, 0.76, 0.26);}
+
+float GetCloudDither() {
+    #ifndef RENDER_FRAG
+        return 0.0;
+    #elif defined EFFECT_TAA_ENABLED
+        return InterleavedGradientNoiseTime();
+    #else
+        return InterleavedGradientNoise();
+    #endif
+}
 
 float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
     float sampleD = 0.0;
@@ -86,7 +96,7 @@ float _TraceCloudShadow(const in vec3 worldPos, const in vec3 tracePos, const in
     vec3 shadowTracePos = tracePos;// + shadowStep * (i + dither);
 
     for (int i = 0; i < stepCount; i++) {
-        float shadowStepLen = exp2(i);
+        float shadowStepLen = 0.5 * exp2(i);
         vec3 shadowStep = localSkyLightDirection * shadowStepLen;
 
         vec3 shadowSamplePos = shadowTracePos + shadowStep * dither;
@@ -105,11 +115,7 @@ float _TraceCloudShadow(const in vec3 worldPos, const in vec3 tracePos, const in
 }
 
 vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount, const in int shadowStepCount) {
-    #ifdef EFFECT_TAA_ENABLED
-        float dither = InterleavedGradientNoiseTime();
-    #else
-        float dither = InterleavedGradientNoise();
-    #endif
+    float dither = GetCloudDither();
 
     float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
     vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
@@ -123,7 +129,7 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
     vec3 traceStep = localViewDir * stepLength;
     vec3 traceStart = localViewDir * distMin;
 
-    vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
+    vec3 sampleOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
 
     float transmitFinal = 1.0;
     vec3 scatterFinal = vec3(0.0);
@@ -184,23 +190,12 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             cloudAbsorb *= scatterTransmit.a;
         }
 
-        #ifdef EFFECT_TAA_ENABLED
-            float dither = InterleavedGradientNoiseTime();
-        #else
-            float dither = InterleavedGradientNoise();
-        #endif
+        float dither = GetCloudDither();
 
         float stepLength = cloudDist / (stepCount + 1);
         vec3 traceStep = localViewDir * stepLength;
 
         vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
-
-        //float extinctionInv = rcp(CloudAbsorbF);
-        // float VoL = dot(localSkyLightDirection, localViewDir);
-        // float phase = DHG(VoL, -0.19, 0.824, 0.09);
-
-        // float shadowStepLen = 8.0;
-        // vec3 shadowStep = localSkyLightDirection * shadowStepLen;
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + traceStep * (stepI + dither);
@@ -211,7 +206,7 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             //float fogDist = GetShapedFogDistance(tracePos);
             //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
-            float inRange = step(distMin + stepLength * (stepI + dither), far);
+            float inRange = 1.0;//step(distMin + stepLength * (stepI + dither), far);
 
             float stepDensity = mix(inRange * AirDensityF, CloudDensityF, sampleCloudF);
             float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
@@ -276,11 +271,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudAbsorb = 1.0;
 
     if (cloudDist > EPSILON) {
-        #ifdef EFFECT_TAA_ENABLED
-            float dither = InterleavedGradientNoiseTime();
-        #else
-            float dither = InterleavedGradientNoise();
-        #endif
+        float dither = GetCloudDither();
     
         float cloudStepLen = cloudDist / (stepCount + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;

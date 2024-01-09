@@ -89,22 +89,20 @@ uniform int heldBlockLightValue2;
 
 uniform float blindnessSmooth;
 
-#ifdef WORLD_SKY_ENABLED
-    uniform vec3 sunPosition;
-    uniform vec3 shadowLightPosition;
-    uniform float rainStrength;
-    uniform float skyRainStrength;
+uniform vec3 sunPosition;
+uniform vec3 shadowLightPosition;
+uniform float rainStrength;
+uniform float skyRainStrength;
 
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
+#ifdef IS_IRIS
+    uniform float lightningStrength;
 
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform float cloudTime;
-        #endif
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform float cloudTime;
     #endif
-
-    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
+
+uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -295,20 +293,20 @@ layout(location = 0) out vec4 outFinal;
 void main() {
 	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE
-        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-            const float CloudHeight = 4.0;
-        #endif
+    // #if SKY_CLOUD_TYPE != CLOUDS_NONE
+    //     #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    //         const float CloudHeight = 4.0;
+    //     #endif
 
-        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vIn.localPos.y + cameraPosition.y - cloudHeight);
-        color.a *= 1.0 - cloudY;
+    //     float cloudY = smoothstep(0.0, CloudHeight * 0.5, vIn.localPos.y + cameraPosition.y - cloudHeight);
+    //     color.a *= 1.0 - cloudY;
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
-            const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-            float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-            color.a *= _pow2(cloudUnder);
-        #endif
-    #endif
+    //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
+    //         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+    //         float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vIn.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+    //         color.a *= _pow2(cloudUnder);
+    //     #endif
+    // #endif
 
     if (color.a < (1.5/255.0)) {
         discard;

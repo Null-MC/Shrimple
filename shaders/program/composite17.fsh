@@ -276,6 +276,7 @@ void main() {
 
     //float farMax = far;//min(shadowDistance, far);
     float farDist = clamp(viewDist, near, far - 0.002);
+    if (depth >= 1.0) farDist = CloudFar;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -306,7 +307,7 @@ void main() {
         if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
     #endif
 
-    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif
@@ -341,6 +342,9 @@ void main() {
 
                 final.rgb += scatterTransmit.rgb * final.a;
                 final.a *= scatterTransmit.a;
+            }
+            else {
+                // ?
             }
 
             //final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);

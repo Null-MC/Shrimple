@@ -1,10 +1,10 @@
+const float AirDensityF = SKY_DENSITY * 0.01;
 const float phaseAir = phaseIso;
-const float AirDensityF = 0.025;
 
 #ifdef WORLD_SKY_ENABLED
 	const float AirDensityRainF = 0.05;
-	const float AirScatterRainF = 1.00;
-	const float AirExtinctRainF = 0.12;
+	const float AirScatterRainF = 0.60;
+	const float AirExtinctRainF = 0.09;
 
 	float AirAmbientF = 0.02;//mix(0.04, 0.02, skyRainStrength);
 	float AirScatterF = 0.40;//mix(1.00, 0.028, skyRainStrength);

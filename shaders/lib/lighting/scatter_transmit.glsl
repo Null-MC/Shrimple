@@ -4,7 +4,7 @@ vec2 ApplyScatteringTransmission(const in float traceDist, const in float lightF
 
     float inScattering = lightF;// * traceDist;
     float outScattering = scatterF * density;// * traceDist;
-    float lightIntegral = inScattering * outScattering * traceDist * transmittance;
+    float lightIntegral = inScattering * outScattering * traceDist;// * transmittance;
 
     // float scatteringIntegral = inScattering - inScattering * transmittance;
     // if (extinctF > 0.0) scatteringIntegral /= extinctF;
@@ -18,7 +18,7 @@ vec4 ApplyScatteringTransmission(const in float traceDist, const in vec3 lightF,
 
     vec3 inScattering = lightF;// * traceDist;
     vec3 outScattering = scatterF * density;// * traceDist;
-    vec3 lightIntegral = inScattering * outScattering * traceDist * transmittance;
+    vec3 lightIntegral = inScattering * outScattering * traceDist;// * transmittance;
 
     // vec3 scatteringIntegral = inScattering - inScattering * transmittance;
     // if (extinctF > 0.0) scatteringIntegral /= extinctF;

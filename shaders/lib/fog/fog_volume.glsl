@@ -372,12 +372,12 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                     sampleF *= cloudShadow;
                 #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                    if (traceLocalPos.y < cloudHeight + CouldHeight) {
+                    //if (traceLocalPos.y < cloudHeight + CouldHeight) {
                         //float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
                         float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
                         //sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
                         sampleF *= cloudShadow;
-                    }
+                    //}
                 #endif
             #endif
 

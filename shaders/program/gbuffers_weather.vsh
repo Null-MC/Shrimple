@@ -35,6 +35,21 @@ uniform mat4 gbufferModelViewInverse;
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
+uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+uniform float skyRainStrength;
+
+#ifdef SKY_WEATHER_CLOUD_ONLY
+	uniform int worldTime;
+	uniform int frameCounter;
+	uniform int fogShape;
+
+    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        uniform sampler3D TEX_CLOUDS;
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        uniform sampler2D TEX_CLOUDS;
+    #endif
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
 	uniform mat4 shadowModelView;
 	uniform mat4 shadowProjection;
@@ -48,7 +63,6 @@ uniform vec3 cameraPosition;
 
     #ifdef IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         uniform vec3 eyePosition;
     #endif
 #endif
@@ -59,7 +73,9 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/blocks.glsl"
+
 #include "/lib/sampling/noise.glsl"
+
 #include "/lib/utility/lightmap.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -79,6 +95,17 @@ uniform vec3 cameraPosition;
 	#endif
 #endif
 
+#include "/lib/clouds/cloud_vars.glsl"
+
+#ifdef SKY_WEATHER_CLOUD_ONLY
+	#include "/lib/lighting/hg.glsl"
+	#include "/lib/lighting/scatter_transmit.glsl"
+
+	#include "/lib/world/atmosphere.glsl"
+	#include "/lib/fog/fog_common.glsl"
+	#include "/lib/clouds/cloud_custom.glsl"
+#endif
+
 #include "/lib/lighting/common.glsl"
 
 
@@ -96,4 +123,20 @@ void main() {
 
     vec4 viewPos = BasicVertex();
     gl_Position = gl_ProjectionMatrix * viewPos;
+
+
+    #if SKY_CLOUD_TYPE != CLOUDS_NONE
+        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+            const float CloudHeight = 4.0;
+        #endif
+
+        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vOut.localPos.y + cameraPosition.y - cloudHeight);
+        vOut.color.a *= 1.0 - cloudY;
+
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
+            const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+            float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vOut.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+            vOut.color.a *= _pow2(cloudUnder);
+        #endif
+    #endif
 }

@@ -87,7 +87,8 @@ const bool colortex15Clear = true;
 #define SKY_SUN_BRIGHTNESS 300  // [10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 #define SKY_MOON_BRIGHTNESS 20 // [1 2 4 6 8 10 12 14 16 18 20 25 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define SKY_BRIGHTNESS 300  // [10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
-//#define SKY_WEATHER_CLOUD_ONLY
+#define SKY_DENSITY 2.0 // [0.0 0.2 0.4 0.6 0.8 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 6.0 7.0 8.0 9.0 10.0 20.0 30.0 40.0]
+#define SKY_WEATHER_CLOUD_ONLY
 
 #define WORLD_CLOUD_HEIGHT 96
 
@@ -255,7 +256,7 @@ const bool colortex15Clear = true;
 #define VOLUMETRIC_BLOCK_MODE 0 // [0 1 2 3]
 #define VOLUMETRIC_BLOCK_RANGE 50 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define VOLUMETRIC_SAMPLES 24 // [12 24 36 48]
-#define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250 300 400 600 800 1000]
+//#define VOLUMETRIC_DENSITY 100 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 175 200 250 300 400 600 800 1000]
 #define VOLUMETRIC_RES 1 // [2 1 0]
 #define VOLUMETRIC_BRIGHT_SKY   100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define VOLUMETRIC_BRIGHT_BLOCK 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
@@ -517,7 +518,6 @@ const float WorldMoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
 const float WorldSkyBrightnessF = SKY_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = SKY_WEATHER_OPACITY * 0.01;
-//const float WorldSkyReflectF = WORLD_SKY_REFLECTIONS * 0.01;
 const float WorldWaterDensityF = WATER_FOG_DENSITY * 0.01;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
@@ -529,7 +529,6 @@ const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float MaterialSssStrengthF = MATERIAL_SSS_STRENGTH * 0.01;
 const float ParallaxDepthF = MATERIAL_DISPLACE_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
-const float VolumetricDensityF = VOLUMETRIC_DENSITY * 0.01;
 const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
 const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
 const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
@@ -541,7 +540,6 @@ const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
 const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
-//const float LpvRangeF = LPV_RANGE * 0.01;
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
@@ -552,7 +550,6 @@ const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
-//const float PostBloomThresholdF = EFFECT_BLOOM_THRESHOLD * 0.01;
 const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 
