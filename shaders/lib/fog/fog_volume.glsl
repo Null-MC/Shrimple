@@ -26,11 +26,11 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     VolumetricPhaseFactors result;
 
     result.Back = -0.12;
-    result.Forward = 0.92;
+    result.Forward = 0.78;
     result.Direction = 0.42;
 
     result.Ambient = vec3(AirAmbientF);
-    result.ScatterF = vec3(AirScatterF);// * vec3(0.98, 0.99, 1.0)*0.2;//(RGBToLinear(1.0 - skyColor) * 0.85 + 0.15);
+    result.ScatterF = vec3(AirScatterF);
     result.ExtinctF = AirExtinctF;
 
     #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
@@ -161,33 +161,12 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         float time = GetAnimationFactor();
     #endif
 
-    //float sampleTransmittance = exp(-phaseF.ExtinctF * stepLength);
-
-    // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-    //     vec3 ambientWater = vec3(0.0);
-    // #endif
-
     #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
         uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
         uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
         float waterDepth[WATER_DEPTH_LAYERS+1];
         GetAllWaterDepths(uvIndex, waterDepth);
-
-        // float extinctionInvAir = rcp(phaseAir.ExtinctF);
-        // float extinctionInvWater = rcp(phaseWater.ExtinctF);
-
-        // #ifdef WORLD_SKY_ENABLED
-        //     float eyeLightF = eyeBrightnessSmooth.y / 240.0;
-        //     vec3 skyLightAmbient = eyeLightF * skyLightColor * (1.0 - 0.9 * skyRainStrength);
-        //     ambientWater = vec3(0.2, 0.8, 1.0) * skyLightAmbient * 0.02;
-        // #else
-        //     ambientWater = vec3(0.0040);
-        // #endif
-        //ambientWater = WaterPhaseF.Ambient;
-    #else
-        //float extinctionInv = rcp(phaseF.ExtinctF);
-        //vec3 ambientBase = phaseF.Ambient;
     #endif
 
     float transmittance = 1.0;
@@ -235,18 +214,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float sampleSkyPhase = isWater ? skyPhaseWater : skyPhaseAir;
         #else
             float sampleSkyPhase = skyPhase;
-
-            // #ifdef WORLD_WATER_ENABLED
-            //     if (isEyeInWater == 1)
-            //         waterDepthEye = traceDist;
-            //     else {
-            //         // TODO: get dist from water to trace
-            //         waterDepthEye = 0.0;
-            //     }
-            // #endif
         #endif
 
-        float sampleDensity = isWater ? 1.0 : AirDensityF;// * VolumetricDensityF;
+        float sampleDensity = isWater ? 1.0 : AirDensityF;
 
         float sampleExtinction = phaseF.ExtinctF;
         vec3 sampleScattering = phaseF.ScatterF;
@@ -267,11 +237,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         // #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-            //vec3 inScattering = isWater ? ambientWater : phaseAir.Ambient;
             sampleAmbient = isWater ? phaseWater.Ambient : phaseAir.Ambient;
         #else
-            //sampleAmbient = phaseF.Ambient;
-
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 if (isEyeInWater == 1)
                     waterDepthEye = traceDist;
@@ -295,7 +262,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder * skyRainStrength);
                     }
 
-                    // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
                     vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
 
                     if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
@@ -402,18 +368,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    // vec3 cloudOffset = vec3(worldTime / 40.0, -cloudHeight, worldTime / 8.0);
-                    // vec3 cloudPos = cameraPosition + traceLocalPos + cloudOffset;
-
-                    // if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
-                    //     float sampleD = SampleCloudOctaves(cloudPos, time);
-                    //     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * cloudF;
-
-                    //     //sampleColor *= exp(stepLength * sampleD * -CloudAbsorbF);
-
-                    //     sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleD);
-                    //     sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleD);
-                    // }
                     float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                     sampleF *= cloudShadow;
@@ -424,12 +378,6 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                     }
                 #endif
             #endif
-
-            // #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-            //     sampleF *= isWater ? skyPhaseWater : skyPhaseAir;
-            // #else
-            //     sampleF *= skyPhase;
-            // #endif
 
             sampleLit += sampleSkyPhase * sampleF * sampleColor;
         #endif
@@ -445,7 +393,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
             if (lightningStrength > EPSILON) {
                 vec4 lightningDirectionStrength = GetLightningDirectionStrength(traceLocalPos);
-                sampleLit += 0.04 * phaseIso * lightningDirectionStrength.w;
+                sampleLit += 0.4 * phaseIso * lightningDirectionStrength.w;
 
                 // TODO: use phase function?
             }
