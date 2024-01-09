@@ -1,7 +1,7 @@
 const float CloudFar = 2000.0;//mix(800.0, far, skyRainStrength);
 
 float CloudDensityF = 10.0;//mix(10.0, 20.0, skyRainStrength);
-float CloudAmbientF = mix(0.20, 0.4, skyRainStrength);
+float CloudAmbientF = mix(0.60, 0.4, skyRainStrength);
 float CloudScatterF = mix(0.018, 0.018, skyRainStrength);
 float CloudAbsorbF  = mix(0.004, 0.128, skyRainStrength);// * (1.0 - RGBToLinear(vec3(0.606, 0.429, 0.753)));
 

@@ -253,7 +253,6 @@ void main() {
 
                 lightColor = RGBToLinear(lightColor);
                 //lightColor = pow(lightColor, vec3(2.0));
-                lightColor = _pow2(lightColor);
 
                 //vec2 lightNoise = vec2(0.0);
                 #ifdef LIGHTING_FLICKER
@@ -261,6 +260,7 @@ void main() {
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
+                lightColor = _pow2(lightColor);
                 lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
             }
 
