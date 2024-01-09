@@ -135,7 +135,9 @@ void main() {
 
                 float time = GetAnimationFactor();
                 float skyLight = LightMapNorm(lmcoord).y;
-                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time);
+
+                vec2 uvOffset;
+                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
             #endif
         }
     #endif

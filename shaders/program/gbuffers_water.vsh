@@ -60,6 +60,7 @@ uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
+uniform vec3 previousCameraPosition;
 uniform ivec2 atlasSize;
 
 #ifdef ANIM_WORLD_TIME
@@ -94,7 +95,7 @@ uniform ivec2 atlasSize;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
-    uniform vec3 previousCameraPosition;
+    // uniform vec3 previousCameraPosition;
     uniform mat4 gbufferPreviousModelView;
 #endif
 

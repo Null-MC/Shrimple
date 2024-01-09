@@ -181,7 +181,10 @@ void main() {
             #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
                 float time = GetAnimationFactor();
                 //vOut.localPos = (gbufferModelViewInverse * gl_Position).xyz;
-                vOut.localPos.y += distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time);
+
+                vec2 uvOffset;
+                float waveHeight = water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time, uvOffset);
+                vOut.localPos.y += distF * waveHeight;
             #endif
 
             gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);

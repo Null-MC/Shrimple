@@ -30,7 +30,7 @@ const float WATER_DRAG_MULT = 0.4;
 #endif
 
 
-float water_waveHeight(const in vec2 worldPos, const in float skyLight, const in float time) {
+float water_waveHeight(const in vec2 worldPos, const in float skyLight, const in float time, out vec2 uvOffset) {
     //float time = frameTimeCounter;
     // float modifiedTime = GetAnimationFactor();
     float modifiedTime = time / 3.6 * WATER_TIME_MULTIPLICATOR;
@@ -63,6 +63,8 @@ float water_waveHeight(const in vec2 worldPos, const in float skyLight, const in
         drag *= WATER_DRAG_MULT;
         //drag = 1.0 - (1.0 - drag) * WATER_DRAG_MULT;
     }
+    
+    uvOffset = (position / WATER_XZ_SCALE) - worldPos;
     
     if (waveSum < EPSILON) return 0.0;
     return ((height / waveSum) - 0.8 * lightF) * WATER_WAVE_HEIGHT * lightF * 1.6;

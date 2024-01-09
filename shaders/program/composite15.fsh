@@ -286,7 +286,7 @@ layout(location = 0) out vec4 outFinal;
                     eyeSkyLightF += 0.02;
 
                     vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                    ApplyScatteringTransmission(final, waterDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+                    ApplyScatteringTransmission(final, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
                 }
 
                 // vec3 viewDir = normalize(viewPosOpaque);
@@ -392,7 +392,7 @@ layout(location = 0) out vec4 outFinal;
                     eyeSkyLightF += 0.02;
 
                     vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                    ApplyScatteringTransmission(final, waterDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+                    ApplyScatteringTransmission(final, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
                 }
             #endif
 
@@ -486,7 +486,7 @@ layout(location = 0) out vec4 outFinal;
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
                     vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirScatterF, AirExtinctF);
+                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
                     final = final * scatterTransmit.a + scatterTransmit.rgb;
                 }
             #endif

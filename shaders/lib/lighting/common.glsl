@@ -31,13 +31,24 @@ vec4 BasicVertex() {
             #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
                 vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
                 float time = GetAnimationFactor();
-                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time);
+
+                vec2 uvOffset;
+                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time, uvOffset);
+
                 pos.y += waveOffset;
+
+                // if (vOut.blockId == BLOCK_LILY_PAD)
+                //     pos.xz += uvOffset;
 
                 #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
                     float timePrev = time - frameTime;
-                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, timePrev);
+                    
+                    vec2 uvOffsetPrev;
+                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + previousCameraPosition.xz, vOut.lmcoord.y, timePrev, uvOffsetPrev);
                     vOut.velocity.y += waveOffset - waveOffsetPrev;
+                    
+                    // if (vOut.blockId == BLOCK_LILY_PAD)
+                    //     vOut.velocity.xz += uvOffset - uvOffsetPrev;
                 #endif
             #endif
 
