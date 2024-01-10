@@ -312,40 +312,61 @@ void main() {
             if (isEyeInWater != 1) {
         #endif
 
-            vec3 cloudNear, cloudFar;
-            GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
-            
-            float cloudDistNear = length(cloudNear);
-            float cloudDistFar = length(cloudFar);
-
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                cloudDistNear = max(cloudDistNear, far);
-            #endif
+                float cloudDistNear = far;
+                float cloudDistFar = CloudFar;
 
-            cloudDistFar = min(cloudDistFar, CloudFar);
+                // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                //     cloudDistNear = max(cloudDistNear, far);
+                // #endif
 
-            if (depth < 1.0) {
-                cloudDistFar = min(cloudDistFar, viewDist);
-
-                if (cloudDistNear >= viewDist) {
+                if (depth < 1.0) {
                     cloudDistNear = 0.0;
                     cloudDistFar = 0.0;
                 }
-            }
+            #else
+                vec3 cloudNear, cloudFar;
+                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+                
+                //float cloudDistNear = length(cloudNear);
+                float cloudDistFar = length(cloudFar);
+                float cloudDistNear = 0.0;
+
+                cloudDistFar = min(cloudDistFar, CloudFar);
+                if (cloudDistFar <= 0.0) cloudDistFar = CloudFar;
+                if (depth >= 1.0) cloudDistFar = CloudFar;
+
+                if (depth < 1.0) {
+                    cloudDistFar = min(cloudDistFar, viewDist);
+
+                    // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                    //     if (cloudDistNear >= viewDist) {
+                    //         cloudDistNear = 0.0;
+                    //         cloudDistFar = 0.0;
+                    //     }
+                    // #endif
+                }
+            #endif
 
             if (cloudDistFar > cloudDistNear) {
-                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                    vec4 scatterTransmit = _TraceCloudVL(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-                #else
-                    vec4 scatterTransmit = _TraceClouds(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-                #endif
+                vec4 scatterTransmit = _TraceClouds(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
 
                 final.rgb += scatterTransmit.rgb * final.a;
                 final.a *= scatterTransmit.a;
             }
-            else {
-                // ?
-            }
+
+            // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+            //     else {
+            //         if (depth >= 1.0) cloudDistFar = far;
+
+            //         float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+            //         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+
+            //         vec3 vlLight = (phaseAir + AirAmbientF) * skyLightColor;
+            //         vec4 scatterTransmit = ApplyScatteringTransmission(cloudDistFar, vlLight, AirDensityF, AirScatterF, AirExtinctF);
+            //         final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+            //     }
+            // #endif
 
             //final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
 

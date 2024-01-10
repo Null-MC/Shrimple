@@ -17,3 +17,8 @@ const float phaseAir = phaseIso;
 	float AirScatterF = 0.07;// * tint;
 	float AirExtinctF = 0.02;
 #endif
+
+
+float GetSkyDensity(const in float worldY) {
+    return AirDensityF * (1.0 - smoothstep(62.0, 420.0, worldY));
+}

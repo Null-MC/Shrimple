@@ -251,7 +251,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (!isWater) {
-                sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
+                sampleDensity = GetSkyDensity(cameraPosition.y + traceLocalPos.y);
+                //sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     if (skyRainStrength > EPSILON) {
