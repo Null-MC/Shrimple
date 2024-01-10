@@ -257,10 +257,13 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     if (skyRainStrength > EPSILON) {
                         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-                        float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
-                        sampleScattering = mix(sampleScattering, vec3(AirScatterRainF), cloudUnder * skyRainStrength);
-                        sampleExtinction = mix(sampleExtinction, AirExtinctRainF, cloudUnder * skyRainStrength);
-                        sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder * skyRainStrength);
+                        //float cloudUnder = TraceCloudDensity(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
+                        float cloudUnder = TraceCloudDensity(cameraPosition + traceLocalPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+                        cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * skyRainStrength;
+
+                        sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
+                        sampleScattering = mix(sampleScattering, vec3(AirScatterRainF), cloudUnder);
+                        sampleExtinction = mix(sampleExtinction, AirExtinctRainF, cloudUnder);
                     }
 
                     vec3 cloudPos = traceLocalPos + cloudOffset;

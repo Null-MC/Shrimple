@@ -135,8 +135,8 @@ void main() {
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
             const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-            float cloudUnder = 1.0 - TraceCloudShadow(cameraPosition + vOut.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-            vOut.color.a *= _pow2(cloudUnder);
+            float cloudDensity = TraceCloudDensity(cameraPosition + vOut.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+            vOut.color.a *= smoothstep(0.0, 0.5, cloudDensity);
         #endif
     #endif
 }
