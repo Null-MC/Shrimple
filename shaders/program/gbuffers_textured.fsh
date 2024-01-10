@@ -236,7 +236,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/voxel/tinting.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE == DYN_LIGHT_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED)
+#ifdef IS_TRACING_ENABLED
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 

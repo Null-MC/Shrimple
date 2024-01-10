@@ -97,7 +97,7 @@ uniform float skyRainStrength;
 
 #include "/lib/clouds/cloud_vars.glsl"
 
-#ifdef SKY_WEATHER_CLOUD_ONLY
+#if defined SKY_WEATHER_CLOUD_ONLY && SKY_CLOUD_TYPE > CLOUDS_VANILLA
 	#include "/lib/lighting/hg.glsl"
 	#include "/lib/lighting/scatter_transmit.glsl"
 

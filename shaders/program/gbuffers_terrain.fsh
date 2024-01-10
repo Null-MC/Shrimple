@@ -604,10 +604,6 @@ void main() {
         deferredData.a = packUnorm4x8(vec4(texNormal, 1.0));
         outDeferredData = deferredData;
 
-        #ifdef EFFECT_TAA_ENABLED
-            outVelocity = vec4(vIn.velocity, 0.0);
-        #endif
-
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, porosity, 1.0) + dither;
         #endif
@@ -715,9 +711,9 @@ void main() {
         #endif
 
         outFinal = color;
+    #endif
 
-        #ifdef EFFECT_TAA_ENABLED
-            outVelocity = vec4(vIn.velocity, 0.0);
-        #endif
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(vIn.velocity, 0.0);
     #endif
 }

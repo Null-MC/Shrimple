@@ -237,11 +237,23 @@ uniform int heldBlockLightValue2;
 //#endif
 
 
-layout(location = 0) out vec4 outFinal;
-#if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    /* RENDERTARGETS: 15 */
+#ifdef EFFECT_TAA_ENABLED
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        /* RENDERTARGETS: 7,15 */
+        layout(location = 0) out vec4 outVelocity;
+        layout(location = 1) out vec4 outFinal;
+    #else
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 0) out vec4 outFinal;
+        layout(location = 1) out vec4 outVelocity;
+    #endif
 #else
-    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+    #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
+        /* RENDERTARGETS: 15 */
+    #else
+        /* RENDERTARGETS: 0 */
+    #endif
 #endif
 
 void main() {
@@ -389,4 +401,9 @@ void main() {
         
         outFinal = final;
     //#endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        // TODO: get vanilla cloud velocity
+        outVelocity = vec4(vec3(0.0), 0.0);
+    #endif
 }
