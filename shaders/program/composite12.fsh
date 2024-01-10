@@ -795,19 +795,11 @@ layout(location = 0) out vec4 outFinal;
             #elif defined SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+                    fogColorFinal *= WorldSkyBrightnessF;
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
-                #elif SKY_TYPE == SKY_TYPE_VANILLA
-                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    fogColorFinal = RGBToLinear(fogColorFinal);
-                    float fogF = deferredFog.a;
-                #endif
 
-                final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
-                
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
                     float fogFarDist = CloudFar - far;
 
                     if (fogFarDist > 0.0) {
@@ -820,10 +812,16 @@ layout(location = 0) out vec4 outFinal;
                         vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                         float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
                         vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
-                        vec3 finalFar = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
-                        final.rgb = mix(final.rgb, finalFar, fogF);
+                        fogColorFinal = fogColorFinal * scatterTransmit.a + scatterTransmit.rgb;
                     }
+                #elif SKY_TYPE == SKY_TYPE_VANILLA
+                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    fogColorFinal = RGBToLinear(fogColorFinal) * WorldSkyBrightnessF;
+                    float fogF = deferredFog.a;
                 #endif
+
+                final = mix(final, fogColorFinal, fogF);
             #endif
         }
         else {
