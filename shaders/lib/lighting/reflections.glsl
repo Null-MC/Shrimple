@@ -231,7 +231,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         #endif
 
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                vec3 vlLight = phaseAir + AirAmbientF;
+                vec3 vlLight = vec3(phaseAir + AirAmbientF);
                 float reflectFogDist = reflectDist;
 
                 #ifdef WORLD_SKY_ENABLED
