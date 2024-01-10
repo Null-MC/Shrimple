@@ -132,7 +132,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
         mat2 rotation = mat2(c, -s, s, c);
         
         float blockers = 0.0;
-        float avgBlockerDistance = 0.0;
+        float avgDist = 0.0;
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
             vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
 
@@ -141,13 +141,17 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             _shadowPos = distort(_shadowPos) * 0.5 + 0.5;
 
             float texDepth = SampleDepth(_shadowPos.xy);
-            float hitDist = max((_shadowPos.z - bias) - texDepth, 0.0);
+            float hitDist = max(_shadowPos.z - texDepth, 0.0);
 
-            avgBlockerDistance += hitDist * (2.0 * far);
-            blockers += step(0.0, hitDist);
+            avgDist += hitDist;
+            blockers++;// += step(0.0, hitDist);
         }
 
-        return blockers > 0 ? avgBlockerDistance / blockers : -1.0;
+        return (avgDist / blockers) * (2.0 * far);
+
+        // float hitDist = max((_shadowPos.z - bias) - texDepth, 0.0);
+
+        // return blockers > 0 ? avgBlockerDistance / blockers : -1.0;
     }
 
     #ifdef SHADOW_COLORED
@@ -173,8 +177,9 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
                 return shadowColor.rgb;
             }
 
-            vec2 pixelRadius = minPixelRadius + (maxPixelRadius - minPixelRadius) * min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
-            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            float scale = min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
+            vec2 pixelRadius = minPixelRadius + (maxPixelRadius - minPixelRadius) * scale;
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias * (1.0 + 9.0*scale));
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in float bias) {

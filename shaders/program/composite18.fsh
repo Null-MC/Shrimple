@@ -829,7 +829,7 @@ layout(location = 0) out vec4 outFinal;
                 // float opaqueDist = length(localPosOpaque);
 
                 // water blur depth
-                #if WATER_DEPTH_LAYERS > 1
+                #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
                     //uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     //uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
 
@@ -897,20 +897,22 @@ layout(location = 0) out vec4 outFinal;
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
 
-                        float fogFarDist = CloudFar - far;
+                        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                            float fogFarDist = CloudFar - far;
 
-                        if (fogFarDist > 0.0) {
-                            float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
-                            vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+                            if (fogFarDist > 0.0) {
+                                float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+                                vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-                            float VoL = dot(localSkyLightDirection, localViewDir);
-                            float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+                                float VoL = dot(localSkyLightDirection, localViewDir);
+                                float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
 
-                            vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
-                            float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
-                            vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
-                            fogColorFinal = fogColorFinal * scatterTransmit.a + scatterTransmit.rgb;
-                        }
+                                vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
+                                float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
+                                vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
+                                fogColorFinal = fogColorFinal * scatterTransmit.a + scatterTransmit.rgb;
+                            }
+                        #endif
                     #elif SKY_TYPE == SKY_TYPE_VANILLA
                         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
