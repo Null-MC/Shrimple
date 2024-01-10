@@ -32,23 +32,32 @@ vec4 BasicVertex() {
                 vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
                 float time = GetAnimationFactor();
 
-                vec2 uvOffset;
-                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time, uvOffset);
+                vec2 uvOffset = vec2(0.0);
+                if (vOut.blockId == BLOCK_LILY_PAD) {
+                    vec3 originPos = vOut.localPos + at_midBlock/64.0;
+                    water_waveHeight(cameraPosition.xz + originPos.xz, vOut.lmcoord.y, time, uvOffset);
+                    uvOffset *= 0.5;
+                    pos.xz += uvOffset;
+                }
 
+                vec2 _o;
+                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz + uvOffset, vOut.lmcoord.y, time, _o);
                 pos.y += waveOffset;
-
-                // if (vOut.blockId == BLOCK_LILY_PAD)
-                //     pos.xz += uvOffset;
 
                 #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
                     float timePrev = time - frameTime;
                     
                     vec2 uvOffsetPrev;
-                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + previousCameraPosition.xz, vOut.lmcoord.y, timePrev, uvOffsetPrev);
-                    vOut.velocity.y += waveOffset - waveOffsetPrev;
+                    if (vOut.blockId == BLOCK_LILY_PAD) {
+                        vec3 originPos = vOut.localPos + at_midBlock/64.0;
+                        water_waveHeight(previousCameraPosition.xz + originPos.xz, vOut.lmcoord.y, timePrev, uvOffsetPrev);
+                        uvOffsetPrev *= 0.5;
+
+                        vOut.velocity.xz += uvOffset - uvOffsetPrev;
+                    }
                     
-                    // if (vOut.blockId == BLOCK_LILY_PAD)
-                    //     vOut.velocity.xz += uvOffset - uvOffsetPrev;
+                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + previousCameraPosition.xz + uvOffset, vOut.lmcoord.y, timePrev, _o);
+                    vOut.velocity.y += waveOffset - waveOffsetPrev;
                 #endif
             #endif
 
