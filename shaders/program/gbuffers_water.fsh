@@ -411,6 +411,8 @@ void main() {
     vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = vIn.lmcoord;
 
+    bool isWater = vIn.blockId == BLOCK_WATER;
+
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
             SetWaterDepth(viewDist);
@@ -419,17 +421,12 @@ void main() {
         }
     #endif
 
-    bool isWater = false;
-    if (vIn.blockId == BLOCK_WATER) {
-        isWater = true;
-
-        #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-            if (!gl_FrontFacing && isEyeInWater != 1) {
-                discard;
-                return;
-            }
-        #endif
-    }
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
+            discard;
+            return;
+        }
+    #endif
 
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;

@@ -142,7 +142,7 @@ void main() {
     
     outFinal = final;
 
-    #ifdef EFFECT_TAA_ENABLED
-        outVelocity = vec4(cameraPosition - previousCameraPosition, 0.0);
-    #endif
+    // #ifdef EFFECT_TAA_ENABLED
+    //     outVelocity = vec4(cameraPosition - previousCameraPosition, 0.0);
+    // #endif
 }

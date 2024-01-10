@@ -283,7 +283,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         float cloudStepLen = cloudDist / (stepCount + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 
-        vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
+        vec3 sampleOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
@@ -294,8 +294,8 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             float shadowY = tracePos.y + sampleOffset.y;
             sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
-            float fogDist = GetShapedFogDistance(tracePos);
-            sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+            // float fogDist = GetShapedFogDistance(tracePos);
+            // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
             float stepAbsorb = exp(cloudStepLen * sampleD * -CloudAbsorbF);
 

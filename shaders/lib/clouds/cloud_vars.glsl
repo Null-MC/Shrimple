@@ -1,9 +1,9 @@
 const float CloudFar = 2000.0;//mix(800.0, far, skyRainStrength);
 
-float CloudDensityF = 5.0;//mix(10.0, 20.0, skyRainStrength);
-float CloudAmbientF = 0.0;//mix(0.05, 0.4, skyRainStrength);
-float CloudScatterF = mix(0.008, 0.018, skyRainStrength);
-float CloudAbsorbF  = mix(0.002, 0.128, skyRainStrength);// * (1.0 - RGBToLinear(vec3(0.606, 0.429, 0.753)));
+float CloudDensityF = 1.0;//mix(10.0, 20.0, skyRainStrength);
+float CloudAmbientF = 0.02;//mix(0.05, 0.4, skyRainStrength);
+float CloudScatterF = mix(0.30, 0.018, skyRainStrength);
+float CloudAbsorbF  = mix(0.06, 0.128, skyRainStrength);// * (1.0 - RGBToLinear(vec3(0.606, 0.429, 0.753)));
 
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
     const int CloudMaxOctaves = 6;
