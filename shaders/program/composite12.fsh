@@ -794,15 +794,6 @@ layout(location = 0) out vec4 outFinal;
                 final = mix(final, skyFinal, fogF);
             #elif defined SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    // float fogDist = max(waterDepthFinal, 0.0);
-                    // fogF = GetCustomWaterFogFactor(fogDist);
-
-                    // #ifdef WORLD_SKY_ENABLED
-                    //     vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                    // #else
-                    //     vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
-                    // #endif
-
                     vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                     float fogDist = GetShapedFogDistance(localPos);
@@ -815,6 +806,24 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
+                
+                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    float fogFarDist = CloudFar - far;
+
+                    if (fogFarDist > 0.0) {
+                        float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+                        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+
+                        float VoL = dot(localSkyLightDirection, localViewDir);
+                        float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+
+                        vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
+                        float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
+                        vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
+                        vec3 finalFar = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+                        final.rgb = mix(final.rgb, finalFar, fogF);
+                    }
+                #endif
             #endif
         }
         else {
