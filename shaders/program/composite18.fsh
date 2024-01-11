@@ -904,8 +904,12 @@ layout(location = 0) out vec4 outFinal;
                                 float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
                                 vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-                                float VoL = dot(localSkyLightDirection, localViewDir);
-                                float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+                                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                                    float VoL = dot(localSkyLightDirection, localViewDir);
+                                    float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+                                #else
+                                    const float phaseSky = phaseIso;
+                                #endif
 
                                 vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                                 float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);

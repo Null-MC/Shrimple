@@ -122,7 +122,12 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
 
     float VoL = dot(localSkyLightDirection, localViewDir);
     float phaseCloud = GetCloudPhase(VoL);
-    float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+
+    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+    #else
+        const float phaseSky = phaseIso;
+    #endif
 
     float cloudDist = distMax - distMin;
     float stepLength = cloudDist / (stepCount + 1);
