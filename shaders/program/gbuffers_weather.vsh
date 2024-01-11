@@ -46,7 +46,7 @@ uniform float skyRainStrength;
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS;
+        uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
 

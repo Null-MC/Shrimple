@@ -165,6 +165,7 @@
 	
 	#define TEX_RIPPLES texRipples
 	#define TEX_CLOUDS texClouds
+	#define TEX_CLOUDS_VANILLA texVanillaClouds
 #else
 	#ifndef RENDER_GBUFFER
 		#define TEX_LIGHTMAP colortex13

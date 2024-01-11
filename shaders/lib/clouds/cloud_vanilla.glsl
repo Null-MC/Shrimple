@@ -34,7 +34,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
         float cloudHeightDifference = cloudHeight - vertexWorldPos.y;
 
         const int maxLod = int(log2(256));
-        float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, roughness * maxLod).a;
+        float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexPos.xy, roughness * maxLod).a;
 
         //cloudF *= step(0.0, cloudTexPos.z);
         //cloudF *= step(0.0, localDir.y);
@@ -80,7 +80,7 @@ vec3 GetCloudShadowPosition(in vec3 worldPos, const in vec3 localDir, const in v
     	// vec3 cloudTexPos = vec3((vertexWorldPos.xz + localDir.xz * cloudHeightDifference + vec2(0.0, 4.0))/12.0 - cloudOffset.xy, cloudHeightDifference);
     	// cloudTexPos.xy *= rcp(256.0);
 
-        // float cloudF = textureLod(TEX_CLOUDS, cloudTexPos.xy, 0).a;
+        // float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexPos.xy, 0).a;
 
         // cloudF = 1.0 - cloudF * 0.5 * step(0.0, cloudTexPos.z);
         float cloudF = SampleClouds(localPos, localDir, cloudOffset, camOffset, 0.0);

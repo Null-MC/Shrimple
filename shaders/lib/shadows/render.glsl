@@ -1,4 +1,4 @@
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+#if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA && !defined RENDER_CLOUDS
     float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
         #ifdef RENDER_FRAG
             float dither = InterleavedGradientNoise(gl_FragCoord.xy);
@@ -14,7 +14,7 @@
         for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
             vec2 offset = (rotation * pcfDiskOffset[i]) * rcp(1024.0 * SHADOW_CLOUD_RADIUS);
 
-            float cloudSample = textureLod(TEX_CLOUDS, cloudShadowPos.xy + offset, 0).a;
+            float cloudSample = textureLod(TEX_CLOUDS_VANILLA, cloudShadowPos.xy + offset, 0).a;
             cloudF += cloudSample * step(0.0, cloudShadowPos.z);
         }
 

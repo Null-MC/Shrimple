@@ -36,9 +36,9 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    uniform sampler2D TEX_CLOUDS;
-#endif
+// #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+//     uniform sampler2D TEX_CLOUDS_VANILLA;
+// #endif
 
 uniform int worldTime;
 uniform int frameCounter;

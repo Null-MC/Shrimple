@@ -39,7 +39,7 @@ uniform sampler2D TEX_LIGHTMAP;
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS;
+        uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
 
@@ -231,7 +231,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/hsv.glsl"
+    // #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -252,10 +252,10 @@ uniform int heldBlockLightValue2;
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
+    #include "/lib/lighting/hg.glsl"
 
     #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
@@ -800,7 +800,7 @@ layout(location = 0) out vec4 outFinal;
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
 
-                    #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                    #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE && SKY_CLOUD_TYPE > CLOUDS_VANILLA
                         float fogFarDist = CloudFar - far;
 
                         if (fogFarDist > 0.0) {

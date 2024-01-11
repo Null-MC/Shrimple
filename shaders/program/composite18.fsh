@@ -50,7 +50,7 @@ uniform sampler2D TEX_LIGHTMAP;
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS;
+        uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
 
@@ -897,7 +897,7 @@ layout(location = 0) out vec4 outFinal;
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
 
-                        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE && SKY_CLOUD_TYPE > CLOUDS_VANILLA
                             float fogFarDist = CloudFar - far;
 
                             if (fogFarDist > 0.0) {

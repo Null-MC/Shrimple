@@ -26,7 +26,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         uniform sampler3D TEX_CLOUDS;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS;
+        uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #elif defined WORLD_SMOKE && defined VL_BUFFER_ENABLED
     uniform sampler3D TEX_CLOUDS;
