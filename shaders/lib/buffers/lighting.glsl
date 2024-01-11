@@ -54,7 +54,7 @@ struct StaticLightData {
             uint GlobalLights[LIGHT_BIN_MAX_COUNT];
         };
 
-        #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW || defined RENDER_BEGIN
+        #if defined RENDER_SHADOWCOMP || defined RENDER_BEGIN || defined RENDER_GEOMETRY || defined RENDER_VERTEX
             layout(binding = 6) buffer localLightingData
         #else
             layout(binding = 6) readonly buffer localLightingData
