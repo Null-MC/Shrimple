@@ -55,7 +55,7 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     uniform sampler2D noisetex;
 #endif
 
@@ -108,8 +108,19 @@ uniform ivec2 atlasSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/block_static.glsl"
+
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/light_static.glsl"
+    #endif
+
+    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/light_voxel.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -143,7 +154,7 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
@@ -227,7 +238,7 @@ void main() {
     #endif
 
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
+    #ifdef IS_TRACING_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
@@ -273,7 +284,7 @@ void main() {
             #endif
         }
 
-        #if LPV_SIZE > 0
+        #ifdef IS_LPV_ENABLED
             vec3 playerOffset = originPos - (eyePosition - cameraPosition);
             playerOffset.y += 1.0;
 

@@ -62,7 +62,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/blocks.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    // #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/block_voxel.glsl"
     #include "/lib/buffers/volume.glsl"
 
     #include "/lib/lighting/voxel/lpv.glsl"

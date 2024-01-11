@@ -184,9 +184,12 @@ uniform int frameCounter;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/static_block.glsl"
-    // #include "/lib/buffers/collisions.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/light_static.glsl"
+
+    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -262,10 +265,15 @@ uniform int frameCounter;
 
     #include "/lib/lighting/sampling.glsl"
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
+    #ifdef IS_TRACING_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
+    
+    #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+        #include "/lib/lighting/voxel/tinting.glsl"
+        #include "/lib/lighting/voxel/tracing.glsl"
     #endif
 #endif
 
@@ -287,9 +295,9 @@ uniform int frameCounter;
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/scatter_transmit.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/sampling.glsl"
-    #endif
+    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+    //     #include "/lib/lighting/voxel/sampling.glsl"
+    // #endif
 
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"

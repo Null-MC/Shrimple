@@ -119,6 +119,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+
+    #if LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -162,7 +166,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
         #include "/lib/blocks.glsl"
 
-        #include "/lib/buffers/lighting.glsl"
+        // #include "/lib/buffers/lighting.glsl"
 
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
@@ -181,7 +185,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
 
-            #include "/lib/buffers/static_block.glsl"
+            //#include "/lib/buffers/block_static.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
 

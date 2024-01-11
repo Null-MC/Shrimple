@@ -137,12 +137,12 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/light_static.glsl"
     
-    // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-    //     #include "/lib/buffers/static_block.glsl"
-    // #endif
+    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
@@ -212,13 +212,13 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #include "/lib/lighting/flicker.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+#if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -383,7 +383,7 @@ void main() {
             phase *= cloudShadow;
         #endif
 
-        specular += phase * WorldSkyLightColor;
+        //specular += phase * WorldSkyLightColor;
 
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #elif LIGHTING_MODE == DYN_LIGHT_LPV

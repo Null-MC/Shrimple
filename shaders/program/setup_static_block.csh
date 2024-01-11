@@ -13,7 +13,7 @@ const ivec3 workGroups = ivec3(4, 5, 1);
     #include "/lib/blocks.glsl"
     #include "/lib/lights.glsl"
 
-    #include "/lib/buffers/static_block.glsl"
+    #include "/lib/buffers/block_static.glsl"
 
     #include "/lib/material/specular_blocks.glsl"
     #include "/lib/material/subsurface_blocks.glsl"

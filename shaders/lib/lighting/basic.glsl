@@ -33,17 +33,17 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
     blockLightDefault = RGBToLinear(blockLightDefault);
 
-    #if defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
-        vec3 blockDiffuse = vec3(0.0);
-        vec3 blockSpecular = vec3(0.0);
-        SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+    // #if defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
+    //     vec3 blockDiffuse = vec3(0.0);
+    //     vec3 blockSpecular = vec3(0.0);
+    //     SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
-        vec3 voxelPos = GetVoxelBlockPosition(localPos);
-        float voxelFade = GetVoxelFade(voxelPos);
+    //     vec3 voxelPos = GetVoxelBlockPosition(localPos);
+    //     float voxelFade = GetVoxelFade(voxelPos);
 
-        sampleDiffuse += mix(blockLightDefault, blockDiffuse, voxelFade);
-        sampleSpecular += blockSpecular * voxelFade;
-    #endif
+    //     sampleDiffuse += mix(blockLightDefault, blockDiffuse, voxelFade);
+    //     sampleSpecular += blockSpecular * voxelFade;
+    // #endif
 
     #if LPV_SIZE > 0 //&& LIGHTING_MODE == DYN_LIGHT_LPV
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;

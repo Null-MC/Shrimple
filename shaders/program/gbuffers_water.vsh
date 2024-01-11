@@ -111,8 +111,16 @@ uniform ivec2 atlasSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/block_static.glsl"
+
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/light_static.glsl"
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/light_voxel.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -124,7 +132,7 @@ uniform ivec2 atlasSize;
 #include "/lib/utility/tbn.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
-    //#include "/lib/buffers/static_block.glsl"
+    //#include "/lib/buffers/block_static.glsl"
     #include "/lib/world/waving.glsl"
 #endif
 

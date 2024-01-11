@@ -56,6 +56,8 @@ uniform int frameCounter;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/lightmap.glsl"
+
 #include "/lib/world/common.glsl"
 
 #ifdef SKY_BORDER_FOG_ENABLED
@@ -118,7 +120,8 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
-		color.rgb *= texture(lightmap, vIn.lmcoord).rgb;
+        vec2 lmFinal = LightMapTex(vIn.lmcoord);
+		color.rgb *= texture(lightmap, lmFinal).rgb;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localViewDir = normalize(vIn.localPos);

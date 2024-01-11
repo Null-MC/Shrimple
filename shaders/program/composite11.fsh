@@ -78,14 +78,16 @@ uniform float blindnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    
-    // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
-    //     #include "/lib/buffers/static_block.glsl"
-    // #endif
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/block_voxel.glsl"
+    #include "/lib/buffers/light_static.glsl"
+    #include "/lib/buffers/light_voxel.glsl"
 #endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+#include "/lib/lights.glsl"
+
 #include "/lib/utility/anim.glsl"
 
 #include "/lib/sampling/depth.glsl"
@@ -98,55 +100,31 @@ uniform float blindnessSmooth;
     #include "/lib/material/fresnel.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_LPV || LIGHTING_MODE == DYN_LIGHT_TRACED
-    #ifdef LIGHTING_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
-
-    #include "/lib/lights.glsl"
-
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
-    
-    // #include "/lib/lighting/voxel/block_light_map.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/block_mask.glsl"
-    #include "/lib/lighting/voxel/light_mask.glsl"
-    #include "/lib/lighting/voxel/lights.glsl"
-    #include "/lib/lighting/voxel/lights_render.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
-
-    // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
-    //     #include "/lib/lighting/voxel/item_light_map.glsl"
-    //     #include "/lib/lighting/voxel/items.glsl"
-    // #endif
+#ifdef LIGHTING_FLICKER
+    #include "/lib/lighting/blackbody.glsl"
+    #include "/lib/lighting/flicker.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_TRACED
-    // #include "/lib/buffers/collisions.glsl"
-    #include "/lib/lighting/voxel/tinting.glsl"
-    #include "/lib/lighting/voxel/tracing.glsl"
-#endif
+#include "/lib/lighting/voxel/mask.glsl"
+#include "/lib/lighting/voxel/block_mask.glsl"
+#include "/lib/lighting/voxel/light_mask.glsl"
+#include "/lib/lighting/voxel/lights.glsl"
+#include "/lib/lighting/voxel/lights_render.glsl"
+#include "/lib/lighting/voxel/blocks.glsl"
 
-// #if LPV_SIZE > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
-//     #include "/lib/buffers/volume.glsl"
-//     #include "/lib/lighting/voxel/lpv.glsl"
-// #endif
+#include "/lib/lighting/voxel/tinting.glsl"
+#include "/lib/lighting/voxel/tracing.glsl"
 
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+#ifdef IRIS_FEATURE_SSBO
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 #endif
-
-//#include "/lib/lighting/basic_hand.glsl"
-//#include "/lib/lighting/basic.glsl"
 
 #include "/lib/utility/temporal_offset.glsl"
 

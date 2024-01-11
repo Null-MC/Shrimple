@@ -3,7 +3,6 @@ SSBO-1		Shadow Data
 SSBO-2		Static Block Data
 SSBO-3		Static Light Data
 SSBO-4		Global Light Data
---SSBO-5		Collission Data
 SSBO-6		Local Light Data
 SSBO-7		Water Depth Layers
 

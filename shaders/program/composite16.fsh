@@ -74,6 +74,13 @@ uniform float blindnessSmooth;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
+        #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/block_voxel.glsl"
+        //#include "/lib/buffers/lighting.glsl"
+        #include "/lib/buffers/light_voxel.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -91,16 +98,13 @@ uniform float blindnessSmooth;
     #include "/lib/material/fresnel.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_LPV || LIGHTING_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE != DYN_LIGHT_NONE
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
 
     #include "/lib/lights.glsl"
-
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
     
     // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/lighting/voxel/mask.glsl"

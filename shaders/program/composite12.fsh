@@ -142,13 +142,13 @@ uniform int heldBlockLightValue2;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/static_block.glsl"
-    #include "/lib/buffers/lighting.glsl"
-    
-    // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-    //     #include "/lib/buffers/static_block.glsl"
-    // #endif
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/light_static.glsl"
 
+    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/buffers/block_voxel.glsl"
+    #endif
+    
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
     #endif
@@ -156,6 +156,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
+
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lights.glsl"
+#endif
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
@@ -170,7 +174,13 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#include "/lib/lighting/blackbody.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/blackbody.glsl"
+
+    #ifdef LIGHTING_FLICKER
+        #include "/lib/lighting/flicker.glsl"
+    #endif
+#endif
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -178,30 +188,19 @@ uniform int heldBlockLightValue2;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
-#ifdef LIGHTING_FLICKER
-    #include "/lib/lighting/flicker.glsl"
-#endif
-
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
     #include "/lib/material/fresnel.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SIZE > 0)
+#if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
-
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
-        #include "/lib/lighting/voxel/light_mask.glsl"
-    #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
     #include "/lib/lighting/voxel/tinting.glsl"
-#endif
-
-#ifdef IS_TRACING_ENABLED
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
@@ -221,31 +220,22 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#include "/lib/lights.glsl"
-#include "/lib/lighting/voxel/lights.glsl"
-#include "/lib/lighting/voxel/lights_render.glsl"
-
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
-    #include "/lib/lighting/voxel/sampling.glsl"
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+    #include "/lib/lighting/voxel/lights.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
-    // #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-    // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 #endif
-
-// #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-//     #include "/lib/effects/ssr.glsl"
-// #endif
 
 #include "/lib/lighting/scatter_transmit.glsl"
 
@@ -295,10 +285,8 @@ uniform int heldBlockLightValue2;
         const float lightBufferScale = exp2(LIGHTING_TRACE_RES);
         const float lightBufferScaleInv = rcp(lightBufferScale);
 
-        //vec2 viewSize = vec2(viewWidth, viewHeight);
         vec2 lightBufferSize = viewSize * lightBufferScaleInv;
         vec2 blendPixelSize = rcp(lightBufferSize);
-        //vec2 screenPixelSize = rcp(viewSize);
 
         float total = 0.0;
         vec3 accumDiffuse = vec3(0.0);

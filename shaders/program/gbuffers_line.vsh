@@ -34,6 +34,8 @@ uniform vec2 pixelSize;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#include "/lib/utility/lightmap.glsl"
+
 #ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
@@ -43,6 +45,8 @@ void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     vOut.color = gl_Color;
+
+    vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     vec4 linePosStart = projectionMatrix * (VIEW_SCALE * (modelViewMatrix * vec4(vaPosition, 1.0)));
     vec3 ndc1 = unproject(linePosStart);

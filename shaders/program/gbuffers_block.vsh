@@ -80,7 +80,7 @@ uniform ivec2 atlasSize;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    // #include "/lib/buffers/lighting.glsl"
 #endif
 
 #include "/lib/blocks.glsl"

@@ -59,10 +59,14 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #include "/lib/items.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    #include "/lib/buffers/light_static.glsl"
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/light_voxel.glsl"
+    #endif
 
     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        #include "/lib/buffers/static_block.glsl"
+        #include "/lib/buffers/block_static.glsl"
 
         #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/items.glsl"
@@ -149,8 +153,10 @@ void main() {
             #endif
 
             #if LIGHTING_MODE != DYN_LIGHT_NONE
-                SceneLightCount = 0u;
-                SceneLightMaxCount = 0u;
+                #if LIGHTING_MODE == DYN_LIGHT_TRACED
+                    SceneLightCount = 0u;
+                    SceneLightMaxCount = 0u;
+                #endif
 
                 HandLightPos1 = vec3(0.0);
                 HandLightPos2 = vec3(0.0);

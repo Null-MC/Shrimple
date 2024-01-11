@@ -99,7 +99,7 @@ uniform vec4 entityColor;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/lighting.glsl"
+    // #include "/lib/buffers/lighting.glsl"
 #endif
 
 #include "/lib/blocks.glsl"
@@ -130,7 +130,7 @@ uniform vec4 entityColor;
         #include "/lib/shadows/distorted/common.glsl"
     #endif
 #elif LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
-    #include "/lib/buffers/static_block.glsl"
+    #include "/lib/buffers/block_static.glsl"
     #include "/lib/buffers/volume.glsl"
 
     #ifdef LIGHTING_FLICKER

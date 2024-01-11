@@ -47,7 +47,7 @@ uniform int blockEntityId;
 #endif
 
 #ifdef WORLD_WAVING_ENABLED
-    #include "/lib/buffers/static_block.glsl"
+    #include "/lib/buffers/block_static.glsl"
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
 #endif

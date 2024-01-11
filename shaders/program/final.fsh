@@ -70,7 +70,7 @@ uniform int frameCounter;
 
 #ifdef IRIS_FEATURE_SSBO
 	#if LIGHTING_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
-		#include "/lib/buffers/lighting.glsl"
+		#include "/lib/buffers/light_voxel.glsl"
 	#endif
 
     #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG

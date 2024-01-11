@@ -66,7 +66,13 @@ uniform float far;
     #include "/lib/buffers/scene.glsl"
     
     #if LIGHTING_MODE != DYN_LIGHT_NONE
-        #include "/lib/buffers/static_block.glsl"
+        #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/block_voxel.glsl"
+        #include "/lib/buffers/light_static.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #include "/lib/buffers/light_voxel.glsl"
     #endif
 
     #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
@@ -85,7 +91,7 @@ uniform float far;
         #endif
         
         // #include "/lib/buffers/collisions.glsl"
-        #include "/lib/buffers/lighting.glsl"
+        // #include "/lib/buffers/lighting.glsl"
 
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
