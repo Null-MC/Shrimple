@@ -180,11 +180,11 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+    #include "/lib/lighting/hg.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
 
     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/lighting/hg.glsl"
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
 #endif

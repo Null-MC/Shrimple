@@ -222,7 +222,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 // const float WaterAmbientF = 0.0;
 
                 // vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
-                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, vlWaterScatterColorL, WaterAbsorbColorInv);
+                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, WaterScatterF, WaterAbsorbF);
                 
                 const float WaterAmbientF = 0.0;
 
@@ -235,11 +235,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 eyeSkyLightF += 0.02;
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
+                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
                 vec3 scatterFinal = vec3(0.0);
                 vec3 transmitFinal = vec3(1.0);
-                ApplyScatteringTransmission(scatterFinal, transmitFinal, reflectDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv, 8);
+                ApplyScatteringTransmission(scatterFinal, transmitFinal, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF, 8);
                 reflectColor = reflectColor * transmitFinal + scatterFinal;
             }
             else {

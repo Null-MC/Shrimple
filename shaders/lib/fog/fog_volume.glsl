@@ -16,9 +16,9 @@ struct VolumetricPhaseFactors {
     #endif
 
     VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(
-        vlWaterAmbient * WorldWaterDensityF,
-        vlWaterScatterColorL * WorldWaterDensityF,
-        rcp(waterDensitySmooth) * WorldWaterDensityF,
+        vlWaterAmbient,
+        WaterScatterF,
+        rcp(waterDensitySmooth),
         0.074, 0.924, -0.183);
 #endif
 
@@ -216,7 +216,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float samplePhase = skyPhase;
         #endif
 
-        float sampleDensity = isWater ? 1.0 : AirDensityF;
+        float sampleDensity = isWater ? WaterDensityF : AirDensityF;
 
         float sampleExtinction = phaseF.ExtinctF;
         vec3 sampleScattering = phaseF.ScatterF;
@@ -366,7 +366,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                         sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, Water_CausticStrength);
                     #endif
 
-                    sampleColor *= exp(sampleDepth * -WaterAbsorbColorInv);
+                    sampleColor *= exp(sampleDepth * -WaterAbsorbF);
                 }
             #endif
 

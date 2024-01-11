@@ -215,6 +215,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+    #include "/lib/lighting/hg.glsl"
 
     //#if SKY_CLOUD_TYPE != CLOUDS_NONE
         #include "/lib/clouds/cloud_vars.glsl"
@@ -223,7 +224,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/lightning.glsl"
 
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/lighting/hg.glsl"
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
 #endif
@@ -242,7 +242,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/hsv.glsl"
+    // #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -981,16 +981,6 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
-                const float WaterAmbientF = 0.0;
-                
-                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
-
-                #ifdef WORLD_SKY_ENABLED
-                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                #endif
-                
-                eyeSkyLightF += 0.02;
-
                 //#if WATER_DEPTH_LAYERS > 1
                 //     float waterDepth[WATER_DEPTH_LAYERS+1];
                 //     GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
@@ -1016,12 +1006,24 @@ layout(location = 0) out vec4 outFinal;
                     float waterDist = min(viewDist, far);
                 //#endif
 
-                vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                //ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
+                vec3 vlLight = phaseIso + WaterAmbientF;
+                //ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
+
+                #ifdef WORLD_SKY_ENABLED
+                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
+                    #ifdef WORLD_SKY_ENABLED
+                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                    #endif
+                    
+                    eyeSkyLightF += 0.02;
+                
+                    vlLight *= WorldSkyLightColor * eyeSkyLightF;
+                #endif
 
                 vec3 scatterFinal = vec3(0.0);
                 vec3 transmitFinal = vec3(1.0);
-                ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv, 8);
+                ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
                 final.rgb = final.rgb * transmitFinal + scatterFinal;
             }
         #endif
@@ -1070,7 +1072,7 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
             if (isEyeInWater == 1) {
-                final.rgb *= exp(viewDist * -WaterAbsorbColorInv);
+                final.rgb *= exp(viewDist * -WaterAbsorbF);
             }
         #endif
 
@@ -1110,7 +1112,7 @@ layout(location = 0) out vec4 outFinal;
                 eyeSkyLightF += 0.02;
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
             }
 
             // vec3 viewDir = normalize(viewPos);

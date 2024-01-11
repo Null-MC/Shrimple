@@ -128,13 +128,13 @@ in vec2 texcoord;
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
+        #include "/lib/lighting/hg.glsl"
 
         #if SKY_CLOUD_TYPE != CLOUDS_NONE
             #include "/lib/clouds/cloud_vars.glsl"
         #endif
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif
@@ -275,21 +275,23 @@ layout(location = 0) out vec4 outFinal;
 
             #if WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
                 if (waterDist > EPSILON) {
-                    const float WaterAmbientF = 0.0;
-
-                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                    vec3 vlLight = phaseIso + WaterAmbientF;
 
                     #ifdef WORLD_SKY_ENABLED
-                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                    #endif
-                    
-                    eyeSkyLightF += 0.02;
+                        float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                    vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
+                        #ifdef WORLD_SKY_ENABLED
+                            eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                        #endif
+                        
+                        eyeSkyLightF += 0.02;
+                    
+                        vlLight *= WorldSkyLightColor * eyeSkyLightF;
+                    #endif
 
                     vec3 scatterFinal = vec3(0.0);
                     vec3 transmitFinal = vec3(1.0);
-                    ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv, 8);
+                    ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
                     final.rgb = final.rgb * transmitFinal + scatterFinal;
                 }
 
@@ -306,7 +308,7 @@ layout(location = 0) out vec4 outFinal;
                 //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
                 // }
             #else
-                final.rgb *= exp(waterDist * -WaterAbsorbColorInv);
+                final.rgb *= exp(waterDist * -WaterAbsorbF);
             #endif
         #endif
 
@@ -373,7 +375,7 @@ layout(location = 0) out vec4 outFinal;
                     }
                 #endif
 
-                //final *= exp(waterDepthFinal * -WaterAbsorbColorInv);
+                //final *= exp(waterDepthFinal * -WaterAbsorbF);
             #endif
 
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
@@ -385,21 +387,23 @@ layout(location = 0) out vec4 outFinal;
                 // }
 
                 if (waterDist > EPSILON) {
-                    const float WaterAmbientF = 0.0;
-
-                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                    vec3 vlLight = phaseIso + WaterAmbientF;
 
                     #ifdef WORLD_SKY_ENABLED
-                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                    #endif
-                    
-                    eyeSkyLightF += 0.02;
+                        float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                    vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
+                        #ifdef WORLD_SKY_ENABLED
+                            eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                        #endif
+                        
+                        eyeSkyLightF += 0.02;
+                    
+                        vlLight *= WorldSkyLightColor * eyeSkyLightF;
+                    #endif
 
                     vec3 scatterFinal = vec3(0.0);
                     vec3 transmitFinal = vec3(1.0);
-                    ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv, 8);
+                    ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
                     final.rgb = final.rgb * transmitFinal + scatterFinal;
                 }
             #endif
@@ -464,7 +468,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
                 if (isWater) {
-                    final *= exp(waterDist * -WaterAbsorbColorInv);
+                    final *= exp(waterDist * -WaterAbsorbF);
                 }
             #endif
 

@@ -186,7 +186,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
             //shadowDist = max(shadowPos.z - texDepth, 0.0);
-            //sampleColor *= exp(shadowDist * -WaterAbsorbColorInv);
+            //sampleColor *= exp(shadowDist * -WaterAbsorbF);
             //sampleColor *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
 
             vec3 sampleColor = vec3(0.0);
@@ -208,7 +208,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
             if (isWater) {
                 shadowDist = max(shadowPos.z - texDepthTrans, EPSILON) * shadowDistMax;
-                sampleColor *= exp(shadowDist * -WaterAbsorbColorInv);
+                sampleColor *= exp(shadowDist * -WaterAbsorbF);
                 sampleF *= 0.0;//DynamicLightAmbientF;// * exp(-shadowDist);
                 //sampleF = 0.0;
             }
