@@ -29,13 +29,15 @@ float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
 
         vec3 testPos = worldPos / CloudSize;
 
-        testPos += CloudSpeed*worldTime * vec3(0.8, 0.2, 0.1);
+        // testPos += CloudSpeed*(worldTime/24000.0) * vec3(0.8, 0.2, 0.1);
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
             testPos = floor(testPos);
         #endif
 
         testPos /= scale;
+
+        testPos.x += mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
         sampleD += pow(sampleF, 2.4 - 1.4 * _str) * rcp(exp2(octave));
@@ -154,10 +156,9 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
         // float fogDist = GetShapedFogDistance(tracePos);
         // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * CloudFar, CloudFar, 1.0);
 
-        float inRange = 1.0;//step(distMin + stepLength * (stepI + dither), far);
         float airDensity = GetSkyDensity(worldPos.y + tracePos.y);
 
-        float stepDensity = mix(inRange * airDensity, CloudDensityF, sampleCloudF);
+        float stepDensity = mix(airDensity, CloudDensityF, sampleCloudF);
         float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
         float stepScatterF = mix(AirScatterF, CloudScatterF, sampleCloudF);
         float stepExtinctF = mix(AirExtinctF, CloudAbsorbF, sampleCloudF);
@@ -218,9 +219,7 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             //float fogDist = GetShapedFogDistance(tracePos);
             //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
 
-            float inRange = 1.0;//step(distMin + stepLength * (stepI + dither), far);
-
-            float stepDensity = mix(inRange * AirDensityF, CloudDensityF, sampleCloudF);
+            float stepDensity = mix(AirDensityF, CloudDensityF, sampleCloudF);
             float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
             float stepScatterF = mix(AirScatterF, CloudScatterF, sampleCloudF);
             float stepExtinctF = mix(AirExtinctF, CloudAbsorbF, sampleCloudF);

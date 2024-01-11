@@ -97,7 +97,7 @@ uniform float skyRainStrength;
 #ifdef IS_IRIS
     uniform float lightningStrength;
 
-    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    #if SKY_CLOUD_TYPE != CLOUDS_NONE
         uniform float cloudTime;
     #endif
 #endif

@@ -1017,7 +1017,12 @@ layout(location = 0) out vec4 outFinal;
                 //#endif
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
+                //ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv);
+
+                vec3 scatterFinal = vec3(0.0);
+                vec3 transmitFinal = vec3(1.0);
+                ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, 1.0, vlWaterScatterColorL, WaterAbsorbColorInv, 8);
+                final.rgb = final.rgb * transmitFinal + scatterFinal;
             }
         #endif
 

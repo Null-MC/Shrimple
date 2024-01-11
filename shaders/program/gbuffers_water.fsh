@@ -623,7 +623,8 @@ void main() {
                 ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                ApplyWetnessRipples(texNormal, rippleNormalStrength);
+                if (skyRainStrength > EPSILON)
+                    ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
         #endif
     #endif

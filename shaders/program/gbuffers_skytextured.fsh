@@ -12,15 +12,20 @@ in VertexData {
 
 uniform sampler2D gtexture;
 
+uniform int renderStage;
+uniform float rainStrength;
+uniform float skyRainStrength;
+uniform int frameCounter;
+
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;
     uniform vec3 sunPosition;
 #endif
 
-uniform int renderStage;
-uniform float rainStrength;
-uniform float skyRainStrength;
-uniform int frameCounter;
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec3 cameraPosition;
+    uniform vec3 previousCameraPosition;
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -34,8 +39,14 @@ uniform int frameCounter;
 #endif
 
 
-/* RENDERTARGETS: 0 */
-layout(location = 0) out vec4 outColor0;
+#ifdef EFFECT_TAA_ENABLED
+    /* RENDERTARGETS: 0,7 */
+    layout(location = 0) out vec4 outFinal;
+    layout(location = 1) out vec4 outVelocity;
+#else
+    /* RENDERTARGETS: 0 */
+    layout(location = 0) out vec4 outFinal;
+#endif
 
 void main() {
     vec4 color = textureLod(gtexture, vIn.texcoord, 0) * vIn.color;
@@ -94,5 +105,11 @@ void main() {
     //     color.rgb *= 10.0;
     // #endif
 
-    outColor0 = color;
+    outFinal = color;
+
+    #ifdef EFFECT_TAA_ENABLED
+        vec3 velocity = cameraPosition - previousCameraPosition;
+
+        outVelocity = vec4(velocity, 0.0);
+    #endif
 }

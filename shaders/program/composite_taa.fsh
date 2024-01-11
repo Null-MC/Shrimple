@@ -72,32 +72,65 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
 // }
 
 float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
-    float deltaMin = 1.0;
+    //float deltaMin = 1.0;
 
-    vec3 colorPrevN = normalize(colorPrev + EPSILON);
+    // vec3 colorPrevN = normalize(colorPrev + EPSILON);
+
+    // WARN: using the min-of-samples is bad; promotes flicker
+    // instead get min/max and check if range
+
+    float lumMax = 0.0;
+    float lumMin = 9999.0;
+
+    vec3 rgbMax = vec3(0.0);
+    vec3 rgbMin = vec3(9999.0);
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
             vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
-            vec3 sampleColorN = normalize(sampleColor + EPSILON);
+            float sampleLum = luminance(sampleColor);
 
-            vec3 deltaRGB = abs(colorPrevN - sampleColorN);
-            float sampleRgbDelta = 2.0 * luminance(deltaRGB);
+            rgbMin = min(rgbMin, sampleColor);
+            rgbMax = max(rgbMax, sampleColor);
 
-            // TODO: add luminance test?
+            // vec3 sampleColorN = normalize(sampleColor + EPSILON);
+            // vec3 deltaRGB = abs(colorPrevN - sampleColorN);
+            // float sampleDelta = 2.0 * luminance(deltaRGB);
 
-            deltaMin = min(deltaMin, sampleRgbDelta);
+            lumMin = min(lumMin, sampleLum);
+            lumMax = max(lumMax, sampleLum);
+
+            // float deltaLum = abs(luminance(colorPrev) - sampleLum);
+            // sampleDelta += 0.5 * deltaLum;
+
+            //deltaMin = min(deltaMin, sampleDelta);
         }
     }
+
+    float delta = 0.0;
+
+    // vec3 colorPrevN = normalize(colorPrev + EPSILON);
+    // vec3 rgbMinN = normalize(rgbMin + EPSILON);
+    // vec3 rgbMaxN = normalize(rgbMax + EPSILON);
+    // vec3 rgbDeltaN = max(rgbMinN - colorPrevN, 0.0) + max(colorPrevN - rgbMaxN, 0.0);
+    // delta += max(maxOf(rgbDeltaN) - 0.2, 0.0);
+
+    vec3 rgbDelta = max(rgbMin - colorPrev, 0.0) + max(colorPrev - rgbMax, 0.0);
+    delta += 2.0 * max(luminance(rgbDelta) - 0.5, 0.0);
+
+    float lumPrev = luminance(colorPrev);
+    float lumDelta = max(lumMin - lumPrev, 0.0) + max(lumPrev - lumMax, 0.0);
+    delta += 2.0 * max(lumDelta - 0.4, 0.0);
     
-    return max(1.0 - deltaMin, 0.0);
+    //return max(1.0 - delta, 0.0);
+    return 1.0 - _smoothstep(delta);
 }
 
 // TODO: combine neighbor tests
 
 void getNeighborDepthRange(const in vec2 texcoord, out float depthMin, out float depthMax) {
-    vec2 jitter = getJitterOffset(frameCounter);
+    //vec2 jitter = getJitterOffset(frameCounter);
     vec2 offsetCoord = texcoord;// + 0.5*jitter;// - 0.5*pixelSize;
 
     depthMin = 1.0;
@@ -263,8 +296,8 @@ void main() {
 
     //const float depthBias = 0.2;
     //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
-    float depthTest = max((reproDepthMin - 0.2) - depthPrevL, 0.0);
-    depthTest += max(depthPrevL - (reproDepthMax + 0.2), 0.0);
+    float depthTest = max((reproDepthMin - 0.02) - depthPrevL, 0.0);
+    depthTest += max(depthPrevL - (reproDepthMax + 0.02), 0.0);
     //if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
 
     depthTest = saturate(1.0 - depthTest);

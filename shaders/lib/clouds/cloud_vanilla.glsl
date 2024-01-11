@@ -1,5 +1,5 @@
 vec2 GetCloudOffset() {
-    vec2 cloudOffset = vec2(-cloudTime/12.0 , 0.33);
+    vec2 cloudOffset = vec2(-cloudTime/12.0, 0.33);
     cloudOffset = mod(cloudOffset, vec2(256.0));
     cloudOffset = mod(cloudOffset + 256.0, vec2(256.0));
 

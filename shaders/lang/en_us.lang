@@ -20,6 +20,10 @@ value.SKY_CLOUD_TYPE.1=Vanilla
 value.SKY_CLOUD_TYPE.2=Custom
 value.SKY_CLOUD_TYPE.3=Custom Cubed
 
+option.SKY_CLOUD_SPEED=Cloud Speed
+option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.
+suffix.SKY_CLOUD_SPEED=x
+
 option.SKY_BORDER_FOG_ENABLED=Border Fog
 
 option.SKY_FOG_SHAPE=Border Fog Shape

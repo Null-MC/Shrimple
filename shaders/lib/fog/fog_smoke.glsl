@@ -13,10 +13,7 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
 
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(SmokeMaxOctaves - octave);
-
-        vec3 testPos = worldPos;
-
-        testPos /= scale;
+        vec3 testPos = worldPos / scale;
 
         testPos.y -= SmokeSpeed*time;
 
@@ -24,9 +21,6 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
         sampleD += pow(sampleF, 2.4) * rcp(exp2(octave));
     }
 
-    const float sampleMax = rcp(1.0 - rcp(exp2(octaveCount)));
-    sampleD *= sampleMax;
-
-    //return smootherstep(sampleD);
-    return pow5(_smoothstep(sampleD)) + 0.02;
+    const float sampleMaxInv = rcp(1.0 - rcp(exp2(octaveCount)));
+    return pow5(_smoothstep(sampleD * sampleMaxInv)) + 0.02;
 }
