@@ -1,7 +1,7 @@
 const float WaterAmbientF = 0.1;
-const float WaterDensityF = 1.0 * WorldWaterDensityF;
-const vec3 WaterScatterF = _RGBToLinear(WaterScatterColor);
-const vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);
+float WaterDensityF = 1.0 * WorldWaterDensityF;
+vec3 WaterScatterF = _RGBToLinear(WaterScatterColor);
+vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);
 
 
 #if WATER_WAVE_SIZE == 3
