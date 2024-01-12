@@ -186,6 +186,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -216,8 +220,6 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/sampling.glsl"
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-
     //#if SKY_CLOUD_TYPE != CLOUDS_NONE
         #include "/lib/clouds/cloud_vars.glsl"
     //#endif

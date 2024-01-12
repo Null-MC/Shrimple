@@ -215,6 +215,15 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/fog/fog_common.glsl"
 
 #include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/hg.glsl"
+
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -223,10 +232,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #include "/lib/fog/fog_render.glsl"
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -285,10 +290,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/sampling.glsl"
 
 #if !(defined DEFERRED_BUFFER_ENABLED && defined DEFERRED_PARTICLES) || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
-    #include "/lib/lighting/hg.glsl"
-
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
 

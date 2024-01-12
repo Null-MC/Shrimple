@@ -182,6 +182,11 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+    #include "/lib/world/wetness.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -207,11 +212,6 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
-
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-    #include "/lib/world/wetness.glsl"
-#endif
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"

@@ -62,6 +62,10 @@ uniform int frameCounter;
 
 #ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
+    
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+    #endif
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"

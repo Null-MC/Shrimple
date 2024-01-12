@@ -4,8 +4,8 @@ const vec3 colorFogDay     = _RGBToLinear(vec3(0.680, 0.797, 0.823)) * 0.7;
 const vec3 colorSkyNight   = _RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;
 const vec3 colorFogNight   = _RGBToLinear(vec3(0.276, 0.278, 0.288)) * 0.3;
 
-const vec3 colorSkyHorizon = _RGBToLinear(vec3(0.502, 0.370, 0.626)) * 0.4;
-const vec3 colorFogHorizon = _RGBToLinear(vec3(0.854, 0.628, 0.281)) * 0.8;
+const vec3 colorSkyHorizon = _RGBToLinear(vec3(0.502, 0.370, 0.626)) * 0.2;
+const vec3 colorFogHorizon = _RGBToLinear(vec3(0.854, 0.628, 0.281)) * 0.4;
 
 const vec3 colorRainSkyDay = _RGBToLinear(vec3(0.332, 0.352, 0.399)) * 0.5;
 const vec3 colorRainFogDay = _RGBToLinear(vec3(0.097, 0.092, 0.106)) * 0.5;
@@ -45,9 +45,10 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
         vec3 skyColor = mix(colorSkyNight, colorSkyDay, dayF);
         vec3 fogColor = mix(colorFogNight, colorFogDay, dayF);
 
-        float horizonF = smoothstep(0.0, 0.2, abs(sunUpF + 0.03));
-        skyColor = mix(colorSkyHorizon, skyColor, horizonF);
-        fogColor = mix(colorFogHorizon, fogColor, horizonF);
+        //float horizonF = smoothstep(0.0, 0.6, abs(sunUpF + 0.06));
+        float horizonF = GetSkyHorizonF(sunUpF);
+        skyColor = mix(skyColor, colorSkyHorizon, horizonF);
+        fogColor = mix(fogColor, colorFogHorizon, horizonF);
 
         vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);
         fogColor = mix(fogColor, rainFogColor, skyRainStrength);

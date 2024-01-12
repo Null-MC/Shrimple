@@ -53,6 +53,8 @@ uniform int renderStage;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/sky.glsl"
+
 #include "/lib/fog/fog_common.glsl"
 
 #include "/lib/lighting/blackbody.glsl"

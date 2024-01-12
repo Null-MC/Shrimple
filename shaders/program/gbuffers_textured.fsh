@@ -175,6 +175,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -188,7 +192,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
 

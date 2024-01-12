@@ -24,7 +24,9 @@ const float LightningBrightness = 20.0;
 
 
 float GetSkyHorizonF(const in float celestialUpF) {
-    return 1.0 - smoothstep(0.0, 0.5, abs(celestialUpF));
+    //float horizonF = smoothstep(0.0, 0.6, abs(celestialUpF + 0.12));
+    float horizonF = abs(celestialUpF + 0.12);
+    return 1.0 - saturate(horizonF);
 }
 
 vec3 GetSkySunColor(const in float sunUpF) {

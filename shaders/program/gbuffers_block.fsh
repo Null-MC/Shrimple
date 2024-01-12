@@ -202,6 +202,19 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+
+    #ifdef WORLD_WETNESS_ENABLED
+        #include "/lib/material/porosity.glsl"
+        #include "/lib/world/wetness.glsl"
+    #endif
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -212,17 +225,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
-#endif
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
-
-#ifdef WORLD_SKY_ENABLED
-    #ifdef WORLD_WETNESS_ENABLED
-        #include "/lib/material/porosity.glsl"
-        #include "/lib/world/wetness.glsl"
-    #endif
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -272,7 +274,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
         

@@ -292,7 +292,7 @@ void main() {
     if (velocity.w > 0.5) counter = min(counter, 2);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
-    //counter *= neighborColorTest(colorPrev.rgb, uvNow);
+    counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
     //const float depthBias = 0.2;
     //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);

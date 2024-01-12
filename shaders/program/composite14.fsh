@@ -51,10 +51,16 @@ uniform int fogShape;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/effects/ssao.glsl"
 
 #ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/buffers/scene.glsl"
+        #include "/lib/world/sky.glsl"
+    #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"

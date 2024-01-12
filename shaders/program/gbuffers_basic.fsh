@@ -116,6 +116,10 @@ uniform int frameCounter;
 
 #include "/lib/fog/fog_common.glsl"
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -126,7 +130,6 @@ uniform int frameCounter;
 
 #ifdef WORLD_SKY_ENABLED
     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/world/sky.glsl"
         #include "/lib/lighting/hg.glsl"
         #include "/lib/lighting/scatter_transmit.glsl"
         #include "/lib/clouds/cloud_vars.glsl"

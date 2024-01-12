@@ -210,7 +210,20 @@ uniform int frameCounter;
 #include "/lib/world/common.glsl"
 // #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
+
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
 #include "/lib/lighting/fresnel.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+
+    #ifdef WORLD_WETNESS_ENABLED
+        #include "/lib/material/porosity.glsl"
+        #include "/lib/world/wetness.glsl"
+    #endif
+#endif
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
@@ -219,15 +232,6 @@ uniform int frameCounter;
 #endif
 
 #include "/lib/fog/fog_render.glsl"
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
-
-#if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    #include "/lib/material/porosity.glsl"
-    #include "/lib/world/wetness.glsl"
-#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/buffers/shadow.glsl"
@@ -253,7 +257,6 @@ uniform int frameCounter;
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
 

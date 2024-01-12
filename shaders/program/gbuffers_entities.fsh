@@ -195,6 +195,14 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/sky.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -206,10 +214,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
     #include "/lib/sampling/atlas.glsl"
-#endif
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -236,7 +240,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/world/sky.glsl"
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
 
@@ -322,10 +325,10 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/fog/fog_volume.glsl"
     #endif
 
-    #ifdef DH_COMPAT_ENABLED
-        #include "/lib/post/saturation.glsl"
-        #include "/lib/post/tonemap.glsl"
-    #endif
+    // #ifdef DH_COMPAT_ENABLED
+    //     #include "/lib/post/saturation.glsl"
+    //     #include "/lib/post/tonemap.glsl"
+    // #endif
 #endif
 
 

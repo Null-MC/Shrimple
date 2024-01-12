@@ -227,17 +227,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
-// #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
+
 #include "/lib/lighting/scatter_transmit.glsl"
-
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
-
-#include "/lib/fog/fog_render.glsl"
+#include "/lib/lighting/hg.glsl"
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -247,15 +240,24 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/sky.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
-
+    
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
     #endif
-    
+#endif
+
+#if SKY_TYPE == SKY_TYPE_CUSTOM
+    #include "/lib/fog/fog_custom.glsl"
+#elif SKY_TYPE == SKY_TYPE_VANILLA
+    #include "/lib/fog/fog_vanilla.glsl"
+#endif
+
+#include "/lib/fog/fog_render.glsl"
+
+#ifdef WORLD_SKY_ENABLED
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
