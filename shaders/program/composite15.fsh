@@ -118,6 +118,7 @@ in vec2 texcoord;
     #include "/lib/world/common.glsl"
     #include "/lib/fog/fog_common.glsl"
 
+    #include "/lib/lighting/hg.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -128,7 +129,6 @@ in vec2 texcoord;
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
-        #include "/lib/lighting/hg.glsl"
 
         #if SKY_CLOUD_TYPE != CLOUDS_NONE
             #include "/lib/clouds/cloud_vars.glsl"

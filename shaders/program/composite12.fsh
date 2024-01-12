@@ -204,6 +204,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
+#include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
@@ -242,7 +243,6 @@ uniform int heldBlockLightValue2;
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
-    #include "/lib/lighting/hg.glsl"
 
     #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

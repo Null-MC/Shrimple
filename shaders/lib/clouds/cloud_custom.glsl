@@ -23,21 +23,24 @@ float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
     float sampleD = 0.0;
 
     float _str = pow(skyRainStrength, 0.333);
+    float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
 
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(CloudMaxOctaves - octave);
 
         vec3 testPos = worldPos / CloudSize;
 
-        // testPos += CloudSpeed*(worldTime/24000.0) * vec3(0.8, 0.2, 0.1);
-
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
+            //float offset = fract(cloudTimeF * scale);
+
+            //testPos.x += offset;
             testPos = floor(testPos);
+            //testPos.x -= offset;
         #endif
 
         testPos /= scale;
 
-        testPos.x += mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
+        testPos.x += cloudTimeF;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
         sampleD += pow(sampleF, 2.4 - 1.4 * _str) * rcp(exp2(octave));

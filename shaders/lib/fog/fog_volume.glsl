@@ -216,7 +216,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             float samplePhase = skyPhase;
         #endif
 
-        float sampleDensity = isWater ? WaterDensityF : AirDensityF;
+        float sampleDensity = AirDensityF;
+        #ifdef WORLD_WATER_ENABLED
+            if (isWater) sampleDensity = WaterDensityF;
+        #endif
 
         float sampleExtinction = phaseF.ExtinctF;
         vec3 sampleScattering = phaseF.ScatterF;

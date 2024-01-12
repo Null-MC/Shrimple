@@ -309,7 +309,9 @@ void main() {
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
     float depthFinal = mix(depthNowL, depthPrevL, weight);
 
-    outFinal = clamp(colorFinal, 0.0, 65000.0);
+    colorFinal = clamp(colorFinal, 0.0, 65000.0);
+
+    outFinal = colorFinal;
     //outFinal = vec3(1.0 - depthTest);
     //outFinal = vec3(depthPrevL / far);
     //outFinal = vec3(1.0 - weight);

@@ -171,6 +171,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
@@ -188,7 +189,6 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-    #include "/lib/lighting/hg.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
 

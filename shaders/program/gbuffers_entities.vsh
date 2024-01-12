@@ -99,7 +99,10 @@ uniform vec4 entityColor;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    // #include "/lib/buffers/lighting.glsl"
+
+    #ifdef IS_LPV_ENABLED
+        #include "/lib/buffers/light_static.glsl"
+    #endif
 #endif
 
 #include "/lib/blocks.glsl"

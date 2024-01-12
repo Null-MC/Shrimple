@@ -128,7 +128,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         if (reflection.z < 1.0 && reflection.a > 0.0) {
             vec3 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflection.xyz * 2.0 - 1.0, 1.0));
 
-            reflectDist = min(length(reflectViewPos - viewPos), CloudFar);
+            reflectDist = min(length(reflectViewPos - viewPos), far);
 
             #ifdef SKY_BORDER_FOG_ENABLED
                 #ifndef IRIS_FEATURE_SSBO
@@ -181,11 +181,15 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
-        else reflectDist = CloudFar;
+        else reflectDist = far;
 
         reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
-        reflectDist = CloudFar;
+        reflectDist = far;
+    #endif
+
+    #ifdef WORLD_SKY_ENABLED
+        if (reflectDist >= far) reflectDist = CloudFar;
     #endif
 
     //if (isEyeInWater != 1) {
