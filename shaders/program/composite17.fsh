@@ -280,7 +280,7 @@ void main() {
 
     //float farMax = far;//min(shadowDistance, far);
     float farDist = clamp(viewDist, near, far - 0.002);
-    //if (depth >= 1.0) farDist = CloudFar;
+    //if (depth >= 1.0) farDist = SkyFar;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -291,9 +291,9 @@ void main() {
             //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
 
             //     // farDist = length(cloudFar);
-            //     // if (farDist < EPSILON) farDist = CloudFar;
-            //     // else farDist = min(farDist, CloudFar);
-            //     farDist = CloudFar;
+            //     // if (farDist < EPSILON) farDist = SkyFar;
+            //     // else farDist = min(farDist, SkyFar);
+            //     farDist = SkyFar;
             // }
         #endif
     
@@ -318,7 +318,7 @@ void main() {
 
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 float cloudDistNear = far;
-                float cloudDistFar = CloudFar;
+                float cloudDistFar = SkyFar;
 
                 // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 //     cloudDistNear = max(cloudDistNear, far);
@@ -336,9 +336,9 @@ void main() {
                 float cloudDistFar = length(cloudFar);
                 float cloudDistNear = 0.0;
 
-                cloudDistFar = min(cloudDistFar, CloudFar);
-                if (cloudDistFar <= 0.0) cloudDistFar = CloudFar;
-                if (depth >= 1.0) cloudDistFar = CloudFar;
+                cloudDistFar = min(cloudDistFar, SkyFar);
+                if (cloudDistFar <= 0.0) cloudDistFar = SkyFar;
+                if (depth >= 1.0) cloudDistFar = SkyFar;
 
                 if (depth < 1.0) {
                     cloudDistFar = min(cloudDistFar, viewDist);

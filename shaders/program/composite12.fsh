@@ -789,7 +789,7 @@ layout(location = 0) out vec4 outFinal;
                     float fogF = GetCustomFogFactor(fogDist);
 
                     #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                        float fogFarDist = CloudFar - far;
+                        float fogFarDist = SkyFar - far;
 
                         if (fogFarDist > 0.0) {
                             float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);

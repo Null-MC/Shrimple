@@ -157,7 +157,7 @@ vec4 _TraceClouds(const in vec3 worldPos, const in vec3 localViewDir, const in f
         float sampleCloudShadow = _TraceCloudShadow(worldPos, tracePos, dither, shadowStepCount);
 
         // float fogDist = GetShapedFogDistance(tracePos);
-        // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * CloudFar, CloudFar, 1.0);
+        // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * SkyFar, SkyFar, 1.0);
 
         float airDensity = GetSkyDensity(worldPos.y + tracePos.y);
 
@@ -220,7 +220,7 @@ vec4 _TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in 
             float sampleCloudShadow = _TraceCloudShadow(worldPos, tracePos, dither, shadowStepCount);
 
             //float fogDist = GetShapedFogDistance(tracePos);
-            //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+            //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
             float stepDensity = mix(AirDensityF, CloudDensityF, sampleCloudF);
             float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
@@ -302,7 +302,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
             // float fogDist = GetShapedFogDistance(tracePos);
-            // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * CloudFar, CloudFar, 1.0);
+            // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
             float stepAbsorb = exp(cloudStepLen * sampleD * -CloudAbsorbF);
 

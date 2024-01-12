@@ -1,3 +1,4 @@
+const float SkyFar = 2000.0;
 const float AirDensityF = SKY_DENSITY * 0.01;
 const float phaseAir = phaseIso;
 

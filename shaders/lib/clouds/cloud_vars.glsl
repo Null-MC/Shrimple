@@ -1,5 +1,3 @@
-const float CloudFar = 2000.0;
-
 float CloudDensityF = 1.0;
 float CloudAmbientF = 0.02;//mix(0.05, 0.4, skyRainStrength);
 float CloudScatterF = mix(0.30, 0.018, skyRainStrength);
