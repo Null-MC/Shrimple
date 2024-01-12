@@ -58,7 +58,7 @@
                 break;
             case LIGHT_CAMPFIRE:
             case LIGHT_FIRE:
-                lightColor = vec3(0.851, 0.616, 0.239);
+                lightColor = LIGHT_COLOR_FIRE;
                 break;
             case LIGHT_FROGLIGHT_OCHRE:
                 lightColor = LIGHT_COLOR_FROGLIGHT_OCHRE;

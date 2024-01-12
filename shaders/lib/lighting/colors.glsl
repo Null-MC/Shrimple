@@ -19,6 +19,7 @@
 // CAMPFIRE
 
 // FIRE
+#define LIGHT_COLOR_FIRE vec3(0.864, 0.598, 0.348) // [0]
 
 #define LIGHT_COLOR_FROGLIGHT_OCHRE vec3(0.768, 0.648, 0.108) // [0]
 
@@ -28,7 +29,7 @@
 
 // FURNACE
 
-#define LIGHT_COLOR_GLOWSTONE vec3(0.889, 0.611, 0.334) // [0]
+#define LIGHT_COLOR_GLOWSTONE vec3(0.747, 0.594, 0.326) // [0]
 
 #define LIGHT_COLOR_GLOW_LICHEN vec3(0.092, 0.217, 0.126) // [0]
 

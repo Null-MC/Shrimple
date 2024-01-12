@@ -4,8 +4,8 @@ const float SmokeSpeed = 0.05;
 
 const float SmokeDensityF = 1.0;
 const float SmokeAmbientF = 0.16;
-const float SmokeScatterF = 0.24;
-const float SmokeAbsorbF  = 0.32;
+const float SmokeScatterF = 0.48;
+const float SmokeAbsorbF  = 0.64;
 
 
 float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in float time) {
