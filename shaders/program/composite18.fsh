@@ -144,6 +144,10 @@ uniform int heldBlockLightValue2;
     uniform float alphaTestRef;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/block_static.glsl"
@@ -173,6 +177,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/gaussian.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/utility/anim.glsl"

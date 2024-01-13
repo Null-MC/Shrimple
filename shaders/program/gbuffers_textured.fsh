@@ -134,6 +134,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec4 spriteBounds;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif

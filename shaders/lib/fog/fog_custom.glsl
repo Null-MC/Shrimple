@@ -85,9 +85,15 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
 #endif
 
 float GetCustomFogFactor(const in float fogDist) {
-    #ifdef WORLD_SKY_ENABLED
-        return GetFogFactor(fogDist, 0.85 * far, far, 1.0);
+    #ifdef DISTANT_HORIZONS
+        float fogFar = 0.5 * dhFarPlane;
     #else
-        return GetFogFactor(fogDist, 0.0, far, 1.0);
+        float fogFar = far;
+    #endif
+
+    #ifdef WORLD_SKY_ENABLED
+        return GetFogFactor(fogDist, 0.85 * fogFar, fogFar, 1.0);
+    #else
+        return GetFogFactor(fogDist, 0.0, fogFar, 1.0);
     #endif
 }

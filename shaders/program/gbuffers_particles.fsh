@@ -155,6 +155,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 shadowModelView;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if AF_SAMPLES > 1
     uniform float viewHeight;
     uniform vec4 spriteBounds;
@@ -348,7 +352,7 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/fog/fog_smoke.glsl"
         #endif
     
-        #include "/lib/fog/fog_volume.glsl"
+        // #include "/lib/fog/fog_volume.glsl"
     #endif
 #endif
 

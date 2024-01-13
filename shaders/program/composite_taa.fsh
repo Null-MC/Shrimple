@@ -15,6 +15,10 @@ uniform sampler2D BUFFER_VELOCITY;
 uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform int frameCounter;
@@ -24,6 +28,15 @@ uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhModelViewInverse;
+    uniform mat4 dhProjectionInverse;
+    uniform mat4 dhPreviousModelView;
+    uniform mat4 dhPreviousProjection;
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -32,23 +45,55 @@ uniform float far;
 #include "/lib/effects/taa.glsl"
 
 
-vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity) {
+vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity, const in bool isDepthDh) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
 
-    #ifdef IRIS_FEATURE_SSBO
-        vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+    #ifdef DISTANT_HORIZONS
+        vec3 localPos;
+        if (isDepthDh) {
+            vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
+            localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        }
+        else {
+            #ifdef IRIS_FEATURE_SSBO
+                localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            #else
+                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+                localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            #endif
+        }
     #else
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #ifdef IRIS_FEATURE_SSBO
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #else
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #endif
     #endif
 
     vec3 localPosPrev = localPos - velocity + cameraPosition - previousCameraPosition;
 
-    #ifdef IRIS_FEATURE_SSBO
-        vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+    #ifdef DISTANT_HORIZONS
+        vec3 clipPosPrev;
+        if (isDepthDh) {
+            vec3 viewPosPrev = (dhPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+            clipPosPrev = unproject(dhPreviousProjection * vec4(viewPosPrev, 1.0));
+        }
+        else {
+            #ifdef IRIS_FEATURE_SSBO
+                clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+            #else
+                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+                clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+            #endif
+        }
     #else
-        vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-        vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+        #ifdef IRIS_FEATURE_SSBO
+            vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+        #else
+            vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+            vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+        #endif
     #endif
 
     return clipPosPrev * 0.5 + 0.5;
@@ -129,21 +174,35 @@ float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
 
 // TODO: combine neighbor tests
 
-void getNeighborDepthRange(const in vec2 texcoord, out float depthMin, out float depthMax) {
+void getNeighborDepthRange(const in vec2 texcoord, out float depthMinL, out float depthMaxL) {
     //vec2 jitter = getJitterOffset(frameCounter);
     vec2 offsetCoord = texcoord;// + 0.5*jitter;// - 0.5*pixelSize;
 
-    depthMin = 1.0;
-    depthMax = 0.0;
+    depthMinL = 9999.0;
+    depthMaxL = 0.0;
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = offsetCoord + vec2(x, y) * pixelSize;
             float sampleDepth = textureLod(depthtex1, sampleCoord, 0).r;
             //float sampleDepth = texelFetch(depthtex1, ivec2(sampleCoord * viewSize), 0).r;
+            float sampleDepthL;
 
-            depthMin = min(depthMin, sampleDepth);
-            depthMax = max(depthMax, sampleDepth);
+            float _near = near;
+            float _far = far;
+
+            #ifdef DISTANT_HORIZONS
+                if (sampleDepth >= 1.0) {
+                    sampleDepth = textureLod(dhDepthTex, sampleCoord, 0).r;
+                    _near = dhNearPlane;
+                    _far = dhFarPlane;
+                }
+            #endif
+
+            sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
+
+            depthMinL = min(depthMinL, sampleDepthL);
+            depthMaxL = max(depthMaxL, sampleDepthL);
         }
     }
 }
@@ -255,16 +314,29 @@ void main() {
         // uvNow += 0.5*getJitterOffset(frameCounter);
     }
 
+    bool isDepthDh = false;
+    float _near = near;
+    float _far = far;
+
+    #ifdef DISTANT_HORIZONS
+        if (depthNow >= 1.0) {
+            depthNow = textureLod(dhDepthTex, uvNowJitter, 0).r;
+            _near = dhNearPlane;
+            _far = dhFarPlane;
+            isDepthDh = true;
+        }
+    #endif
+
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
     vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
-    float depthMin, depthMax;
-    getNeighborDepthRange(uvNowJitter, depthMin, depthMax);
-    float depthMinL = linearizeDepthFast(depthMin, near, far);
-    float depthMaxL = linearizeDepthFast(depthMax, near, far);
+    float depthMinL, depthMaxL;
+    getNeighborDepthRange(uvNowJitter, depthMinL, depthMaxL);
+    // float depthMinL = linearizeDepthFast(depthMin, _near, _far);
+    // float depthMaxL = linearizeDepthFast(depthMax, _near, _far);
 
-    vec3 clipPosRepro = getReprojectedClipPos(uvNow, depthNow, velocity.xyz);
-    float reproDepthL = linearizeDepthFast(clipPosRepro.z, near, far);
+    vec3 clipPosRepro = getReprojectedClipPos(uvNow, depthNow, velocity.xyz, isDepthDh);
+    float reproDepthL = linearizeDepthFast(clipPosRepro.z, _near, _far);
 
     vec2 uvPrev = clipPosRepro.xy;
     //float depthPrevL, depthDiff;
@@ -272,13 +344,13 @@ void main() {
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
     //depthDiff = abs(depthPrevL - depthNowL);
 
-    float depthNowL = linearizeDepthFast(depthNow, near, far);
-    depthNowL = clamp(depthNowL, near, far);
+    float depthNowL = linearizeDepthFast(depthNow, _near, _far);
+    depthNowL = clamp(depthNowL, _near, _far);
 
     float reproDepthMin = reproDepthL + (depthMinL - depthNowL);
     float reproDepthMax = reproDepthL + (depthMaxL - depthNowL);
-    reproDepthMin = clamp(reproDepthMin, near, far);
-    reproDepthMax = clamp(reproDepthMax, near, far);
+    reproDepthMin = clamp(reproDepthMin, _near, _far);
+    reproDepthMax = clamp(reproDepthMax, _near, _far);
 
     #ifdef EFFECT_TAA_SHARPEN
         vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);

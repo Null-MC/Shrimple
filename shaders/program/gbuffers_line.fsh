@@ -45,6 +45,10 @@ uniform int frameCounter;
     uniform vec3 skyColor;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif

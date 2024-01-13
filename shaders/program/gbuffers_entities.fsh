@@ -135,6 +135,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if AF_SAMPLES > 1
     uniform float viewWidth;
     uniform float viewHeight;

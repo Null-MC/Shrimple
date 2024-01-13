@@ -110,6 +110,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
@@ -128,8 +132,12 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/buffers/scene.glsl"
 
     #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
-        //#include "/lib/buffers/lighting.glsl"
         #include "/lib/buffers/block_voxel.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+        #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/light_voxel.glsl"
     #endif
     
     // #if WATER_DEPTH_LAYERS > 1
@@ -156,7 +164,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
 
-            #include "/lib/buffers/block_static.glsl"
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
 

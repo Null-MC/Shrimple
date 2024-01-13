@@ -37,12 +37,16 @@ uniform int renderStage;
     uniform float waterDensitySmooth;
 #endif
 
-#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-    uniform float alphaTestRef;
-#endif
-
 #ifdef EFFECT_TAA_ENABLED
     uniform vec3 previousCameraPosition;
+#endif
+
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

@@ -27,14 +27,32 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         vec3 sampleViewPos = viewPos + vec3(offset, 0.0);
         vec3 sampleClipPos = unproject(gbufferProjection * vec4(sampleViewPos, 1.0)) * 0.5 + 0.5;
         //sampleClipPos = saturate(sampleClipPos);
-        if (saturate(sampleClipPos) != sampleClipPos) continue;
+        if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
         sampleCount++;
 
         float sampleClipDepth = textureLod(depthtex1, sampleClipPos.xy, 0.0).r;
-        if (sampleClipDepth >= 1.0 - EPSILON) continue;
 
-        sampleClipPos.z = sampleClipDepth;
-        sampleViewPos = unproject(gbufferProjectionInverse * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
+        #ifdef DISTANT_HORIZONS
+            mat4 projectionInv = gbufferProjectionInverse;
+
+            if (sampleClipDepth >= 1.0) {
+                sampleClipDepth = textureLod(dhDepthTex, sampleClipPos.xy, 0.0).r;
+                projectionInv = dhProjectionInverse;
+            }
+
+            if (sampleClipDepth >= 1.0) continue;
+
+            sampleClipPos.z = sampleClipDepth;
+            sampleViewPos = unproject(projectionInv * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
+        #else
+            if (sampleClipDepth >= 1.0) continue;
+
+            sampleClipPos.z = sampleClipDepth;
+            sampleViewPos = unproject(gbufferProjectionInverse * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
+        #endif
+
+        // sampleClipPos.z = sampleClipDepth;
+        // sampleViewPos = unproject(gbufferProjectionInverse * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
 
         vec3 diff = sampleViewPos - viewPos;
         float sampleDist = length(diff);
@@ -43,7 +61,6 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) * (1.0 - EFFECT_SSAO_BIAS);
         float aoF = 1.0 - saturate(sampleDist / (2*EFFECT_SSAO_RADIUS));
         ao += sampleNoLm * aoF;// * pow(aoF, 1.5);
-
     }
 
     ao = saturate(ao / max(sampleCount, 1));

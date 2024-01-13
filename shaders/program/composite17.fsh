@@ -46,6 +46,10 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     uniform sampler3D TEX_CLOUDS;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
@@ -113,6 +117,12 @@ uniform ivec2 eyeBrightnessSmooth;
 //     uniform vec3 eyePosition;
 // #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhModelViewInverse;
+    uniform mat4 dhProjectionInverse;
+    uniform float dhFarPlane;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
@@ -122,6 +132,11 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #if LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
         #include "/lib/buffers/block_voxel.glsl"
+    #endif
+
+    #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+        #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/light_voxel.glsl"
     #endif
 #endif
 
@@ -244,16 +259,48 @@ layout(location = 0) out vec4 outVL;
 // TODO: This might blow up in non-overworld worlds! add bypass?
 
 void main() {
-    float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5), 0).r;
+    ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
+    float depth = texelFetch(depthtex0, depthCoord, 0).r;
+    mat4 projectionInv = gbufferProjectionInverse;
+
+    #ifdef DISTANT_HORIZONS
+        bool isDepthDh = false;
+        if (depth >= 1.0) {
+            depth = textureLod(dhDepthTex, texcoord, 0).r;
+            projectionInv = dhProjectionInverse;
+            isDepthDh = true;
+        }
+    #endif
+
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+    #ifdef DISTANT_HORIZONS
+        vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-
-        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #else
-        vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        #else
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        #endif
+    #endif
+
+    // if (isDepthDh) {
+    //     vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
+    //     localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
+    // }
+    // else {
+    //     #ifndef IRIS_FEATURE_SSBO
+    //         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+    //         localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+    //     #else
+    //         localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+    //     #endif
+    // }
+
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
     vec3 localViewDir = normalize(localPos);

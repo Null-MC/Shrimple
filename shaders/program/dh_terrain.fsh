@@ -1,4 +1,4 @@
-#define RENDER_TERRAIN
+#define RENDER_TERRAIN_DH
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
@@ -8,30 +8,30 @@
 in VertexData {
     vec4 color;
     vec2 lmcoord;
-    vec2 texcoord;
+    // vec2 texcoord;
     vec3 localPos;
-    vec2 localCoord;
+    // vec2 localCoord;
     vec3 localNormal;
-    vec4 localTangent;
+    // vec4 localTangent;
 
-    flat int blockId;
-    flat mat2 atlasBounds;
+    // flat int blockId;
+    // flat mat2 atlasBounds;
     
-    #ifdef EFFECT_TAA_ENABLED
-        vec3 velocity;
-    #endif
+    // #ifdef EFFECT_TAA_ENABLED
+    //     vec3 velocity;
+    // #endif
 
-    #if DISPLACE_MODE == DISPLACE_TESSELATION
-        vec3 surfacePos;
-    #endif
+    // #if DISPLACE_MODE == DISPLACE_TESSELATION
+    //     vec3 surfacePos;
+    // #endif
 
-    #ifdef PARALLAX_ENABLED
-        vec3 viewPos_T;
+    // #ifdef PARALLAX_ENABLED
+    //     vec3 viewPos_T;
 
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-            vec3 lightPos_T;
-        #endif
-    #endif
+    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+    //         vec3 lightPos_T;
+    //     #endif
+    // #endif
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED
         vec3 cloudPos;
@@ -47,20 +47,20 @@ in VertexData {
     #endif
 } vIn;
 
-#if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_DEPTH_WRITE
-    layout (depth_greater) out float gl_FragDepth;
-#endif
+// #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_DEPTH_WRITE
+//     layout (depth_greater) out float gl_FragDepth;
+// #endif
 
-uniform sampler2D gtexture;
+// uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
-#if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
-    uniform sampler2D normals;
-#endif
+// #if MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+//     uniform sampler2D normals;
+// #endif
 
-#if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR || MATERIAL_POROSITY != POROSITY_NONE
-    uniform sampler2D specular;
-#endif
+// #if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR || MATERIAL_POROSITY != POROSITY_NONE
+//     uniform sampler2D specular;
+// #endif
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE)
     uniform sampler2D shadowcolor0;
@@ -80,9 +80,9 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != DYN_LIGHT_TRACED
+// #if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != DYN_LIGHT_TRACED
     uniform sampler2D lightmap;
-#endif
+// #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
     uniform sampler3D texLPV_1;
@@ -102,8 +102,8 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-uniform ivec2 atlasSize;
-uniform int renderStage;
+// uniform ivec2 atlasSize;
+// uniform int renderStage;
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -172,14 +172,14 @@ uniform int frameCounter;
     #endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #if AF_SAMPLES > 1
     uniform float viewWidth;
     uniform float viewHeight;
     uniform vec4 spriteBounds;
-#endif
-
-#ifdef DISTANT_HORIZONS
-    uniform float dhFarPlane;
 #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
@@ -200,7 +200,7 @@ uniform int frameCounter;
 #include "/lib/items.glsl"
 #include "/lib/lights.glsl"
 
-#include "/lib/sampling/atlas.glsl"
+// #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -208,16 +208,17 @@ uniform int frameCounter;
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
-#include "/lib/utility/tbn.glsl"
+// #include "/lib/utility/tbn.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 // #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
+// #if AF_SAMPLES > 1
+//     #include "/lib/sampling/anisotropic.glsl"
+// #endif
+
 #include "/lib/lighting/fresnel.glsl"
 
 #ifdef WORLD_SKY_ENABLED
@@ -251,8 +252,8 @@ uniform int frameCounter;
     #include "/lib/shadows/render.glsl"
 #endif
 
-#include "/lib/material/normalmap.glsl"
-#include "/lib/lighting/directional.glsl"
+// #include "/lib/material/normalmap.glsl"
+// #include "/lib/lighting/directional.glsl"
 
 #ifdef LIGHTING_FLICKER
     #include "/lib/lighting/blackbody.glsl"
@@ -290,14 +291,14 @@ uniform int frameCounter;
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
-#include "/lib/material/emission.glsl"
-#include "/lib/material/subsurface.glsl"
+// #include "/lib/material/emission.glsl"
+// #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#ifdef PARALLAX_ENABLED
-    #include "/lib/sampling/linear.glsl"
-    #include "/lib/material/parallax.glsl"
-#endif
+// #ifdef PARALLAX_ENABLED
+//     #include "/lib/sampling/linear.glsl"
+//     #include "/lib/material/parallax.glsl"
+// #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/scatter_transmit.glsl"
@@ -363,106 +364,115 @@ uniform int frameCounter;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    // mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     float viewDist = length(vIn.localPos);
-    vec2 atlasCoord = vIn.texcoord;
-    vec2 localCoord = vIn.localCoord;
+    // vec2 atlasCoord = vIn.texcoord;
+    // vec2 localCoord = vIn.localCoord;
     vec2 lmFinal = vIn.lmcoord;
     
-    vec3 localNormal = normalize(vIn.localNormal);
-    if (!gl_FrontFacing) localNormal = -localNormal;
+    // vec3 localNormal = normalize(vIn.localNormal);
+    // if (!gl_FrontFacing) localNormal = -localNormal;
+    vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
 
-    bool skipParallax = false;
-    if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
+    // bool skipParallax = false;
+    // if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
 
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
         vec4 rippleNormalStrength = vec4(0.0);
 
-        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            #if DISPLACE_MODE == DISPLACE_TESSELATION
-                vec3 worldPos = vIn.surfacePos + cameraPosition;
-            #else
+        // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
+            // #if DISPLACE_MODE == DISPLACE_TESSELATION
+            //     vec3 worldPos = vIn.surfacePos + cameraPosition;
+            // #else
                 vec3 worldPos = vIn.localPos + cameraPosition;
-            #endif
+            // #endif
 
             float surface_roughness, surface_metal_f0;
-            GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            //GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            surface_roughness = 0.95;
+            surface_metal_f0 = 0.04;
 
-            porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            // porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            porosity = 0.75;
             skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
             #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
                 rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
                 //localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+                // if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
             #endif
-        }
+        // }
     #endif
 
     vec3 viewPos = (gbufferModelView * vec4(vIn.localPos, 1.0)).xyz;
 
-    #ifdef PARALLAX_ENABLED
-        //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
-        //bool isMissingTangent = any(isnan(vLocalTangent));
+    // #ifdef PARALLAX_ENABLED
+    //     //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
+    //     //bool isMissingTangent = any(isnan(vLocalTangent));
 
-        float texDepth = 1.0;
-        vec3 traceCoordDepth = vec3(1.0);
-        vec3 tanViewDir = normalize(vIn.viewPos_T);
+    //     float texDepth = 1.0;
+    //     vec3 traceCoordDepth = vec3(1.0);
+    //     vec3 tanViewDir = normalize(vIn.viewPos_T);
 
-        if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
-            atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+    //     if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
+    //         atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
 
-            #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
-                float pomDist = (1.0 - traceCoordDepth.z) / max(-tanViewDir.z, 0.00001);
+    //         #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
+    //             float pomDist = (1.0 - traceCoordDepth.z) / max(-tanViewDir.z, 0.00001);
 
-                if (pomDist > 0.0) {
-                    float depth = -viewPos.z + pomDist * ParallaxDepthF;
-                    gl_FragDepth = 0.5 * (-gbufferProjection[2].z*depth + gbufferProjection[3].z) / depth + 0.5;
+    //             if (pomDist > 0.0) {
+    //                 float depth = -viewPos.z + pomDist * ParallaxDepthF;
+    //                 gl_FragDepth = 0.5 * (-gbufferProjection[2].z*depth + gbufferProjection[3].z) / depth + 0.5;
 
-                    // #ifdef RENDER_HAND
-                    //     gl_FragDepth *= MC_HAND_DEPTH;
-                    // #endif
-                }
-                else {
-                    gl_FragDepth = gl_FragCoord.z;
-                }
-            #endif
-        }
-        #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
-            else {
-                gl_FragDepth = gl_FragCoord.z;
-            }
-        #endif
-    #endif
+    //                 // #ifdef RENDER_HAND
+    //                 //     gl_FragDepth *= MC_HAND_DEPTH;
+    //                 // #endif
+    //             }
+    //             else {
+    //                 gl_FragDepth = gl_FragCoord.z;
+    //             }
+    //         #endif
+    //     }
+    //     #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
+    //         else {
+    //             gl_FragDepth = gl_FragCoord.z;
+    //         }
+    //     #endif
+    // #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+    // vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+    vec4 color = vIn.color;
 
-    if (color.a < alphaTestRef) {
-        discard;
-        return;
-    }
+    // if (color.a < alphaTestRef) {
+    //     discard;
+    //     return;
+    // }
 
-    color.rgb *= vIn.color.rgb;
+    // color.rgb *= vIn.color.rgb;
     vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
 
     float occlusion = 1.0;
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
-    GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
+    // float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
+    // float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
+    const float emission = 0.0;
+    const float sss = 0.0;
+    // GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
+    roughness = 0.95;
+    metal_f0 = 0.04;
 
-    #if MATERIAL_EMISSION == EMISSION_NONE
-        if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
-    #endif
+    // #if MATERIAL_EMISSION == EMISSION_NONE
+    //     if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+    // #endif
 
-    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
-        //occlusion = RGBToLinear(glcolor.a);
-        occlusion = _pow2(vIn.color.a);
-    #endif
+    // #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+    //     //occlusion = RGBToLinear(glcolor.a);
+    //     occlusion = _pow2(vIn.color.a);
+    // #endif
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -476,7 +486,11 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+            #ifdef DISTANT_HORIZONS
+                const float shadowFade = 0.0;
+            #else
+                float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+            #endif
 
             #ifdef SHADOW_COLORED
                 shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
@@ -513,60 +527,62 @@ void main() {
         }
     #endif
 
-    vec3 texNormal = vec3(0.0, 0.0, 1.0);
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (vIn.blockId != BLOCK_LAVA)
-            GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+    vec3 texNormal = localNormal;
+    // #if MATERIAL_NORMALS != NORMALMAP_NONE
+    //     if (vIn.blockId != BLOCK_LAVA)
+    //         GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
-        #ifdef PARALLAX_ENABLED
-            if (!skipParallax) {
-                #if DISPLACE_MODE == DISPLACE_POM_SHARP
-                    float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
+    //     #ifdef PARALLAX_ENABLED
+    //         if (!skipParallax) {
+    //             #if DISPLACE_MODE == DISPLACE_POM_SHARP
+    //                 float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
-                    if (depthDiff >= ParallaxSharpThreshold) {
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-                    }
-                #endif
+    //                 if (depthDiff >= ParallaxSharpThreshold) {
+    //                     texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+    //                 }
+    //             #endif
 
-                #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
-                    if (traceCoordDepth.z + EPSILON < 1.0) {
-                        vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
-                    }
-                #endif
-            }
-        #endif
-    #endif
+    //             #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
+    //                 if (traceCoordDepth.z + EPSILON < 1.0) {
+    //                     vec3 tanLightDir = normalize(vIn.lightPos_T);
+    //                     shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+    //                 }
+    //             #endif
+    //         }
+    //     #endif
+    // #endif
 
-    #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
-        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
-        occlusion *= texOcclusion;
-    #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
-        float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
-        occlusion *= texOcclusion;
-    #endif
+    // #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+    //     float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+    //     occlusion *= texOcclusion;
+    // #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
+    //     float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
+    //     occlusion *= texOcclusion;
+    // #endif
 
     occlusion = max(occlusion, luminance(shadowColor));
 
-    vec3 localTangent = normalize(vIn.localTangent.xyz);
-    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
+    // vec3 localTangent = normalize(vIn.localTangent.xyz);
+    // mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-        if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            #if DISPLACE_MODE == DISPLACE_TESSELATION
-                ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
-            #else
+        //if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
+            // #if DISPLACE_MODE == DISPLACE_TESSELATION
+            //     ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
+            // #else
                 ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
-            #endif
+            // #endif
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
-        }
+        //}
     #endif
 
     vec3 localViewDir = normalize(vIn.localPos);
-    texNormal = normalize(matLocalTBN * texNormal);
+    // texNormal = normalize(matLocalTBN * texNormal);
+
+    // texNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
 
     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     //     float skyNoL = dot(texNormal, localSkyLightDirection);
@@ -580,17 +596,17 @@ void main() {
     //     shadowColor *= 1.2 * pow(skyNoL, 0.8);
     // #endif
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-        #if DISPLACE_MODE == DISPLACE_TESSELATION
-            vec3 surfaceViewPos = (gbufferModelView * vec4(vIn.surfacePos, 1.0)).xyz;
-        #else
-            vec3 surfaceViewPos = viewPos;
-        #endif
+    // #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
+    //     #if DISPLACE_MODE == DISPLACE_TESSELATION
+    //         vec3 surfaceViewPos = (gbufferModelView * vec4(vIn.surfacePos, 1.0)).xyz;
+    //     #else
+    //         vec3 surfaceViewPos = viewPos;
+    //     #endif
 
-        vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
-        vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-        ApplyDirectionalLightmap(lmFinal.x, surfaceViewPos, geoViewNormal, texViewNormal);
-    #endif
+    //     vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
+    //     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+    //     ApplyDirectionalLightmap(lmFinal.x, surfaceViewPos, geoViewNormal, texViewNormal);
+    // #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -717,18 +733,18 @@ void main() {
             #endif
         #endif
 
-        #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetShapedFogDistance(vIn.localPos);
-            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-            color.a *= 1.0 - fogF;
+        // #ifdef DH_COMPAT_ENABLED
+        //     float fogDist = GetShapedFogDistance(vIn.localPos);
+        //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+        //     color.a *= 1.0 - fogF;
 
-            color.rgb = LinearToRGB(color.rgb);
-        #endif
+        //     color.rgb = LinearToRGB(color.rgb);
+        // #endif
 
         outFinal = color;
     #endif
 
     #ifdef EFFECT_TAA_ENABLED
-        outVelocity = vec4(vIn.velocity, 0.0);
+        outVelocity = vec4(0.0);
     #endif
 }

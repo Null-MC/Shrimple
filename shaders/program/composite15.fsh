@@ -97,6 +97,10 @@ in vec2 texcoord;
         uniform float waterDensitySmooth;
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
+
     #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
         uniform float alphaTestRef;
     #endif
@@ -165,7 +169,7 @@ in vec2 texcoord;
 
     #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #ifdef VOLUMETRIC_FILTER
-            #include "/lib/sampling/bilateral_gaussian.glsl"
+            #include "/lib/sampling/gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
         #endif
     #endif

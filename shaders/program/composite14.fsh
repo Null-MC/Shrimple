@@ -10,6 +10,10 @@ in vec2 texcoord;
 uniform sampler2D depthtex1;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelViewInverse;
@@ -49,6 +53,11 @@ uniform int fogShape;
     #endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjectionInverse;
+    uniform float dhFarPlane;
+#endif
+
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
@@ -79,11 +88,23 @@ layout(location = 0) out vec4 outAO;
 
 void main() {
     float depth = textureLod(depthtex1, texcoord, 0).r;
+    mat4 projectionInv = gbufferProjectionInverse;
+
+    #ifdef DISTANT_HORIZONS
+        if (depth >= 1.0) {
+            depth = textureLod(dhDepthTex, texcoord, 0).r;
+            projectionInv = dhProjectionInverse;
+        }
+    #endif
+
+    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
+
     vec4 final = vec4(1.0);
 
     if (depth < 1.0) {
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+        // vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        // vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 
         //#ifdef DEFERRED_BUFFER_ENABLED
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(gl_FragCoord.xy), 0);

@@ -43,6 +43,10 @@ uniform sampler2D TEX_LIGHTMAP;
     #endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 uniform int frameCounter;
 uniform float frameTime;
 //uniform float frameTimeCounter;
@@ -136,6 +140,13 @@ uniform int heldBlockLightValue2;
     //uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhModelViewInverse;
+    uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
@@ -165,6 +176,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/gaussian.glsl"
 #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/utility/anim.glsl"
@@ -385,6 +397,22 @@ layout(location = 0) out vec4 outFinal;
         float linearDepthTranslucent = linearizeDepthFast(depthTranslucent, near, far);
         vec3 final;
 
+        #ifdef DISTANT_HORIZONS
+            bool isDepthDh = false;
+            if (depthOpaque >= 1.0) {
+                depthOpaque = textureLod(dhDepthTex, texcoord, 0).r;
+                linearDepthOpaque = linearizeDepthFast(depthOpaque, dhNearPlane, dhFarPlane);
+                isDepthDh = true;
+            }
+
+            if (depthTranslucent >= 1.0) linearDepthTranslucent = 0.5*dhFarPlane;
+        #endif
+
+        // if (depthTranslucent >= 1.0) {
+        //     depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
+        //     linearDepthOpaque = linearizeDepthFast(depthOpaque, dhNearPlane, dhFarPlane);
+        // }
+
         #ifdef DH_COMPAT_ENABLED
             #ifdef WORLD_SKY_ENABLED
                 vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
@@ -402,11 +430,26 @@ layout(location = 0) out vec4 outFinal;
         if (depthOpaque < 1.0) {
             vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            #else
-                vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos;
+            #ifdef DISTANT_HORIZONS
+                if (isDepthDh) {
+                    // #ifndef IRIS_FEATURE_SSBO
+                        vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
+                        localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                    // #else
+                    //     vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+                    // #endif
+                }
+                else {
+            #endif
+                #ifndef IRIS_FEATURE_SSBO
+                    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+                    localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                #else
+                    localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+                #endif
+            #ifdef DISTANT_HORIZONS
+            }
             #endif
 
             vec3 localViewDir = normalize(localPos);
