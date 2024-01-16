@@ -145,6 +145,7 @@ uniform int frameCounter;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
+    uniform mat4 shadowModelView;
     uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -490,11 +491,13 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            #ifdef DISTANT_HORIZONS
-                const float shadowFade = 0.0;
-            #else
-                float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
-            #endif
+            vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+            float shadowViewDist = length(shadowViewPos.xy);
+            float shadowDistFar = min(shadowDistance, far);
+            float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+            shadowFade *= step(-1.0, vIn.shadowPos.z);
+            shadowFade *= step(vIn.shadowPos.z, 1.0);
+            shadowFade = 1.0 - shadowFade;
 
             #ifdef SHADOW_COLORED
                 shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);

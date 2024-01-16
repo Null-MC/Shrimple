@@ -195,7 +195,7 @@ layout(location = 0) out vec4 outFinal;
         //float depth = texelFetch(depthtex1, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
         float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
-        float depthTranslucent = texelFetch(depthtex0, iTex, 0).r;
+        float depthTrans = texelFetch(depthtex0, iTex, 0).r;
         //float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
         //bool isHand = handClipDepth > depthOpaque;
 
@@ -205,36 +205,62 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        mat4 _projectionInvOpaque = gbufferProjectionInverse;
-        float _nearOpaque = near;
-        float _farOpaque = far * 4.0;
+        // mat4 _projectionInvOpaque = gbufferProjectionInverse;
+        // float _nearOpaque = near;
+        // float _farOpaque = far * 4.0;
 
-        mat4 _projectionInvTrans = gbufferProjectionInverse;
-        float _nearTrans = near;
-        float _farTrans = far * 4.0;
+        // mat4 _projectionInvTrans = gbufferProjectionInverse;
+        // float _nearTrans = near;
+        // float _farTrans = far * 4.0;
+
+        // #ifdef DISTANT_HORIZONS
+        //     if (depthTrans >= 1.0 || depthTrans == depthOpaque) {
+        //         depthTrans = textureLod(dhDepthTex, texcoord, 0).r;
+        //         _projectionInvTrans = dhProjectionInverse;
+        //         _nearTrans = dhNearPlane;
+        //         _farTrans = dhFarPlane;
+        //     }
+
+        //     if (depthOpaque >= 1.0) {
+        //         depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+        //         _projectionInvOpaque = dhProjectionInverse;
+        //         _nearOpaque = dhNearPlane;
+        //         _farOpaque = dhFarPlane;
+        //     }
+        // #endif
+
+        // float depthTransL = linearizeDepthFast(depthTrans, _nearTrans, _farTrans);
+        // float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
+
+        float farPlane = far * 4.0;
+        float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
+        float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
+        mat4 projectionInvOpaque = gbufferProjectionInverse;
+        mat4 projectionInvTrans = gbufferProjectionInverse;
 
         #ifdef DISTANT_HORIZONS
-            if (depthTranslucent >= 1.0 || depthTranslucent == depthOpaque) {
-                depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
-                _projectionInvTrans = dhProjectionInverse;
-                _nearTrans = dhNearPlane;
-                _farTrans = dhFarPlane;
+            float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
+            float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+
+            if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
+                depthTrans = dhDepthTrans;
+                depthTransL = dhDepthTransL;
+                projectionInvTrans = dhProjectionInverse;
             }
 
-            if (depthOpaque >= 1.0) {
-                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
-                _projectionInvOpaque = dhProjectionInverse;
-                _nearOpaque = dhNearPlane;
-                _farOpaque = dhFarPlane;
+            float dhDepthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+            float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
+
+            if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
+                depthOpaque = dhDepthOpaque;
+                depthOpaqueL = dhDepthOpaqueL;
+                projectionInvOpaque = dhProjectionInverse;
             }
         #endif
 
-        float depthTransL = linearizeDepthFast(depthTranslucent, _nearTrans, _farTrans);
-        float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
-
         // #ifdef DISTANT_HORIZONS
         //     if (depthOpaqueL <= depthTransL) {
-        //         depthTranslucent = 1.0;
+        //         depthTrans = 1.0;
         //         depthTransL = _farTrans;
         //     }
         // #endif
@@ -242,24 +268,24 @@ layout(location = 0) out vec4 outFinal;
         //vec2 viewSize = vec2(viewWidth, viewHeight);
 
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-        vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 clipPosTrans = vec3(texcoord, depthTrans) * 2.0 - 1.0;
 
         #ifdef DISTANT_HORIZONS
-            vec3 viewPosOpaque = unproject(_projectionInvOpaque * vec4(clipPosOpaque, 1.0));
+            vec3 viewPosOpaque = unproject(projectionInvOpaque * vec4(clipPosOpaque, 1.0));
             vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
 
-            vec3 viewPosTranslucent = unproject(_projectionInvTrans * vec4(clipPosTranslucent, 1.0));
+            vec3 viewPosTranslucent = unproject(projectionInvTrans * vec4(clipPosTrans, 1.0));
             vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
         #else
             #ifndef IRIS_FEATURE_SSBO
                 vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
                 vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
                 vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
             #else
                 vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
                 vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
             #endif
         #endif
         

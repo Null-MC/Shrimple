@@ -89,6 +89,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/prepare.glsl"
         #endif
     #endif
 #endif

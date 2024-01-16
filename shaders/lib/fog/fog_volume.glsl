@@ -308,8 +308,10 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             vec3 sampleColor = skyLightColor;
             float sampleDepth = 0.0;
 
+            vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+                // vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
                 vec3 traceShadowClipPos = vec3(-1.0);
 
                 int cascade = GetShadowCascade(shadowViewPos, -0.01);
@@ -333,9 +335,15 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                float shadowDistF = length(traceShadowClipPos.xy * 2.0 - 1.0);
+                // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+                float shadowViewDist = length(shadowViewPos.xy);
+                float shadowDistFar = min(shadowDistance, far);
+                float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+                shadowFade *= step(-1.0, traceShadowClipPos.z);
+                shadowFade *= step(traceShadowClipPos.z, 1.0);
+                shadowFade = 1.0 - shadowFade;
 
-                if (shadowDistF < 0.92) {
+                if (shadowFade < 1.0) {
                     //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
                     float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
@@ -348,7 +356,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             #ifdef SHADOW_COLORED
                 float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
 
-                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowDistF < 0.92)) {
+                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowFade < 1.0)) {
                     vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
                     shadowColor = RGBToLinear(shadowColor);
 

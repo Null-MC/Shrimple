@@ -599,7 +599,13 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+            vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+            float shadowViewDist = length(shadowViewPos.xy);
+            float shadowDistFar = min(shadowDistance, far);
+            float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+            shadowFade *= step(-1.0, vIn.shadowPos.z);
+            shadowFade *= step(vIn.shadowPos.z, 1.0);
+            shadowFade = 1.0 - shadowFade;
 
             #ifdef SHADOW_COLORED
                 shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);

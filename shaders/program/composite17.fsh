@@ -118,8 +118,9 @@ uniform ivec2 eyeBrightnessSmooth;
 // #endif
 
 #ifdef DISTANT_HORIZONS
-    uniform mat4 dhModelViewInverse;
+    // uniform mat4 dhModelViewInverse;
     uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -140,6 +141,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
@@ -260,21 +262,47 @@ layout(location = 0) out vec4 outVL;
 
 void main() {
     ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
-    float depth = texelFetch(depthtex0, depthCoord, 0).r;
-    float depthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-    mat4 projectionInv = gbufferProjectionInverse;
+    float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
+    // float depthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
+
+    // mat4 projectionInv = gbufferProjectionInverse;
+
+    // #ifdef DISTANT_HORIZONS
+    //     if (depthTrans >= 1.0 || (depthTrans == depthOpaque && isEyeInWater != 1)) {
+    //         depthTrans = texelFetch(dhDepthTex, depthCoord, 0).r;
+    //         projectionInv = dhProjectionInverse;
+    //     }
+    // #endif
+
+    float farPlane = far * 4.0;
+    // float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
+    mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        if (depth >= 1.0 || (depth == depthOpaque && isEyeInWater != 1)) {
-            depth = texelFetch(dhDepthTex, depthCoord, 0).r;
-            projectionInv = dhProjectionInverse;
+        float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
+
+        float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
+        float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+
+        if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
+            depthTrans = dhDepthTrans;
+            //depthTransL = dhDepthTransL;
+            projectionInvTrans = dhProjectionInverse;
         }
+
+        // float dhDepthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+        // float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
+
+        // if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
+        //     depthOpaque = dhDepthOpaque;
+        //     depthOpaqueL = dhDepthOpaqueL;
+        // }
     #endif
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec3 clipPos = vec3(texcoord, depthTrans) * 2.0 - 1.0;
 
     #ifdef DISTANT_HORIZONS
-        vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
+        vec3 viewPos = unproject(projectionInvTrans * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
     #else
         #ifndef IRIS_FEATURE_SSBO
@@ -331,13 +359,13 @@ void main() {
 
     //float farMax = far;//min(shadowDistance, far);
     float farDist = clamp(viewDist, near, farMax);
-    //if (depth >= 1.0) farDist = SkyFar;
+    //if (depthTrans >= 1.0) farDist = SkyFar;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            // if (depth >= 0.9999) {
+            // if (depthTrans >= 0.9999) {
             //     // vec3 cloudNear, cloudFar;
             //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
 
@@ -381,7 +409,7 @@ void main() {
                 //     cloudDistNear = max(cloudDistNear, far);
                 // #endif
 
-                if (depth < 1.0) {
+                if (depthTrans < 1.0) {
                     cloudDistNear = 0.0;
                     cloudDistFar = 0.0;
                 }
@@ -395,9 +423,9 @@ void main() {
 
                 cloudDistFar = min(cloudDistFar, SkyFar);
                 if (cloudDistFar <= 0.0) cloudDistFar = SkyFar;
-                if (depth >= 1.0) cloudDistFar = SkyFar;
+                if (depthTrans >= 1.0) cloudDistFar = SkyFar;
 
-                if (depth < 1.0) {
+                if (depthTrans < 1.0) {
                     cloudDistFar = min(cloudDistFar, viewDist);
 
                     // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
@@ -418,7 +446,7 @@ void main() {
 
             // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
             //     else {
-            //         if (depth >= 1.0) cloudDistFar = far;
+            //         if (depthTrans >= 1.0) cloudDistFar = far;
 
             //         float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
             //         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
@@ -429,7 +457,7 @@ void main() {
             //     }
             // #endif
 
-            //final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depth, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+            //final = TraceCloudVL(cameraPosition, localViewDir, viewDist, depthTrans, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
 
         #ifdef WORLD_WATER_ENABLED
             }

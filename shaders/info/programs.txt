@@ -23,7 +23,7 @@ deferred7		near-z [4]
 deferred8		near-z [5]
 
 
---composite1		propagate LPV
+composite1		propagate LPV
 
 composite11		opaque deferred block-light tracing
 composite12		opaque deferred final
