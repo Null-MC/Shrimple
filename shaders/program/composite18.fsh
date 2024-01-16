@@ -54,6 +54,11 @@ uniform sampler2D TEX_LIGHTMAP;
     #endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex1;
+#endif
+
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
@@ -145,6 +150,9 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjection;
+    uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -349,7 +357,7 @@ uniform int heldBlockLightValue2;
                 // float sampleDepth = textureLod(BUFFER_LIGHT_DEPTH, sampleBlendTex, 0).r;
                 float sampleDepth = texelFetch(depthtex0, sampleTex, 0).r;
 
-                sampleDepth = linearizeDepthFast(sampleDepth, near, far);
+                sampleDepth = linearizeDepthFast(sampleDepth, near, far * 4.0);
                 
                 float normalWeight = 1.0;
                 if (hasNormal) {
@@ -405,21 +413,48 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        float linearDepth = linearizeDepthFast(depth, near, far);
-        float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+        float _nearOpaque = near;
+        float _farOpaque = far * 4.0;
+        mat4 projectionInvOpaque = gbufferProjectionInverse;
+
+        float _nearTrans = near;
+        float _farTrans = far * 4.0;
+        mat4 projectionInvTrans = gbufferProjectionInverse;
+
+        #ifdef DISTANT_HORIZONS
+            if (depth >= 1.0 || depth == depthOpaque) {
+                depth = textureLod(dhDepthTex, texcoord, 0).r;
+                projectionInvTrans = dhProjectionInverse;
+                _nearTrans = dhNearPlane;
+                _farTrans = dhFarPlane;
+            }
+
+            if (depthOpaque >= 1.0) {
+                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+                projectionInvOpaque = dhProjectionInverse;
+                _nearOpaque = dhNearPlane;
+                _farOpaque = dhFarPlane;
+            }
+        #endif
+
+        float linearDepth = linearizeDepthFast(depth, _nearTrans, _farTrans);
+        float linearDepthOpaque = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
+
+        // if (linearDepthOpaque <= linearDepth) depth = 1.0;
 
         vec2 refraction = vec2(0.0);
         vec4 final = vec4(0.0);
         bool tir = false;
 
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+        vec3 viewPos = unproject(projectionInvTrans * vec4(clipPos, 1.0));
+        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-        #else
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-        #endif
+        // #ifndef IRIS_FEATURE_SSBO
+        //     vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        // #else
+        //     vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+        // #endif
 
         vec3 localViewDir = normalize(localPos);
         float viewDist = length(localPos);
@@ -443,7 +478,7 @@ layout(location = 0) out vec4 outFinal;
             uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
         #endif
 
-        if (deferredColor.a > (0.5/255.0)) {
+        if (deferredColor.a > (0.5/255.0) && depth < 1.0) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -469,12 +504,12 @@ layout(location = 0) out vec4 outFinal;
             #ifdef MATERIAL_REFRACT_ENABLED
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
 
-                const float ior = IOR_WATER;
-                float refractEta = (IOR_AIR/ior);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                //const float ior = IOR_WATER;
+                const float refractEta = (IOR_AIR/IOR_WATER);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
                 vec3 refractViewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
                 vec3 refractDir = refract(refractViewDir, texViewNormal, refractEta);
-                linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
+                //linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
                 float linearDist = linearDepthOpaque - linearDepth;
 
                 vec2 refractMax = vec2(0.2);
@@ -813,13 +848,27 @@ layout(location = 0) out vec4 outFinal;
         }
 
         depthOpaque = textureLod(depthtex1, texcoord + refraction, 0).r;
+        mat4 projectionInv = gbufferProjectionInverse;
+
+        #ifdef DISTANT_HORIZONS
+            if (depthOpaque >= 1.0) {
+                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+                projectionInv = dhProjectionInverse;
+            }
+        #endif
+
         vec3 clipPosOpaque = vec3(texcoord + refraction, depthOpaque) * 2.0 - 1.0;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+        #ifdef DISTANT_HORIZONS
+            vec3 viewPosOpaque = unproject(projectionInv * vec4(clipPosOpaque, 1.0));
             vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
         #else
-            vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            #else
+                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+            #endif
         #endif
 
         //float transDepth = isEyeInWater == 1 ? viewDist :
@@ -833,7 +882,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef EFFECT_BLUR_ENABLED
             float blurDist = 0.0;
-            if (depth < depthOpaque) {
+            if (linearDepth < linearDepthOpaque) {
                 // float opaqueDist = length(localPosOpaque);
 
                 // water blur depth
@@ -877,7 +926,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             }
 
-            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, depth, blurDist, isWater && isEyeInWater != 1);
+            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, linearDepth, blurDist, isWater && isEyeInWater != 1);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
             // float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
@@ -1014,7 +1063,7 @@ layout(location = 0) out vec4 outFinal;
                     float waterDist = min(viewDist, far);
                 //#endif
 
-                vec3 vlLight = phaseIso + WaterAmbientF;
+                vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                 //ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
                 #ifdef WORLD_SKY_ENABLED

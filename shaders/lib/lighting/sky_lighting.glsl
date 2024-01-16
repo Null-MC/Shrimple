@@ -84,7 +84,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     float diffuseLoHm = max(dot(localSkyLightDir, H), 0.0);
     float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
     D *= mix(1.0, MaterialSssStrengthF, sss);
-    vec3 accumDiffuse = D * skyLightShadowColor * (1.0 - shadowDistF);
+    vec3 accumDiffuse = D * skyLightShadowColor;// * (1.0 - shadowDistF);
     //accumDiffuse *= 1.0 + MaterialSssStrengthF * sss;
 
     vec2 lmcoordFinal = vec2(0.0, lmcoord.y);

@@ -16,6 +16,7 @@ out VertexData {
     // vec2 localCoord;
     vec3 localNormal;
     // vec4 localTangent;
+    flat uint materialId;
 
     // flat int blockId;
     // flat mat2 atlasBounds;
@@ -134,6 +135,7 @@ uniform vec3 cameraPosition;
 void main() {
     //vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     vOut.color = gl_Color;
+    vOut.materialId = uint(dhMaterialId);
 
     vOut.lmcoord  = gl_MultiTexCoord1.xy;
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
@@ -149,10 +151,8 @@ void main() {
     #endif
 
 
-    // vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-
-    // vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
-    vOut.localNormal = vec3(0.0);
+    //vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+    vOut.localNormal = gl_Normal;//mat3(gbufferModelViewInverse) * viewNormal;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

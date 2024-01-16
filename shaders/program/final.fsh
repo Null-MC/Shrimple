@@ -56,7 +56,13 @@ uniform int frameCounter;
 
 #if DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 	uniform float near;
-	uniform float far;
+
+	#ifdef DISTANT_HORIZONS
+		// uniform float dhNearPlane;
+		uniform float dhFarPlane;
+	#else
+		uniform float far;
+	#endif
 #endif
 
 #include "/lib/sampling/bayer.glsl"
@@ -125,8 +131,14 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 		vec3 color = vec3(0.0);
 		if (texcoord.x < 0.5 && texcoord.y < 0.75) {
-			float depth = textureLod(texDepthNear, texcoord * rcp(vec2(0.5, 0.75)), 0).r;
-			depth = linearizeDepthFast(depth, near, far) / far;
+			float depth = texelFetch(texDepthNear, ivec2(gl_FragCoord.xy), 0).r;
+
+			#ifdef DISTANT_HORIZONS
+				//depth = linearizeDepthFast(depth, near, dhFarPlane) / (0.5*dhFarPlane);
+			#else
+				depth = linearizeDepthFast(depth, near, far * 4.0) / far;
+			#endif
+
 			color = vec3(depth);
 		}
 	#else

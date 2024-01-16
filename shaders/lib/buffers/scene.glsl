@@ -36,5 +36,10 @@
         mat4 shadowModelViewProjection;      // 64
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        mat4 dhProjectionFull;              // 64
+        mat4 dhProjectionFullInv;           // 64
+    #endif
+
     vec3 lightningPosition;                  // 12
 };

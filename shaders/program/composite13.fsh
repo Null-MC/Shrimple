@@ -47,6 +47,11 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     //#endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex1;
+#endif
+
 uniform int worldTime;
 uniform int frameCounter;
 uniform float frameTime;
@@ -111,6 +116,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -118,6 +125,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float alphaTestRef;
 #endif
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
@@ -248,23 +256,60 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
     float depthTranslucent = texelFetch(depthtex0, iTex, 0).r;
 
+    mat4 _projectionInvOpaque = gbufferProjectionInverse;
+    float _nearOpaque = near;
+    float _farOpaque = far * 4.0;
+
+    mat4 _projectionInvTrans = gbufferProjectionInverse;
+    float _nearTrans = near;
+    float _farTrans = far * 4.0;
+
+    #ifdef DISTANT_HORIZONS
+        if (depthTranslucent >= 1.0 || depthTranslucent == depthOpaque) {
+            depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
+            _projectionInvTrans = dhProjectionInverse;
+            _nearTrans = dhNearPlane;
+            _farTrans = dhFarPlane;
+        }
+
+        if (depthOpaque >= 1.0) {
+            depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+            _projectionInvOpaque = dhProjectionInverse;
+            _nearOpaque = dhNearPlane;
+            _farOpaque = dhFarPlane;
+        }
+    #endif
+
+    float depthTransL = linearizeDepthFast(depthTranslucent, _nearTrans, _farTrans);
+    float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
+
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if (depthTranslucent < depthOpaque) {
+    if (depthTransL < depthOpaqueL) {
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
         vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+        #ifdef DISTANT_HORIZONS
+            vec3 viewPosOpaque = unproject(_projectionInvOpaque * vec4(clipPosOpaque, 1.0));
             vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
 
-            vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            vec3 viewPosTranslucent = unproject(_projectionInvTrans * vec4(clipPosTranslucent, 1.0));
             vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-
-            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #else
-            vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-            vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            #else
+                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            #endif
+        #endif
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
         float distOpaque = length(localPosOpaque);
@@ -288,8 +333,13 @@ void main() {
             #endif
 
             //float farMax = far;//min(shadowDistance, far) - 0.002;
-            float distNear = clamp(distTranslucent, near, far);
-            float distFar = clamp(distOpaque, near, far);
+            float farMax = far;
+            #ifdef DISTANT_HORIZONS
+                farMax = 0.5*dhFarPlane;
+            #endif
+
+            float distNear = clamp(distTranslucent, near, farMax);
+            float distFar = clamp(distOpaque, near, farMax);
 
             bool hasVl = false;
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY

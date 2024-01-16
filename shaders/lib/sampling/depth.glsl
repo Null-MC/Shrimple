@@ -19,3 +19,8 @@ float linearizeDepthFast(const in float depth, const in float near, const in flo
 float delinearizeDepthFast(const in float linearDepth, const in float near, const in float far) {
     return 4.0 * far * (1.0 - near / linearDepth) / (far - near);
 }
+
+float linearize_depth(float d,float zNear,float zFar) {
+    float z_n = 2.0 * d - 1.0;
+    return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+}

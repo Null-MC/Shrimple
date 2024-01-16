@@ -335,6 +335,7 @@ const bool colortex15Clear = true;
 #define REFLECTION_ROUGH_SCATTER 30
 #define MIP_BIAS 0.25 // [1.0 0.5 0.25]
 #define WHITEWORLD_VALUE 0.6
+#define DH_WATER_CLIP_DIST 80 // [0 10 20 30 40 50 60 70 80 90 100]
 //#define TRANSLUCENT_SSS_ENABLED
 //#define DEFERRED_PARTICLES
 #define RIPPLE_STRENGTH 0.03
@@ -560,6 +561,7 @@ const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
+const float dh_waterClipDist = DH_WATER_CLIP_DIST * 0.01;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

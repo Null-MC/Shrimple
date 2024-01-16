@@ -3,18 +3,40 @@ const int SSR_LodMin = 0;
 
 //#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
     float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-        float depth = 1.0;
+        // float depth = 1.0;
 
-        if (level == 0) depth = texelFetch(depthtex, ivec2(texcoord * viewSize), 0).r;
+        if (level == 0) {
+            ivec2 uv = ivec2(texcoord * viewSize);
+            float depth = texelFetch(depthtex, uv, 0).r;
+
+            float _near = near;
+            float _far = far * 4.0;
+
+            #ifdef DISTANT_HORIZONS
+                if (depth >= 1.0) {
+                    depth = texelFetch(dhDepthTex, uv, 0).r;
+                    _near = dhNearPlane;
+                    _far = dhFarPlane;
+                }
+            #endif
+
+            return linearizeDepthFast(depth, _near, _far);
+        }
         else {
             vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
             //vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
             //return textureLod(texDepthNear, (uv + 1.0) / nearViewSize, 0).r;
-            return texelFetch(texDepthNear, ivec2(uv), 0).r;
+
+            float _far = far;
+            #ifdef DISTANT_HORIZONS
+                _far = dhFarPlane;
+            #endif
+
+            return texelFetch(texDepthNear, ivec2(uv), 0).r * _far;
             //return imageLoad(imgDepthNear, uv).r;
         }
 
-        return depth;
+        //return depth;
     }
 //#endif
 
@@ -38,6 +60,13 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     //     dither += 2.0;
     // #endif
 
+    float _near = near;
+    #ifdef DISTANT_HORIZONS
+        float _far = dhFarPlane;
+    #else
+        // float _near = near;
+        float _far = far * 4.0;
+    #endif
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
         vec2 origin = clipPos.xy * viewSize + screenRay.xy * dither;
@@ -67,7 +96,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     vec3 lastTracePos = clipPos + screenRay * (1.0 + dither);
     vec3 lastVisPos = lastTracePos;
 
-    float startDepthLinear = linearizeDepthFast(clipPos.z, near, far);
+    float startDepthLinear = linearizeDepthFast(clipPos.z, _near, _far);
     ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
 
@@ -129,21 +158,22 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         //texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
         #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             //texDepth = SampleDepthTiles(depthtex, currPos / viewSize, level);
-            texDepth = SampleDepthTiles(depthtex, 0.5*(lastPos + currPos) / viewSize, level);
+            float sampleDepthL = SampleDepthTiles(depthtex, 0.5*(lastPos + currPos) / viewSize, level);
         #else
             //texDepth = SampleDepthTiles(depthtex, tracePos.xy, 0);
             //texDepth = texelFetch(depthtex, ivec2(tracePos.xy * viewSize), 0).r;
             //texDepth = textureLod(depthtex, tracePos.xy, 4).r;
 
-            texDepth = SampleDepthTiles(depthtex, tracePos.xy, level);
+            float sampleDepthL = SampleDepthTiles(depthtex, tracePos.xy, level);
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
-        float traceDepthL = linearizeDepthFast(tracePos.z, near, far);
-        float sampleDepthL = linearizeDepthFast(texDepth, near, far);
+        float traceDepthL = linearizeDepthFast(tracePos.z, _near, _far);
+        //float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
-        bool isCloserThanStartAndMovingAway = clipPos.z > texDepth + 0.002 && screenRay.z > 0.0;
-        bool isTraceNearerThanSample = tracePos.z < texDepth + 0.00002;// - 0.04 * exp2(level) + EPSILON;
+        float bias = 0.002;//0.1 * sampleDepthL;
+        bool isCloserThanStartAndMovingAway = startDepthLinear > sampleDepthL + bias && screenRay.z > 0.0;
+        bool isTraceNearerThanSample = traceDepthL < sampleDepthL + bias;// - 0.04 * exp2(level) + EPSILON;
         //bool isTraceNearerThanStart = traceDepthL < sampleDepthL + 0.1;
         bool isTooThickAndMovingNearer = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;
 

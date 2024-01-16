@@ -1,7 +1,11 @@
 #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA && !defined RENDER_CLOUDS
     float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
         #ifdef RENDER_FRAG
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            #ifdef EFFECT_TAA_ENABLED
+                float dither = InterleavedGradientNoiseTime();
+            #else
+                float dither = InterleavedGradientNoise();
+            #endif
         #else
             float dither = 0.0;
         #endif
@@ -79,6 +83,7 @@
             #endif
         #endif
 
+        //shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
         shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS

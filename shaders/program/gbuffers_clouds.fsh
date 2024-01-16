@@ -13,6 +13,10 @@ in VertexData {
     vec3 localPos;
     vec3 localNormal;
 
+    #ifdef DISTANT_HORIZONS
+        float viewPosZ;
+    #endif
+
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
@@ -39,6 +43,10 @@ uniform sampler2D noisetex;
 // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
 //     uniform sampler2D TEX_CLOUDS_VANILLA;
 // #endif
+
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
 
 uniform int worldTime;
 uniform int frameCounter;
@@ -108,6 +116,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -133,6 +142,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
@@ -272,14 +282,24 @@ void main() {
         return;
     }
 
+    float viewDist = length(vIn.localPos);
+
+    #ifdef DISTANT_HORIZONS
+        float depthDh = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+        float depthDhL = linearizeDepthFast(depthDh, dhNearPlane, dhFarPlane);
+
+        if (vIn.viewPosZ >= depthDhL) {
+            discard;
+            return;
+        }
+    #endif
+
     const float roughness = 0.9;
     const vec3 normal = normalize(vIn.localNormal);
     const float metal_f0 = 0.04;
     const float occlusion = 1.0;
     const float emission = 0.0;
     const float sss = 0.6;
-
-    float viewDist = length(vIn.localPos);
 
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

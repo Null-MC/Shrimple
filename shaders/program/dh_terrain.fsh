@@ -13,6 +13,7 @@ in VertexData {
     // vec2 localCoord;
     vec3 localNormal;
     // vec4 localTangent;
+    flat uint materialId;
 
     // flat int blockId;
     // flat mat2 atlasBounds;
@@ -370,9 +371,9 @@ void main() {
     // vec2 localCoord = vIn.localCoord;
     vec2 lmFinal = vIn.lmcoord;
     
-    // vec3 localNormal = normalize(vIn.localNormal);
+    vec3 localNormal = normalize(vIn.localNormal);
     // if (!gl_FrontFacing) localNormal = -localNormal;
-    vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
+    // vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
 
     // bool skipParallax = false;
     // if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
@@ -460,10 +461,13 @@ void main() {
     // float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
     // float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
     const float emission = 0.0;
-    const float sss = 0.0;
+    float sss = 0.0;
     // GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
     roughness = 0.95;
     metal_f0 = 0.04;
+
+    if (vIn.materialId == DH_MATERIAL_LEAVES) sss = 0.8;
+    if (vIn.materialId == DH_MATERIAL_SNOW) sss = 0.6;
 
     // #if MATERIAL_EMISSION == EMISSION_NONE
     //     if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
@@ -570,12 +574,12 @@ void main() {
             // #if DISPLACE_MODE == DISPLACE_TESSELATION
             //     ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
             // #else
-                ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+                // ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
             // #endif
 
-            #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                ApplyWetnessRipples(texNormal, rippleNormalStrength);
-            #endif
+            // #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+            //     ApplyWetnessRipples(texNormal, rippleNormalStrength);
+            // #endif
         //}
     #endif
 

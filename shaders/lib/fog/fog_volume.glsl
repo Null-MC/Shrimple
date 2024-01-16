@@ -375,8 +375,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    // float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir, CLOUD_SHADOW_STEPS);
-                    float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
+                    float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir, CLOUD_SHADOW_STEPS);
+                    // float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                     sampleF *= cloudShadow;
                 #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA

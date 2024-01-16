@@ -67,6 +67,9 @@ uniform float skyRainStrength;
     #endif
 #endif
 
+#ifdef DISTANT_HORIZONS
+	uniform float dhFarPlane;
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

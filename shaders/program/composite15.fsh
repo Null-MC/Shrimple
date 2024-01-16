@@ -40,6 +40,11 @@ in vec2 texcoord;
         #endif
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        uniform sampler2D dhDepthTex;
+        uniform sampler2D dhDepthTex1;
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferProjectionInverse;
@@ -98,6 +103,9 @@ in vec2 texcoord;
     #endif
 
     #ifdef DISTANT_HORIZONS
+        uniform mat4 dhProjection;
+        uniform mat4 dhProjectionInverse;
+        uniform float dhNearPlane;
         uniform float dhFarPlane;
     #endif
 
@@ -182,6 +190,7 @@ layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
     void main() {
         ivec2 iTex = ivec2(gl_FragCoord.xy);
+        vec3 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
 
         //float depth = texelFetch(depthtex1, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
@@ -196,22 +205,62 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        vec3 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
+        mat4 _projectionInvOpaque = gbufferProjectionInverse;
+        float _nearOpaque = near;
+        float _farOpaque = far * 4.0;
+
+        mat4 _projectionInvTrans = gbufferProjectionInverse;
+        float _nearTrans = near;
+        float _farTrans = far * 4.0;
+
+        #ifdef DISTANT_HORIZONS
+            if (depthTranslucent >= 1.0 || depthTranslucent == depthOpaque) {
+                depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
+                _projectionInvTrans = dhProjectionInverse;
+                _nearTrans = dhNearPlane;
+                _farTrans = dhFarPlane;
+            }
+
+            if (depthOpaque >= 1.0) {
+                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+                _projectionInvOpaque = dhProjectionInverse;
+                _nearOpaque = dhNearPlane;
+                _farOpaque = dhFarPlane;
+            }
+        #endif
+
+        float depthTransL = linearizeDepthFast(depthTranslucent, _nearTrans, _farTrans);
+        float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
+
+        // #ifdef DISTANT_HORIZONS
+        //     if (depthOpaqueL <= depthTransL) {
+        //         depthTranslucent = 1.0;
+        //         depthTransL = _farTrans;
+        //     }
+        // #endif
 
         //vec2 viewSize = vec2(viewWidth, viewHeight);
 
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
         vec3 clipPosTranslucent = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-            vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+        #ifdef DISTANT_HORIZONS
+            vec3 viewPosOpaque = unproject(_projectionInvOpaque * vec4(clipPosOpaque, 1.0));
             vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+
+            vec3 viewPosTranslucent = unproject(_projectionInvTrans * vec4(clipPosTranslucent, 1.0));
             vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
         #else
-            vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-            vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            #else
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
+                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+            #endif
         #endif
         
         vec3 localViewDir = normalize(localPosOpaque);
@@ -318,7 +367,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        if (depthTranslucent < depthOpaque) {
+        if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_WATER_ENABLED
                 //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
@@ -376,7 +425,12 @@ layout(location = 0) out vec4 outFinal;
                     // }
 
                     if (isWater && isEyeInWater != 1) {
-                        float farDist = min(distOpaque, far);
+                        float farMax = far;
+                        #ifdef DISTANT_HORIZONS
+                            farMax = 0.5*dhFarPlane;
+                        #endif
+
+                        float farDist = min(distOpaque, farMax);
                         waterDist = max(farDist - distTranslucent, 0.0);
                     }
                 #endif
@@ -393,7 +447,7 @@ layout(location = 0) out vec4 outFinal;
                 // }
 
                 if (waterDist > EPSILON) {
-                    vec3 vlLight = phaseIso + WaterAmbientF;
+                    vec3 vlLight = vec3(phaseIso + WaterAmbientF);
 
                     #ifdef WORLD_SKY_ENABLED
                         float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
@@ -490,7 +544,7 @@ layout(location = 0) out vec4 outFinal;
                     //     const vec2 vlSigma = vec2(1.2, 0.00002);
                     // #endif
 
-                    float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
+                    //float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
                     vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, depthtex1, viewSize, depthOpaqueL);
                 #else
                     vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);

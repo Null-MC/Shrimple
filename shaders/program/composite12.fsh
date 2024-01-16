@@ -45,6 +45,7 @@ uniform sampler2D TEX_LIGHTMAP;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex1;
 #endif
 
 uniform int frameCounter;
@@ -393,20 +394,36 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        float linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
-        float linearDepthTranslucent = linearizeDepthFast(depthTranslucent, near, far);
-        vec3 final;
+        float nearOpaque = near;
+        float farOpaque = far * 4.0;
+        mat4 projectionInvOpaque = gbufferProjectionInverse;
+
+        float nearTrans = near;
+        float farTrans = far * 4.0;
 
         #ifdef DISTANT_HORIZONS
-            bool isDepthDh = false;
-            if (depthOpaque >= 1.0) {
-                depthOpaque = textureLod(dhDepthTex, texcoord, 0).r;
-                linearDepthOpaque = linearizeDepthFast(depthOpaque, dhNearPlane, dhFarPlane);
-                isDepthDh = true;
+            if (depthTranslucent >= 1.0 || depthTranslucent == depthOpaque) {
+                depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
+                nearTrans = dhNearPlane;
+                farTrans = dhFarPlane;
             }
 
-            if (depthTranslucent >= 1.0) linearDepthTranslucent = 0.5*dhFarPlane;
+            if (depthOpaque >= 1.0) {
+                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+                projectionInvOpaque = dhProjectionInverse;
+                nearOpaque = dhNearPlane;
+                farOpaque = dhFarPlane;
+            }
+
+            // if (depthTranslucent >= 1.0) linearDepthTranslucent = 0.5*dhFarPlane;
         #endif
+
+        float linearDepthOpaque = linearizeDepthFast(depthOpaque, nearOpaque, farOpaque);
+        float linearDepthTranslucent = linearizeDepthFast(depthTranslucent, nearTrans, farTrans);
+
+        //if (linearDepthOpaque <= linearDepthTranslucent) depthTranslucent = 1.0;
+
+        vec3 final;
 
         // if (depthTranslucent >= 1.0) {
         //     depthTranslucent = textureLod(dhDepthTex, texcoord, 0).r;
@@ -430,26 +447,16 @@ layout(location = 0) out vec4 outFinal;
         if (depthOpaque < 1.0) {
             vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
-            vec3 localPos;
             #ifdef DISTANT_HORIZONS
-                if (isDepthDh) {
-                    // #ifndef IRIS_FEATURE_SSBO
-                        vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
-                        localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
-                    // #else
-                    //     vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-                    // #endif
-                }
-                else {
-            #endif
+                vec3 viewPos = unproject(projectionInvOpaque * vec4(clipPos, 1.0));
+                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            #else
                 #ifndef IRIS_FEATURE_SSBO
                     vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                    localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
                 #else
-                    localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+                    vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
                 #endif
-            #ifdef DISTANT_HORIZONS
-            }
             #endif
 
             vec3 localViewDir = normalize(localPos);
@@ -500,6 +507,7 @@ layout(location = 0) out vec4 outFinal;
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
+                // deferredShadow.rgb *= cloudShadow;
             #endif
 
             vec3 albedo = RGBToLinear(deferredColor);
@@ -544,8 +552,8 @@ layout(location = 0) out vec4 outFinal;
                     #endif
                 #else
                     bool hasWaterDepth = isEyeInWater == 1
-                        ? depthOpaque <= depthTranslucent
-                        : depthTranslucent < depthOpaque;
+                        ? linearDepthOpaque <= linearDepthTranslucent
+                        : linearDepthTranslucent < linearDepthOpaque;
                 #endif
 
                 if (hasWaterDepth) {
@@ -832,7 +840,11 @@ layout(location = 0) out vec4 outFinal;
                     float fogF = GetCustomFogFactor(fogDist);
 
                     #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                        float fogFarDist = SkyFar - far;
+                        #ifdef DISTANT_HORIZONS
+                            float fogFarDist = max(SkyFar, dhFarPlane) - (0.5*dhFarPlane);
+                        #else
+                            float fogFarDist = SkyFar - far;
+                        #endif
 
                         if (fogFarDist > 0.0) {
                             float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);

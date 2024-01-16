@@ -261,14 +261,13 @@ layout(location = 0) out vec4 outVL;
 void main() {
     ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
     float depth = texelFetch(depthtex0, depthCoord, 0).r;
+    float depthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
     mat4 projectionInv = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        bool isDepthDh = false;
-        if (depth >= 1.0) {
-            depth = textureLod(dhDepthTex, texcoord, 0).r;
+        if (depth >= 1.0 || (depth == depthOpaque && isEyeInWater != 1)) {
+            depth = texelFetch(dhDepthTex, depthCoord, 0).r;
             projectionInv = dhProjectionInverse;
-            isDepthDh = true;
         }
     #endif
 
@@ -325,8 +324,13 @@ void main() {
     //vec3 endPos = localPos + localNormal * d;
     //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
 
+    float farMax = far - 0.002;
+    #ifdef DISTANT_HORIZONS
+        farMax = 0.5 * dhFarPlane - 0.1;
+    #endif
+
     //float farMax = far;//min(shadowDistance, far);
-    float farDist = clamp(viewDist, near, far - 0.002);
+    float farDist = clamp(viewDist, near, farMax);
     //if (depth >= 1.0) farDist = SkyFar;
 
     vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
@@ -364,8 +368,14 @@ void main() {
         #endif
 
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                float cloudDistNear = far;
-                float cloudDistFar = SkyFar;
+                float cloudDistNear = farMax;
+
+                #ifdef DISTANT_HORIZONS
+                    float cloudDistFar = max(SkyFar, dhFarPlane);
+                #else
+                    // float cloudDistNear = far;
+                    float cloudDistFar = SkyFar;
+                #endif
 
                 // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 //     cloudDistNear = max(cloudDistNear, far);

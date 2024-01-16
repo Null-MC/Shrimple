@@ -21,6 +21,8 @@ uniform sampler2D depthtex2;
 
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView;
 uniform int frameCounter;
 
 uniform vec2 viewSize;
@@ -52,7 +54,7 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
         vec3 localPos;
         if (isDepthDh) {
             vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
-            localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
         }
         else {
             #ifdef IRIS_FEATURE_SSBO
@@ -76,7 +78,7 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     #ifdef DISTANT_HORIZONS
         vec3 clipPosPrev;
         if (isDepthDh) {
-            vec3 viewPosPrev = (dhPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
+            vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
             clipPosPrev = unproject(dhPreviousProjection * vec4(viewPosPrev, 1.0));
         }
         else {
@@ -345,12 +347,12 @@ void main() {
     //depthDiff = abs(depthPrevL - depthNowL);
 
     float depthNowL = linearizeDepthFast(depthNow, _near, _far);
-    depthNowL = clamp(depthNowL, _near, _far);
+    // depthNowL = clamp(depthNowL, _near, _far);
 
     float reproDepthMin = reproDepthL + (depthMinL - depthNowL);
     float reproDepthMax = reproDepthL + (depthMaxL - depthNowL);
-    reproDepthMin = clamp(reproDepthMin, _near, _far);
-    reproDepthMax = clamp(reproDepthMax, _near, _far);
+    // reproDepthMin = clamp(reproDepthMin, _near, _far);
+    // reproDepthMax = clamp(reproDepthMax, _near, _far);
 
     #ifdef EFFECT_TAA_SHARPEN
         vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);

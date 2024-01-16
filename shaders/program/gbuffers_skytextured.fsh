@@ -54,6 +54,9 @@ void main() {
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
+    // try and reduce amount of velocity pixels affected
+    if (luminance(color.rgb) * color.a < (0.5/255.0)) {discard; return;}
+
     #ifndef IRIS_FEATURE_SSBO
         vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif

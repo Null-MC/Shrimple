@@ -29,9 +29,20 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             ivec2 texBlend = ivec2(texcoord * blendTexSize) + ivec2(ix, iy);
             vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
 
-            ivec2 texDepth = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
-            float sampleDepth = texelFetch(depthSampler, texDepth, 0).r;
-            float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+            ivec2 depthCoord = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
+            float sampleDepth = texelFetch(depthSampler, depthCoord, 0).r;
+            float _near = near;
+            float _far = far * 4.0;
+
+            #ifdef DISTANT_HORIZONS
+                if (sampleDepth >= 1.0) {
+                    sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+                    _near = dhNearPlane;
+                    _far = dhFarPlane;
+                }
+            #endif
+
+            float sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
             
             float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
             

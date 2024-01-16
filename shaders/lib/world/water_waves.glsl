@@ -6,7 +6,7 @@ const float WATER_FREQUENCY_MULT = 1.14;
 const float WATER_SPEED_MULT = 1.06;
 const float WATER_ITER_INC = 0.16 * PI * (3.0 - sqrt(5.0));
 const float WATER_WEIGHT = 0.8;
-const float WATER_NORMAL_STRENGTH = 0.5;
+const float WATER_NORMAL_STRENGTH = 0.2;
 const float WATER_DRAG_MULT = 0.4;
 
 #if   WATER_WAVE_SIZE == 3
@@ -121,8 +121,11 @@ vec3 water_waveNormal(vec2 worldPos, const in float skyLight, const in float vie
 
     normal = normalize(normal);
 
-    float strength = 16.0 / (viewDist + 16.0);
-    normal = mix(vec3(0.0, 0.0, 1.0), normal, strength);
+    //float strength = 1.0 / (0.1*viewDist + 1.0);
+    //float strength = smoothstep(0.0, 160.0, viewDist);
+    float strength = min(viewDist / 800.0, 1.0);
+    normal = mix(normal, vec3(0.0, 0.0, 1.0), strength);
+    normal = normalize(normal);
 
-    return normalize(normal);
+    return normal;
 }

@@ -13,6 +13,10 @@ out VertexData {
     vec3 localPos;
     vec3 localNormal;
 
+    #ifdef DISTANT_HORIZONS
+        float viewPosZ;
+    #endif
+
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
@@ -82,6 +86,11 @@ void main() {
         vOut.color = gl_Color;
 
         vec4 viewPos = BasicVertex();
+
+        #ifdef DISTANT_HORIZONS
+            vOut.viewPosZ = -viewPos.z;
+        #endif
+
         gl_Position = gl_ProjectionMatrix * viewPos;
 
         #ifdef EFFECT_TAA_ENABLED

@@ -21,6 +21,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     uniform mat4 gbufferProjectionInverse;
     uniform mat4 gbufferPreviousProjection;
     uniform vec3 cameraPosition;
+    uniform float near;
 
     uniform int heldItemId;
     uniform int heldItemId2;
@@ -44,9 +45,14 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            uniform float near;
+            // uniform float near;
             //uniform float far;
         #endif
+    #endif
+
+    #ifdef DISTANT_HORIZONS
+        uniform mat4 dhProjection;
+        uniform float dhFarPlane;
     #endif
 
     #if MC_VERSION >= 11900
@@ -173,6 +179,15 @@ void main() {
                     sceneViewDown  = normalize(cross(farClipPos[3] - farClipPos[2], farClipPos[3]));
                     sceneViewLeft  = normalize(cross(farClipPos[2] - farClipPos[0], farClipPos[2]));
                 #endif
+            #endif
+
+            #ifdef DISTANT_HORIZONS
+                dhProjectionFull = dhProjection;
+
+                dhProjectionFull[2][2] = -((near + dhFarPlane) / (dhFarPlane - near));
+                dhProjectionFull[3][2] = -((2.0 * dhFarPlane * near) / (dhFarPlane - near));
+
+                dhProjectionFullInv = inverse(dhProjectionFull);
             #endif
         }
 

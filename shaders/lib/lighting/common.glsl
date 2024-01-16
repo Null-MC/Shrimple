@@ -17,8 +17,17 @@ vec4 BasicVertex() {
 
     #if defined WORLD_WATER_ENABLED && ((defined RENDER_WATER && WATER_TESSELLATION_QUALITY == 0) || defined RENDER_TERRAIN)
         if (vOut.blockId == BLOCK_WATER || vOut.blockId == BLOCK_LILY_PAD) {
-            float distF = 1.0 - smoothstep(0.2, 2.8, length(viewPos.xyz));
+            float viewDist = length(viewPos.xyz);
+            float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
             distF = 1.0 - _pow2(distF);
+
+            vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+
+            #ifdef DISTANT_HORIZONS
+                float viewDistXZ = length(vOut.localPos.xz);
+                float waterClipFar = dh_waterClipDist*far;
+                distF *= 1.0 - smoothstep(0.8*waterClipFar, waterClipFar, viewDistXZ);
+            #endif
 
             #ifdef PHYSICS_OCEAN
                 vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
@@ -29,7 +38,7 @@ vec4 BasicVertex() {
 
                 vOut.physics_localPosition = pos.xyz;
             #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
-                vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+                // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
                 float time = GetAnimationFactor();
 
                 vec2 uvOffset = vec2(0.0);

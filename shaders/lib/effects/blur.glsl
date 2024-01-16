@@ -26,7 +26,14 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 #endif
 
 vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
-    float distF = min(viewDist / far, 1.0);
+    float _far = far;
+    #ifdef DISTANT_HORIZONS
+        _far = 0.5*dhFarPlane;
+    #endif
+
+    if (isWater) _far = 16.0;
+
+    float distF = min(viewDist / _far, 1.0);
     float maxRadius = EFFECT_BLUR_MAX_RADIUS;
 
     // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
@@ -101,9 +108,21 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
         float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
         //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
-        float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
 
-        float sampleDistF = saturate((sampleDepthL - minDepth) / far);
+        float sampleNear = near;
+        float sampleFar = far * 4.0;
+
+        #ifdef DISTANT_HORIZONS
+            if (sampleDepth >= 1.0) {
+                sampleDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+                sampleNear = dhFarPlane;
+                sampleFar = dhFarPlane;
+            }
+        #endif
+
+        float sampleDepthL = linearizeDepthFast(sampleDepth, sampleNear, sampleFar);
+
+        float sampleDistF = saturate((sampleDepthL - minDepth) / _far);
         // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
         //     float sampleSize = GetBlurSize(sampleDepthL, centerDepthL);
 

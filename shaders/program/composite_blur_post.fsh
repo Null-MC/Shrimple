@@ -16,6 +16,11 @@ uniform sampler2D depthtex1;
 uniform sampler2D BUFFER_FINAL;
 //uniform sampler2D BUFFER_OVERLAY_DEPTH;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex1;
+#endif
+
 uniform mat4 gbufferProjectionInverse;
 uniform float viewWidth;
 uniform float viewHeight;
@@ -40,6 +45,12 @@ uniform float skyRainStrength;
     uniform float blindnessSmooth;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
+#endif
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 
@@ -57,10 +68,23 @@ void main() {
     // float weatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, uv, 0).r;
     // depth = min(depth, weatherDepth);
 
-    float depthL = linearizeDepthFast(depth, near, far);
+    float _near = near;
+    float _far = far * 4.0;
+    mat4 projectionInv = gbufferProjectionInverse;
+
+    #ifdef DISTANT_HORIZONS
+        if (depth >= 1.0) {
+            depth = texelFetch(dhDepthTex, uv, 0).r;
+            projectionInv = dhProjectionInverse;
+            _near = dhNearPlane;
+            _far = dhFarPlane;
+        }
+    #endif
+
+    float depthL = linearizeDepthFast(depth, _near, _far);
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+    vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
     float viewDist = length(viewPos);
 
     vec3 color = GetBlur(depthtex0, texcoord, depthL, 0.0, viewDist, isEyeInWater == 1);
