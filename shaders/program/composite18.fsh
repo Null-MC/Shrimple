@@ -1188,7 +1188,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef VL_BUFFER_ENABLED
             #ifdef VOLUMETRIC_FILTER
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, depthtex0, viewSize, linearDepth);
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, linearDepth);
             #else
                 vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
             #endif

@@ -1,4 +1,4 @@
-vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in sampler2D depthSampler, const in vec2 depthTexSize, const in float depthL) {
+vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 depthTexSize, const in float depthL) {
     const float bufferScaleInv = rcp(exp2(VOLUMETRIC_RES));
     const vec2 g_sigma = vec2(3.0, 2.0);
     const float c_halfSamplesX = 2.0;
@@ -30,13 +30,38 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
 
             ivec2 depthCoord = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
-            float sampleDepth = texelFetch(depthSampler, depthCoord, 0).r;
+            #ifdef RENDER_OPAQUE_POST_VL
+                float sampleDepth = texelFetch(depthtex1, depthCoord, 0).r;
+            #else
+                float sampleDepth = texelFetch(depthtex0, depthCoord, 0).r;
+            #endif
             float _near = near;
             float _far = far * 4.0;
 
             #ifdef DISTANT_HORIZONS
-                if (sampleDepth >= 1.0) {
-                    sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+                #ifdef RENDER_OPAQUE_POST_VL
+                    if (sampleDepth >= 1.0) {
+                        sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
+                        _near = dhNearPlane;
+                        _far = dhFarPlane;
+                    }
+                #else
+                    float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
+                    
+                    if (sampleDepth >= 1.0 || sampleDepth == sampleDepthOpaque) {
+                        sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+                        _near = dhNearPlane;
+                        _far = dhFarPlane;
+                    }
+                #endif
+                // float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
+                
+                if (sampleDepth >= 1.0) {// || sampleDepth == sampleDepthOpaque) {
+                    #ifdef RENDER_OPAQUE_POST_VL
+                        sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
+                    #else
+                        sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+                    #endif
                     _near = dhNearPlane;
                     _far = dhFarPlane;
                 }

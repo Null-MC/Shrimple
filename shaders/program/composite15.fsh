@@ -545,7 +545,7 @@ layout(location = 0) out vec4 outFinal;
                     // #endif
 
                     //float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
-                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, depthtex1, viewSize, depthOpaqueL);
+                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, depthOpaqueL);
                 #else
                     vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
                 #endif
