@@ -30,45 +30,65 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
 
             ivec2 depthCoord = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
+
             #ifdef RENDER_OPAQUE_POST_VL
                 float sampleDepth = texelFetch(depthtex1, depthCoord, 0).r;
             #else
                 float sampleDepth = texelFetch(depthtex0, depthCoord, 0).r;
             #endif
-            float _near = near;
-            float _far = far * 4.0;
+
+            // float _near = near;
+            // float _far = far * 4.0;
+
+            // #ifdef DISTANT_HORIZONS
+            //     #ifdef RENDER_OPAQUE_POST_VL
+            //         if (sampleDepth >= 1.0) {
+            //             sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
+            //             _near = dhNearPlane;
+            //             _far = dhFarPlane;
+            //         }
+            //     #else
+            //         float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
+                    
+            //         if (sampleDepth >= 1.0 || sampleDepth == sampleDepthOpaque) {
+            //             sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+            //             _near = dhNearPlane;
+            //             _far = dhFarPlane;
+            //         }
+            //     #endif
+            //     // float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
+                
+            //     if (sampleDepth >= 1.0) {// || sampleDepth == sampleDepthOpaque) {
+            //         #ifdef RENDER_OPAQUE_POST_VL
+            //             sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
+            //         #else
+            //             sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
+            //         #endif
+            //         _near = dhNearPlane;
+            //         _far = dhFarPlane;
+            //     }
+            // #endif
+
+            // float sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
+            
+            float farPlane = far * 4.0;
+            float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
                 #ifdef RENDER_OPAQUE_POST_VL
-                    if (sampleDepth >= 1.0) {
-                        sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
-                        _near = dhNearPlane;
-                        _far = dhFarPlane;
-                    }
+                    float dhDepth = textureLod(dhDepthTex1, texcoord, 0).r;
                 #else
-                    float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-                    
-                    if (sampleDepth >= 1.0 || sampleDepth == sampleDepthOpaque) {
-                        sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
-                        _near = dhNearPlane;
-                        _far = dhFarPlane;
-                    }
+                    float dhDepth = textureLod(dhDepthTex, texcoord, 0).r;
                 #endif
-                // float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-                
-                if (sampleDepth >= 1.0) {// || sampleDepth == sampleDepthOpaque) {
-                    #ifdef RENDER_OPAQUE_POST_VL
-                        sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
-                    #else
-                        sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
-                    #endif
-                    _near = dhNearPlane;
-                    _far = dhFarPlane;
+
+                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+                if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
+                    sampleDepth = dhDepth;
+                    sampleDepthL = dhDepthL;
                 }
             #endif
 
-            float sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
-            
             float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
             
             float weight = fx*fy*fv;
