@@ -75,20 +75,21 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
                 }
             #endif
 
-            float normalWeight = 1.0;
-            // if (hasNormal) {
-            //     //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, srcCoord, 0).rgb;
-            //     uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, depthCoord, 0).r;
-            //     vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
+            float normalWeight = 0.0;
+            if (hasNormal) {
+                //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, srcCoord, 0).rgb;
+                uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, depthCoord, 0).r;
+                vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
 
-            //     if (any(greaterThan(sampleNormal, EPSILON3))) {
-            //         sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
+                if (any(greaterThan(sampleNormal, EPSILON3))) {
+                    sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
 
-            //         normalWeight = max(dot(normal, sampleNormal), 0.0);
-            //     }
-            // }
+                    normalWeight = 1.0 - max(dot(normal, sampleNormal), 0.0);
+                    //normalWeight = smootherstep(normalWeight);
+                }
+            }
             
-            float fv = Gaussian(lightSigma.z, abs(sampleDepthL - linearDepth) + 16.0*(1.0 - normalWeight));
+            float fv = Gaussian(lightSigma.z, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
             
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;
