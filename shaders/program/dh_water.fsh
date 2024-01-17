@@ -334,7 +334,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/fresnel.glsl"
 // #include "/lib/material/emission.glsl"
 // #include "/lib/material/normalmap.glsl"
-#include "/lib/material/specular.glsl"
+// #include "/lib/material/specular.glsl"
 // #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED

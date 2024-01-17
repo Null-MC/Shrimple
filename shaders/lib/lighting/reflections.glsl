@@ -140,7 +140,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
         reflectF = reflection.a;
         reflectDepth = reflection.z;
-    // return col;
+    return col;
 
         if (reflection.z < 1.0 && reflection.a > 0.0) {
             reflectClipPos = reflection.xyz * 2.0 - 1.0;

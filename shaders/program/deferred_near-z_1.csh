@@ -40,35 +40,24 @@ void copyToShared(const in ivec2 kernelPos, const in ivec2 depthPos, const in iv
     ivec2 sampleUV = clamp(depthPos + sampleOffset, ivec2(0), ivec2(viewSize) - 1);
     float depth = texelFetch(depthtex0, sampleUV, 0).r;
 
+    float farPlane = far * 4.0;
+    float depthL = linearizeDepthFast(depth, near, farPlane);
+
     #ifdef DISTANT_HORIZONS
-        //mat4 projectionInv = gbufferProjectionInverse;
-        float _near = near;
-        float _far = far * 4.0;
+        float dhDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-        if (depth >= 1.0) {
-            depth = texelFetch(dhDepthTex, sampleUV, 0).r;
-            //projectionInv = dhProjectionInverse;
-            _near = dhNearPlane;
-            _far = dhFarPlane;
+        if (dhDepthL < depthL || depth >= 1.0) {
+            depth = dhDepth;
+            depthL = dhDepthL;
         }
-        // else {
-        //     depth = linearizeDepthFast(depth, near, far);
-        // }
 
-        depth = linearizeDepthFast(depth, _near, _far);
-        //depth = delinearizeDepthFast(depth, near, dhFarPlane);
-
-        // vec3 clipPos = vec3(sampleUV / viewSize + 0.5, depth) * 2.0 - 1.0;
-        // vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
-        // depth = -viewPos.z;
-
-        depth /= dhFarPlane;
+        depthL /= dhFarPlane;
     #else
-        depth = linearizeDepthFast(depth, near, far * 4.0);
-        depth /= far;
+        depthL /= farPlane;
     #endif
 
-    writeShared(kernelPos + sampleOffset, depth);
+    writeShared(kernelPos + sampleOffset, depthL);
 }
 
 void populateSharedBuffer(const in ivec2 kernelPos, const in ivec2 localPos, const in ivec2 globalPos) {

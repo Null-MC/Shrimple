@@ -295,7 +295,7 @@ uniform int frameCounter;
 #include "/lib/material/fresnel.glsl"
 // #include "/lib/material/emission.glsl"
 // #include "/lib/material/subsurface.glsl"
-#include "/lib/material/specular.glsl"
+// #include "/lib/material/specular.glsl"
 
 // #ifdef PARALLAX_ENABLED
 //     #include "/lib/sampling/linear.glsl"

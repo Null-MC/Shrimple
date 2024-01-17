@@ -9,25 +9,27 @@ const int SSR_LodMin = 0;
             ivec2 uv = ivec2(texcoord * viewSize);
             float depth = texelFetch(depthtex, uv, 0).r;
 
-            float _near = near;
-            float _far = far * 4.0;
+            float farPlane = far * 4.0;
+            float depthL = linearizeDepthFast(depth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
-                if (depth >= 1.0) {
-                    depth = texelFetch(dhDepthTex, uv, 0).r;
-                    _near = dhNearPlane;
-                    _far = dhFarPlane;
+                float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
+                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+                if (dhDepthL < depthL || depth >= 1.0) {
+                    depth = dhDepth;
+                    depthL = dhDepthL;
                 }
             #endif
 
-            return linearizeDepthFast(depth, _near, _far);
+            return depthL;
         }
         else {
             vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
             //vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
             //return textureLod(texDepthNear, (uv + 1.0) / nearViewSize, 0).r;
 
-            float _far = far;
+            float _far = far * 4.0;
             #ifdef DISTANT_HORIZONS
                 _far = dhFarPlane;
             #endif
