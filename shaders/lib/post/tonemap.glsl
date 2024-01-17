@@ -64,7 +64,11 @@ void ApplyPostExposure(inout vec3 color) {
         color *= mix(1.0, 3.0, pow(brightF, 1.5));
     #endif
 
-    color *= exp2(POST_EXPOSURE);
+    float exposure = POST_EXPOSURE;
+
+    //exposure += nightVision;
+
+    color *= exp2(exposure);
 
     #if MC_VERSION > 11900
         //color *= (1.0 - 0.97*smootherstep(darknessFactor)) + 0.16 * smootherstep(darknessLightFactor);

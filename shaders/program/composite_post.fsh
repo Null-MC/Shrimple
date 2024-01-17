@@ -10,6 +10,7 @@ in vec2 texcoord;
 uniform sampler2D BUFFER_FINAL;
 
 uniform ivec2 eyeBrightnessSmooth;
+uniform float nightVision;
 uniform float playerMood;
 
 #if MC_VERSION >= 11900

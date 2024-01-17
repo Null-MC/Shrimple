@@ -18,6 +18,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int isEyeInWater;
 uniform int frameCounter;
+uniform float nightVision;
 
 #if MC_VERSION >= 11900
     uniform float darknessFactor;
