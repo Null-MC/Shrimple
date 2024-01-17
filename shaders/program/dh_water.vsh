@@ -209,7 +209,7 @@ void main() {
     // vec4 viewPos = BasicVertex();
 
     vec4 pos = gl_Vertex;
-    pos.y -= (2.0/16.0);
+    pos.y -= (1.8/16.0);
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 

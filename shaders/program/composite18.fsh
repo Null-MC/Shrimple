@@ -314,7 +314,7 @@ uniform int heldBlockLightValue2;
 
 
 #if LIGHTING_MODE == DYN_LIGHT_TRACED
-    void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
+    void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float depthTransL, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
         const float c_halfSamplesX = 2.0;
         const float c_halfSamplesY = 2.0;
 
@@ -372,7 +372,7 @@ uniform int heldBlockLightValue2;
                     }
                 }
                 
-                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
+                float fv = Gaussian(g_sigma.z, abs(sampleDepth - depthTransL) + 16.0*(1.0 - normalWeight));
                 
                 float weight = fx*fy*fv;
                 accumDiffuse += weight * sampleDiffuse;
@@ -400,53 +400,79 @@ layout(location = 0) out vec4 outFinal;
         ivec2 iTex = ivec2(gl_FragCoord.xy);
         //vec2 viewSize = vec2(viewWidth, viewHeight);
 
-        //float depth = texelFetch(depthtex0, iTex, 0).r;
+        //float depthTrans = texelFetch(depthtex0, iTex, 0).r;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
-        float depth = textureLod(depthtex0, texcoord, 0).r;
+        float depthTrans = textureLod(depthtex0, texcoord, 0).r;
         float depthOpaque = textureLod(depthtex1, texcoord, 0).r;
         float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
-        bool isHand = handClipDepth > depth;
+        bool isHand = handClipDepth > depthTrans;
 
         // if (isHand) {
-        //     depth = depth * 2.0 - 1.0;
-        //     depth /= MC_HAND_DEPTH;
-        //     depth = depth * 0.5 + 0.5;
+        //     depthTrans = depthTrans * 2.0 - 1.0;
+        //     depthTrans /= MC_HAND_DEPTH;
+        //     depthTrans = depthTrans * 0.5 + 0.5;
         // }
 
-        float _nearOpaque = near;
-        float _farOpaque = far * 4.0;
-        mat4 projectionInvOpaque = gbufferProjectionInverse;
+        // float _nearOpaque = near;
+        // float _farOpaque = far * 4.0;
+        // mat4 projectionInvOpaque = gbufferProjectionInverse;
 
-        float _nearTrans = near;
-        float _farTrans = far * 4.0;
+        // float _nearTrans = near;
+        // float _farTrans = far * 4.0;
+        // mat4 projectionInvTrans = gbufferProjectionInverse;
+
+        // #ifdef DISTANT_HORIZONS
+        //     if (depthTrans >= 1.0 || depthTrans == depthOpaque) {
+        //         depthTrans = textureLod(dhDepthTex, texcoord, 0).r;
+        //         projectionInvTrans = dhProjectionInverse;
+        //         _nearTrans = dhNearPlane;
+        //         _farTrans = dhFarPlane;
+        //     }
+
+        //     if (depthOpaque >= 1.0) {
+        //         depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+        //         projectionInvOpaque = dhProjectionInverse;
+        //         _nearOpaque = dhNearPlane;
+        //         _farOpaque = dhFarPlane;
+        //     }
+        // #endif
+
+        // float depthTransL = linearizeDepthFast(depthTrans, _nearTrans, _farTrans);
+        // float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
+
+        float farPlane = far * 4.0;
+        float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
+        float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
+        mat4 projectionInvOpaque = gbufferProjectionInverse;
         mat4 projectionInvTrans = gbufferProjectionInverse;
 
         #ifdef DISTANT_HORIZONS
-            if (depth >= 1.0 || depth == depthOpaque) {
-                depth = textureLod(dhDepthTex, texcoord, 0).r;
+            float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
+            float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+
+            if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
+                depthTrans = dhDepthTrans;
+                depthTransL = dhDepthTransL;
                 projectionInvTrans = dhProjectionInverse;
-                _nearTrans = dhNearPlane;
-                _farTrans = dhFarPlane;
             }
 
-            if (depthOpaque >= 1.0) {
-                depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+            float dhDepthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
+            float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
+
+            if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
+                depthOpaque = dhDepthOpaque;
+                depthOpaqueL = dhDepthOpaqueL;
                 projectionInvOpaque = dhProjectionInverse;
-                _nearOpaque = dhNearPlane;
-                _farOpaque = dhFarPlane;
             }
         #endif
 
-        float linearDepth = linearizeDepthFast(depth, _nearTrans, _farTrans);
-        float linearDepthOpaque = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
-
-        // if (linearDepthOpaque <= linearDepth) depth = 1.0;
+        // if (depthOpaqueL <= depthTransL) depthTrans = 1.0;
 
         vec2 refraction = vec2(0.0);
         vec4 final = vec4(0.0);
         bool tir = false;
 
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 clipPos = vec3(texcoord, depthTrans) * 2.0 - 1.0;
         vec3 viewPos = unproject(projectionInvTrans * vec4(clipPos, 1.0));
         vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
 
@@ -478,7 +504,7 @@ layout(location = 0) out vec4 outFinal;
             uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
         #endif
 
-        if (deferredColor.a > (0.5/255.0) && depth < 1.0) {
+        if (deferredColor.a > (0.5/255.0) && depthTrans < 1.0) {
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -509,8 +535,8 @@ layout(location = 0) out vec4 outFinal;
                 vec3 refractViewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
                 vec3 refractDir = refract(refractViewDir, texViewNormal, refractEta);
-                //linearDepthOpaque = linearizeDepthFast(depthOpaque, near, far);
-                float linearDist = linearDepthOpaque - linearDepth;
+                //depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
+                float linearDist = depthOpaqueL - depthTransL;
 
                 vec2 refractMax = vec2(0.2);
                 refractMax.x *= viewWidth / viewHeight;
@@ -543,10 +569,10 @@ layout(location = 0) out vec4 outFinal;
             #if defined SHADOW_BLUR && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
                     const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                    deferredShadow.rgb = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma);
+                    deferredShadow.rgb = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, depthTransL, shadowSigma);
                 #else
-                    float shadowSigma = 3.0 / linearDepth;
-                    deferredShadow.rgb = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, linearDepth, shadowSigma));
+                    float shadowSigma = 3.0 / depthTransL;
+                    deferredShadow.rgb = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, depthTransL, shadowSigma));
                 #endif
             #else
                 deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
@@ -600,7 +626,7 @@ layout(location = 0) out vec4 outFinal;
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
                     #ifdef LIGHTING_TRACE_FILTER
                         const vec3 lightSigma = vec3(1.2, 1.2, 0.2);
-                        BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, linearDepth, texNormal, roughL, lightSigma);
+                        BilateralGaussianBlur(blockDiffuse, blockSpecular, texcoord, depthTransL, texNormal, roughL, lightSigma);
                     #elif LIGHTING_TRACE_RES == 0
                         blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
@@ -714,7 +740,7 @@ layout(location = 0) out vec4 outFinal;
 
                     //     outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
                     //     outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
-                    //     outTA_Depth = vec4(depth, 0.0, 0.0, 1.0);
+                    //     outTA_Depth = vec4(depthTrans, 0.0, 0.0, 1.0);
 
                     //     #if MATERIAL_SPECULAR != SPECULAR_NONE
                     //         outSpecularTA = vec4(blockSpecular, 1.0);
@@ -837,7 +863,7 @@ layout(location = 0) out vec4 outFinal;
                         float o = i + dither;
                         float sampleDepth = textureLod(depthtex1, texcoord + o * step, 0).r;
                         
-                        if (sampleDepth < depth) {
+                        if (sampleDepth < depthTrans) {
                             refraction = max(i - 1, 0) * step;
                             //depthOpaque = sampleDepth;
                             break;
@@ -882,10 +908,10 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef EFFECT_BLUR_ENABLED
             float blurDist = 0.0;
-            if (linearDepth < linearDepthOpaque) {
+            if (depthTransL < depthOpaqueL) {
                 // float opaqueDist = length(localPosOpaque);
 
-                // water blur depth
+                // water blur depthTrans
                 #if WATER_DEPTH_LAYERS > 1 && defined WORLD_WATER_ENABLED
                     //uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     //uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
@@ -926,7 +952,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             }
 
-            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, linearDepthOpaque, linearDepth, blurDist, isWater && isEyeInWater != 1);
+            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, depthOpaqueL, depthTransL, blurDist, isWater && isEyeInWater != 1);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
             // float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
@@ -946,7 +972,7 @@ layout(location = 0) out vec4 outFinal;
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif
-                if (depth < 1.0) {
+                if (depthTrans < 1.0) {
                     #if SKY_TYPE == SKY_TYPE_CUSTOM
                         vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
                         fogColorFinal *= WorldSkyBrightnessF;
@@ -1105,7 +1131,7 @@ layout(location = 0) out vec4 outFinal;
         //         }
         //         else {
         //     #endif
-        //         // if (depth < 1.0) {
+        //         // if (depthTrans < 1.0) {
         //         //     #if SKY_TYPE == SKY_TYPE_CUSTOM
         //         //         vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
@@ -1188,7 +1214,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef VL_BUFFER_ENABLED
             #ifdef VOLUMETRIC_FILTER
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, linearDepth);
+                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, depthTransL);
             #else
                 vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
             #endif
