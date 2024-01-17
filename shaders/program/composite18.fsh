@@ -33,7 +33,8 @@ uniform sampler2D TEX_LIGHTMAP;
 #endif
 
 #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    uniform sampler2D BUFFER_VL;
+    uniform sampler2D BUFFER_VL_SCATTER;
+    uniform sampler2D BUFFER_VL_TRANSMIT;
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
@@ -531,7 +532,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
 
                 //const float ior = IOR_WATER;
-                const float refractEta = (IOR_AIR/IOR_WATER);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
+                float refractEta = (IOR_AIR/IOR_WATER);//isEyeInWater == 1 ? (ior/IOR_AIR) : (IOR_AIR/ior);
                 vec3 refractViewDir = vec3(0.0, 0.0, 1.0);//isEyeInWater == 1 ? normalize(viewPos) : vec3(0.0, 0.0, 1.0);
 
                 vec3 refractDir = refract(refractViewDir, texViewNormal, refractEta);
@@ -1214,12 +1215,12 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef VL_BUFFER_ENABLED
             #ifdef VOLUMETRIC_FILTER
-                vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, depthTransL);
+                VL_GaussianFilter(final.rgb, texcoord, depthTransL);
             #else
-                vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+                vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
+                vec3 vlTransmit = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
+                final.rgb = final.rgb * vlTransmit + vlScatter;
             #endif
-
-            final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         #endif
 
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && (!defined WORLD_SKY_ENABLED || SKY_CLOUD_TYPE <= CLOUDS_VANILLA)

@@ -29,7 +29,8 @@ in vec2 texcoord;
     #endif
 
     #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler2D BUFFER_VL;
+        uniform sampler2D BUFFER_VL_SCATTER;
+        uniform sampler2D BUFFER_VL_TRANSMIT;
     #endif
 
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
@@ -389,7 +390,7 @@ layout(location = 0) out vec4 outFinal;
                 //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
                 // }
             #else
-                final.rgb *= exp(waterDist * -WaterAbsorbF);
+                // final.rgb *= exp(waterDist * -WaterAbsorbF);
             #endif
         #endif
 
@@ -552,11 +553,11 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
-                if (isWater) {
-                    final *= exp(waterDist * -WaterAbsorbF);
-                }
-            #endif
+            // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
+            //     if (isWater) {
+            //         final *= exp(waterDist * -WaterAbsorbF);
+            //     }
+            // #endif
 
             #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 #ifdef VOLUMETRIC_FILTER
@@ -571,12 +572,12 @@ layout(location = 0) out vec4 outFinal;
                     // #endif
 
                     //float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
-                    vec4 vlScatterTransmit = BilateralGaussianDepthBlur_VL(texcoord, BUFFER_VL, viewSize, depthOpaqueL);
+                    VL_GaussianFilter(final, texcoord, depthOpaqueL);
                 #else
-                    vec4 vlScatterTransmit = textureLod(BUFFER_VL, texcoord, 0);
+                    vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
+                    vec3 vlTransmit = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
+                    final = final * vlTransmit + vlScatter;
                 #endif
-
-                final = final * vlScatterTransmit.a + vlScatterTransmit.rgb;
             #endif
 
             #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE <= CLOUDS_VANILLA

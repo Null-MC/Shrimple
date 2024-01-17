@@ -247,8 +247,9 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 
-/* RENDERTARGETS: 10 */
-layout(location = 0) out vec4 outVL;
+/* RENDERTARGETS: 8,10 */
+layout(location = 0) out vec3 outScatter;
+layout(location = 1) out vec3 outTransmit;
 
 void main() {
     //ivec2 iTex = ivec2(gl_FragCoord.xy / viewSize + 0.5);
@@ -282,7 +283,8 @@ void main() {
         }
     #endif
 
-    vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 scatterFinal = vec3(0.0);
+    vec3 transmitFinal = vec3(1.0);
 
     if (depthTransL < depthOpaqueL) {
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
@@ -307,16 +309,13 @@ void main() {
             #endif
         #endif
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-        #endif
+        // #ifndef IRIS_FEATURE_SSBO
+        //     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        // #endif
 
         float distOpaque = length(localPosOpaque);
         float distTranslucent = length(localPosTranslucent);
         vec3 localViewDir = normalize(localPosOpaque);
-
-        //float d = clamp(distOpaque * 0.05, 0.02, 0.5);
-        //float endDist = clamp(distOpaque - 0.4 * d, near, far);
 
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
             bool isWater = false;
@@ -348,15 +347,18 @@ void main() {
                 if (isEyeInWater != 1 && isWater) hasVl = true;
             #endif
 
-            if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, distNear, distFar, distTranslucent, isWater);
+            if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, distNear, distFar, distTranslucent, isWater);
         #endif
 
         #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
             if (isEyeInWater == 1) {
-                final = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                vec4 scatterTransmit = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                scatterFinal += scatterTransmit.rgb * transmitFinal;
+                transmitFinal *= scatterTransmit.a;
             }
         #endif
     }
 
-    outVL = final;
+    outScatter = scatterFinal;
+    outTransmit = transmitFinal;
 }

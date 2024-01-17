@@ -140,7 +140,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
         reflectF = reflection.a;
         reflectDepth = reflection.z;
-    // return col;
+    return col;
 
         if (reflection.z < 1.0 && reflection.a > 0.0) {
             reflectClipPos = reflection.xyz * 2.0 - 1.0;
@@ -262,6 +262,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
         }
     #else
+        #ifdef WORLD_SKY_ENABLED
+            vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        #endif
+
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {
                 // const float WaterAmbientF = 0.0;
@@ -269,8 +273,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 // vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
                 // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, WaterScatterF, WaterAbsorbF);
                 
-                const float WaterAmbientF = 0.0;
-
                 float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
                 #ifdef WORLD_SKY_ENABLED
@@ -279,7 +281,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 
                 eyeSkyLightF += 0.02;
 
-                vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
+                vec3 vlLight = vec3(phaseIso + WaterAmbientF);
+
+                #ifdef WORLD_SKY_ENABLED
+                    vlLight *= skyLightColor * eyeSkyLightF;
+                #endif
                 // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
                 vec3 scatterFinal = vec3(0.0);
@@ -302,8 +308,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 float reflectFogDist = reflectDist;
 
                 #ifdef WORLD_SKY_ENABLED
-                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-
                     vlLight *= skyLightColor * pow5(skyLight);
 
                     reflectFogDist = min(reflectFogDist, farMax);

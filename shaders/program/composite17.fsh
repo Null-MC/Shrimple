@@ -10,7 +10,7 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
-//uniform sampler2D BUFFER_VL;
+//uniform sampler2D BUFFER_VL_SCATTER;
 //uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 
@@ -255,27 +255,17 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 
-/* RENDERTARGETS: 10 */
-layout(location = 0) out vec4 outVL;
+/* RENDERTARGETS: 8,10 */
+layout(location = 0) out vec3 outScatter;
+layout(location = 1) out vec3 outTransmit;
 
 // TODO: This might blow up in non-overworld worlds! add bypass?
 
 void main() {
     ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
     float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
-    // float depthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-
-    // mat4 projectionInv = gbufferProjectionInverse;
-
-    // #ifdef DISTANT_HORIZONS
-    //     if (depthTrans >= 1.0 || (depthTrans == depthOpaque && isEyeInWater != 1)) {
-    //         depthTrans = texelFetch(dhDepthTex, depthCoord, 0).r;
-    //         projectionInv = dhProjectionInverse;
-    //     }
-    // #endif
 
     float farPlane = far * 4.0;
-    // float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
     mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
@@ -289,14 +279,6 @@ void main() {
             //depthTransL = dhDepthTransL;
             projectionInvTrans = dhProjectionInverse;
         }
-
-        // float dhDepthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
-        // float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
-
-        // if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
-        //     depthOpaque = dhDepthOpaque;
-        //     depthOpaqueL = dhDepthOpaqueL;
-        // }
     #endif
 
     vec3 clipPos = vec3(texcoord, depthTrans) * 2.0 - 1.0;
@@ -313,22 +295,9 @@ void main() {
         #endif
     #endif
 
-    // if (isDepthDh) {
-    //     vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
-    //     localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
-    // }
-    // else {
-    //     #ifndef IRIS_FEATURE_SSBO
-    //         vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-    //         localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-    //     #else
-    //         localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
-    //     #endif
-    // }
-
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-    #endif
+    // #ifndef IRIS_FEATURE_SSBO
+    //     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+    // #endif
 
     vec3 localViewDir = normalize(localPos);
 
@@ -348,34 +317,17 @@ void main() {
 
     float viewDist = length(localPos);
 
-    //float d = clamp(viewDist * 0.05, 0.02, 0.5);
-    //vec3 endPos = localPos + localNormal * d;
-    //float endDist = clamp(length(endPos) - 0.4 * d, near, far);
-
     float farMax = far - 0.002;
     #ifdef DISTANT_HORIZONS
         farMax = 0.5 * dhFarPlane - 0.1;
     #endif
 
-    //float farMax = far;//min(shadowDistance, far);
     float farDist = clamp(viewDist, near, farMax);
-    //if (depthTrans >= 1.0) farDist = SkyFar;
 
-    vec4 final = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 scatterFinal = vec3(0.0);
+    vec3 transmitFinal = vec3(1.0);
 
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            // if (depthTrans >= 0.9999) {
-            //     // vec3 cloudNear, cloudFar;
-            //     // GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
-
-            //     // farDist = length(cloudFar);
-            //     // if (farDist < EPSILON) farDist = SkyFar;
-            //     // else farDist = min(farDist, SkyFar);
-            //     farDist = SkyFar;
-            // }
-        #endif
-    
         bool hasVl = false;
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     hasVl = true;
@@ -387,7 +339,7 @@ void main() {
             if (isEyeInWater == 1) hasVl = true;
         #endif
 
-        if (hasVl) final = GetVolumetricLighting(localViewDir, localSunDirection, near, farDist, viewDist, isWater);
+        if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
     #endif
 
     #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
@@ -438,10 +390,10 @@ void main() {
             #endif
 
             if (cloudDistFar > cloudDistNear) {
-                vec4 scatterTransmit = _TraceClouds(cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
 
-                final.rgb += scatterTransmit.rgb * final.a;
-                final.a *= scatterTransmit.a;
+                // scatterFinal += scatterTransmit.rgb * transmitFinal;
+                // transmitFinal *= scatterTransmit.a;
             }
 
             // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
@@ -464,5 +416,6 @@ void main() {
         #endif
     #endif
 
-    outVL = final;
+    outScatter = scatterFinal;
+    outTransmit = transmitFinal;
 }

@@ -1,4 +1,4 @@
-vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D blendSampler, const in vec2 depthTexSize, const in float depthL) {
+void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
     const float bufferScaleInv = rcp(exp2(VOLUMETRIC_RES));
     const vec2 g_sigma = vec2(3.0, 2.0);
     const float c_halfSamplesX = 2.0;
@@ -12,14 +12,15 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
         const float _offset = 1.0001;
     #endif
 
-    vec2 blendTexSize = viewSize * bufferScaleInv;
-
-    float total = 0.0;
-    vec4 accum = vec4(0.0);
-
-    vec2 blendPixelSize = rcp(blendTexSize);
-    vec2 depthPixelSize = rcp(depthTexSize);
+    vec2 srcTexSize = viewSize * bufferScaleInv;
     float farPlane = far * 4.0;
+
+    vec3 scatterFinal = vec3(0.0);
+    vec3 transmitFinal = vec3(0.0);
+    float total = 0.0;
+
+    // vec2 srcPixelSize = rcp(srcTexSize);
+    // vec2 depthPixelSize = rcp(viewSize);
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.x, iy);
@@ -27,10 +28,11 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
 
-            ivec2 texBlend = ivec2(texcoord * blendTexSize) + ivec2(ix, iy);
-            vec4 sampleValue = texelFetch(blendSampler, texBlend, 0);
+            ivec2 srcCoord = ivec2(texcoord * srcTexSize) + ivec2(ix, iy);
+            vec3 sampleScatter = texelFetch(BUFFER_VL_SCATTER, srcCoord, 0).rgb;
+            vec3 sampleTransmit = texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
 
-            ivec2 depthCoord = ivec2(texBlend / blendTexSize * depthTexSize + _offset);
+            ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset);
 
             #ifdef RENDER_OPAQUE_POST_VL
                 float sampleDepth = texelFetch(depthtex1, depthCoord, 0).r;
@@ -58,11 +60,16 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
             
             float weight = fx*fy*fv;
-            accum += weight * sampleValue;
+            scatterFinal += weight * sampleScatter;
+            transmitFinal += weight * sampleTransmit;
             total += weight;
         }
     }
     
-    if (total < 0.0002) return vec4(0.0, 0.0, 0.0, 1.0);
-    return accum / max(total, EPSILON);
+    if (total > 0.0002) {
+        total = max(total, EPSILON);
+        scatterFinal /= total;
+        transmitFinal /= total;
+        final = final * transmitFinal + scatterFinal;
+    }
 }

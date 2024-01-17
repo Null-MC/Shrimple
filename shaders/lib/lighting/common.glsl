@@ -47,6 +47,7 @@ vec4 BasicVertex() {
                     water_waveHeight(cameraPosition.xz + originPos.xz, vOut.lmcoord.y, time, uvOffset);
                     uvOffset *= 0.5;
                     pos.xz += uvOffset;
+                    pos.y -= (1.0/16.0);
                 }
 
                 vec2 _o;

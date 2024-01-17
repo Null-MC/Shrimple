@@ -1,7 +1,7 @@
 struct VolumetricPhaseFactors {
-    vec3  Ambient;
+    vec3  AmbientF;
     vec3  ScatterF;
-    float ExtinctF;
+    vec3 AbsorbF;
     float Direction;
     float Forward;
     float Back;
@@ -18,7 +18,7 @@ struct VolumetricPhaseFactors {
     VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(
         vlWaterAmbient,
         WaterScatterF,
-        rcp(waterDensitySmooth),
+        WaterAbsorbF,
         0.074, 0.924, -0.183);
 #endif
 
@@ -29,23 +29,26 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.Forward = 0.78;
     result.Direction = 0.42;
 
-    result.Ambient = vec3(AirAmbientF);
+    result.AmbientF = vec3(AirAmbientF);
     result.ScatterF = vec3(AirScatterF);
-    result.ExtinctF = AirExtinctF;
+    result.AbsorbF = vec3(AirExtinctF);
 
     #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
         float skyLightF = eyeBrightnessSmooth.y / 240.0;
-        result.Ambient *= _pow2(skyLightF);
+        result.AmbientF *= _pow2(skyLightF);
     #endif
 
     return result;
 }
 
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
+void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
     float localRayLength = max(farDist - nearDist, 0.0);
-    if (localRayLength < EPSILON) return vec4(0.0, 0.0, 0.0, 1.0);
+    if (localRayLength < EPSILON) {
+        // return vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
 
     #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if WATER_DEPTH_LAYERS > 1
@@ -109,12 +112,16 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         #endif
         
         #ifndef IRIS_FEATURE_SSBO
+        #endif
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-            vec3 WorldSkyLightColor = GetSkyLightColor(sunDir);
+            vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 
         // #if SKY_TYPE == SKY_TYPE_CUSTOM
-        //     vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(sunDir.y);
+        //     vec3 skyLightColor = 0.5 + 0.5 * GetCustomSkyFogColor(localSunDirection.y);
         // #else
         //     vec3 skyLightColor = RGBToLinear(fogColor);
         // #endif
@@ -127,7 +134,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-        //skyLightColor *= smoothstep(0.0, 0.1, abs(sunDir.y));
+        //skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
             //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
@@ -169,8 +176,8 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         GetAllWaterDepths(uvIndex, waterDepth);
     #endif
 
-    float transmittance = 1.0;
-    vec3 scattering = vec3(0.0);
+    // float transmittance = 1.0;
+    // vec3 scattering = vec3(0.0);
 
     for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
         // if (i == VOLUMETRIC_SAMPLES) {
@@ -221,9 +228,9 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
             if (isWater) sampleDensity = WaterDensityF;
         #endif
 
-        float sampleExtinction = phaseF.ExtinctF;
+        vec3 sampleExtinction = phaseF.AbsorbF;
         vec3 sampleScattering = phaseF.ScatterF;
-        vec3 sampleAmbient = phaseF.Ambient;
+        vec3 sampleAmbient = phaseF.AmbientF;
         vec3 sampleLit = vec3(0.0);
 
         // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
@@ -240,7 +247,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         // #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-            sampleAmbient = isWater ? phaseWater.Ambient : phaseAir.Ambient;
+            sampleAmbient = isWater ? phaseWater.AmbientF : phaseAir.AmbientF;
         #else
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 if (isEyeInWater == 1)
@@ -266,7 +273,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                         sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
                         sampleScattering = mix(sampleScattering, vec3(AirScatterRainF), cloudUnder);
-                        sampleExtinction = mix(sampleExtinction, AirExtinctRainF, cloudUnder);
+                        sampleExtinction = mix(sampleExtinction, vec3(AirExtinctRainF), cloudUnder);
                     }
 
                     vec3 cloudPos = traceLocalPos + cloudOffset;
@@ -276,7 +283,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
                         sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
                         sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleCloudF);
-                        sampleExtinction = mix(sampleExtinction, CloudAbsorbF, sampleCloudF);
+                        sampleExtinction = mix(sampleExtinction, CloudAbsorbColor, sampleCloudF);
                         sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleCloudF);
                         samplePhase = mix(samplePhase, phaseCloud, sampleCloudF);
                     }
@@ -296,7 +303,7 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
 
             sampleDensity = smokeF * SmokeDensityF;
             sampleScattering = vec3(SmokeScatterF);
-            sampleExtinction = SmokeAbsorbF;
+            sampleExtinction = vec3(SmokeAbsorbF);
             sampleAmbient = SmokeAmbientF * (0.25 + 0.75*fogColor);
             samplePhase = phaseIso;
         #endif
@@ -489,21 +496,19 @@ vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, con
         //vec3 lightF = (sampleLit + sampleAmbient);
         vec3 lightF = sampleLit + sampleAmbient;
 
-        vec4 scatterTransmit = ApplyScatteringTransmission(stepLength, lightF, sampleDensity, sampleScattering, sampleExtinction);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
-        scattering += scatterTransmit.rgb * transmittance;
-        transmittance *= scatterTransmit.a;
+        // scatterFinal += scatterTransmit.rgb * transmitFinal;
+        // transmitFinal *= scatterTransmit.a;
     }
-
-    return vec4(scattering, transmittance);
 }
 
-vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in float distTrans) {
-    bool isWater = false;
+// vec4 GetVolumetricLighting(const in vec3 localViewDir, const in vec3 sunDir, const in float nearDist, const in float farDist, const in float distTrans) {
+//     bool isWater = false;
     
-    #if defined WORLD_WATER_ENABLED && defined RENDER_DEFERRED && (!defined MATERIAL_REFRACT_ENABLED || (defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED))
-        if (isEyeInWater == 1) isWater = true;
-    #endif
+//     #if defined WORLD_WATER_ENABLED && defined RENDER_DEFERRED && (!defined MATERIAL_REFRACT_ENABLED || (defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED))
+//         if (isEyeInWater == 1) isWater = true;
+//     #endif
 
-    return GetVolumetricLighting(localViewDir, sunDir, nearDist, farDist, distTrans, isWater);
-}
+//     return GetVolumetricLighting(localViewDir, sunDir, nearDist, farDist, distTrans, isWater);
+// }

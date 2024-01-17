@@ -28,14 +28,14 @@ vec4 ApplyScatteringTransmission(const in float traceDist, const in vec3 inScatt
     return vec4(lightIntegral, transmittance);
 }
 
-// void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFinal, const in float traceDist, const in vec3 inScattering, const in float density, const in vec3 scatterF, const in vec3 extinctF) {
-//     vec3 outScattering = scatterF * density;
-//     vec3 lightIntegral = inScattering * outScattering * traceDist;
-//     vec3 transmittance = exp(-traceDist * extinctF * density);
+void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFinal, const in float traceDist, const in vec3 inScattering, const in float density, const in vec3 scatterF, const in vec3 extinctF) {
+    vec3 outScattering = scatterF * density;
+    vec3 lightIntegral = inScattering * outScattering * traceDist;
+    vec3 transmittance = exp(-traceDist * extinctF * density);
 
-//     scatterFinal += lightIntegral * transmitFinal;
-//     transmitFinal *= transmittance;
-// }
+    scatterFinal += lightIntegral * transmitFinal;
+    transmitFinal *= transmittance;
+}
 
 vec4 ApplyScatteringTransmission(const in float traceDist, const in vec3 inScattering, const in float density, const in float scatterF, const in float extinctF) {
     return ApplyScatteringTransmission(traceDist, inScattering, density, vec3(scatterF), extinctF);
