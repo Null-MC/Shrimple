@@ -28,6 +28,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
+uniform float farPlane;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
@@ -68,20 +69,20 @@ void main() {
     // float weatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, uv, 0).r;
     // depth = min(depth, weatherDepth);
 
-    float _near = near;
-    float _far = far * 4.0;
+    float depthL = linearizeDepthFast(depth, near, farPlane);
+
     mat4 projectionInv = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        if (depth >= 1.0) {
-            depth = texelFetch(dhDepthTex, uv, 0).r;
+        float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+        if (dhDepthL < depthL || depth >= 1.0) {
+            depth = dhDepth;
+            depthL = dhDepthL;
             projectionInv = dhProjectionInverse;
-            _near = dhNearPlane;
-            _far = dhFarPlane;
         }
     #endif
-
-    float depthL = linearizeDepthFast(depth, _near, _far);
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
     vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));

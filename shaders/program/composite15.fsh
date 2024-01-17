@@ -58,6 +58,7 @@ in vec2 texcoord;
     uniform vec2 pixelSize;
     uniform float near;
     uniform float far;
+    uniform float farPlane;
 
     uniform int fogShape;
     uniform vec3 fogColor;
@@ -233,7 +234,7 @@ layout(location = 0) out vec4 outFinal;
         // float depthTransL = linearizeDepthFast(depthTrans, _nearTrans, _farTrans);
         // float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
 
-        float farPlane = far * 4.0;
+        // float farPlane = far * 4.0;
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
         float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
         mat4 projectionInvOpaque = gbufferProjectionInverse;

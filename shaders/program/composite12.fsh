@@ -63,6 +63,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
 uniform float far;
+uniform float farPlane;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -182,6 +183,7 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
+#include "/lib/utility/temporal_offset.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -281,95 +283,11 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/basic.glsl"
+    #include "/lib/sampling/light_filter.glsl"
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #include "/lib/lighting/basic_hand.glsl"
-#endif
-
-#include "/lib/utility/temporal_offset.glsl"
-
-
-#if LIGHTING_MODE == DYN_LIGHT_TRACED
-    void BilateralGaussianBlur(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL, const in vec3 g_sigma) {
-        const float c_halfSamplesX = 2.0;
-        const float c_halfSamplesY = 2.0;
-
-        const float lightBufferScale = exp2(LIGHTING_TRACE_RES);
-        const float lightBufferScaleInv = rcp(lightBufferScale);
-
-        vec2 lightBufferSize = viewSize * lightBufferScaleInv;
-        vec2 blendPixelSize = rcp(lightBufferSize);
-
-        float total = 0.0;
-        vec3 accumDiffuse = vec3(0.0);
-        vec3 accumSpecular = vec3(0.0);
-
-        bool hasNormal = any(greaterThan(normal, EPSILON3));
-        
-        for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-            float fy = Gaussian(g_sigma.y, iy);
-
-            for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
-                float fx = Gaussian(g_sigma.x, ix);
-
-                vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
-                vec3 sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, sampleBlendTex, 0).rgb;
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    vec4 sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, sampleBlendTex, 0);
-                    sampleSpecular.rgb *= 1.0 - min(4.0 * abs(sampleSpecular.a - roughL), 1.0);
-                #endif
-
-                #if LIGHTING_TRACE_RES == 2
-                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 4 * pixelSize;
-                #elif LIGHTING_TRACE_RES == 1
-                    ivec2 sampleTex = GetTemporalSampleCoord(ivec2(gl_FragCoord.xy+vec2(ix, iy)));// * 2 * pixelSize;
-                #else
-                    ivec2 sampleTex = ivec2(gl_FragCoord.xy + vec2(ix, iy));
-                #endif
-
-                float sampleDepth = textureLod(depthtex1, sampleBlendTex, 0).r;
-                //float sampleDepth = texelFetch(depthtex1, sampleTex, 0).r;
-
-                sampleDepth = linearizeDepthFast(sampleDepth, near, far);
-                
-                float normalWeight = 1.0;
-                // if (hasNormal) {
-                //     //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, sampleBlendTex, 0).rgb;
-                //     uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, sampleTex, 0).r;
-                //     vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
-
-                //     if (any(greaterThan(sampleNormal, EPSILON3))) {
-                //         sampleNormal = normalize(sampleNormal * 2.0 - 1.0);
-
-                //         normalWeight = max(dot(normal, sampleNormal), 0.0);
-                //     }
-                // }
-                
-                float fv = Gaussian(g_sigma.z, abs(sampleDepth - linearDepth) + 16.0*(1.0 - normalWeight));
-                
-                float weight = fx*fy*fv;
-                accumDiffuse += weight * sampleDiffuse;
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    accumSpecular += weight * sampleSpecular.rgb;
-                #endif
-
-                total += weight;
-            }
-        }
-        
-        //total = max(total, EPSILON);
-        if (total > EPSILON) {
-            blockDiffuse = accumDiffuse / total;
-            blockSpecular = accumSpecular / total;
-        }
-        else {
-            blockDiffuse = vec3(0.0);
-            blockSpecular = vec3(0.0);
-        }
-    }
 #endif
 
 
@@ -394,7 +312,6 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        float farPlane = far * 4.0;
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
         float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
         mat4 projectionInvOpaque = gbufferProjectionInverse;
@@ -621,8 +538,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleSpecular = vec3(0.0);
 
                     #ifdef LIGHTING_TRACE_FILTER
-                        const vec3 lightSigma = vec3(2.6, 2.6, 0.2);
-                        BilateralGaussianBlur(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL, lightSigma);
+                        light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
                     #elif LIGHTING_TRACE_RES == 0
                         sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 

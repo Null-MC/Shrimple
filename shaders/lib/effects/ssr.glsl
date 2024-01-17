@@ -2,8 +2,6 @@ const int SSR_LodMin = 0;
 
 
 float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-    float farPlane = far * 4.0;
-
     if (level == 0) {
         ivec2 uv = ivec2(texcoord * viewSize);
         float depth = texelFetch(depthtex, uv, 0).r;
@@ -25,11 +23,12 @@ float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, cons
     else {
         vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
 
+        float _far = farPlane;
         #ifdef DISTANT_HORIZONS
-            farPlane = dhFarPlane;
+            _far = dhFarPlane;
         #endif
 
-        return texelFetch(texDepthNear, ivec2(uv), 0).r * farPlane;
+        return texelFetch(texDepthNear, ivec2(uv), 0).r * _far;
     }
 }
 
@@ -47,10 +46,13 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     #endif
 
     #ifdef DISTANT_HORIZONS
-        float farPlane = dhFarPlane;
+        float _far = dhFarPlane;
     #else
-        float farPlane = far * 4.0;
+        float _far = farPlane;
     #endif
+
+    float startDepthLinear = linearizeDepthFast(clipPos.z, near, _far);
+    //ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
         vec2 origin = clipPos.xy * viewSize + screenRay.xy * dither;
@@ -79,9 +81,6 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     vec3 lastTracePos = clipPos + screenRay * (1.0 + dither);
     vec3 lastVisPos = lastTracePos;
-
-    float startDepthLinear = linearizeDepthFast(clipPos.z, near, farPlane);
-    ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
@@ -152,7 +151,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
-        float traceDepthL = linearizeDepthFast(tracePos.z, near, farPlane);
+        float traceDepthL = linearizeDepthFast(tracePos.z, near, _far);
         //float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         float bias = 0.002;//0.1 * sampleDepthL;

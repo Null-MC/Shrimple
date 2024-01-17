@@ -22,7 +22,8 @@ uniform sampler2D depthtex0;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
-uniform float far;
+// uniform float far;
+uniform float farPlane;
 
 #ifdef DISTANT_HORIZONS
     uniform float dhNearPlane;
@@ -38,7 +39,6 @@ void copyToShared(const in ivec2 kernelPos, const in ivec2 depthPos, const in iv
     ivec2 sampleUV = clamp(depthPos + sampleOffset, ivec2(0), ivec2(viewSize) - 1);
     float depth = texelFetch(depthtex0, sampleUV, 0).r;
 
-    float farPlane = far * 4.0;
     float depthL = linearizeDepthFast(depth, near, farPlane);
 
     #ifdef DISTANT_HORIZONS

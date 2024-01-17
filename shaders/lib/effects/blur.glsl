@@ -109,18 +109,17 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
         //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
 
-        float sampleNear = near;
-        float sampleFar = far * 4.0;
+        float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
         #ifdef DISTANT_HORIZONS
-            if (sampleDepth >= 1.0) {
-                sampleDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
-                sampleNear = dhFarPlane;
-                sampleFar = dhFarPlane;
+            float dhDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+            float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+            if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
+                sampleDepth = dhDepth;
+                sampleDepthL = dhDepthL;
             }
         #endif
-
-        float sampleDepthL = linearizeDepthFast(sampleDepth, sampleNear, sampleFar);
 
         float sampleDistF = saturate((sampleDepthL - minDepth) / _far);
         // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF

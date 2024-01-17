@@ -13,7 +13,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     #endif
 
     vec2 srcTexSize = viewSize * bufferScaleInv;
-    float farPlane = far * 4.0;
+    ivec2 centerCoord = ivec2(texcoord * srcTexSize);
 
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(0.0);
@@ -28,7 +28,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
 
-            ivec2 srcCoord = ivec2(texcoord * srcTexSize) + ivec2(ix, iy);
+            ivec2 srcCoord = centerCoord + ivec2(ix, iy);
             vec3 sampleScatter = texelFetch(BUFFER_VL_SCATTER, srcCoord, 0).rgb;
             vec3 sampleTransmit = texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
 
@@ -44,9 +44,9 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
 
             #ifdef DISTANT_HORIZONS
                 #ifdef RENDER_OPAQUE_POST_VL
-                    float dhDepth = textureLod(dhDepthTex1, texcoord, 0).r;
+                    float dhDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
                 #else
-                    float dhDepth = textureLod(dhDepthTex, texcoord, 0).r;
+                    float dhDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
                 #endif
 
                 float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);

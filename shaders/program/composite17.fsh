@@ -63,6 +63,7 @@ uniform float viewHeight;
 uniform vec2 viewSize;
 uniform float near;
 uniform float far;
+uniform float farPlane;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -265,7 +266,6 @@ void main() {
     ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
     float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
 
-    float farPlane = far * 4.0;
     mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS

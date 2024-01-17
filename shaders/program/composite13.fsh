@@ -65,6 +65,7 @@ uniform float viewHeight;
 uniform vec2 viewSize;
 uniform float near;
 uniform float far;
+uniform float farPlane;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -257,7 +258,6 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
     float depthTrans = texelFetch(depthtex0, iTex, 0).r;
 
-    float farPlane = far * 4.0;
     float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
     float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
     mat4 projectionInvOpaque = gbufferProjectionInverse;

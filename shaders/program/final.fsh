@@ -47,11 +47,12 @@ uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int frameCounter;
+uniform float farPlane;
+uniform float far;
 
 #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
 	uniform mat4 gbufferProjectionInverse;
 	uniform int isEyeInWater;
-	uniform float far;
 #endif
 
 #if DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
@@ -60,8 +61,6 @@ uniform int frameCounter;
 	#ifdef DISTANT_HORIZONS
 		// uniform float dhNearPlane;
 		uniform float dhFarPlane;
-	#else
-		uniform float far;
 	#endif
 #endif
 
@@ -136,7 +135,7 @@ void main() {
 			#ifdef DISTANT_HORIZONS
 				//depth = linearizeDepthFast(depth, near, dhFarPlane) / (0.5*dhFarPlane);
 			#else
-				depth = linearizeDepthFast(depth, near, far * 4.0) / far;
+				depth = linearizeDepthFast(depth, near, farPlane) / far;
 			#endif
 
 			color = vec3(depth);

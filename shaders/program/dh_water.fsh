@@ -97,6 +97,7 @@ uniform int isEyeInWater;
 uniform vec3 skyColor;
 uniform float near;
 uniform float far;
+uniform float farPlane;
 
 uniform vec3 fogColor;
 uniform float fogDensity;
@@ -372,7 +373,7 @@ void main() {
     }
 
     float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-    float depthL = linearizeDepthFast(depth, near, far * 4.0);
+    float depthL = linearizeDepthFast(depth, near, farPlane);
     float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     if (depthL < depthDhL && depth < 1.0) {discard; return;}
 
