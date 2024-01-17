@@ -267,7 +267,7 @@ option.MATERIAL_SSS_STRENGTH=Strength
 suffix.MATERIAL_SSS_STRENGTH=%
 
 option.MATERIAL_SSS_SCATTER=Scattering
-option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can scatter outward.
+option.MATERIAL_SSS_SCATTER.comment=The maximum distance [in blocks] that SSS can scatter outward.
 
 option.MATERIAL_SSS_MAXDIST=Max Distance
 option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can penetrate through blocks.
