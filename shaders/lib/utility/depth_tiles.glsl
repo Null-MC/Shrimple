@@ -14,7 +14,7 @@ void GetDepthTileBounds(const in vec2 viewSize, const in int index, out ivec2 ti
         //tilePos += ivec2(16, 1) * (index - 1) + ivec2(0, 16);
     }
 
-    tileSize = ivec2(ceil(_size));
+    tileSize = ivec2(_size + 0.5);
 }
 
 vec2 GetDepthTileCoord(const in vec2 viewSize, const in vec2 texcoord, const in int index) {
