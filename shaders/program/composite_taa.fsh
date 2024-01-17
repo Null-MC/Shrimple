@@ -195,18 +195,18 @@ void getNeighborDepthRange(const in vec2 texcoord, out float depthMinL, out floa
             //float sampleDepth = texelFetch(depthtex1, ivec2(sampleCoord * viewSize), 0).r;
             float sampleDepthL;
 
-            float _near = near;
-            float _far = far * 4.0;
+            float nearPlane = near;
+            float farPlane = far * 4.0;
 
             #ifdef DISTANT_HORIZONS
                 if (sampleDepth >= 1.0) {
                     sampleDepth = textureLod(dhDepthTex1, sampleCoord, 0).r;
-                    _near = dhNearPlane;
-                    _far = dhFarPlane;
+                    nearPlane = dhNearPlane;
+                    farPlane = dhFarPlane;
                 }
             #endif
 
-            sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
+            sampleDepthL = linearizeDepthFast(sampleDepth, nearPlane, farPlane);
 
             depthMinL = min(depthMinL, sampleDepthL);
             depthMaxL = max(depthMaxL, sampleDepthL);
@@ -322,14 +322,14 @@ void main() {
     }
 
     bool isDepthDh = false;
-    float _near = near;
-    float _far = far * 4.0;
+    float nearPlane = near;
+    float farPlane = far * 4.0;
 
     #ifdef DISTANT_HORIZONS
         if (depthNow >= 1.0) {
             depthNow = textureLod(dhDepthTex1, uvNowJitter, 0).r;
-            _near = dhNearPlane;
-            _far = dhFarPlane;
+            nearPlane = dhNearPlane;
+            farPlane = dhFarPlane;
             isDepthDh = true;
         }
     #endif
@@ -339,11 +339,11 @@ void main() {
 
     float depthMinL, depthMaxL;
     getNeighborDepthRange(uvNowJitter, depthMinL, depthMaxL);
-    // float depthMinL = linearizeDepthFast(depthMin, _near, _far);
-    // float depthMaxL = linearizeDepthFast(depthMax, _near, _far);
+    // float depthMinL = linearizeDepthFast(depthMin, nearPlane, farPlane);
+    // float depthMaxL = linearizeDepthFast(depthMax, nearPlane, farPlane);
 
     vec3 clipPosRepro = getReprojectedClipPos(uvNow, depthNow, velocity.xyz, isDepthDh);
-    float reproDepthL = linearizeDepthFast(clipPosRepro.z, _near, _far);
+    float reproDepthL = linearizeDepthFast(clipPosRepro.z, nearPlane, farPlane);
 
     vec2 uvPrev = clipPosRepro.xy;
     //float depthPrevL, depthDiff;
@@ -351,13 +351,13 @@ void main() {
     float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
     //depthDiff = abs(depthPrevL - depthNowL);
 
-    float depthNowL = linearizeDepthFast(depthNow, _near, _far);
-    // depthNowL = clamp(depthNowL, _near, _far);
+    float depthNowL = linearizeDepthFast(depthNow, nearPlane, farPlane);
+    // depthNowL = clamp(depthNowL, nearPlane, farPlane);
 
     float reproDepthMin = reproDepthL + (depthMinL - depthNowL);
     float reproDepthMax = reproDepthL + (depthMaxL - depthNowL);
-    // reproDepthMin = clamp(reproDepthMin, _near, _far);
-    // reproDepthMax = clamp(reproDepthMax, _near, _far);
+    // reproDepthMin = clamp(reproDepthMin, nearPlane, farPlane);
+    // reproDepthMax = clamp(reproDepthMax, nearPlane, farPlane);
 
     #ifdef EFFECT_TAA_SHARPEN
         vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);

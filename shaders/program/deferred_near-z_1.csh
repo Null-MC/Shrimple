@@ -25,8 +25,6 @@ uniform float near;
 uniform float far;
 
 #ifdef DISTANT_HORIZONS
-    //uniform mat4 gbufferProjectionInverse;
-    //uniform mat4 dhProjectionInverse;
     uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif

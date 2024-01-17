@@ -1,54 +1,42 @@
 const int SSR_LodMin = 0;
 
 
-//#if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
-    float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
-        // float depth = 1.0;
+float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, const in int level) {
+    float farPlane = far * 4.0;
 
-        if (level == 0) {
-            ivec2 uv = ivec2(texcoord * viewSize);
-            float depth = texelFetch(depthtex, uv, 0).r;
+    if (level == 0) {
+        ivec2 uv = ivec2(texcoord * viewSize);
+        float depth = texelFetch(depthtex, uv, 0).r;
 
-            float farPlane = far * 4.0;
-            float depthL = linearizeDepthFast(depth, near, farPlane);
+        float depthL = linearizeDepthFast(depth, near, farPlane);
 
-            #ifdef DISTANT_HORIZONS
-                float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
-                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        #ifdef DISTANT_HORIZONS
+            float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
+            float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-                if (dhDepthL < depthL || depth >= 1.0) {
-                    depth = dhDepth;
-                    depthL = dhDepthL;
-                }
-            #endif
+            if (dhDepthL < depthL || depth >= 1.0) {
+                depth = dhDepth;
+                depthL = dhDepthL;
+            }
+        #endif
 
-            return depthL;
-        }
-        else {
-            vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
-            //vec2 nearViewSize = vec2(viewWidth * 0.5, viewHeight * 0.75);
-            //return textureLod(texDepthNear, (uv + 1.0) / nearViewSize, 0).r;
-
-            float _far = far * 4.0;
-            #ifdef DISTANT_HORIZONS
-                _far = dhFarPlane;
-            #endif
-
-            return texelFetch(texDepthNear, ivec2(uv), 0).r * _far;
-            //return imageLoad(imgDepthNear, uv).r;
-        }
-
-        //return depth;
+        return depthL;
     }
-//#endif
+    else {
+        vec2 uv = GetDepthTileCoord(viewSize, texcoord, level - 1);
+
+        #ifdef DISTANT_HORIZONS
+            farPlane = dhFarPlane;
+        #endif
+
+        return texelFetch(texDepthNear, ivec2(uv), 0).r * farPlane;
+    }
+}
 
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
     float screenRayLength = length(clipRay.xy);
     if (screenRayLength < EPSILON) return vec4(clipPos, 1.0);
-
-    //vec2 viewSize = vec2(viewWidth, viewHeight);
-    //vec2 ssrPixelSize = rcp(viewSize);
 
     vec3 screenRay = clipRay / screenRayLength;
 
@@ -58,16 +46,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         float dither = InterleavedGradientNoise();
     #endif
 
-    // #ifndef MATERIAL_REFLECT_HIZ
-    //     dither += 2.0;
-    // #endif
-
-    float _near = near;
     #ifdef DISTANT_HORIZONS
-        float _far = dhFarPlane;
+        float farPlane = dhFarPlane;
     #else
-        // float _near = near;
-        float _far = far * 4.0;
+        float farPlane = far * 4.0;
     #endif
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
@@ -98,7 +80,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     vec3 lastTracePos = clipPos + screenRay * (1.0 + dither);
     vec3 lastVisPos = lastTracePos;
 
-    float startDepthLinear = linearizeDepthFast(clipPos.z, _near, _far);
+    float startDepthLinear = linearizeDepthFast(clipPos.z, near, farPlane);
     ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
 
@@ -170,7 +152,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
-        float traceDepthL = linearizeDepthFast(tracePos.z, _near, _far);
+        float traceDepthL = linearizeDepthFast(tracePos.z, near, farPlane);
         //float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         float bias = 0.002;//0.1 * sampleDepthL;

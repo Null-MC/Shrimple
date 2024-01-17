@@ -121,10 +121,10 @@ vec3 water_waveNormal(vec2 worldPos, const in float skyLight, const in float vie
 
     normal = normalize(normal);
 
-    //float strength = 1.0 / (0.1*viewDist + 1.0);
+    float strength = 16.0 / (0.2*viewDist + 16.0);
     //float strength = smoothstep(0.0, 160.0, viewDist);
-    float strength = min(viewDist / 800.0, 1.0);
-    normal = mix(normal, vec3(0.0, 0.0, 1.0), strength);
+    // float strength = min(viewDist / 800.0, 1.0);
+    normal = mix(vec3(0.0, 0.0, 1.0), normal, strength);
     normal = normalize(normal);
 
     return normal;

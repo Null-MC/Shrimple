@@ -8,28 +8,13 @@
 in VertexData {
     vec4 color;
     vec2 lmcoord;
-    // vec2 texcoord;
     vec3 localPos;
-    // vec2 localCoord;
     vec3 localNormal;
-    // vec4 localTangent;
-    //float tangentW;
-
-    // flat int blockId;
-    // flat mat2 atlasBounds;
 
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         vec3 physics_localPosition;
         float physics_localWaviness;
     #endif
-
-    // #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
-    //     vec3 viewPos_T;
-
-    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-    //         vec3 lightPos_T;
-    //     #endif
-    // #endif
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED
         vec3 cloudPos;
@@ -48,14 +33,6 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
-
-// #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
-//     uniform sampler2D normals;
-// #endif
-
-// #if MATERIAL_EMISSION != EMISSION_NONE || MATERIAL_SSS == SSS_LABPBR || MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR || MATERIAL_POROSITY != POROSITY_NONE
-//     uniform sampler2D specular;
-// #endif
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform sampler2D depthtex1;
@@ -85,10 +62,6 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-// #if defined IS_IRIS && (defined SHADOW_CLOUD_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined WORLD_SKY_ENABLED))
-//     uniform sampler2D TEX_CLOUDS;
-// #endif
-
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform sampler2D texDepthNear;
 #endif
@@ -109,8 +82,6 @@ uniform sampler2D noisetex;
 #ifdef DISTANT_HORIZONS
     uniform sampler2D depthtex0;
 #endif
-
-// uniform ivec2 atlasSize;
 
 uniform int worldTime;
 uniform int frameCounter;
@@ -140,7 +111,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferProjectionInverse;
-    //uniform float viewHeight;
     uniform float aspectRatio;
     uniform vec2 pixelSize;
 #endif
@@ -172,8 +142,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    // uniform vec3 shadowLightPosition;
-
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
         uniform mat4 shadowProjection;
     #endif
@@ -188,10 +156,6 @@ uniform int heldBlockLightValue2;
     uniform bool isSpectator;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
-
-    // #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
-    //     uniform float cloudTime;
-    // #endif
 #endif
 
 #ifdef VL_BUFFER_ENABLED
@@ -202,10 +166,6 @@ uniform int heldBlockLightValue2;
     uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
-
-// #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-//     uniform float alphaTestRef;
-// #endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -226,13 +186,11 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
-// #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
-// #include "/lib/utility/tbn.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -240,10 +198,6 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/scatter_transmit.glsl"
 #include "/lib/lighting/hg.glsl"
-
-// #if AF_SAMPLES > 1
-//     #include "/lib/sampling/anisotropic.glsl"
-// #endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -290,8 +244,6 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lights.glsl"
 #include "/lib/lighting/fresnel.glsl"
-// #include "/lib/lighting/directional.glsl"
-// #include "/lib/lighting/voxel/block_light_map.glsl"
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
     #ifdef LIGHTING_FLICKER
@@ -321,21 +273,9 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sampling.glsl"
 #endif
 
-// #ifdef WORLD_SKY_ENABLED
-//     #include "/lib/world/sky.glsl"
-// #endif
-
-// #ifdef PARALLAX_ENABLED
-//     #include "/lib/sampling/linear.glsl"
-//     #include "/lib/material/parallax.glsl"
-// #endif
-
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
-// #include "/lib/material/emission.glsl"
-// #include "/lib/material/normalmap.glsl"
 // #include "/lib/material/specular.glsl"
-// #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
@@ -377,7 +317,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
 
     #ifdef VL_BUFFER_ENABLED
-        // #include "/lib/lighting/hg.glsl"
         #include "/lib/fog/fog_volume.glsl"
     #endif
 #endif
@@ -462,8 +401,6 @@ void main() {
         float oceanFoam = 0.0;
 
         if (isWater && abs(localNormal.y) > 0.5) {
-            // skipParallax = true;
-
             #ifdef PHYSICS_OCEAN
                 float waviness = max(vIn.physics_localWaviness, 0.02);
                 WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
@@ -474,13 +411,6 @@ void main() {
                 vec2 waterUvOffset;
                 texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
             #endif
-
-            // #if defined PHYSICS_OCEAN || WATER_WAVE_SIZE != WATER_WAVES_NONE
-            //     if (localNormal.y >= 1.0 - EPSILON) {
-            //         localCoord += waterUvOffset;
-            //         atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-            //     }
-            // #endif
         }
     #endif
 
@@ -509,39 +439,7 @@ void main() {
     //     #endif
     // #endif
 
-    // #ifdef PARALLAX_ENABLED
-    //     //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
-    //     //bool isMissingTangent = any(isnan(vLocalTangent));
-
-    //     //if (vBlockId == BLOCK_LAVA) skipParallax = true;
-
-    //     float texDepth = 1.0;
-    //     vec3 traceCoordDepth = vec3(1.0);
-    //     vec3 tanViewDir = normalize(vIn.viewPos_T);
-
-    //     if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
-    //         atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
-    //     }
-    // #endif
-
-    // vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
     vec4 color = vIn.color;
-
-    // float alphaThreshold = 0.1;//(1.5/255.0);
-
-    // if (isWater) {
-    //     alphaThreshold = -1.0;
-    //     // color.a = max(color.a, 0.02);
-    // }
-
-    // #ifdef MATERIAL_REFLECT_GLASS
-    //     if (vIn.blockId == BLOCK_GLASS || vIn.blockId == BLOCK_GLASS_PANE) alphaThreshold = -1.0;
-    // #endif
-
-    // if (color.a < alphaThreshold) {
-    //     discard;
-    //     return;
-    // }
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
@@ -557,23 +455,10 @@ void main() {
         }
     #endif
 
-    //vec3 albedo = RGBToLinear(color.rgb * vIn.color.rgb);
-    //vec3 albedo = RGBToLinear(color.rgb);
-    vec3 albedo = RGBToLinear(color.rgb);
-    // albedo = vec3(0.3, 0.6, 0.9);
-
-    float occlusion = 1.0;
-    // #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
-    //     //occlusion = RGBToLinear(glcolor.a);
-    //     occlusion = _pow2(vIn.color.a);
-    // #endif
-
     vec3 localViewDir = normalize(vIn.localPos);
+    vec3 albedo = RGBToLinear(color.rgb);
+    float occlusion = 1.0;
 
-    // float roughness, metal_f0;
-    // float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
-    // float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
-    // GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
     float roughness = 0.95;
     float metal_f0 = 0.04;
     const float sss = 0.0;
@@ -581,7 +466,6 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
             float distF = 16.0 / (viewDist + 16.0);
             float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
 
@@ -589,21 +473,6 @@ void main() {
             roughness = mix(waterRough, 0.50, oceanFoam);
         }
     #endif
-
-    // #ifdef MATERIAL_REFLECT_GLASS
-    //     if (vIn.blockId == BLOCK_GLASS || vIn.blockId == BLOCK_GLASS_PANE) {
-    //         if (color.a < (1.5/255.0)) {
-    //             metal_f0 = 0.04;
-    //             roughness = 0.08;
-    //         }
-
-    //         color.a = max(color.a, 0.2);
-    //     }
-    // #endif
-
-    // #ifdef TRANSLUCENT_SSS_ENABLED
-    //     sss = max(sss, 1.0 - color.a);
-    // #endif
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -638,30 +507,6 @@ void main() {
         }
     #endif
 
-    // #if MATERIAL_NORMALS != NORMALMAP_NONE
-    //     if (!isWater)
-    //         GetMaterialNormal(atlasCoord, dFdXY, texNormal);
-
-    //     #ifdef PARALLAX_ENABLED
-    //         if (!skipParallax) {
-    //             #if DISPLACE_MODE == DISPLACE_POM_SHARP
-    //                 float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
-
-    //                 if (depthDiff >= ParallaxSharpThreshold) {
-    //                     texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
-    //                 }
-    //             #endif
-
-    //             #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
-    //                 if (traceCoordDepth.z + EPSILON < 1.0) {
-    //                     vec3 tanLightDir = normalize(vIn.lightPos_T);
-    //                     shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
-    //                 }
-    //             #endif
-    //         }
-    //     #endif
-    // #endif
-
     // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
     //     #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
     //         // if (!isWater)
@@ -672,31 +517,6 @@ void main() {
     //                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
     //         #endif
     //     #endif
-    // #endif
-
-    // vec3 localTangent = normalize(vIn.localTangent.xyz);
-    // mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
-    // texNormal = matLocalTBN * texNormal;
-
-    // #if MATERIAL_NORMALS != NORMALMAP_NONE
-    //     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //         float skyTexNoL = max(dot(texNormal, localSkyLightDirection), 0.0);
-
-    //         #if MATERIAL_SSS != SSS_NONE
-    //             skyTexNoL = mix(skyTexNoL, 1.0, sss);
-    //         #endif
-
-    //         shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
-    //     #endif
-    // #endif
-
-    //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-
-    // #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == DYN_LIGHT_NONE) && defined DIRECTIONAL_LIGHTMAP
-    //     vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
-    //     //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-    //     vec3 viewPos = (gbufferModelView * vec4(vIn.localPos, 1.0)).xyz;
-    //     ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
     // #endif
 
     // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -747,16 +567,6 @@ void main() {
             vec3 diffuse, specular = vec3(0.0);
             GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
 
-            // #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //         float geoNoL = dot(localNormal, localSkyLightDirection);
-            //     #else
-            //         float geoNoL = 1.0;
-            //     #endif
-            
-            //     specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL) * _pow3(lmFinal.y);
-            // #endif
-
             const bool tir = false; // TODO: ?
             GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
 
@@ -782,11 +592,6 @@ void main() {
             vec3 skySpecular = vec3(0.0);
 
             #ifdef WORLD_SKY_ENABLED
-                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    const vec3 shadowPos = vec3(0.0);
-                #endif
-
-                // float shadowFade = getShadowFade(shadowPos);
                 GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
             #endif
 
