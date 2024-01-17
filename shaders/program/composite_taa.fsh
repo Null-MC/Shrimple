@@ -16,7 +16,7 @@ uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 
 #ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex1;
 #endif
 
 uniform vec3 cameraPosition;
@@ -47,7 +47,12 @@ uniform float far;
 #include "/lib/effects/taa.glsl"
 
 
-vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity, const in bool isDepthDh) {
+#ifdef DISTANT_HORIZONS
+vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity, const in bool isDepthDh)
+#else
+vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity, const in bool isDepthDh)
+#endif
+{
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
 
     #ifdef DISTANT_HORIZONS
@@ -191,11 +196,11 @@ void getNeighborDepthRange(const in vec2 texcoord, out float depthMinL, out floa
             float sampleDepthL;
 
             float _near = near;
-            float _far = far;
+            float _far = far * 4.0;
 
             #ifdef DISTANT_HORIZONS
                 if (sampleDepth >= 1.0) {
-                    sampleDepth = textureLod(dhDepthTex, sampleCoord, 0).r;
+                    sampleDepth = textureLod(dhDepthTex1, sampleCoord, 0).r;
                     _near = dhNearPlane;
                     _far = dhFarPlane;
                 }
@@ -318,11 +323,11 @@ void main() {
 
     bool isDepthDh = false;
     float _near = near;
-    float _far = far;
+    float _far = far * 4.0;
 
     #ifdef DISTANT_HORIZONS
         if (depthNow >= 1.0) {
-            depthNow = textureLod(dhDepthTex, uvNowJitter, 0).r;
+            depthNow = textureLod(dhDepthTex1, uvNowJitter, 0).r;
             _near = dhNearPlane;
             _far = dhFarPlane;
             isDepthDh = true;

@@ -19,6 +19,7 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
 
     vec2 blendPixelSize = rcp(blendTexSize);
     vec2 depthPixelSize = rcp(depthTexSize);
+    float farPlane = far * 4.0;
     
     for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
         float fy = Gaussian(g_sigma.x, iy);
@@ -36,42 +37,7 @@ vec4 BilateralGaussianDepthBlur_VL(const in vec2 texcoord, const in sampler2D bl
             #else
                 float sampleDepth = texelFetch(depthtex0, depthCoord, 0).r;
             #endif
-
-            // float _near = near;
-            // float _far = far * 4.0;
-
-            // #ifdef DISTANT_HORIZONS
-            //     #ifdef RENDER_OPAQUE_POST_VL
-            //         if (sampleDepth >= 1.0) {
-            //             sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
-            //             _near = dhNearPlane;
-            //             _far = dhFarPlane;
-            //         }
-            //     #else
-            //         float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-                    
-            //         if (sampleDepth >= 1.0 || sampleDepth == sampleDepthOpaque) {
-            //             sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
-            //             _near = dhNearPlane;
-            //             _far = dhFarPlane;
-            //         }
-            //     #endif
-            //     // float sampleDepthOpaque = texelFetch(depthtex1, depthCoord, 0).r;
-                
-            //     if (sampleDepth >= 1.0) {// || sampleDepth == sampleDepthOpaque) {
-            //         #ifdef RENDER_OPAQUE_POST_VL
-            //             sampleDepth = texelFetch(dhDepthTex1, depthCoord, 0).r;
-            //         #else
-            //             sampleDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
-            //         #endif
-            //         _near = dhNearPlane;
-            //         _far = dhFarPlane;
-            //     }
-            // #endif
-
-            // float sampleDepthL = linearizeDepthFast(sampleDepth, _near, _far);
             
-            float farPlane = far * 4.0;
             float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
