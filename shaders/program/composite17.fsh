@@ -158,7 +158,17 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_vars.glsl"
     #include "/lib/world/lightning.glsl"
+#endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+    
+    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+        #include "/lib/lighting/caustics.glsl"
+    #endif
+#endif
+
+#ifdef WORLD_SKY_ENABLED
     //#if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             #include "/lib/fog/fog_custom.glsl"
@@ -227,14 +237,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-    
-    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-        #include "/lib/lighting/caustics.glsl"
-    #endif
-#endif
-
 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY)
     #include "/lib/buffers/shadow.glsl"
 
@@ -299,10 +301,16 @@ void main() {
     //     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     // #endif
 
+    float farMax = far - 0.002;
+    #ifdef DISTANT_HORIZONS
+        farMax = 0.5 * dhFarPlane - 0.1;
+    #endif
+
     vec3 localViewDir = normalize(localPos);
 
     #ifdef WORLD_WATER_ENABLED
         bool isWater = isEyeInWater == 1;
+        if (isWater) farMax = 32.0;
     #else
         const bool isWater = false;
     #endif
@@ -316,11 +324,6 @@ void main() {
         localNormal = normalize(localNormal * 2.0 - 1.0);
 
     float viewDist = length(localPos);
-
-    float farMax = far - 0.002;
-    #ifdef DISTANT_HORIZONS
-        farMax = 0.5 * dhFarPlane - 0.1;
-    #endif
 
     float farDist = clamp(viewDist, near, farMax);
 

@@ -139,6 +139,10 @@ in vec2 texcoord;
         #include "/lib/world/sky.glsl"
     #endif
 
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
+
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
     #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -153,10 +157,6 @@ in vec2 texcoord;
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
-    #endif
-
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/world/water.glsl"
     #endif
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
@@ -554,25 +554,8 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY //&& defined VL_BUFFER_ENABLED
-            //     if (isWater) {
-            //         final *= exp(waterDist * -WaterAbsorbF);
-            //     }
-            // #endif
-
             #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 #ifdef VOLUMETRIC_FILTER
-                    // const float bufferScale = rcp(exp2(VOLUMETRIC_RES));
-
-                    // #if VOLUMETRIC_RES == 2
-                    //     const vec2 vlSigma = vec2(1.0, 0.00001);
-                    // #elif VOLUMETRIC_RES == 1
-                    //     const vec2 vlSigma = vec2(1.0, 0.00001);
-                    // #else
-                    //     const vec2 vlSigma = vec2(1.2, 0.00002);
-                    // #endif
-
-                    //float depthOpaqueL = linearizeDepthFast(depthOpaque, near, far);
                     VL_GaussianFilter(final, texcoord, depthOpaqueL);
                 #else
                     vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;

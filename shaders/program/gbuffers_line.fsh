@@ -70,6 +70,10 @@ uniform int frameCounter;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
     #endif
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"

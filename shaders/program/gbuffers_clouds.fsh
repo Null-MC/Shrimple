@@ -159,6 +159,10 @@ uniform int heldBlockLightValue2;
 
 #include "/lib/lighting/blackbody.glsl"
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
@@ -247,10 +251,6 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/floodfill.glsl"
     #else
         #include "/lib/lighting/vanilla.glsl"
-    #endif
-
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/world/water.glsl"
     #endif
 //#endif
 

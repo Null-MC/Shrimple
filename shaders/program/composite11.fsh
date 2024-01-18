@@ -22,13 +22,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D shadowcolor0;
 #endif
 
-// #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
-//     uniform sampler3D texLPV_1;
-//     uniform sampler3D texLPV_2;
-// #endif
-
 uniform float frameTime;
-//uniform float frameTimeCounter;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -131,14 +125,11 @@ uniform float blindnessSmooth;
 
 /* RENDERTARGETS: 4,11 */
 layout(location = 0) out vec4 outDiffuse;
-// layout(location = 1) out vec4 outNormal;
-// layout(location = 2) out vec4 outDepth;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     layout(location = 3) out vec4 outSpecular;
 #endif
 
 void main() {
-    //vec2 viewSize = vec2(viewWidth, viewHeight);
     const int resScale = int(exp2(LIGHTING_TRACE_RES));
 
     vec2 tex2 = texcoord;
@@ -233,7 +224,6 @@ void main() {
         //     texNormal = texNormal * 0.5 + 0.5;
 
         outDiffuse = vec4(blockDiffuse, 1.0);
-        // outNormal = vec4(texNormal, 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outSpecular = vec4(blockSpecular, roughL);
@@ -241,7 +231,6 @@ void main() {
     }
     else {
         outDiffuse = vec4(0.0, 0.0, 0.0, 1.0);
-        // outNormal = vec4(0.0, 0.0, 0.0, 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outSpecular = vec4(0.0, 0.0, 0.0, 1.0);

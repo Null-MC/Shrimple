@@ -183,6 +183,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -202,10 +206,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/clouds/cloud_custom.glsl"
     #endif
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

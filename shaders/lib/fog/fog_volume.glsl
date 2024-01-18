@@ -8,18 +8,18 @@ struct VolumetricPhaseFactors {
 };
 
 #ifdef WORLD_WATER_ENABLED
-    #ifdef WORLD_SKY_ENABLED
-        float skyLight = eyeBrightnessSmooth.y / 240.0;
-        vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, skyRainStrength) * (skyLight * 0.96 + 0.04);
-    #else
-        const vec3 vlWaterAmbient = vec3(0.0040);
-    #endif
+    // #ifdef WORLD_SKY_ENABLED
+    //     //float skyLight = eyeBrightnessSmooth.y / 240.0;
+    //     vec3 vlWaterAmbient = vec3(0.2, 0.8, 1.0) * mix(0.02, 0.002, skyRainStrength);// * (sqrt(skyLight) * 0.96 + 0.04);
+    // #else
+    //     const vec3 vlWaterAmbient = vec3(0.0040);
+    // #endif
 
     VolumetricPhaseFactors WaterPhaseF = VolumetricPhaseFactors(
-        vlWaterAmbient,
+        vec3(WaterAmbientF),
         WaterScatterF,
         WaterAbsorbF,
-        0.074, 0.924, -0.183);
+        0.24, 0.68, -0.12);
 #endif
 
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
@@ -309,9 +309,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
-            float eyeLightF = eyeBrightnessSmooth.y / 240.0;
+            //float eyeLightF = eyeBrightnessSmooth.y / 240.0;
 
-            float sampleF = _pow2(eyeLightF);
+            float sampleF = 1.0;//_pow2(eyeLightF);
             vec3 sampleColor = skyLightColor;
             float sampleDepth = 0.0;
 
@@ -379,12 +379,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         // TODO: replace traceLocalPos with water surface pos
 
-                        float causticLight = SampleWaterCaustics(traceLocalPos, 0.0);
-                        causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-                        sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, Water_CausticStrength);
+                        float causticLight = SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
+                        // causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+                        // sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
+                        sampleColor *= 0.5 + 0.5*causticLight;
                     #endif
 
-                    sampleColor *= exp(sampleDepth * -WaterAbsorbF);
+                    sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
                 }
             #endif
 

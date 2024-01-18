@@ -34,7 +34,7 @@ const vec3 colorRainFogDay = _RGBToLinear(vec3(0.097, 0.092, 0.106)) * 0.5;
     }
 
     float GetCustomWaterFogFactor(const in float fogDist) {
-        float waterFogFar = min(waterDensitySmooth / WorldWaterDensityF, far);
+        float waterFogFar = min(8.0 / WaterDensityF, far);
         return GetFogFactor(fogDist, 0.0, waterFogFar, 0.65);
     }
 #endif

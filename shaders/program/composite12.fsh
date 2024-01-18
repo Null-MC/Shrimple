@@ -202,6 +202,14 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/wetness.glsl"
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+
+    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+        #include "/lib/lighting/caustics.glsl"
+    #endif
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -227,14 +235,6 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-
-    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-        #include "/lib/lighting/caustics.glsl"
-    #endif
-#endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #include "/lib/lighting/voxel/lights.glsl"
@@ -469,17 +469,10 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        float causticLight = SampleWaterCaustics(localPos, deferredLighting.y);
+                        const float shadowDepth = 8.0; // TODO
+                        float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
 
-                        causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-
-                        float causticStrength = Water_CausticStrength;
-                        //causticStrength *= min(waterDepth*0.5, 1.0);
-                        //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
-                        
-                        // TODO: get shadow depth!
-
-                        deferredShadow *= 0.3 + 0.7*mix(1.0, causticLight, causticStrength);
+                        deferredShadow *= 0.3 + 0.7*causticLight;
                     #endif
                 }
             #endif

@@ -1,5 +1,4 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
-    const float bufferScaleInv = rcp(exp2(VOLUMETRIC_RES));
     const vec2 g_sigma = vec2(3.0, 2.0);
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
@@ -11,6 +10,9 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     #else
         const float _offset = 1.0001;
     #endif
+
+    const float bufferScale = exp2(VOLUMETRIC_RES);
+    const float bufferScaleInv = rcp(bufferScale);
 
     vec2 srcTexSize = viewSize * bufferScaleInv;
     ivec2 centerCoord = ivec2(texcoord * srcTexSize);
@@ -32,7 +34,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
             vec3 sampleScatter = texelFetch(BUFFER_VL_SCATTER, srcCoord, 0).rgb;
             vec3 sampleTransmit = texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
 
-            ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset);
+            ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset * bufferScale);
 
             #ifdef RENDER_OPAQUE_POST_VL
                 float sampleDepth = texelFetch(depthtex1, depthCoord, 0).r;

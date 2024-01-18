@@ -1,12 +1,3 @@
-#define CLOUD_STEPS 24
-#define CLOUD_SHADOW_STEPS 8
-#define CLOUD_GROUND_SHADOW_STEPS 4
-#define CLOUD_REFLECT_STEPS 12
-#define CLOUD_REFLECT_SHADOW_STEPS 4
-
-const float CloudSpeed = 0.01;
-
-
 float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.24, 0.76, 0.26);}
 
 float GetCloudDither() {

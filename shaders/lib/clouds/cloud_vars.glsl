@@ -4,6 +4,14 @@ float CloudScatterF       = mix(0.30, 0.018, skyRainStrength);
 float CloudAbsorbF        = mix(0.06, 0.128, skyRainStrength);
 vec3 CloudAbsorbColor = vec3(CloudAbsorbF);// 1.0 - _RGBToLinear(vec3(0.6, 0.2, 0.8));
 
+const float CloudSpeed = 0.01;
+
+#define CLOUD_STEPS 24
+#define CLOUD_SHADOW_STEPS 8
+#define CLOUD_GROUND_SHADOW_STEPS 4
+#define CLOUD_REFLECT_STEPS 12
+#define CLOUD_REFLECT_SHADOW_STEPS 4
+
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
     const int CloudMaxOctaves = 6;
     const int CloudTraceOctaves = 3;

@@ -177,6 +177,10 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #include "/lib/lighting/sampling.glsl"
 #include "/lib/lighting/blackbody.glsl"
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -239,10 +243,6 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_WEATHER
     #include "/lib/lighting/voxel/sampling.glsl"
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)

@@ -205,6 +205,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/sky.glsl"
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -301,10 +305,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        #ifdef WORLD_WATER_ENABLED
-            #include "/lib/world/water.glsl"
-        #endif
-    
         #include "/lib/lighting/reflections.glsl"
     #endif
 

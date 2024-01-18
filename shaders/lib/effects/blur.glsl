@@ -19,8 +19,8 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 #ifdef WORLD_WATER_ENABLED
-    float GetWaterDistF(const in float viewDist) {
-        float waterDistF = min(viewDist / waterDensitySmooth, 1.0);
+    float GetWaterBlurDistF(const in float viewDist) {
+        float waterDistF = min(viewDist / (32.0 * WaterDensityF), 1.0);
         return pow(waterDistF, 1.5);
     }
 #endif
@@ -31,7 +31,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         _far = 0.5*dhFarPlane;
     #endif
 
-    if (isWater) _far = 16.0;
+    // if (isEyeInWater == 1) _far = 16.0;
 
     float distF = min(viewDist / _far, 1.0);
     float maxRadius = EFFECT_BLUR_MAX_RADIUS;
@@ -43,7 +43,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
     #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
         if (isWater) {
-            float waterDistF = GetWaterDistF(viewDist);
+            float waterDistF = GetWaterBlurDistF(viewDist);
             distF = max(distF, waterDistF);
             maxRadius = EFFECT_BLUR_WATER_RADIUS;
         }
@@ -112,7 +112,12 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
         float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
         #ifdef DISTANT_HORIZONS
-            float dhDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+            #ifdef RENDER_TRANSLUCENT_BLUR_POST
+                float dhDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
+            #else
+                float dhDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+            #endif
+
             float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
             if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
@@ -139,7 +144,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
         #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
             if (isWater) {
-                float sampleWaterDistF = GetWaterDistF(max(sampleDepthL - minDepth, 0.0));
+                float sampleWaterDistF = GetWaterBlurDistF(max(sampleDepthL - minDepth, 0.0));
                 sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);
             }
         #endif

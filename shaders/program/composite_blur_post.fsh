@@ -39,6 +39,8 @@ uniform float skyRainStrength;
 // #endif
 
 #ifdef WORLD_WATER_ENABLED
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
     uniform float waterDensitySmooth;
 #endif
 
@@ -54,6 +56,10 @@ uniform float skyRainStrength;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
 
 #include "/lib/effects/blur.glsl"
 

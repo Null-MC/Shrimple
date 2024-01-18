@@ -219,6 +219,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -306,10 +310,6 @@ uniform ivec2 eyeBrightnessSmooth;
     // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
     //     #include "/lib/lighting/voxel/sampling.glsl"
     // #endif
-
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/world/water.glsl"
-    #endif
 
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"

@@ -1,4 +1,4 @@
-float SampleWaterCaustics(const in vec3 localPos, const in float skyLight) {
+float SampleWaterCaustics(const in vec3 localPos, const in float lightDist, const in float skyLight) {
     float causticTime = 0.25 * GetAnimationFactor();
 
     vec3 shadowViewPos = localPos + fract(cameraPosition*0.01)*100.0 + vec3(1.0, 0.0, 3.0) * Water_WaveStrength * causticTime;
@@ -21,5 +21,7 @@ float SampleWaterCaustics(const in vec3 localPos, const in float skyLight) {
         causticLight *= skyLight;
     #endif
 
-    return causticLight;
+    float causticDepthF = min(lightDist / 8.0, 1.0);
+    causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+    return mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
 }

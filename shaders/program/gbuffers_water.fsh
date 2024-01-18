@@ -251,6 +251,10 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+#endif
+
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -333,8 +337,6 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
     #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
