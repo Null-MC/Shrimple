@@ -24,6 +24,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;
         uniform vec3 WaterScatterColor;
+        uniform float waterDensitySmooth;
     #endif
 
     #ifdef WORLD_SKY_ENABLED
