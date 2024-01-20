@@ -13,6 +13,7 @@ uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -206,8 +207,9 @@ void main() {
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
             localNormal = normalize(localNormal * 2.0 - 1.0);
 
-        vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-        vec3 texNormal = deferredTexture.xyz;
+        // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+        // vec3 texNormal = deferredTexture.xyz;
+        vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
         if (any(greaterThan(texNormal, EPSILON3)))
             texNormal = normalize(texNormal * 2.0 - 1.0);

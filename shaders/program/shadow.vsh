@@ -22,6 +22,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform int renderStage;
+uniform float far;
 
 uniform int blockEntityId;
 
@@ -55,7 +56,7 @@ uniform int blockEntityId;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -126,25 +127,37 @@ void main() {
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
         if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) {
+            float viewDist = length(localPos);
+            float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
+            distF = 1.0 - _pow2(distF);
+
+            // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+
+            #ifdef DISTANT_HORIZONS
+                float viewDistXZ = length(localPos.xz);
+                float waterClipFar = dh_waterClipDist*far;
+                distF *= 1.0 - smoothstep(0.8*waterClipFar, waterClipFar, viewDistXZ);
+            #endif
+
             #ifdef PHYSICS_OCEAN
                 float physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-                pos.y += physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
-            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+                pos.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+            #elif WATER_WAVE_SIZE > 0
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
                 vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
                 float time = GetAnimationFactor();
                 float skyLight = LightMapNorm(lmcoord).y;
 
-                vec2 uvOffset;
-                pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
+                // vec2 uvOffset;
+                // pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
+                vec3 waveOffset = GetWaveHeight(cameraPosition + localPos, skyLight, time, WATER_WAVE_DETAIL_VERTEX);
+                pos.y += distF * waveOffset.y;
             #endif
         }
     #endif
 
     gl_Position = gl_ModelViewMatrix * pos;
-
-    //gl_Position.z += max(geoViewNormal.z, 0.0) * 8.0;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO

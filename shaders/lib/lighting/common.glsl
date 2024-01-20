@@ -26,7 +26,7 @@ vec4 BasicVertex() {
             #ifdef DISTANT_HORIZONS
                 float viewDistXZ = length(vOut.localPos.xz);
                 float waterClipFar = dh_waterClipDist*far;
-                distF *= 1.0 - smoothstep(0.8*waterClipFar, waterClipFar, viewDistXZ);
+                distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDistXZ);
             #endif
 
             #ifdef PHYSICS_OCEAN
@@ -37,37 +37,40 @@ vec4 BasicVertex() {
                 #endif
 
                 vOut.physics_localPosition = pos.xyz;
-            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
+            #elif WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
                 // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
                 float time = GetAnimationFactor();
 
                 vec2 uvOffset = vec2(0.0);
                 if (vOut.blockId == BLOCK_LILY_PAD) {
                     vec3 originPos = vOut.localPos + at_midBlock/64.0;
-                    water_waveHeight(cameraPosition.xz + originPos.xz, vOut.lmcoord.y, time, uvOffset);
-                    uvOffset *= 0.5;
-                    pos.xz += uvOffset;
+                    vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, vOut.lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
+                    pos.xz += distF * waveOffset.xz;
                     pos.y -= (1.0/16.0);
                 }
 
-                vec2 _o;
-                float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz + uvOffset, vOut.lmcoord.y, time, _o);
-                pos.y += waveOffset;
+                // vec2 _o;
+                // float waveOffset = distF * water_waveHeight(vOut.localPos.xz + cameraPosition.xz + uvOffset, vOut.lmcoord.y, time, _o);
+                vec3 waveOffset = GetWaveHeight(cameraPosition + vOut.localPos, vOut.lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
+                pos.y += distF * waveOffset.y;
 
                 #if defined EFFECT_TAA_ENABLED && defined RENDER_TERRAIN
                     float timePrev = time - frameTime;
                     
-                    vec2 uvOffsetPrev;
+                    // vec2 uvOffsetPrev;
                     if (vOut.blockId == BLOCK_LILY_PAD) {
                         vec3 originPos = vOut.localPos + at_midBlock/64.0;
-                        water_waveHeight(previousCameraPosition.xz + originPos.xz, vOut.lmcoord.y, timePrev, uvOffsetPrev);
-                        uvOffsetPrev *= 0.5;
+                        // water_waveHeight(previousCameraPosition.xz + originPos.xz, vOut.lmcoord.y, timePrev, uvOffsetPrev);
+                        //vec3 wavePosPrev = previousCameraPosition + vOut.localPos;
+                        vec3 waveOffsetPrev = GetWaveHeight(previousCameraPosition + vOut.localPos, vOut.lmcoord.y, timePrev, WATER_WAVE_DETAIL_VERTEX);
+                        //uvOffsetPrev *= 0.5;
 
-                        vOut.velocity.xz += uvOffset - uvOffsetPrev;
+                        vOut.velocity.xz += distF * (waveOffset.xz - waveOffsetPrev.xz);
                     }
                     
-                    float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + previousCameraPosition.xz + uvOffset, vOut.lmcoord.y, timePrev, _o);
-                    vOut.velocity.y += waveOffset - waveOffsetPrev;
+                    // float waveOffsetPrev = distF * water_waveHeight(vOut.localPos.xz + previousCameraPosition.xz + uvOffset, vOut.lmcoord.y, timePrev, _o);
+                    vec3 waveOffsetPrev = GetWaveHeight(previousCameraPosition + vOut.localPos, vOut.lmcoord.y, timePrev, WATER_WAVE_DETAIL_VERTEX);
+                    vOut.velocity.y += distF * (waveOffset.y - waveOffsetPrev.y);
                 #endif
             #endif
 

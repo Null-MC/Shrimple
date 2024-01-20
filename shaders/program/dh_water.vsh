@@ -159,7 +159,7 @@ uniform vec3 previousCameraPosition;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -209,7 +209,7 @@ void main() {
     // vec4 viewPos = BasicVertex();
 
     vec4 pos = gl_Vertex;
-    pos.y -= (1.8/16.0);
+    pos.y -= (2.0/16.0);
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
@@ -227,7 +227,7 @@ void main() {
     //         #endif
 
     //         vOut.physics_localPosition = pos.xyz;
-    //     #elif WATER_WAVE_SIZE != WATER_WAVES_NONE && defined WATER_DISPLACEMENT
+    //     #elif WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
     //         vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
     //         float time = GetAnimationFactor();
 

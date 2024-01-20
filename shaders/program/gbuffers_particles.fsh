@@ -362,13 +362,14 @@ uniform ivec2 eyeBrightnessSmooth;
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     #ifdef EFFECT_TAA_ENABLED
         #ifdef DEFERRED_PARTICLES
-            /* RENDERTARGETS: 1,2,3,7,14 */
+            /* RENDERTARGETS: 1,2,3,7,9,14 */
             layout(location = 0) out vec4 outDeferredColor;
             layout(location = 1) out vec4 outDeferredShadow;
-            layout(location = 2) out uvec4 outDeferredData;
+            layout(location = 2) out uvec3 outDeferredData;
             layout(location = 3) out vec4 outVelocity;
+            layout(location = 4) out vec3 outDeferredTexNormal;
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                layout(location = 4) out vec4 outDeferredRough;
+                layout(location = 5) out vec4 outDeferredRough;
             #endif
         #else
             /* RENDERTARGETS: 7,15 */
@@ -377,12 +378,13 @@ uniform ivec2 eyeBrightnessSmooth;
         #endif
     #else
         #ifdef DEFERRED_PARTICLES
-            /* RENDERTARGETS: 1,2,3,14 */
+            /* RENDERTARGETS: 1,2,3,9,14 */
             layout(location = 0) out vec4 outDeferredColor;
             layout(location = 1) out vec4 outDeferredShadow;
-            layout(location = 2) out uvec4 outDeferredData;
+            layout(location = 2) out uvec3 outDeferredData;
+            layout(location = 3) out vec3 outDeferredTexNormal;
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                layout(location = 3) out vec4 outDeferredRough;
+                layout(location = 4) out vec4 outDeferredRough;
             #endif
         #else
             /* RENDERTARGETS: 15 */
@@ -481,11 +483,13 @@ void main() {
         outDeferredColor = 1.5 * color + dither;
         outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
-        outDeferredData = uvec4(
+        outDeferredData = uvec3(
             packUnorm4x8(vec4(localNormal, sss + dither)),
             packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither),
-            packUnorm4x8(vec4(fogColor, fogF + dither)),
-            packUnorm4x8(vec4(texNormal, 1.0)));
+            packUnorm4x8(vec4(fogColor, fogF + dither)));
+            // packUnorm4x8(vec4(texNormal, 1.0)));
+
+        outDeferredTexNormal = texNormal;
 
         #ifdef EFFECT_TAA_ENABLED
             outVelocity = vec4(vec3(0.0), 1.0);

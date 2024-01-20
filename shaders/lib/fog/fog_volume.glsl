@@ -176,6 +176,18 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         GetAllWaterDepths(uvIndex, waterDepth);
     #endif
 
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        float shadowDepthRange = far * 3.0;
+    #else
+        float shadowDepthRange = -2.0 / shadowProjectionEx[2][2];
+    #endif
+
+    #ifdef DISTANT_HORIZONS
+        float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+    #else
+        float shadowDistFar = min(shadowDistance, far);
+    #endif
+
     // float transmittance = 1.0;
     // vec3 scattering = vec3(0.0);
 
@@ -332,7 +344,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
                     texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
                     shadowDistF = 1.0;
                 }
             #else
@@ -344,7 +356,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
                 float shadowViewDist = length(shadowViewPos.xy);
-                float shadowDistFar = min(shadowDistance, far);
+                // float shadowDistFar = min(shadowDistance, far);
                 float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
                 shadowFade *= step(-1.0, traceShadowClipPos.z);
                 shadowFade *= step(traceShadowClipPos.z, 1.0);
@@ -356,7 +368,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
                     texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * (far * 3.0);
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
                 }
             #endif
 

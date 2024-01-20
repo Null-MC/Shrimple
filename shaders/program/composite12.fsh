@@ -15,6 +15,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 // uniform sampler2D BUFFER_LIGHT_NORMAL;
 // uniform sampler2D BUFFER_LIGHT_DEPTH;
@@ -370,7 +371,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+            uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
@@ -379,8 +380,10 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
 
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            vec3 texNormal = deferredTexture.rgb;
+            // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+            // vec3 texNormal = deferredTexture.rgb;
+
+            vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);

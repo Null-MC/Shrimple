@@ -343,21 +343,23 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,7,14 */
+        /* RENDERTARGETS: 1,2,3,7,9,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
-        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 2) out uvec3 outDeferredData;
         layout(location = 3) out vec4 outVelocity;
+        layout(location = 4) out vec3 outDeferredTexNormal;
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            layout(location = 4) out vec4 outDeferredRough;
+            layout(location = 5) out vec4 outDeferredRough;
         #endif
     #else
-        /* RENDERTARGETS: 1,2,3,14 */
+        /* RENDERTARGETS: 1,2,3,9,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
-        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 2) out uvec3 outDeferredData;
+        layout(location = 3) out vec3 outDeferredTexNormal;
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            layout(location = 3) out vec4 outDeferredRough;
+            layout(location = 4) out vec4 outDeferredRough;
         #endif
     #endif
 #else
@@ -552,12 +554,14 @@ void main() {
         outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
         outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
-        uvec4 deferredData;
+        uvec3 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        // deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
+
+        outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);

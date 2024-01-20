@@ -6,16 +6,16 @@ const int shadowcolor0Format = RGBA8;
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
 const int colortex2Format  = RGBA8;
-const int colortex3Format  = RGBA32UI;
+const int colortex3Format  = RGB32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
 const int colortex6Format  = R32F;
 const int colortex7Format  = RGBA16F;
 const int colortex8Format = RGB16F;
+const int colortex9Format = RGB16F;
 const int colortex10Format = RGB16F;
 const int colortex11Format = RGBA16F;
 const int colortex12Format = RGB16F;
-const int colortex13Format = R32F;
 const int colortex14Format = RGB8;
 const int colortex15Format = RGBA16F;
 */
@@ -56,7 +56,7 @@ const bool colortex7Clear = true;
 const vec4 colortex8ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex8Clear = true;
 
-const vec4 colortex9ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+const vec4 colortex9ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex9Clear = true;
 
 const vec4 colortex10ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -68,8 +68,8 @@ const bool colortex11Clear = false;
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex12Clear = true;
 
-const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex13Clear = true;
+// const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+// const bool colortex13Clear = true;
 
 const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex14Clear = true;
@@ -110,11 +110,14 @@ const bool colortex15Clear = true;
 // Water Options
 #define WATER_SURFACE_TYPE 0 // [0 1]
 #define WATER_OPACITY 75 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define WATER_WAVE_SIZE 2 // [0 1 2 3]
 #define WATER_SURFACE_PIXEL_RES 0 // [0 8 16 32 64 128]
 #define WATER_VOL_FOG_TYPE 2 // [0 1 2]
 #define WATER_FOG_DENSITY 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 500 600]
 #define WATER_TESSELLATION_QUALITY 0 // [0 4 8 12 16 20 24 28 32]
+#define WATER_WAVE_SIZE 2 // [0 1 2 3]
+#define WATER_WAVE_DETAIL 20 // [12 16 20 24 28 32 36 40 44 48]
+#define WATER_WAVE_DETAIL_VERTEX 12
+// #define WATER_WAVE_SHARP 50 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WATER_DEPTH_LAYERS 1 // [1 2 3 4 5 6]
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS

@@ -23,6 +23,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+        vec3 surfacePos;
+    #endif
+
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
@@ -61,6 +65,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+
+    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+        vec3 surfacePos;
+    #endif
 
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
@@ -106,8 +114,13 @@ void main() {
     vOut[gl_InvocationID].localCoord = vIn[gl_InvocationID].localCoord;
     vOut[gl_InvocationID].localNormal = vIn[gl_InvocationID].localNormal;
     vOut[gl_InvocationID].localTangent = vIn[gl_InvocationID].localTangent;
+
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
+
+    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+        vOut[gl_InvocationID].surfacePos = vIn[gl_InvocationID].surfacePos;
+    #endif
 
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vOut[gl_InvocationID].viewPos_T = vIn[gl_InvocationID].viewPos_T;

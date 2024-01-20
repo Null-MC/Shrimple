@@ -1,7 +1,12 @@
 // tile: 0-3
 float GetCascadeDistance(const in int tile) {
     #ifdef SHADOW_CSM_FITRANGE
-        float maxDist = min(shadowDistance, far * SHADOW_CSM_FIT_FARSCALE);
+        float _far = far;
+        #ifdef DISTANT_HORIZONS
+            _far = 0.5 * dhFarPlane;
+        #endif
+
+        float maxDist = min(shadowDistance, _far * SHADOW_CSM_FIT_FARSCALE);
 
         if (tile == 2) {
             return tile_dist[2] + max(maxDist - tile_dist[2], 0.0) * SHADOW_CSM_FITSCALE;
@@ -30,8 +35,13 @@ mat4 GetShadowTileProjectionMatrix(const in float cascadeSizes[4], const in int 
     float tileSize = cascadeSizes[tile];
     float projectionSize = tileSize * 2.0 + 3.0;
 
-    float zNear = -far;
-    float zFar = far * 2.0;
+    float _far = far;
+    #ifdef DISTANT_HORIZONS
+        _far = 0.5 * dhFarPlane;
+    #endif
+
+    float zNear = -_far;
+    float zFar = _far * 2.0;
 
     // TESTING: reduce the depth-range for the nearest cascade only
     //if (tile == 0) zNear = 0.0;

@@ -85,7 +85,7 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
     }
 #endif
 
-#if (defined RENDER_VERTEX || defined RENDER_TESS_EVAL) && !defined RENDER_COMPOSITE
+#if (defined RENDER_VERTEX) && !defined RENDER_COMPOSITE
     void ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL, out vec3 shadowPos[4], out int shadowTile) {
         for (int i = 0; i < 4; i++) {
             float bias = GetShadowNormalBias(i, geoNoL);
@@ -103,12 +103,14 @@ int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
         #if defined RENDER_HAND //|| defined RENDER_ENTITIES
             vec3 blockPos = vec3(0.0);
         #elif defined RENDER_TERRAIN || defined RENDER_WATER
-            vec3 blockPos = floor(gl_Vertex.xyz + at_midBlock / 64.0 + fract(cameraPosition));
-            blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
-            blockPos = (shadowModelViewEx * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
+            vec3 blockPos = localPos + at_midBlock / 64.0 + 0.5;
+            blockPos = floor(blockPos + fract(cameraPosition));
+            // blockPos = (gl_ModelViewMatrix * vec4(blockPos, 1.0)).xyz;
+            // blockPos = (shadowModelViewEx * (gbufferModelViewInverse * vec4(blockPos, 1.0))).xyz;
+            blockPos = (shadowModelViewEx * vec4(blockPos, 1.0)).xyz;
         #else
-            vec3 blockPos = gl_Vertex.xyz;
-            blockPos = floor(blockPos + 0.5);
+            // vec3 blockPos = gl_Vertex.xyz;
+            vec3 blockPos = floor(localPos + fract(cameraPosition) + 0.5);
             blockPos = (shadowModelViewEx * vec4(blockPos, 1.0)).xyz;
         #endif
 

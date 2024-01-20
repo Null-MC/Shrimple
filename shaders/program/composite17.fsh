@@ -13,6 +13,7 @@ uniform sampler2D noisetex;
 //uniform sampler2D BUFFER_VL_SCATTER;
 //uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
+//uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 
 #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
     uniform sampler3D texCaustics;
@@ -310,13 +311,13 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         bool isWater = isEyeInWater == 1;
-        if (isWater) farMax = 32.0;
+        // if (isWater) farMax = 32.0;
     #else
         const bool isWater = false;
     #endif
 
     ivec2 iTex = ivec2(texcoord * viewSize);
-    uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+    uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
     vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
     vec3 localNormal = deferredNormal.rgb;
 

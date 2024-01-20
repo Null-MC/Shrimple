@@ -23,7 +23,7 @@ uniform sampler2D colortex0;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
 	uniform sampler2D BUFFER_ROUGHNESS;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
@@ -109,8 +109,8 @@ void main() {
 		vec4 fog = unpackUnorm4x8(deferredData.b);
 		vec3 color = fog.rgb * fog.a;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
-		uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
-		vec3 color = unpackUnorm4x8(deferredData.a).rgb;
+		// uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0);
+        vec3 color = textureLod(BUFFER_DEFERRED_NORMAL_TEX, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
 		vec3 color = vec3(textureLod(BUFFER_ROUGHNESS, texcoord, 0).rg, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
@@ -135,7 +135,7 @@ void main() {
 			#ifdef DISTANT_HORIZONS
 				//depth = linearizeDepthFast(depth, near, dhFarPlane) / (0.5*dhFarPlane);
 			#else
-				depth = linearizeDepthFast(depth, near, farPlane) / far;
+				//depth = linearizeDepthFast(depth, near, farPlane) / far;
 			#endif
 
 			color = vec3(depth);

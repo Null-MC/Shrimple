@@ -13,7 +13,7 @@ CU			imgSceneLPV_1
 CU			imgSceneLPV_2
 CU			imgLocalLightMask
 CU			imgLocalBlockMask
-
+CU			imgDepthNear
 
 
 
@@ -25,14 +25,15 @@ colortex3		RGBA32UI	1.0		deferred data
 									 - R: geometry normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
 									 - B: fog.rgba
-									 - A: texture normal.xyz
+									 ---- A: texture normal.xyz
+colortex9		RGB16F		1.0		texture normal.xyz
 
 colortex4		RGB16F		 *	 	block-light diffuse
 colortex11		RGBA16F		 *	 	block-light specular
 colortex5		RGBA16F		1.0		final previous [taa]
 colortex6		R16F		1.0		depth previous [taa]
 colortex7		RGBA16F		1.0	 	velocity buffer [taa]
---colortex9		R32F		1.0		block-light temporal depth
+--colortex9		R32F		1.0		block-light temporal depth | depth tiles
 --colortex12	RGB16F		1.0	 	block-light temporal specular | vanilla SSAO
 colortex8		RGB16F		 *		volumetric scattering
 colortex10		RGB16F		 *		volumetric transmission

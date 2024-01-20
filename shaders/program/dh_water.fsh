@@ -285,7 +285,7 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -327,21 +327,23 @@ uniform int heldBlockLightValue2;
 
 #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,7,14 */
+        /* RENDERTARGETS: 1,2,3,7,9,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
-        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 2) out uvec3 outDeferredData;
         layout(location = 3) out vec4 outVelocity;
+        layout(location = 4) out vec4 outDeferredTexNormal;
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            layout(location = 4) out vec4 outDeferredRough;
+            layout(location = 5) out vec4 outDeferredRough;
         #endif
     #else
-        /* RENDERTARGETS: 1,2,3,14 */
+        /* RENDERTARGETS: 1,2,3,9,14 */
         layout(location = 0) out vec4 outDeferredColor;
         layout(location = 1) out vec4 outDeferredShadow;
-        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 2) out uvec3 outDeferredData;
+        layout(location = 3) out vec4 outDeferredTexNormal;
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            layout(location = 3) out vec4 outDeferredRough;
+            layout(location = 4) out vec4 outDeferredRough;
         #endif
     #endif
 #else
@@ -368,17 +370,6 @@ void main() {
 
     float viewDist = length(vIn.localPos);
 
-    float viewDistXZ = length(vIn.localPos.xz);
-    if (isWater && viewDistXZ < dh_waterClipDist * far) {
-        discard;
-        return;
-    }
-
-    float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-    float depthL = linearizeDepthFast(depth, near, farPlane);
-    float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
-    if (depthL < depthDhL && depth < 1.0) {discard; return;}
-
     // mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec3 worldPos = vIn.localPos + cameraPosition;
     //vec3 texNormal = vec3(0.0, 0.0, 1.0);
@@ -387,13 +378,6 @@ void main() {
     // bool skipParallax = false;
     // vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = vIn.lmcoord;
-
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
-            discard;
-            return;
-        }
-    #endif
 
     vec3 localNormal = normalize(vIn.localNormal);
     //vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
@@ -410,12 +394,37 @@ void main() {
                 // waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
-            #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
-                vec2 waterUvOffset;
-                texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
+            #elif WATER_WAVE_SIZE > 0
+                // vec2 waterUvOffset;
+                // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
+                float time = GetAnimationFactor();
+                vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.localPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
+                vec3 wavePos = cameraPosition + vIn.localPos + waveOffset;
+
+                vec3 dX = dFdxFine(wavePos);
+                vec3 dY = dFdyFine(wavePos);
+                texNormal = normalize(cross(dX, dY));
             #endif
         }
     #endif
+
+    float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    float depthL = linearizeDepthFast(depth, near, farPlane);
+    float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+    if (depthL < depthDhL && depth < 1.0) {discard; return;}
+
+    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
+        if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
+            discard;
+            return;
+        }
+    #endif
+
+    float viewDistXZ = length(vIn.localPos.xz);
+    if (isWater && viewDistXZ < dh_waterClipDist * far) {
+        discard;
+        return;
+    }
 
     float porosity = 0.0;
     // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -489,12 +498,22 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
+            #ifdef DISTANT_HORIZONS
+                float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+            #else
+                float shadowDistFar = min(shadowDistance, far);
+            #endif
+
             vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
             float shadowViewDist = length(shadowViewPos.xy);
-            float shadowDistFar = min(shadowDistance, far);
             float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-            shadowFade *= step(-1.0, vIn.shadowPos.z);
-            shadowFade *= step(vIn.shadowPos.z, 1.0);
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #else
+                shadowFade *= step(-1.0, vIn.shadowPos.z);
+                shadowFade *= step(vIn.shadowPos.z, 1.0);
+            #endif
+
             shadowFade = 1.0 - shadowFade;
 
             #ifdef SHADOW_COLORED
@@ -555,12 +574,14 @@ void main() {
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(shadowColor + dither, isWater ? 1.0 : 0.0);
 
-        uvec4 deferredData;
+        uvec3 deferredData;
         deferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         deferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
+        // deferredData.a = packUnorm4x8(vec4(texNormal * 0.5 + 0.5, 1.0));
         outDeferredData = deferredData;
+
+        outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             outDeferredRough = vec4(roughness, metal_f0, porosity, 1.0) + dither;

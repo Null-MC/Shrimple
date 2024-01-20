@@ -8,7 +8,8 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex1;
-uniform usampler2D BUFFER_DEFERRED_DATA;
+// uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -107,9 +108,10 @@ void main() {
         // vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
 
         //#ifdef DEFERRED_BUFFER_ENABLED
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(gl_FragCoord.xy), 0);
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            vec3 texViewNormal = deferredTexture.rgb;
+            // uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, ivec2(gl_FragCoord.xy), 0);
+            // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+            // vec3 texViewNormal = deferredTexture.rgb;
+            vec3 texViewNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, ivec2(gl_FragCoord.xy), 0).rgb;
 
             if (any(greaterThan(texViewNormal, EPSILON3))) {
                 texViewNormal = normalize(texViewNormal * 2.0 - 1.0);

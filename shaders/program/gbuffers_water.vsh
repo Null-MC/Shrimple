@@ -23,6 +23,10 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+        vec3 surfacePos;
+    #endif
+
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
@@ -160,7 +164,7 @@ uniform ivec2 atlasSize;
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE != WATER_WAVES_NONE
+    #elif WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -205,6 +209,10 @@ void main() {
     vOut.color = gl_Color;
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
+
+    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+        vOut.surfacePos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
+    #endif
 
     vec4 viewPos = BasicVertex();
 

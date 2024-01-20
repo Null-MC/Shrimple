@@ -159,6 +159,7 @@
 // #define BUFFER_LIGHT_TA colortex7
 // #define BUFFER_LIGHT_TA_NORMAL colortex8
 // #define BUFFER_LIGHT_TA_DEPTH colortex9
+#define BUFFER_DEFERRED_NORMAL_TEX colortex9
 #define BUFFER_VL_SCATTER colortex8
 #define BUFFER_VL_TRANSMIT colortex10
 #define BUFFER_BLOCK_SPECULAR colortex11

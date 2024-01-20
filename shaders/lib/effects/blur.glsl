@@ -25,7 +25,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
     }
 #endif
 
-vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
+vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
     float _far = far;
     #ifdef DISTANT_HORIZONS
         _far = 0.5*dhFarPlane;
@@ -106,8 +106,12 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
 
-        float sampleDepth = texelFetch(depthSampler, sampleUV, 0).r;
-        //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
+        #ifdef RENDER_TRANSLUCENT_BLUR_POST
+            float sampleDepth = texelFetch(depthtex0, sampleUV, 0).r;
+            //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
+        #else
+            float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
+        #endif
 
         float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
@@ -120,7 +124,7 @@ vec3 GetBlur(const in sampler2D depthSampler, const in vec2 texcoord, const in f
 
             float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-            if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
+            if (sampleDepth >= 1.0 || dhDepthL < sampleDepthL) {
                 sampleDepth = dhDepth;
                 sampleDepthL = dhDepthL;
             }

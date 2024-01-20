@@ -19,6 +19,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 // uniform sampler2D BUFFER_LIGHT_NORMAL;
 // uniform sampler2D BUFFER_LIGHT_DEPTH;
@@ -409,7 +410,7 @@ layout(location = 0) out vec4 outFinal;
         float viewDist = length(localPos);
 
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+        uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         vec3 albedo = RGBToLinear(deferredColor.rgb);
@@ -436,8 +437,10 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
 
-            vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            texNormal = deferredTexture.rgb;
+            // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
+            // texNormal = deferredTexture.rgb;
+
+            vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
@@ -874,7 +877,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             }
 
-            vec3 opaqueFinal = GetBlur(depthtex1, texcoord + refraction, depthOpaqueL, depthTransL, blurDist, isWater && isEyeInWater != 1);
+            vec3 opaqueFinal = GetBlur(texcoord + refraction, depthOpaqueL, depthTransL, blurDist, isWater && isEyeInWater != 1);
         #else
             //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
             // float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
@@ -1043,7 +1046,8 @@ layout(location = 0) out vec4 outFinal;
                     float fogF = GetCustomWaterFogFactor(viewDist);
 
                     #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                        final.rgb *= 1.0 - fogF;
+                        // final.rgb *= 1.0 - fogF;
+                        fogF = 1.0;
                     #else
                         // vec3 skyColorFinal = RGBToLinear(skyColor);
                         vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);

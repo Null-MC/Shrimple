@@ -94,7 +94,7 @@ void main() {
     vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
     float viewDist = length(viewPos);
 
-    vec3 color = GetBlur(depthtex0, texcoord, depthL, 0.0, viewDist, isEyeInWater == 1);
+    vec3 color = GetBlur(texcoord, depthL, 0.0, viewDist, isEyeInWater == 1);
 
     outFinal = vec4(color, 1.0);
 }
