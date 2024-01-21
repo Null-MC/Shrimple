@@ -3,19 +3,20 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
-    #if VOLUMETRIC_RES == 2
-        const float _offset = 2.0001;
-    #elif VOLUMETRIC_RES == 1
-        const float _offset = 1.5000;
-    #else
-        const float _offset = 1.0001;
-    #endif
+    // #if VOLUMETRIC_RES == 2
+    //     const float _offset = 2.0001;
+    // #elif VOLUMETRIC_RES == 1
+    //     const float _offset = 1.5000;
+    // #else
+    //     const float _offset = 1.0001;
+    // #endif
 
-    const float bufferScale = exp2(VOLUMETRIC_RES);
+    const int bufferScale = int(exp2(VOLUMETRIC_RES));
     const float bufferScaleInv = rcp(bufferScale);
 
     vec2 srcTexSize = viewSize * bufferScaleInv;
-    ivec2 centerCoord = ivec2(texcoord * srcTexSize);
+    ivec2 srcCenterCoord = ivec2(texcoord * srcTexSize);
+    ivec2 depthCenterCoord = srcCenterCoord * bufferScale + int(0.5 * bufferScale);
 
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(0.0);
@@ -30,11 +31,12 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
         for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
 
-            ivec2 srcCoord = centerCoord + ivec2(ix, iy);
+            ivec2 srcCoord = srcCenterCoord + ivec2(ix, iy);
             vec3 sampleScatter = texelFetch(BUFFER_VL_SCATTER, srcCoord, 0).rgb;
             vec3 sampleTransmit = texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
 
-            ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset * bufferScale);
+            // ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset * bufferScale);
+            ivec2 depthCoord = depthCenterCoord + ivec2(ix, iy) * bufferScale;
 
             #ifdef RENDER_OPAQUE_POST_VL
                 float sampleDepth = texelFetch(depthtex1, depthCoord, 0).r;

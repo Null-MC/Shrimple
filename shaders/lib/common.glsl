@@ -6,7 +6,7 @@ const int shadowcolor0Format = RGBA8;
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
 const int colortex2Format  = RGBA8;
-const int colortex3Format  = RGB32UI;
+const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
 const int colortex6Format  = R32F;
@@ -16,7 +16,6 @@ const int colortex9Format = RGB16F;
 const int colortex10Format = RGB16F;
 const int colortex11Format = RGBA16F;
 const int colortex12Format = RGB16F;
-const int colortex14Format = RGB8;
 const int colortex15Format = RGBA16F;
 */
 
@@ -67,12 +66,6 @@ const bool colortex11Clear = false;
 
 const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex12Clear = true;
-
-// const vec4 colortex13ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-// const bool colortex13Clear = true;
-
-const vec4 colortex14ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex14Clear = true;
 
 const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex15Clear = true;
@@ -315,6 +308,7 @@ const bool colortex15Clear = true;
 
 // Debug Options
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16]
+//#define DEBUG_TRANSPARENT
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
@@ -519,6 +513,8 @@ const bool colortex15Clear = true;
 #ifdef WATER_MULTIDEPTH_DEBUG
 #endif
 #ifdef ALPHATESTREF_ENABLED
+#endif
+#ifdef DEBUG_TRANSPARENT
 #endif
 
 

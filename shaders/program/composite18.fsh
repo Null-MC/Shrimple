@@ -21,16 +21,11 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
-// uniform sampler2D BUFFER_LIGHT_NORMAL;
-// uniform sampler2D BUFFER_LIGHT_DEPTH;
 uniform sampler2D BUFFER_OVERLAY;
-//uniform sampler2D BUFFER_OVERLAY_DEPTH;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_ROUGHNESS;
     uniform sampler2D BUFFER_BLOCK_SPECULAR;
-    //uniform sampler2D BUFFER_TA_SPECULAR;
 #endif
 
 #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
@@ -410,7 +405,7 @@ layout(location = 0) out vec4 outFinal;
         float viewDist = length(localPos);
 
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
-        uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
 
         vec3 albedo = RGBToLinear(deferredColor.rgb);
@@ -482,13 +477,12 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-                roughness = deferredRoughMetalF0.r;
-                float metal_f0 = deferredRoughMetalF0.g;
+                vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+                roughness = deferredRoughMetalF0Porosity.r;
+                float metal_f0 = deferredRoughMetalF0Porosity.g;
+
                 roughL = _pow2(roughness);
             #else
-                //const float roughness = 1.0;
-                //float roughL = 1.0;
                 const float metal_f0 = 0.04;
             #endif
 
@@ -565,112 +559,6 @@ layout(location = 0) out vec4 outFinal;
                             blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
                         #endif
                     #endif
-
-                    // #if LIGHTING_TRACE_TEMP_ACCUM > 0
-                    //     vec3 cameraOffsetPrevious = cameraPosition - previousCameraPosition;
-                    //     vec3 localPosPrev = localPos + cameraOffsetPrevious;
-
-                    //     #ifdef IRIS_FEATURE_SSBO
-                    //         vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
-                    //     #else
-                    //         vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-                    //         vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
-                    //     #endif
-
-                    //     vec3 uvPrev = clipPosPrev * 0.5 + 0.5;
-
-                    //     float diffuseCounter = 0.0;
-
-                    //     if (all(greaterThanEqual(uvPrev.xy, vec2(0.0))) && all(lessThan(uvPrev.xy, vec2(1.0)))) {
-                    //         float depthPrev = textureLod(BUFFER_LIGHT_TA_DEPTH, uvPrev.xy, 0).r;
-                    //         float depthPrevLinear1 = linearizeDepthFast(uvPrev.z, near, far);
-                    //         float depthPrevLinear2 = linearizeDepthFast(depthPrev, near, far);
-
-                    //         #if LIGHTING_TRACE_RES == 2
-                    //             const float depthWeightF = 8.0;
-                    //         #else
-                    //             const float depthWeightF = 16.0;
-                    //         #endif
-
-                    //         float depthWeight = saturate(depthWeightF * abs(depthPrevLinear1 - depthPrevLinear2));
-
-                    //         float normalWeight = 0.0;
-                    //         vec3 normalPrev = textureLod(BUFFER_LIGHT_TA_NORMAL, uvPrev.xy, 0).rgb;
-                    //         if (any(greaterThan(normalPrev, EPSILON3)) && !all(lessThan(abs(texNormal), EPSILON3))) {
-                    //             normalPrev = normalize(normalPrev * 2.0 - 1.0);
-                    //             normalWeight = 1.0 - dot(normalPrev, texNormal);
-
-                    //             #if LIGHTING_TRACE_RES == 2
-                    //                 normalWeight *= 0.25;
-                    //             #endif
-                    //         }
-
-                    //         if (depthWeight < 1.0 && normalWeight < 1.0) {
-                    //             vec4 diffuseSamplePrev = textureLod(BUFFER_LIGHT_TA, uvPrev.xy, 0);
-
-                    //             bool hasLightingChanged = false;
-
-                    //             #ifdef LIGHT_HAND_SOFT_SHADOW
-                    //                 hasLightingChanged =
-                    //                     HandLightType1 != HandLightTypePrevious1 ||
-                    //                     HandLightType2 != HandLightTypePrevious2;
-                    //             #endif
-
-                    //             ivec3 gridCell, gridCellPrevious, blockCell;
-                    //             vec3 gridPos = GetVoxelBlockPosition(localPos);
-                    //             vec3 gridPosPrevious = GetPreviousVoxelBlockPosition(localPosPrev);
-
-                    //             if (GetVoxelGridCell(gridPos, gridCell, blockCell) && GetVoxelGridCell(gridPosPrevious, gridCellPrevious, blockCell)) {
-                    //                 uint gridIndex = GetVoxelGridCellIndex(gridCell);
-                    //                 LightCellData cellData = SceneLightMaps[gridIndex];
-
-                    //                 uint gridIndexPrevious = GetVoxelGridCellIndex(gridCellPrevious);
-                    //                 LightCellData cellDataPrevious = SceneLightMaps[gridIndexPrevious];
-
-                    //                 if (cellDataPrevious.LightPreviousCount != cellData.LightCount + cellData.LightNeighborCount)
-                    //                     hasLightingChanged = true;
-                    //             }
-
-                    //             diffuseCounter = min(diffuseSamplePrev.a, 256.0);
-
-                    //             diffuseCounter *= 1.0 - depthWeight;
-                    //             diffuseCounter *= 1.0 - normalWeight;
-
-                    //             // if (HandLightType1 > 0 || HandLightType2 > 0) {
-                    //             //     float cameraSpeed = 2.0 * length(cameraOffsetPrevious);// * frameTime;
-                    //             //     float viewDistF = max(1.0 - viewDist/16.0, 0.0);
-                    //             //     diffuseCounter *= max(1.0 - cameraSpeed * viewDistF, 0.0);
-                    //             // }
-
-                    //             if (hasLightingChanged) diffuseCounter = min(diffuseCounter, 4.0);
-
-                    //             float diffuseWeightMin = 1.0 + DynamicLightTemporalStrength;
-                    //             float diffuseWeight = rcp(diffuseWeightMin + diffuseCounter*DynamicLightTemporalStrength);
-                    //             blockDiffuse = mix(diffuseSamplePrev.rgb, blockDiffuse, diffuseWeight);
-
-                    //             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    //                 vec3 blockSpecularPrev = textureLod(BUFFER_TA_SPECULAR, uvPrev.xy, 0).rgb;
-                    //                 //vec3 blockSpecularPrev = specularSamplePrev.rgb;
-                    //                 //float metal_f0_prev = specularSamplePrev.a;
-
-                    //                 //float specularWeightMin = 2.0;// + DynamicLightTemporalStrength;
-                    //                 float specularWeight = rcp(1.0 + 0.25*diffuseCounter*DynamicLightTemporalStrength);
-
-                    //                 blockSpecular = mix(blockSpecularPrev, blockSpecular, specularWeight);
-
-                    //                 //if (abs(roughL - metal_f0_prev) > (0.5/255.0)) blockSpecular = vec3(0.0);
-                    //             #endif
-                    //         }
-                    //     }
-
-                    //     outTA = vec4(blockDiffuse, diffuseCounter + 1.0);
-                    //     outTA_Normal = vec4(localNormal * 0.5 + 0.5, 1.0);
-                    //     outTA_Depth = vec4(depthTrans, 0.0, 0.0, 1.0);
-
-                    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    //         outSpecularTA = vec4(blockSpecular, 1.0);
-                    //     #endif
-                    // #endif
 
                     #if LIGHTING_MODE_HAND == HAND_LIGHT_SIMPLE
                         vec3 handDiffuse = vec3(0.0);

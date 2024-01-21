@@ -14,7 +14,6 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D BUFFER_FINAL;
-//uniform sampler2D BUFFER_OVERLAY_DEPTH;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -71,9 +70,6 @@ void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
     float depth = texelFetch(depthtex0, uv, 0).r;
     //float depth = textureLod(depthtex0, texcoord, 0.0).r;
-
-    // float weatherDepth = texelFetch(BUFFER_OVERLAY_DEPTH, uv, 0).r;
-    // depth = min(depth, weatherDepth);
 
     float depthL = linearizeDepthFast(depth, near, farPlane);
 

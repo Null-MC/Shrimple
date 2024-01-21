@@ -23,10 +23,6 @@ in vec2 texcoord;
         uniform usampler2D BUFFER_DEFERRED_DATA;
         uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
         uniform sampler2D texDepthNear;
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            uniform sampler2D BUFFER_ROUGHNESS;
-        #endif
     #endif
 
     #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
@@ -295,18 +291,15 @@ layout(location = 0) out vec4 outFinal;
         vec3 localViewDir = normalize(localPosOpaque);
 
         #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && MATERIAL_SPECULAR != SPECULAR_NONE
-            vec2 deferredRoughMetalF0 = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            float roughness = deferredRoughMetalF0.r;
-            float metal_f0 = deferredRoughMetalF0.g;
-            float roughL = _pow2(roughness);
-
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
-            uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-            // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
-            // vec3 texNormal = deferredTexture.xyz;
-
             vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
+            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+
+            float roughness = deferredRoughMetalF0Porosity.r;
+            float metal_f0 = deferredRoughMetalF0Porosity.g;
+            float roughL = _pow2(roughness);
 
             float skyNoVm = 1.0;
             if (any(greaterThan(texNormal, EPSILON3))) {

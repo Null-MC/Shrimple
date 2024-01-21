@@ -15,10 +15,6 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_ROUGHNESS;
-#endif
-
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
     uniform sampler2D shadowcolor0;
 #endif
@@ -162,7 +158,6 @@ void main() {
         uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-        // vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
 
         vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
@@ -171,8 +166,6 @@ void main() {
         vec3 localNormal = deferredNormal.xyz;
         if (any(greaterThan(localNormal.xyz, EPSILON3)))
             localNormal = normalize(localNormal * 2.0 - 1.0);
-
-        // vec3 texNormal = deferredTexture.xyz;
 
         if (any(greaterThan(texNormal, EPSILON3)))
             texNormal = normalize(texNormal * 2.0 - 1.0);
@@ -183,10 +176,11 @@ void main() {
         float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            float rough = specularMap.r;
+            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+            float rough = deferredRoughMetalF0.r;
+            metal_f0 = deferredRoughMetalF0.g;
+
             roughL = _pow2(rough);
-            metal_f0 = specularMap.g;
         #endif
 
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;

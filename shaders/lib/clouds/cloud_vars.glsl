@@ -2,7 +2,7 @@ const float CloudDensityF = 1.0;
 const float CloudAmbientF = 0.02;//mix(0.05, 0.4, skyRainStrength);
 float CloudScatterF       = mix(0.30, 0.018, skyRainStrength);
 float CloudAbsorbF        = mix(0.06, 0.128, skyRainStrength);
-vec3 CloudAbsorbColor = vec3(CloudAbsorbF);// 1.0 - _RGBToLinear(vec3(0.6, 0.2, 0.8));
+vec3 CloudAbsorbColor = vec3(CloudAbsorbF);
 
 const float CloudSpeed = 0.01;
 
