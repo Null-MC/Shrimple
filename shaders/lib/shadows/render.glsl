@@ -46,31 +46,42 @@
                 float dither = InterleavedGradientNoise();
             #endif
 
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
+                float zRange = -2.0 / cascadeProjection[cascadeIndex][2][2];
+            #else
+                float zRange = -2.0 / shadowProjectionEx[2][2];
+            #endif
+
             // float bias = sss * dither;
 
             vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
-            float bias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / (3.0 * far);
+            float bias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / zRange;
 
             //sssOffset = (sssOffset);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int tile = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
+                // int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
 
-                if (tile >= 0) {
-                    vec3 _shadowPos = vIn.shadowPos[tile];
-                    _shadowPos.xy += 0.002 * sssOffset;
+                if (cascadeIndex >= 0) {
+                    vec3 _shadowPos = vIn.shadowPos[cascadeIndex];
+
+                    // _shadowPos.xy += 0.002 * sssOffset;
+                    // _shadowPos.xy += (shadowProjectionSize[cascadeIndex] / (0.5*shadowMapResolution)) * sssOffset;
+                    _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
 
                     #ifdef SHADOW_COLORED
-                        shadow = GetShadowColor(_shadowPos, tile, bias);
+                        shadow = GetShadowColor(_shadowPos, cascadeIndex, bias);
                     #else
-                        shadow = GetShadowFactor(_shadowPos, tile, bias);
+                        shadow = GetShadowFactor(_shadowPos, cascadeIndex, bias);
                     #endif
                 }
             #else
                 vec3 _shadowPos = vIn.shadowPos;
-                _shadowPos.xy += (shadowDistance / shadowMapResolution) * sssOffset;
+                // _shadowPos.xy += (shadowDistance / shadowMapResolution) * sssOffset;
+                _shadowPos.xy += rcp(shadowDistance) * sssOffset;
                 //_shadowPos.z -= bias;
 
                 // _shadowPos = distort(_shadowPos) * 0.5 + 0.5;

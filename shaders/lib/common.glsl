@@ -581,7 +581,7 @@ const float drynessHalflife = 20.0;
     const float ShadowNormalBias = (SHADOW_DISTORTED_NORMAL_BIAS * SHADOW_BIAS_SCALE);
 #endif
 
-const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800]
+const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800 1000 1200 1400 1600 2000 2400 2800 3200 3600 4000]
 const float shadowIntervalSize = 2.0f;
 const float shadowDistanceRenderMul = 1.0;
 const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]

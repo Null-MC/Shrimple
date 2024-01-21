@@ -66,6 +66,13 @@ uniform float far;
 #endif
 
 void main() {
+    float minLen2 = 0.0;
+    for (int i = 0; i < 3; i++)
+        minLen2 = min(minLen2, _lengthSq(gl_in[i].gl_Position.xyz));
+    
+    float minDist = sqrt(minLen2);
+    if (minDist < 0.5 * shadowDistance) return;
+
     #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 originShadowViewPos = (gl_in[0].gl_Position.xyz + gl_in[1].gl_Position.xyz + gl_in[2].gl_Position.xyz) * rcp(3.0);
