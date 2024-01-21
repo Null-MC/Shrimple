@@ -1,5 +1,5 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
-    const vec2 g_sigma = vec2(3.0, 20.0);
+    const vec2 g_sigma = vec2(0.8, 20.0);
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
@@ -61,7 +61,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                 }
             #endif
 
-            float fv = Gaussian(g_sigma.y, abs(sampleDepthL - depthL));
+            float fv = Gaussian(g_sigma.y, clamp(abs(sampleDepthL - depthL), 0.0, 32.0));
             
             float weight = fx*fy*fv;
             scatterFinal += weight * sampleScatter;
@@ -70,7 +70,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
         }
     }
     
-    if (total > 0.0002) {
+    if (total > 0.002) {
         total = max(total, EPSILON);
         scatterFinal /= total;
         transmitFinal /= total;

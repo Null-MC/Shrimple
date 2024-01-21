@@ -8,19 +8,23 @@ float GetShadowOffsetBias() {
 }
 
 vec3 distort(const in vec3 pos) {
-    float factor = length(pos.xy) + SHADOW_DISTORT_FACTOR;
-    //float factor = maxOf(abs(pos.xy)) + SHADOW_DISTORT_FACTOR;
+    #if SHADOW_DISTORT_FACTOR == 0
+        return pos;
+    #else
+        float factor = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+        //float factor = maxOf(abs(pos.xy)) + SHADOW_DISTORT_FACTOR;
 
-    return vec3((pos.xy / factor) * (1.0 + SHADOW_DISTORT_FACTOR), pos.z);
+        return vec3((pos.xy / factor) * (1.0 + SHADOW_DISTORT_FACTOR), pos.z);
 
-    // const float CURVE_FACTOR = 1.0;
+        // const float CURVE_FACTOR = 1.0;
 
-    // vec2 absUV = abs(pos.xy);
-    // float maxCoord = minOf(absUV) / maxOf(absUV);
-    // float maxLen = sqrt(1.0 + _pow2(maxCoord));
-    // float fac1 = length(pos.xy) + SHADOW_DISTORT_FACTOR;
-    // float fac = mix(1.0, fac1, pow(1.0 - length(pos.xy) / maxLen, CURVE_FACTOR));
-    // return vec3(pos.xy / fac, pos.z);
+        // vec2 absUV = abs(pos.xy);
+        // float maxCoord = minOf(absUV) / maxOf(absUV);
+        // float maxLen = sqrt(1.0 + _pow2(maxCoord));
+        // float fac1 = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+        // float fac = mix(1.0, fac1, pow(1.0 - length(pos.xy) / maxLen, CURVE_FACTOR));
+        // return vec3(pos.xy / fac, pos.z);
+    #endif
 }
 
 // float computeBias(vec3 pos) {

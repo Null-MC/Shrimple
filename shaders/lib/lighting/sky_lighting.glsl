@@ -128,7 +128,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         //     lpvSkyLight *= 0.5;
         // #endif
 
-        ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
+        ambientLight = vec3(lpvSkyLight);//mix(ambientLight, vec3(lpvSkyLight), lpvFade);
     #endif
 
     ambientLight *= skyLightColor;
