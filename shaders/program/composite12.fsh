@@ -596,6 +596,12 @@ layout(location = 0) out vec4 outFinal;
                 final = GetFinalLighting(albedo, blockDiffuse, blockSpecular, occlusion);
             #endif
 
+            // #ifdef DISTANT_HORIZONS
+            //     float fogDist = GetShapedFogDistance(localPos);
+            //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+            //     final = mix(final, skyFinal, fogF);
+            // #endif
+
             #ifdef DH_COMPAT_ENABLED
                 float fogDist = GetShapedFogDistance(localPos);
                 float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);

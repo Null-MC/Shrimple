@@ -67,9 +67,6 @@
 
                 if (cascadeIndex >= 0) {
                     vec3 _shadowPos = vIn.shadowPos[cascadeIndex];
-
-                    // _shadowPos.xy += 0.002 * sssOffset;
-                    // _shadowPos.xy += (shadowProjectionSize[cascadeIndex] / (0.5*shadowMapResolution)) * sssOffset;
                     _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
 
                     #ifdef SHADOW_COLORED
@@ -80,11 +77,7 @@
                 }
             #else
                 vec3 _shadowPos = vIn.shadowPos;
-                // _shadowPos.xy += (shadowDistance / shadowMapResolution) * sssOffset;
                 _shadowPos.xy += rcp(shadowDistance) * sssOffset;
-                //_shadowPos.z -= bias;
-
-                // _shadowPos = distort(_shadowPos) * 0.5 + 0.5;
 
                 #ifdef SHADOW_COLORED
                     shadow = GetShadowColor(_shadowPos, bias);
@@ -94,7 +87,6 @@
             #endif
         #endif
 
-        //shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
         shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS

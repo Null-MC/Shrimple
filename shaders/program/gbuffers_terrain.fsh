@@ -731,6 +731,14 @@ void main() {
             color.rgb = LinearToRGB(color.rgb);
         #endif
 
+        // #ifdef DISTANT_HORIZONS
+        //     float fogDist = GetShapedFogDistance(vIn.localPos);
+        //     float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
+        //     color.a *= 1.0 - fogF;
+
+        //     // color.rgb = LinearToRGB(color.rgb);
+        // #endif
+
         outFinal = color;
     #endif
 

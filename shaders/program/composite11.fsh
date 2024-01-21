@@ -154,12 +154,11 @@ void main() {
         ivec2 iTex = ivec2(tex2 * viewSize);
 
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+        vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
-        uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
+        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
         vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
         vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-
-        vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
         vec3 albedo = RGBToLinear(deferredColor);
 
@@ -177,8 +176,8 @@ void main() {
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
-            float rough = deferredRoughMetalF0.r;
-            metal_f0 = deferredRoughMetalF0.g;
+            float rough = deferredRoughMetalF0Porosity.r;
+            metal_f0 = deferredRoughMetalF0Porosity.g;
 
             roughL = _pow2(rough);
         #endif

@@ -9,11 +9,7 @@ layout(triangle_strip, max_vertices=12) out;
 
 in VertexData {
     vec4 color;
-
-    #if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        // TODO: this isn't really needed but throws error without
-        flat vec2 shadowTilePos;
-    #endif
+    float cameraViewDist;
 } vIn[];
 
 out VertexData {
@@ -66,11 +62,9 @@ uniform float far;
 #endif
 
 void main() {
-    float minLen2 = 0.0;
-    for (int i = 0; i < 3; i++)
-        minLen2 = min(minLen2, _lengthSq(gl_in[i].gl_Position.xyz));
-    
-    float minDist = sqrt(minLen2);
+    float minDist = vIn[0].cameraViewDist;
+    minDist = min(minDist, vIn[1].cameraViewDist);
+    minDist = min(minDist, vIn[2].cameraViewDist);
     if (minDist < 0.5 * shadowDistance) return;
 
     #ifdef RENDER_SHADOWS_ENABLED
