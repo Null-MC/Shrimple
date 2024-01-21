@@ -24,6 +24,9 @@ uniform mat4 shadowModelViewInverse;
 void main() {
     vOut.color = gl_Color;
 
+    const bool isWater = true; // materialId == DH_MATERIAL_WATER
+    //if (isWater) vOut.color = vec4(0.90, 0.94, 0.96, 0.0);
+
     gl_Position = gl_ModelViewMatrix * gl_Vertex;
 
     #ifdef RENDER_SHADOWS_ENABLED

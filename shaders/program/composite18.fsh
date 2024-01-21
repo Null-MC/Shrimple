@@ -516,17 +516,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 diffuse, specular = vec3(0.0);
                 GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow.rgb, sss);
 
-                // #if MATERIAL_SPECULAR != SPECULAR_NONE //&& defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                //     #ifndef IRIS_FEATURE_SSBO
-                //         vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
-                //     #endif
-
-                //     float geoNoL = dot(localNormal, localSkyLightDirection);
-                //     specular += GetSkySpecular(localPos, geoNoL, texNormal, albedo, deferredShadow.rgb, deferredLighting.xy, metal_f0, roughL);
-                // #endif
-
                 #ifdef WORLD_SKY_ENABLED
-                    //const bool tir = false; // TODO: ?
                     GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
 
@@ -585,7 +575,6 @@ layout(location = 0) out vec4 outFinal;
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
 
                     #ifdef WORLD_SKY_ENABLED
-                        //const bool tir = false; // TODO: ?
                         GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                     #else
                         blockDiffuse += WorldAmbientF;
@@ -601,25 +590,6 @@ layout(location = 0) out vec4 outFinal;
                             blockSpecular *= albedo;
                         }
                     #endif
-
-                    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                    //     blockDiffuse += emission * MaterialEmissionF;
-                    // #endif
-                // #else
-                //     GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
-
-                //     SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-
-                //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-                //         if (metal_f0 >= 0.5) {
-                //             blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                //             blockSpecular *= albedo;
-                //         }
-                //     #endif
-
-                //     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-                //     //     blockDiffuse += emission * MaterialEmissionF;
-                //     // #endif
                 #endif
 
                 blockDiffuse += emission * MaterialEmissionF;
@@ -644,10 +614,6 @@ layout(location = 0) out vec4 outFinal;
 
                 float shadowF = min(luminance(deferredShadow.rgb), 1.0);
                 occlusion = max(occlusion, shadowF);
-
-                // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-                //     if (isWater) albedo = vec3(0.0);
-                // #endif
 
                 vec3 diffuseFinal = blockDiffuse + skyDiffuse;
                 vec3 specularFinal = blockSpecular + skySpecular;
@@ -767,17 +733,6 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 opaqueFinal = GetBlur(texcoord + refraction, depthOpaqueL, depthTransL, blurDist, isWater && isEyeInWater != 1);
         #else
-            //float lodOpaque = 4.0 * float(isWater) * min(transDepth / 20.0, 1.0);
-            // float maxLod = clamp(log2(min(viewWidth, viewHeight)) - 1.0, 0.0, 4.0);
-
-            // float lodOpaque = 0.0;
-            // #ifdef REFRACTION_BLUR
-            //     if (isWater)
-            //         lodOpaque = maxLod * min(min(viewDist, transDepth) / 12.0, 1.0);
-            //     else if (isEyeInWater != 1)
-            //         lodOpaque = maxLod * min(transDepth * roughL / 2.0, 1.0);
-            // #endif
-
             vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
         #endif
 
@@ -833,24 +788,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        // #ifdef DH_COMPAT_ENABLED
-        //     opaqueFinal = RGBToLinear(opaqueFinal);
-        // #endif
-
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-        #endif
-
-        // #if defined MATERIAL_REFRACT_ENABLED && defined REFRACTION_SNELL && defined WORLD_WATER_ENABLED
-        //     if (tir) {
-        //         opaqueFinal = GetCustomWaterFogColor(localSunDirection.y);
-        //     }
-        // #endif
-
-        #ifdef DH_COMPAT_ENABLED
-            float dh_fogDist = GetShapedFogDistance(localPos);
-            float dh_fogF = GetFogFactor(dh_fogDist, 0.6 * far, far, 1.0);
-            //final.a *= 1.0 - fogF;
         #endif
 
         if (isWater) {
@@ -877,33 +816,8 @@ layout(location = 0) out vec4 outFinal;
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
-                //#if WATER_DEPTH_LAYERS > 1
-                //     float waterDepth[WATER_DEPTH_LAYERS+1];
-                //     GetAllWaterDepths(waterPixelIndex, viewDist, waterDepth);
-                //     //isWater = viewDist < waterDepth[0] + 0.001;
-                //     float waterDist = min(opaqueDist, waterDepth[0]);
-
-                //     float farDist = min(opaqueDist, far);
-
-                //     #if WATER_DEPTH_LAYERS >= 2
-                //         if (waterDepth[1] < farDist) {
-                //             waterDist += max(min(waterDepth[2], farDist) - waterDepth[1], 0.0);
-                //             //isWater = isWater || (viewDist > min(waterDepth[1], farDist) && viewDist < min(waterDepth[2], farDist));
-                //         }
-                //     #endif
-
-                //     #if WATER_DEPTH_LAYERS >= 4
-                //         if (waterDepth[3] < farDist) {
-                //             waterDist += max(min(waterDepth[4], farDist) - waterDepth[3], 0.0);
-                //             //isWater = isWater || (viewDist > min(waterDepth[3], farDist) && viewDist < min(waterDepth[4], farDist));
-                //         }
-                //     #endif
-                // #else
-                    float waterDist = min(viewDist, far);
-                //#endif
-
+                float waterDist = min(viewDist, far);
                 vec3 vlLight = vec3(phaseIso + WaterAmbientF);
-                //ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
                 #ifdef WORLD_SKY_ENABLED
                     float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;

@@ -332,6 +332,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 // vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
                 vec3 traceShadowClipPos = vec3(-1.0);
+                float shadowFade = 1.0;
 
                 int cascade = GetShadowCascade(shadowViewPos, -0.01);
                 float shadowDistF = 0.0;
@@ -346,6 +347,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
                     sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
                     shadowDistF = 1.0;
+                    shadowFade = 0.0;
                 }
             #else
                 float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);

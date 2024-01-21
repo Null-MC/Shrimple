@@ -60,6 +60,10 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferPreviousModelView;
 
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
+
     #include "/lib/blocks.glsl"
 
     #include "/lib/buffers/scene.glsl"

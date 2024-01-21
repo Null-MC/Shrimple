@@ -1,5 +1,5 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
-    const vec2 g_sigma = vec2(3.0, 2.0);
+    const vec2 g_sigma = vec2(3.0, 20.0);
     const float c_halfSamplesX = 2.0;
     const float c_halfSamplesY = 2.0;
 
