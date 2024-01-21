@@ -86,17 +86,26 @@ uniform int frameCounter;
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    /* RENDERTARGETS: 1,2,3,9,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec3 outDeferredData;
+    layout(location = 2) out uvec4 outDeferredData;
     layout(location = 3) out vec3 outDeferredTexNormal;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 4) out vec4 outDeferredRough;
+
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 1,2,3,9,7 */
+        layout(location = 4) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 1,2,3,9 */
     #endif
 #else
-    /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
+
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 1) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 0 */
+    #endif
 #endif
 
 void main() {
@@ -105,7 +114,10 @@ void main() {
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         const vec3 normal = vec3(0.0);
         const float occlusion = 0.0;
+        const float roughness = 1.0;
+        const float metal_f0 = 0.0;
         const float emission = 0.0;
+        const float porosity = 0.0;
         const float sss = 0.0;
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
@@ -117,21 +129,12 @@ void main() {
 
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(0.0);
-
-        uvec3 deferredData;
-        deferredData.r = packUnorm4x8(vec4(normal, sss));
-        deferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, occlusion, emission));
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        // deferredData.a = packUnorm4x8(vec4(normal, 1.0));
-        outDeferredData = deferredData;
-
         outDeferredTexNormal = normal;
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            const float roughness = 1.0;
-            const float metal_f0 = 0.0;
-            outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0);
-        #endif
+        outDeferredData.r = packUnorm4x8(vec4(normal, sss));
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, occlusion, emission));
+        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0));
     #else
         color.rgb = RGBToLinear(color.rgb);
 
@@ -145,4 +148,8 @@ void main() {
 
 		outFinal = color;
 	#endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(0.0);
+    #endif
 }

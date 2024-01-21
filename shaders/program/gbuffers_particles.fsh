@@ -353,52 +353,41 @@ uniform ivec2 eyeBrightnessSmooth;
         #ifndef WORLD_SKY_ENABLED
             #include "/lib/fog/fog_smoke.glsl"
         #endif
-    
-        // #include "/lib/fog/fog_volume.glsl"
     #endif
 #endif
 
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
-    #ifdef EFFECT_TAA_ENABLED
-        #ifdef DEFERRED_PARTICLES
-            /* RENDERTARGETS: 1,2,3,7,9,14 */
-            layout(location = 0) out vec4 outDeferredColor;
-            layout(location = 1) out vec4 outDeferredShadow;
-            layout(location = 2) out uvec3 outDeferredData;
-            layout(location = 3) out vec4 outVelocity;
-            layout(location = 4) out vec3 outDeferredTexNormal;
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                layout(location = 5) out vec4 outDeferredRough;
-            #endif
+    #ifdef DEFERRED_PARTICLES
+        layout(location = 0) out vec4 outDeferredColor;
+        layout(location = 1) out vec4 outDeferredShadow;
+        layout(location = 2) out uvec4 outDeferredData;
+        layout(location = 3) out vec3 outDeferredTexNormal;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 1,2,3,9,7 */
+            layout(location = 4) out vec4 outVelocity;
         #else
-            /* RENDERTARGETS: 7,15 */
-            layout(location = 0) out vec4 outVelocity;
-            layout(location = 1) out vec4 outFinal;
+            /* RENDERTARGETS: 1,2,3,9 */
         #endif
     #else
-        #ifdef DEFERRED_PARTICLES
-            /* RENDERTARGETS: 1,2,3,9,14 */
-            layout(location = 0) out vec4 outDeferredColor;
-            layout(location = 1) out vec4 outDeferredShadow;
-            layout(location = 2) out uvec3 outDeferredData;
-            layout(location = 3) out vec3 outDeferredTexNormal;
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                layout(location = 4) out vec4 outDeferredRough;
-            #endif
+        layout(location = 0) out vec4 outFinal;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 15,7 */
+            layout(location = 1) out vec4 outVelocity;
         #else
             /* RENDERTARGETS: 15 */
-            layout(location = 0) out vec4 outFinal;
         #endif
     #endif
 #else
+    layout(location = 0) out vec4 outFinal;
+
     #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 0,7 */
-        layout(location = 0) out vec4 outFinal;
         layout(location = 1) out vec4 outVelocity;
     #else
         /* RENDERTARGETS: 0 */
-        layout(location = 0) out vec4 outFinal;
     #endif
 #endif
 
@@ -482,22 +471,12 @@ void main() {
 
         outDeferredColor = 1.5 * color + dither;
         outDeferredShadow = vec4(shadowColor + dither, 0.0);
-
-        outDeferredData = uvec3(
-            packUnorm4x8(vec4(localNormal, sss + dither)),
-            packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither),
-            packUnorm4x8(vec4(fogColor, fogF + dither)));
-            // packUnorm4x8(vec4(texNormal, 1.0)));
-
         outDeferredTexNormal = texNormal;
 
-        #ifdef EFFECT_TAA_ENABLED
-            outVelocity = vec4(vec3(0.0), 1.0);
-        #endif
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            outDeferredRough = vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0);
-        #endif
+        outDeferredData.r = packUnorm4x8(vec4(localNormal, sss + dither));
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
     #else
         vec3 albedo = RGBToLinear(color.rgb);
         float roughL = _pow2(roughness);
@@ -630,9 +609,9 @@ void main() {
         #endif
 
         outFinal = color;
+    #endif
 
-        #ifdef EFFECT_TAA_ENABLED
-            outVelocity = vec4(vec3(0.0), 1.0);
-        #endif
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(vec3(0.0), 1.0);
     #endif
 }

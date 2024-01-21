@@ -87,17 +87,26 @@ uniform int frameCounter;
 
 
 #if (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
-    /* RENDERTARGETS: 1,2,3,9,14 */
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec3 outDeferredData;
+    layout(location = 2) out uvec4 outDeferredData;
     layout(location = 3) out vec3 outDeferredTexNormal;
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        layout(location = 4) out vec4 outDeferredRough;
+
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 1,2,3,9,7 */
+        layout(location = 4) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 1,2,3,9 */
     #endif
 #else
-    /* RENDERTARGETS: 0 */
     layout(location = 0) out vec4 outFinal;
+
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 1) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 0 */
+    #endif
 #endif
 
 void main() {
@@ -106,6 +115,10 @@ void main() {
     #if (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR)
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
+        const float roughness = 1.0;
+        const float metal_f0 = 0.04;
+        const float porosity = 0.0;
+
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
             fogF = GetVanillaFogFactor(vLocalPos);
@@ -113,15 +126,12 @@ void main() {
 
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(vec3(1.0), 0.0);
-
-        uvec3 deferredData;
-        deferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
-        deferredData.g = packUnorm4x8(vec4(vec2(lmCoordMax), 1.0, 1.0));
-        deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        // deferredData.a = packUnorm4x8(vec4(vec3(0.0), 1.0));
-        outDeferredData = deferredData;
-
         outDeferredTexNormal = vec3(0.0);
+
+        outDeferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
+        outDeferredData.g = packUnorm4x8(vec4(vec2(lmCoordMax), 1.0, 1.0));
+        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         color.rgb = RGBToLinear(color.rgb);
 
@@ -137,4 +147,8 @@ void main() {
         
 		outFinal = color;
 	#endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        outVelocity = vec4(0.0);
+    #endif
 }
