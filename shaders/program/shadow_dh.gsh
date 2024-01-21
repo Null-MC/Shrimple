@@ -65,7 +65,7 @@ void main() {
     float minDist = vIn[0].cameraViewDist;
     minDist = min(minDist, vIn[1].cameraViewDist);
     minDist = min(minDist, vIn[2].cameraViewDist);
-    if (minDist < 0.5 * shadowDistance) return;
+    if (minDist < 0.5 * min(shadowDistance, far)) return;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
