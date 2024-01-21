@@ -118,16 +118,16 @@ void main() {
     vOut.blockId = blockId;
 
     vec4 pos = gl_Vertex;
+    vec4 viewPos = gl_ModelViewMatrix * pos;
+    vec4 localPos = shadowModelViewInverse * viewPos;
 
     #ifdef WORLD_WAVING_ENABLED
-        vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
-
-        ApplyWavingOffset(pos.xyz, localPos, blockId);
+        ApplyWavingOffset(pos.xyz, localPos.xyz, blockId);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
         if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) {
-            float viewDist = length(localPos);
+            float viewDist = length(localPos.xyz);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
             distF = 1.0 - _pow2(distF);
 
@@ -144,27 +144,27 @@ void main() {
                 pos.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
             #elif WATER_WAVE_SIZE > 0
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-                vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+                //vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
                 float time = GetAnimationFactor();
                 float skyLight = LightMapNorm(lmcoord).y;
 
                 // vec2 uvOffset;
                 // pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
-                vec3 waveOffset = GetWaveHeight(cameraPosition + localPos, skyLight, time, WATER_WAVE_DETAIL_VERTEX);
+                vec3 waveOffset = GetWaveHeight(cameraPosition + localPos.xyz, skyLight, time, WATER_WAVE_DETAIL_VERTEX);
                 pos.y += distF * waveOffset.y;
             #endif
         }
     #endif
 
-    gl_Position = gl_ModelViewMatrix * pos;
+    viewPos = gl_ModelViewMatrix * pos;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             mat4 shadowModelViewEx = shadowModelView;
         #endif
 
-        gl_Position = shadowModelViewInverse * gl_Position;
-        gl_Position = shadowModelViewEx * gl_Position;
+        localPos = shadowModelViewInverse * viewPos;
+        gl_Position = shadowModelViewEx * localPos;
     #endif
 }
