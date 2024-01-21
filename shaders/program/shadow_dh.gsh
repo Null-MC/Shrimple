@@ -31,6 +31,7 @@ uniform float far;
 #ifdef RENDER_SHADOWS_ENABLED
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
+    uniform float dhFarPlane;
     uniform float near;
 #endif
 

@@ -32,11 +32,19 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
 float GetShadowOffsetBias(const in int cascade) {
     float bias = 0.0;
 
-    #if SHADOW_FILTER == SHADOW_FILTER_PCF
-        bias += 0.001 * rcp(far * 3.0) * SHADOW_PCF_SIZE_MAX;
+    // #if SHADOW_FILTER == SHADOW_FILTER_PCF
+    //     bias += 0.001 * rcp(far * 3.0) * SHADOW_PCF_SIZE_MAX;
+    // #endif
+
+    float _far = far;
+    #ifdef DISTANT_HORIZONS
+        _far = 0.5 * dhFarPlane;
     #endif
 
-    bias += cascadeOffsetBias[cascade];
+    // float zNear = -_far;
+    // float zFar = _far * 2.0;
+
+    bias += cascadeOffsetBias[cascade] / (_far * 3.0);
     return bias * SHADOW_BIAS_SCALE;
 
     // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;

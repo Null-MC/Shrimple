@@ -66,6 +66,10 @@ uniform ivec2 atlasSize;
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
+
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
 #endif
 
 #ifdef IS_IRIS

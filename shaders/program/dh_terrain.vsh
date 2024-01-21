@@ -5,37 +5,13 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-// in vec4 mc_Entity;
-//in vec3 vaPosition;
-
 out VertexData {
     vec4 color;
     vec2 lmcoord;
-    // vec2 texcoord;
     vec3 localPos;
-    // vec2 localCoord;
     vec3 localNormal;
-    // vec4 localTangent;
+
     flat uint materialId;
-
-    // flat int blockId;
-    // flat mat2 atlasBounds;
-    
-    // #ifdef EFFECT_TAA_ENABLED
-    //     vec3 velocity;
-    // #endif
-
-    // #if DISPLACE_MODE == DISPLACE_TESSELATION
-    //     vec3 surfacePos;
-    // #endif
-
-    // #ifdef PARALLAX_ENABLED
-    //     vec3 viewPos_T;
-
-    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-    //         vec3 lightPos_T;
-    //     #endif
-    // #endif
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED
         vec3 cloudPos;
@@ -61,17 +37,8 @@ uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-// uniform vec3 previousCameraPosition;
-// uniform ivec2 atlasSize;
-
-// #ifdef ANIM_WORLD_TIME
-//     uniform int worldTime;
-// #else
-//     uniform float frameTimeCounter;
-// #endif
 
 #ifdef IS_IRIS
-    // uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
 #endif
 
@@ -90,17 +57,14 @@ uniform vec3 cameraPosition;
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
-#endif
 
-// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
-//     // uniform vec3 previousCameraPosition;
-//     uniform mat4 gbufferPreviousModelView;
-// #endif
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
+#endif
 
 #ifdef EFFECT_TAA_ENABLED
     uniform float frameTime;
-    // uniform int frameCounter;
-    // uniform vec3 previousCameraPosition;
     uniform vec2 pixelSize;
 #endif
 
@@ -133,11 +97,10 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    //vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    vOut.color = gl_Color;
+    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     vOut.materialId = uint(dhMaterialId);
+    vOut.color = gl_Color;
 
-    vOut.lmcoord  = gl_MultiTexCoord1.xy;
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     vec4 pos = gl_Vertex;
@@ -151,20 +114,20 @@ void main() {
     #endif
 
 
-    //vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-    vOut.localNormal = gl_Normal;//mat3(gbufferModelViewInverse) * viewNormal;
+    vOut.localNormal = gl_Normal;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vOut.shadowTile = -1;
         #endif
 
-        // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-        //     vec3 skyLightDir = normalize(shadowLightPosition);
-        //     float geoNoL = dot(skyLightDir, viewNormal);
-        // #else
+        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+            vec3 viewNormal = normalize(mat3(gbufferModelView) * gl_Normal);
+            vec3 skyLightDir = normalize(shadowLightPosition);
+            float geoNoL = dot(skyLightDir, viewNormal);
+        #else
             const float geoNoL = 1.0;
-        // #endif
+        #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);

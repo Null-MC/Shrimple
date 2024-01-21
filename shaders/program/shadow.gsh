@@ -40,6 +40,10 @@ uniform float far;
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
     uniform float near;
+
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
 #endif
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)

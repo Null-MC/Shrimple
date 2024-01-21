@@ -8,8 +8,11 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex1;
-// uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
+
+#if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA
+    uniform usampler2D BUFFER_DEFERRED_DATA;
+#endif
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -142,7 +145,8 @@ void main() {
                 #endif
             #elif SKY_TYPE == SKY_TYPE_VANILLA
                 //fogF = GetVanillaFogFactor(localPos);
-                fogF = unpackUnorm4x8(deferredData.b).a;
+                uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, ivec2(gl_FragCoord.xy), 0).b;
+                fogF = unpackUnorm4x8(deferredDataB).a;
             #endif
 
             occlusion *= 1.0 - fogF;

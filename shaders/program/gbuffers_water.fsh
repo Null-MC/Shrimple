@@ -252,6 +252,7 @@ uniform int heldBlockLightValue2;
     #ifdef WORLD_WETNESS_ENABLED
         #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
+        #include "/lib/world/wetness_ripples.glsl"
     #endif
 #endif
 

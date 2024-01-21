@@ -79,6 +79,10 @@ uniform vec4 entityColor;
         uniform float cloudTime;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
     #endif
+
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED

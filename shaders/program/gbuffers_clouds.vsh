@@ -47,6 +47,10 @@ uniform vec3 cameraPosition;
         uniform float cloudTime;
         uniform vec3 eyePosition;
     #endif
+
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
 #endif
 
 #ifdef EFFECT_TAA_ENABLED

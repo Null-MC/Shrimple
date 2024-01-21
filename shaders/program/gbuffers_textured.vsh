@@ -51,6 +51,10 @@ uniform vec3 cameraPosition;
         uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
         uniform vec3 eyePosition;
     #endif
+
+    #ifdef DISTANT_HORIZONS
+        uniform float dhFarPlane;
+    #endif
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
