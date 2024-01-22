@@ -184,7 +184,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/gaussian.glsl"
-#include "/lib/sampling/bilateral_gaussian.glsl"
+// #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
@@ -281,6 +281,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
+#if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0
+    #include "/lib/sampling/shadow_filter.glsl"
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/lighting/sky_lighting.glsl"
 #endif
@@ -299,7 +303,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    #ifdef VOLUMETRIC_FILTER
+    #if VOLUMETRIC_BLUR_SIZE > 0
         #include "/lib/sampling/fog_filter.glsl"
     #endif
 #else
@@ -486,16 +490,14 @@ layout(location = 0) out vec4 outFinal;
                 const float metal_f0 = 0.04;
             #endif
 
-            #if defined SHADOW_BLUR && !defined EFFECT_TAA_ENABLED
+            #if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
-                    const vec3 shadowSigma = vec3(1.2, 1.2, 0.06);
-                    deferredShadow.rgb = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, depthTransL, shadowSigma);
+                    deferredShadow.rgb = shadow_GaussianFilterRGB(texcoord, depthTransL);
                 #else
-                    float shadowSigma = 3.0 / depthTransL;
-                    deferredShadow.rgb = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex0, viewSize, depthTransL, shadowSigma));
+                    deferredShadow.rgb = vec3(shadow_GaussianFilter(texcoord, depthTransL));
                 #endif
-            #else
-                deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            // #else
+            //     deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
@@ -915,7 +917,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifdef VL_BUFFER_ENABLED
-            #ifdef VOLUMETRIC_FILTER
+            #if VOLUMETRIC_BLUR_SIZE > 0
                 VL_GaussianFilter(final.rgb, texcoord, depthTransL);
             #else
                 vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;

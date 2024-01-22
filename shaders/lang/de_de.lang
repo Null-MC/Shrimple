@@ -493,8 +493,11 @@ option.SHADOW_PCSS_SAMPLES.comment=Die Anzahl der Proben, die zur Bestimmung der
 option.SHADOW_ENABLE_HWCOMP=Hardwarebeschleunigung
 option.SHADOW_ENABLE_HWCOMP.comment=Wenn aktiviert, nutzen Schatten die Hardware-Filterung für eine bessere Qualität und Leistung.
 
-option.SHADOW_BLUR=Blur
-option.SHADOW_BLUR.comment=Wendet eine Gaußsche Unschärfe auf den Schattenpuffer an.
+option.SHADOW_BLUR_SIZE=Blur
+option.SHADOW_BLUR_SIZE.comment=Wendet eine Gaußsche Unschärfe auf den Schattenpuffer an.
+value.SHADOW_BLUR_SIZE.0=OFF
+value.SHADOW_BLUR_SIZE.1=3x3
+value.SHADOW_BLUR_SIZE.2=5x5
 
 
 screen.POST_OPTIONS=Nachbearbeitung

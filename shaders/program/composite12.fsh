@@ -176,7 +176,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/gaussian.glsl"
-#include "/lib/sampling/bilateral_gaussian.glsl"
+// #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
@@ -268,6 +268,10 @@ uniform int heldBlockLightValue2;
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     //#include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/reflections.glsl"
+#endif
+
+#if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0
+    #include "/lib/sampling/shadow_filter.glsl"
 #endif
 
 #ifdef WORLD_SKY_ENABLED
@@ -394,13 +398,11 @@ layout(location = 0) out vec4 outFinal;
                 const float porosity = 0.0;
             #endif
 
-            #if defined SHADOW_BLUR && !defined EFFECT_TAA_ENABLED
+            #if SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
-                    const vec3 shadowSigma = vec3(3.0, 3.0, 0.25);
-                    vec3 deferredShadow = BilateralGaussianDepthBlurRGB_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, depthOpaqueL, shadowSigma);
+                    vec3 deferredShadow = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
                 #else
-                    float shadowSigma = 3.0 / depthOpaqueL;
-                    vec3 deferredShadow = vec3(BilateralGaussianDepthBlur_5x(texcoord, BUFFER_DEFERRED_SHADOW, viewSize, depthtex1, viewSize, depthOpaqueL, shadowSigma));
+                    vec3 deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
                 #endif
             #else
                 //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;

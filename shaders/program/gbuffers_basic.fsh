@@ -160,7 +160,7 @@ uniform int frameCounter;
 #endif
 
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && SHADOW_BLUR_SIZE > 0))
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
@@ -215,7 +215,7 @@ void main() {
         }
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && SHADOW_BLUR_SIZE > 0))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const float roughness = 1.0;

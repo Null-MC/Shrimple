@@ -264,7 +264,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/blackbody.glsl"
 #endif
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_BLUR))
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && SHADOW_BLUR_SIZE > 0))
     //
 #elif defined IRIS_FEATURE_SSBO
     #ifdef IS_TRACING_ENABLED

@@ -498,8 +498,11 @@ value.VOLUMETRIC_BLOCK_MODE.1=Emission
 value.VOLUMETRIC_BLOCK_MODE.2=Trace [Fast]
 value.VOLUMETRIC_BLOCK_MODE.3=Trace [Full]
 
-option.VOLUMETRIC_FILTER=Filter
-option.VOLUMETRIC_FILTER.comment=Applies post-filtering of volumetric lighting for a smoother result.
+option.VOLUMETRIC_BLUR_SIZE=Filter
+option.VOLUMETRIC_BLUR_SIZE.comment=Applies post-filtering of volumetric lighting for a smoother result.
+value.VOLUMETRIC_BLUR_SIZE.0=OFF
+value.VOLUMETRIC_BLUR_SIZE.1=3x3
+value.VOLUMETRIC_BLUR_SIZE.2=5x5
 
 option.VOLUMETRIC_BLOCK_RT=Ray Traced
 option.VOLUMETRIC_BLOCK_RT.comment=Enables volumetric ray-tracing for block lights; requires ray-traced block lighting to be enabled. §c§lWARNING§r§c: will kill performance dead!
@@ -587,8 +590,11 @@ option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring. Fo
 option.SHADOW_PCSS_SAMPLES=Blocker Samples
 option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining penumbra width. For dynamic soft-shadows only.
 
-option.SHADOW_BLUR=Smooth
-option.SHADOW_BLUR.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
+option.SHADOW_BLUR_SIZE=Smooth
+option.SHADOW_BLUR_SIZE.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
+value.SHADOW_BLUR_SIZE.0=OFF
+value.SHADOW_BLUR_SIZE.1=3x3
+value.SHADOW_BLUR_SIZE.2=5x5
 
 
 screen.EFFECT_OPTIONS=Effects

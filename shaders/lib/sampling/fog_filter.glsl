@@ -1,15 +1,5 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
     const vec2 g_sigma = vec2(0.8, 20.0);
-    const float c_halfSamplesX = 2.0;
-    const float c_halfSamplesY = 2.0;
-
-    // #if VOLUMETRIC_RES == 2
-    //     const float _offset = 2.0001;
-    // #elif VOLUMETRIC_RES == 1
-    //     const float _offset = 1.5000;
-    // #else
-    //     const float _offset = 1.0001;
-    // #endif
 
     const int bufferScale = int(exp2(VOLUMETRIC_RES));
     const float bufferScaleInv = rcp(bufferScale);
@@ -21,14 +11,11 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(0.0);
     float total = 0.0;
-
-    // vec2 srcPixelSize = rcp(srcTexSize);
-    // vec2 depthPixelSize = rcp(viewSize);
     
-    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
+    for (float iy = -VOLUMETRIC_BLUR_SIZE; iy <= VOLUMETRIC_BLUR_SIZE; iy++) {
         float fy = Gaussian(g_sigma.x, iy);
 
-        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
+        for (float ix = -VOLUMETRIC_BLUR_SIZE; ix <= VOLUMETRIC_BLUR_SIZE; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
 
             ivec2 srcCoord = srcCenterCoord + ivec2(ix, iy);

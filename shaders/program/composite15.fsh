@@ -175,7 +175,7 @@ in vec2 texcoord;
     #endif
 
     #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #ifdef VOLUMETRIC_FILTER
+        #if VOLUMETRIC_BLUR_SIZE > 0
             #include "/lib/sampling/gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
         #endif
@@ -551,7 +551,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                #ifdef VOLUMETRIC_FILTER
+                #if VOLUMETRIC_BLUR_SIZE > 0
                     VL_GaussianFilter(final, texcoord, depthOpaqueL);
                 #else
                     vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
