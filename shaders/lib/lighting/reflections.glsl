@@ -290,10 +290,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
                 float waterFogFar = min(16.0 / WaterDensityF, reflectDist);
 
-                vec3 scatterFinal = vec3(0.0);
-                vec3 transmitFinal = vec3(1.0);
-                ApplyScatteringTransmission(scatterFinal, transmitFinal, waterFogFar, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbColor, 8);
-                reflectColor = reflectColor * transmitFinal + scatterFinal;
+                ApplyScatteringTransmission(reflectColor, waterFogFar, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbColor, 8);
             }
             else {
         #endif
@@ -317,8 +314,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 #endif
 
                 if (reflectFogDist > 0.0) {
-                    vec4 scatterTransmit = ApplyScatteringTransmission(reflectFogDist, vlLight, AirDensityF, vec3(AirScatterF), AirExtinctF, 8);
-                    reflectColor = reflectColor * scatterTransmit.a + scatterTransmit.rgb;
+                    ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif
 

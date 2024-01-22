@@ -565,7 +565,7 @@ layout(location = 0) out vec4 outFinal;
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
                     vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
+                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor);
                     final = final * scatterTransmit.a + scatterTransmit.rgb;
                 }
             #endif

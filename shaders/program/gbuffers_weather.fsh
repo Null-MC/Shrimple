@@ -466,8 +466,7 @@ void main() {
         // TODO: limit to < cloudNear
 
         vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-        vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
-        color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
+        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
     #endif
 
     // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

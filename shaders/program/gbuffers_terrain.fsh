@@ -715,7 +715,7 @@ void main() {
                 float maxDist = min(viewDist, far);
 
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterF, AirExtinctF);
+                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirScatterColor, AirExtinctColor);
                 color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
             #ifdef WORLD_WATER_ENABLED

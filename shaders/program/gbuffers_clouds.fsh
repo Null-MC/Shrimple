@@ -419,8 +419,8 @@ void main() {
             vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
             vec3 vlLight = (phaseAir + AirAmbientF) * skyLightColor;
-            vec4 scatterTransmit = ApplyScatteringTransmission(min(viewDist, far), vlLight, AirDensityF, AirScatterF, AirExtinctF);
-            final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+
+            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
 
         #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED

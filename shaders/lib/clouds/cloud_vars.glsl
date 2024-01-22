@@ -1,10 +1,17 @@
-const float CloudDensityF = 1.0;
-const float CloudAmbientF = 0.02;//mix(0.05, 0.4, skyRainStrength);
-float CloudScatterF       = mix(0.30, 0.018, skyRainStrength);
-float CloudAbsorbF        = mix(0.06, 0.128, skyRainStrength);
-vec3 CloudAbsorbColor = vec3(CloudAbsorbF);
-
 const float CloudSpeed = 0.01;
+const float CloudDensityF = 1.0;
+const float CloudAmbientF = 0.02;
+
+const vec3 CloudScatterColor_clear = _RGBToLinear(vec3(0.50));
+const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.16));
+
+const vec3 CloudAbsorbColor_clear = 1.0 - _RGBToLinear(vec3(0.946, 0.961, 0.965));
+const vec3 CloudAbsorbColor_rain  = 1.0 - _RGBToLinear(vec3(0.615, 0.595, 0.652));
+
+vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, skyRainStrength);
+vec3 CloudAbsorbColor     = mix(CloudAbsorbColor_clear, CloudAbsorbColor_rain, skyRainStrength);
+float CloudAbsorbF        = mix(0.02, 0.128, skyRainStrength);
+
 
 #define CLOUD_STEPS 24
 #define CLOUD_SHADOW_STEPS 8

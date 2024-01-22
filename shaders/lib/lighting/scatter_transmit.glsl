@@ -71,3 +71,10 @@ void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFin
         transmitFinal *= transmittance;
     }
 }
+
+void ApplyScatteringTransmission(inout vec3 colorFinal, const in float traceDist, const in vec3 inScattering, const in float density, const in vec3 scatterF, const in vec3 extinctF, const in int stepCount) {
+    vec3 scatterFinal = vec3(0.0);
+    vec3 transmitFinal = vec3(1.0);
+    ApplyScatteringTransmission(scatterFinal, transmitFinal, traceDist, inScattering, density, scatterF, extinctF, stepCount);
+    colorFinal = colorFinal * transmitFinal + scatterFinal;
+}

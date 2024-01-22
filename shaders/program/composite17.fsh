@@ -408,7 +408,7 @@ void main() {
             //         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
             //         vec3 vlLight = (phaseAir + AirAmbientF) * skyLightColor;
-            //         vec4 scatterTransmit = ApplyScatteringTransmission(cloudDistFar, vlLight, AirDensityF, AirScatterF, AirExtinctF);
+            //         vec4 scatterTransmit = ApplyScatteringTransmission(cloudDistFar, vlLight, AirDensityF, AirScatterColor, AirExtinctColor);
             //         final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
             //     }
             // #endif

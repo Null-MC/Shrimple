@@ -636,8 +636,11 @@ layout(location = 0) out vec4 outFinal;
 
                             vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                             float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
-                            vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
-                            fogColorFinal = fogColorFinal * scatterTransmit.a + scatterTransmit.rgb;
+
+                            vec3 scatterFinal = vec3(0.0);
+                            vec3 transmitFinal = vec3(1.0);
+                            ApplyScatteringTransmission(scatterFinal, transmitFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
+                            fogColorFinal = fogColorFinal * transmitFinal + scatterFinal;
                         }
                     #endif
                 #elif SKY_TYPE == SKY_TYPE_VANILLA

@@ -12,9 +12,11 @@ const float phaseAir = phaseIso;
 	const float AirScatterRainF = 0.48;
 	const float AirExtinctRainF = 0.24;
 
-	float AirAmbientF = 0.02;//mix(0.02, 0.0, skyRainStrength);
-	float AirScatterF = 0.32;//mix(1.00, 0.028, skyRainStrength);
-	float AirExtinctF = 0.06;//mix(0.02, 0.006, skyRainStrength);
+	const float AirAmbientF = 0.02;//mix(0.02, 0.0, skyRainStrength);
+	// float AirScatterF = 0.32;//mix(1.00, 0.028, skyRainStrength);
+	const vec3 AirScatterColor = _RGBToLinear(vec3(0.596, 0.689, 0.722));
+	// float AirExtinctF = 0.06;//mix(0.02, 0.006, skyRainStrength);
+	const vec3 AirExtinctColor = 1.0 - _RGBToLinear(vec3(0.955, 0.942, 0.917));//mix(0.02, 0.006, skyRainStrength);
 #else
 	vec3 AirAmbientF = RGBToLinear(fogColor);
 

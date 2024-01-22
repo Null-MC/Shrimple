@@ -142,7 +142,7 @@ void main() {
         #endif
 
             vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-            vec4 scatterTransmit = ApplyScatteringTransmission(far, vlLight, AirScatterF, AirExtinctF);
+            vec4 scatterTransmit = ApplyScatteringTransmission(far, vlLight, AirScatterColor, AirExtinctColor);
             final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
         #ifdef WORLD_WATER_ENABLED

@@ -766,8 +766,7 @@ layout(location = 0) out vec4 outFinal;
 
                                 vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                                 float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
-                                vec4 scatterTransmit = ApplyScatteringTransmission(fogFarDist, vlLight, airDensity, vec3(AirScatterF), AirExtinctF, CLOUD_STEPS);
-                                fogColorFinal = fogColorFinal * scatterTransmit.a + scatterTransmit.rgb;
+                                ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
                             }
                         #endif
                     #elif SKY_TYPE == SKY_TYPE_VANILLA
@@ -839,10 +838,7 @@ layout(location = 0) out vec4 outFinal;
                     vlLight *= WorldSkyLightColor * eyeSkyLightF;
                 #endif
 
-                vec3 scatterFinal = vec3(0.0);
-                vec3 transmitFinal = vec3(1.0);
-                ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
-                final.rgb = final.rgb * transmitFinal + scatterFinal;
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
             }
         #endif
 
@@ -957,8 +953,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 vec3 vlLight = (phaseAir * skyLightColor + _ambient);
-                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
-                final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+                ApplyScatteringTransmission(final.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
 
             #ifdef WORLD_WATER_ENABLED
                 }

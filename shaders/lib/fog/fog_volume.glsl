@@ -30,8 +30,8 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.Direction = 0.42;
 
     result.AmbientF = vec3(AirAmbientF);
-    result.ScatterF = vec3(AirScatterF);
-    result.AbsorbF = vec3(AirExtinctF);
+    result.ScatterF = AirScatterColor;
+    result.AbsorbF = AirExtinctColor;
 
     #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
         float skyLightF = eyeBrightnessSmooth.y / 240.0;
@@ -294,7 +294,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         float sampleCloudF = SampleCloudOctaves(cloudPos, CloudTraceOctaves);
 
                         sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
-                        sampleScattering = mix(sampleScattering, vec3(CloudScatterF), sampleCloudF);
+                        sampleScattering = mix(sampleScattering, CloudScatterColor, sampleCloudF);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbColor, sampleCloudF);
                         sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleCloudF);
                         samplePhase = mix(samplePhase, phaseCloud, sampleCloudF);

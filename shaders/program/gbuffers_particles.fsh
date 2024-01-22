@@ -590,10 +590,10 @@ void main() {
                 // TODO: apply water VL when in water
 
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                vec4 scatterTransmit = ApplyScatteringTransmission(maxDist, vlLight, AirDensityF, AirScatterF, AirExtinctF);
-                color.rgb = color.rgb * scatterTransmit.a + scatterTransmit.rgb;
+                ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
 
-                color.a *= scatterTransmit.a;
+                // TODO: removed this during refactor but might want to keep
+                //color.a *= scatterTransmit.a;
 
             #ifdef WORLD_WATER_ENABLED
                 }

@@ -116,11 +116,13 @@ void main() {
 
             #ifdef WORLD_SKY_ENABLED
                 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-                localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+
+                // localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
+                localSkyLightDirection = GetSkyLightDirection(localSunDirection);
 
                 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
                 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
-                WorldSkyLightColor = CalculateSkyLightColor(localSunDirection);
+                WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
                 //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
                 if (lightningBoltPosition.w > 0.5)
@@ -137,11 +139,12 @@ void main() {
             //gbufferPreviousModelViewProjectionInverse = inverse(gbufferPreviousModelViewProjection);
 
             #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
-                shadowModelViewEx = shadowModelView;//BuildShadowViewMatrix(localSkyLightDirection);
+                // shadowModelViewEx = shadowModelView;
+                // shadowModelViewEx[3][0] = 0.0;
+                // shadowModelViewEx[3][1] = 0.0;
+                // shadowModelViewEx[3][2] = 0.0;
 
-                shadowModelViewEx[3][0] = 0.0;
-                shadowModelViewEx[3][1] = 0.0;
-                shadowModelViewEx[3][2] = 0.0;
+                shadowModelViewEx = BuildShadowViewMatrix(localSkyLightDirection);
 
                 //mat4 matTranslate = mat4(1.0);
                 //matTranslate[2][3] = -1.0;
