@@ -794,6 +794,12 @@ layout(location = 0) out vec4 outFinal;
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
         #endif
 
+        #ifdef DH_COMPAT_ENABLED
+            float dh_fogDist = GetShapedFogDistance(localPos);
+            float dh_fogF = GetFogFactor(dh_fogDist, 0.6 * far, far, 1.0);
+            //final.a *= 1.0 - fogF;
+        #endif
+
         if (isWater) {
             #ifdef DH_COMPAT_ENABLED
                 final *= 1.0 - dh_fogF;
