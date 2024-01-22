@@ -5,7 +5,7 @@ const float CloudAmbientF = 0.02;
 const vec3 CloudScatterColor_clear = _RGBToLinear(vec3(0.50));
 const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.16));
 
-const vec3 CloudAbsorbColor_clear = 1.0 - _RGBToLinear(vec3(0.946, 0.961, 0.965));
+const vec3 CloudAbsorbColor_clear = 1.0 - _RGBToLinear(vec3(0.945, 0.969, 0.98));
 const vec3 CloudAbsorbColor_rain  = 1.0 - _RGBToLinear(vec3(0.615, 0.595, 0.652));
 
 vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, skyRainStrength);
