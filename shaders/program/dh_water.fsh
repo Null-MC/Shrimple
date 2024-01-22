@@ -349,6 +349,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 void main() {
+    float viewDist = length(vIn.localPos);
     const bool isWater = true; //vIn.blockId == BLOCK_WATER;
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
@@ -358,8 +359,6 @@ void main() {
             // return;
         }
     #endif
-
-    float viewDist = length(vIn.localPos);
 
     // mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec3 worldPos = vIn.localPos + cameraPosition;

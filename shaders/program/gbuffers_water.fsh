@@ -447,6 +447,10 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
 
+        #if WATER_SURFACE_TYPE == WATER_COLORED
+            if (isWater) skipParallax = true;
+        #endif
+
         if (isWater && abs(vIn.localNormal.y) > 0.5) {
             skipParallax = true;
 

@@ -284,8 +284,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * skyRainStrength;
 
                         sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
-                        sampleScattering = mix(sampleScattering, vec3(AirScatterRainF), cloudUnder);
-                        sampleExtinction = mix(sampleExtinction, vec3(AirExtinctRainF), cloudUnder);
+                        sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);
+                        sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
                     }
 
                     vec3 cloudPos = traceLocalPos + cloudOffset;

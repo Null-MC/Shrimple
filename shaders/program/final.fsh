@@ -50,6 +50,7 @@ uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int frameCounter;
 uniform float farPlane;
+uniform float near;
 uniform float far;
 
 #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
@@ -57,13 +58,8 @@ uniform float far;
 	uniform int isEyeInWater;
 #endif
 
-#if DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
-	uniform float near;
-
-	#ifdef DISTANT_HORIZONS
-		// uniform float dhNearPlane;
-		uniform float dhFarPlane;
-	#endif
+#ifdef DISTANT_HORIZONS
+	uniform float dhFarPlane;
 #endif
 
 #include "/lib/sampling/bayer.glsl"

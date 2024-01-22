@@ -133,7 +133,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+    #if LIGHTING_MODE != DYN_LIGHT_NONE //&& LPV_SIZE > 0
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
