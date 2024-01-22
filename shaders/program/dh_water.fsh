@@ -386,11 +386,13 @@ void main() {
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
             #elif WATER_WAVE_SIZE > 0
+                float waveDistF = 32.0 / (32.0 + viewDist);
+
                 // vec2 waterUvOffset;
                 // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
                 float time = GetAnimationFactor();
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.localPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vec3 wavePos = cameraPosition + vIn.localPos + waveOffset;
+                vec3 wavePos = cameraPosition + vIn.localPos + waveOffset * waveDistF;
 
                 vec3 dX = dFdxFine(wavePos);
                 vec3 dY = dFdyFine(wavePos);

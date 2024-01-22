@@ -457,15 +457,17 @@ void main() {
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
             #elif WATER_WAVE_SIZE > 0
+                float waveDistF = 32.0 / (32.0 + viewDist);
+
                 // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset);
                 float time = GetAnimationFactor();
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.surfacePos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vec3 wavePos = vIn.surfacePos + waveOffset;
+                vec3 wavePos = vIn.surfacePos + waveOffset * waveDistF;
 
                 vec3 dX = normalize(dFdxFine(wavePos));
                 vec3 dY = normalize(dFdyFine(wavePos));
                 texNormal = normalize(cross(dX, dY)).xzy;
-                waterUvOffset = waveOffset.xz;
+                waterUvOffset = waveOffset.xz * waveDistF;
 
                 if (localNormal.y < 0.0) texNormal = -texNormal;
             #endif
