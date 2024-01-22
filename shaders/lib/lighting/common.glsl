@@ -24,9 +24,9 @@ vec4 BasicVertex() {
             vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
             #ifdef DISTANT_HORIZONS
-                float viewDistXZ = length(vOut.localPos.xz);
+                //float viewDistXZ = length(vOut.localPos.xz);
                 float waterClipFar = dh_waterClipDist*far;
-                distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDistXZ);
+                distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
             #ifdef PHYSICS_OCEAN

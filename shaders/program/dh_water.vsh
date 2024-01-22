@@ -42,12 +42,6 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 
-// #ifdef ANIM_WORLD_TIME
-//     uniform int worldTime;
-// #else
-//     uniform float frameTimeCounter;
-// #endif
-
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
 
@@ -77,11 +71,6 @@ uniform vec3 previousCameraPosition;
     #endif
 #endif
 
-// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
-//     // uniform vec3 previousCameraPosition;
-//     uniform mat4 gbufferPreviousModelView;
-// #endif
-
 #ifdef IS_IRIS
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
@@ -96,7 +85,6 @@ uniform vec3 previousCameraPosition;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-// #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -116,35 +104,33 @@ uniform vec3 previousCameraPosition;
     #endif
 #endif
 
-// #ifdef WORLD_WATER_ENABLED
-//     #ifdef PHYSICS_OCEAN
-//         #include "/lib/physics_mod/ocean.glsl"
-//     #elif WATER_WAVE_SIZE > 0
-//         #include "/lib/world/water_waves.glsl"
-//     #endif
-// #endif
-
 #ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa.glsl"
 #endif
 
 
 void main() {
+    const bool isWater = true;
+
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.localNormal = gl_Normal;
     vOut.color = gl_Color;
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     vec4 pos = gl_Vertex;
-    pos.y -= (2.0/16.0);
+
+    if (isWater) pos.y -= (2.0/16.0);
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
-    const bool isWater = true;
-
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
-    vOut.localNormal = gl_Normal;// mat3(gbufferModelViewInverse) * viewNormal;
+    gl_Position = gl_ProjectionMatrix * viewPos;
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -152,9 +138,7 @@ void main() {
         #endif
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-            vec3 viewNormal = normalize(mat3(gbufferModelView) * gl_Normal);
-            vec3 skyLightDir = normalize(shadowLightPosition);
-            float geoNoL = dot(skyLightDir, viewNormal);
+            float geoNoL = dot(localSkyLightDirection, vOut.localNormal);
         #else
             float geoNoL = 1.0;
         #endif
@@ -168,11 +152,5 @@ void main() {
         #if defined RENDER_CLOUD_SHADOWS_ENABLED
             vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
         #endif
-    #endif
-
-    gl_Position = gl_ProjectionMatrix * viewPos;
-
-    #ifdef EFFECT_TAA_ENABLED
-        jitter(gl_Position);
     #endif
 }

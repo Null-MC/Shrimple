@@ -486,8 +486,8 @@ void main() {
     #endif
 
     #ifdef DISTANT_HORIZONS
-        float viewDistXZ = length(vIn.localPos.xz);
-        if (isWater && viewDistXZ > dh_waterClipDist * far) {
+        //float viewDistXZ = length(vIn.localPos.xz);
+        if (isWater && viewDist > dh_waterClipDist * far) {
             discard;
             return;
         }

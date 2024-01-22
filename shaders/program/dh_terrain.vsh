@@ -113,8 +113,7 @@ void main() {
         jitter(gl_Position);
     #endif
 
-
-    vOut.localNormal = gl_Normal;
+    vOut.localNormal = normalize(gl_Normal);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -122,9 +121,7 @@ void main() {
         #endif
 
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
-            vec3 viewNormal = normalize(mat3(gbufferModelView) * gl_Normal);
-            vec3 skyLightDir = normalize(shadowLightPosition);
-            float geoNoL = dot(skyLightDir, viewNormal);
+            float geoNoL = dot(localSkyLightDirection, vOut.localNormal);
         #else
             const float geoNoL = 1.0;
         #endif
