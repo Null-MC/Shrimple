@@ -183,9 +183,9 @@ void main() {
             distF = 1.0 - _pow2(distF);
             
             #ifdef DISTANT_HORIZONS
-                float viewDistXZ = length(vOut.localPos.xz);
+                float viewDist = length(vOut.localPos.xyz);
                 float waterClipFar = dh_waterClipDist*far;
-                distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDistXZ);
+                distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
             #ifdef PHYSICS_OCEAN
