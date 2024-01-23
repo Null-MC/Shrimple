@@ -470,6 +470,7 @@ value.SHADOW_BIAS_SCALE.2.5=250%
 
 option.SHADOW_DISTORT_FACTOR=Verzerrung
 option.SHADOW_DISTORT_FACTOR.comment=Der Grad der Verzerrung, der auf die Schattenkarte angewendet werden soll. Gilt nur für verzerrte Schatten.
+suffix.SHADOW_DISTORT_FACTOR=%
 
 
 screen.SHADOW_FILTER_OPTIONS=Filterung

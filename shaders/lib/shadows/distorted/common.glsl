@@ -11,17 +11,17 @@ vec3 distort(const in vec3 pos) {
     #if SHADOW_DISTORT_FACTOR == 0
         return pos;
     #else
-        float factor = length(pos.xy) + SHADOW_DISTORT_FACTOR;
-        //float factor = maxOf(abs(pos.xy)) + SHADOW_DISTORT_FACTOR;
+        float factor = length(pos.xy) + ShadowDistortF;
+        //float factor = maxOf(abs(pos.xy)) + ShadowDistortF;
 
-        return vec3((pos.xy / factor) * (1.0 + SHADOW_DISTORT_FACTOR), pos.z);
+        return vec3((pos.xy / factor) * (1.0 + ShadowDistortF), pos.z);
 
         // const float CURVE_FACTOR = 1.0;
 
         // vec2 absUV = abs(pos.xy);
         // float maxCoord = minOf(absUV) / maxOf(absUV);
         // float maxLen = sqrt(1.0 + _pow2(maxCoord));
-        // float fac1 = length(pos.xy) + SHADOW_DISTORT_FACTOR;
+        // float fac1 = length(pos.xy) + ShadowDistortF;
         // float fac = mix(1.0, fac1, pow(1.0 - length(pos.xy) / maxLen, CURVE_FACTOR));
         // return vec3(pos.xy / fac, pos.z);
     #endif
@@ -30,8 +30,8 @@ vec3 distort(const in vec3 pos) {
 // float computeBias(vec3 pos) {
 //     const float SHADOW_DISTORTED_BIAS = 1.0;
 
-//     float numerator = length(pos.xy) + SHADOW_DISTORT_FACTOR;
-//     return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / SHADOW_DISTORT_FACTOR;
+//     float numerator = length(pos.xy) + ShadowDistortF;
+//     return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / ShadowDistortF;
 // }
 
 #if (defined RENDER_VERTEX || defined RENDER_TESS_EVAL) && !defined RENDER_SHADOW

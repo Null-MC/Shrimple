@@ -544,6 +544,7 @@ value.SHADOW_BIAS_SCALE.2.5=250%
 
 option.SHADOW_DISTORT_FACTOR=Искажённый
 option.SHADOW_DISTORT_FACTOR.comment=Величина искажения, применяемая к теням. Применяется только к искажённым теням.
+suffix.SHADOW_DISTORT_FACTOR=%
 
 option.SHADOW_CLOUD_ENABLED=Облачная Тень
 option.SHADOW_CLOUD_ENABLED.comment=Включает тени от облаков.
