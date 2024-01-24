@@ -215,6 +215,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectDist = far;
     #endif
 
+    // return reflectColor;
+
     #ifdef DISTANT_HORIZONS
         float farMax = max(SkyFar, 0.5*dhFarPlane);
     #else
@@ -313,7 +315,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     // TODO: Limit reflectDist < cloudNear
                 #endif
 
-                if (reflectFogDist > 0.0) {
+                if (reflectFogDist > 1.0) {
                     ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif

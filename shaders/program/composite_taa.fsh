@@ -170,14 +170,16 @@ float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
     // delta += max(maxOf(rgbDeltaN) - 0.2, 0.0);
 
     vec3 rgbDelta = max(rgbMin - colorPrev, 0.0) + max(colorPrev - rgbMax, 0.0);
-    delta += 2.0 * max(luminance(rgbDelta) - 0.5, 0.0);
+    // delta += 2.0 * max(luminance(rgbDelta) - 0.5, 0.0);
+    delta += luminance(rgbDelta) * taa_smoothF * 8.0;
 
     float lumPrev = luminance(colorPrev);
     float lumDelta = max(lumMin - lumPrev, 0.0) + max(lumPrev - lumMax, 0.0);
-    delta += 2.0 * max(lumDelta - 0.4, 0.0);
+    // delta += 2.0 * max(lumDelta - 0.4, 0.0);
     
-    //return max(1.0 - delta, 0.0);
-    return 1.0 - _smoothstep(delta);
+    return max(1.0 - delta, 0.0);
+    // return 1.0 - _smoothstep(delta);
+    // return delta;
 }
 
 // TODO: combine neighbor tests
@@ -303,7 +305,7 @@ void main() {
     vec2 uvNow = texcoord;
 
     vec2 jitter = getJitterOffset(frameCounter);
-    vec2 uvNowJitter = uvNow - 0.5*jitter;
+    vec2 uvNowJitter = uvNow;// - 0.5*jitter;
     //uvNow -= 0.5*jitter;
 
     // float depthNow = textureLod(depthtex0, uvNow, 0).r;
@@ -384,11 +386,11 @@ void main() {
     if (velocity.w > 0.5) counter = min(counter, 2);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
-    //counter *= neighborColorTest(colorPrev.rgb, uvNow);
+    counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
     float depthTest = 1.0;
 
-    const float depthBias = depthNowL * 0.02;
+    const float depthBias = 0.08 * depthNowL * taa_smoothF;
     depthTest *= step(reproDepthMin - depthBias, depthPrevL);
     depthTest *= step(depthPrevL, reproDepthMax + depthBias);
 
