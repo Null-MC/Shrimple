@@ -171,7 +171,7 @@ float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
 
     vec3 rgbDelta = max(rgbMin - colorPrev, 0.0) + max(colorPrev - rgbMax, 0.0);
     // delta += 2.0 * max(luminance(rgbDelta) - 0.5, 0.0);
-    delta += luminance(rgbDelta) * taa_smoothF * 8.0;
+    delta += luminance(rgbDelta) * (1.0 - taa_smoothF) * 8.0;
 
     float lumPrev = luminance(colorPrev);
     float lumDelta = max(lumMin - lumPrev, 0.0) + max(lumPrev - lumMax, 0.0);

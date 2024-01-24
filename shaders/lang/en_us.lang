@@ -638,17 +638,20 @@ option.EFFECT_BLUR_ENABLED=Enabled
 
 option.EFFECT_BLUR_SAMPLE_COUNT=Sample Count
 
-option.EFFECT_BLUR_MAX_RADIUS=Radius
+option.EFFECT_BLUR_MAX_RADIUS=Distant Radius
+option.EFFECT_BLUR_MAX_RADIUS.comment=The maximum blur radius applied to far-away terrain (when not in water).
 suffix.EFFECT_BLUR_MAX_RADIUS=px
 
 option.EFFECT_BLUR_WATER_RADIUS=Water Radius
+option.EFFECT_BLUR_WATER_RADIUS.comment=The maximum blur radius applied to far-away terrain when in water.
 suffix.EFFECT_BLUR_WATER_RADIUS=px
 
 option.EFFECT_BLUR_RADIUS_WEATHER=Weather Radius
+option.EFFECT_BLUR_RADIUS_WEATHER.comment=The maximum blur radius applied to terrain when raining/snowing.
 suffix.EFFECT_BLUR_RADIUS_WEATHER=px
 
 option.EFFECT_BLUR_RADIUS_BLIND=Blindness Radius
-option.EFFECT_BLUR_RADIUS_BLIND.comment=Applies a heavy blur to the screen when the player receives the blindness effect.
+option.EFFECT_BLUR_RADIUS_BLIND.comment=The maximum blur radius applied to screen when the blindness effect is active.
 suffix.EFFECT_BLUR_RADIUS_BLIND=px
 
 
@@ -658,8 +661,10 @@ screen.EFFECT_SSAO_OPTIONS.comment=Options for Screen-Space Ambient Occlusion
 option.EFFECT_SSAO_ENABLED=Enabled
 
 option.EFFECT_SSAO_SAMPLES=Sample Count
+option.EFFECT_SSAO_SAMPLES.comment=The number of samples to use per-pixel when calculating ambient occlusion.
 
 option.EFFECT_SSAO_RADIUS=Block Radius
+option.EFFECT_SSAO_RADIUS.comment=The maximum radius (in blocks) to sample from the center-point.
 
 option.EFFECT_SSAO_STRENGTH=Strength
 suffix.EFFECT_SSAO_STRENGTH=x
@@ -676,6 +681,9 @@ option.EFFECT_TAA_MAX_ACCUM.comment=The maximum number of frames that can be acc
 
 option.EFFECT_TAA_SHARPEN=Sharpen
 option.EFFECT_TAA_SHARPEN.comment=Makes TAA sharper. May cause visual artiafcts.
+
+option.EFFECT_TAA_SMOOTH=Smoothing
+suffix.EFFECT_TAA_SMOOTH=%
 
 
 screen.POST_OPTIONS=Post-Processing

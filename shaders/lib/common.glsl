@@ -290,7 +290,7 @@ const bool colortex15Clear = true;
 
 #define EFFECT_TAA_ENABLED
 #define EFFECT_TAA_MAX_ACCUM 16 // [8 16 30 60]
-#define EFFECT_TAA_SMOOTH 5 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_TAA_SMOOTH 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define EFFECT_TAA_SHARPEN
 
 //#define EFFECT_FXAA_ENABLED
@@ -560,7 +560,7 @@ const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
-const float taa_smoothF = 1.0 - EFFECT_TAA_SMOOTH * 0.01;
+const float taa_smoothF = EFFECT_TAA_SMOOTH * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_waterClipDist = DH_WATER_CLIP_DIST * 0.01;
 
