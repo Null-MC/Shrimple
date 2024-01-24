@@ -186,14 +186,14 @@ void getNeighborDepthRange(const in vec2 texcoord, out float depthMinL, out floa
     //vec2 jitter = getJitterOffset(frameCounter);
     vec2 offsetCoord = texcoord;// + 0.5*jitter;// - 0.5*pixelSize;
 
-    depthMinL = 9999.0;
+    depthMinL = 99999.0;
     depthMaxL = 0.0;
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = offsetCoord + vec2(x, y) * pixelSize;
-            float sampleDepth = textureLod(depthtex1, sampleCoord, 0).r;
-            //float sampleDepth = texelFetch(depthtex1, ivec2(sampleCoord * viewSize), 0).r;
+            // float sampleDepth = textureLod(depthtex1, sampleCoord, 0).r;
+            float sampleDepth = texelFetch(depthtex1, ivec2(sampleCoord * viewSize), 0).r;
 
             float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
 
@@ -384,29 +384,36 @@ void main() {
     if (velocity.w > 0.5) counter = min(counter, 2);
 
     //neighborClampColor(colorPrev.rgb, uvNow);
-    counter *= neighborColorTest(colorPrev.rgb, uvNow);
+    //counter *= neighborColorTest(colorPrev.rgb, uvNow);
 
-    //const float depthBias = 0.2;
-    //float depthTest = step(reproDepthMin - depthBias, depthPrevL) * step(depthPrevL, reproDepthMax + depthBias);
-    float depthTest = max((reproDepthMin - 0.02) - depthPrevL, 0.0);
-    depthTest += max(depthPrevL - (reproDepthMax + 0.02), 0.0);
+    float depthTest = 1.0;
+
+    const float depthBias = depthNowL * 0.02;
+    depthTest *= step(reproDepthMin - depthBias, depthPrevL);
+    depthTest *= step(depthPrevL, reproDepthMax + depthBias);
+
+    // float depthTest = max((reproDepthMin - 0.02) - depthPrevL, 0.0);
+    // depthTest += max(depthPrevL - (reproDepthMax + 0.02), 0.0);
     //if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
 
-    depthTest = saturate(1.0 - depthTest);
+    // depthTest = saturate(1.0 - depthTest);
+    // depthTest = step(depthTest, EPSILON);
     counter *= depthTest;
 
     counter = max(counter + 1.0, 1.0);
     float weight = 1.0 - rcp(counter);
 
     vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
-    float depthFinal = mix(depthNowL, depthPrevL, weight);
+    // float depthFinal = mix(depthNowL, depthPrevL, weight);
+    float depthFinal = depthNowL;
 
     colorFinal = clamp(colorFinal, 0.0, 65000.0);
 
     outFinal = colorFinal;
     //outFinal = vec3(1.0 - depthTest);
     //outFinal = vec3(depthPrevL / far);
-    //outFinal = vec3(1.0 - weight);
+    // outFinal = vec3(1.0 - weight);
+    // outFinal = vec3(step(1.2, abs(reproDepthL - depthPrevL)));
     outFinalPrev = vec4(colorFinal, counter);
-    outDepthPrev = depthFinal;
+    outDepthPrev = depthNowL;// depthFinal;
 }

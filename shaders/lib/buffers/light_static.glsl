@@ -2,6 +2,7 @@ struct StaticLightData {
     uint Color;
     uint Offset;
     uint RangeSize;
+    uint Metadata;
 };
 
 #ifdef RENDER_SETUP

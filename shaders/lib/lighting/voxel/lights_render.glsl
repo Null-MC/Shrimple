@@ -49,27 +49,27 @@
     }
 #endif
 
-bool GetLightTraced(const in uint lightType) {
-    bool result = true;
+// bool GetLightTraced(const in uint lightType) {
+//     bool result = true;
 
-    #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
-    #endif
+//     #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
+//         if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
+//     #endif
 
-    #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_LAVA) result = false;
-    #endif
+//     #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
+//         if (lightType == LIGHT_LAVA) result = false;
+//     #endif
 
-    #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
-        if (lightType == LIGHT_NETHER_PORTAL) result = false;
-    #endif
+//     #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
+//         if (lightType == LIGHT_NETHER_PORTAL) result = false;
+//     #endif
 
-    #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
-        if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
-    #endif
+//     #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
+//         if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
+//     #endif
 
-    return result;
-}
+//     return result;
+// }
 
 void ParseLightPosition(const in uvec4 data, out vec3 position) {
     position.x = uintBitsToFloat(half2float(data.x & uint(0xffff)));

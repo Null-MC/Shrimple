@@ -61,7 +61,7 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
     return hit;
 }
 
-vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
+vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in bool traceSelf) {
     //if (ivec3(origin) == ivec3(endPos)) return vec3(1.0);
 
     vec3 traceRay = endPos - origin;
@@ -69,9 +69,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     vec3 direction = traceRay / traceRayLen;
-    if (abs(direction.x) < EPSILON) direction.x = EPSILON;
-    if (abs(direction.y) < EPSILON) direction.y = EPSILON;
-    if (abs(direction.z) < EPSILON) direction.z = EPSILON;
+    // if (abs(direction.x) < EPSILON) direction.x = EPSILON;
+    // if (abs(direction.y) < EPSILON) direction.y = EPSILON;
+    // if (abs(direction.z) < EPSILON) direction.z = EPSILON;
 
     vec3 stepDir = sign(direction);
     vec3 stepSizes = rcp(abs(direction));
@@ -81,7 +81,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
 
     float traceRayLen2 = _pow2(traceRayLen);
     vec3 color = vec3(1.0);
-    //vec3 currPos = origin;
+    vec3 currPos = origin;
     float currDist2 = 0.0;
     bool hit = false;
 
@@ -89,13 +89,15 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
         uint blockIdLast;
     #endif
 
-    float closestDist = minOf(nextDist);
-    vec3 currPos = origin + direction * closestDist;
+    if (!traceSelf) {
+        float closestDist = minOf(nextDist);
+        currPos += direction * closestDist;
 
-    vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
+        vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
-    nextDist -= closestDist;
-    nextDist += stepSizes * stepAxis;
+        nextDist -= closestDist;
+        nextDist += stepSizes * stepAxis;
+    }
 
     for (int i = 0; i < DDA_MAX_STEP && !hit && currDist2 < traceRayLen2; i++) {
         vec3 rayStart = currPos;
@@ -108,7 +110,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
         
         vec3 voxelPos = floor(0.5 * (currPos + rayStart));
 
-        if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
+        if (!traceSelf) {
+            // if (ivec3(0.5 * (currPos + rayStart)) == ivec3(origin)) continue;
+        }
 
         vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
@@ -119,51 +123,51 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
             uint gridIndex = GetVoxelGridCellIndex(gridCell);
             uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
-            #ifdef DYN_LIGHT_OCTREE
-                if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
+            // #ifdef DYN_LIGHT_OCTREE
+            //     if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;
 
-                uvec3 nodeMin = uvec3(0);
-                uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
-                uvec3 nodePos = uvec3(0);
+            //     uvec3 nodeMin = uvec3(0);
+            //     uvec3 nodeMax = uvec3(LIGHT_BIN_SIZE);
+            //     uvec3 nodePos = uvec3(0);
 
-                bool treeHit = true;
-                uint nodeBitOffset = 1u;
-                for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS && treeHit; treeDepth++) {
-                    uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
-                    uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
+            //     bool treeHit = true;
+            //     uint nodeBitOffset = 1u;
+            //     for (uint treeDepth = 0u; treeDepth < DYN_LIGHT_OCTREE_LEVELS && treeHit; treeDepth++) {
+            //         uvec3 nodeCenter = (nodeMin + nodeMax) / 2u;
+            //         uvec3 nodeChild = uvec3(step(nodeCenter, blockCell));
 
-                    uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
+            //         uint childMask = (nodeChild.z << 2u) & (nodeChild.y << 1u) & nodeChild.x;
 
-                    uint nodeSize = uint(exp2(treeDepth));
-                    uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
+            //         uint nodeSize = uint(exp2(treeDepth));
+            //         uint nodeMaskOffset = (nodePos.z * _pow2(nodeSize)) + (nodePos.y * nodeSize) + nodePos.x;
 
-                    uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
-                    uint nodeArrayIndex = nodeBitIndex / 32u;
+            //         uint nodeBitIndex = nodeBitOffset + 8u * nodeMaskOffset + childMask;
+            //         uint nodeArrayIndex = nodeBitIndex / 32u;
 
-                    uint depthMask = SceneBlockMaps[gridIndex].OctreeMask[nodeArrayIndex];
-                    uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
+            //         uint depthMask = SceneBlockMaps[gridIndex].OctreeMask[nodeArrayIndex];
+            //         uint nodeMask = 1u << (nodeBitIndex - nodeArrayIndex);
 
-                    if ((depthMask & nodeMask) == 0u) {
-                        // TODO: skip
-                        // vec3 nodeMin = ;
-                        // vec3 nodeMax = ;
-                        // for (uint ix = 0u; ix < LIGHT_BIN_SIZE; ix++) {
-                        //     //
-                        // }
-                        treeHit = false;
-                        break;
-                    }
+            //         if ((depthMask & nodeMask) == 0u) {
+            //             // TODO: skip
+            //             // vec3 nodeMin = ;
+            //             // vec3 nodeMax = ;
+            //             // for (uint ix = 0u; ix < LIGHT_BIN_SIZE; ix++) {
+            //             //     //
+            //             // }
+            //             treeHit = false;
+            //             break;
+            //         }
 
-                    nodeBitOffset += uint(pow(8u, treeDepth + 1u));
+            //         nodeBitOffset += uint(pow(8u, treeDepth + 1u));
 
-                    uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
-                    nodeMin += nodeHalfSize * nodeChild;
-                    nodeMax -= nodeHalfSize * (1u - nodeChild);
-                    nodePos = (nodePos + nodeChild) * 2u;
-                }
+            //         uvec3 nodeHalfSize = (nodeMax - nodeMin) / 2u;
+            //         nodeMin += nodeHalfSize * nodeChild;
+            //         nodeMax -= nodeHalfSize * (1u - nodeChild);
+            //         nodePos = (nodePos + nodeChild) * 2u;
+            //     }
 
-                if (!treeHit) continue;
-            #endif
+            //     if (!treeHit) continue;
+            // #endif
 
             #if LIGHTING_TINT_MODE == LIGHT_TINT_ABSORB
                 if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
@@ -184,9 +188,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range) {
                     if (blockId == BLOCK_SOLID || IsTraceFullBlock(blockId)) hit = true;
                     else {
                         vec3 ray = currPos - rayStart;
-                        if (abs(ray.x) < EPSILON) ray.x = EPSILON;
-                        if (abs(ray.y) < EPSILON) ray.y = EPSILON;
-                        if (abs(ray.z) < EPSILON) ray.z = EPSILON;
+                        // if (abs(ray.x) < EPSILON) ray.x = EPSILON;
+                        // if (abs(ray.y) < EPSILON) ray.y = EPSILON;
+                        // if (abs(ray.z) < EPSILON) ray.z = EPSILON;
 
                         vec3 rayInv = rcp(ray);
                         hit = TraceHitTest(blockId, rayStart - voxelPos, rayInv);

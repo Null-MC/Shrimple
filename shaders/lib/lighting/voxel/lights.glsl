@@ -730,18 +730,26 @@
         vec3 lightOffset = vec3(0.0);
 
         switch (lightType) {
+            case LIGHT_CAMPFIRE:
+            case LIGHT_SOUL_CAMPFIRE:
+                lightOffset = vec3(0.0, -0.1, 0.0);
+                break;
+
             case LIGHT_BLAST_FURNACE_N:
             case LIGHT_BLAST_FURNACE_E:
             case LIGHT_BLAST_FURNACE_S:
             case LIGHT_BLAST_FURNACE_W:
                 lightOffset = vec3(0.0, -0.4, 0.0);
                 break;
+
             case LIGHT_CANDLE_CAKE:
                 lightOffset = vec3(0.0, 0.4, 0.0);
                 break;
+
             case LIGHT_FIRE:
                 lightOffset = vec3(0.0, -0.3, 0.0);
                 break;
+
             case LIGHT_FURNACE_N:
             case LIGHT_FURNACE_E:
             case LIGHT_FURNACE_S:
@@ -825,6 +833,38 @@
 
         return lightOffset;
     }
+
+    bool GetLightTraced(const in uint lightType) {
+        bool result = true;
+
+        #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_CAVEVINE_BERRIES) result = false;
+        #endif
+
+        #if DYN_LIGHT_LAVA != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_LAVA) result = false;
+        #endif
+
+        #if DYN_LIGHT_PORTAL != DYN_LIGHT_BLOCK_TRACE
+            if (lightType == LIGHT_NETHER_PORTAL) result = false;
+        #endif
+
+        #if DYN_LIGHT_REDSTONE != DYN_LIGHT_BLOCK_TRACE
+            if (lightType >= LIGHT_REDSTONE_WIRE_1 && lightType <= LIGHT_REDSTONE_WIRE_15) result = false;
+        #endif
+
+        return result;
+    }
+
+    bool GetLightSelfTraced(const in uint lightType) {
+        bool result = false;
+
+        if (lightType == LIGHT_BEACON) result = true;
+        if (lightType == LIGHT_CAMPFIRE) result = true;
+        if (lightType == LIGHT_SOUL_CAMPFIRE) result = true;
+
+        return result;
+    }
 #endif
 
     #ifdef RENDER_SHADOWCOMP
@@ -832,9 +872,9 @@
             uint lightData = 0u;
 
             switch (lightType) {
-                case LIGHT_BEACON:
-                    lightData |= 1u << LIGHT_MASK_DOWN;
-                    break;
+                // case LIGHT_BEACON:
+                //     lightData |= 1u << LIGHT_MASK_DOWN;
+                //     break;
                 case LIGHT_JACK_O_LANTERN_N:
                 case LIGHT_FURNACE_N:
                 case LIGHT_BLAST_FURNACE_N:
@@ -888,7 +928,7 @@
         }
 
         // BuildLightMask
-        uvec4 BuildLightData(const in vec3 position, const in bool traced, const in uint mask, const in float size, const in float range, const in vec3 color) {
+        uvec4 BuildLightData(const in vec3 position, const in bool traced, const in bool selfTrace, const in uint mask, const in float size, const in float range, const in vec3 color) {
             uvec4 lightData;
 
             // position
@@ -906,6 +946,7 @@
 
             // traced
             lightData.z = traced ? 1u : 0u;
+            lightData.z |= (selfTrace ? 1u : 0u) << 1u;
 
             // mask
             lightData.z |= mask;

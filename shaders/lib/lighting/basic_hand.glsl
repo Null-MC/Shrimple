@@ -64,7 +64,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeR);
+                bool traceSelf = false; //lightData.z & 1u;
+
+                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeR, traceSelf);
             #else
                 vec3 lightDir = normalize(lightVec);
             #endif
@@ -140,7 +142,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
-                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeL);
+                bool traceSelf = false; //lightData.z & 1u;
+
+                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRangeL, traceSelf);
             #else
                 vec3 lightDir = normalize(lightVec);
             #endif

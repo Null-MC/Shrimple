@@ -73,11 +73,11 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
 
     switch (blockId) {
         case BLOCK_BEACON:
-            shapeCount = 2u;
+            shapeCount = 1u;
             boundsMin[0] = modelPart( 2,  0,  2);
             boundsMax[0] = modelPart(14,  3, 14);
-            boundsMin[1] = modelPart( 3,  3,  3);
-            boundsMax[1] = modelPart(13, 14, 13);
+            // boundsMin[1] = modelPart( 3,  3,  3);
+            // boundsMax[1] = modelPart(13, 14, 13);
             break;
     }
 
@@ -167,6 +167,8 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             break;
 
         case BLOCK_CAMPFIRE_N_S:
+        case BLOCK_CAMPFIRE_LIT_N_S:
+        case BLOCK_SOUL_CAMPFIRE_LIT_N_S:
             shapeCount = 3u;
             boundsMin[0] = modelPart( 1,  0,  0);
             boundsMax[0] = modelPart(15,  4, 16);
@@ -176,6 +178,8 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMax[2] = modelPart(16,  7, 15);
             break;
         case BLOCK_CAMPFIRE_W_E:
+        case BLOCK_CAMPFIRE_LIT_W_E:
+        case BLOCK_SOUL_CAMPFIRE_LIT_W_E:
             shapeCount = 3u;
             boundsMin[0] = modelPart( 0,  0,  1);
             boundsMax[0] = modelPart(16,  4, 15);

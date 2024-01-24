@@ -28,11 +28,15 @@ void main() {
         vec3 lightColor = GetSceneLightColor(lightType);
         float lightRange = GetSceneLightRange(lightType);
         float lightSize = GetSceneLightSize(lightType);
+        bool lightTraced = GetLightTraced(lightType);
+        bool lightSelfTraced = GetLightSelfTraced(lightType);
 
         StaticLightData light;
         light.Offset = packSnorm4x8(vec4(lightOffset, 0.0));
         light.Color = packUnorm4x8(vec4(lightColor, 0.0));
         light.RangeSize = packUnorm4x8(vec4(lightRange/255.0, lightSize, 0.0, 0.0));
+        light.Metadata = (lightTraced ? 1u : 0u);
+        light.Metadata |= (lightSelfTraced ? 1u : 0u) << 1u;
 
         StaticLightMap[lightType] = light;
     #endif

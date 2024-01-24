@@ -145,12 +145,15 @@ void main() {
                         if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {
                             lightColor = LinearToRGB(lightColor);
                             vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;
-                            bool lightTraced = GetLightTraced(lightType);
                             uint lightMask = BuildLightMask(lightType);
                             float lightSize = lightRangeSize.y;
+
+                            // bool lightTraced = GetLightTraced(lightType);
+                            bool lightTraced = (lightInfo.Metadata & 1u) == 1u;
+                            bool selfTraced = ((lightInfo.Metadata >> 1u) & 1u) == 1u;
                             
                             uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
-                            SceneLights[lightGlobalIndex] = BuildLightData(blockLocalPos + lightOffset, lightTraced, lightMask, lightSize, lightRange, lightColor);
+                            SceneLights[lightGlobalIndex] = BuildLightData(blockLocalPos + lightOffset, lightTraced, selfTraced, lightMask, lightSize, lightRange, lightColor);
                             SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;
 
                             lightLocalIndex++;

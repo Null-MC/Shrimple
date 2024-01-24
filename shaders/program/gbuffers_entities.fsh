@@ -395,12 +395,15 @@ void main() {
 
         #ifdef RENDER_TRANSLUCENT
             float alphaThreshold = (1.5/255.0);
-        #else
+        #elif defined ALPHATESTREF_ENABLED
             float alphaThreshold = alphaTestRef;
+        #else
+            const float alphaThreshold = 0.1;
         #endif
 
         //if (entityId == ENTITY_BOAT) alphaThreshold = -1.0;
 
+        // if (entityId == ENTITY_BOAT) color = vec4(1.0, 0.0, 0.0, 1.0);
         if (color.a <= alphaThreshold && entityId != ENTITY_BOAT) {
             discard;
             return;

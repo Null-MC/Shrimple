@@ -101,7 +101,8 @@ uint GetSceneLightType(const in uint blockId) {
         case BLOCK_END_ROD:
             lightType = LIGHT_END_ROD;
             break;
-        case BLOCK_CAMPFIRE_LIT:
+        case BLOCK_CAMPFIRE_LIT_N_S:
+        case BLOCK_CAMPFIRE_LIT_W_E:
             lightType = LIGHT_CAMPFIRE;
             break;
         case BLOCK_FIRE:
@@ -210,7 +211,8 @@ uint GetSceneLightType(const in uint blockId) {
         case BLOCK_SMOKER_LIT_W:
             lightType = LIGHT_SMOKER_W;
             break;
-        case BLOCK_SOUL_CAMPFIRE_LIT:
+        case BLOCK_SOUL_CAMPFIRE_LIT_N_S:
+        case BLOCK_SOUL_CAMPFIRE_LIT_W_E:
             lightType = LIGHT_SOUL_CAMPFIRE;
             break;
         case BLOCK_SOUL_FIRE:

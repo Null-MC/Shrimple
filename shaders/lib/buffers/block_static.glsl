@@ -1,6 +1,6 @@
 struct BlockCollisionData {
-    uint Count;                     // 4
     uvec2 Bounds[BLOCK_MASK_PARTS]; // 8 x6=48
+    uint Count;                     // 4
 };
 
 struct StaticBlockData {        // 76 x1280 =97280

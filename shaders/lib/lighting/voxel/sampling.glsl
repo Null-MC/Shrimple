@@ -123,19 +123,19 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         uint traceFace = 1u << GetLightMaskFace(-lightVec);
         if ((lightData.z & traceFace) == traceFace) continue;
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
+        // #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
             if ((lightData.z & 1u) == 1u) {
                 vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
-                vec3 traceEnd = traceOrigin - 0.99*lightVec;
+                vec3 traceEnd = traceOrigin - lightVec;
 
                 //vec3 traceOrigin = traceEnd - lightVec;
 
-                if (!isSpectator) {
-                #ifdef RENDER_ENTITIES
-                    if (entityId != ENTITY_PLAYER) {
-                #endif
+                #if LIGHTING_TRACED_PLAYER_SHADOW != PLAYER_SHADOW_NONE
+                    if (!isSpectator) {
+                    #ifdef RENDER_ENTITIES
+                        if (entityId != ENTITY_PLAYER) {
+                    #endif
 
-                    #if LIGHTING_TRACED_PLAYER_SHADOW != PLAYER_SHADOW_NONE
                         vec3 playerPos = vec3(0.0, -0.8, 0.0);
 
                         #ifdef IS_IRIS
@@ -158,16 +158,18 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                             
                             if (hit) lightColor = vec3(0.0);
                         }
-                    #endif
 
-                #ifdef RENDER_ENTITIES
+                    #ifdef RENDER_ENTITIES
+                        }
+                    #endif
                     }
                 #endif
-                }
 
-                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
+                bool traceSelf = ((lightData.z >> 1u) & 1u) == 1u;
+
+                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange, traceSelf);
             }
-        #endif
+        // #endif
 
         //vec3 lightDir = normalize(-lightVec);
         float geoNoL = 1.0;

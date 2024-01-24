@@ -1,9 +1,9 @@
-#define LIGHT_MASK_UP 1u
-#define LIGHT_MASK_DOWN 2u
-#define LIGHT_MASK_NORTH 3u
-#define LIGHT_MASK_SOUTH 4u
-#define LIGHT_MASK_WEST 5u
-#define LIGHT_MASK_EAST 6u
+#define LIGHT_MASK_UP 2u
+#define LIGHT_MASK_DOWN 3u
+#define LIGHT_MASK_NORTH 4u
+#define LIGHT_MASK_SOUTH 5u
+#define LIGHT_MASK_WEST 6u
+#define LIGHT_MASK_EAST 7u
 
 
 #if LIGHTING_MODE != DYN_LIGHT_NONE

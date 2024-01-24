@@ -1,14 +1,4 @@
 void GetFrustumMinMax(const in mat4 matProjection, out vec3 clipMin, out vec3 clipMax) {
-    // vec3 frustum[8] = vec3[](
-    //     vec3(-1.0, -1.0, -1.0),
-    //     vec3( 1.0, -1.0, -1.0),
-    //     vec3(-1.0,  1.0, -1.0),
-    //     vec3( 1.0,  1.0, -1.0),
-    //     vec3(-1.0, -1.0,  1.0),
-    //     vec3( 1.0, -1.0,  1.0),
-    //     vec3(-1.0,  1.0,  1.0),
-    //     vec3( 1.0,  1.0,  1.0));
-
     for (int i = 0; i < 8; i++) {
         vec3 corner = vec3(ivec3(i, i / 2, i / 4) % 2) * 2.0 - 1.0;
         vec3 shadowClipPos = unproject(matProjection * vec4(corner, 1.0));
