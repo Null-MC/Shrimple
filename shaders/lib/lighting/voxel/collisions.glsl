@@ -357,6 +357,12 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMax[0] = modelPart(16, 16, 16);
             break;
 
+        case BLOCK_DECORATED_POT:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 1,  0,  1);
+            boundsMax[0] = modelPart(15, 16, 15);
+            break;
+
         case BLOCK_END_PORTAL_FRAME:
             shapeCount = 1u;
             boundsMin[0] = modelPart( 0,  0,  0);
@@ -637,6 +643,12 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             shapeCount = 1u;
             boundsMin[0] = modelPart( 1, 0.0,  1);
             boundsMax[0] = modelPart(15, 0.5, 15);
+            break;
+
+        case BLOCK_SNIFFER_EGG:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 2,  0,  2);
+            boundsMax[0] = modelPart(14, 16, 14);
             break;
     }
 

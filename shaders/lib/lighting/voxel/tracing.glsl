@@ -110,9 +110,7 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
         
         vec3 voxelPos = floor(0.5 * (currPos + rayStart));
 
-        if (!traceSelf) {
-            if (ivec3(voxelPos) == ivec3(endPos)) i = 999;
-        }
+        if (!traceSelf && ivec3(voxelPos) == ivec3(endPos)) i = 999;
 
         vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
