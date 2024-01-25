@@ -10,10 +10,14 @@ layout(triangle_strip, max_vertices=12) out;
 in VertexData {
     vec4 color;
     float cameraViewDist;
+
+    flat uint materialId;
 } vIn[];
 
 out VertexData {
     vec4 color;
+
+    flat uint materialId;
 
     #if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         flat vec2 shadowTilePos;
@@ -98,6 +102,7 @@ void main() {
                     vOut.shadowTilePos = shadowTilePos;
 
                     vOut.color = vIn[v].color;
+                    vOut.materialId = vIn[v].materialId;
 
                     gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
 
@@ -113,6 +118,7 @@ void main() {
         #else
             for (int v = 0; v < 3; v++) {
                 vOut.color = vIn[v].color;
+                vOut.materialId = vIn[v].materialId;
 
                 #ifdef IRIS_FEATURE_SSBO
                     gl_Position = shadowProjectionEx * gl_in[v].gl_Position;

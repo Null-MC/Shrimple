@@ -347,6 +347,16 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMin[4] = modelPart( 2,  2, 14);
             boundsMax[4] = modelPart(14, 16, 16);
             break;
+
+        case BLOCK_COPPER_BULB_LIT:
+        case BLOCK_COPPER_BULB_EXPOSED_LIT:
+        case BLOCK_COPPER_BULB_OXIDIZED_LIT:
+        case BLOCK_COPPER_BULB_WEATHERED_LIT:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 0,  0,  0);
+            boundsMax[0] = modelPart(16, 16, 16);
+            break;
+
         case BLOCK_END_PORTAL_FRAME:
             shapeCount = 1u;
             boundsMin[0] = modelPart( 0,  0,  0);

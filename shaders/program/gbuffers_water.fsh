@@ -426,14 +426,6 @@ void main() {
         // TODO: discard if DH opaque nearer?
     #endif
 
-    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
-            SetWaterDepth(viewDist);
-            // discard;
-            // return;
-        }
-    #endif
-
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
             discard;
@@ -487,9 +479,17 @@ void main() {
 
     #ifdef DISTANT_HORIZONS
         //float viewDistXZ = length(vIn.localPos.xz);
-        if (isWater && viewDist > dh_waterClipDist * far) {
+        if (viewDist > dh_waterClipDist * far) {
             discard;
             return;
+        }
+    #endif
+
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
+            SetWaterDepth(viewDist);
+            // discard;
+            // return;
         }
     #endif
 

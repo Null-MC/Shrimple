@@ -11,6 +11,8 @@ out VertexData {
     vec3 localPos;
     vec3 localNormal;
 
+    flat uint materialId;
+
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         vec3 physics_localPosition;
         float physics_localWaviness;
@@ -110,19 +112,23 @@ uniform vec3 previousCameraPosition;
 
 
 void main() {
-    const bool isWater = true;
+    bool isWater = (dhMaterialId == DH_BLOCK_WATER);
 
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    vOut.materialId = uint(dhMaterialId);
     vOut.localNormal = gl_Normal;
     vOut.color = gl_Color;
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vec4 pos = gl_Vertex;
+    vec4 vPos = gl_Vertex;
+    
+    vec3 cameraOffset = fract(cameraPosition);
+    vPos.xyz = floor(vPos.xyz + cameraOffset + 0.5) - cameraOffset;
 
-    if (isWater) pos.y -= (2.0/16.0);
+    if (isWater) vPos.y -= (2.0/16.0);
 
-    vec4 viewPos = gl_ModelViewMatrix * pos;
+    vec4 viewPos = gl_ModelViewMatrix * vPos;
 
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 

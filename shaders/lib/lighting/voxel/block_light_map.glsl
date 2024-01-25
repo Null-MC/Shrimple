@@ -95,6 +95,18 @@ uint GetSceneLightType(const in uint blockId) {
         case BLOCK_BREWING_STAND:
             lightType = LIGHT_BREWING_STAND;
             break;
+        case BLOCK_COPPER_BULB_LIT:
+            lightType = LIGHT_COPPER_BULB;
+            break;
+        case BLOCK_COPPER_BULB_EXPOSED_LIT:
+            lightType = LIGHT_COPPER_BULB_EXPOSED;
+            break;
+        case BLOCK_COPPER_BULB_OXIDIZED_LIT:
+            lightType = LIGHT_COPPER_BULB_OXIDIZED;
+            break;
+        case BLOCK_COPPER_BULB_WEATHERED_LIT:
+            lightType = LIGHT_COPPER_BULB_WEATHERED;
+            break;
         case BLOCK_CRYING_OBSIDIAN:
             lightType = LIGHT_CRYING_OBSIDIAN;
             break;

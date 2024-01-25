@@ -181,7 +181,7 @@ uniform int frameCounter;
     #include "/lib/world/sky.glsl"
 
     #ifdef WORLD_WETNESS_ENABLED
-        #include "/lib/material/porosity.glsl"
+        // #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
     #endif
 #endif
@@ -350,8 +350,8 @@ void main() {
     roughness = 0.95;
     metal_f0 = 0.04;
 
-    if (vIn.materialId == DH_MATERIAL_LEAVES) sss = 0.8;
-    if (vIn.materialId == DH_MATERIAL_SNOW) sss = 0.6;
+    if (vIn.materialId == DH_BLOCK_LEAVES) sss = 0.8;
+    if (vIn.materialId == DH_BLOCK_SNOW) sss = 0.6;
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

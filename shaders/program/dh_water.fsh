@@ -11,6 +11,8 @@ in VertexData {
     vec3 localPos;
     vec3 localNormal;
 
+    flat uint materialId;
+
     #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
         vec3 physics_localPosition;
         float physics_localWaviness;
@@ -350,15 +352,7 @@ uniform int heldBlockLightValue2;
 
 void main() {
     float viewDist = length(vIn.localPos);
-    const bool isWater = true; //vIn.blockId == BLOCK_WATER;
-
-    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
-            SetWaterDepth(viewDist);
-            // discard;
-            // return;
-        }
-    #endif
+    bool isWater = (vIn.materialId == DH_BLOCK_WATER);
 
     // mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec3 worldPos = vIn.localPos + cameraPosition;
@@ -413,10 +407,18 @@ void main() {
     #endif
 
     //float viewDistXZ = length(vIn.localPos.xz);
-    if (isWater && viewDist < dh_waterClipDist * far) {
+    if (viewDist < dh_waterClipDist * far) {
         discard;
         return;
     }
+
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
+            SetWaterDepth(viewDist);
+            // discard;
+            // return;
+        }
+    #endif
 
     float porosity = 0.0;
     // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -463,7 +465,7 @@ void main() {
     vec3 albedo = RGBToLinear(color.rgb);
     float occlusion = 1.0;
 
-    float roughness = 0.95;
+    float roughness = 0.1;
     float metal_f0 = 0.04;
     const float sss = 0.0;
     const float emission = 0.0;
@@ -477,6 +479,8 @@ void main() {
             roughness = mix(waterRough, 0.50, oceanFoam);
         }
     #endif
+
+    // if (!isWater) roughness = 0.1;
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

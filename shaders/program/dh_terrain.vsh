@@ -103,8 +103,12 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vec4 pos = gl_Vertex;
-    vec4 viewPos = gl_ModelViewMatrix * pos;
+    vec4 vPos = gl_Vertex;
+
+    vec3 cameraOffset = fract(cameraPosition);
+    vPos.xyz = floor(vPos.xyz + cameraOffset + 0.5) - cameraOffset;
+    
+    vec4 viewPos = gl_ModelViewMatrix * vPos;
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
     gl_Position = gl_ProjectionMatrix * viewPos;

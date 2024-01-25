@@ -7,6 +7,8 @@
 in VertexData {
     vec4 color;
 
+    flat uint materialId;
+
     #if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         flat vec2 shadowTilePos;
     #endif
@@ -23,6 +25,11 @@ void main() {
         vec2 p = gl_FragCoord.xy / shadowMapSize - vIn.shadowTilePos;
         if (clamp(p, vec2(0.0), vec2(0.5)) != p) discard;
     #endif
+
+    vec4 color = vIn.color;
     
-    outColor0 = vIn.color;
+    if (vIn.materialId == DH_BLOCK_WATER)
+        color = vec4(0.90, 0.94, 0.96, 0.0);
+
+    outColor0 = color;
 }

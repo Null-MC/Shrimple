@@ -47,6 +47,12 @@
             case LIGHT_CAVEVINE_BERRIES:
                 lightColor = LIGHT_COLOR_CAVEVINE_BERRIES;
                 break;
+            case LIGHT_COPPER_BULB:
+            case LIGHT_COPPER_BULB_EXPOSED:
+            case LIGHT_COPPER_BULB_OXIDIZED:
+            case LIGHT_COPPER_BULB_WEATHERED:
+                lightColor = vec3(0.9, 0.8, 0.5);
+                break;
             case LIGHT_CRYING_OBSIDIAN:
                 lightColor = LIGHT_COLOR_CRYING_OBSIDIAN;
                 break;
@@ -380,6 +386,18 @@
             case LIGHT_COMPARATOR:
                 lightRange = 7.0;
                 break;
+            case LIGHT_COPPER_BULB:
+                lightRange = 15.0;
+                break;
+            case LIGHT_COPPER_BULB_EXPOSED:
+                lightRange = 12.0;
+                break;
+            case LIGHT_COPPER_BULB_OXIDIZED:
+                lightRange = 4.0;
+                break;
+            case LIGHT_COPPER_BULB_WEATHERED:
+                lightRange = 8.0;
+                break;
             case LIGHT_CRYING_OBSIDIAN:
                 lightRange = 10.0;
                 break;
@@ -648,6 +666,10 @@
             case LIGHT_SOUL_FIRE:
                 size = (16.0/16.0);
                 break;
+            case LIGHT_COPPER_BULB:
+            case LIGHT_COPPER_BULB_EXPOSED:
+            case LIGHT_COPPER_BULB_OXIDIZED:
+            case LIGHT_COPPER_BULB_WEATHERED:
             case LIGHT_LAVA_CAULDRON:
             case LIGHT_SEA_LANTERN:
             case LIGHT_REDSTONE_LAMP:
