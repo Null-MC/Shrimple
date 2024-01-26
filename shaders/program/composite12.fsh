@@ -398,15 +398,18 @@ layout(location = 0) out vec4 outFinal;
                 const float porosity = 0.0;
             #endif
 
-            #if SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
-                #ifdef SHADOW_COLORED
-                    vec3 deferredShadow = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
+            vec3 deferredShadow = vec3(1.0);
+            #ifdef RENDER_SHADOWS_ENABLED
+                #if SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
+                    #ifdef SHADOW_COLORED
+                        deferredShadow = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
+                    #else
+                        deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
+                    #endif
                 #else
-                    vec3 deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
+                    //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
+                    deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
                 #endif
-            #else
-                //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
-                vec3 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
