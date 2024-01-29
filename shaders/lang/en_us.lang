@@ -739,6 +739,9 @@ value.DEBUG_VIEW.14=Bloom Tiles
 value.DEBUG_VIEW.15=Depth Tiles
 value.DEBUG_VIEW.16=White-World
 
+option.DEBUG_TRANSPARENT=Debug Translucent
+option.DEBUG_TRANSPARENT.comment=Shows the debug view for translucent materials when enabled, opaque otherwise.
+
 option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
@@ -746,6 +749,10 @@ option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colo
 
 option.DH_COMPAT_ENABLED=Distant Horizons
 option.DH_COMPAT_ENABLED.comment=Enables special support for the Distant Horizons mod.
+
+option.DH_CLIP_DIST=DH Clipping Distance
+option.DH_CLIP_DIST.comment=The distance from the camera that Distant Horizons terrain will start clipping.
+suffix.DH_CLIP_DIST=%
 
 option.ANIM_WORLD_TIME=World-Time Animations
 option.ANIM_WORLD_TIME.comment=Uses the worlds time counter for animations rather than a constant increment. Useful for recording mods that replay using scaled world-time.

@@ -161,9 +161,9 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-#ifdef VL_BUFFER_ENABLED
-    uniform mat4 shadowModelView;
-#endif
+// #ifdef VL_BUFFER_ENABLED
+//     uniform mat4 shadowModelView;
+// #endif
 
 #ifdef DISTANT_HORIZONS
     uniform float dhNearPlane;
@@ -407,7 +407,7 @@ void main() {
     #endif
 
     //float viewDistXZ = length(vIn.localPos.xz);
-    if (viewDist < dh_waterClipDist * far) {
+    if (viewDist < dh_clipDistF * far) {
         discard;
         return;
     }
@@ -500,7 +500,7 @@ void main() {
                 float shadowDistFar = min(shadowDistance, far);
             #endif
 
-            vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+            vec3 shadowViewPos = (shadowModelViewEx * vec4(vIn.localPos, 1.0)).xyz;
             float shadowViewDist = length(shadowViewPos.xy);
             float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
 

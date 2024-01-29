@@ -135,7 +135,7 @@ void main() {
 
             #ifdef DISTANT_HORIZONS
                 float viewDistXZ = length(localPos.xz);
-                float waterClipFar = dh_waterClipDist*far;
+                float waterClipFar = dh_clipDistF*far;
                 distF *= 1.0 - smoothstep(0.8*waterClipFar, waterClipFar, viewDistXZ);
             #endif
 

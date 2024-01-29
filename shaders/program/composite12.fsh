@@ -186,9 +186,12 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-    #include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/sampling.glsl"
 
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/flicker.glsl"
     #endif
@@ -228,10 +231,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
-
-#include "/lib/lighting/hg.glsl"
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #include "/lib/lighting/voxel/lights.glsl"

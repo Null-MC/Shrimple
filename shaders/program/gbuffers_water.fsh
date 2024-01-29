@@ -194,9 +194,9 @@ uniform int heldBlockLightValue2;
     // #endif
 #endif
 
-#ifdef VL_BUFFER_ENABLED
-    uniform mat4 shadowModelView;
-#endif
+// #ifdef VL_BUFFER_ENABLED
+//     uniform mat4 shadowModelView;
+// #endif
 
 #ifdef DISTANT_HORIZONS
     uniform float dhFarPlane;
@@ -368,7 +368,9 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #include "/lib/lighting/sky_lighting.glsl"
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/lighting/sky_lighting.glsl"
+    #endif
 
     #if LIGHTING_MODE == DYN_LIGHT_NONE
         #include "/lib/lighting/vanilla.glsl"
@@ -479,7 +481,7 @@ void main() {
 
     #ifdef DISTANT_HORIZONS
         //float viewDistXZ = length(vIn.localPos.xz);
-        if (viewDist > dh_waterClipDist * far) {
+        if (viewDist > dh_clipDistF * far) {
             discard;
             return;
         }
@@ -621,7 +623,7 @@ void main() {
                 float shadowDistFar = min(shadowDistance, far);
             #endif
 
-            vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+            vec3 shadowViewPos = (shadowModelViewEx * vec4(vIn.localPos, 1.0)).xyz;
             float shadowViewDist = length(shadowViewPos.xy);
             float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
 

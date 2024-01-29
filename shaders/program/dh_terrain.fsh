@@ -299,6 +299,11 @@ uniform int frameCounter;
 
 void main() {
     float viewDist = length(vIn.localPos);
+    if (viewDist < dh_clipDistF * far) {
+        discard;
+        return;
+    }
+    
     vec2 lmFinal = vIn.lmcoord;
     
     vec3 localNormal = normalize(vIn.localNormal);

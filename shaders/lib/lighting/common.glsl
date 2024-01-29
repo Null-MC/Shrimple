@@ -25,7 +25,7 @@ vec4 BasicVertex() {
 
             #ifdef DISTANT_HORIZONS
                 //float viewDistXZ = length(vOut.localPos.xz);
-                float waterClipFar = dh_waterClipDist*far;
+                float waterClipFar = dh_clipDistF*far;
                 distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
