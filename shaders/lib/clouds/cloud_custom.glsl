@@ -34,7 +34,8 @@ float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
         testPos.x += cloudTimeF;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
-        sampleD += pow(sampleF, 1.8 - 0.8 * _str) * rcp(exp2(octave));
+        sampleD += pow(sampleF, 2.0 - _str) * rcp(exp2(octave));
+        // sampleD += sampleF * rcp(exp2(octave));
     }
 
     const float sampleMax = rcp(1.0 - rcp(exp2(octaveCount)));
