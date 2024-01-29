@@ -1,4 +1,4 @@
-float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.24, 0.76, 0.26);}
+float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.19);}
 
 float GetCloudDither() {
     #ifndef RENDER_FRAG

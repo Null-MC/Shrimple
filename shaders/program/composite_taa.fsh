@@ -107,115 +107,24 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     return clipPosPrev * 0.5 + 0.5;
 }
 
-// void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
-//     vec3 minColor = vec3(+9999.0);
-//     vec3 maxColor = vec3(-9999.0);
-
-//     for (int x = -1; x <= 1; ++x) {
-//         for (int y = -1; y <= 1; ++y) {
-//             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
-//             vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
-
-//             minColor = min(minColor, sampleColor);
-//             maxColor = max(maxColor, sampleColor);
-//         }
-//     }
-    
-//     colorPrev = clamp(colorPrev, minColor, maxColor);
-// }
-
-float neighborColorTest(const in vec3 colorPrev, const in vec2 texcoord) {
-    //float deltaMin = 1.0;
-
-    // vec3 colorPrevN = normalize(colorPrev + EPSILON);
-
-    // WARN: using the min-of-samples is bad; promotes flicker
-    // instead get min/max and check if range
-
-    float lumMax = 0.0;
-    float lumMin = 9999.0;
-
-    vec3 rgbMax = vec3(0.0);
-    vec3 rgbMin = vec3(9999.0);
+void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
+    vec3 minColor = vec3(999.0);
+    vec3 maxColor = vec3(0.0);
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
             vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
-            float sampleLum = luminance(sampleColor);
 
-            rgbMin = min(rgbMin, sampleColor);
-            rgbMax = max(rgbMax, sampleColor);
-
-            // vec3 sampleColorN = normalize(sampleColor + EPSILON);
-            // vec3 deltaRGB = abs(colorPrevN - sampleColorN);
-            // float sampleDelta = 2.0 * luminance(deltaRGB);
-
-            lumMin = min(lumMin, sampleLum);
-            lumMax = max(lumMax, sampleLum);
-
-            // float deltaLum = abs(luminance(colorPrev) - sampleLum);
-            // sampleDelta += 0.5 * deltaLum;
-
-            //deltaMin = min(deltaMin, sampleDelta);
+            minColor = min(minColor, sampleColor);
+            maxColor = max(maxColor, sampleColor);
         }
     }
-
-    float delta = 0.0;
-
-    // vec3 colorPrevN = normalize(colorPrev + EPSILON);
-    // vec3 rgbMinN = normalize(rgbMin + EPSILON);
-    // vec3 rgbMaxN = normalize(rgbMax + EPSILON);
-    // vec3 rgbDeltaN = max(rgbMinN - colorPrevN, 0.0) + max(colorPrevN - rgbMaxN, 0.0);
-    // delta += max(maxOf(rgbDeltaN) - 0.2, 0.0);
-
-    vec3 rgbDelta = max(rgbMin - colorPrev, 0.0) + max(colorPrev - rgbMax, 0.0);
-    // delta += 2.0 * max(luminance(rgbDelta) - 0.5, 0.0);
-    delta += luminance(rgbDelta) * (1.0 - taa_smoothF) * 8.0;
-
-    float lumPrev = luminance(colorPrev);
-    float lumDelta = max(lumMin - lumPrev, 0.0) + max(lumPrev - lumMax, 0.0);
-    // delta += 2.0 * max(lumDelta - 0.4, 0.0);
     
-    return max(1.0 - delta, 0.0);
-    // return 1.0 - _smoothstep(delta);
-    // return delta;
+    colorPrev = clamp(colorPrev, minColor, maxColor);
 }
 
-// TODO: combine neighbor tests
-
-void getNeighborDepthRange(const in vec2 texcoord, out float depthMinL, out float depthMaxL) {
-    //vec2 jitter = getJitterOffset(frameCounter);
-    vec2 offsetCoord = texcoord;// + 0.5*jitter;// - 0.5*pixelSize;
-
-    depthMinL = 99999.0;
-    depthMaxL = 0.0;
-
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
-            vec2 sampleCoord = offsetCoord + vec2(x, y) * pixelSize;
-            // float sampleDepth = textureLod(depthtex1, sampleCoord, 0).r;
-            float sampleDepth = texelFetch(depthtex1, ivec2(sampleCoord * viewSize), 0).r;
-
-            float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
-
-            #ifdef DISTANT_HORIZONS
-                float dhDepth = textureLod(dhDepthTex1, sampleCoord, 0).r;
-                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
-
-                if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
-                    //sampleDepth = dhDepth;
-                    sampleDepthL = dhDepthL;
-                }
-            #endif
-
-            depthMinL = min(depthMinL, sampleDepthL);
-            depthMaxL = max(depthMaxL, sampleDepthL);
-        }
-    }
-}
-
-vec4 sampleHistoryCatmullRom(const in vec2 uv) {
+vec3 sampleHistoryCatmullRom(const in vec2 uv) {
     vec2 samplePos = uv * viewSize;
     vec2 texPos1 = floor(samplePos - 0.5) + 0.5;
     //vec2 f = samplePos - texPos1;
@@ -243,72 +152,35 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     vec2 texPos3  = (texPos1 + 2.0) * pixelSize;
     vec2 texPos12 = (texPos1 + offset12) * pixelSize;
 
-    vec4 result = vec4(0.0);
+    vec3 result = vec3(0.0);
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos0.y), 0) * w0.x * w0.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos0.y), 0) * w12.x * w0.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos0.y), 0) * w3.x * w0.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos0.y), 0).rgb * w0.x * w0.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos0.y), 0).rgb * w12.x * w0.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos0.y), 0).rgb * w3.x * w0.y;
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos12.y), 0) * w0.x * w12.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos12.y), 0) * w12.x * w12.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos12.y), 0) * w3.x * w12.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos12.y), 0).rgb * w0.x * w12.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos12.y), 0).rgb * w12.x * w12.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos12.y), 0).rgb * w3.x * w12.y;
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos3.y), 0) * w0.x * w3.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos3.y), 0) * w12.x * w3.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos3.y), 0) * w3.x * w3.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos3.y), 0).rgb * w0.x * w3.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos3.y), 0).rgb * w12.x * w3.y;
+    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos3.y), 0).rgb * w3.x * w3.y;
 
     return clamp(result, 0.0, 65000.0);
 }
 
-// void getHistoryCoordNearest(inout vec2 fragCoord, const in float depthNowL, out float depthPrevL, out float depthDiff) {
-//     //return fragCoord;
-//     // TODO: find neighbor with best depth-match
 
-//     //vec2 jitter = 0.5*getJitterOffset(frameCounter);
-
-//     vec2 _center = (fragCoord) * viewSize;
-//     ivec2 center = ivec2(_center);
-//     vec2 offset = vec2(0.0);
-//     //depthPrevL = far;
-//     //depthDiff = far;
-
-//     depthPrevL = textureLod(BUFFER_DEPTH_PREV, fragCoord, 0).r;
-//     depthDiff = abs(depthPrevL - depthNowL);
-
-//     for (int iy = 0; iy < 2; iy++) {
-//         for (int ix = 0; ix < 2; ix++) {
-//             ivec2 sampleOffset = ivec2(ix, iy);
-//             float sampleDepthL = texelFetch(BUFFER_DEPTH_PREV, center + sampleOffset, 0).r;
-//             float sampleDiff = abs(sampleDepthL - depthNowL);
-
-//             if (sampleDiff < depthDiff && sampleDiff > 0.8) {
-//                 depthPrevL = sampleDepthL;
-//                 depthDiff = sampleDiff;
-
-//                 offset = sampleOffset - fract(_center);
-
-//                 //fragCoord = (center + 0.5*sampleOffset + 0.5) * pixelSize;
-//             }
-//         }
-//     }
-
-//     //fragCoord += offset * pixelSize;
-// }
-
-
-/* RENDERTARGETS: 0,5,6 */
+/* RENDERTARGETS: 0,5 */
 layout(location = 0) out vec3 outFinal;
-layout(location = 1) out vec4 outFinalPrev;
-layout(location = 2) out float outDepthPrev;
+layout(location = 1) out vec3 outFinalPrev;
+// layout(location = 2) out float outDepthPrev;
 
 void main() {
     vec2 uvNow = texcoord;
 
-    vec2 jitter = getJitterOffset(frameCounter);
+    //vec2 jitter = getJitterOffset(frameCounter);
     vec2 uvNowJitter = uvNow;// - 0.5*jitter;
     //uvNow -= 0.5*jitter;
-
-    // float depthNow = textureLod(depthtex0, uvNow, 0).r;
 
     float depthNow = textureLod(depthtex1, uvNowJitter, 0).r;
     float depthNowHand = textureLod(depthtex2, uvNowJitter, 0).r;
@@ -318,33 +190,18 @@ void main() {
         depthNow = depthNow * 2.0 - 1.0;
         depthNow /= MC_HAND_DEPTH;
         depthNow = depthNow * 0.5 + 0.5;
-
-        // uvNow += 0.5*getJitterOffset(frameCounter);
     }
 
-    // #ifdef DISTANT_HORIZONS
-    //     if (depthNow >= 1.0) {
-    //         depthNow = textureLod(dhDepthTex1, uvNowJitter, 0).r;
-    //         nearPlane = dhNearPlane;
-    //         farPlane = dhFarPlane;
-    //         isDepthDh = true;
-    //     }
-    // #endif
-
     float depthNowL = linearizeDepthFast(depthNow, near, farPlane);
-    float _near = near;
-    float _far = farPlane;
     bool isDepthDh = false;
 
     #ifdef DISTANT_HORIZONS
         float dhDepth = textureLod(dhDepthTex1, uvNowJitter, 0).r;
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-        if (dhDepthL < depthNowL || depthNow >= 1.0) {
+        if (depthNow >= 1.0 || (dhDepthL < depthNowL && dhDepth > 0.0)) {
             depthNow = dhDepth;
             depthNowL = dhDepthL;
-            _near = dhNearPlane;
-            _far = dhFarPlane;
             isDepthDh = true;
         }
     #endif
@@ -352,70 +209,26 @@ void main() {
     vec3 colorNow = textureLod(BUFFER_FINAL, uvNow, 0).rgb;
     vec4 velocity = textureLod(BUFFER_VELOCITY, uvNow, 0);
 
-    float depthMinL, depthMaxL;
-    getNeighborDepthRange(uvNowJitter, depthMinL, depthMaxL);
-    // float depthMinL = linearizeDepthFast(depthMin, nearPlane, farPlane);
-    // float depthMaxL = linearizeDepthFast(depthMax, nearPlane, farPlane);
-
     vec3 clipPosRepro = getReprojectedClipPos(uvNow, depthNow, velocity.xyz, isDepthDh);
-    float reproDepthL = linearizeDepthFast(clipPosRepro.z, _near, _far);
 
     vec2 uvPrev = clipPosRepro.xy;
-    //float depthPrevL, depthDiff;
-    //getHistoryCoordNearest(uvPrev, reproDepthL, depthPrevL, depthDiff);
-    float depthPrevL = textureLod(BUFFER_DEPTH_PREV, uvPrev, 0).r;
-    //depthDiff = abs(depthPrevL - depthNowL);
-
-    // float depthNowL = linearizeDepthFast(depthNow, nearPlane, farPlane);
-    // depthNowL = clamp(depthNowL, nearPlane, farPlane);
-
-    float reproDepthMin = reproDepthL + (depthMinL - depthNowL);
-    float reproDepthMax = reproDepthL + (depthMaxL - depthNowL);
-    // reproDepthMin = clamp(reproDepthMin, nearPlane, farPlane);
-    // reproDepthMax = clamp(reproDepthMax, nearPlane, farPlane);
 
     #ifdef EFFECT_TAA_SHARPEN
-        vec4 colorPrev = sampleHistoryCatmullRom(uvPrev);
+        vec3 colorPrev = sampleHistoryCatmullRom(uvPrev);
     #else
-        vec4 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0);
+        vec3 colorPrev = textureLod(BUFFER_FINAL_PREV, uvPrev, 0).rgb;
     #endif
 
-    float counter = clamp(colorPrev.a, 0.0, EFFECT_TAA_MAX_ACCUM);
-    if (saturate(uvPrev) != uvPrev) counter = 0.0;
+    neighborClampColor(colorPrev, uvNow);
 
-    if (velocity.w > 0.5) counter = min(counter, 2);
+    const float weightMax = rcp(EFFECT_TAA_MAX_ACCUM);
 
-    //neighborClampColor(colorPrev.rgb, uvNow);
-    counter *= neighborColorTest(colorPrev.rgb, uvNow);
-
-    float depthTest = 1.0;
-
-    const float depthBias = 0.08 * depthNowL * taa_smoothF;
-    depthTest *= step(reproDepthMin - depthBias, depthPrevL);
-    depthTest *= step(depthPrevL, reproDepthMax + depthBias);
-
-    // float depthTest = max((reproDepthMin - 0.02) - depthPrevL, 0.0);
-    // depthTest += max(depthPrevL - (reproDepthMax + 0.02), 0.0);
-    //if ((depthNow >= 1.0 && depthPrevL >= far * 0.99) || isHand) depthTest = 0.0;
-
-    // depthTest = saturate(1.0 - depthTest);
-    // depthTest = step(depthTest, EPSILON);
-    counter *= depthTest;
-
-    counter = max(counter + 1.0, 1.0);
-    float weight = 1.0 - rcp(counter);
-
-    vec3 colorFinal = mix(colorNow, colorPrev.rgb, weight);
-    // float depthFinal = mix(depthNowL, depthPrevL, weight);
-    float depthFinal = depthNowL;
+    float weight = weightMax;
+    if (saturate(uvPrev) != uvPrev) weight = 1.0;
+    vec3 colorFinal = mix(colorPrev, colorNow, weight);
 
     colorFinal = clamp(colorFinal, 0.0, 65000.0);
 
     outFinal = colorFinal;
-    //outFinal = vec3(1.0 - depthTest);
-    //outFinal = vec3(depthPrevL / far);
-    // outFinal = vec3(1.0 - weight);
-    // outFinal = vec3(step(1.2, abs(reproDepthL - depthPrevL)));
-    outFinalPrev = vec4(colorFinal, counter);
-    outDepthPrev = depthNowL;// depthFinal;
+    outFinalPrev = colorFinal;
 }

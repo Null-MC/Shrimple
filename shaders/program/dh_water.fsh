@@ -365,7 +365,7 @@ void main() {
 
     vec3 localNormal = normalize(vIn.localNormal);
     //vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
-    //if (!gl_FrontFacing) localNormal = -localNormal;
+    if (!gl_FrontFacing) localNormal = -localNormal;
     vec3 texNormal = localNormal;
 
     #ifdef WORLD_WATER_ENABLED
@@ -385,11 +385,12 @@ void main() {
                 // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
                 float time = GetAnimationFactor();
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.localPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vec3 wavePos = cameraPosition + vIn.localPos + waveOffset * waveDistF;
+                vec3 wavePos = vIn.localPos;// + waveOffset;// * waveDistF;
+                wavePos.y += waveOffset.y * waveDistF;
 
-                vec3 dX = dFdxFine(wavePos);
-                vec3 dY = dFdyFine(wavePos);
-                texNormal = normalize(cross(dX, dY));
+                vec3 dX = dFdx(wavePos.xzy);
+                vec3 dY = dFdy(wavePos.xzy);
+                texNormal = normalize(cross(dY, dX)).xzy;
             #endif
         }
     #endif
@@ -399,12 +400,8 @@ void main() {
     float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     if (depthL < depthDhL && depth < 1.0) {discard; return;}
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
-            discard;
-            return;
-        }
-    #endif
+    // if (isWater && !gl_FrontFacing)
+    //     texNormal = -texNormal;
 
     //float viewDistXZ = length(vIn.localPos.xz);
     if (viewDist < dh_clipDistF * far) {

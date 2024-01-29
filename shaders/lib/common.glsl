@@ -264,9 +264,10 @@ const bool colortex15Clear = true;
 
 
 // Effects
+//#define EFFECT_AUTO_EXPOSE
+
 #define EFFECT_BLOOM_ENABLED
 #define EFFECT_BLOOM_STRENGTH 60 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-//#define EFFECT_BLOOM_THRESHOLD 1200 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300]
 #define EFFECT_BLOOM_POWER 6 // [1 2 3 4 5 6 8 10 12 14 16 20 24]
 #define EFFECT_BLOOM_HAND 20 // [0 10 20 30 40 50 60 70 80 90 100]
 #define EFFECT_BLOOM_TILE_MAX 6
@@ -286,11 +287,8 @@ const bool colortex15Clear = true;
 #define EFFECT_SSAO_MIN 0.0
 #define EFFECT_SSAO_BIAS 0.04
 
-//#define EFFECT_AUTO_EXPOSE
-
 #define EFFECT_TAA_ENABLED
-#define EFFECT_TAA_MAX_ACCUM 16 // [8 16 30 60]
-#define EFFECT_TAA_SMOOTH 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_TAA_MAX_ACCUM 16 // [8 12 16 20 24 28 32 48 64]
 #define EFFECT_TAA_SHARPEN
 
 //#define EFFECT_FXAA_ENABLED
@@ -560,7 +558,6 @@ const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
 const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
-const float taa_smoothF = EFFECT_TAA_SMOOTH * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 

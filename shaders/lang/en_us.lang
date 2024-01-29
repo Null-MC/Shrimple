@@ -682,9 +682,6 @@ option.EFFECT_TAA_MAX_ACCUM.comment=The maximum number of frames that can be acc
 option.EFFECT_TAA_SHARPEN=Sharpen
 option.EFFECT_TAA_SHARPEN.comment=Makes TAA sharper. May cause visual artiafcts.
 
-option.EFFECT_TAA_SMOOTH=Smoothing
-suffix.EFFECT_TAA_SMOOTH=%
-
 
 screen.POST_OPTIONS=Post-Processing
 

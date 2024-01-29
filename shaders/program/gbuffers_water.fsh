@@ -435,6 +435,8 @@ void main() {
         }
     #endif
 
+    vec3 localViewDir = normalize(vIn.localPos);
+
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
@@ -460,11 +462,12 @@ void main() {
                 // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset);
                 float time = GetAnimationFactor();
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.surfacePos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vec3 wavePos = vIn.surfacePos + waveOffset * waveDistF;
+                vec3 wavePos = vIn.surfacePos;
+                wavePos.y += waveOffset.y * waveDistF;
 
-                vec3 dX = normalize(dFdxFine(wavePos));
-                vec3 dY = normalize(dFdyFine(wavePos));
-                texNormal = normalize(cross(dX, dY)).xzy;
+                vec3 dX = normalize(dFdx(wavePos.xzy));
+                vec3 dY = normalize(dFdy(wavePos.xzy));
+                texNormal = normalize(cross(dY, dX));
                 waterUvOffset = waveOffset.xz * waveDistF;
 
                 if (localNormal.y < 0.0) texNormal = -texNormal;
@@ -571,8 +574,6 @@ void main() {
         //occlusion = RGBToLinear(glcolor.a);
         occlusion = _pow2(vIn.color.a);
     #endif
-
-    vec3 localViewDir = normalize(vIn.localPos);
 
     float roughness, metal_f0;
     float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
