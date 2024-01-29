@@ -16,6 +16,7 @@ in VertexData {
 
 out VertexData {
     vec4 color;
+    float cameraViewDist;
 
     flat uint materialId;
 
@@ -66,10 +67,10 @@ uniform float far;
 #endif
 
 void main() {
-    float minDist = vIn[0].cameraViewDist;
-    minDist = min(minDist, vIn[1].cameraViewDist);
-    minDist = min(minDist, vIn[2].cameraViewDist);
-    if (minDist < 0.5 * min(shadowDistance, far)) return;
+    // float minDist = vIn[0].cameraViewDist;
+    // minDist = min(minDist, vIn[1].cameraViewDist);
+    // minDist = min(minDist, vIn[2].cameraViewDist);
+    // if (minDist < 0.5 * min(shadowDistance, far)) return;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -103,6 +104,7 @@ void main() {
 
                     vOut.color = vIn[v].color;
                     vOut.materialId = vIn[v].materialId;
+                    vOut.cameraViewDist = vIn[v].cameraViewDist;
 
                     gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
 
@@ -119,6 +121,7 @@ void main() {
             for (int v = 0; v < 3; v++) {
                 vOut.color = vIn[v].color;
                 vOut.materialId = vIn[v].materialId;
+                vOut.cameraViewDist = vIn[v].cameraViewDist;
 
                 #ifdef IRIS_FEATURE_SSBO
                     gl_Position = shadowProjectionEx * gl_in[v].gl_Position;
