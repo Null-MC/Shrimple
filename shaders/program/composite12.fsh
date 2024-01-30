@@ -277,13 +277,16 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sky_lighting.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_NONE
-    #include "/lib/lighting/vanilla.glsl"
+#if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_TRACE_FILTER > 0
+        #include "/lib/sampling/light_filter.glsl"
+    #endif
+    
+    #include "/lib/lighting/basic.glsl"
 #elif LIGHTING_MODE == DYN_LIGHT_LPV
     #include "/lib/lighting/floodfill.glsl"
 #else
-    #include "/lib/lighting/basic.glsl"
-    #include "/lib/sampling/light_filter.glsl"
+    #include "/lib/lighting/vanilla.glsl"
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
@@ -530,7 +533,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);
 
-                    #ifdef LIGHTING_TRACE_FILTER
+                    #if LIGHTING_TRACE_FILTER > 0
                         light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
                     #elif LIGHTING_TRACE_RES == 0
                         sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;

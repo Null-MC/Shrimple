@@ -289,13 +289,16 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sky_lighting.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_NONE
-    #include "/lib/lighting/vanilla.glsl"
+#if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_TRACE_FILTER > 0
+        #include "/lib/sampling/light_filter.glsl"
+    #endif
+
+    #include "/lib/lighting/basic.glsl"
 #elif LIGHTING_MODE == DYN_LIGHT_LPV
     #include "/lib/lighting/floodfill.glsl"
 #else
-    #include "/lib/lighting/basic.glsl"
-    #include "/lib/sampling/light_filter.glsl"
+    #include "/lib/lighting/vanilla.glsl"
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
@@ -536,41 +539,58 @@ layout(location = 0) out vec4 outFinal;
                 vec3 blockSpecular = vec3(0.0);
 
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
-                    #ifdef LIGHTING_TRACE_FILTER
-                        light_GaussianFilter(blockDiffuse, blockSpecular, texcoord, depthTransL, texNormal, roughL);
-                    #elif LIGHTING_TRACE_RES == 0
-                        blockDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
-
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            blockSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
-                        #endif
-                    #else
-                        blockDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
-
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            blockSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                        #endif
-                    #endif
-
-                    #if LIGHTING_MODE_HAND == HAND_LIGHT_SIMPLE
-                        vec3 handDiffuse = vec3(0.0);
-                        vec3 handSpecular = vec3(0.0);
-                        SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            if (metal_f0 >= 0.5) {
-                                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                                blockSpecular *= albedo;
-                            }
-                        #endif
-
-                        blockDiffuse += handDiffuse;
-                        blockSpecular += handSpecular;
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                        SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 
                     #if LPV_SIZE > 0
                         blockDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
                     #endif
+
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        if (metal_f0 >= 0.5) {
+                            blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                            blockSpecular *= albedo;
+                        }
+                    #endif
+
+                    vec3 sampleDiffuse = vec3(0.0);
+                    vec3 sampleSpecular = vec3(0.0);
+
+                    #if LIGHTING_TRACE_FILTER > 0
+                        light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthTransL, texNormal, roughL);
+                    #elif LIGHTING_TRACE_RES == 0
+                        sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
+                        #endif
+                    #else
+                        sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                        #endif
+                    #endif
+                    
+                    blockDiffuse += sampleDiffuse;
+                    blockSpecular += sampleSpecular;
+
+                    // #if LIGHTING_MODE_HAND == HAND_LIGHT_SIMPLE
+                    //     vec3 handDiffuse = vec3(0.0);
+                    //     vec3 handSpecular = vec3(0.0);
+                    //     SampleHandLight(handDiffuse, handSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+
+                    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    //         if (metal_f0 >= 0.5) {
+                    //             blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                    //             blockSpecular *= albedo;
+                    //         }
+                    //     #endif
+
+                    //     blockDiffuse += handDiffuse;
+                    //     blockSpecular += handSpecular;
+                    // #endif
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif LIGHTING_MODE == DYN_LIGHT_LPV

@@ -467,8 +467,11 @@ option.LIGHTING_TRACE_SAMPLE_MAX=Max Sample Count
 option.LIGHTING_TRACE_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
 value.LIGHTING_TRACE_SAMPLE_MAX.0=Infinite
 
-option.LIGHTING_TRACE_FILTER=Post-Filtering
-option.LIGHTING_TRACE_FILTER.comment=When enabled, the lighting buffer will have a post-process gaussian blur applied to smoothen edges/noise.
+option.LIGHTING_TRACE_FILTER=Filter
+option.LIGHTING_TRACE_FILTER.comment=Applies a gaussian filter to smooth RT light sampling.
+value.LIGHTING_TRACE_FILTER.0=OFF
+value.LIGHTING_TRACE_FILTER.1=3x3
+value.LIGHTING_TRACE_FILTER.2=5x5
 
 option.DYN_LIGHT_WEATHER=Weather Particles
 option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
