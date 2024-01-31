@@ -161,21 +161,22 @@ layout(location = 0) out vec4 outDiffuse;
 #endif
 
 void main() {
-    //vec2 viewSize = vec2(viewWidth, viewHeight);
     const int resScale = int(exp2(LIGHTING_TRACE_RES));
 
     vec2 tex2 = texcoord;
-    // #if LIGHTING_TRACE_TEMP_ACCUM > 0 //&& LIGHTING_TRACE_PENUMBRA > 0
-        //vec2 pixelSize = rcp(viewSize);
+    tex2 += 0.5 * pixelSize;
 
-        #if LIGHTING_TRACE_RES == 2
-            tex2 += GetTemporalOffset(4) * pixelSize * 0.25;
-        #elif LIGHTING_TRACE_RES == 1
-            tex2 += GetTemporalOffset(2) * pixelSize * 0.5;
-        #endif
-    // #endif
+    #if LIGHTING_TRACE_RES == 2
+        tex2 += GetTemporalOffset() * pixelSize * 0.25;
+        tex2 -= 2.0*pixelSize;
+    #elif LIGHTING_TRACE_RES == 1
+        tex2 += GetTemporalOffset() * pixelSize * 0.5;
+        tex2 -= pixelSize;
+    #endif
 
-    float depth = textureLod(depthtex0, tex2, 0).r;
+    ivec2 iTex = ivec2(tex2 * viewSize);
+
+    float depth = texelFetch(depthtex0, iTex, 0).r;
     //float handClipDepth = textureLod(depthtex2, tex2, 0).r;
     //bool isHand = handClipDepth > depth;
     
@@ -185,14 +186,11 @@ void main() {
     //     depth = depth * 0.5 + 0.5;
     // }
 
-    // outDepth = vec4(vec3(depth), 1.0);
-
-    ivec2 iTex = ivec2(tex2 * viewSize);
     vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
     //float opacity = textureLod(BUFFER_DEFERRED_COLOR, tex2, 0).a;
 
     if (deferredColor.a > (0.5/255.0)) {
-        float depthOpaque = textureLod(depthtex1, tex2, 0).r;
+        float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
 
         //vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
@@ -225,7 +223,7 @@ void main() {
             metal_f0 = specularMap.g;
         #endif
 
-        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
 
         #ifndef IRIS_FEATURE_SSBO
             vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
@@ -233,6 +231,10 @@ void main() {
         #else
             vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
         #endif
+        
+        float viewDist = length(localPos);
+        float bias = clamp(0.02 * viewDist, 0.002, 0.1);
+        localPos += localNormal * bias;
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);

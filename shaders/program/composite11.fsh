@@ -153,11 +153,7 @@ void main() {
     //     depth = depth * 0.5 + 0.5;
     // }
 
-    // outDepth = vec4(vec3(depth), 1.0);
-
     if (depth < 1.0) {
-        // ivec2 iTex = ivec2(tex2 * viewSize);
-
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
         vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
