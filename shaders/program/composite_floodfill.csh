@@ -152,17 +152,17 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
         float viewDist = length(blockLocalPos);
         //float viewDistF = 1.0 - min(viewDist / 20.0, 1.0);
-        uint maxSamples = uint((1.0 - smoothstep(0.0, 40.0, viewDist)) * LPV_SUN_SAMPLES) + 1;
-        maxSamples = clamp(maxSamples, 1u, uint(LPV_SUN_SAMPLES));
+        uint maxSamples = uint((1.0 - smoothstep(0.0, 40.0, viewDist)) * LPV_SHADOW_SAMPLES) + 1;
+        maxSamples = clamp(maxSamples, 1u, uint(LPV_SHADOW_SAMPLES));
 
         vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
-        for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
+        for (uint i = 0; i < LPV_SHADOW_SAMPLES; i++) {
             if (i >= maxSamples) break;
 
             vec3 blockLpvPos = blockLocalPos;
 
-            #if LPV_SUN_SAMPLES > 1
+            #if LPV_SHADOW_SAMPLES > 1
                 //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
                 vec3 shadowOffset = hash44(vec4(cameraPosition + blockLocalPos + 0.5, i)).xyz;
                 blockLpvPos += 0.8*(shadowOffset - 0.5) + 0.4;
@@ -380,7 +380,7 @@ void main() {
             lightMixed.rgb *= mixWeight * tint;
             lightValue += lightMixed;
 
-            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SUN_SAMPLES > 0
+            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SHADOW_SAMPLES > 0
                 vec4 shadowColorF = SampleShadow(blockLocalPos);
 
                 #ifdef LPV_GI

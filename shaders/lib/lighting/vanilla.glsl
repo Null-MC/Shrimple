@@ -1,4 +1,4 @@
-// #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
+// #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0
 //     vec3 GetLpvAmbient(const in vec3 lpvPos, const in vec3 normal) {
 //         vec3 lpvLight = SampleLpv(lpvPos, normal).rgb;
 //         //lpvLight = log2(lpvLight + EPSILON) / LpvRangeF;
@@ -20,7 +20,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 l
 
     diffuse = lightmapBlock * DynamicLightBrightness;
 
-    // #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0
+    // #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0
     //     vec3 lpvPos = GetLPVPosition(localPos);
     //     float lpvFade = GetLpvFade(lpvPos);
     //     lpvFade = _smoothstep(lpvFade);

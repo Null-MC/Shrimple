@@ -62,6 +62,7 @@ uniform sampler2D lightmap;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform ivec2 atlasSize;
@@ -100,7 +101,7 @@ uniform ivec2 atlasSize;
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
     // uniform vec3 previousCameraPosition;
-    uniform mat4 gbufferPreviousModelView;
+    // uniform mat4 gbufferPreviousModelView;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
@@ -168,7 +169,7 @@ uniform ivec2 atlasSize;
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/lighting/voxel/lpv.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
@@ -178,7 +179,7 @@ uniform ivec2 atlasSize;
         #include "/lib/lighting/voxel/light_mask.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 

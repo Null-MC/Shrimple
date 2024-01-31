@@ -133,7 +133,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE //&& LPV_SIZE > 0
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
@@ -192,7 +192,8 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/buffers/water_depths.glsl"
     #endif
 
-    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
+    // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0) || defined VOLUMETRIC_BLOCK_RT
         #include "/lib/blocks.glsl"
 
         // #include "/lib/buffers/lighting.glsl"
@@ -202,7 +203,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 
-    #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != DYN_LIGHT_NONE
         #ifdef LIGHTING_FLICKER
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
@@ -230,15 +231,15 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/sampling.glsl"
     #endif
     
-    #if LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
-        #include "/lib/utility/hsv.glsl"
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+        // #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY)
+#ifdef RENDER_SHADOWS_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY)
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

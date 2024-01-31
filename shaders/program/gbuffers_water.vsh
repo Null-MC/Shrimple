@@ -185,7 +185,7 @@ uniform ivec2 atlasSize;
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/lighting/voxel/lpv.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
@@ -195,7 +195,7 @@ uniform ivec2 atlasSize;
         #include "/lib/lighting/voxel/light_mask.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 

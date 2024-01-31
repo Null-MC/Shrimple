@@ -216,5 +216,5 @@ float GetLpvSkyLight(const in vec4 lpvSample) {
     float skyLightFinal = log2(lpvSample.a + 1.0) / LPV_SKYLIGHT_RANGE;
     // float skyLightFinal = log2(lpvSample.a + 1.0) / log2(LPV_SKYLIGHT_RANGE + 1.0);
     // return saturate(_pow2(skyLightFinal));
-    return saturate(skyLightFinal);
+    return saturate(9.0 * skyLightFinal);
 }

@@ -264,7 +264,7 @@ uniform ivec2 eyeBrightnessSmooth;
 //     #include "/lib/lighting/voxel/sampling.glsl"
 // #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     

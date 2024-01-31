@@ -351,15 +351,15 @@ option.LPV_BRIGHT_BLOCK=Световая Шкала Диапазона
 option.LPV_BRIGHT_BLOCK.comment=Масштабный фактор, характеризующий диапазону распространения света в пределах ОНЗ (LPV).
 suffix.LPV_BRIGHT_BLOCK=x
 
-option.LPV_SUN_SAMPLES=Выборочный Подсчёт Солнечногосвета
-option.LPV_SUN_SAMPLES.comment=Число выборок солнечногосвета для каждого блока.
+option.LPV_SHADOW_SAMPLES=Выборочный Подсчёт Солнечногосвета
+option.LPV_SHADOW_SAMPLES.comment=Число выборок солнечногосвета для каждого блока.
 
 option.LPV_LIGHTMAP_MIX=Микс СветовойКарты
 suffix.LPV_LIGHTMAP_MIX=%
 
-option.LPV_SUN_SAMPLES=Образцы Теней
-option.LPV_SUN_SAMPLES.comment=Сколько образцов использовать на блок при определении видимости солнца/луны (GI).
-value.LPV_SUN_SAMPLES.0=Выкл
+option.LPV_SHADOW_SAMPLES=Образцы Теней
+option.LPV_SHADOW_SAMPLES.comment=Сколько образцов использовать на блок при определении видимости солнца/луны (GI).
+value.LPV_SHADOW_SAMPLES.0=Выкл
 
 option.LPV_VOXEL_TEST=Воксельное Тестирование
 option.LPV_VOXEL_TEST.comment=Линейная и кубическая выборка, выполняя дополнительные проверки видимости с помощью воксельных данных.

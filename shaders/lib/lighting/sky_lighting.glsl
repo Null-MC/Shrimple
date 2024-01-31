@@ -108,6 +108,47 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
 
     //ambientLight = _pow2(ambientLight);
 
+    // float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
+    // horizonF = pow(1.0 - horizonF, 8.0);
+
+    // float ambientF = mix(DynamicLightAmbientF, 2.0, horizonF);
+
+    // float sun_NoL = dot(texNormal, localSunDirection);
+    // float moon_NoL = max(-sun_NoL, 0.0) * 0.5 + 0.5;
+    // sun_NoL = max(sun_NoL, 0.0) * 0.5 + 0.5;
+
+    // vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * WorldSunBrightnessF;
+    // skyAmbientLight += moon_NoL * WorldMoonLightColor * WorldMoonBrightnessF;
+    // ambientLight *= skyAmbientLight * ambientF;
+    //ambientF *= dot(texNormal, localSkyLightDir) * 0.5 + 0.5;
+
+    //float ambientHorizonF = 2.0;//max(DynamicLightAmbientF, 1.5);
+    //float ambientFinalF = mix(DynamicLightAmbientF, ambientHorizonF, horizonF);
+    //ambientLight *= ambientF;
+
+
+    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != DYN_LIGHT_LPV
+        vec3 lpvPos = GetLPVPosition(localPos);
+
+        float lpvFade = GetLpvFade(lpvPos);
+        lpvFade = 1.0;//smootherstep(lpvFade);
+        lpvFade *= 1.0 - LpvLightmapMixF;
+
+        vec4 lpvSample = SampleLpv(lpvPos, texNormal);
+
+        #ifdef LPV_GI
+            #if LIGHTING_MODE == DYN_LIGHT_NONE
+                vec3 lpvSkyLight = 10.0*GetLpvBlockLight(lpvSample);
+                ambientLight = mix(ambientLight, lpvSkyLight, lpvFade);
+            #endif
+        #else
+            float lpvSkyLight = GetLpvSkyLight(lpvSample);
+            ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
+        #endif
+
+        // ambientLight = lpvSkyLight * skyLightColor;//mix(ambientLight, vec3(lpvSkyLight), lpvFade);
+    #endif
+
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 
@@ -120,32 +161,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * WorldSunBrightnessF;
     skyAmbientLight += moon_NoL * WorldMoonLightColor * WorldMoonBrightnessF;
     ambientLight *= skyAmbientLight * ambientF;
-    //ambientF *= dot(texNormal, localSkyLightDir) * 0.5 + 0.5;
-
-    //float ambientHorizonF = 2.0;//max(DynamicLightAmbientF, 1.5);
-    //float ambientFinalF = mix(DynamicLightAmbientF, ambientHorizonF, horizonF);
-    //ambientLight *= ambientF;
-
-
-    #if LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != DYN_LIGHT_LPV
-        vec3 lpvPos = GetLPVPosition(localPos);
-
-        float lpvFade = GetLpvFade(lpvPos);
-        lpvFade = smootherstep(lpvFade);
-        lpvFade *= 1.0 - LpvLightmapMixF;
-
-        vec4 lpvSample = SampleLpv(lpvPos, texNormal);
-
-        #ifdef LPV_GI
-            // lpvSkyLight *= 0.5;
-            //vec3 lpvSkyLight = GetLpvBlockLight(lpvSample);
-        #else
-            float lpvSkyLight = GetLpvSkyLight(lpvSample);
-            ambientLight = lpvSkyLight * skyLightColor;
-        #endif
-
-        // ambientLight = lpvSkyLight * skyLightColor;//mix(ambientLight, vec3(lpvSkyLight), lpvFade);
-    #endif
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))
     //     ambientLight *= (texNormal.y * 0.3 + 0.7);

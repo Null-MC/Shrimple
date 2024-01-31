@@ -369,15 +369,15 @@ option.LPV_BRIGHT_BLOCK=Light Range Scale
 option.LPV_BRIGHT_BLOCK.comment=Scale factor for how far light propagates within LPV.
 suffix.LPV_BRIGHT_BLOCK=x
 
-option.LPV_SUN_SAMPLES=Sunlight Sample Count
-option.LPV_SUN_SAMPLES.comment=The number of sunlight samples to take per-block.
+option.LPV_SHADOW_SAMPLES=Sunlight Sample Count
+option.LPV_SHADOW_SAMPLES.comment=The number of sunlight samples to take per-block.
 
 option.LPV_LIGHTMAP_MIX=LightMap Mix
 suffix.LPV_LIGHTMAP_MIX=%
 
-option.LPV_SUN_SAMPLES=Shadow Samples
-option.LPV_SUN_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
-value.LPV_SUN_SAMPLES.0=OFF
+option.LPV_SHADOW_SAMPLES=Shadow Samples
+option.LPV_SHADOW_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
+value.LPV_SHADOW_SAMPLES.0=OFF
 
 option.LPV_VOXEL_TEST=Voxel Test
 option.LPV_VOXEL_TEST.comment=Improves linear & cubic sampling by performing extra visibility checks using voxel data.

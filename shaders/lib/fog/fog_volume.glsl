@@ -33,7 +33,7 @@ VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     result.ScatterF = AirScatterColor;
     result.AbsorbF = AirExtinctColor;
 
-    #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
+    #if defined WORLD_SKY_ENABLED && !(LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         float skyLightF = eyeBrightnessSmooth.y / 240.0;
         result.AmbientF *= _pow2(skyLightF);
     #endif
@@ -201,7 +201,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         vec3 traceLocalPos = localStep * iStep + localStart;
         float traceDist = length(traceLocalPos);
 
-        #if LPV_SIZE > 0
+        #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
             vec3 lpvPos = GetLPVPosition(traceLocalPos);
             vec4 lpvSample = SampleLpv(lpvPos, vec3(0.0));
             float lpvFade = GetLpvFade(lpvPos);
@@ -480,7 +480,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                     blockLightAccum *= 9.0 * DynamicLightBrightness;
                 }
-            #elif LPV_SIZE > 0
+            #elif LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
                 vec3 lpvLight = vec3(0.0);
 
                 #ifdef LPV_GI

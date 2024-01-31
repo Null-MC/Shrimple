@@ -26,7 +26,7 @@ out VertexData {
     #endif
 } vOut;
 
-#if defined LIGHTING_FLICKER && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+#if defined LIGHTING_FLICKER && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
     uniform sampler2D noisetex;
 #endif
 
@@ -46,7 +46,7 @@ uniform float far;
     #endif
 #endif
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
+#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
     uniform int entityId;
     uniform int frameCounter;
     uniform vec3 eyePosition;
@@ -69,21 +69,21 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/block_voxel.glsl"
         #include "/lib/buffers/light_static.glsl"
     #endif
-
+    
     #if LIGHTING_MODE == DYN_LIGHT_TRACED
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0)
+    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
@@ -107,7 +107,7 @@ uniform float far;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SUN_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
@@ -154,7 +154,7 @@ void main() {
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SUN_SAMPLES > 0))
+    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
 
         bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
                            || renderStage == MC_RENDER_STAGE_ENTITIES;
@@ -217,7 +217,7 @@ void main() {
                 }
             //#endif
 
-            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SUN_SAMPLES > 0)
+            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
                 // if (!IsTraceEmptyBlock(vBlockId[0]))
                 //     SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
 
