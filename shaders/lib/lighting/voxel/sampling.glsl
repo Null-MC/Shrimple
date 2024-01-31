@@ -2,6 +2,10 @@
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
+float GetBias_RT(const in float viewDist) {
+    return clamp(0.004 * viewDist, 0.002, 0.2);
+}
+
 void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {//, const in vec3 blockLightDefault) {
     uint gridIndex;
     float viewDist = length(localPos);

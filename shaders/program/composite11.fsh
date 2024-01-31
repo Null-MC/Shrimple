@@ -193,7 +193,7 @@ void main() {
         #endif
 
         float viewDist = length(localPos);
-        float bias = clamp(0.02 * viewDist, 0.002, 0.1);
+        float bias = GetBias_RT(viewDist);
         localPos += localNormal * bias;
 
         vec3 blockDiffuse = vec3(0.0);
