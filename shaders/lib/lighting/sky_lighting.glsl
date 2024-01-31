@@ -135,13 +135,16 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, texNormal);
-        float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
-        // #ifdef LPV_GI
-        //     lpvSkyLight *= 0.5;
-        // #endif
+        #ifdef LPV_GI
+            // lpvSkyLight *= 0.5;
+            //vec3 lpvSkyLight = GetLpvBlockLight(lpvSample);
+        #else
+            float lpvSkyLight = GetLpvSkyLight(lpvSample);
+            ambientLight = lpvSkyLight * skyLightColor;
+        #endif
 
-        ambientLight = lpvSkyLight * skyLightColor;//mix(ambientLight, vec3(lpvSkyLight), lpvFade);
+        // ambientLight = lpvSkyLight * skyLightColor;//mix(ambientLight, vec3(lpvSkyLight), lpvFade);
     #endif
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))

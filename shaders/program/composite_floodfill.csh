@@ -137,30 +137,30 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
 #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     vec4 SampleShadow(const in vec3 blockLocalPos) {
+        const float giScale = 0.08;
+
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
-            const float shadowBias = (1.0/256.0);//GetShadowOffsetBias(cascade);
-            float shadowDistMax = 3.0 * far;
-            const float shadowDistScale = 64.0; //3.0 * far;
+            float shadowDistMax = GetShadowRange(cascade);
+            float shadowBias = 1.5 * rcp(shadowDistMax);//GetShadowOffsetBias(cascade);
         #else
-            float shadowDistMax = 3.0 * far;
-            const float shadowDistScale = 0.15;
+            float shadowDistMax = GetShadowRange();
             float shadowBias = 1.5 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif
 
         float viewDist = length(blockLocalPos);
         //float viewDistF = 1.0 - min(viewDist / 20.0, 1.0);
         uint maxSamples = uint((1.0 - smoothstep(0.0, 40.0, viewDist)) * LPV_SUN_SAMPLES) + 1;
-        maxSamples = min(max(maxSamples, 1), LPV_SUN_SAMPLES);
+        maxSamples = clamp(maxSamples, 1u, uint(LPV_SUN_SAMPLES));
 
         vec4 shadowF = vec4(0.0);
         //float shadowWeight = 0.0;
         for (uint i = 0; i < LPV_SUN_SAMPLES; i++) {
             if (i >= maxSamples) break;
 
-            vec3 blockLpvPos = blockLocalPos + 0.5;
+            vec3 blockLpvPos = blockLocalPos;
 
             #if LPV_SUN_SAMPLES > 1
                 //float ign = InterleavedGradientNoise(imgCoord.xz + 3.0*imgCoord.y);
@@ -170,7 +170,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                vec3 shadowPos = (shadowModelView * vec4(blockLpvPos, 1.0)).xyz;
+                vec3 shadowPos = (shadowModelViewEx * vec4(blockLpvPos, 1.0)).xyz;
                 //int cascade = GetShadowCascade(shadowPos, 0.0);
                 shadowPos = (cascadeProjection[cascade] * vec4(shadowPos, 1.0)).xyz;
 
@@ -187,7 +187,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float shadowDist = texDepth - shadowPos.z;
             float sampleF = step(shadowBias, shadowDist);
-            sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * shadowDistScale, 0.0);
+            //sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * giScale, 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
@@ -200,6 +200,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
                 sampleColor = RGBToLinear(sampleColor);
                 //sampleColor = 10.0 * _pow3(sampleColor);
+
+                // TODO: fade out color
+                float colorF = min(abs(shadowDist * shadowDistMax) * giScale, 1.0);
+                // sampleColor = mix(sampleColor, vec3(1.0), colorF);
+                sampleColor *= 1.0 - colorF;
             #endif
             
             //sampleF *= step(shadowPos.z - texDepthTrans, -0.003);
@@ -275,7 +280,8 @@ void main() {
         ivec3 imgCoordOffset = GetLPVFrameOffset();
         ivec3 voxelOffset = GetLPVVoxelOffset();
 
-        vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+        // vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+        vec3 cameraOffset = fract(cameraPosition);
 
         ivec3 kernelPos = ivec3(gl_LocalInvocationID + 1u);
         ivec3 kernelEdgeDir = ivec3(step(ivec3(1), gl_LocalInvocationID)) * 2 - 1;
@@ -290,7 +296,8 @@ void main() {
         //     skyLightColor *= mix(1.0, 0.1, rainStrength);
         // #endif
 
-        ivec3 imgCoord = ivec3(gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID);
+        // ivec3 imgCoord = ivec3(gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID);
+        ivec3 imgCoord = ivec3(gl_GlobalInvocationID);
 
         //barrier();
         //memoryBarrierShared();
@@ -329,7 +336,11 @@ void main() {
         if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
             blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
-        vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
+        // vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell - VoxelBlockCenter + cameraOffset + 0.5;
+
+        vec3 viewDir = getCameraViewDir(gbufferModelView);
+        vec3 lpvCenter = GetLpvCenter(cameraPosition, viewDir);
+        vec3 blockLocalPos = imgCoord - lpvCenter + 0.5;
 
         vec4 lightValue = vec4(0.0);
 
@@ -404,7 +415,8 @@ void main() {
                     }
                 #endif
 
-                lightValue.a = max(lightValue.a, LPV_SKYLIGHT_RANGE * shadowColorF.a);
+                float skyLightFinal = exp2(LPV_SKYLIGHT_RANGE * shadowColorF.a) - 1.0;
+                lightValue.a = max(lightValue.a, skyLightFinal);
             #endif
         }
 

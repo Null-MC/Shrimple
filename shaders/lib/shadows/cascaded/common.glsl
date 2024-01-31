@@ -11,6 +11,10 @@ vec2 GetShadowTilePos(const in int tile) {
     return pos;
 }
 
+float GetShadowRange(const in int cascade) {
+    return -2.0 / cascadeProjection[cascade][2][2];
+}
+
 const float cascadeNormalBias[] = float[]
     (0.06, 0.10, 0.20, 0.50);
 
