@@ -52,8 +52,8 @@ screen.SKY_CLOUD_OPTIONS=Clouds
 option.SKY_CLOUD_TYPE=Clouds
 value.SKY_CLOUD_TYPE.0=None
 value.SKY_CLOUD_TYPE.1=Vanilla
-value.SKY_CLOUD_TYPE.2=Custom
-value.SKY_CLOUD_TYPE.3=Custom Cubed
+value.SKY_CLOUD_TYPE.2=Fancy
+value.SKY_CLOUD_TYPE.3=Cubed
 
 option.SKY_CLOUD_SPEED=Cloud Speed
 option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.

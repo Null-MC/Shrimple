@@ -31,8 +31,8 @@ float CloudAbsorbF        = mix(0.140, 0.128, skyRainStrength);
     const int CloudMaxOctaves = 5;
     const int CloudTraceOctaves = 2;
     const int CloudShadowOctaves = 2;
-    const float CloudHeight = 256.0;
-    const float CloudSize = 20.0;
+    const float CloudHeight = 512.0;
+    const float CloudSize = 64.0;
 #else
     const float CloudHeight = 4.0;
     const float CloudSize = 4.0;
