@@ -16,9 +16,9 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_ROUGHNESS;
-#endif
+// #if MATERIAL_SPECULAR != SPECULAR_NONE
+//     uniform sampler2D BUFFER_ROUGHNESS;
+// #endif
 
 #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
     uniform sampler2D shadowcolor0;
@@ -152,12 +152,12 @@ uniform float blindnessSmooth;
 #endif
 
 
-/* RENDERTARGETS: 4,11 */
 layout(location = 0) out vec4 outDiffuse;
-// layout(location = 1) out vec4 outNormal;
-// layout(location = 2) out vec4 outDepth;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    layout(location = 3) out vec4 outSpecular;
+    /* RENDERTARGETS: 4,11 */
+    layout(location = 1) out vec4 outSpecular;
+#else
+    /* RENDERTARGETS: 4 */
 #endif
 
 void main() {
@@ -212,15 +212,20 @@ void main() {
         if (any(greaterThan(texNormal, EPSILON3)))
             texNormal = normalize(texNormal * 2.0 - 1.0);
 
-        float roughL = 1.0;
-        float metal_f0 = 0.04;
         float occlusion = deferredLighting.z;
-        float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            vec2 specularMap = texelFetch(BUFFER_ROUGHNESS, iTex, 0).rg;
-            roughL = _pow2(specularMap.r);
-            metal_f0 = specularMap.g;
+            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+            float roughness = _pow2(deferredRoughMetalF0Porosity.r);
+            float metal_f0 = deferredRoughMetalF0Porosity.g;
+            // float porosity = deferredRoughMetalF0Porosity.b;
+
+            float sss = deferredNormal.w;
+            float roughL = _pow2(roughness);
+        #else
+            const float roughL = 1.0;
+            const float metal_f0 = 0.04;
+            const float sss = 0.0;
         #endif
 
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
@@ -254,8 +259,8 @@ void main() {
             }
         #endif
 
-        if (!all(lessThan(abs(texNormal), EPSILON3)))
-            texNormal = texNormal * 0.5 + 0.5;
+        // if (!all(lessThan(abs(texNormal), EPSILON3)))
+        //     texNormal = texNormal * 0.5 + 0.5;
 
         outDiffuse = vec4(blockDiffuse, 1.0);
         // outNormal = vec4(texNormal, 1.0);

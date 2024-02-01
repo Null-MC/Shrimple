@@ -120,10 +120,12 @@ uniform float blindnessSmooth;
 #include "/lib/utility/temporal_offset.glsl"
 
 
-/* RENDERTARGETS: 4,11 */
 layout(location = 0) out vec4 outDiffuse;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
-    layout(location = 3) out vec4 outSpecular;
+    /* RENDERTARGETS: 4,11 */
+    layout(location = 1) out vec4 outSpecular;
+#else
+    /* RENDERTARGETS: 4 */
 #endif
 
 void main() {

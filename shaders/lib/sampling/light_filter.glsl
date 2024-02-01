@@ -1,9 +1,9 @@
-const vec3 lightSigma = vec3(2.6, 2.6, 0.2);
+const vec2 lightSigma = vec2(1.6, 0.2);
 
 
 void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL) {
-    const float c_halfSamplesX = 2.0;
-    const float c_halfSamplesY = 2.0;
+    // const float c_halfSamplesX = LIGHTING_TRACE_FILTER;
+    // const float c_halfSamplesY = LIGHTING_TRACE_FILTER;
 
     const float lightBufferScale = exp2(LIGHTING_TRACE_RES);
     const float lightBufferScaleInv = rcp(lightBufferScale);
@@ -18,10 +18,10 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
     bool hasNormal = any(greaterThan(normal, EPSILON3));
     ivec2 centerCoord = ivec2(texcoord * lightBufferSize);
     
-    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-        float fy = Gaussian(lightSigma.y, iy);
+    for (float iy = -LIGHTING_TRACE_FILTER; iy <= LIGHTING_TRACE_FILTER; iy++) {
+        float fy = Gaussian(lightSigma.x, iy);
 
-        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
+        for (float ix = -LIGHTING_TRACE_FILTER; ix <= LIGHTING_TRACE_FILTER; ix++) {
             float fx = Gaussian(lightSigma.x, ix);
 
             // vec2 sampleBlendTex = texcoord - vec2(ix, iy) * blendPixelSize;
@@ -89,7 +89,7 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
                 }
             }
             
-            float fv = Gaussian(lightSigma.z, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
+            float fv = Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
             
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;

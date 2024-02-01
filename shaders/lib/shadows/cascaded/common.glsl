@@ -19,7 +19,7 @@ const float cascadeNormalBias[] = float[]
     (0.06, 0.10, 0.20, 0.50);
 
 const float cascadeOffsetBias[] = float[]
-    (0.02, 0.05, 0.1, 0.8);
+    (0.06, 0.05, 0.1, 0.8);
 
 float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
     float bias = 0.0;
@@ -47,9 +47,8 @@ float GetShadowOffsetBias(const in int cascade) {
 
     // float zNear = -_far;
     // float zFar = _far * 2.0;
-    float shadowDepthRange = -2.0 / cascadeProjection[cascade][2][2];
-
-    return cascadeOffsetBias[cascade] * SHADOW_BIAS_SCALE / shadowDepthRange;
+    float shadowDepthRange = GetShadowRange(cascade);
+    return cascadeOffsetBias[cascade] / shadowDepthRange * SHADOW_BIAS_SCALE;
 
     // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;
 
