@@ -15,19 +15,25 @@ vec4 BasicVertex() {
 
     vec4 viewPos = gl_ModelViewMatrix * pos;
 
-    #if defined WORLD_WATER_ENABLED && ((defined RENDER_WATER && WATER_TESSELLATION_QUALITY == 0) || defined RENDER_TERRAIN)
+    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && ((defined RENDER_WATER && WATER_TESSELLATION_QUALITY == 0) || defined RENDER_TERRAIN)
         if (vOut.blockId == BLOCK_WATER || vOut.blockId == BLOCK_LILY_PAD) {
             float viewDist = length(viewPos.xyz);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
             distF = 1.0 - _pow2(distF);
 
-            vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+            if (vOut.blockId == BLOCK_WATER) {
+                // reduce wave strength lower surface is
+                // prevent waving if connected to above water
+                float vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
+                distF *= vertexY * step(vertexY, (15.5/16.0));
+            }
 
             #ifdef DISTANT_HORIZONS
-                //float viewDistXZ = length(vOut.localPos.xz);
                 float waterClipFar = dh_clipDistF*far;
                 distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
+
+            vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
             #ifdef PHYSICS_OCEAN
                 vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
@@ -41,7 +47,7 @@ vec4 BasicVertex() {
                 // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
                 float time = GetAnimationFactor();
 
-                vec2 uvOffset = vec2(0.0);
+                // vec2 uvOffset = vec2(0.0);
                 if (vOut.blockId == BLOCK_LILY_PAD) {
                     vec3 originPos = vOut.localPos + at_midBlock/64.0;
                     vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, vOut.lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);

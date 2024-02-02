@@ -21,6 +21,7 @@ in VertexData {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vec3 surfacePos;
+        float vertexY;
     #endif
 
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
@@ -181,6 +182,11 @@ void main() {
 
             float distF = 1.0 - smoothstep(0.2, 2.8, length(vOut.surfacePos));
             distF = 1.0 - _pow2(distF);
+
+            // reduce wave strength lower surface is
+            // prevent waving if connected to above water
+            float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
+            distF *= vertexY * step(vertexY, (15.5/16.0));
             
             #ifdef DISTANT_HORIZONS
                 float viewDist = length(vOut.localPos.xyz);

@@ -126,12 +126,17 @@ void main() {
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
-        if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) {
+        if ((renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD)) {
             float viewDist = length(localPos.xyz);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
             distF = 1.0 - _pow2(distF);
 
-            // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+            if (vOut.blockId == BLOCK_WATER) {
+                // reduce wave strength lower surface is
+                // prevent waving if connected to above water
+                float vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
+                distF *= vertexY * step(vertexY, (15.5/16.0));
+            }
 
             #ifdef DISTANT_HORIZONS
                 float viewDistXZ = length(localPos.xz);
@@ -148,6 +153,13 @@ void main() {
 
                 float time = GetAnimationFactor();
                 float skyLight = LightMapNorm(lmcoord).y;
+
+                if (vOut.blockId == BLOCK_LILY_PAD) {
+                    vec3 originPos = localPos.xyz + at_midBlock/64.0;
+                    vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
+                    pos.xz += distF * waveOffset.xz;
+                    pos.y -= (1.0/16.0);
+                }
 
                 // vec2 uvOffset;
                 // pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);

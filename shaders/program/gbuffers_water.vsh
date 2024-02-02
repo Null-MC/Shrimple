@@ -25,6 +25,7 @@ out VertexData {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vec3 surfacePos;
+        float vertexY;
     #endif
 
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
@@ -216,6 +217,7 @@ void main() {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vOut.surfacePos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
+        vOut.vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
     #endif
 
     vec4 viewPos = BasicVertex();
