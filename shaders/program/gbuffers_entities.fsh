@@ -161,7 +161,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #ifdef IS_IRIS
             uniform float cloudTime;
-            uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+            uniform float cloudHeight;
             uniform float lightningStrength;
         #endif
     #endif
@@ -186,6 +186,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
 #include "/lib/items.glsl"
+#include "/lib/lights.glsl"
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
@@ -194,6 +195,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
+
+#include "/lib/lighting/hg.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -238,7 +241,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/shadows/render.glsl"
 #endif
 
-#include "/lib/lights.glsl"
 #include "/lib/physics_mod/snow.glsl"
 
 #ifdef LIGHTING_FLICKER
@@ -252,7 +254,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/world/lightning.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif

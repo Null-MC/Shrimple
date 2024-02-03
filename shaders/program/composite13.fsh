@@ -84,7 +84,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float skyRainStrength;
 
-    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    uniform float cloudHeight;
 
     #ifdef IS_IRIS
         uniform float lightningStrength;
@@ -132,10 +132,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/utility/anim.glsl"
 
-#include "/lib/world/atmosphere.glsl"
-
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
+
+#include "/lib/world/atmosphere.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -194,6 +194,10 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
     #endif
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED

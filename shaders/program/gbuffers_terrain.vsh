@@ -91,7 +91,7 @@ uniform ivec2 atlasSize;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -157,6 +157,10 @@ uniform ivec2 atlasSize;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED

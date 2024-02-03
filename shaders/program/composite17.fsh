@@ -83,7 +83,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float skyRainStrength;
 
-    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    uniform float cloudHeight;
 
     #ifdef IS_IRIS
         uniform vec3 eyePosition;
@@ -149,10 +149,14 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/utility/anim.glsl"
 
-#include "/lib/world/atmosphere.glsl"
-
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
+
+#include "/lib/world/atmosphere.glsl"
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"

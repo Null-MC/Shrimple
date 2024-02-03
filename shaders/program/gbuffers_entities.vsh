@@ -77,7 +77,7 @@ uniform vec4 entityColor;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -119,6 +119,10 @@ uniform vec4 entityColor;
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #ifdef RENDER_SHADOWS_ENABLED

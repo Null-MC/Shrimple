@@ -1,4 +1,4 @@
-float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.19);}
+float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.36, 0.64, 0.24);}
 
 float GetCloudDither() {
     #ifndef RENDER_FRAG
@@ -10,11 +10,25 @@ float GetCloudDither() {
     #endif
 }
 
-float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
+float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
     float sampleD = 0.0;
 
     float _str = pow(skyRainStrength, 0.333);
     float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
+
+    #if WORLD_RADIUS > 0
+        vec3 localPos = worldPos - cameraPosition;
+        // localPos = GetWorldCurvedPosition(localPos);
+
+        localPos.y += WORLD_RADIUS;
+        float alt = length(localPos);
+        localPos = (localPos / alt) * localPos.y;
+        localPos.y -= WORLD_RADIUS;
+
+        alt -= WORLD_RADIUS;
+
+        worldPos = localPos + cameraPosition;
+    #endif
 
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(CloudMaxOctaves - octave);
@@ -41,7 +55,11 @@ float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
     const float sampleMax = rcp(1.0 - rcp(exp2(octaveCount)));
     sampleD *= sampleMax;
 
-    float z = saturate(worldPos.y / CloudHeight);
+    #if WORLD_RADIUS > 0
+        float z = saturate(alt / CloudHeight);
+    #else
+        float z = saturate(worldPos.y / CloudHeight);
+    #endif
     sampleD *= sqrt(z - z*z) * 2.0;
 
     const float CloudCoverMinF = SKY_CLOUD_COVER_MIN * 0.01;
@@ -55,7 +73,7 @@ float SampleCloudOctaves(const in vec3 worldPos, const in int octaveCount) {
 }
 
 void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec3 cloudNear, out vec3 cloudFar) {
-    float cloudOffset = cloudHeight - worldPos.y;// + 0.33;
+    float cloudOffset = GetCloudAltitude() - worldPos.y;
     vec3 cloudPosHigh = vec3(localViewDir.xz * ((cloudOffset + CloudHeight) / localViewDir.y), cloudOffset + CloudHeight).xzy;
     vec3 cloudPosLow = vec3(localViewDir.xz * ((cloudOffset) / localViewDir.y), cloudOffset).xzy;
 
@@ -101,7 +119,8 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         float cloudStepLen = cloudDist / (stepCount + 1);
         vec3 cloudStep = localLightDir * cloudStepLen;
 
-        vec3 sampleOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
+        float cloudAlt = GetCloudAltitude();
+        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
@@ -125,7 +144,8 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
 }
 
 float _TraceCloudShadow(const in vec3 worldPos, const in vec3 tracePos, const in float dither, const in int stepCount) {
-    vec3 sampleOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
+    float cloudAlt = GetCloudAltitude();
+    vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
     vec3 shadowTracePos = tracePos;
     float sampleLit = 1.0;
 
@@ -158,7 +178,7 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
     float phaseCloud = GetCloudPhase(VoL);
 
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+        float phaseSky = GetSkyPhase(VoL);
     #else
         const float phaseSky = phaseIso;
     #endif
@@ -168,7 +188,8 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
     vec3 traceStep = localViewDir * stepLength;
     vec3 traceStart = localViewDir * distMin;
 
-    vec3 cloudOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
+    float cloudAlt = GetCloudAltitude();
+    vec3 cloudOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
     for (uint stepI = 0; stepI < stepCount; stepI++) {
         vec3 tracePos = traceStart + traceStep * (stepI + dither);
@@ -208,7 +229,7 @@ void _TraceCloudVL(inout vec3 cloudScatter, inout vec3 cloudAbsorb, const in vec
 
     float VoL = dot(localSkyLightDirection, localViewDir);
     float phaseCloud = GetCloudPhase(VoL);
-    float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+    float phaseSky = GetSkyPhase(VoL);
 
     float cloudDist = distMax - distMin;
     vec3 cloudNear = localViewDir * distMin;
@@ -227,7 +248,8 @@ void _TraceCloudVL(inout vec3 cloudScatter, inout vec3 cloudAbsorb, const in vec
         float stepLength = cloudDist / (stepCount + 1);
         vec3 traceStep = localViewDir * stepLength;
 
-        vec3 sampleOffset = worldPos + vec3(0.0, -cloudHeight, 0.0);
+        float cloudAlt = GetCloudAltitude();
+        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
             vec3 tracePos = cloudNear + traceStep * (stepI + dither);
@@ -292,7 +314,8 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         float cloudStepLen = cloudDist / sampleCount;
         vec3 cloudStep = localLightDir * cloudStepLen;
 
-        vec3 sampleOffset = worldPos - vec3(0.0, cloudHeight, 0.0);
+        float cloudAlt = GetCloudAltitude();
+        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < sampleCount; stepI++) {
             vec3 tracePos = cloudNear + cloudStep * (stepI + dither);

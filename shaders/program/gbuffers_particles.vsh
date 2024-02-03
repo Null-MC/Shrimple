@@ -61,7 +61,7 @@ uniform vec3 cameraPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
         uniform vec3 eyePosition;
     #endif
 
@@ -81,6 +81,10 @@ uniform vec3 cameraPosition;
 #endif
 
 #include "/lib/utility/lightmap.glsl"
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #include "/lib/utility/matrix.glsl"

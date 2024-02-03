@@ -144,7 +144,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            vec3 cloudOffset = cameraPosition - vec3(0.0, cloudHeight, 0.0);
+            float cloudAlt = GetCloudAltitude();
+            vec3 cloudOffset = cameraPosition - vec3(0.0, cloudAlt, 0.0);
             float phaseCloud = GetCloudPhase(VoL);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();

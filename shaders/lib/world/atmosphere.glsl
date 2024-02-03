@@ -26,3 +26,7 @@ const float phaseAir = phaseIso;
 float GetSkyDensity(const in float worldY) {
     return AirDensityF * (1.0 - smoothstep(62.0, 420.0, worldY));
 }
+
+float GetSkyPhase(const in float VoL) {
+    return DHG(VoL, -0.22, 0.78, 0.44);
+}

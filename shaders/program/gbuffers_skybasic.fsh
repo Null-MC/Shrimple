@@ -55,14 +55,15 @@ uniform int renderStage;
 
 #include "/lib/sampling/noise.glsl"
 
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
 
 #include "/lib/fog/fog_common.glsl"
-
-#include "/lib/lighting/blackbody.glsl"
-#include "/lib/lighting/scatter_transmit.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"

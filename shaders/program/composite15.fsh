@@ -86,7 +86,7 @@ in vec2 texcoord;
 
         #if SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
-            uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+            uniform float cloudHeight;
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
@@ -125,12 +125,16 @@ in vec2 texcoord;
     #include "/lib/sampling/bayer.glsl"
     #include "/lib/sampling/ign.glsl"
 
+    #include "/lib/lighting/hg.glsl"
+    #include "/lib/lighting/scatter_transmit.glsl"
+
     #include "/lib/world/atmosphere.glsl"
     #include "/lib/world/common.glsl"
     #include "/lib/fog/fog_common.glsl"
 
-    #include "/lib/lighting/hg.glsl"
-    #include "/lib/lighting/scatter_transmit.glsl"
+    #if WORLD_RADIUS > 0
+        #include "/lib/world/curvature.glsl"
+    #endif
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"

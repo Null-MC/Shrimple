@@ -150,14 +150,15 @@ uniform int heldBlockLightValue2;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/blackbody.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 
 #include "/lib/clouds/cloud_vars.glsl"
 #include "/lib/world/sky.glsl"
 #include "/lib/world/lightning.glsl"
-
-#include "/lib/lighting/blackbody.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"

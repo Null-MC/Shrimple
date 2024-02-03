@@ -102,7 +102,7 @@ uniform int heldBlockLightValue2;
     uniform float skyWetnessSmooth;
     uniform float wetness;
     
-    uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+    uniform float cloudHeight;
 
     #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
         uniform float cloudTime;
@@ -136,7 +136,6 @@ uniform int heldBlockLightValue2;
     uniform bool isSpectator;
     uniform bool firstPersonCamera;
     uniform vec3 eyePosition;
-    //uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #endif
 
 #ifdef DISTANT_HORIZONS
@@ -182,14 +181,14 @@ uniform int heldBlockLightValue2;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/temporal_offset.glsl"
 
-#include "/lib/world/atmosphere.glsl"
-#include "/lib/world/common.glsl"
-#include "/lib/fog/fog_common.glsl"
-
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/sampling.glsl"
+
+#include "/lib/world/atmosphere.glsl"
+#include "/lib/world/common.glsl"
+#include "/lib/fog/fog_common.glsl"
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #ifdef LIGHTING_FLICKER
@@ -214,6 +213,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/fog/fog_custom.glsl"
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -634,7 +637,7 @@ layout(location = 0) out vec4 outFinal;
 
                             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                                 float VoL = dot(localSkyLightDirection, localViewDir);
-                                float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+                                float phaseSky = GetSkyPhase(VoL);
                             #else
                                 const float phaseSky = phaseIso;
                             #endif

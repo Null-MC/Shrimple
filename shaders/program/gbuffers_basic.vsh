@@ -42,7 +42,7 @@ uniform mat4 gbufferModelViewInverse;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
         uniform vec3 eyePosition;
     #endif
 

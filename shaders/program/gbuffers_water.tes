@@ -21,6 +21,9 @@ in VertexData {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vec3 surfacePos;
+    #endif
+
+    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
         float vertexY;
     #endif
 
@@ -172,6 +175,10 @@ void main() {
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vOut.surfacePos = _interpolate(vIn[0].surfacePos, vIn[1].surfacePos, vIn[2].surfacePos);
     #endif
+
+    // #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+    //     vOut.vertexY = _interpolate(vIn[0].surfacePos, vIn[1].surfacePos, vIn[2].surfacePos);
+    // #endif
 
     if (vIn[0].blockId == BLOCK_WATER) {
         #if defined RENDER_WATER && defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0

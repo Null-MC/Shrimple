@@ -33,6 +33,10 @@ uniform ivec2 atlasSize;
 
 #include "/lib/material/normalmap.glsl"
 
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
+
 #include "/lib/lighting/common.glsl"
 
 

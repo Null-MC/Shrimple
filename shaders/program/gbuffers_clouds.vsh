@@ -65,6 +65,10 @@ uniform vec3 cameraPosition;
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/noise.glsl"
 
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
+
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"

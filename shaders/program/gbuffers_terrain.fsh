@@ -138,7 +138,7 @@ uniform int frameCounter;
 
     #ifdef IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
         uniform float lightningStrength;
     #endif
 #endif
@@ -211,6 +211,9 @@ uniform int frameCounter;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/fresnel.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 // #include "/lib/world/foliage.glsl"
@@ -219,7 +222,6 @@ uniform int frameCounter;
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
 #endif
-#include "/lib/lighting/fresnel.glsl"
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -271,7 +273,6 @@ uniform int frameCounter;
         #include "/lib/world/lightning.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/lighting/hg.glsl"
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif

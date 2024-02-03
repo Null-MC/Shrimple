@@ -102,7 +102,7 @@ uniform float skyRainStrength;
     #endif
 #endif
 
-uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+uniform float cloudHeight;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -163,6 +163,12 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/sampling.glsl"
+#include "/lib/lighting/blackbody.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
@@ -171,11 +177,9 @@ uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
 #include "/lib/clouds/cloud_vars.glsl"
 #include "/lib/world/lightning.glsl"
 
-#include "/lib/lighting/hg.glsl"
-#include "/lib/lighting/scatter_transmit.glsl"
-#include "/lib/lighting/fresnel.glsl"
-#include "/lib/lighting/sampling.glsl"
-#include "/lib/lighting/blackbody.glsl"
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"

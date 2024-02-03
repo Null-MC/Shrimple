@@ -25,6 +25,9 @@ out VertexData {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vec3 surfacePos;
+    #endif
+
+    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
         float vertexY;
     #endif
 
@@ -95,7 +98,7 @@ uniform ivec2 atlasSize;
 
     #ifdef IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -143,6 +146,10 @@ uniform ivec2 atlasSize;
 #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
     //#include "/lib/buffers/block_static.glsl"
     #include "/lib/world/waving.glsl"
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -217,6 +224,9 @@ void main() {
 
     #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
         vOut.surfacePos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
+    #endif
+
+    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
         vOut.vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
     #endif
 

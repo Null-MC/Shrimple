@@ -1,6 +1,7 @@
 vec4 GetLightningDirectionStrength(const in vec3 localPos) {
+    float cloudAlt = GetCloudAltitude();
     vec3 lightningOffset = lightningPosition - cameraPosition;
-    lightningOffset.y = clamp(localPos.y, lightningOffset.y, cloudHeight - cameraPosition.y + 0.5*CloudHeight);
+    lightningOffset.y = clamp(localPos.y, lightningOffset.y, cloudAlt - cameraPosition.y + 0.5*CloudHeight);
     lightningOffset -= localPos;
 
     float lightningDist = length(lightningOffset);

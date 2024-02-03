@@ -65,7 +65,7 @@ uniform vec3 previousCameraPosition;
 
     #ifdef IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -88,6 +88,10 @@ uniform vec3 previousCameraPosition;
 #endif
 
 #include "/lib/utility/lightmap.glsl"
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/utility/matrix.glsl"
@@ -131,6 +135,16 @@ void main() {
     vec4 viewPos = gl_ModelViewMatrix * vPos;
 
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+
+    #if WORLD_RADIUS > 0
+        #ifdef WORLD_CURVE_SHADOWS
+            vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
+            viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+        #else
+            vec3 worldPos = GetWorldCurvedPosition(vOut.localPos);
+            viewPos = gbufferModelView * vec4(worldPos, 1.0);
+        #endif
+    #endif
 
     gl_Position = gl_ProjectionMatrix * viewPos;
 

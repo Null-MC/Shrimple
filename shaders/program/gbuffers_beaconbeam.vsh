@@ -11,6 +11,10 @@ out vec3 vLocalPos;
 
 uniform mat4 gbufferModelViewInverse;
 
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
+
 
 void main() {
 	gl_Position = ftransform();

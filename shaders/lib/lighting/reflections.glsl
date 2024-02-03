@@ -300,7 +300,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                     float VoL = dot(localSkyLightDirection, reflectLocalDir);
-                    float phaseSky = DHG(VoL, -0.12, 0.78, 0.42);
+                    float phaseSky = GetSkyPhase(VoL);
                     vec3 vlLight = vec3(phaseSky + AirAmbientF);
                 #else
                     vec3 vlLight = vec3(phaseIso + AirAmbientF);

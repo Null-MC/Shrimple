@@ -53,6 +53,10 @@ uniform int blockEntityId;
     #include "/lib/world/waving.glsl"
 #endif
 
+#if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+    #include "/lib/world/curvature.glsl"
+#endif
+
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN
         #include "/lib/physics_mod/ocean.glsl"
@@ -169,14 +173,17 @@ void main() {
         }
     #endif
 
-    viewPos = gl_ModelViewMatrix * pos;
-
     #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             mat4 shadowModelViewEx = shadowModelView;
         #endif
 
         localPos = shadowModelViewInverse * viewPos;
+
+        #if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+            localPos.xyz = GetWorldCurvedPosition(localPos.xyz);
+        #endif
+
         gl_Position = shadowModelViewEx * localPos;
     #endif
 }

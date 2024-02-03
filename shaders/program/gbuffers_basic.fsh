@@ -86,7 +86,7 @@ uniform int frameCounter;
 
     #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
         uniform float cloudTime;
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
     #endif
 #endif
 
@@ -115,10 +115,16 @@ uniform int frameCounter;
 
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/lighting/hg.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 
 #include "/lib/fog/fog_common.glsl"
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -138,7 +144,6 @@ uniform int frameCounter;
 
 #ifdef WORLD_SKY_ENABLED
     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/lighting/hg.glsl"
         #include "/lib/lighting/scatter_transmit.glsl"
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/clouds/cloud_custom.glsl"

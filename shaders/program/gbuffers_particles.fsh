@@ -173,7 +173,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform vec3 sunPosition;
         uniform vec3 shadowLightPosition;
         
-        uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+        uniform float cloudHeight;
 
         #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
             uniform float cloudTime;
@@ -214,15 +214,19 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/hg.glsl"
+
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#include "/lib/lighting/scatter_transmit.glsl"
-#include "/lib/lighting/hg.glsl"
-
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
+#endif
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
 #endif
 
 #ifdef WORLD_SKY_ENABLED

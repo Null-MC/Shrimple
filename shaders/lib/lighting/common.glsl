@@ -86,6 +86,16 @@ vec4 BasicVertex() {
 
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
+    #if WORLD_RADIUS > 0
+        #ifdef WORLD_CURVE_SHADOWS
+            vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
+            viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+        #else
+            vec3 worldPos = GetWorldCurvedPosition(vOut.localPos);
+            viewPos = gbufferModelView * vec4(worldPos, 1.0);
+        #endif
+    #endif
+
     #if !(defined RENDER_BILLBOARD || defined RENDER_CLOUDS)
         vOut.localNormal = vec3(0.0);
     #endif

@@ -35,7 +35,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform float frameTimeCounter;
 uniform vec3 cameraPosition;
 
-uniform float cloudHeight = WORLD_CLOUD_HEIGHT;
+uniform float cloudHeight;
 uniform float skyRainStrength;
 
 #ifdef SKY_WEATHER_CLOUD_ONLY
@@ -80,6 +80,10 @@ uniform float skyRainStrength;
 #include "/lib/sampling/noise.glsl"
 
 #include "/lib/utility/lightmap.glsl"
+
+#if WORLD_RADIUS > 0
+    #include "/lib/world/curvature.glsl"
+#endif
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/utility/matrix.glsl"
@@ -133,7 +137,8 @@ void main() {
             const float CloudHeight = 4.0;
         #endif
 
-        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vOut.localPos.y + cameraPosition.y - cloudHeight);
+	    float cloudAlt = GetCloudAltitude();
+        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vOut.localPos.y + cameraPosition.y - cloudAlt);
         vOut.color.a *= 1.0 - cloudY;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY

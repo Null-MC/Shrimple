@@ -24,6 +24,10 @@ uniform vec3 cameraPosition;
     #include "/lib/buffers/scene.glsl"
 #endif
 
+#if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+    #include "/lib/world/curvature.glsl"
+#endif
+
 
 void main() {
     vOut.materialId = uint(dhMaterialId);
@@ -44,10 +48,14 @@ void main() {
             mat4 shadowModelViewEx = shadowModelView;
         #endif
 
-        gl_Position = shadowModelViewInverse * gl_Position;
+        vec4 localPos = shadowModelViewInverse * gl_Position;
 
-        vOut.cameraViewDist = length(gl_Position.xyz);
+        #if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+            localPos.xyz = GetWorldCurvedPosition(localPos.xyz);
+        #endif
 
-        gl_Position = shadowModelViewEx * gl_Position;
+        vOut.cameraViewDist = length(localPos.xyz);
+
+        gl_Position = shadowModelViewEx * localPos;
     #endif
 }
