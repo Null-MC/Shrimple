@@ -179,7 +179,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

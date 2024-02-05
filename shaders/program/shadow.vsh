@@ -53,7 +53,7 @@ uniform int blockEntityId;
     #include "/lib/world/waving.glsl"
 #endif
 
-#if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+#if WORLD_CURVE_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
     #include "/lib/world/curvature.glsl"
 #endif
 
@@ -180,7 +180,7 @@ void main() {
 
         localPos = shadowModelViewInverse * viewPos;
 
-        #if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+        #if WORLD_CURVE_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
             localPos.xyz = GetWorldCurvedPosition(localPos.xyz);
         #endif
 

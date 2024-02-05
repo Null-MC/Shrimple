@@ -113,6 +113,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     float reflectDepth = 1.0;
     float reflectF = 0.0;
 
+    float _far = far;
+    #ifdef DISTANT_HORIZONS
+        _far = 0.5*dhFarPlane;
+    #endif
+
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 reflectViewPos = viewPos + 0.5*viewDist*reflectViewDir;
 
@@ -148,11 +153,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 reflectViewPos = unproject(dhProjectionFullInv * vec4(reflectClipPos, 1.0));
             #else
                 reflectViewPos = unproject(gbufferProjectionInverse * vec4(reflectClipPos, 1.0));
-            #endif
-
-            float _far = far;
-            #ifdef DISTANT_HORIZONS
-                _far = 0.5*dhFarPlane;
             #endif
 
             reflectDist = min(length(reflectViewPos - viewPos), _far);
@@ -208,11 +208,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
-        else reflectDist = far;
+        else reflectDist = _far;
 
         reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
-        reflectDist = far;
+        reflectDist = _far;
     #endif
 
     // return reflectColor;
@@ -224,11 +224,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #endif
 
     #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #ifdef DISTANT_HORIZONS
-            // TODO
-        #else
-            if (reflectDist >= far) reflectDist = farMax;
-        #endif
+        // #ifdef DISTANT_HORIZONS
+        //     // TODO
+        // #else
+            if (reflectDist >= _far) reflectDist = farMax;
+        // #endif
     #endif
 
     #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
@@ -290,7 +290,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 #endif
                 // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
-                float waterFogFar = min(16.0 / WaterDensityF, reflectDist);
+                // float waterFogFar = min(16.0 / WaterDensityF, reflectDist);
+                float waterFogFar = min(24.0, reflectDist);
 
                 ApplyScatteringTransmission(reflectColor, waterFogFar, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbColor, 8);
             }

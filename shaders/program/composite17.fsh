@@ -154,7 +154,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/world/atmosphere.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 
@@ -382,6 +382,7 @@ void main() {
                 float cloudDistFar = length(cloudFar);
                 float cloudDistNear = 0.0;
 
+                // const float SkyFar = 8000.0;
                 cloudDistFar = min(cloudDistFar, SkyFar);
                 if (cloudDistFar <= 0.0) cloudDistFar = SkyFar;
                 if (depthTrans >= 1.0) cloudDistFar = SkyFar;

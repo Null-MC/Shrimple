@@ -25,6 +25,7 @@ out VertexData {
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 uniform ivec2 atlasSize;
 
 #include "/lib/sampling/atlas.glsl"
@@ -33,7 +34,7 @@ uniform ivec2 atlasSize;
 
 #include "/lib/material/normalmap.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

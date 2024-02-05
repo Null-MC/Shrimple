@@ -196,7 +196,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 
@@ -356,9 +356,26 @@ void main() {
 
         #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
             if (isEyeInWater == 1) {
-                vec4 scatterTransmit = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-                scatterFinal += scatterTransmit.rgb * transmitFinal;
-                transmitFinal *= scatterTransmit.a;
+                // vec4 scatterTransmit = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                // scatterFinal += scatterTransmit.rgb * transmitFinal;
+                // transmitFinal *= scatterTransmit.a;
+
+                vec3 cloudNear, cloudFar;
+                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+                
+                float cloudDistNear = length(cloudNear);
+                float cloudDistFar = length(cloudFar);
+
+                if (cloudDistNear < distOpaque || depthOpaque >= 0.9999)
+                    cloudDistFar = min(cloudDistFar, min(distOpaque, far));
+                else {
+                    cloudDistNear = 0.0;
+                    cloudDistFar = 0.0;
+                }
+
+                //float farMax = min(distOpaque, far);
+
+                _TraceCloudVL(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
             }
         #endif
     }

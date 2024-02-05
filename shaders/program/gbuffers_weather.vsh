@@ -81,7 +81,7 @@ uniform float skyRainStrength;
 
 #include "/lib/utility/lightmap.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

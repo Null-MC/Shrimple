@@ -24,7 +24,7 @@ uniform vec3 cameraPosition;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+#if WORLD_CURVE_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
     #include "/lib/world/curvature.glsl"
 #endif
 
@@ -32,6 +32,8 @@ uniform vec3 cameraPosition;
 void main() {
     vOut.materialId = uint(dhMaterialId);
     vOut.color = gl_Color;
+
+    vOut.color.rgb = RGBToLinear(vOut.color.rgb);
 
     bool isWater = (dhMaterialId == DH_BLOCK_WATER);
     //if (isWater) vOut.color = vec4(0.90, 0.94, 0.96, 0.0);
@@ -50,7 +52,7 @@ void main() {
 
         vec4 localPos = shadowModelViewInverse * gl_Position;
 
-        #if WORLD_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
+        #if WORLD_CURVE_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
             localPos.xyz = GetWorldCurvedPosition(localPos.xyz);
         #endif
 

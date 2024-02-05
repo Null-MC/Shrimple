@@ -200,7 +200,18 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float iStep = i + dither;
         vec3 traceLocalPos = localStep * iStep + localStart;
+        vec3 traceWorldPos = traceLocalPos + cameraPosition;
         float traceDist = length(traceLocalPos);
+
+        #if WORLD_CURVE_RADIUS > 0
+            float traceAltitude = GetWorldAltitude(traceLocalPos);
+            vec3 curvedLocalPos = GetWorldCurvedPosition(traceLocalPos);
+
+            vec3 curvedWorldPos = curvedLocalPos;
+            curvedWorldPos.xz += cameraPosition.xz;
+        #else
+            float traceAltitude = traceLocalPos.y + cameraPosition.y;
+        #endif
 
         #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
             vec3 lpvPos = GetLPVPosition(traceLocalPos);
@@ -274,7 +285,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (!isWater) {
-                sampleDensity = GetSkyDensity(cameraPosition.y + traceLocalPos.y);
+                sampleDensity = GetSkyDensity(traceAltitude);
                 //sampleDensity *= 1.0 - smoothstep(62.0, 420.0, traceLocalPos.y + cameraPosition.y);
 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
@@ -289,17 +300,21 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
                     }
 
-                    vec3 cloudPos = traceLocalPos + cloudOffset;
 
-                    if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
-                        float sampleCloudF = SampleCloudOctaves(cloudPos, CloudTraceOctaves);
+                    //if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
+                        #if WORLD_CURVE_RADIUS > 0
+                            float sampleCloudF = SampleCloudOctaves(curvedWorldPos, traceAltitude, CloudTraceOctaves);
+                        #else
+                            // vec3 traceWorldPos = traceLocalPos + cameraPosition;
+                            float sampleCloudF = SampleCloudOctaves(traceWorldPos, CloudTraceOctaves);
+                        #endif
 
                         sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
                         sampleScattering = mix(sampleScattering, CloudScatterColor, sampleCloudF);
                         sampleExtinction = mix(sampleExtinction, CloudAbsorbColor, sampleCloudF);
                         sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleCloudF);
                         samplePhase = mix(samplePhase, phaseCloud, sampleCloudF);
-                    }
+                    //}
                 #endif
             }
         #endif
@@ -312,7 +327,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             //     //sampleAmbient *= 1.0 - (1.0 - lpvSkyLightF) * lpvFade;
             // #endif
         #elif defined WORLD_SMOKE
-            float smokeF = SampleSmokeOctaves(traceLocalPos + cameraPosition, SmokeTraceOctaves, time);
+            float smokeF = SampleSmokeOctaves(traceWorldPos, SmokeTraceOctaves, time);
 
             sampleDensity = smokeF * SmokeDensityF;
             sampleScattering = vec3(SmokeScatterF);
@@ -406,7 +421,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    float cloudShadow = TraceCloudShadow(cameraPosition + traceLocalPos, lightWorldDir, CLOUD_SHADOW_STEPS);
+                    float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                     // float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
                     sampleF *= cloudShadow;

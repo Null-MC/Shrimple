@@ -65,7 +65,7 @@ uniform vec3 cameraPosition;
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/noise.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

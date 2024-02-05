@@ -10,25 +10,10 @@ float GetCloudDither() {
     #endif
 }
 
-float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
-    float sampleD = 0.0;
-
+float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int octaveCount) {
     float _str = pow(skyRainStrength, 0.333);
     float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
-
-    #if WORLD_RADIUS > 0
-        vec3 localPos = worldPos - cameraPosition;
-        // localPos = GetWorldCurvedPosition(localPos);
-
-        localPos.y += WORLD_RADIUS;
-        float alt = length(localPos);
-        localPos = (localPos / alt) * localPos.y;
-        localPos.y -= WORLD_RADIUS;
-
-        alt -= WORLD_RADIUS;
-
-        worldPos = localPos + cameraPosition;
-    #endif
+    float sampleD = 0.0;
 
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(CloudMaxOctaves - octave);
@@ -36,11 +21,7 @@ float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
         vec3 testPos = worldPos / CloudSize;
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
-            //float offset = fract(cloudTimeF * scale);
-
-            //testPos.x += offset;
             testPos = floor(testPos);
-            //testPos.x -= offset;
         #endif
 
         testPos /= scale;
@@ -48,60 +29,97 @@ float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
         testPos.x += cloudTimeF;
 
         float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
-        sampleD += pow(sampleF, 2.0 - _str) * rcp(exp2(octave));
-        // sampleD += sampleF * rcp(exp2(octave));
+        sampleD += pow(sampleF, 2.0 - 0.5*_str) * rcp(exp2(octave));
     }
 
-    const float sampleMax = rcp(1.0 - rcp(exp2(octaveCount)));
-    sampleD *= sampleMax;
+    const float sampleMaxInv = rcp(1.0 - rcp(exp2(octaveCount)));
+    sampleD *= sampleMaxInv;
 
-    #if WORLD_RADIUS > 0
-        float z = saturate(alt / CloudHeight);
-    #else
-        float z = saturate(worldPos.y / CloudHeight);
-    #endif
+    float cloudAlt = GetCloudAltitude();
+    float z = saturate((altitude - cloudAlt) / CloudHeight);
     sampleD *= sqrt(z - z*z) * 2.0;
 
     const float CloudCoverMinF = SKY_CLOUD_COVER_MIN * 0.01;
     const float CloudCoverMin = 1.0 - sqrt(CloudCoverMinF);
 
-    float threshold = mix(CloudCoverMin, 0.59, _str);
+    // float threshold = mix(CloudCoverMin, 0.0, _str);
+    float threshold = CloudCoverMin * (1.0 - _str);
     sampleD = max(sampleD - threshold, 0.0) / (1.0 - threshold);
 
     sampleD = _smoothstep(sampleD);
     return pow5(sampleD);
 }
 
-void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec3 cloudNear, out vec3 cloudFar) {
-    float cloudOffset = GetCloudAltitude() - worldPos.y;
-    vec3 cloudPosHigh = vec3(localViewDir.xz * ((cloudOffset + CloudHeight) / localViewDir.y), cloudOffset + CloudHeight).xzy;
-    vec3 cloudPosLow = vec3(localViewDir.xz * ((cloudOffset) / localViewDir.y), cloudOffset).xzy;
+float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
+    return SampleCloudOctaves(worldPos, worldPos.y, octaveCount);
+}
 
+float raySphere(const in vec3 ro, const in vec3 rd, const in vec3 sph, const in float rad) {
+    vec3 oc = ro - sph.xyz;
+    float b = dot(oc, rd);
+    float c = dot(oc, oc) - rad*rad;
+    float t = b*b - c;
+    if (t > 0.0) t = -b - sqrt(t);
+    return t;
+}
+
+void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec3 cloudNear, out vec3 cloudFar) {
     cloudNear = vec3(0.0);
     cloudFar = vec3(0.0);
 
-    if (cloudPosLow.y > 0.0) {
-        // under clouds
-        if (localViewDir.y > 0.0) {
-            cloudNear = cloudPosLow;
-            cloudFar = cloudPosHigh;
+    float cloudAlt = GetCloudAltitude();
+
+    #if WORLD_CURVE_RADIUS > 0
+        vec3 worldCenter = cameraPosition;
+        worldCenter.y = -WorldCurveRadius;
+
+        float radiusNear = WorldCurveRadius + cloudAlt;
+        float radiusFar = radiusNear + CloudHeight;
+        float distNear = raySphere(worldPos, localViewDir, worldCenter, radiusNear);
+        float distFar = raySphere(worldPos, localViewDir, worldCenter, radiusFar);
+
+        if (distFar > distNear && distNear > 0.0) {
+            // under clouds
+            cloudNear = localViewDir * distNear;
+            cloudFar = localViewDir * distFar;
         }
-    }
-    else if (cloudPosHigh.y < 0.0) {
-        // above clouds
-        if (localViewDir.y < 0.0) {
-            cloudNear = cloudPosHigh;
-            cloudFar = cloudPosLow;
+        else if (distFar < distNear && distFar > 0.0) {
+            // above clouds
+            cloudNear = localViewDir * distFar;
+            cloudFar = localViewDir * distNear;
         }
-    }
-    else {
-        // in clouds
-        if (localViewDir.y > 0.0) cloudFar = cloudPosHigh;
-        else if (localViewDir.y < 0.0) cloudFar = cloudPosLow;
+        else if (distFar > 0.0) {
+            // in clouds
+            cloudFar = localViewDir * distNear;
+        }
+    #else
+        float cloudOffset = cloudAlt - worldPos.y;
+        vec3 cloudPosHigh = vec3(localViewDir.xz * ((cloudOffset + CloudHeight) / localViewDir.y), cloudOffset + CloudHeight).xzy;
+        vec3 cloudPosLow = vec3(localViewDir.xz * ((cloudOffset) / localViewDir.y), cloudOffset).xzy;
+
+        if (cloudPosLow.y > 0.0) {
+            // under clouds
+            if (localViewDir.y > 0.0) {
+                cloudNear = cloudPosLow;
+                cloudFar = cloudPosHigh;
+            }
+        }
+        else if (cloudPosHigh.y < 0.0) {
+            // above clouds
+            if (localViewDir.y < 0.0) {
+                cloudNear = cloudPosHigh;
+                cloudFar = cloudPosLow;
+            }
+        }
         else {
-            cloudFar = localViewDir * far;
+            // in clouds
+            if (localViewDir.y > 0.0) cloudFar = cloudPosHigh;
+            else if (localViewDir.y < 0.0) cloudFar = cloudPosLow;
+            else {
+                cloudFar = localViewDir * far;
+            }
         }
-    }
+    #endif
 }
 
 float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, const in int stepCount) {
@@ -120,18 +138,27 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         float cloudAlt = GetCloudAltitude();
-        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
+        // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
-            vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
+            vec3 traceLocalPos = cloudNear + cloudStep * (stepI + dither);
 
-            float sampleF = SampleCloudOctaves(tracePos + sampleOffset, CloudShadowOctaves);
+            #if WORLD_CURVE_RADIUS > 0
+                float traceAltitude = GetWorldAltitude(traceLocalPos);
+                vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
+                traceWorldPos.xz += worldPos.xz;
+            #else
+                vec3 traceWorldPos = traceLocalPos + worldPos;
+                float traceAltitude = traceWorldPos.y;
+            #endif
+
+            float sampleF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudShadowOctaves);
             float sampleD = sampleF * CloudDensityF;
 
-            float shadowY = tracePos.y + sampleOffset.y;
-            sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
+            // float shadowY = traceLocalPos.y + sampleOffset.y;
+            // sampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
-            // float fogDist = GetShapedFogDistance(tracePos);
+            // float fogDist = GetShapedFogDistance(traceLocalPos);
             // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
             float stepAbsorb = exp(cloudStepLen * sampleD * -CloudAbsorbF);
@@ -143,20 +170,28 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     return cloudAbsorb;
 }
 
-float _TraceCloudShadow(const in vec3 worldPos, const in vec3 tracePos, const in float dither, const in int stepCount) {
-    float cloudAlt = GetCloudAltitude();
-    vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
-    vec3 shadowTracePos = tracePos;
+float _TraceCloudShadow(in vec3 worldPos, const in float dither, const in int stepCount) {
+    //float cloudAlt = GetCloudAltitude();
+    // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
     float sampleLit = 1.0;
 
     for (int i = 0; i < stepCount; i++) {
         float shadowStepLen = 0.5 * exp2(i);
         vec3 shadowStep = localSkyLightDirection * shadowStepLen;
 
-        vec3 shadowSamplePos = shadowTracePos + shadowStep * dither;
-        shadowTracePos += shadowStep;
+        vec3 shadowSamplePos = worldPos + shadowStep * dither;
+        worldPos += shadowStep;
 
-        float shadowSampleF = SampleCloudOctaves(shadowSamplePos + sampleOffset, CloudShadowOctaves);
+        #if WORLD_CURVE_RADIUS > 0
+            float traceAltitude = GetWorldAltitude(shadowSamplePos - cameraPosition);
+            vec3 traceWorldPos = GetWorldCurvedPosition(shadowSamplePos - cameraPosition);
+            traceWorldPos.xz += worldPos.xz;
+        #else
+            vec3 traceWorldPos = shadowSamplePos + worldPos;
+            float traceAltitude = traceWorldPos.y;
+        #endif
+
+        float shadowSampleF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudShadowOctaves);
         float shadowSampleD = shadowSampleF * CloudDensityF;
 
         // float shadowY = shadowSamplePos.y + sampleOffset.y;
@@ -189,25 +224,34 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
     vec3 traceStart = localViewDir * distMin;
 
     float cloudAlt = GetCloudAltitude();
-    vec3 cloudOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
+    //vec3 cloudOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
     for (uint stepI = 0; stepI < stepCount; stepI++) {
-        vec3 tracePos = traceStart + traceStep * (stepI + dither);
+        vec3 traceLocalPos = traceStart + traceStep * (stepI + dither);
 
-        vec3 cloudPos = tracePos + cloudOffset;
+        #if WORLD_CURVE_RADIUS > 0
+            float traceAltitude = GetWorldAltitude(traceLocalPos);
+            vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
+            traceWorldPos.xz += worldPos.xz;
+        #else
+            vec3 traceWorldPos = traceLocalPos + worldPos;
+            float traceAltitude = traceWorldPos.y;
+        #endif
+
+        //vec3 cloudPos = traceLocalPos + cloudOffset;
 
         float sampleCloudF = 0.0;
-        if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
-            sampleCloudF = SampleCloudOctaves(tracePos + cloudOffset, CloudTraceOctaves);
-        }
+        //if (cloudPos.y > 0.0 && cloudPos.y < CloudHeight) {
+            sampleCloudF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudTraceOctaves);
+        //}
 
-        float sampleCloudShadow = TraceCloudShadow(worldPos + tracePos, localSkyLightDirection, shadowStepCount);
-        // float sampleCloudShadow = _TraceCloudShadow(worldPos, tracePos, dither, shadowStepCount);
+        float sampleCloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, shadowStepCount);
+        // float sampleCloudShadow = _TraceCloudShadow(worldPos, traceLocalPos, dither, shadowStepCount);
 
-        // float fogDist = GetShapedFogDistance(tracePos);
+        // float fogDist = GetShapedFogDistance(traceLocalPos);
         // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * SkyFar, SkyFar, 1.0);
 
-        float airDensity = GetSkyDensity(worldPos.y + tracePos.y);
+        float airDensity = GetSkyDensity(traceAltitude);
 
         float stepDensity = mix(airDensity, CloudDensityF, sampleCloudF);
         float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
@@ -249,15 +293,24 @@ void _TraceCloudVL(inout vec3 cloudScatter, inout vec3 cloudAbsorb, const in vec
         vec3 traceStep = localViewDir * stepLength;
 
         float cloudAlt = GetCloudAltitude();
-        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
+        // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < stepCount; stepI++) {
-            vec3 tracePos = cloudNear + traceStep * (stepI + dither);
+            vec3 traceLocalPos = cloudNear + traceStep * (stepI + dither);
 
-            float sampleCloudF = SampleCloudOctaves(tracePos + sampleOffset, CloudTraceOctaves);
-            float sampleCloudShadow = _TraceCloudShadow(worldPos, tracePos, dither, shadowStepCount);
+            #if WORLD_CURVE_RADIUS > 0
+                float traceAltitude = GetWorldAltitude(traceLocalPos);
+                vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
+                traceWorldPos.xz += worldPos.xz;
+            #else
+                vec3 traceWorldPos = traceLocalPos + worldPos;
+                float traceAltitude = traceWorldPos.y;
+            #endif
 
-            //float fogDist = GetShapedFogDistance(tracePos);
+            float sampleCloudF = SampleCloudOctaves(traceWorldPos, CloudTraceOctaves);
+            float sampleCloudShadow = _TraceCloudShadow(traceWorldPos, dither, shadowStepCount);
+
+            //float fogDist = GetShapedFogDistance(traceLocalPos);
             //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
             float stepDensity = mix(AirDensityF, CloudDensityF, sampleCloudF);
@@ -315,15 +368,25 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         float cloudAlt = GetCloudAltitude();
-        vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
+        //vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (uint stepI = 0; stepI < sampleCount; stepI++) {
-            vec3 tracePos = cloudNear + cloudStep * (stepI + dither);
+            vec3 traceLocalPos = cloudNear + cloudStep * (stepI + dither);
+            // vec3 traceWorldPos = worldPos + traceLocalPos;
 
-            float sampleF = SampleCloudOctaves(tracePos + sampleOffset, CloudShadowOctaves);
+            #if WORLD_CURVE_RADIUS > 0
+                float traceAltitude = GetWorldAltitude(traceLocalPos);
+                vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
+                traceWorldPos.xz += worldPos.xz;
+            #else
+                vec3 traceWorldPos = traceLocalPos + worldPos;
+                float traceAltitude = traceWorldPos.y;
+            #endif
 
-            float shadowY = tracePos.y + sampleOffset.y;
-            sampleF *= step(0.0, shadowY) * step(shadowY, CloudHeight);
+            float sampleF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudShadowOctaves);
+
+            // float shadowY = traceWorldPos.y;
+            // sampleF *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
             cloudDensity += sampleF;
         }

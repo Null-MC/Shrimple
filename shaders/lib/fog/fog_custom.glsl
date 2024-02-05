@@ -52,22 +52,30 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
     #ifdef WORLD_SKY_ENABLED
         float dayF = smoothstep(-0.1, 0.3, sunUpF);
         vec3 skyColor = mix(colorSkyNight, colorSkyDay, dayF);
-        vec3 fogColor = mix(colorFogNight, colorFogDay, dayF);
 
         //float horizonF = smoothstep(0.0, 0.6, abs(sunUpF + 0.06));
         float horizonF = GetSkyHorizonF(sunUpF);
         skyColor = mix(skyColor, colorSkyHorizon, horizonF);
-        fogColor = mix(fogColor, colorFogHorizon, horizonF);
 
-        vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);
-        fogColor = mix(fogColor, rainFogColor, skyRainStrength);
+        #if SKY_VOL_FOG_TYPE == VOL_TYPE_NONE
+            vec3 fogColor = mix(colorFogNight, colorFogDay, dayF);
+            
+            fogColor = mix(fogColor, colorFogHorizon, horizonF);
+
+            vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);
+            fogColor = mix(fogColor, rainFogColor, skyRainStrength);
+        #endif
 
         #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             vec3 rainSkyColor = mix(vec3(0.1), colorRainSkyDay, dayF);
             skyColor = mix(skyColor, rainSkyColor, skyRainStrength);
         #endif
 
-        return GetSkyFogColor(skyColor, fogColor, viewUpF);
+        #if SKY_VOL_FOG_TYPE == VOL_TYPE_NONE
+            return GetSkyFogColor(skyColor, fogColor, viewUpF);
+        #else
+            return skyColor;
+        #endif
     #else
         return RGBToLinear(fogColor);
     #endif

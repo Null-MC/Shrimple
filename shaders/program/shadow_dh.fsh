@@ -32,8 +32,17 @@ void main() {
 
     vec4 color = vIn.color;
     
+    // if (vIn.materialId == DH_BLOCK_WATER)
+    //     color = vec4(0.90, 0.0, 0.0, 0.0);
+
+    #if defined SHADOW_COLORED && defined SHADOW_COLOR_BLEND
+        color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
+    #endif
+
+    color.rgb = LinearToRGB(color.rgb);
+
     if (vIn.materialId == DH_BLOCK_WATER)
-        color = vec4(0.90, 0.0, 0.0, 0.0);
+        color = vec4(0.90, 0.94, 0.96, 0.0);
 
     outColor0 = color;
 }

@@ -177,7 +177,7 @@ uniform float cloudHeight;
 #include "/lib/clouds/cloud_vars.glsl"
 #include "/lib/world/lightning.glsl"
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

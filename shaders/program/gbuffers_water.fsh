@@ -244,7 +244,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/sampling/anisotropic.glsl"
 #endif
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

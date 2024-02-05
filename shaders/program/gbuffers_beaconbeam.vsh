@@ -10,8 +10,9 @@ out vec4 glcolor;
 out vec3 vLocalPos;
 
 uniform mat4 gbufferModelViewInverse;
+uniform vec3 cameraPosition;
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

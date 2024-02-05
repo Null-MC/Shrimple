@@ -157,9 +157,7 @@ void main() {
                         _far = 2.0 * dhFarPlane;
                     #endif
 
-                    shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
-                    //shadowProjectionEx[0][0] = 2.0 / min(shadowDistance, far);
-                    //shadowProjectionEx[1][1] = 2.0 / min(shadowDistance, far);
+                    shadowProjectionEx = shadowProjection;
                     shadowProjectionEx[2][2] = -2.0 / _far;
                     shadowProjectionEx[3][2] = 0.0;
 

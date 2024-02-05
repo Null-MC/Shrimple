@@ -86,7 +86,7 @@ vec4 BasicVertex() {
 
     vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
 
-    #if WORLD_RADIUS > 0
+    #if WORLD_CURVE_RADIUS > 0
         #ifdef WORLD_CURVE_SHADOWS
             vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
             viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);

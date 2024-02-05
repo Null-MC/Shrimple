@@ -159,7 +159,7 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
-#if WORLD_RADIUS > 0
+#if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 

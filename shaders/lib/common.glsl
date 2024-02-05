@@ -99,8 +99,8 @@ const bool colortex15Clear = true;
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_NETHER_AMBIENT 10 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
 #define WORLD_END_AMBIENT 10 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
-#define WORLD_RADIUS 0 // [0 1000 2000 3000 4000 6000 8000 10000 12000 16000 20000]
-//#define WORLD_CURVE_SHADOWS
+#define WORLD_CURVE_RADIUS 0 // [0 3200 2400 1600 1200 800 400 200 160 120 80 60 40 32 28 24 20 16 12 10 8 6 4 3 2 1]
+// #define WORLD_CURVE_SHADOWS
 #define WORLD_SMOKE
 
 
@@ -306,7 +306,7 @@ const bool colortex15Clear = true;
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [0.6 0.8 1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.4 3.8 4.2 4.6 5.0 6.0 7.0 8.0]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define POST_EXPOSURE -0.2 // [-2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
+#define POST_EXPOSURE -0.4 // [-2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
 
 
 // Debug Options
@@ -527,6 +527,7 @@ const float WorldSkyBrightnessF = SKY_BRIGHTNESS * 0.01;
 const float WorldWaterOpacityF = WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = SKY_WEATHER_OPACITY * 0.01;
 const float WorldWaterDensityF = WATER_FOG_DENSITY * 0.01;
+const float WorldCurveRadius = WORLD_CURVE_RADIUS * 1000.0;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
