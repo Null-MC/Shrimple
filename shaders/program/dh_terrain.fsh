@@ -349,7 +349,7 @@ void main() {
     float roughness, metal_f0;
     // float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
     // float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
-    const float emission = 0.0;
+    float emission = 0.0;
     float sss = 0.0;
     // GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
     roughness = 0.95;
@@ -357,6 +357,8 @@ void main() {
 
     if (vIn.materialId == DH_BLOCK_LEAVES) sss = 0.8;
     if (vIn.materialId == DH_BLOCK_SNOW) sss = 0.6;
+    if (vIn.materialId == DH_BLOCK_WATER) emission = 0.8;
+    if (vIn.materialId == DH_BLOCK_ILLUMINATED) emission = 0.8;
     
     vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

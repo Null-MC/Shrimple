@@ -40,10 +40,10 @@ void main() {
     float alphaF = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
         ? (1.5/255.0) : alphaTestRef;
 
-    // if (color.a < alphaF) {
-    //     discard;
-    //     return;
-    // }
+    if (color.a < alphaF) {
+        discard;
+        return;
+    }
 
     color.rgb = RGBToLinear(color.rgb * vIn.color.rgb);
 
