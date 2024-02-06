@@ -192,7 +192,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
     // float transmittance = 1.0;
     // vec3 scattering = vec3(0.0);
 
-    for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
+    for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
         // if (i == VOLUMETRIC_SAMPLES) {
         //     stepLength *= 1.0 - dither;
         //     dither = 0.0;

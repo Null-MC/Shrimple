@@ -87,7 +87,7 @@ const bool colortex15Clear = true;
 #define SKY_CLOUD_TYPE 1 // [0 1 2 3]
 #define SKY_CLOUD_SPEED 8 // [0 2 4 8 12 16 20 24 32 48 64 96 128]
 #define SKY_CLOUD_COVER_MIN 60 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define SKY_CLOUD_ALTITUDE 0 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
+#define SKY_CLOUD_ALTITUDE 0 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 750 800 850 900 950 1000 1100 1200]
 
 
 // World Options
@@ -586,6 +586,9 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 8
 const float shadowIntervalSize = 2.0f;
 const float shadowDistanceRenderMul = 1.0;
 const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
+
+const float shadowNearPlane = -1.0;
+const float shadowFarPlane = -1.0;
 
 #ifdef MC_SHADOW_QUALITY
     const float shadowMapSize = shadowMapResolution * MC_SHADOW_QUALITY;

@@ -16,10 +16,10 @@ float GetShadowRange(const in int cascade) {
 }
 
 const float cascadeNormalBias[] = float[]
-    (0.06, 0.10, 0.20, 0.50);
+    (0.06, 0.15, 0.30, 0.60);
 
 const float cascadeOffsetBias[] = float[]
-    (0.06, 0.05, 0.1, 0.8);
+    (0.06, 0.20, 0.40, 0.80);
 
 float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
     float bias = 0.0;
