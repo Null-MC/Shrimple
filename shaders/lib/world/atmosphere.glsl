@@ -5,7 +5,7 @@ const float SkyDensityF = SKY_DENSITY * 0.01;
 const float phaseAir = phaseIso;
 
 #ifdef DISTANT_HORIZONS
-	float SkyFar = max(2000.0, 0.5 * dhFarPlane);
+	float SkyFar = max(2000.0, 2.0*dhFarPlane);
 #else
 	const float SkyFar = 2000.0;
 #endif

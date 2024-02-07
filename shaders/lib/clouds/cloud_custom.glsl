@@ -15,6 +15,8 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
     float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
     float sampleD = 0.0;
 
+    const vec3 sampleScale = vec3(0.25, 0.25, 0.75);
+
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(CloudMaxOctaves - octave);
 
@@ -28,7 +30,7 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
 
         testPos.x += cloudTimeF;
 
-        float sampleF = textureLod(texClouds, testPos.xzy * 0.25 * (octave+1), 0).r;
+        float sampleF = textureLod(texClouds, testPos.xzy * sampleScale * (octave+1), 0).r;
         sampleD += pow(sampleF, 2.0 - 0.5*_str) * rcp(exp2(octave));
     }
 
