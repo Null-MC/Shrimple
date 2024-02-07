@@ -20,7 +20,7 @@ float GetSceneLightEmission(const in uint lightType) {
         #elif MATERIAL_EMISSION == EMISSION_LABPBR
             emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).a;
             if (emission > (254.5/255.0)) emission = 0.0;
-        #elif LIGHTING_MODE != DYN_LIGHT_NONE
+        #else //if LIGHTING_MODE != DYN_LIGHT_NONE
             int materialId = id;
             //if (currentRenderedItemId > 0)
             //    materialId = currentRenderedItemId;

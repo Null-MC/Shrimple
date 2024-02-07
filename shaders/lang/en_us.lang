@@ -64,7 +64,7 @@ suffix.SKY_CLOUD_COVER_MIN=%
 
 option.SKY_CLOUD_ALTITUDE=Altitude
 option.SKY_CLOUD_ALTITUDE.comment=The world Y level where the bottom of clouds will start. For vanilla cloud height you must use sodium-extra mod (value=default).
-option.SKY_CLOUD_ALTITUDE.0=Default
+value.SKY_CLOUD_ALTITUDE.0=Default
 
 
 screen.WORLD_OPTIONS=World
