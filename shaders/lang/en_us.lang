@@ -66,6 +66,9 @@ option.SKY_CLOUD_ALTITUDE=Altitude
 option.SKY_CLOUD_ALTITUDE.comment=The world Y level where the bottom of clouds will start. For vanilla cloud height you must use sodium-extra mod (value=default).
 value.SKY_CLOUD_ALTITUDE.0=Default
 
+option.SKY_CLOUD_HEIGHT=Height
+option.SKY_CLOUD_HEIGHT.comment=The vertical height range of the cloud volume (in blocks). For fancy/cubed clouds only.
+
 
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.

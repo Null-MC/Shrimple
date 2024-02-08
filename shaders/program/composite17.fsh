@@ -357,6 +357,8 @@ void main() {
         #endif
 
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                const int traceStepCount = CLOUD_STEPS;
+                
                 float cloudDistNear = farMax;
 
                 #ifdef DISTANT_HORIZONS
@@ -371,9 +373,13 @@ void main() {
                 }
             #else
                 #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                    const int traceStepCount = VOLUMETRIC_SAMPLES;
+
                     const float cloudDistNear = 0.0;
                     float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
                 #else
+                    const int traceStepCount = CLOUD_STEPS;
+
                     vec3 cloudNear, cloudFar;
                     GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
                     
@@ -386,7 +392,7 @@ void main() {
             #endif
 
             if (cloudDistFar > cloudDistNear)
-                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, traceStepCount, CLOUD_SHADOW_STEPS);
 
         #ifdef WORLD_WATER_ENABLED
             }
