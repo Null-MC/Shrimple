@@ -37,10 +37,6 @@ void main() {
     color *= PostBloomStrengthF;
     
     DitherBloom(color);
-    
-    // #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-    //     color = RGBToLinear(color);
-    // #endif
 
     outFinal = color;
 }

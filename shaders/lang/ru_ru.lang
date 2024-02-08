@@ -704,9 +704,6 @@ option.DYN_LIGHT_DEBUG_COUNTS=Количество Показываемого С
 option.DYN_LIGHT_OREBLOCKS=Свет Блок-Руды
 option.DYN_LIGHT_OREBLOCKS.comment=При включении этой функции твёрдые блоки руды будут излучать цветной свет.
 
-option.DH_COMPAT_ENABLED=Поддержка Distant Horizons
-option.DH_COMPAT_ENABLED.comment=Включает специальную поддержку мода Distant Horizons.
-
 option.ANIM_WORLD_TIME=Анимация Мирового-Времени
 option.ANIM_WORLD_TIME.comment=Использует количество мирового времени для анимации чем постоянное. Очень полезная функция для записи модов, которые воспроизводятся с использованием масштабированного мирового времени.
 

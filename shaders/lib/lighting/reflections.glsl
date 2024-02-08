@@ -185,7 +185,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     else {
                 #endif
 
-                    #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+                    #ifdef SKY_BORDER_FOG_ENABLED
                         if (reflection.z < 1.0) {
                             vec3 reflectLocalPos = (gbufferModelViewInverse * vec4(reflectViewPos, 1.0)).xyz;
 

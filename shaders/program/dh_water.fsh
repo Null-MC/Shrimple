@@ -635,7 +635,7 @@ void main() {
             }
         #endif
 
-        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+        #ifdef SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
@@ -654,14 +654,6 @@ void main() {
             float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, farMax, isWater);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
-
-        #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetShapedFogDistance(vIn.localPos);
-            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-            color.a *= 1.0 - fogF;
-            
-            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;

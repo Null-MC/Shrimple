@@ -433,9 +433,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #endif
 
-    #ifdef DH_COMPAT_ENABLED
-        color.rgb = LinearToRGB(color.rgb);
-    #elif defined SKY_BORDER_FOG_ENABLED
+    #ifdef SKY_BORDER_FOG_ENABLED
         ApplyFog(color, vIn.localPos, localViewDir);
     #endif
 

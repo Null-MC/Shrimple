@@ -560,7 +560,7 @@ void main() {
         #endif
 
         //ApplyFog(color, vLocalPos, localViewDir);
-        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+        #ifdef SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vIn.localPos, localViewDir);
 
             // TODO: manually apply fog so you can inverse fogF as alpha
@@ -602,14 +602,6 @@ void main() {
             #ifdef WORLD_WATER_ENABLED
                 }
             #endif
-        #endif
-
-        #ifdef DH_COMPAT_ENABLED
-            float fogDist = GetShapedFogDistance(vIn.localPos);
-            float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-            color.a *= 1.0 - fogF;
-
-            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;

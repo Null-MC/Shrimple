@@ -98,10 +98,6 @@ void main() {
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;
 
-    #ifdef DH_COMPAT_ENABLED
-        color.rgb = LinearToRGB(color.rgb);
-    #endif
-
     // color.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
 
     // #ifdef WORLD_END

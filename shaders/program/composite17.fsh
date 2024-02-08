@@ -358,7 +358,7 @@ void main() {
 
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 const int traceStepCount = CLOUD_STEPS;
-                
+
                 float cloudDistNear = farMax;
 
                 #ifdef DISTANT_HORIZONS
@@ -371,24 +371,23 @@ void main() {
                     cloudDistNear = 0.0;
                     cloudDistFar = 0.0;
                 }
+            #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                const int traceStepCount = VOLUMETRIC_SAMPLES;
+
+                const float cloudDistNear = 0.0;
+                float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
             #else
-                #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                    const int traceStepCount = VOLUMETRIC_SAMPLES;
+                // const int traceStepCount = CLOUD_STEPS;
+                const int traceStepCount = VOLUMETRIC_SAMPLES;
 
-                    const float cloudDistNear = 0.0;
-                    float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
-                #else
-                    const int traceStepCount = CLOUD_STEPS;
+                vec3 cloudNear, cloudFar;
+                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+                
+                float cloudDistNear = length(cloudNear);
+                float cloudDistFar = min(length(cloudFar), SkyFar);
 
-                    vec3 cloudNear, cloudFar;
-                    GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
-                    
-                    float cloudDistNear = length(cloudNear);
-                    float cloudDistFar = min(length(cloudFar), SkyFar);
-
-                    if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
-                        cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
-                #endif
+                if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
+                    cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
             #endif
 
             if (cloudDistFar > cloudDistNear)

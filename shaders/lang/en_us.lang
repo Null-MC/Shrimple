@@ -500,11 +500,7 @@ value.VOLUMETRIC_RES.0=Full
 value.VOLUMETRIC_RES.1=Half
 value.VOLUMETRIC_RES.2=Quarter
 
-option.VOLUMETRIC_SAMPLES=Quality
-value.VOLUMETRIC_SAMPLES.12=Low
-value.VOLUMETRIC_SAMPLES.24=Medium
-value.VOLUMETRIC_SAMPLES.36=High
-value.VOLUMETRIC_SAMPLES.48=Very High
+option.VOLUMETRIC_SAMPLES=Sample Count
 
 option.VOLUMETRIC_BRIGHT_SKY=Sun/Moon Brightness
 option.VOLUMETRIC_BRIGHT_SKY.comment=Adjusts the brightness of the sun & moon when applying volumetric lighting to fog.
@@ -768,9 +764,6 @@ option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
-
-option.DH_COMPAT_ENABLED=Distant Horizons
-option.DH_COMPAT_ENABLED.comment=Enables special support for the Distant Horizons mod.
 
 option.DH_CLIP_DIST=DH Clipping Distance
 option.DH_CLIP_DIST.comment=The distance from the camera that Distant Horizons terrain will start clipping.

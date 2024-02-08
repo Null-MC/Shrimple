@@ -248,9 +248,7 @@ void main() {
         vec2 lmFinal = LightMapTex(vIn.lmcoord);
 		color.rgb *= texture(lightmap, lmFinal).rgb * shadowColor;
 
-        #ifdef DH_COMPAT_ENABLED
-            color.rgb = LinearToRGB(color.rgb);
-        #elif defined SKY_BORDER_FOG_ENABLED
+        #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localViewDir = normalize(vIn.localPos);
             ApplyFog(color, vIn.localPos, localViewDir);
         #endif

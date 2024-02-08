@@ -423,10 +423,6 @@ void main() {
 
             ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
-
-        #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-            final.rgb = LinearToRGB(final.rgb) / WorldSkyBrightnessF;
-        #endif
         
         outFinal = final;
     //#endif

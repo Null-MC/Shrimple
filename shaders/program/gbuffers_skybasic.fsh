@@ -128,16 +128,12 @@ void main() {
             final.rgb = RGBToLinear(final.rgb);
         #endif
 
-        #ifndef DH_COMPAT_ENABLED
-            final.rgb *= WorldSkyBrightnessF;
-        #endif
+        final.rgb *= WorldSkyBrightnessF;
     }
 
     //final.rgb *= 1.0 - blindnessSmooth;
 
-    #ifdef DH_COMPAT_ENABLED
-        final.rgb = LinearToRGB(final.rgb);
-    #elif !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 0) {
         #endif

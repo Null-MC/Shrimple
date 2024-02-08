@@ -45,11 +45,7 @@ void main() {
     tex += pixelSize;
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
-    
-    #if defined DH_COMPAT_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-        color = RGBToLinear(color);
-    #endif
-    
+        
     ApplyPostExposure(color);
 
     float power = EFFECT_BLOOM_POWER;

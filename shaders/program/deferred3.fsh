@@ -149,7 +149,7 @@ void main() {
         occlusion = BilateralGaussianDepthBlur_5x(texcoord, linearDepth);
         // occlusion = textureLod(colortex12, texcoord, 0).r;
 
-        #if defined SKY_BORDER_FOG_ENABLED || defined DH_COMPAT_ENABLED
+        #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
             vec3 viewPos, localPos;
 
@@ -162,11 +162,7 @@ void main() {
                 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
             }
     
-            #ifdef DH_COMPAT_ENABLED
-                float fogDist = GetShapedFogDistance(localPos);
-                float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-                occlusion *= 1.0 - fogF;
-            #elif defined SKY_BORDER_FOG_ENABLED
+            #ifdef SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     float fogDist = length(viewPos);
 

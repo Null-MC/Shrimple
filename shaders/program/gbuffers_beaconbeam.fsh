@@ -139,11 +139,6 @@ void main() {
             vec3 localViewDir = normalize(vLocalPos);
             ApplyFog(color, vLocalPos, localViewDir);
         #endif
-
-        #ifdef DH_COMPAT_ENABLED
-            //ApplyPostProcessing(color.rgb);
-            color.rgb = LinearToRGB(color.rgb);
-        #endif
         
 		outFinal = color;
 	#endif

@@ -343,20 +343,6 @@ layout(location = 0) out vec4 outFinal;
 
         vec3 final;
 
-        #ifdef DH_COMPAT_ENABLED
-            #ifdef WORLD_SKY_ENABLED
-                vec3 skyFinal = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                skyFinal = RGBToLinear(skyFinal) * WorldSkyBrightnessF;
-            #else
-                vec3 skyFinal = RGBToLinear(fogColor);
-            #endif
-
-            // vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-
-            // if (all(greaterThan(deferredColor, EPSILON3)))
-            //     skyFinal = RGBToLinear(deferredColor) * 2.0;
-        #endif
-
         if (depthOpaque < 1.0) {
             vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
@@ -612,11 +598,7 @@ layout(location = 0) out vec4 outFinal;
             //     final = mix(final, skyFinal, fogF);
             // #endif
 
-            #ifdef DH_COMPAT_ENABLED
-                float fogDist = GetShapedFogDistance(localPos);
-                float fogF = GetFogFactor(fogDist, 0.6 * far, far, 1.0);
-                final = mix(final, skyFinal, fogF);
-            #elif defined SKY_BORDER_FOG_ENABLED
+            #ifdef SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
                     fogColorFinal *= WorldSkyBrightnessF;
@@ -662,14 +644,10 @@ layout(location = 0) out vec4 outFinal;
             #endif
         }
         else {
-            #ifdef DH_COMPAT_ENABLED
-                final = skyFinal;
+            #ifdef WORLD_NETHER
+                final.rgb = RGBToLinear(fogColor) * WorldSkyBrightnessF;
             #else
-                #ifdef WORLD_NETHER
-                    final.rgb = RGBToLinear(fogColor) * WorldSkyBrightnessF;
-                #else
-                    final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
-                #endif
+                final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             #endif
         }
 

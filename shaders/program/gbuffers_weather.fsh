@@ -454,7 +454,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, vIn.color.a);
     #endif
 
-    #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+    #ifdef SKY_BORDER_FOG_ENABLED
         ApplyFog(color, vIn.localPos, localViewDir);
     #endif
 
@@ -475,10 +475,6 @@ void main() {
 
     // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
     //     outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);
-    // #endif
-
-    // #ifndef DH_COMPAT_ENABLED
-    //     color.rgb = LinearToRGB(color.rgb);
     // #endif
 
     outFinal = color;

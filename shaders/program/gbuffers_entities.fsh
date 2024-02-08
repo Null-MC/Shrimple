@@ -329,11 +329,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/fog/fog_volume.glsl"
     #endif
-
-    // #ifdef DH_COMPAT_ENABLED
-    //     #include "/lib/post/saturation.glsl"
-    //     #include "/lib/post/tonemap.glsl"
-    // #endif
 #endif
 
 
@@ -641,7 +636,7 @@ void main() {
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #endif
 
-        #if !defined DH_COMPAT_ENABLED && defined SKY_BORDER_FOG_ENABLED
+        #ifdef SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
@@ -653,11 +648,6 @@ void main() {
             float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
             color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
-
-        #ifdef DH_COMPAT_ENABLED
-            //ApplyPostProcessing(color.rgb);
-            color.rgb = LinearToRGB(color.rgb);
         #endif
 
         outFinal = color;
