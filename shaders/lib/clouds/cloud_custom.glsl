@@ -1,4 +1,4 @@
-float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.36, 0.64, 0.24);}
+float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.36, 0.64, 0.5);}
 
 float GetCloudDither() {
     #ifndef RENDER_FRAG
@@ -15,7 +15,8 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
     float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
     float sampleD = 0.0;
 
-    const vec3 sampleScale = vec3(0.25, 0.25, 0.75);
+    const vec3 sampleScale = vec3(0.5, 0.5, 1.0);
+    const float sampleDensity = 1.3;
 
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(CloudMaxOctaves - octave);
@@ -35,7 +36,7 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
     }
 
     const float sampleMaxInv = rcp(1.0 - rcp(exp2(octaveCount)));
-    sampleD *= sampleMaxInv;
+    sampleD = saturate(sampleD * sampleMaxInv * sampleDensity);
 
     float cloudAlt = GetCloudAltitude();
     float z = saturate((altitude - cloudAlt) / CloudHeight);
@@ -266,77 +267,77 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
     }
 }
 
-void _TraceCloudVL(inout vec3 cloudScatter, inout vec3 cloudAbsorb, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount, const in int shadowStepCount) {
-    float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
-    vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+// void _TraceCloudVL(inout vec3 cloudScatter, inout vec3 cloudAbsorb, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount, const in int shadowStepCount) {
+//     float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+//     vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-    //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
-    // vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.9 * _pow2(skyRainStrength));
+//     //float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0 + 0.02;
+//     // vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.9 * _pow2(skyRainStrength));
 
-    float VoL = dot(localSkyLightDirection, localViewDir);
-    float phaseCloud = GetCloudPhase(VoL);
-    float phaseSky = GetSkyPhase(VoL);
+//     float VoL = dot(localSkyLightDirection, localViewDir);
+//     float phaseCloud = GetCloudPhase(VoL);
+//     float phaseSky = GetSkyPhase(VoL);
 
-    float cloudDist = distMax - distMin;
-    vec3 cloudNear = localViewDir * distMin;
-    float farMax = min(distMax, far);
+//     float cloudDist = distMax - distMin;
+//     vec3 cloudNear = localViewDir * distMin;
+//     float farMax = min(distMax, far);
 
-    if (cloudDist > EPSILON) {
-        if (distMin > 0.0) {
-            float stepLength = min(distMin, farMax);
+//     if (cloudDist > EPSILON) {
+//         if (distMin > 0.0) {
+//             float stepLength = min(distMin, farMax);
 
-            vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
-            ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
-        }
+//             vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
+//             ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+//         }
 
-        float dither = GetCloudDither();
+//         float dither = GetCloudDither();
 
-        float stepLength = cloudDist / (stepCount + 1);
-        vec3 traceStep = localViewDir * stepLength;
+//         float stepLength = cloudDist / (stepCount + 1);
+//         vec3 traceStep = localViewDir * stepLength;
 
-        float cloudAlt = GetCloudAltitude();
-        // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
+//         float cloudAlt = GetCloudAltitude();
+//         // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
-        for (uint stepI = 0; stepI < stepCount; stepI++) {
-            vec3 traceLocalPos = cloudNear + traceStep * (stepI + dither);
+//         for (uint stepI = 0; stepI < stepCount; stepI++) {
+//             vec3 traceLocalPos = cloudNear + traceStep * (stepI + dither);
 
-            #if WORLD_CURVE_RADIUS > 0
-                float traceAltitude = GetWorldAltitude(traceLocalPos);
-                vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
-                traceWorldPos.xz += worldPos.xz;
-            #else
-                vec3 traceWorldPos = traceLocalPos + worldPos;
-                float traceAltitude = traceWorldPos.y;
-            #endif
+//             #if WORLD_CURVE_RADIUS > 0
+//                 float traceAltitude = GetWorldAltitude(traceLocalPos);
+//                 vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
+//                 traceWorldPos.xz += worldPos.xz;
+//             #else
+//                 vec3 traceWorldPos = traceLocalPos + worldPos;
+//                 float traceAltitude = traceWorldPos.y;
+//             #endif
 
-            float sampleCloudF = SampleCloudOctaves(traceWorldPos, CloudTraceOctaves);
-            float sampleCloudShadow = _TraceCloudShadow(traceWorldPos, dither, shadowStepCount);
+//             float sampleCloudF = SampleCloudOctaves(traceWorldPos, CloudTraceOctaves);
+//             float sampleCloudShadow = _TraceCloudShadow(traceWorldPos, dither, shadowStepCount);
 
-            //float fogDist = GetShapedFogDistance(traceLocalPos);
-            //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
+//             //float fogDist = GetShapedFogDistance(traceLocalPos);
+//             //sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
-            float stepDensity = mix(AirDensityF, CloudDensityF, sampleCloudF);
-            float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
-            vec3 stepScatterF = mix(AirScatterColor, CloudScatterColor, sampleCloudF);
-            vec3 stepExtinctF = mix(AirExtinctColor, CloudAbsorbColor, sampleCloudF);
-            float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
+//             float stepDensity = mix(AirDensityF, CloudDensityF, sampleCloudF);
+//             float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
+//             vec3 stepScatterF = mix(AirScatterColor, CloudScatterColor, sampleCloudF);
+//             vec3 stepExtinctF = mix(AirExtinctColor, CloudAbsorbColor, sampleCloudF);
+//             float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
 
-            vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor;
-            ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, stepDensity, stepScatterF, stepExtinctF, 8);
-        }
+//             vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor;
+//             ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, stepDensity, stepScatterF, stepExtinctF, 8);
+//         }
 
-        if (farMax > distMax) {
-            float stepLength = farMax - distMax;
+//         if (farMax > distMax) {
+//             float stepLength = farMax - distMax;
 
-            vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
-            ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
-        }
-    }
-    else {
-        vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
-        ApplyScatteringTransmission(cloudScatter, cloudAbsorb, farMax, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
-    }
-}
+//             vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
+//             ApplyScatteringTransmission(cloudScatter, cloudAbsorb, stepLength, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+//         }
+//     }
+//     else {
+//         vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
+//         ApplyScatteringTransmission(cloudScatter, cloudAbsorb, farMax, sampleLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+//     }
+// }
 
 // vec4 TraceCloudVL(const in vec3 worldPos, const in vec3 localViewDir, const in float viewDist, const in float depthOpaque, const in int stepCount, const in int shadowStepCount) {
 //     vec3 cloudNear, cloudFar;

@@ -26,7 +26,7 @@ float CloudAbsorbF        = mix(0.140, 0.128, skyRainStrength);
     const int CloudTraceOctaves = 3;
     const int CloudShadowOctaves = 2;
     const float CloudHeight = 256.0;
-    const float CloudSize = 16.0;
+    const float CloudSize = 64.0;
 #elif SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
     const int CloudMaxOctaves = 5;
     const int CloudTraceOctaves = 2;

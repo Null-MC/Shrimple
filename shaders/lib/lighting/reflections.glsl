@@ -109,14 +109,14 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //     float farMax = far;
     // #endif
 
-    float reflectDist = 0.0;
-    float reflectDepth = 1.0;
-    float reflectF = 0.0;
-
     float _far = far;
     #ifdef DISTANT_HORIZONS
         _far = 0.5*dhFarPlane;
     #endif
+
+    float reflectDist = 0.0;
+    float reflectDepth = _far;
+    float reflectF = 0.0;
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
         vec3 reflectViewPos = viewPos + 0.5*viewDist*reflectViewDir;
@@ -234,20 +234,20 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
         vec3 worldPos = cameraPosition + localPos;
 
-        vec3 cloudNear, cloudFar;
-        GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
+        // vec3 cloudNear, cloudFar;
+        // GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
         
-        float cloudDistNear = length(cloudNear);
-        float cloudDistFar = length(cloudFar);
+        // float cloudDistNear = length(cloudNear);
+        // float cloudDistFar = length(cloudFar);
 
-        cloudDistNear = min(cloudDistNear, farMax);
-        cloudDistFar = min(cloudDistFar, farMax);
+        // cloudDistNear = min(cloudDistNear, farMax);
+        // cloudDistFar = min(cloudDistFar, farMax);
 
-        #ifdef DISTANT_HORIZONS
-            // TODO
-        #else
-            if (reflectDist < far) cloudDistFar = min(cloudDistFar, reflectDist);
-        #endif
+        // #ifdef DISTANT_HORIZONS
+        //     // TODO
+        // #else
+        //     if (reflectDist < far) cloudDistFar = min(cloudDistFar, reflectDist);
+        // #endif
 
         // if (cloudDistNear < viewDist || depthOpaque >= 0.9999)
         //     cloudDistFar = min(cloudDistFar, min(viewDist, SkyFar));
@@ -257,11 +257,30 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         // }
 
         //float farMax = min(viewDist, far);
+        bool isSkyFrag = reflectDepth >= _far || reflectF <= 0.0;
+
+        #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+            const float cloudDistNear = 0.0;
+            float cloudDistFar = !isSkyFrag ? reflectDist : SkyFar;
+        #else
+            vec3 cloudNear, cloudFar;
+            GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
+            
+            float cloudDistNear = length(cloudNear);
+            float cloudDistFar = min(length(cloudFar), SkyFar);
+
+            if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
+                cloudDistFar = !isSkyFrag ? min(cloudDistFar, reflectDist) : SkyFar;
+        #endif
 
         if (cloudDistFar > cloudDistNear) {
             //vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-            vec4 cloudScatterTransmit = _TraceCloudVL(worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-            reflectColor = reflectColor * cloudScatterTransmit.a + cloudScatterTransmit.rgb;
+            // vec4 cloudScatterTransmit = _TraceCloudVL(worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+            vec3 cloudScatter = vec3(0.0);
+            vec3 cloudTransmit = vec3(1.0);
+            // _TraceCloudVL(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+            _TraceClouds(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+            reflectColor = reflectColor * cloudTransmit + cloudScatter;
         }
     #else
         #ifdef WORLD_SKY_ENABLED

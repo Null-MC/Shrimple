@@ -25,9 +25,9 @@ struct VolumetricPhaseFactors {
 VolumetricPhaseFactors GetVolumetricPhaseFactors() {
     VolumetricPhaseFactors result;
 
-    result.Back = -0.12;
-    result.Forward = 0.78;
-    result.Direction = 0.42;
+    result.Back = -0.06;
+    result.Forward = 0.94;
+    result.Direction = 0.44;
 
     result.AmbientF = vec3(AirAmbientF);
     result.ScatterF = AirScatterColor;
@@ -291,9 +291,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     if (skyRainStrength > EPSILON) {
                         const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-                        //float cloudUnder = TraceCloudDensity(cameraPosition + traceLocalPos, worldUp, CLOUD_SHADOW_STEPS);
-                        float cloudUnder = TraceCloudDensity(cameraPosition + traceLocalPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-                        cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * skyRainStrength;
+                        //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
+                        float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+                        // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(skyRainStrength);
+                        cloudUnder *= _pow2(skyRainStrength);
 
                         sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
                         sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);

@@ -11,15 +11,19 @@ const float phaseAir = phaseIso;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-	float AirDensityF = mix(SkyDensityF, max(SkyDensityF, 0.04), skyRainStrength);
+	#if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+		float AirDensityF = mix(SkyDensityF, max(SkyDensityF, 0.04), skyRainStrength);
+	#else
+		const float AirDensityF = 0.0;
+	#endif
 
 	const float AirDensityRainF = 0.04;
-	const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.565, 0.561, 0.612));
-	const vec3 AirExtinctColor_rain = _RGBToLinear(vec3(0.580, 0.553, 0.522));
+	const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.800, 0.800, 0.820));
+	const vec3 AirExtinctColor_rain = _RGBToLinear(vec3(0.569, 0.580, 0.612));
 
 	const float AirAmbientF = 0.02;//mix(0.02, 0.0, skyRainStrength);
-	const vec3 AirScatterColor = _RGBToLinear(vec3(0.455, 0.553, 0.612));
-	const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.831, 0.796, 0.745));//mix(0.02, 0.006, skyRainStrength);
+	const vec3 AirScatterColor = _RGBToLinear(vec3(0.553, 0.592, 0.62));
+	const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.851, 0.831, 0.804));//mix(0.02, 0.006, skyRainStrength);
 #else
 	const float AirDensityF = SkyDensityF;
 	vec3 AirAmbientF = RGBToLinear(fogColor);
@@ -34,5 +38,5 @@ float GetSkyDensity(const in float worldY) {
 }
 
 float GetSkyPhase(const in float VoL) {
-    return DHG(VoL, -0.22, 0.78, 0.44);
+    return DHG(VoL, -0.06, 0.94, 0.44);
 }
