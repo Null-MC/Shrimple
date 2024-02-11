@@ -37,10 +37,6 @@
             case LIGHT_BREWING_STAND:
                 lightColor = LIGHT_COLOR_BREWING_STAND;
                 break;
-            case LIGHT_CANDLES_1:
-            case LIGHT_CANDLES_2:
-            case LIGHT_CANDLES_3:
-            case LIGHT_CANDLES_4:
             case LIGHT_CANDLE_CAKE:
                 lightColor = vec3(0.758, 0.553, 0.239);
                 break;
@@ -188,6 +184,116 @@
                 lightColor = vec3(0.960, 0.570, 0.277);
                 break;
         }
+
+        #ifdef LIGHTING_COLORED_CANDLES
+            switch (lightType) {
+                case LIGHT_BLACK_CANDLE_1:
+                case LIGHT_BLACK_CANDLE_2:
+                case LIGHT_BLACK_CANDLE_3:
+                case LIGHT_BLACK_CANDLE_4:
+                    lightColor = vec3(0, 0, 0);
+                    break;
+                case LIGHT_BLUE_CANDLE_1:
+                case LIGHT_BLUE_CANDLE_2:
+                case LIGHT_BLUE_CANDLE_3:
+                case LIGHT_BLUE_CANDLE_4:
+                    lightColor = vec3(0, 0.259, 1);
+                    break;
+                case LIGHT_BROWN_CANDLE_1:
+                case LIGHT_BROWN_CANDLE_2:
+                case LIGHT_BROWN_CANDLE_3:
+                case LIGHT_BROWN_CANDLE_4:
+                    lightColor = vec3(0.459, 0.263, 0.149);
+                    break;
+                case LIGHT_CYAN_CANDLE_1:
+                case LIGHT_CYAN_CANDLE_2:
+                case LIGHT_CYAN_CANDLE_3:
+                case LIGHT_CYAN_CANDLE_4:
+                    lightColor = vec3(0, 0.839, 0.839);
+                    break;
+                case LIGHT_GRAY_CANDLE_1:
+                case LIGHT_GRAY_CANDLE_2:
+                case LIGHT_GRAY_CANDLE_3:
+                case LIGHT_GRAY_CANDLE_4:
+                    lightColor = vec3(0.329, 0.357, 0.388);
+                    break;
+                case LIGHT_GREEN_CANDLE_1:
+                case LIGHT_GREEN_CANDLE_2:
+                case LIGHT_GREEN_CANDLE_3:
+                case LIGHT_GREEN_CANDLE_4:
+                    lightColor = vec3(0.263, 0.451, 0);
+                    break;
+                case LIGHT_LIGHT_BLUE_CANDLE_1:
+                case LIGHT_LIGHT_BLUE_CANDLE_2:
+                case LIGHT_LIGHT_BLUE_CANDLE_3:
+                case LIGHT_LIGHT_BLUE_CANDLE_4:
+                    lightColor = vec3(0.153, 0.686, 1);
+                    break;
+                case LIGHT_LIGHT_GRAY_CANDLE_1:
+                case LIGHT_LIGHT_GRAY_CANDLE_2:
+                case LIGHT_LIGHT_GRAY_CANDLE_3:
+                case LIGHT_LIGHT_GRAY_CANDLE_4:
+                    lightColor = vec3(0.631, 0.627, 0.624);
+                    break;
+                case LIGHT_LIME_CANDLE_1:
+                case LIGHT_LIME_CANDLE_2:
+                case LIGHT_LIME_CANDLE_3:
+                case LIGHT_LIME_CANDLE_4:
+                    lightColor = vec3(0.439, 0.89, 0);
+                    break;
+                case LIGHT_MAGENTA_CANDLE_1:
+                case LIGHT_MAGENTA_CANDLE_2:
+                case LIGHT_MAGENTA_CANDLE_3:
+                case LIGHT_MAGENTA_CANDLE_4:
+                    lightColor = vec3(0.757, 0.098, 0.812);
+                    break;
+                case LIGHT_ORANGE_CANDLE_1:
+                case LIGHT_ORANGE_CANDLE_2:
+                case LIGHT_ORANGE_CANDLE_3:
+                case LIGHT_ORANGE_CANDLE_4:
+                    lightColor = vec3(1, 0.459, 0);
+                    break;
+                case LIGHT_PINK_CANDLE_1:
+                case LIGHT_PINK_CANDLE_2:
+                case LIGHT_PINK_CANDLE_3:
+                case LIGHT_PINK_CANDLE_4:
+                    lightColor = vec3(1, 0.553, 0.718);
+                    break;
+                case LIGHT_PURPLE_CANDLE_1:
+                case LIGHT_PURPLE_CANDLE_2:
+                case LIGHT_PURPLE_CANDLE_3:
+                case LIGHT_PURPLE_CANDLE_4:
+                    lightColor = vec3(0.569, 0, 1);
+                    break;
+                case LIGHT_RED_CANDLE_1:
+                case LIGHT_RED_CANDLE_2:
+                case LIGHT_RED_CANDLE_3:
+                case LIGHT_RED_CANDLE_4:
+                    lightColor = vec3(0.859, 0, 0);
+                    break;
+                case LIGHT_WHITE_CANDLE_1:
+                case LIGHT_WHITE_CANDLE_2:
+                case LIGHT_WHITE_CANDLE_3:
+                case LIGHT_WHITE_CANDLE_4:
+                    lightColor = vec3(1,1,1);
+                    break;
+                case LIGHT_YELLOW_CANDLE_1:
+                case LIGHT_YELLOW_CANDLE_2:
+                case LIGHT_YELLOW_CANDLE_3:
+                case LIGHT_YELLOW_CANDLE_4:
+                    lightColor = vec3(1, 0.878, 0);
+                    break;
+            }
+        #else
+            switch (lightType) {
+                case LIGHT_CANDLES_1:
+                case LIGHT_CANDLES_2:
+                case LIGHT_CANDLES_3:
+                case LIGHT_CANDLES_4:
+                    lightColor = vec3(0.758, 0.553, 0.239);
+                    break;
+            }
+        #endif
 
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {
@@ -367,18 +473,8 @@
             case LIGHT_BREWING_STAND:
                 lightRange = 2.0;
                 break;
-            case LIGHT_CANDLES_1:
             case LIGHT_CANDLE_CAKE:
                 lightRange = 3.0;
-                break;
-            case LIGHT_CANDLES_2:
-                lightRange = 6.0;
-                break;
-            case LIGHT_CANDLES_3:
-                lightRange = 9.0;
-                break;
-            case LIGHT_CANDLES_4:
-                lightRange = 12.0;
                 break;
             case LIGHT_CAVEVINE_BERRIES:
                 lightRange = 14.0;
@@ -577,6 +673,102 @@
                 lightRange = 12.0;
                 break;
         }
+
+        #ifdef LIGHTING_COLORED_CANDLES
+            switch (lightType) {
+                case LIGHT_CANDLES_1:
+                case LIGHT_BLACK_CANDLE_1:
+                case LIGHT_BLUE_CANDLE_1:
+                case LIGHT_BROWN_CANDLE_1:
+                case LIGHT_CYAN_CANDLE_1:
+                case LIGHT_GRAY_CANDLE_1:
+                case LIGHT_GREEN_CANDLE_1:
+                case LIGHT_LIGHT_BLUE_CANDLE_1:
+                case LIGHT_LIGHT_GRAY_CANDLE_1:
+                case LIGHT_LIME_CANDLE_1:
+                case LIGHT_MAGENTA_CANDLE_1:
+                case LIGHT_ORANGE_CANDLE_1:
+                case LIGHT_PINK_CANDLE_1:
+                case LIGHT_PURPLE_CANDLE_1:
+                case LIGHT_RED_CANDLE_1:
+                case LIGHT_WHITE_CANDLE_1:
+                case LIGHT_YELLOW_CANDLE_1:
+                    lightRange = 3.0;
+                    break;
+                case LIGHT_CANDLES_2:
+                case LIGHT_BLACK_CANDLE_2:
+                case LIGHT_BLUE_CANDLE_2:
+                case LIGHT_BROWN_CANDLE_2:
+                case LIGHT_CYAN_CANDLE_2:
+                case LIGHT_GRAY_CANDLE_2:
+                case LIGHT_GREEN_CANDLE_2:
+                case LIGHT_LIGHT_BLUE_CANDLE_2:
+                case LIGHT_LIGHT_GRAY_CANDLE_2:
+                case LIGHT_LIME_CANDLE_2:
+                case LIGHT_MAGENTA_CANDLE_2:
+                case LIGHT_ORANGE_CANDLE_2:
+                case LIGHT_PINK_CANDLE_2:
+                case LIGHT_PURPLE_CANDLE_2:
+                case LIGHT_RED_CANDLE_2:
+                case LIGHT_WHITE_CANDLE_2:
+                case LIGHT_YELLOW_CANDLE_2:
+                    lightRange = 6.0;
+                    break;
+                case LIGHT_CANDLES_3:
+                case LIGHT_BLACK_CANDLE_3:
+                case LIGHT_BLUE_CANDLE_3:
+                case LIGHT_BROWN_CANDLE_3:
+                case LIGHT_CYAN_CANDLE_3:
+                case LIGHT_GRAY_CANDLE_3:
+                case LIGHT_GREEN_CANDLE_3:
+                case LIGHT_LIGHT_BLUE_CANDLE_3:
+                case LIGHT_LIGHT_GRAY_CANDLE_3:
+                case LIGHT_LIME_CANDLE_3:
+                case LIGHT_MAGENTA_CANDLE_3:
+                case LIGHT_ORANGE_CANDLE_3:
+                case LIGHT_PINK_CANDLE_3:
+                case LIGHT_PURPLE_CANDLE_3:
+                case LIGHT_RED_CANDLE_3:
+                case LIGHT_WHITE_CANDLE_3:
+                case LIGHT_YELLOW_CANDLE_3:
+                    lightRange = 9.0;
+                    break;
+                case LIGHT_CANDLES_4:
+                case LIGHT_BLACK_CANDLE_4:
+                case LIGHT_BLUE_CANDLE_4:
+                case LIGHT_BROWN_CANDLE_4:
+                case LIGHT_CYAN_CANDLE_4:
+                case LIGHT_GRAY_CANDLE_4:
+                case LIGHT_GREEN_CANDLE_4:
+                case LIGHT_LIGHT_BLUE_CANDLE_4:
+                case LIGHT_LIGHT_GRAY_CANDLE_4:
+                case LIGHT_LIME_CANDLE_4:
+                case LIGHT_MAGENTA_CANDLE_4:
+                case LIGHT_ORANGE_CANDLE_4:
+                case LIGHT_PINK_CANDLE_4:
+                case LIGHT_PURPLE_CANDLE_4:
+                case LIGHT_RED_CANDLE_4:
+                case LIGHT_WHITE_CANDLE_4:
+                case LIGHT_YELLOW_CANDLE_4:
+                    lightRange = 12.0;
+                    break;
+            }
+        #else
+            switch (lightType) {
+                case LIGHT_CANDLES_1:
+                    lightRange = 3.0;
+                    break;
+                case LIGHT_CANDLES_2:
+                    lightRange = 6.0;
+                    break;
+                case LIGHT_CANDLES_3:
+                    lightRange = 9.0;
+                    break;
+                case LIGHT_CANDLES_4:
+                    lightRange = 12.0;
+                    break;
+            }
+        #endif
 
         #ifdef DYN_LIGHT_OREBLOCKS
             switch (lightType) {

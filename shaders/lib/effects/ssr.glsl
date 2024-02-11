@@ -132,8 +132,8 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
                 continue;
             }
 
-            lastVisPos = vec3(t.xy, tracePos.z);
-            if (tracePos.z >= 1.0) alpha = 1.0;
+            lastVisPos = vec3(t.xy, saturate(tracePos.z));
+            if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
             break;
         }
 

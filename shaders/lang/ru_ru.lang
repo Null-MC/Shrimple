@@ -3,7 +3,7 @@
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
 profile.LIGHTS=Цветное Освещение
-profile.RTX_LOW=Трассировка Лучей
+profile.RTX=Трассировка Лучей
 
 
 screen.SKY_OPTIONS=Настройки Неба

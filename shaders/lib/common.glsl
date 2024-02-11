@@ -213,6 +213,7 @@ const bool colortex15Clear = true;
 #define LIGHTING_FLICKER
 #define LIGHTING_TINT_MODE 1 // [0 1 2]
 #define LIGHTING_TINT_STRENGTH 100 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
+//#define LIGHTING_COLORED_CANDLES
 
 // LightMap Lighting
 #define LIGHTING_TEMP 5600 // [3000 3200 3400 3600 3800 4000 4400 4800 5200 5600 6000 6400 6800 7200 7600 8000 8400 8800]
@@ -589,7 +590,7 @@ const float drynessHalflife = 20.0;
 
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800 1000 1200 1400 1600 2000 2400 2800 3200 3600 4000]
 const float shadowIntervalSize = 2.0f;
-const float shadowDistanceRenderMul = 1.0;
+const float shadowDistanceRenderMul = -1.0;
 const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
 
 const float shadowNearPlane = -1.0;
