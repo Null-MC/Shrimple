@@ -111,7 +111,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
     float _far = far;
     #ifdef DISTANT_HORIZONS
-        _far = 0.5*dhFarPlane;
+        _far = dhFarPlane;
     #endif
 
     float reflectDist = 0.0;
@@ -208,7 +208,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
-        //else reflectDist = _far;
+        else reflectDist = _far;
 
         reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
@@ -218,7 +218,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     // return reflectColor;
 
     #ifdef DISTANT_HORIZONS
-        float farMax = max(SkyFar, 0.5*dhFarPlane);
+        float farMax = max(SkyFar, dhFarPlane);
     #else
         float farMax = SkyFar;
     #endif
@@ -227,7 +227,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         // #ifdef DISTANT_HORIZONS
         //     // TODO
         // #else
-            if (reflectDist >= _far) reflectDist = farMax;
+        //    if (reflectDist >= _far) reflectDist = farMax;
         // #endif
     #endif
 
