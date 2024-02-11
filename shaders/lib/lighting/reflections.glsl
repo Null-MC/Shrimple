@@ -76,7 +76,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //float distF = 32.0 / (viewDist + 32.0);
     //roughness = pow(roughness, 0.5 + 0.5 * distF);
 
-    #if REFLECTION_ROUGH_SCATTER > 0
+    #ifdef REFLECTION_ROUGH_SCATTER
         #ifdef EFFECT_TAA_ENABLED
             vec3 seed = vec3(gl_FragCoord.xy, 1.0 + frameCounter);
         #else
@@ -208,7 +208,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
-        else reflectDist = _far;
+        //else reflectDist = _far;
 
         reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
@@ -318,24 +318,26 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         #endif
 
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                    float VoL = dot(localSkyLightDirection, reflectLocalDir);
-                    float phaseSky = GetSkyPhase(VoL);
-                    vec3 vlLight = vec3(phaseSky + AirAmbientF);
-                #else
-                    vec3 vlLight = vec3(phaseIso + AirAmbientF);
-                #endif
+                if (reflectDist > 0.0) {
+                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                        float VoL = dot(localSkyLightDirection, reflectLocalDir);
+                        float phaseSky = GetSkyPhase(VoL);
+                        vec3 vlLight = vec3(phaseSky + AirAmbientF);
+                    #else
+                        vec3 vlLight = vec3(phaseIso + AirAmbientF);
+                    #endif
 
-                float reflectFogDist = reflectDist;
+                    float reflectFogDist = reflectDist;
 
-                #ifdef WORLD_SKY_ENABLED
-                    vlLight *= skyLightColor * pow5(skyLight);
+                    #ifdef WORLD_SKY_ENABLED
+                        vlLight *= skyLightColor * pow5(skyLight);
 
-                    reflectFogDist = min(reflectFogDist, farMax);
-                    // TODO: Limit reflectDist < cloudNear
-                #endif
+                        reflectFogDist = min(reflectFogDist, farMax);
+                        // TODO: Limit reflectDist < cloudNear
+                    #endif
 
-                if (reflectFogDist > 1.0) {
+                    //reflectFogDist = clamp(reflectFogDist, EPSILON, 128.0);
+
                     ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif

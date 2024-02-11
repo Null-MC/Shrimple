@@ -1,5 +1,7 @@
 #define BLUR_BLIND_DIST 12.0
 
+const vec3 aberrationF = vec3(0.5, 1.0, 1.5);
+
 
 mat2 GetBlurRotation() {
     #ifdef EFFECT_TAA_ENABLED
@@ -164,11 +166,30 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
             sampleDistF = min(sampleDistF, distF);
         //#endif
 
-        #ifdef EFFECT_TAA_ENABLED
-            vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+        #ifdef EFFECT_BLUR_ABERRATION
+            vec2 sampleOffset = sampleCoord - texcoord;
+            vec2 sampleCoordR = texcoord + sampleOffset * aberrationF.r;
+            vec2 sampleCoordG = texcoord + sampleOffset * aberrationF.g;
+            vec2 sampleCoordB = texcoord + sampleOffset * aberrationF.b;
+
+            vec3 sampleColor;
+            #ifdef EFFECT_TAA_ENABLED
+                sampleColor.r = texelFetch(BUFFER_FINAL, ivec2(sampleCoordR * viewSize), 0).r;
+                sampleColor.g = texelFetch(BUFFER_FINAL, ivec2(sampleCoordG * viewSize), 0).g;
+                sampleColor.b = texelFetch(BUFFER_FINAL, ivec2(sampleCoordB * viewSize), 0).b;
+            #else
+                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod).r;
+                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod).g;
+                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod).b;
+            #endif
         #else
-            float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
-            vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
+            #ifdef EFFECT_TAA_ENABLED
+                vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+            #else
+                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
+            #endif
         #endif
 
         float sampleWeight = exp(-3.0 * length2(diskOffset));

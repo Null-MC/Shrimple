@@ -38,5 +38,5 @@ float GetSkyDensity(const in float worldY) {
 }
 
 float GetSkyPhase(const in float VoL) {
-    return DHG(VoL, -0.06, 0.94, 0.44);
+    return saturate(DHG(VoL, -0.06, 0.94, 0.44));
 }
