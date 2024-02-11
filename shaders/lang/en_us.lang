@@ -308,10 +308,14 @@ value.MATERIAL_REFLECTIONS.2=Screen-Space
 option.MATERIAL_REFLECT_STRENGTH=Strength
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
-option.SSR_MAXSTEPS=SSR Max Step Count
+option.SSR_MAXSTEPS=Max Step Count
+option.SSR_MAXSTEPS.comment=The maximum number of steps to trace screen-space reflections. Larger values will increase quality, but lower performance.
+
+option.REFLECTION_ROUGH_SCATTER=Roughness Scattering
+option.REFLECTION_ROUGH_SCATTER.comment=Enables more accurate scattering of reflections on rough surfaces.
 
 option.MATERIAL_REFLECT_CLOUDS=Clouds
-option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections.
+option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflections. May heavily reduce performnance.
 
 option.MATERIAL_REFLECT_GLASS=Glass
 option.MATERIAL_REFLECT_GLASS.comment=Allows regular glass to have reflections on cutout/invisible areas.
@@ -674,6 +678,8 @@ suffix.EFFECT_BLUR_RADIUS_WEATHER=px
 option.EFFECT_BLUR_RADIUS_BLIND=Blindness Radius
 option.EFFECT_BLUR_RADIUS_BLIND.comment=The maximum blur radius applied to screen when the blindness effect is active.
 suffix.EFFECT_BLUR_RADIUS_BLIND=px
+
+option.EFFECT_BLUR_ABERRATION=Aberration
 
 
 screen.EFFECT_SSAO_OPTIONS=SSAO

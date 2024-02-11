@@ -252,7 +252,7 @@ void main() {
                     #endif
 
                     lightColor = _pow2(lightColor);
-                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);

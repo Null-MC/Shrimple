@@ -1,5 +1,7 @@
 #define BLUR_BLIND_DIST 12.0
 
+const vec3 aberrationF = vec3(0.5, 1.0, 1.5);
+
 
 mat2 GetBlurRotation() {
     #ifdef EFFECT_TAA_ENABLED
@@ -84,6 +86,13 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     vec2 pixelRadius = radius * pixelSize;
     float maxLod = 0.75 * log2(radius);
 
+    #ifdef EFFECT_BLUR_ABERRATION
+        vec2 aberrationOffset = pixelRadius * (texcoord * 2.0 - 1.0);
+
+        vec2 screenCoordMin = vec2(0.5 * pixelSize);
+        vec2 screenCoordMax = 1.0 - 3.0*screenCoordMin;
+    #endif
+
     const float goldenAngle = PI * (3.0 - sqrt(5.0));
     const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -93,16 +102,14 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         vec2 sampleCoord = texcoord;
         vec2 diskOffset = vec2(0.0);
 
-        //if (EFFECT_BLUR_SAMPLE_COUNT > 1) {
-            float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
-            float theta = i * goldenAngle + PHI;
-            
-            float sine = sin(theta);
-            float cosine = cos(theta);
-            
-            diskOffset = rotation * (vec2(cosine, sine) * r);
-            sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
-        //}
+        float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
+        float theta = i * goldenAngle + PHI;
+        
+        float sine = sin(theta);
+        float cosine = cos(theta);
+        
+        diskOffset = rotation * (vec2(cosine, sine) * r);
+        sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
 
@@ -164,11 +171,30 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
             sampleDistF = min(sampleDistF, distF);
         //#endif
 
-        #ifdef EFFECT_TAA_ENABLED
-            vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+        #ifdef EFFECT_BLUR_ABERRATION
+            //vec2 sampleOffset = sampleCoord - texcoord;
+            vec2 sampleCoordR = clamp(sampleCoord + aberrationOffset * aberrationF.r, screenCoordMin, screenCoordMax);
+            vec2 sampleCoordG = clamp(sampleCoord + aberrationOffset * aberrationF.g, screenCoordMin, screenCoordMax);
+            vec2 sampleCoordB = clamp(sampleCoord + aberrationOffset * aberrationF.b, screenCoordMin, screenCoordMax);
+
+            vec3 sampleColor;
+            #ifdef EFFECT_TAA_ENABLED
+                sampleColor.r = texelFetch(BUFFER_FINAL, ivec2(sampleCoordR * viewSize), 0).r;
+                sampleColor.g = texelFetch(BUFFER_FINAL, ivec2(sampleCoordG * viewSize), 0).g;
+                sampleColor.b = texelFetch(BUFFER_FINAL, ivec2(sampleCoordB * viewSize), 0).b;
+            #else
+                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod).r;
+                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod).g;
+                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod).b;
+            #endif
         #else
-            float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
-            vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
+            #ifdef EFFECT_TAA_ENABLED
+                vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
+            #else
+                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, sampleLod).rgb;
+            #endif
         #endif
 
         float sampleWeight = exp(-3.0 * length2(diskOffset));
