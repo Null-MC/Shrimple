@@ -115,7 +115,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #endif
 
     float reflectDist = 0.0;
-    float reflectDepth = _far;
+    float reflectDepth = 1.0;
     float reflectF = 0.0;
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && (defined RENDER_OPAQUE_POST_VL || defined RENDER_TRANSLUCENT_FINAL) // || defined RENDER_WATER)
@@ -257,7 +257,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         // }
 
         //float farMax = min(viewDist, far);
-        bool isSkyFrag = reflectDepth >= _far || reflectF <= 0.0;
+        bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
 
         #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
             const float cloudDistNear = 0.0;
