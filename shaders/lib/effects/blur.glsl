@@ -86,6 +86,13 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     vec2 pixelRadius = radius * pixelSize;
     float maxLod = 0.75 * log2(radius);
 
+    #ifdef EFFECT_BLUR_ABERRATION
+        vec2 aberrationOffset = pixelRadius * (texcoord * 2.0 - 1.0);
+
+        vec2 screenCoordMin = vec2(0.5 * pixelSize);
+        vec2 screenCoordMax = 1.0 - 3.0*screenCoordMin;
+    #endif
+
     const float goldenAngle = PI * (3.0 - sqrt(5.0));
     const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 
@@ -95,16 +102,14 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         vec2 sampleCoord = texcoord;
         vec2 diskOffset = vec2(0.0);
 
-        //if (EFFECT_BLUR_SAMPLE_COUNT > 1) {
-            float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
-            float theta = i * goldenAngle + PHI;
-            
-            float sine = sin(theta);
-            float cosine = cos(theta);
-            
-            diskOffset = rotation * (vec2(cosine, sine) * r);
-            sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
-        //}
+        float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
+        float theta = i * goldenAngle + PHI;
+        
+        float sine = sin(theta);
+        float cosine = cos(theta);
+        
+        diskOffset = rotation * (vec2(cosine, sine) * r);
+        sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
 
         ivec2 sampleUV = ivec2(sampleCoord * viewSize);
 
@@ -167,10 +172,10 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         //#endif
 
         #ifdef EFFECT_BLUR_ABERRATION
-            vec2 sampleOffset = sampleCoord - texcoord;
-            vec2 sampleCoordR = texcoord + sampleOffset * aberrationF.r;
-            vec2 sampleCoordG = texcoord + sampleOffset * aberrationF.g;
-            vec2 sampleCoordB = texcoord + sampleOffset * aberrationF.b;
+            //vec2 sampleOffset = sampleCoord - texcoord;
+            vec2 sampleCoordR = clamp(sampleCoord + aberrationOffset * aberrationF.r, screenCoordMin, screenCoordMax);
+            vec2 sampleCoordG = clamp(sampleCoord + aberrationOffset * aberrationF.g, screenCoordMin, screenCoordMax);
+            vec2 sampleCoordB = clamp(sampleCoord + aberrationOffset * aberrationF.b, screenCoordMin, screenCoordMax);
 
             vec3 sampleColor;
             #ifdef EFFECT_TAA_ENABLED
