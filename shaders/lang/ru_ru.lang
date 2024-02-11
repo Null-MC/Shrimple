@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v11.2
+# Provided by ShrikerChestTree v11.3
 
 /////PROFILE/////
 
@@ -95,13 +95,13 @@ suffix.SKY_CLOUD_COVER_MIN=%
 
 =====Cloud Altitude=====
 
-option.SKY_CLOUD_ALTITUDE=Высота
-option.SKY_CLOUD_ALTITUDE.comment=Уровень Y в мире, с которого начинается нижняя часть облаков. Для ванильной высоты облаков необходимо использовать мод Sodium Extra (значение=обычное).
+option.SKY_CLOUD_ALTITUDE="Y" Облаков
+option.SKY_CLOUD_ALTITUDE.comment=Уровень "Y" в мире, с которого начинается нижняя часть облаков. Для ванильной высоты облаков необходимо использовать мод Sodium Extra (значение=обычное).
 value.SKY_CLOUD_ALTITUDE.0=Обычное
 
 =====Cloud Height=====
 
-option.SKY_CLOUD_HEIGHT=Высота
+option.SKY_CLOUD_HEIGHT=Высота Облаков
 option.SKY_CLOUD_HEIGHT.comment=Диапазон вертикальных высот объёма облаков (в блоках). Только для детальных/кубических облаков.
 
 #####WORLD OPTIONS#####
@@ -457,7 +457,13 @@ suffix.MATERIAL_REFLECT_STRENGTH=%
 
 =====SSR Maximum Steps=====
 
-option.SSR_MAXSTEPS=ПЭО Максимальное Количество Действий
+option.SSR_MAXSTEPS=Максимальное Количество Шагов
+option.SSR_MAXSTEPS.comment=Максимальное количество шагов для трассировки лучей в отражении пространства экрана. Большие значения повышают качество, но снижают производительность.
+
+=====Roughness Scattering=====
+
+option.REFLECTION_ROUGH_SCATTER=Рассеяние Шероховатости
+option.REFLECTION_ROUGH_SCATTER.comment=Более точное рассеивание отражений на шероховатых поверхностях.
 
 =====Rought Reflect Samples=====
 
@@ -467,7 +473,7 @@ option.ROUGH_REFLECT_SAMPLES.comment=Как много образцов/трас
 =====Reflections Clouds=====
 
 option.MATERIAL_REFLECT_CLOUDS=Облака
-option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях.
+option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях. Может сильно снизить производительность.
 
 =====Reflections Glass=====
 
@@ -997,6 +1003,10 @@ suffix.EFFECT_BLUR_RADIUS_WEATHER=px
 option.EFFECT_BLUR_RADIUS_BLIND=Радиус Слепоты
 option.EFFECT_BLUR_RADIUS_BLIND.comment=Максимальный радиус размытия, применяемый к дальним участкам местности если эффект слепоты активирован.
 suffix.EFFECT_BLUR_RADIUS_BLIND=px
+
+=====Blur Aberration=====
+
+option.EFFECT_BLUR_ABERRATION=Аберрация
 
 /////SSAO OPTIONS/////
 
