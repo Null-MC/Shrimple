@@ -13,7 +13,7 @@ uniform sampler2D lightmap;
 uniform sampler2D gtexture;
 
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
     /* RENDERTARGETS: 1 */
     layout(location = 0) out vec4 outDeferredColor;
 #else
@@ -26,7 +26,7 @@ void main() {
 	
 	color *= texture(lightmap, lmcoord);
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         //float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         //float fogF = GetVanillaFogFactor(vLocalPos);

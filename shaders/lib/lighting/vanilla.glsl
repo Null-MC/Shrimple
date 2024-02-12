@@ -9,16 +9,21 @@
 //     }
 // #endif
 
-void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
+void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     vec2 lmFinal = lmcoord;
 
     lmFinal = LightMapTex(lmFinal);
 
-    vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
-    lightmapBlock = RGBToLinear(lightmapBlock) * blackbody(LIGHTING_TEMP);
-    // TODO: just ditch lightmap and use blackbody temp?
+    #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+        vec3 lightmapFinal = textureLod(TEX_LIGHTMAP, lmFinal, 0).rgb;
+        diffuse = RGBToLinear(lightmapFinal);// * blackbody(LIGHTING_TEMP);
+    #else
+        vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
+        lightmapBlock = RGBToLinear(lightmapBlock) * blackbody(LIGHTING_TEMP);
+        // TODO: just ditch lightmap and use blackbody temp?
 
-    diffuse = lightmapBlock * DynamicLightBrightness;
+        diffuse = lightmapBlock * DynamicLightBrightness;
+    #endif
 
     // #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0
     //     vec3 lpvPos = GetLPVPosition(localPos);

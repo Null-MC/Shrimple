@@ -33,7 +33,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_VL_TRANSMIT;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -163,7 +163,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
-    // #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
     //     #include "/lib/buffers/light_voxel.glsl"
     // #endif
     
@@ -255,11 +255,11 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 
-// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
 //     #include "/lib/lighting/voxel/sampling.glsl"
 // #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
     #include "/lib/buffers/volume.glsl"
     // #include "/lib/utility/hsv.glsl"
     
@@ -293,13 +293,13 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/sky_lighting.glsl"
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE == LIGHTING_MODE_TRACED
     #if LIGHTING_TRACE_FILTER > 0
         #include "/lib/sampling/light_filter.glsl"
     #endif
 
     #include "/lib/lighting/basic.glsl"
-#elif LIGHTING_MODE == DYN_LIGHT_LPV
+#elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
     #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/vanilla.glsl"
@@ -521,28 +521,11 @@ layout(location = 0) out vec4 outFinal;
 
             //if (isWater) deferredColor.a *= WorldWaterOpacityF;
 
-            #if LIGHTING_MODE == DYN_LIGHT_NONE
-                vec3 diffuse, specular = vec3(0.0);
-                GetVanillaLighting(diffuse, deferredLighting.xy, localPos, localNormal, texNormal, deferredShadow.rgb, sss);
-
-                #ifdef WORLD_SKY_ENABLED
-                    GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
-                #endif
-
-                #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                    SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-                #endif
-
-                //if (isWater) diffuse *= WorldWaterOpacityF;
-                //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
-
-                final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
-                final.a = min(deferredColor.a + luminance(specular), 1.0);
-            #else
+            #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 vec3 blockDiffuse = vec3(0.0);
                 vec3 blockSpecular = vec3(0.0);
 
-                #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+                #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                         SampleHandLight(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
@@ -597,7 +580,7 @@ layout(location = 0) out vec4 outFinal;
                     // #endif
 
                     //blockDiffuse += emission * MaterialEmissionF;
-                #elif LIGHTING_MODE == DYN_LIGHT_LPV
+                #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
 
                     #ifdef WORLD_SKY_ENABLED
@@ -623,7 +606,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyDiffuse = vec3(0.0);
                 vec3 skySpecular = vec3(0.0);
 
-                #if LIGHTING_MODE != DYN_LIGHT_LPV
+                #if LIGHTING_MODE != LIGHTING_MODE_FLOODFILL
                     #ifdef WORLD_SKY_ENABLED
                         GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                     #else
@@ -645,6 +628,23 @@ layout(location = 0) out vec4 outFinal;
                 vec3 specularFinal = blockSpecular + skySpecular;
                 final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
                 final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
+            #else
+                vec3 diffuse, specular = vec3(0.0);
+                GetVanillaLighting(diffuse, deferredLighting.xy);
+
+                #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+                    GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                #endif
+
+                #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                    SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+                #endif
+
+                //if (isWater) diffuse *= WorldWaterOpacityF;
+                //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
+
+                final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+                final.a = min(deferredColor.a + luminance(specular), 1.0);
             #endif
 
             #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA

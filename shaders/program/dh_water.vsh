@@ -34,7 +34,7 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     uniform sampler2D noisetex;
 #endif
 

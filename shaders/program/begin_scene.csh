@@ -67,7 +67,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/light_static.glsl"
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 
@@ -165,8 +165,8 @@ void main() {
                 #endif
             #endif
 
-            #if LIGHTING_MODE != DYN_LIGHT_NONE
-                #if LIGHTING_MODE == DYN_LIGHT_TRACED
+            #if LIGHTING_MODE != LIGHTING_MODE_NONE
+                #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                     SceneLightCount = 0u;
                     SceneLightMaxCount = 0u;
                 #endif
@@ -201,7 +201,7 @@ void main() {
         #ifdef WORLD_SHADOW_ENABLED
             memoryBarrierBuffer();
 
-            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && LIGHTING_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_FRUSTUM_TEST
+            #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && LIGHTING_MODE != LIGHTING_MODE_NONE && defined DYN_LIGHT_FRUSTUM_TEST
                 if (i == 0) {
                     vec3 clipMin, clipMax;
                     mat4 matSceneToShadow = shadowModelViewEx * gbufferModelViewProjectionInverse;

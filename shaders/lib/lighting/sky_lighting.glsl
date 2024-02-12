@@ -127,7 +127,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     //ambientLight *= ambientF;
 
 
-    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != DYN_LIGHT_LPV
+    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != LIGHTING_MODE_FLOODFILL
         vec3 lpvPos = GetLPVPosition(localPos);
 
         float lpvFade = GetLpvFade(lpvPos);
@@ -137,7 +137,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         vec4 lpvSample = SampleLpv(lpvPos, texNormal);
 
         #ifdef LPV_GI
-            #if LIGHTING_MODE == DYN_LIGHT_NONE
+            #if LIGHTING_MODE == LIGHTING_MODE_NONE
                 vec3 lpvSkyLight = 10.0*GetLpvBlockLight(lpvSample);
                 ambientLight = mix(ambientLight, lpvSkyLight, lpvFade);
             #endif

@@ -9,7 +9,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE != LIGHTING_MODE_NONE
     #ifdef LIGHTING_FLICKER
         uniform sampler2D noisetex;
     #endif
@@ -54,7 +54,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 
 
 void main() {
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
         
@@ -66,7 +66,7 @@ void main() {
         //         sceneBlockMap.OctreeMask[i] = 0u;
         // #endif
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED
             uint lightCount = SceneLightMaps[gridIndex].LightCount;
             if (lightCount != 0u) atomicAdd(SceneLightMaxCount, lightCount);
 
@@ -141,7 +141,7 @@ void main() {
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+                    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                         if (lightLocalIndex < LIGHT_BIN_MAX_COUNT) {
                             lightColor = LinearToRGB(lightColor);
                             vec3 lightOffset = unpackSnorm4x8(lightInfo.Offset).xyz;

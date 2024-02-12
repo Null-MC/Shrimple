@@ -9,7 +9,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 
 const ivec3 workGroups = ivec3(16, 8, 16);
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
     uniform mat4 gbufferModelView;
     uniform vec3 cameraPosition;
     uniform float far;
@@ -76,7 +76,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 #endif
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
 

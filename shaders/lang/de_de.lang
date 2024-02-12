@@ -194,9 +194,10 @@ screen.DYNAMIC_LIGHT_OPTIONS=Blockbeleuchtung
 
 option.LIGHTING_MODE=Modus
 option.LIGHTING_MODE.comment=Beschreibt, wie die Beleuchtung berechnet wird. Standardmäßig wird die Vanilla-Lightmap verwendet. Aktivieren Sie Raytracing für Blocklichtschatten.
-value.LIGHTING_MODE.0=LightMap
-value.LIGHTING_MODE.1=LPV
-value.LIGHTING_MODE.2=Ray-Traced
+value.LIGHTING_MODE.0=Vanilla
+value.LIGHTING_MODE.1=Basic
+value.LIGHTING_MODE.2=FloodFill
+value.LIGHTING_MODE.3=Ray Traced
 
 option.DYN_LIGHT_TYPE=Typ
 option.DYN_LIGHT_TYPE.comment=Beschreibt die Form der Lichtquelle. Punktlichter strahlen von einem unendlich kleinen Punkt aus. Flächenleuchten geben ein würfelförmiges Licht mit großer Größe ab.

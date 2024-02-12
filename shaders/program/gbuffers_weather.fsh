@@ -31,7 +31,7 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -44,7 +44,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -245,13 +245,12 @@ uniform float cloudHeight;
     #include "/lib/lighting/voxel/items.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED && defined DYN_LIGHT_WEATHER
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED && defined DYN_LIGHT_WEATHER
     #include "/lib/lighting/voxel/sampling.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -263,9 +262,9 @@ uniform float cloudHeight;
 
 #include "/lib/lighting/sky_lighting.glsl"
 
-#if LIGHTING_MODE == DYN_LIGHT_TRACED
+#if LIGHTING_MODE == LIGHTING_MODE_TRACED
     #include "/lib/lighting/basic.glsl"
-#elif LIGHTING_MODE == DYN_LIGHT_LPV
+#elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
     #include "/lib/lighting/floodfill.glsl"
 #else
     #include "/lib/lighting/vanilla.glsl"
@@ -356,67 +355,7 @@ void main() {
     vec3 albedo = RGBToLinear(color.rgb);
     float roughL = _pow2(roughness);
 
-    #if LIGHTING_MODE == DYN_LIGHT_NONE
-        vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, vIn.lmcoord, vIn.localPos, normal, normal, shadowColor, sss);
-
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
-
-        // #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //     // TODO: weather specular phase
-        //     float VoL = dot(localSkyLightDirection, localViewDir);
-        //     float phase = DHG(VoL, -0.32, 0.85, 0.08);
-        //     //diffuse *= phase * WorldSkyLightColor * 20.0;
-        //     diffuse *= 0.2;
-        //     specular += 1.2 * phase * shadowColor;
-        // #endif
-
-        // #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //     const float geoNoL = 1.0;
-
-        //     specular += GetSkySpecular(vIn.localPos, geoNoL, normal, albedo, shadowColor, vIn.lmcoord, metal_f0, roughL);
-        // #endif
-
-        #ifdef RENDER_SHADOWS_ENABLED
-            const bool tir = false; // TODO: ?
-            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
-        #endif
-
-        float VoL = dot(localSkyLightDirection, localViewDir);
-        float phase = DHG(VoL, -0.19, 0.824, 0.051);
-
-        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            phase *= cloudShadow;
-        #endif
-
-        //specular += phase * WorldSkyLightColor;
-
-        color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
-    #elif LIGHTING_MODE == DYN_LIGHT_LPV
-        vec3 diffuseFinal = vec3(0.0);
-        vec3 specularFinal = vec3(0.0);
-
-        GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
-
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
-
-        // #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        //         if (IsMetal(metal_f0))
-        //             diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-        //     #else
-        //         diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-        //     #endif
-
-        //     specularFinal *= GetMetalTint(albedo, metal_f0);
-        // #endif
-
-        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-    #else
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
         vec3 skyDiffuse = vec3(0.0);
@@ -452,6 +391,38 @@ void main() {
         #endif
 
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, vIn.color.a);
+    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        vec3 diffuseFinal = vec3(0.0);
+        vec3 specularFinal = vec3(0.0);
+
+        GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
+        #endif
+
+        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+    #else
+        vec3 diffuse, specular = vec3(0.0);
+        GetVanillaLighting(diffuse, vIn.lmcoord);
+
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
+        #endif
+
+        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+            const bool tir = false; // TODO: ?
+            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
+        #endif
+
+        float VoL = dot(localSkyLightDirection, localViewDir);
+        float phase = DHG(VoL, -0.19, 0.824, 0.051);
+
+        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            phase *= cloudShadow;
+        #endif
+
+        color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #endif
 
     #ifdef SKY_BORDER_FOG_ENABLED

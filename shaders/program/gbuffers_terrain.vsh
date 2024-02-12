@@ -99,7 +99,7 @@ uniform ivec2 atlasSize;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     // uniform vec3 previousCameraPosition;
     // uniform mat4 gbufferPreviousModelView;
 #endif
@@ -115,7 +115,7 @@ uniform ivec2 atlasSize;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/block_static.glsl"
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/buffers/light_static.glsl"
     #endif
 
@@ -123,7 +123,7 @@ uniform ivec2 atlasSize;
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 #endif
@@ -173,17 +173,17 @@ uniform ivec2 atlasSize;
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/lighting/voxel/lpv.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/light_mask.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 
@@ -254,7 +254,7 @@ void main() {
         vec3 originPos = vOut.localPos + at_midBlock/64.0;
         bool intersects = true;
 
-        // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
+        // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
         //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
         //     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
@@ -279,7 +279,7 @@ void main() {
             if (intersects && !IsTraceEmptyBlock(blockId))
                 SetVoxelBlockMask(blockCell, gridIndex, blockId);
 
-            #if LIGHTING_MODE == DYN_LIGHT_TRACED
+            #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 if (lightType > 0) {
                     if (!intersects) lightType = LIGHT_IGNORED;
 

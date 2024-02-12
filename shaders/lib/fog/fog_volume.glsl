@@ -213,7 +213,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float traceAltitude = traceLocalPos.y + cameraPosition.y;
         #endif
 
-        #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+        #if LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
             vec3 lpvPos = GetLPVPosition(traceLocalPos);
             vec4 lpvSample = SampleLpv(lpvPos, vec3(0.0));
             float lpvFade = GetLpvFade(lpvPos);
@@ -455,10 +455,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             }
         #endif
 
-        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE && defined IRIS_FEATURE_SSBO
+        #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE > LIGHTING_MODE_BASIC && defined IRIS_FEATURE_SSBO
             vec3 blockLightAccum = vec3(0.0);
 
-            #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT && !defined RENDER_WEATHER
+            #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined VOLUMETRIC_BLOCK_RT && !defined RENDER_WEATHER
                 uint gridIndex;
                 uint lightCount = GetVoxelLights(traceLocalPos, gridIndex);
 
@@ -476,7 +476,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         vec3 lightVec = traceLocalPos - lightPos;
                         if (length2(lightVec) >= _pow2(lightRange)) continue;
                         
-                        #if defined VOLUMETRIC_BLOCK_RT && LIGHTING_MODE == DYN_LIGHT_TRACED
+                        #if defined VOLUMETRIC_BLOCK_RT && LIGHTING_MODE == LIGHTING_MODE_TRACED
                             uint traceFace = 1u << GetLightMaskFace(lightVec);
                             if ((lightData.z & traceFace) == traceFace) continue;
 
@@ -497,7 +497,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                     blockLightAccum *= 9.0 * DynamicLightBrightness;
                 }
-            #elif LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+            #elif LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
                 vec3 lpvLight = vec3(0.0);
 
                 #ifdef LPV_GI

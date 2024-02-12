@@ -45,7 +45,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     //     sampleSpecular += blockSpecular * voxelFade;
     // #endif
 
-    #if LPV_SIZE > 0 //&& LIGHTING_MODE == DYN_LIGHT_LPV
+    #if LPV_SIZE > 0 //&& LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
         sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
     #endif
 }
