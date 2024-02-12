@@ -32,9 +32,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         #endif
     #endif
 
-    #ifndef RENDER_SHADOWS_ENABLED
-        localSkyLightDir = vec3(0.0, 1.0, 0.0);
-    #endif
+    // #ifndef RENDER_SHADOWS_ENABLED
+    //     localSkyLightDir = vec3(0.0, 1.0, 0.0);
+    // #endif
 
     if (!all(lessThan(abs(texNormal), EPSILON3))) {
         vec3 r = reflect(-localViewDir, texNormal);
@@ -76,8 +76,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
 
     float diffuseNoLm = GetLightNoL(geoNoL, texNormal, localSkyLightDir, sss);
 
-    float invAO = saturate(1.0 - occlusion);
-    diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
+    // float invAO = saturate(1.0 - occlusion);
+    // diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
@@ -177,6 +177,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     #endif
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
+        #ifndef RENDER_SHADOWS_ENABLED
+            localSkyLightDir = vec3(0.0, 1.0, 0.0);
+        #endif
+    
         vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
         //vec3 skyH = normalize(localSkyLightDir + localViewDir);
