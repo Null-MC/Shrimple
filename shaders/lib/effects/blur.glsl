@@ -89,6 +89,9 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     #ifdef EFFECT_BLUR_ABERRATION_ENABLED
         vec2 aberrationOffset = pixelRadius * (texcoord * 2.0 - 1.0);
 
+        vec2 centerF = 1.0 - 2.0 * abs(texcoord - 0.5);
+        aberrationOffset *= saturate(centerF*10.0);
+
         vec2 screenCoordMin = vec2(0.5 * pixelSize);
         vec2 screenCoordMax = 1.0 - 3.0*screenCoordMin;
     #endif
