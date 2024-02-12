@@ -1,6 +1,6 @@
 #define BLUR_BLIND_DIST 12.0
 
-const vec3 aberrationF = vec3(0.5, 1.0, 1.5);
+const vec3 aberrationF = vec3(3.0, 2.0, 1.0) * (EFFECT_BLUR_ABERRATION_STRENGTH * 0.01);
 
 
 mat2 GetBlurRotation() {
@@ -86,7 +86,7 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     vec2 pixelRadius = radius * pixelSize;
     float maxLod = 0.75 * log2(radius);
 
-    #ifdef EFFECT_BLUR_ABERRATION
+    #ifdef EFFECT_BLUR_ABERRATION_ENABLED
         vec2 aberrationOffset = pixelRadius * (texcoord * 2.0 - 1.0);
 
         vec2 screenCoordMin = vec2(0.5 * pixelSize);
@@ -171,7 +171,7 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
             sampleDistF = min(sampleDistF, distF);
         //#endif
 
-        #ifdef EFFECT_BLUR_ABERRATION
+        #ifdef EFFECT_BLUR_ABERRATION_ENABLED
             //vec2 sampleOffset = sampleCoord - texcoord;
             vec2 sampleCoordR = clamp(sampleCoord + aberrationOffset * aberrationF.r, screenCoordMin, screenCoordMax);
             vec2 sampleCoordG = clamp(sampleCoord + aberrationOffset * aberrationF.g, screenCoordMin, screenCoordMax);

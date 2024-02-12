@@ -682,7 +682,10 @@ option.EFFECT_BLUR_RADIUS_BLIND=Blindness Radius
 option.EFFECT_BLUR_RADIUS_BLIND.comment=The maximum blur radius applied to screen when the blindness effect is active.
 suffix.EFFECT_BLUR_RADIUS_BLIND=px
 
-option.EFFECT_BLUR_ABERRATION=Aberration
+option.EFFECT_BLUR_ABERRATION_ENABLED=Aberration Enabled
+
+option.EFFECT_BLUR_ABERRATION_STRENGTH=Aberration Strength
+suffix.EFFECT_BLUR_ABERRATION_STRENGTH=%
 
 
 screen.EFFECT_SSAO_OPTIONS=SSAO
