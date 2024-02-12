@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v11.3
+# Provided by ShrikerChestTree v11.4
 
 /////PROFILE/////
 
@@ -509,8 +509,8 @@ screen.LIGHTING_OPTIONS=Настройка Освещения
 
 option.LIGHTING_MODE=Режим
 option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
-value.LIGHTING_MODE.0=Vanilla
-value.LIGHTING_MODE.1=Световая Карта
+value.LIGHTING_MODE.0=Ванилла
+value.LIGHTING_MODE.1=Обычный
 value.LIGHTING_MODE.2=Наливное Заполнение (LPV/LPV GI)
 value.LIGHTING_MODE.3=Трассировка лучей
 
@@ -538,6 +538,11 @@ suffix.LIGHTING_BRIGHTNESS=%
 option.LIGHTING_AMBIENT=Окружение
 option.LIGHTING_AMBIENT.comment=Количество ванильного окружающего освещения, добавляемого к динамическому освещению.
 suffix.LIGHTING_AMBIENT=%
+
+=====Lighting Colored Candles=====
+
+option.LIGHTING_COLORED_CANDLES=Цветные Свечи
+option.LIGHTING_COLORED_CANDLES.comment=Цветные свечи излучают цветной свет. Только для освещения наливногозаполнения или трассировки лучей.
 
 =====Lighting Temp=====
 
@@ -1007,7 +1012,10 @@ suffix.EFFECT_BLUR_RADIUS_BLIND=px
 
 =====Blur Aberration=====
 
-option.EFFECT_BLUR_ABERRATION=Аберрация
+option.EFFECT_BLUR_ABERRATION_ENABLED=Включить Аберрацию
+
+option.EFFECT_BLUR_ABERRATION_STRENGTH=Сила Аберрации
+suffix.EFFECT_BLUR_ABERRATION_STRENGTH=%
 
 /////SSAO OPTIONS/////
 
