@@ -358,6 +358,9 @@ option.LIGHTING_AMBIENT=Ambient
 option.LIGHTING_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
 suffix.LIGHTING_AMBIENT=%
 
+option.LIGHTING_COLORED_CANDLES=Colored Candles
+option.LIGHTING_COLORED_CANDLES.comment=Makes colored candles emit colored light. Only for floodfill or ray-traced lighting.
+
 
 screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 
