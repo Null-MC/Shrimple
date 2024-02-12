@@ -191,13 +191,13 @@
                 case LIGHT_BLACK_CANDLES_2:
                 case LIGHT_BLACK_CANDLES_3:
                 case LIGHT_BLACK_CANDLES_4:
-                    lightColor = vec3(0, 0, 0);
+                    lightColor = vec3(0.200, 0.200, 0.200);
                     break;
                 case LIGHT_BLUE_CANDLES_1:
                 case LIGHT_BLUE_CANDLES_2:
                 case LIGHT_BLUE_CANDLES_3:
                 case LIGHT_BLUE_CANDLES_4:
-                    lightColor = vec3(0, 0.259, 1);
+                    lightColor = vec3(0.000, 0.259, 1.000);
                     break;
                 case LIGHT_BROWN_CANDLES_1:
                 case LIGHT_BROWN_CANDLES_2:
@@ -209,7 +209,7 @@
                 case LIGHT_CYAN_CANDLES_2:
                 case LIGHT_CYAN_CANDLES_3:
                 case LIGHT_CYAN_CANDLES_4:
-                    lightColor = vec3(0, 0.839, 0.839);
+                    lightColor = vec3(0.000, 0.839, 0.839);
                     break;
                 case LIGHT_GRAY_CANDLES_1:
                 case LIGHT_GRAY_CANDLES_2:
@@ -221,13 +221,13 @@
                 case LIGHT_GREEN_CANDLES_2:
                 case LIGHT_GREEN_CANDLES_3:
                 case LIGHT_GREEN_CANDLES_4:
-                    lightColor = vec3(0.263, 0.451, 0);
+                    lightColor = vec3(0.263, 0.451, 0.000);
                     break;
                 case LIGHT_LIGHT_BLUE_CANDLES_1:
                 case LIGHT_LIGHT_BLUE_CANDLES_2:
                 case LIGHT_LIGHT_BLUE_CANDLES_3:
                 case LIGHT_LIGHT_BLUE_CANDLES_4:
-                    lightColor = vec3(0.153, 0.686, 1);
+                    lightColor = vec3(0.153, 0.686, 1.000);
                     break;
                 case LIGHT_LIGHT_GRAY_CANDLES_1:
                 case LIGHT_LIGHT_GRAY_CANDLES_2:
@@ -239,7 +239,7 @@
                 case LIGHT_LIME_CANDLES_2:
                 case LIGHT_LIME_CANDLES_3:
                 case LIGHT_LIME_CANDLES_4:
-                    lightColor = vec3(0.439, 0.89, 0);
+                    lightColor = vec3(0.439, 0.890, 0.000);
                     break;
                 case LIGHT_MAGENTA_CANDLES_1:
                 case LIGHT_MAGENTA_CANDLES_2:
@@ -251,37 +251,37 @@
                 case LIGHT_ORANGE_CANDLES_2:
                 case LIGHT_ORANGE_CANDLES_3:
                 case LIGHT_ORANGE_CANDLES_4:
-                    lightColor = vec3(1, 0.459, 0);
+                    lightColor = vec3(1.000, 0.459, 0.000);
                     break;
                 case LIGHT_PINK_CANDLES_1:
                 case LIGHT_PINK_CANDLES_2:
                 case LIGHT_PINK_CANDLES_3:
                 case LIGHT_PINK_CANDLES_4:
-                    lightColor = vec3(1, 0.553, 0.718);
+                    lightColor = vec3(1.000, 0.553, 0.718);
                     break;
                 case LIGHT_PURPLE_CANDLES_1:
                 case LIGHT_PURPLE_CANDLES_2:
                 case LIGHT_PURPLE_CANDLES_3:
                 case LIGHT_PURPLE_CANDLES_4:
-                    lightColor = vec3(0.569, 0, 1);
+                    lightColor = vec3(0.569, 0.000, 1.000);
                     break;
                 case LIGHT_RED_CANDLES_1:
                 case LIGHT_RED_CANDLES_2:
                 case LIGHT_RED_CANDLES_3:
                 case LIGHT_RED_CANDLES_4:
-                    lightColor = vec3(0.859, 0, 0);
+                    lightColor = vec3(0.859, 0.000, 0.000);
                     break;
                 case LIGHT_WHITE_CANDLES_1:
                 case LIGHT_WHITE_CANDLES_2:
                 case LIGHT_WHITE_CANDLES_3:
                 case LIGHT_WHITE_CANDLES_4:
-                    lightColor = vec3(1,1,1);
+                    lightColor = vec3(1.000, 1.000, 1.000);
                     break;
                 case LIGHT_YELLOW_CANDLES_1:
                 case LIGHT_YELLOW_CANDLES_2:
                 case LIGHT_YELLOW_CANDLES_3:
                 case LIGHT_YELLOW_CANDLES_4:
-                    lightColor = vec3(1, 0.878, 0);
+                    lightColor = vec3(1.000, 0.878, 0.000);
                     break;
             }
         #else
