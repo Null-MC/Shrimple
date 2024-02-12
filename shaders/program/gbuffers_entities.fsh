@@ -50,7 +50,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -117,7 +117,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -265,7 +265,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
-        // #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         //     #include "/lib/lighting/voxel/light_mask.glsl"
         // #endif
     #endif
@@ -301,11 +301,11 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != DYN_LIGHT_NONE
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -317,10 +317,12 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #include "/lib/lighting/sky_lighting.glsl"
 
-    #if LIGHTING_MODE == DYN_LIGHT_NONE
-        #include "/lib/lighting/vanilla.glsl"
-    #else
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/basic.glsl"
+    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        #include "/lib/lighting/floodfill.glsl"
+    #else
+        #include "/lib/lighting/vanilla.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -428,23 +430,22 @@ void main() {
     //     //color.rgb = vec3(1.0, 0.0, 0.0);
     // }
 
-    float occlusion = 1.0;
     vec2 lmFinal = vIn.lmcoord;
     float roughness, metal_f0, sss, emission;
     sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
     emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
 
-    #ifdef WORLD_AO_ENABLED
-        //occlusion = RGBToLinear(glcolor.a);
-        occlusion = vIn.color.a;
+    float occlusion = 1.0;
+    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+        occlusion = _pow2(vIn.color.a);
     #endif
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
         sss = max(sss, 1.0 - color.a);
     #endif
 
-    #if defined RENDER_ENTITIES_GLOWING && LIGHTING_MODE != DYN_LIGHT_NONE
+    #if defined RENDER_ENTITIES_GLOWING && LIGHTING_MODE > LIGHTING_MODE_BASIC
         emission = 1.0;
         //color.rgb = vec3(1.0, 0.0, 0.0);
     #endif
@@ -538,6 +539,18 @@ void main() {
         // #endif
     #endif
 
+    #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
+        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+        occlusion *= texOcclusion;
+    #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
+        float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
+        occlusion *= texOcclusion;
+    #endif
+
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
+        occlusion = max(occlusion, luminance(shadowColor));
+    #endif
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
@@ -575,28 +588,7 @@ void main() {
             }
         #endif
 
-        #if LIGHTING_MODE == DYN_LIGHT_NONE
-            vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
-
-            // #if MATERIAL_SPECULAR != SPECULAR_NONE && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            //         float geoNoL = dot(localNormal, localSkyLightDirection);
-            //     #else
-            //         float geoNoL = 1.0;
-            //     #endif
-
-            //     specular += GetSkySpecular(vIn.localPos, geoNoL, texNormal, albedo, shadowColor, lmFinal, metal_f0, roughL);
-            // #endif
-
-            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);
-
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
-
-            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
-        #else
+        #if LIGHTING_MODE > LIGHTING_MODE_BASIC
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
             vec3 skyDiffuse = vec3(0.0);
@@ -634,6 +626,19 @@ void main() {
             #endif
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        #else
+            vec3 diffuse, specular = vec3(0.0);
+            GetVanillaLighting(diffuse, lmFinal);
+
+            #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);
+            #endif
+
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            #endif
+
+            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
         #endif
 
         #ifdef SKY_BORDER_FOG_ENABLED

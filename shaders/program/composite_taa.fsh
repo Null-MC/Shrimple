@@ -114,7 +114,8 @@ void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
             vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
-            vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
+            // vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
+            vec3 sampleColor = texelFetch(BUFFER_FINAL, ivec2(sampleCoord * viewSize), 0).rgb;
 
             minColor = min(minColor, sampleColor);
             maxColor = max(maxColor, sampleColor);

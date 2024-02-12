@@ -6,7 +6,7 @@
 #define LIGHT_MASK_EAST 7u
 
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE
+#if LIGHTING_MODE != LIGHTING_MODE_NONE
     #if defined RENDER_SHADOWCOMP || defined RENDER_SHADOW
         layout(binding = 4) buffer globalLightingData
     #elif defined RENDER_BEGIN
@@ -26,12 +26,12 @@
         vec3 sceneViewDown;         // 16
         vec3 sceneViewLeft;         // 16
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED
             uvec4 SceneLights[];
         #endif
     };
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         struct LightCellData {
             uint LightCount;
             uint LightNeighborCount;

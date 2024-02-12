@@ -26,7 +26,7 @@ out VertexData {
     #endif
 } vOut;
 
-#if defined LIGHTING_FLICKER && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
+#if defined LIGHTING_FLICKER && (LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
     uniform sampler2D noisetex;
 #endif
 
@@ -46,7 +46,7 @@ uniform float far;
     #endif
 #endif
 
-#if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+#if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
     uniform int entityId;
     uniform int frameCounter;
     uniform vec3 eyePosition;
@@ -69,21 +69,21 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/block_voxel.glsl"
         #include "/lib/buffers/light_static.glsl"
     #endif
     
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
@@ -107,14 +107,14 @@ uniform float far;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/light_mask.glsl"
         //#include "/lib/lighting/voxel/lights.glsl"
     #endif
@@ -154,7 +154,7 @@ void main() {
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
+    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
 
         bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
                            || renderStage == MC_RENDER_STAGE_ENTITIES;
@@ -170,7 +170,7 @@ void main() {
 
             bool intersects = true;
 
-            #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
+            #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
                 vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
                 const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
@@ -187,7 +187,7 @@ void main() {
 
             uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
 
-            //#if LIGHTING_MODE == DYN_LIGHT_TRACED
+            //#if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 vec3 cf = fract(cameraPosition);
                 vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
 
@@ -199,7 +199,7 @@ void main() {
                     if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
                         SetVoxelBlockMask(blockCell, gridIndex, vIn[0].blockId);
 
-                    #if LIGHTING_MODE == DYN_LIGHT_TRACED
+                    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                         //uint lightType = GetSceneLightType(vBlockId[0]);
                         //uint lightType = StaticBlockMap[vBlockId[0]].lightType;
 
@@ -217,7 +217,7 @@ void main() {
                 }
             //#endif
 
-            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == DYN_LIGHT_LPV || LPV_SHADOW_SAMPLES > 0)
+            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
                 // if (!IsTraceEmptyBlock(vBlockId[0]))
                 //     SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
 
@@ -283,7 +283,7 @@ void main() {
         // else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
         //     if (entityId == ENTITY_LIGHTNING_BOLT) return;
 
-        //     #if LIGHTING_MODE != DYN_LIGHT_NONE
+        //     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         //         if (entityId == ENTITY_PLAYER) {
         //             for (int i = 0; i < 3; i++) {
         //                 if (vVertexId[i] % 600 == 300) {
@@ -316,7 +316,7 @@ void main() {
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
-        // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
         //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
         // #endif

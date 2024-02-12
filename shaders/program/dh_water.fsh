@@ -41,7 +41,7 @@ uniform sampler2D noisetex;
     uniform sampler2D BUFFER_FINAL;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -60,7 +60,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE != DYN_LIGHT_NONE
+#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
     uniform sampler2D shadowcolor0;
 #endif
 
@@ -267,7 +267,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
-        // #if LIGHTING_MODE == DYN_LIGHT_TRACED
+        // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         //     #include "/lib/lighting/voxel/light_mask.glsl"
         // #endif
     #endif
@@ -297,11 +297,11 @@ uniform int heldBlockLightValue2;
 #endif
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == DYN_LIGHT_TRACED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0)
+    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -317,10 +317,12 @@ uniform int heldBlockLightValue2;
 
     #include "/lib/lighting/sky_lighting.glsl"
 
-    #if LIGHTING_MODE == DYN_LIGHT_NONE
-        #include "/lib/lighting/vanilla.glsl"
-    #else
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/basic.glsl"
+    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        #include "/lib/lighting/floodfill.glsl"
+    #else
+        #include "/lib/lighting/vanilla.glsl"
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
@@ -577,20 +579,7 @@ void main() {
         outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
-        #if LIGHTING_MODE == DYN_LIGHT_NONE
-            vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, lmFinal, vIn.localPos, localNormal, texNormal, shadowColor, sss);
-
-            const bool tir = false; // TODO: ?
-            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
-
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
-
-            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
-            color.a = min(color.a + luminance(specular), 1.0);
-        #else
+        #if LIGHTING_MODE > LIGHTING_MODE_BASIC
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
 
@@ -625,6 +614,21 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             color.a = min(color.a + luminance(specularFinal), 1.0);
+        #else
+            vec3 diffuse, specular = vec3(0.0);
+            GetVanillaLighting(diffuse, lmFinal);
+
+            #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+                const bool tir = false; // TODO: ?
+                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
+            #endif
+
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            #endif
+
+            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+            color.a = min(color.a + luminance(specular), 1.0);
         #endif
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE

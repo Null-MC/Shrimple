@@ -98,7 +98,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE
+#if defined IRIS_FEATURE_SSBO && VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform int heldItemId;
     uniform int heldItemId2;
     uniform int heldBlockLightValue;
@@ -133,11 +133,11 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined VOLUMETRIC_BLOCK_RT
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/light_voxel.glsl"
     #endif
@@ -196,8 +196,8 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/buffers/water_depths.glsl"
     #endif
 
-    // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != DYN_LIGHT_NONE)
-    #if LIGHTING_MODE != DYN_LIGHT_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0) || defined VOLUMETRIC_BLOCK_RT
+    // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0) || defined VOLUMETRIC_BLOCK_RT
         #include "/lib/blocks.glsl"
 
         // #include "/lib/buffers/lighting.glsl"
@@ -207,7 +207,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 
-    #if LIGHTING_MODE != DYN_LIGHT_NONE
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
         #ifdef LIGHTING_FLICKER
             #include "/lib/lighting/blackbody.glsl"
             #include "/lib/lighting/flicker.glsl"
@@ -216,7 +216,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lights.glsl"
         #include "/lib/lighting/fresnel.glsl"
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined VOLUMETRIC_BLOCK_RT
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined VOLUMETRIC_BLOCK_RT
             #include "/lib/lighting/voxel/light_mask.glsl"
 
             //#include "/lib/buffers/block_static.glsl"
@@ -235,7 +235,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/sampling.glsl"
     #endif
     
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != DYN_LIGHT_NONE || LPV_SHADOW_SAMPLES > 0) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
         // #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lighting/voxel/lpv.glsl"

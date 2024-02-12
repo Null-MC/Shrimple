@@ -8,7 +8,7 @@
         vec2 pcfDiskOffset[32];     // 256
         vec2 pcssDiskOffset[32];    // 256
 
-        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && LIGHTING_MODE != DYN_LIGHT_NONE
+        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED && LIGHTING_MODE != LIGHTING_MODE_NONE
             vec2 shadowViewBoundsMin;   // 8
             vec2 shadowViewBoundsMax;   // 8
         #endif

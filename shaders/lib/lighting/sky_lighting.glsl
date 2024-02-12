@@ -32,9 +32,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         #endif
     #endif
 
-    #ifndef RENDER_SHADOWS_ENABLED
-        localSkyLightDir = vec3(0.0, 1.0, 0.0);
-    #endif
+    // #ifndef RENDER_SHADOWS_ENABLED
+    //     localSkyLightDir = vec3(0.0, 1.0, 0.0);
+    // #endif
 
     if (!all(lessThan(abs(texNormal), EPSILON3))) {
         vec3 r = reflect(-localViewDir, texNormal);
@@ -76,8 +76,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
 
     float diffuseNoLm = GetLightNoL(geoNoL, texNormal, localSkyLightDir, sss);
 
-    float invAO = saturate(1.0 - occlusion);
-    diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
+    // float invAO = saturate(1.0 - occlusion);
+    // diffuseNoLm = max(diffuseNoLm - _pow2(invAO), 0.0);
 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
@@ -127,7 +127,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     //ambientLight *= ambientF;
 
 
-    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != DYN_LIGHT_LPV
+    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != LIGHTING_MODE_FLOODFILL
         vec3 lpvPos = GetLPVPosition(localPos);
 
         float lpvFade = GetLpvFade(lpvPos);
@@ -137,7 +137,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         vec4 lpvSample = SampleLpv(lpvPos, texNormal);
 
         #ifdef LPV_GI
-            #if LIGHTING_MODE == DYN_LIGHT_NONE
+            #if LIGHTING_MODE == LIGHTING_MODE_NONE
                 vec3 lpvSkyLight = 10.0*GetLpvBlockLight(lpvSample);
                 ambientLight = mix(ambientLight, lpvSkyLight, lpvFade);
             #endif
@@ -177,6 +177,16 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     #endif
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
+        #ifndef RENDER_SHADOWS_ENABLED
+            localSkyLightDir = vec3(0.0, 1.0, 0.0);
+
+            H = normalize(localSkyLightDir + localViewDir);
+
+            geoNoL = 1.0;
+            if (!all(lessThan(abs(localNormal), EPSILON3)))
+                geoNoL = dot(localNormal, localSkyLightDir);
+        #endif
+
         vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
         //vec3 skyH = normalize(localSkyLightDir + localViewDir);

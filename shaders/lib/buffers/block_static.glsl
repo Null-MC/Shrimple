@@ -15,7 +15,7 @@ struct StaticBlockData {        // 76 x1280 =97280
         uint wavingAttachment;      // 4
     #endif
 
-    #if LIGHTING_MODE == DYN_LIGHT_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
         BlockCollisionData Collisions;    // 52
     #endif
 };

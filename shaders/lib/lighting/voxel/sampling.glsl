@@ -1,4 +1,4 @@
-#if LIGHTING_TRACE_SAMPLE_MAX > 0 && LIGHTING_MODE == DYN_LIGHT_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
+#if LIGHTING_TRACE_SAMPLE_MAX > 0 && LIGHTING_MODE == LIGHTING_MODE_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
 
@@ -101,7 +101,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         vec3 diffuseLightPos = lightPos;
 
-        #if LIGHTING_MODE == DYN_LIGHT_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
             vec3 offset = GetLightPenumbraOffset() * DynamicLightPenumbraF;
             diffuseLightPos += lightSize * offset;
         #endif
@@ -127,7 +127,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         uint traceFace = 1u << GetLightMaskFace(-lightVec);
         if ((lightData.z & traceFace) == traceFace) continue;
 
-        // #if LIGHTING_MODE == DYN_LIGHT_TRACED && defined RENDER_FRAG
+        // #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined RENDER_FRAG
             if ((lightData.z & 1u) == 1u) {
                 vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
                 vec3 traceEnd = traceOrigin - lightVec;

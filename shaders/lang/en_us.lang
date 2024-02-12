@@ -337,9 +337,10 @@ screen.LIGHTING_OPTIONS=Lighting
 
 option.LIGHTING_MODE=Mode
 option.LIGHTING_MODE.comment=Describes how lighting is calculated. LightMap uses the vanilla lighting. FloodFill allows basic colored lighting. Enable ray-tracing for block-light shadows.
-value.LIGHTING_MODE.0=Light Map
-value.LIGHTING_MODE.1=Flood Fill
-value.LIGHTING_MODE.2=Ray Traced
+value.LIGHTING_MODE.0=Vanilla
+value.LIGHTING_MODE.1=Basic
+value.LIGHTING_MODE.2=FloodFill
+value.LIGHTING_MODE.3=Ray Traced
 
 option.LIGHTING_MODE_HAND=Hand
 value.LIGHTING_MODE_HAND.0=None

@@ -43,7 +43,7 @@ out VertexData {
 
 uniform sampler2D lightmap;
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && !defined RENDER_SHADOWS_ENABLED
     uniform sampler2D noisetex;
 #endif
 
@@ -85,7 +85,7 @@ uniform vec4 entityColor;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && !defined RENDER_SHADOWS_ENABLED
+#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && !defined RENDER_SHADOWS_ENABLED
     uniform vec3 previousCameraPosition;
     uniform int currentRenderedItemId;
     uniform mat4 gbufferPreviousModelView;
@@ -140,7 +140,7 @@ uniform vec4 entityColor;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
-#elif LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0
+#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
     #include "/lib/buffers/block_static.glsl"
     #include "/lib/buffers/volume.glsl"
 
@@ -162,13 +162,13 @@ uniform vec4 entityColor;
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
 
-    // #if LIGHTING_MODE == DYN_LIGHT_TRACED
+    // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
     //     #include "/lib/lighting/voxel/lights.glsl"
     //     #include "/lib/lighting/voxel/light_mask.glsl"
     // #endif
 #endif
 
-// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE
+// #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE
 //     #include "/lib/entities.glsl"
 
 //     #include "/lib/lighting/voxel/entities.glsl"
@@ -214,12 +214,12 @@ void main() {
     #endif
 
 
-    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && LPV_SIZE > 0 && !defined RENDER_SHADOWS_ENABLED
+    #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0 && !defined RENDER_SHADOWS_ENABLED
         if (entityId > 0 || currentRenderedItemId > 0) {
             vec3 originPos = vOut.localPos; // TODO: offset by normal?
             bool intersects = true;
 
-            // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != DYN_LIGHT_NONE
+            // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
             //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
             //     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;

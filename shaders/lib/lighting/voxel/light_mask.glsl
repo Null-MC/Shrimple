@@ -45,7 +45,7 @@ uint GetLightMaskFace(const in vec3 normal) {
     }
 #endif
 
-#if LIGHTING_MODE == DYN_LIGHT_TRACED && !(defined RENDER_BEGIN || defined RENDER_GEOMETRY || defined RENDER_VERTEX)
+#if LIGHTING_MODE == LIGHTING_MODE_TRACED && !(defined RENDER_BEGIN || defined RENDER_GEOMETRY || defined RENDER_VERTEX)
     uint GetVoxelLights(const in vec3 position, out uint gridIndex) {
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetVoxelBlockPosition(position);

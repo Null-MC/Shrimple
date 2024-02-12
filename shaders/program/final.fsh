@@ -72,7 +72,7 @@ uniform float far;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
-	#if LIGHTING_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
+	#if LIGHTING_MODE != LIGHTING_MODE_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 		#include "/lib/buffers/light_voxel.glsl"
 	#endif
 
@@ -140,7 +140,7 @@ void main() {
     color += (GetScreenBayerValue(ivec2(2,1)) - 0.5) / 255.0;
     //color.rgb += (InterleavedGradientNoise(gl_FragCoord.xy) - 0.25) / 255.0;
 
-	#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != DYN_LIGHT_NONE && defined DYN_LIGHT_DEBUG_COUNTS
+	#if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && defined DYN_LIGHT_DEBUG_COUNTS
 		beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewHeight/2 - 24));
 
 		text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
@@ -199,7 +199,7 @@ void main() {
 		endText(color);
 	#endif
 
-	#if !defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != DYN_LIGHT_NONE || SHADOW_TYPE == SHADOW_TYPE_CASCADED)
+	#if !defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != LIGHTING_MODE_NONE || SHADOW_TYPE == SHADOW_TYPE_CASCADED)
 		#ifdef IS_IRIS
 			if (all(greaterThan(gl_FragCoord.xy, vec2(8.0, 8.0))) && all(lessThanEqual(gl_FragCoord.xy, vec2(620.0, 32.0))))
 				color = mix(color, vec3(0.7, 0.0, 0.0), 0.7);

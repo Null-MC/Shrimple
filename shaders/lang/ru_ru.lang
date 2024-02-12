@@ -509,9 +509,10 @@ screen.LIGHTING_OPTIONS=Настройка Освещения
 
 option.LIGHTING_MODE=Режим
 option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
-value.LIGHTING_MODE.0=Световая Карта
-value.LIGHTING_MODE.1=Наливное Заполнение (LPV/LPV GI)
-value.LIGHTING_MODE.2=Трассировка лучей
+value.LIGHTING_MODE.0=Vanilla
+value.LIGHTING_MODE.1=Световая Карта
+value.LIGHTING_MODE.2=Наливное Заполнение (LPV/LPV GI)
+value.LIGHTING_MODE.3=Трассировка лучей
 
 =====Lighting Mode Hand=====
 
