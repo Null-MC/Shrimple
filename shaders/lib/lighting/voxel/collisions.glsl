@@ -190,13 +190,53 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             break;
 
         case BLOCK_CANDLES_1:
+    #ifdef LIGHTING_COLORED_CANDLES
+        case BLOCK_BLACK_CANDLES_LIT_1:
+        case BLOCK_BLUE_CANDLES_LIT_1:
+        case BLOCK_BROWN_CANDLES_LIT_1:
+        case BLOCK_CYAN_CANDLES_LIT_1:
+        case BLOCK_GRAY_CANDLES_LIT_1:
+        case BLOCK_GREEN_CANDLES_LIT_1:
+        case BLOCK_LIGHT_BLUE_CANDLES_LIT_1:
+        case BLOCK_LIGHT_GRAY_CANDLES_LIT_1:
+        case BLOCK_LIME_CANDLES_LIT_1:
+        case BLOCK_MAGENTA_CANDLES_LIT_1:
+        case BLOCK_ORANGE_CANDLES_LIT_1:
+        case BLOCK_PINK_CANDLES_LIT_1:
+        case BLOCK_PURPLE_CANDLES_LIT_1:
+        case BLOCK_RED_CANDLES_LIT_1:
+        case BLOCK_WHITE_CANDLES_LIT_1:
+        case BLOCK_YELLOW_CANDLES_LIT_1:
+        case BLOCK_PLAIN_CANDLES_LIT_1:
+    #else
         case BLOCK_CANDLES_LIT_1:
+    #endif
             shapeCount = 1u;
             boundsMin[0] = modelPart( 7,  0,  7);
             boundsMax[0] = modelPart( 9,  6,  9);
             break;
         case BLOCK_CANDLES_2:
+    #ifdef LIGHTING_COLORED_CANDLES
+        case BLOCK_BLACK_CANDLES_LIT_2:
+        case BLOCK_BLUE_CANDLES_LIT_2:
+        case BLOCK_BROWN_CANDLES_LIT_2:
+        case BLOCK_CYAN_CANDLES_LIT_2:
+        case BLOCK_GRAY_CANDLES_LIT_2:
+        case BLOCK_GREEN_CANDLES_LIT_2:
+        case BLOCK_LIGHT_BLUE_CANDLES_LIT_2:
+        case BLOCK_LIGHT_GRAY_CANDLES_LIT_2:
+        case BLOCK_LIME_CANDLES_LIT_2:
+        case BLOCK_MAGENTA_CANDLES_LIT_2:
+        case BLOCK_ORANGE_CANDLES_LIT_2:
+        case BLOCK_PINK_CANDLES_LIT_2:
+        case BLOCK_PURPLE_CANDLES_LIT_2:
+        case BLOCK_RED_CANDLES_LIT_2:
+        case BLOCK_WHITE_CANDLES_LIT_2:
+        case BLOCK_YELLOW_CANDLES_LIT_2:
+        case BLOCK_PLAIN_CANDLES_LIT_2:
+    #else
         case BLOCK_CANDLES_LIT_2:
+    #endif
             shapeCount = 2u;
             boundsMin[0] = modelPart( 9,  0,  6);
             boundsMax[0] = modelPart(11,  6,  8);
@@ -204,7 +244,27 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMax[1] = modelPart( 7,  5,  9);
             break;
         case BLOCK_CANDLES_3:
+    #ifdef LIGHTING_COLORED_CANDLES
+        case BLOCK_BLACK_CANDLES_LIT_3:
+        case BLOCK_BLUE_CANDLES_LIT_3:
+        case BLOCK_BROWN_CANDLES_LIT_3:
+        case BLOCK_CYAN_CANDLES_LIT_3:
+        case BLOCK_GRAY_CANDLES_LIT_3:
+        case BLOCK_GREEN_CANDLES_LIT_3:
+        case BLOCK_LIGHT_BLUE_CANDLES_LIT_3:
+        case BLOCK_LIGHT_GRAY_CANDLES_LIT_3:
+        case BLOCK_LIME_CANDLES_LIT_3:
+        case BLOCK_MAGENTA_CANDLES_LIT_3:
+        case BLOCK_ORANGE_CANDLES_LIT_3:
+        case BLOCK_PINK_CANDLES_LIT_3:
+        case BLOCK_PURPLE_CANDLES_LIT_3:
+        case BLOCK_RED_CANDLES_LIT_3:
+        case BLOCK_WHITE_CANDLES_LIT_3:
+        case BLOCK_YELLOW_CANDLES_LIT_3:
+        case BLOCK_PLAIN_CANDLES_LIT_3:
+    #else
         case BLOCK_CANDLES_LIT_3:
+    #endif
             shapeCount = 3u;
             boundsMin[0] = modelPart( 8,  0,  6);
             boundsMax[0] = modelPart(10,  6,  8);
@@ -214,7 +274,27 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMax[2] = modelPart( 9,  3, 11);
             break;
         case BLOCK_CANDLES_4:
+    #ifdef LIGHTING_COLORED_CANDLES
+        case BLOCK_BLACK_CANDLES_LIT_4:
+        case BLOCK_BLUE_CANDLES_LIT_4:
+        case BLOCK_BROWN_CANDLES_LIT_4:
+        case BLOCK_CYAN_CANDLES_LIT_4:
+        case BLOCK_GRAY_CANDLES_LIT_4:
+        case BLOCK_GREEN_CANDLES_LIT_4:
+        case BLOCK_LIGHT_BLUE_CANDLES_LIT_4:
+        case BLOCK_LIGHT_GRAY_CANDLES_LIT_4:
+        case BLOCK_LIME_CANDLES_LIT_4:
+        case BLOCK_MAGENTA_CANDLES_LIT_4:
+        case BLOCK_ORANGE_CANDLES_LIT_4:
+        case BLOCK_PINK_CANDLES_LIT_4:
+        case BLOCK_PURPLE_CANDLES_LIT_4:
+        case BLOCK_RED_CANDLES_LIT_4:
+        case BLOCK_WHITE_CANDLES_LIT_4:
+        case BLOCK_YELLOW_CANDLES_LIT_4:
+        case BLOCK_PLAIN_CANDLES_LIT_4:
+    #else
         case BLOCK_CANDLES_LIT_4:
+    #endif
             shapeCount = 4u;
             boundsMin[0] = modelPart( 8,  0,  5);
             boundsMax[0] = modelPart(10,  6,  7);
@@ -226,6 +306,12 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMax[3] = modelPart( 8,  3, 10);
             break;
     }
+
+    #ifdef LIGHTING_COLORED_CANDLES
+        switch (blockId) {
+
+        }
+    #endif
 
     if (blockId == BLOCK_CAKE || blockId == BLOCK_CANDLE_CAKE || blockId == BLOCK_CANDLE_CAKE_LIT) {
         boundsMin[0] = modelPart( 1, 0,  1);

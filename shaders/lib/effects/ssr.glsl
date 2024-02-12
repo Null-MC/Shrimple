@@ -35,7 +35,7 @@ float SampleDepthTiles(const in sampler2D depthtex, const in vec2 texcoord, cons
 // returns: xyz=clip-pos  w=attenuation
 vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, const in vec3 clipRay) {
     float screenRayLength = length(clipRay.xy);
-    if (screenRayLength < EPSILON) return vec4(clipPos, 1.0);
+    if (screenRayLength < EPSILON) return vec4(clipPos, 0.0);
 
     vec3 screenRay = clipRay / screenRayLength;
 
@@ -132,8 +132,8 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
                 continue;
             }
 
-            lastVisPos = t;
-            if (tracePos.z >= 1.0) alpha = 1.0;
+            lastVisPos = vec3(t.xy, saturate(tracePos.z));
+            if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
             break;
         }
 
@@ -155,7 +155,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         //float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         float bias = 0.002;//0.1 * sampleDepthL;
-        bool isCloserThanStartAndMovingAway = startDepthLinear > sampleDepthL + bias && screenRay.z > 0.0;
+        bool isCloserThanStartAndMovingAway = false;//startDepthLinear > sampleDepthL + bias && screenRay.z > 0.0;
         bool isTraceNearerThanSample = traceDepthL < sampleDepthL + bias;// - 0.04 * exp2(level) + EPSILON;
         //bool isTraceNearerThanStart = traceDepthL < sampleDepthL + 0.1;
         bool isTooThickAndMovingNearer = false;//traceDepthL > sampleDepthL + 1.0 && screenRay.z < 0.0;

@@ -1,7 +1,7 @@
 profile.VANILLA=Vanilla
 profile.SHADOWS=Shadows
 profile.LIGHTS=Colored Light
-profile.RTX_LOW=RTX
+profile.RTX=RTX
 
 
 screen.SKY_OPTIONS=Sky
@@ -358,6 +358,9 @@ option.LIGHTING_AMBIENT=Ambient
 option.LIGHTING_AMBIENT.comment=The amount of vanilla ambient lighting to add to dynamic lighting.
 suffix.LIGHTING_AMBIENT=%
 
+option.LIGHTING_COLORED_CANDLES=Colored Candles
+option.LIGHTING_COLORED_CANDLES.comment=Makes colored candles emit colored light. Only for floodfill or ray-traced lighting.
+
 
 screen.LIGHTING_LIGHTMAP_OPTIONS=LightMap Options
 
@@ -679,7 +682,10 @@ option.EFFECT_BLUR_RADIUS_BLIND=Blindness Radius
 option.EFFECT_BLUR_RADIUS_BLIND.comment=The maximum blur radius applied to screen when the blindness effect is active.
 suffix.EFFECT_BLUR_RADIUS_BLIND=px
 
-option.EFFECT_BLUR_ABERRATION=Aberration
+option.EFFECT_BLUR_ABERRATION_ENABLED=Aberration Enabled
+
+option.EFFECT_BLUR_ABERRATION_STRENGTH=Aberration Strength
+suffix.EFFECT_BLUR_ABERRATION_STRENGTH=%
 
 
 screen.EFFECT_SSAO_OPTIONS=SSAO

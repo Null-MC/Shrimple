@@ -274,19 +274,15 @@ uint GetSceneLightType(const in uint blockId) {
         case BLOCK_CANDLE_CAKE_LIT:
             lightType = LIGHT_CANDLE_CAKE;
             break;
-        case BLOCK_CANDLES_LIT_1:
         case BLOCK_CANDLE_HOLDER_LIT_1:
             lightType = LIGHT_CANDLES_1;
             break;
-        case BLOCK_CANDLES_LIT_2:
         case BLOCK_CANDLE_HOLDER_LIT_2:
             lightType = LIGHT_CANDLES_2;
             break;
-        case BLOCK_CANDLES_LIT_3:
         case BLOCK_CANDLE_HOLDER_LIT_3:
             lightType = LIGHT_CANDLES_3;
             break;
-        case BLOCK_CANDLES_LIT_4:
         case BLOCK_CANDLE_HOLDER_LIT_4:
             lightType = LIGHT_CANDLES_4;
             break;
@@ -294,6 +290,230 @@ uint GetSceneLightType(const in uint blockId) {
             lightType = LIGHT_LAVA_CAULDRON;
             break;
     }
+
+    #ifdef LIGHTING_COLORED_CANDLES
+        switch (blockId) {
+            case BLOCK_BLACK_CANDLES_LIT_1:
+                lightType = LIGHT_BLACK_CANDLES_1;
+                break;
+            case BLOCK_BLACK_CANDLES_LIT_2:
+                lightType = LIGHT_BLACK_CANDLES_2;
+                break;
+            case BLOCK_BLACK_CANDLES_LIT_3:
+                lightType = LIGHT_BLACK_CANDLES_3;
+                break;
+            case BLOCK_BLACK_CANDLES_LIT_4:
+                lightType = LIGHT_BLACK_CANDLES_4;
+                break;
+            case BLOCK_BLUE_CANDLES_LIT_1:
+                lightType = LIGHT_BLUE_CANDLES_1;
+                break;
+            case BLOCK_BLUE_CANDLES_LIT_2:
+                lightType = LIGHT_BLUE_CANDLES_2;
+                break;
+            case BLOCK_BLUE_CANDLES_LIT_3:
+                lightType = LIGHT_BLUE_CANDLES_3;
+                break;
+            case BLOCK_BLUE_CANDLES_LIT_4:
+                lightType = LIGHT_BLUE_CANDLES_4;
+                break;
+            case BLOCK_BROWN_CANDLES_LIT_1:
+                lightType = LIGHT_BROWN_CANDLES_1;
+                break;
+            case BLOCK_BROWN_CANDLES_LIT_2:
+                lightType = LIGHT_BROWN_CANDLES_2;
+                break;
+            case BLOCK_BROWN_CANDLES_LIT_3:
+                lightType = LIGHT_BROWN_CANDLES_3;
+                break;
+            case BLOCK_BROWN_CANDLES_LIT_4:
+                lightType = LIGHT_BROWN_CANDLES_4;
+                break;
+            case BLOCK_CYAN_CANDLES_LIT_1:
+                lightType = LIGHT_CYAN_CANDLES_1;
+                break;
+            case BLOCK_CYAN_CANDLES_LIT_2:
+                lightType = LIGHT_CYAN_CANDLES_2;
+                break;
+            case BLOCK_CYAN_CANDLES_LIT_3:
+                lightType = LIGHT_CYAN_CANDLES_3;
+                break;
+            case BLOCK_CYAN_CANDLES_LIT_4:
+                lightType = LIGHT_CYAN_CANDLES_4;
+                break;
+            case BLOCK_GRAY_CANDLES_LIT_1:
+                lightType = LIGHT_GRAY_CANDLES_1;
+                break;
+            case BLOCK_GRAY_CANDLES_LIT_2:
+                lightType = LIGHT_GRAY_CANDLES_2;
+                break;
+            case BLOCK_GRAY_CANDLES_LIT_3:
+                lightType = LIGHT_GRAY_CANDLES_3;
+                break;
+            case BLOCK_GRAY_CANDLES_LIT_4:
+                lightType = LIGHT_GRAY_CANDLES_4;
+                break;
+            case BLOCK_GREEN_CANDLES_LIT_1:
+                lightType = LIGHT_GREEN_CANDLES_1;
+                break;
+            case BLOCK_GREEN_CANDLES_LIT_2:
+                lightType = LIGHT_GREEN_CANDLES_2;
+                break;
+            case BLOCK_GREEN_CANDLES_LIT_3:
+                lightType = LIGHT_GREEN_CANDLES_3;
+                break;
+            case BLOCK_GREEN_CANDLES_LIT_4:
+                lightType = LIGHT_GREEN_CANDLES_4;
+                break;
+            case BLOCK_LIGHT_BLUE_CANDLES_LIT_1:
+                lightType = LIGHT_LIGHT_BLUE_CANDLES_1;
+                break;
+            case BLOCK_LIGHT_BLUE_CANDLES_LIT_2:
+                lightType = LIGHT_LIGHT_BLUE_CANDLES_2;
+                break;
+            case BLOCK_LIGHT_BLUE_CANDLES_LIT_3:
+                lightType = LIGHT_LIGHT_BLUE_CANDLES_3;
+                break;
+            case BLOCK_LIGHT_BLUE_CANDLES_LIT_4:
+                lightType = LIGHT_LIGHT_BLUE_CANDLES_4;
+                break;
+            case BLOCK_LIGHT_GRAY_CANDLES_LIT_1:
+                lightType = LIGHT_LIGHT_GRAY_CANDLES_1;
+                break;
+            case BLOCK_LIGHT_GRAY_CANDLES_LIT_2:
+                lightType = LIGHT_LIGHT_GRAY_CANDLES_2;
+                break;
+            case BLOCK_LIGHT_GRAY_CANDLES_LIT_3:
+                lightType = LIGHT_LIGHT_GRAY_CANDLES_3;
+                break;
+            case BLOCK_LIGHT_GRAY_CANDLES_LIT_4:
+                lightType = LIGHT_LIGHT_GRAY_CANDLES_4;
+                break;
+            case BLOCK_LIME_CANDLES_LIT_1:
+                lightType = LIGHT_LIME_CANDLES_1;
+                break;
+            case BLOCK_LIME_CANDLES_LIT_2:
+                lightType = LIGHT_LIME_CANDLES_2;
+                break;
+            case BLOCK_LIME_CANDLES_LIT_3:
+                lightType = LIGHT_LIME_CANDLES_3;
+                break;
+            case BLOCK_LIME_CANDLES_LIT_4:
+                lightType = LIGHT_LIME_CANDLES_4;
+                break;
+            case BLOCK_MAGENTA_CANDLES_LIT_1:
+                lightType = LIGHT_MAGENTA_CANDLES_1;
+                break;
+            case BLOCK_MAGENTA_CANDLES_LIT_2:
+                lightType = LIGHT_MAGENTA_CANDLES_2;
+                break;
+            case BLOCK_MAGENTA_CANDLES_LIT_3:
+                lightType = LIGHT_MAGENTA_CANDLES_3;
+                break;
+            case BLOCK_MAGENTA_CANDLES_LIT_4:
+                lightType = LIGHT_MAGENTA_CANDLES_4;
+                break;
+            case BLOCK_ORANGE_CANDLES_LIT_1:
+                lightType = LIGHT_ORANGE_CANDLES_1;
+                break;
+            case BLOCK_ORANGE_CANDLES_LIT_2:
+                lightType = LIGHT_ORANGE_CANDLES_2;
+                break;
+            case BLOCK_ORANGE_CANDLES_LIT_3:
+                lightType = LIGHT_ORANGE_CANDLES_3;
+                break;
+            case BLOCK_ORANGE_CANDLES_LIT_4:
+                lightType = LIGHT_ORANGE_CANDLES_4;
+                break;
+            case BLOCK_PINK_CANDLES_LIT_1:
+                lightType = LIGHT_PINK_CANDLES_1;
+                break;
+            case BLOCK_PINK_CANDLES_LIT_2:
+                lightType = LIGHT_PINK_CANDLES_2;
+                break;
+            case BLOCK_PINK_CANDLES_LIT_3:
+                lightType = LIGHT_PINK_CANDLES_3;
+                break;
+            case BLOCK_PINK_CANDLES_LIT_4:
+                lightType = LIGHT_PINK_CANDLES_4;
+                break;
+            case BLOCK_PURPLE_CANDLES_LIT_1:
+                lightType = LIGHT_PURPLE_CANDLES_1;
+                break;
+            case BLOCK_PURPLE_CANDLES_LIT_2:
+                lightType = LIGHT_PURPLE_CANDLES_2;
+                break;
+            case BLOCK_PURPLE_CANDLES_LIT_3:
+                lightType = LIGHT_PURPLE_CANDLES_3;
+                break;
+            case BLOCK_PURPLE_CANDLES_LIT_4:
+                lightType = LIGHT_PURPLE_CANDLES_4;
+                break;
+            case BLOCK_RED_CANDLES_LIT_1:
+                lightType = LIGHT_RED_CANDLES_1;
+                break;
+            case BLOCK_RED_CANDLES_LIT_2:
+                lightType = LIGHT_RED_CANDLES_2;
+                break;
+            case BLOCK_RED_CANDLES_LIT_3:
+                lightType = LIGHT_RED_CANDLES_3;
+                break;
+            case BLOCK_RED_CANDLES_LIT_4:
+                lightType = LIGHT_RED_CANDLES_4;
+                break;
+            case BLOCK_WHITE_CANDLES_LIT_1:
+                lightType = LIGHT_WHITE_CANDLES_1;
+                break;
+            case BLOCK_WHITE_CANDLES_LIT_2:
+                lightType = LIGHT_WHITE_CANDLES_2;
+                break;
+            case BLOCK_WHITE_CANDLES_LIT_3:
+                lightType = LIGHT_WHITE_CANDLES_3;
+                break;
+            case BLOCK_WHITE_CANDLES_LIT_4:
+                lightType = LIGHT_WHITE_CANDLES_4;
+                break;
+            case BLOCK_YELLOW_CANDLES_LIT_1:
+                lightType = LIGHT_YELLOW_CANDLES_1;
+                break;
+            case BLOCK_YELLOW_CANDLES_LIT_2:
+                lightType = LIGHT_YELLOW_CANDLES_2;
+                break;
+            case BLOCK_YELLOW_CANDLES_LIT_3:
+                lightType = LIGHT_YELLOW_CANDLES_3;
+                break;
+            case BLOCK_YELLOW_CANDLES_LIT_4:
+                lightType = LIGHT_YELLOW_CANDLES_4;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_1:
+                lightType = LIGHT_CANDLES_1;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_2:
+                lightType = LIGHT_CANDLES_2;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_3:
+                lightType = LIGHT_CANDLES_3;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_4:
+                lightType = LIGHT_CANDLES_4;
+                break;
+        }
+    #else
+        switch (blockId) {
+            case BLOCK_CANDLES_LIT_1:
+                lightType = LIGHT_CANDLES_1;
+                break;
+            case BLOCK_CANDLES_LIT_2:
+                lightType = LIGHT_CANDLES_2;
+                break;
+            case BLOCK_CANDLES_LIT_3:
+                lightType = LIGHT_CANDLES_3;
+                break;
+            case BLOCK_CANDLES_LIT_4:
+                lightType = LIGHT_CANDLES_4;
+                break;
+        }
+    #endif
 
     switch (blockId) {
         case BLOCK_ROSE_QUARTZ_LAMP_LIT:
