@@ -179,8 +179,14 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED
             localSkyLightDir = vec3(0.0, 1.0, 0.0);
+
+            H = normalize(localSkyLightDir + localViewDir);
+
+            geoNoL = 1.0;
+            if (!all(lessThan(abs(localNormal), EPSILON3)))
+                geoNoL = dot(localNormal, localSkyLightDir);
         #endif
-    
+
         vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
         //vec3 skyH = normalize(localSkyLightDir + localViewDir);
