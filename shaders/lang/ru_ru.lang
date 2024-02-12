@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v11.4
+# Provided by ShrikerChestTree v11.4.1
 
 /////PROFILE/////
 
@@ -508,7 +508,7 @@ screen.LIGHTING_OPTIONS=Настройка Освещения
 =====Lighting Mode=====
 
 option.LIGHTING_MODE=Режим
-option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
+option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта (Обычный) использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
 value.LIGHTING_MODE.0=Ванилла
 value.LIGHTING_MODE.1=Обычный
 value.LIGHTING_MODE.2=Наливное Заполнение (LPV/LPV GI)
@@ -551,7 +551,7 @@ suffix.LIGHTING_TEMP=°k
 
 /////LIGHTMAP OPTIONS/////
 
-screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты
+screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты (Обычный)
 
 =====Directional LightMap=====
 
