@@ -271,7 +271,8 @@ layout(location = 1) out vec3 outTransmit;
 // TODO: This might blow up in non-overworld worlds! add bypass?
 
 void main() {
-    ivec2 depthCoord = ivec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES) + 0.5);
+    const int bufferScale = int(exp2(VOLUMETRIC_RES));
+    ivec2 depthCoord = ivec2(gl_FragCoord.xy * bufferScale) + int(0.5 * bufferScale);
     float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
 
     mat4 projectionInvTrans = gbufferProjectionInverse;

@@ -198,7 +198,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         //     dither = 0.0;
         // }
 
-        float iStep = i + dither;
+        float iStep = i + dither;// * step(1, i);
         vec3 traceLocalPos = localStep * iStep + localStart;
         vec3 traceWorldPos = traceLocalPos + cameraPosition;
         float traceDist = length(traceLocalPos);
@@ -528,7 +528,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         //vec3 lightF = (sampleLit + sampleAmbient);
         vec3 lightF = sampleLit + sampleAmbient;
 
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, lightF, sampleDensity, sampleScattering, sampleExtinction);
+        float traceStepLen = stepLength;
+
+        if (i == 0) traceStepLen *= dither;
+
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
         // scatterFinal += scatterTransmit.rgb * transmitFinal;
         // transmitFinal *= scatterTransmit.a;

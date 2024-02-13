@@ -1,5 +1,5 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
-    const vec2 g_sigma = vec2(0.8, 20.0);
+    const vec2 g_sigma = vec2(1.6, 10.0);
 
     const int bufferScale = int(exp2(VOLUMETRIC_RES));
     const float bufferScaleInv = rcp(bufferScale);
@@ -7,6 +7,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     vec2 srcTexSize = viewSize * bufferScaleInv;
     ivec2 srcCenterCoord = ivec2(texcoord * srcTexSize);
     ivec2 depthCenterCoord = srcCenterCoord * bufferScale + int(0.5 * bufferScale);
+    // ivec2 depthCenterCoord = srcCenterCoord * bufferScale + (bufferScale - 1);
 
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(0.0);
@@ -20,7 +21,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
 
             ivec2 srcCoord = srcCenterCoord + ivec2(ix, iy);
             vec3 sampleScatter = texelFetch(BUFFER_VL_SCATTER, srcCoord, 0).rgb;
-            vec3 sampleTransmit = texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
+            vec3 sampleTransmit = 1.0 - texelFetch(BUFFER_VL_TRANSMIT, srcCoord, 0).rgb;
 
             // ivec2 depthCoord = ivec2(srcCoord / srcTexSize * viewSize + _offset * bufferScale);
             ivec2 depthCoord = depthCenterCoord + ivec2(ix, iy) * bufferScale;
@@ -42,13 +43,13 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
 
                 float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-                if (dhDepthL < sampleDepthL || sampleDepth >= 1.0) {
+                if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
                     sampleDepth = dhDepth;
                     sampleDepthL = dhDepthL;
                 }
             #endif
 
-            float fv = Gaussian(g_sigma.y, clamp(abs(sampleDepthL - depthL), 0.0, 32.0));
+            float fv = Gaussian(g_sigma.y, clamp(abs(sampleDepthL - depthL), 0.0, 10.0));
             
             float weight = fx*fy*fv;
             scatterFinal += weight * sampleScatter;
@@ -61,6 +62,8 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
         total = max(total, EPSILON);
         scatterFinal /= total;
         transmitFinal /= total;
+        transmitFinal = 1.0 - transmitFinal;
+
         final = final * transmitFinal + scatterFinal;
     }
 }

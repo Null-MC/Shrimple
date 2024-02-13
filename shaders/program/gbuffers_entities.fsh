@@ -315,7 +315,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #include "/lib/lighting/sky_lighting.glsl"
+    #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/lighting/sky_lighting.glsl"
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/basic.glsl"

@@ -24,9 +24,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in
         vec3 localSkyLightDir = localSkyLightDirection;
     #else
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            vec3 localSkyLightDir = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         #else
-            vec3 localSkyLightDir = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+            vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
             if (worldTime > 12000 && worldTime < 24000)
                 localSkyLightDir = -localSkyLightDir;
         #endif

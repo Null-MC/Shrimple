@@ -9,12 +9,19 @@ float InterleavedGradientNoise(const in vec2 pixel) {
 float InterleavedGradientNoiseTime(const in vec2 pixel) {
     // https://www.shadertoy.com/view/fdl3zn
     
-    vec2 uv = pixel;
-    if ((frameCounter & 2u) != 0u) uv = vec2(-uv.y, uv.x);
-    if ((frameCounter & 1u) != 0u) uv.x = -uv.x;
+    // vec2 uv = pixel;
+    // if ((frameCounter & 2u) != 0u) uv = vec2(-uv.y, uv.x);
+    // if ((frameCounter & 1u) != 0u) uv.x = -uv.x;
     
-    const vec3 vf = vec3(0.7548776662, 0.56984029, 0.41421356);
-    return fract(dot(vec3(uv, frameCounter), vf));
+    // const vec3 vf = vec3(0.7548776662, 0.56984029, 0.41421356);
+    // return fract(dot(vec3(uv, frameCounter), vf));
+
+
+
+    // https://www.shadertoy.com/view/WsfBDf
+
+    vec2 uv = pixel + frameCounter * 5.588238;
+    return fract(magic.z * fract(dot(magic.xy, uv)));
 }
 
 #ifndef RENDER_COMPUTE
