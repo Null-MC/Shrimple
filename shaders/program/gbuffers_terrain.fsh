@@ -324,7 +324,9 @@ uniform int frameCounter;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #include "/lib/lighting/sky_lighting.glsl"
+    #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/lighting/sky_lighting.glsl"
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/basic.glsl"
@@ -464,7 +466,7 @@ void main() {
     #endif
     
     vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
@@ -508,23 +510,6 @@ void main() {
                     lmFinal.y = max(lmFinal.y, lightF);
                 #endif
             }
-
-            //shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
-
-            // #if defined WATER_CAUSTICS
-            //     float causticLight = SampleWaterCaustics(vLocalPos);
-            //     causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-
-            //     float causticStrength = Water_CausticStrength;
-            //     //causticStrength *= min(waterDepth*0.5, 1.0);
-            //     //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
-                
-            //     // TODO: get shadow depth!
-            //     float texDepthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
-            //     float waterDepth = ;
-
-            //     shadowColor *= 1.0 + 1.0*causticLight * causticStrength;
-            // #endif
         }
     #endif
 
@@ -661,11 +646,6 @@ void main() {
             #endif
 
             #ifdef WORLD_SKY_ENABLED
-                #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                    const vec3 shadowPos = vec3(0.0);
-                #endif
-
-                // float shadowFade = getShadowFade(shadowPos);
                 GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
             #endif
 
@@ -690,8 +670,7 @@ void main() {
             GetVanillaLighting(diffuse, vIn.lmcoord);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false; // TODO: ?
-                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
+                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);
             #endif
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

@@ -14,8 +14,10 @@ const float WaterWaveSurfaceOffset = 0.8;
 
 vec2 waveDx(const in vec2 position, const in vec2 direction, const in float frequency, const in float timeshift) {
     float x = dot(direction, position) * frequency + timeshift;
-    float wave = exp(sin(x) - 1.0);
-    float dx = wave * cos(x);
+    float xMod = mod(x, TAU);
+
+    float wave = exp(sin(xMod) - 1.0);
+    float dx = wave * cos(xMod);
     return vec2(wave, -dx);
 }
 
@@ -30,7 +32,8 @@ vec3 GetWaveHeight(const in vec3 position, const in float skyLight, const in flo
     float valueSum = 0.0;
 
     for (int i = 0; i < iterations; i++) {
-        vec2 p = vec2(sin(iter), cos(iter));
+        float iterMod = mod(iter, TAU);
+        vec2 p = vec2(sin(iterMod), cos(iterMod));
 
         vec2 octave = waveDx(wavePos.xz, p, frequency, time * timeMultiplier);
         wavePos.xz += p * octave.y * weight * DRAG_MULT;

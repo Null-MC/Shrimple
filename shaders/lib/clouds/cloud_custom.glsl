@@ -143,8 +143,8 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         float cloudAlt = GetCloudAltitude();
         // vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
-        for (uint stepI = 0; stepI < stepCount; stepI++) {
-            vec3 traceLocalPos = cloudNear + cloudStep * (stepI + dither);
+        for (uint i = 0; i < stepCount; i++) {
+            vec3 traceLocalPos = cloudNear + cloudStep * (i + dither);
 
             #if WORLD_CURVE_RADIUS > 0
                 float traceAltitude = GetWorldAltitude(traceLocalPos);
@@ -164,7 +164,10 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             // float fogDist = GetShapedFogDistance(traceLocalPos);
             // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
-            float stepAbsorb = exp(cloudStepLen * sampleD * -CloudAbsorbF);
+            float traceStepLen = cloudStepLen;
+            if (i == 0) traceStepLen *= dither;
+
+            float stepAbsorb = exp(traceStepLen * sampleD * -CloudAbsorbF);
 
             cloudAbsorb *= stepAbsorb;
         }
@@ -200,7 +203,10 @@ float _TraceCloudShadow(in vec3 worldPos, const in float dither, const in int st
         // float shadowY = shadowSamplePos.y + sampleOffset.y;
         // shadowSampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
-        sampleLit *= exp(shadowSampleD * CloudAbsorbF * -shadowStepLen);
+        float traceStepLen = shadowStepLen;
+        if (i == 0) traceStepLen *= dither;
+
+        sampleLit *= exp(shadowSampleD * CloudAbsorbF * -traceStepLen);
     }
 
     return pow(sampleLit, 10.0);
@@ -229,8 +235,8 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
     float cloudAlt = GetCloudAltitude();
     //vec3 cloudOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
-    for (uint stepI = 0; stepI < stepCount; stepI++) {
-        vec3 traceLocalPos = traceStart + traceStep * (stepI + dither);
+    for (uint i = 0; i < stepCount; i++) {
+        vec3 traceLocalPos = traceStart + traceStep * (i + dither);
 
         #if WORLD_CURVE_RADIUS > 0
             float traceAltitude = GetWorldAltitude(traceLocalPos);
@@ -262,8 +268,11 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
         vec3 stepExtinctF = mix(AirExtinctColor, CloudAbsorbColor, sampleCloudF);
         float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
 
+        float traceStepLen = stepLength;
+        if (i == 0) traceStepLen *= dither;
+
         vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor;
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight, stepDensity, stepScatterF, stepExtinctF);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
     }
 }
 
