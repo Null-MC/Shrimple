@@ -69,7 +69,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
     //int stepCount = VOLUMETRIC_SAMPLES;
     //int stepCount = VOLUMETRIC_SAMPLES;//int(ceil((localRayLength / far) * (VOLUMETRIC_SAMPLES - 2 + dither))) + 2;
-    const float inverseStepCountF = rcp(VOLUMETRIC_SAMPLES+1);
+    const float inverseStepCountF = rcp(VOLUMETRIC_SAMPLES);
     
     float stepLength = localRayLength * inverseStepCountF;
     vec3 localStep = localViewDir * stepLength;
