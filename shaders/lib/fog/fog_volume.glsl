@@ -531,6 +531,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float traceStepLen = stepLength;
 
         if (i == 0) traceStepLen *= dither;
+        if (i == VOLUMETRIC_SAMPLES-1) traceStepLen *= (1.0 - dither);
 
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
