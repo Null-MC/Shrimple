@@ -535,6 +535,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
+        if (all(lessThan(transmitFinal, EPSILON3))) break;
+
         // scatterFinal += scatterTransmit.rgb * transmitFinal;
         // transmitFinal *= scatterTransmit.a;
     }
