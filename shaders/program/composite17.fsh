@@ -308,12 +308,15 @@ void main() {
     //     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     // #endif
 
-    float farMax = far - 0.002;
+    float viewDist = length(localPos);
+    vec3 localViewDir = localPos / viewDist;
+
+    float farMax = far;// - 0.002;
     #ifdef DISTANT_HORIZONS
-        farMax = dhFarPlane - 0.1;
+        farMax = 0.5*dhFarPlane;// - 0.1;
     #endif
 
-    vec3 localViewDir = normalize(localPos);
+    farMax -= 0.002 * viewDist;
 
     #ifdef WORLD_WATER_ENABLED
         bool isWater = isEyeInWater == 1;
@@ -330,7 +333,6 @@ void main() {
     if (any(greaterThan(localNormal, EPSILON3)))
         localNormal = normalize(localNormal * 2.0 - 1.0);
 
-    float viewDist = length(localPos);
 
     float farDist = clamp(viewDist, near, farMax);
 

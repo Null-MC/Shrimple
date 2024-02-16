@@ -70,6 +70,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform ivec2 atlasSize;
+uniform float far;
 
 #ifdef ANIM_WORLD_TIME
     uniform int worldTime;
@@ -89,7 +90,7 @@ uniform ivec2 atlasSize;
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
     uniform vec3 shadowLightPosition;
-    uniform float far;
+    // uniform float far;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         uniform mat4 gbufferProjection;
