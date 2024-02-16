@@ -439,7 +439,7 @@ void main() {
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
 
     float occlusion = 1.0;
-    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+    #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
         occlusion = _pow2(vIn.color.a);
     #endif
 

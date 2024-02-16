@@ -1,12 +1,12 @@
 void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float depthL) {
-    const vec2 g_sigma = vec2(1.6, 10.0);
+    const vec3 g_sigma = vec3(1.6, 1.6, 0.2);
 
     const int bufferScale = int(exp2(VOLUMETRIC_RES));
     const float bufferScaleInv = rcp(bufferScale);
 
     vec2 srcTexSize = viewSize * bufferScaleInv;
     ivec2 srcCenterCoord = ivec2(texcoord * srcTexSize);
-    ivec2 depthCenterCoord = srcCenterCoord * bufferScale + int(0.5 * bufferScale);
+    ivec2 depthCenterCoord = srcCenterCoord * bufferScale + int(0.5 * bufferScale + 0.25);
     // ivec2 depthCenterCoord = srcCenterCoord * bufferScale + (bufferScale - 1);
 
     vec3 scatterFinal = vec3(0.0);
@@ -14,7 +14,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
     float total = 0.0;
     
     for (float iy = -VOLUMETRIC_BLUR_SIZE; iy <= VOLUMETRIC_BLUR_SIZE; iy++) {
-        float fy = Gaussian(g_sigma.x, iy);
+        float fy = Gaussian(g_sigma.y, iy);
 
         for (float ix = -VOLUMETRIC_BLUR_SIZE; ix <= VOLUMETRIC_BLUR_SIZE; ix++) {
             float fx = Gaussian(g_sigma.x, ix);
@@ -32,7 +32,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                 float sampleDepth = texelFetch(depthtex0, depthCoord, 0).r;
             #endif
             
-            float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
+            float sampleDepthL = linearize_depth(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
                 #ifdef RENDER_OPAQUE_POST_VL
@@ -41,7 +41,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                     float dhDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
                 #endif
 
-                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+                float dhDepthL = linearize_depth(dhDepth, dhNearPlane, dhFarPlane);
 
                 if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
                     sampleDepth = dhDepth;
@@ -49,7 +49,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                 }
             #endif
 
-            float fv = Gaussian(g_sigma.y, clamp(abs(sampleDepthL - depthL), 0.0, 10.0));
+            float fv = Gaussian(g_sigma.z, 10.0*clamp(abs(sampleDepthL - depthL), 0.0, 0.2));
             
             float weight = fx*fy*fv;
             scatterFinal += weight * sampleScatter;
@@ -58,12 +58,12 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
         }
     }
     
-    if (total > 0.002) {
-        total = max(total, EPSILON);
+    //if (total > 0.002) {
+        //total = max(total, EPSILON);
         scatterFinal /= total;
         transmitFinal /= total;
         transmitFinal = 1.0 - transmitFinal;
 
         final = final * transmitFinal + scatterFinal;
-    }
+    //}
 }

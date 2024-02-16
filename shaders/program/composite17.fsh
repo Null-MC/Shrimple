@@ -272,25 +272,26 @@ layout(location = 1) out vec3 outTransmit;
 
 void main() {
     const int bufferScale = int(exp2(VOLUMETRIC_RES));
-    ivec2 depthCoord = ivec2(gl_FragCoord.xy * bufferScale) + int(0.5 * bufferScale);
+    ivec2 depthCoord = ivec2(gl_FragCoord.xy * bufferScale);// + int(0.5 * bufferScale);
+    // ivec2 depthCoord = ivec2(texcoord * viewSize);// + int(0.5 * bufferScale);
     float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
 
     mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
+        float depthTransL = linearize_depth(depthTrans, near, farPlane);
 
         float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
-        float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+        float dhDepthTransL = linearize_depth(dhDepthTrans, dhNearPlane, dhFarPlane);
 
-        if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
+        if (depthTrans >= 1.0 || (dhDepthTransL < depthTransL && dhDepthTrans > 0.0)) {
             depthTrans = dhDepthTrans;
             //depthTransL = dhDepthTransL;
             projectionInvTrans = dhProjectionInverse;
         }
     #endif
 
-    vec3 clipPos = vec3(texcoord, depthTrans) * 2.0 - 1.0;
+    vec3 clipPos = vec3(depthCoord / viewSize, depthTrans) * 2.0 - 1.0;
 
     #ifdef DISTANT_HORIZONS
         vec3 viewPos = unproject(projectionInvTrans * vec4(clipPos, 1.0));

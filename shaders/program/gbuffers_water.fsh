@@ -583,7 +583,7 @@ void main() {
     // albedo = vec3(0.3, 0.6, 0.9);
 
     float occlusion = 1.0;
-    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+    #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
         occlusion = _pow2(vIn.color.a);
     #endif
