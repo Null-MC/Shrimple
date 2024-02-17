@@ -177,10 +177,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         GetAllWaterDepths(uvIndex, waterDepth);
     #endif
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        float shadowDepthRange = far * 3.0;
-    #else
-        float shadowDepthRange = -2.0 / shadowProjectionEx[2][2];
+    #ifdef RENDER_SHADOWS_ENABLED
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            float shadowDepthRange = far * 3.0;
+        #else
+            float shadowDepthRange = GetShadowRange();
+        #endif
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -413,7 +415,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         float causticLight = SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
                         // causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
                         // sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
-                        sampleColor *= 0.5 + 0.5*causticLight;
+                        sampleColor *= 0.8 + causticLight;
                     #endif
 
                     //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
