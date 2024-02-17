@@ -126,7 +126,7 @@ void main() {
     vec4 localPos = shadowModelViewInverse * viewPos;
 
     #ifdef WORLD_WAVING_ENABLED
-        ApplyWavingOffset(pos.xyz, localPos.xyz, blockId);
+        ApplyWavingOffset(localPos.xyz, localPos.xyz, blockId);
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
@@ -150,35 +150,37 @@ void main() {
 
             #ifdef PHYSICS_OCEAN
                 float physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-                pos.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
+                localPos.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
             #elif WATER_WAVE_SIZE > 0
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
                 //vec3 localPos = (shadowModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
                 float time = GetAnimationFactor();
-                float skyLight = LightMapNorm(lmcoord).y;
+                float skyLight = 1.0;//LightMapNorm(lmcoord).y;
 
                 if (vOut.blockId == BLOCK_LILY_PAD) {
                     vec3 originPos = localPos.xyz + at_midBlock/64.0;
                     vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
-                    pos.xz += distF * waveOffset.xz;
-                    pos.y -= (1.0/16.0);
+                    localPos.xz += distF * waveOffset.xz;
+                    localPos.y -= (1.0/16.0);
                 }
 
                 // vec2 uvOffset;
-                // pos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
+                // localPos.y += water_waveHeight(localPos.xz + cameraPosition.xz, skyLight, time, uvOffset);
                 vec3 waveOffset = GetWaveHeight(cameraPosition + localPos.xyz, skyLight, time, WATER_WAVE_DETAIL_VERTEX);
-                pos.y += distF * waveOffset.y;
+                localPos.y += distF * waveOffset.y;
             #endif
         }
     #endif
+
+    //viewPos = shadowModelViewEx * localPos;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             mat4 shadowModelViewEx = shadowModelView;
         #endif
 
-        localPos = shadowModelViewInverse * viewPos;
+        //localPos = shadowModelViewInverse * viewPos;
 
         #if WORLD_CURVE_RADIUS > 0 && defined WORLD_CURVE_SHADOWS
             localPos.xyz = GetWorldCurvedPosition(localPos.xyz);

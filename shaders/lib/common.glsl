@@ -345,6 +345,7 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
 #define ROUGH_MIN 0.06
+#define WATER_ROUGH 0.06
 #define MIP_BIAS 0.25 // [1.0 0.5 0.25]
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED

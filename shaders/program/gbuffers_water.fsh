@@ -605,10 +605,10 @@ void main() {
         if (isWater) {
             //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
             float distF = 16.0 / (viewDist + 16.0);
-            float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
+            //float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
-            roughness = mix(waterRough, 0.50, oceanFoam);
+            roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
         }
     #endif
 
