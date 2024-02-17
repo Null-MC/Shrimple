@@ -583,7 +583,7 @@ void main() {
     // albedo = vec3(0.3, 0.6, 0.9);
 
     float occlusion = 1.0;
-    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+    #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
         occlusion = _pow2(vIn.color.a);
     #endif
@@ -605,10 +605,10 @@ void main() {
         if (isWater) {
             //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
             float distF = 16.0 / (viewDist + 16.0);
-            float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
+            //float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
 
             metal_f0  = mix(0.02, 0.04, oceanFoam);
-            roughness = mix(waterRough, 0.50, oceanFoam);
+            roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
         }
     #endif
 

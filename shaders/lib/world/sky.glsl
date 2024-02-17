@@ -51,12 +51,17 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
 
 #if !defined IRIS_FEATURE_SSBO || defined RENDER_BEGIN
     vec3 CalculateSkyLightColor(const in float localSunDirY) {
-        vec3 skyLightColor = IsSkyLightSun(localSunDirY) ? worldSunColor : worldMoonColor;
+        bool isSun = IsSkyLightSun(localSunDirY);
+        vec3 skyLightColor = isSun ? worldSunColor : worldMoonColor;
 
         float sunF = smoothstep(-0.1, 0.2, localSunDirY);
         float brightness = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunF);
 
-        float horizonF = GetSkyHorizonF(localSunDirY);
+        // float horizonF = GetSkyHorizonF(localSunDirY);
+        float horizonF = 1.0 - (isSun
+            ? smoothstep(0.0, 1.0,  localSunDirY)
+            : smoothstep(0.0, 0.4, -localSunDirY));
+
         skyLightColor = mix(skyLightColor, worldHorizonColor, horizonF) * brightness;
 
         #if MC_VERSION > 11900

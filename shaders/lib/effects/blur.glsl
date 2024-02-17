@@ -21,10 +21,56 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 #ifdef WORLD_WATER_ENABLED
+    const float WaterBlurDistF = 32.0;
+    const float WaterBlurPow = 1.5;
+
     float GetWaterBlurDistF(const in float viewDist) {
-        float waterDistF = min(viewDist / (32.0 * WaterDensityF), 1.0);
-        return pow(waterDistF, 1.5);
+        float waterDistF = min(viewDist / (WaterBlurDistF * WaterDensityF), 1.0);
+        return pow(waterDistF, WaterBlurPow);
     }
+
+    #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+        vec3 GetWaterBlurDistF(const in vec3 viewDist) {
+            vec3 waterDistF = min(viewDist / WaterBlurDistF * WaterDensityF, 1.0);
+            //return pow(waterDistF, vec3(WaterBlurPow));
+            return waterDistF;
+        }
+    #endif
+#endif
+
+#ifdef DISTANT_HORIZONS
+    #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+        vec3 dhDepthTest(inout vec3 depth, inout vec3 depthL, const in vec3 dhDepth, const in vec3 dhDepthL) {
+            //bvec3 result = false;
+
+            vec3 isNotSky = 1.0 - step(1.0, depth);
+            vec3 isNotDH = 1.0 - step(dhDepthL + EPSILON, depthL) * step(EPSILON, dhDepth);
+            vec3 f = 1.0 - isNotSky * isNotDH;
+
+            depth = mix(depth, dhDepth, f);
+            depthL = mix(depthL, dhDepthL, f);
+
+            // if (depth >= 1.0 || (dhDepthL < depthL && dhDepth > 0.0)) {
+            //     depth = dhDepth;
+            //     depthL = dhDepthL;
+            //     result = true;
+            // }
+
+            return f;
+        }
+    #else
+        bool dhDepthTest(inout float depth, inout float depthL, const in float dhDepth, const in float dhDepthL) {
+            bool result = false;
+
+            if (depth >= 1.0 || (dhDepthL < depthL && dhDepth > 0.0)) {
+                depth = dhDepth;
+                depthL = dhDepthL;
+                result = true;
+            }
+
+            return result;
+        }
+    #endif
 #endif
 
 vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float minDepth, const in float viewDist, const in bool isWater) {
@@ -45,6 +91,7 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
 
     #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
         if (isWater) {
+            // TODO: apply aberration here?
             float waterDistF = GetWaterBlurDistF(viewDist);
             distF = max(distF, waterDistF);
             maxRadius = EFFECT_BLUR_WATER_RADIUS;
@@ -82,19 +129,23 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     if (radius < EPSILON) return texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
 
     vec3 color = vec3(0.0);
-    float maxWeight = 0.0;
     vec2 pixelRadius = radius * pixelSize;
     float maxLod = 0.75 * log2(radius);
 
     #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+        vec3 maxWeight = vec3(0.0);
+
         vec2 aberrationOffset = pixelRadius * (texcoord * 2.0 - 1.0);
 
         vec2 centerF = 1.0 - 2.0 * abs(texcoord - 0.5);
         aberrationOffset *= saturate(centerF*10.0);
-
-        vec2 screenCoordMin = vec2(0.5 * pixelSize);
-        vec2 screenCoordMax = 1.0 - 3.0*screenCoordMin;
+        //aberrationOffset *= sqrt(saturate(centerF*10.0));
+    #else
+        float maxWeight = 0.0;
     #endif
+
+    vec2 screenCoordMin = vec2(0.5 * pixelSize);
+    vec2 screenCoordMax = 1.0 - 3.0*screenCoordMin;
 
     const float goldenAngle = PI * (3.0 - sqrt(5.0));
     const float PHI = (1.0 + sqrt(5.0)) / 2.0;
@@ -102,45 +153,112 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
     mat2 rotation = GetBlurRotation();
 
     for (uint i = 0; i < EFFECT_BLUR_SAMPLE_COUNT; i++) {
-        vec2 sampleCoord = texcoord;
-        vec2 diskOffset = vec2(0.0);
-
         float r = sqrt((i + 0.5) / (EFFECT_BLUR_SAMPLE_COUNT - 0.5));
         float theta = i * goldenAngle + PHI;
         
         float sine = sin(theta);
         float cosine = cos(theta);
         
-        diskOffset = rotation * (vec2(cosine, sine) * r);
-        sampleCoord = saturate(sampleCoord + diskOffset * pixelRadius);
+        vec2 diskOffset = rotation * (vec2(cosine, sine) * r);
+        vec2 sampleCoord = saturate(texcoord + diskOffset * pixelRadius);
 
-        ivec2 sampleUV = ivec2(sampleCoord * viewSize);
+        #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+            vec2 sampleCoordR = saturate(sampleCoord + aberrationOffset * aberrationF.r);
+            ivec2 sampleUVR = ivec2(sampleCoordR * viewSize);
 
-        #ifdef RENDER_TRANSLUCENT_BLUR_POST
-            float sampleDepth = texelFetch(depthtex0, sampleUV, 0).r;
-            //float sampleDepth = textureLod(depthSampler, sampleCoord, 0.0).r;
-        #else
-            float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
-        #endif
+            vec2 sampleCoordG = saturate(sampleCoord + aberrationOffset * aberrationF.g);
+            ivec2 sampleUVG = ivec2(sampleCoordG * viewSize);
 
-        float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
+            vec2 sampleCoordB = saturate(sampleCoord + aberrationOffset * aberrationF.b);
+            ivec2 sampleUVB = ivec2(sampleCoordB * viewSize);
 
-        #ifdef DISTANT_HORIZONS
             #ifdef RENDER_TRANSLUCENT_BLUR_POST
-                float dhDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
+                vec3 sampleDepth = vec3(
+                    texelFetch(depthtex0, sampleUVR, 0).r,
+                    texelFetch(depthtex0, sampleUVG, 0).r,
+                    texelFetch(depthtex0, sampleUVB, 0).r);
             #else
-                float dhDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+                vec3 sampleDepth = vec3(
+                    texelFetch(depthtex1, sampleUVR, 0).r,
+                    texelFetch(depthtex1, sampleUVG, 0).r,
+                    texelFetch(depthtex1, sampleUVB, 0).r);
             #endif
 
-            float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+            vec3 sampleDepthL = linearizeDepthFast3(sampleDepth, near, farPlane);
 
-            if (sampleDepth >= 1.0 || dhDepthL < sampleDepthL) {
-                sampleDepth = dhDepth;
-                sampleDepthL = dhDepthL;
-            }
+            // vec3 sampleDepthL = vec3(
+            //     linearizeDepthFast(sampleDepth, near, farPlane),
+            //     linearizeDepthFast(sampleDepth, near, farPlane),
+            //     linearizeDepthFast(sampleDepth, near, farPlane));
+        #else
+            ivec2 sampleUV = ivec2(sampleCoord * viewSize);
+
+            #ifdef RENDER_TRANSLUCENT_BLUR_POST
+                float sampleDepth = texelFetch(depthtex0, sampleUV, 0).r;
+            #else
+                float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
+            #endif
+
+            float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
         #endif
 
-        float sampleDistF = saturate((sampleDepthL - minDepth) / _far);
+        #ifdef DISTANT_HORIZONS
+            #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+                #ifdef RENDER_TRANSLUCENT_BLUR_POST
+                    vec3 dhDepth = vec3(
+                        texelFetch(dhDepthTex, sampleUVR, 0).r,
+                        texelFetch(dhDepthTex, sampleUVG, 0).r,
+                        texelFetch(dhDepthTex, sampleUVB, 0).r);
+                #else
+                    vec3 dhDepth = vec3(
+                        texelFetch(dhDepthTex1, sampleUVR, 0).r,
+                        texelFetch(dhDepthTex1, sampleUVG, 0).r,
+                        texelFetch(dhDepthTex1, sampleUVB, 0).r);
+                #endif
+
+                vec3 dhDepthL = linearizeDepthFast3(dhDepth, dhNearPlane, dhFarPlane);
+
+                dhDepthTest(sampleDepth, sampleDepthL, dhDepth, dhDepthL);
+
+                // TODO: per-color
+                // if (sampleDepth.r >= 1.0 || (dhDepthL.r < sampleDepthL.r && dhDepth > 0.0)) {
+                //     sampleDepth.r = dhDepth.r;
+                //     sampleDepthL.r = dhDepthL.r;
+                // }
+
+                // if (sampleDepth >= 1.0 || dhDepthL < sampleDepthL) {
+                //     sampleDepth = dhDepth;
+                //     sampleDepthL = dhDepthL;
+                // }
+
+                // if (sampleDepth >= 1.0 || dhDepthL < sampleDepthL) {
+                //     sampleDepth = dhDepth;
+                //     sampleDepthL = dhDepthL;
+                // }
+            #else
+                #ifdef RENDER_TRANSLUCENT_BLUR_POST
+                    float dhDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
+                #else
+                    float dhDepth = texelFetch(dhDepthTex1, sampleUV, 0).r;
+                #endif
+
+                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+                dhDepthTest(sampleDepth, sampleDepthL, dhDepth, dhDepthL);
+
+                // if (sampleDepth >= 1.0 || dhDepthL < sampleDepthL) {
+                //     sampleDepth = dhDepth;
+                //     sampleDepthL = dhDepthL;
+                // }
+            #endif
+        #endif
+
+        #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+            vec3 sampleDistF = saturate((sampleDepthL - minDepth) / _far);
+        #else
+            float sampleDistF = saturate((sampleDepthL - minDepth) / _far);
+        #endif
+
         // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
         //     float sampleSize = GetBlurSize(sampleDepthL, centerDepthL);
 
@@ -158,8 +276,8 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
 
         #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
             if (isWater) {
-                float sampleWaterDistF = GetWaterBlurDistF(max(sampleDepthL - minDepth, 0.0));
-                sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);
+                sampleDistF = GetWaterBlurDistF(max(sampleDepthL - minDepth, 0.0));
+                // sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);
             }
         #endif
 
@@ -175,10 +293,9 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         //#endif
 
         #ifdef EFFECT_BLUR_ABERRATION_ENABLED
-            //vec2 sampleOffset = sampleCoord - texcoord;
-            vec2 sampleCoordR = clamp(sampleCoord + aberrationOffset * aberrationF.r, screenCoordMin, screenCoordMax);
-            vec2 sampleCoordG = clamp(sampleCoord + aberrationOffset * aberrationF.g, screenCoordMin, screenCoordMax);
-            vec2 sampleCoordB = clamp(sampleCoord + aberrationOffset * aberrationF.b, screenCoordMin, screenCoordMax);
+            // sampleCoordR = clamp(sampleCoordR, screenCoordMin, screenCoordMax);
+            // sampleCoordG = clamp(sampleCoordG, screenCoordMin, screenCoordMax);
+            // sampleCoordB = clamp(sampleCoordB, screenCoordMin, screenCoordMax);
 
             vec3 sampleColor;
             #ifdef EFFECT_TAA_ENABLED
@@ -192,6 +309,8 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
                 sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod).b;
             #endif
         #else
+            sampleCoord = clamp(sampleCoord, screenCoordMin, screenCoordMax);
+
             #ifdef EFFECT_TAA_ENABLED
                 vec3 sampleColor = texelFetch(BUFFER_FINAL, sampleUV, 0).rgb;
             #else
@@ -200,7 +319,11 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
             #endif
         #endif
 
-        float sampleWeight = exp(-3.0 * length2(diskOffset));
+        #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+            vec3 sampleWeight = vec3(exp(-3.0 * length2(diskOffset)));
+        #else
+            float sampleWeight = exp(-3.0 * length2(diskOffset));
+        #endif
 
         sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
 
@@ -208,12 +331,17 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         maxWeight += sampleWeight;
     }
 
-    if (maxWeight < 1.0) {
-        color += texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb * (1.0 - maxWeight);
-    }
-    else {
-        color /= maxWeight;
-    }
+    //#ifdef EFFECT_BLUR_ABERRATION_ENABLED
+        vec3 colorDef = texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb;
+        color = mix(colorDef, color / max(maxWeight, 1.0), saturate(maxWeight));
+    //#endif
+
+    // if (maxWeight < 1.0) {
+    //     color += texelFetch(BUFFER_FINAL, ivec2(texcoord * viewSize), 0).rgb * (1.0 - maxWeight);
+    // }
+    // else {
+    //     color /= maxWeight;
+    // }
 
     return color;
 }

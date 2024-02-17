@@ -460,7 +460,7 @@ void main() {
         if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
     #endif
 
-    #if defined WORLD_AO_ENABLED && !defined EFFECT_SSAO_ENABLED
+    #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
         //occlusion = RGBToLinear(glcolor.a);
         occlusion = _pow2(vIn.color.a);
     #endif

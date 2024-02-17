@@ -165,7 +165,8 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
             // sampleD *= 1.0 - GetFogFactor(fogDist, 0.65 * SkyFar, SkyFar, 1.0);
 
             float traceStepLen = cloudStepLen;
-            if (i == 0) traceStepLen *= dither;
+            if (i == stepCount-1) traceStepLen *= (1.0 - dither);
+            else if (i == 0) traceStepLen *= dither;
 
             float stepAbsorb = exp(traceStepLen * sampleD * -CloudAbsorbF);
 
@@ -269,9 +270,10 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
         float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
 
         float traceStepLen = stepLength;
-        if (i == 0) traceStepLen *= dither;
+        if (i == stepCount-1) traceStepLen *= (1.0 - dither);
+        else if (i == 0) traceStepLen *= dither;
 
-        vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor;
+        vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor * stepLength;
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
     }
 }
