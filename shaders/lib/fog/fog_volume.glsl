@@ -124,7 +124,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         // #endif
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * eyeBrightF;
+        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
@@ -339,95 +339,97 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             samplePhase = phaseIso;
         #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
+        #if defined WORLD_SHADOW_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
             //float eyeLightF = eyeBrightnessSmooth.y / 240.0;
 
             float sampleF = 1.0;//_pow2(eyeLightF);
             vec3 sampleColor = skyLightColor;
-            float sampleDepth = 0.0;
 
-            vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+            #if SHADOW_TYPE != SHADOW_TYPE_NONE
+                float sampleDepth = 0.0;
+                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                // vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
-                vec3 traceShadowClipPos = vec3(-1.0);
-                float shadowFade = 1.0;
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    // vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+                    vec3 traceShadowClipPos = vec3(-1.0);
+                    float shadowFade = 1.0;
 
-                int cascade = GetShadowCascade(shadowViewPos, -0.01);
-                float shadowDistF = 0.0;
-                
-                if (cascade >= 0) {
-                    float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
-                    traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
-                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
-                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                    sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
+                    int cascade = GetShadowCascade(shadowViewPos, -0.01);
+                    float shadowDistF = 0.0;
+                    
+                    if (cascade >= 0) {
+                        float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
+                        traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
+                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                        float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                        sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
-                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
-                    shadowDistF = 1.0;
-                    shadowFade = 0.0;
-                }
-            #else
-                float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
+                        texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                        sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
+                        shadowDistF = 1.0;
+                        shadowFade = 0.0;
+                    }
+                #else
+                    float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
 
-                vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
-                traceShadowClipPos = distort(traceShadowClipPos);
-                traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
+                    vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
+                    traceShadowClipPos = distort(traceShadowClipPos);
+                    traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
-                float shadowViewDist = length(shadowViewPos.xy);
-                // float shadowDistFar = min(shadowDistance, far);
-                float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-                shadowFade *= step(-1.0, traceShadowClipPos.z);
-                shadowFade *= step(traceShadowClipPos.z, 1.0);
-                shadowFade = 1.0 - shadowFade;
+                    // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+                    float shadowViewDist = length(shadowViewPos.xy);
+                    // float shadowDistFar = min(shadowDistance, far);
+                    float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+                    shadowFade *= step(-1.0, traceShadowClipPos.z);
+                    shadowFade *= step(traceShadowClipPos.z, 1.0);
+                    shadowFade = 1.0 - shadowFade;
 
-                if (shadowFade < 1.0) {
-                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
-                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                    sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
+                    if (shadowFade < 1.0) {
+                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                        float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                        sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
 
-                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
-                }
+                        texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                        sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
+                    }
+                #endif
+
+                #ifdef SHADOW_COLORED
+                    float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+
+                    if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowFade < 1.0)) {
+                        vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
+                        shadowColor = RGBToLinear(shadowColor);
+
+                        if (any(greaterThan(shadowColor, EPSILON3)))
+                            shadowColor = normalize(shadowColor) * 1.73;
+
+                        sampleColor *= shadowColor;
+                    }
+                #endif
+
+                #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
+                    if (isWater) {
+                        #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+                            // TODO: replace traceLocalPos with water surface pos
+
+                            float causticLight = SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
+                            // causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+                            // sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
+                            sampleColor *= 0.8 + causticLight;
+                        #endif
+
+                        //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
+                    }
+                #endif
             #endif
 
-            #ifdef SHADOW_COLORED
-                float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-
-                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowFade < 1.0)) {
-                    vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
-                    shadowColor = RGBToLinear(shadowColor);
-
-                    if (any(greaterThan(shadowColor, EPSILON3)))
-                        shadowColor = normalize(shadowColor) * 1.73;
-
-                    sampleColor *= shadowColor;
-                }
-            #endif
-
-            #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
-                if (isWater) {
-                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        // TODO: replace traceLocalPos with water surface pos
-
-                        float causticLight = SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
-                        // causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-                        // sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
-                        sampleColor *= 0.8 + causticLight;
-                    #endif
-
-                    //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
-                }
-            #endif
-
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
-                    // float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
+                    // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-                    sampleF *= cloudShadow * 0.5 + 0.5;
+                    sampleF *= cloudShadow;// * 0.5 + 0.5;
                 #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                     //if (traceLocalPos.y < cloudHeight + CouldHeight) {
                         float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
