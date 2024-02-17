@@ -12,7 +12,7 @@ float CloudDensityF       = mix(0.36, 0.48, skyRainStrength);
 float CloudAmbientF       = mix(0.040, 0.004, skyRainStrength);
 vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, skyRainStrength);
 vec3 CloudAbsorbColor     = mix(CloudAbsorbColor_clear, CloudAbsorbColor_rain, skyRainStrength);
-float CloudAbsorbF        = mix(0.140, 0.128, skyRainStrength);
+float CloudAbsorbF        = mix(0.006, 0.128, skyRainStrength);
 
 
 #define CLOUD_STEPS 24
