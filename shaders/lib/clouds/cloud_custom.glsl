@@ -175,6 +175,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         float cloudDist = cloudDistFar - cloudDistNear;
 
         if (cloudDist < EPSILON) return 1.0;
+        cloudDist = min(cloudDist, 200.0);
 
         float dither = GetCloudDither();
         float cloudAlt = GetCloudAltitude();
