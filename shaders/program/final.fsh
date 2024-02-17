@@ -28,8 +28,10 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
 	uniform usampler2D BUFFER_DEFERRED_DATA;
-#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
+#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 	uniform sampler2D BUFFER_VL_SCATTER;
+#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
+	uniform sampler2D BUFFER_VL_TRANSMIT;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
 	uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
@@ -111,8 +113,10 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
 		uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).a;
 		vec3 color = unpackUnorm4x8(deferredDataA).rgb;
-	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 		vec3 color = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
+		vec3 color = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
 		vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR

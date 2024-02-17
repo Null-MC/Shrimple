@@ -31,8 +31,9 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 
     #ifdef EFFECT_BLUR_ABERRATION_ENABLED
         vec3 GetWaterBlurDistF(const in vec3 viewDist) {
-            vec3 waterDistF = min(viewDist / (WaterBlurDistF * WaterDensityF), 1.0);
-            return pow(waterDistF, vec3(WaterBlurPow));
+            vec3 waterDistF = min(viewDist / WaterBlurDistF * WaterDensityF, 1.0);
+            //return pow(waterDistF, vec3(WaterBlurPow));
+            return waterDistF;
         }
     #endif
 #endif

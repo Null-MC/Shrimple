@@ -262,14 +262,14 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
     float depthTrans = texelFetch(depthtex0, iTex, 0).r;
 
-    float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
-    float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
+    float depthOpaqueL = linearize_depth(depthOpaque, near, farPlane);
+    float depthTransL = linearize_depth(depthTrans, near, farPlane);
     mat4 projectionInvOpaque = gbufferProjectionInverse;
     mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
         float dhDepthTrans = texelFetch(dhDepthTex, iTex, 0).r;
-        float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+        float dhDepthTransL = linearize_depth(dhDepthTrans, dhNearPlane, dhFarPlane);
 
         if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
             depthTrans = dhDepthTrans;
@@ -278,7 +278,7 @@ void main() {
         }
 
         float dhDepthOpaque = texelFetch(dhDepthTex1, iTex, 0).r;
-        float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
+        float dhDepthOpaqueL = linearize_depth(dhDepthOpaque, dhNearPlane, dhFarPlane);
 
         if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
             depthOpaque = dhDepthOpaque;
@@ -339,6 +339,8 @@ void main() {
             #ifdef DISTANT_HORIZONS
                 farMax = 0.5*dhFarPlane;
             #endif
+            
+            farMax -= 0.002 * distOpaque;
 
             float distNear = clamp(distTranslucent, near, farMax);
             float distFar = clamp(distOpaque, near, farMax);

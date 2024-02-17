@@ -219,14 +219,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float lpvFade = GetLpvFade(lpvPos);
         #endif
 
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-            float waterDepthEye = 0.0;
-        #endif
+        // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        //     float waterDepthEye = 0.0;
+        // #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
             if (waterDepth[0] < farDist) {
                 isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
-                waterDepthEye += max(traceDist - waterDepth[0], 0.0);
+                // waterDepthEye += max(traceDist - waterDepth[0], 0.0);
             }
 
             #if WATER_DEPTH_LAYERS >= 3
@@ -273,14 +273,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
             sampleAmbient = isWater ? phaseWater.AmbientF : phaseAir.AmbientF;
         #else
-            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                if (isEyeInWater == 1)
-                    waterDepthEye = traceDist;
-                else {
-                    // TODO: get dist from water to trace
-                    waterDepthEye = 0.0;
-                }
-            #endif
+            // #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            //     if (isEyeInWater == 1)
+            //         waterDepthEye = traceDist;
+            //     else {
+            //         // TODO: get dist from water to trace
+            //         waterDepthEye = 0.0;
+            //     }
+            // #endif
         #endif
 
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
@@ -416,7 +416,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         sampleColor *= 0.5 + 0.5*causticLight;
                     #endif
 
-                    sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
+                    //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
                 }
             #endif
 
@@ -425,7 +425,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                     // float cloudShadow = _TraceCloudShadow(cameraPosition, traceLocalPos, dither, CLOUD_SHADOW_STEPS);
                     //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-                    sampleF *= cloudShadow;
+                    sampleF *= cloudShadow * 0.5 + 0.5;
                 #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                     //if (traceLocalPos.y < cloudHeight + CouldHeight) {
                         float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
@@ -527,6 +527,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         //vec3 lightF = (sampleLit + sampleAmbient);
         vec3 lightF = sampleLit + sampleAmbient;
+        //lightF /= VOLUMETRIC_SAMPLES;
+        lightF *= stepLength;
 
         float traceStepLen = stepLength;
 

@@ -271,7 +271,7 @@ void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in ve
         float traceStepLen = stepLength;
         if (i == 0) traceStepLen *= dither;
 
-        vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor;
+        vec3 sampleLight = (stepPhase * sampleCloudShadow + stepAmbientF) * skyLightColor * stepLength;
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
     }
 }
