@@ -235,7 +235,8 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             // shadowSampleD *= step(0.0, shadowY) * step(shadowY, CloudHeight);
 
             float traceStepLen = shadowStepLen;
-            if (i == 0) traceStepLen *= dither;
+            if (i == stepCount-1) traceStepLen *= (1.0 - dither);
+            else if (i == 0) traceStepLen *= dither;
 
             sampleLit *= exp(shadowSampleD * CloudAbsorbF * -traceStepLen);
         }
@@ -306,7 +307,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             if (i == stepCount-1) traceStepLen *= (1.0 - dither);
             else if (i == 0) traceStepLen *= dither;
 
-            vec3 sampleLight = (stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal) * stepLength;
+            vec3 sampleLight = (stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal) * traceStepLen;
             ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
         }
     }
