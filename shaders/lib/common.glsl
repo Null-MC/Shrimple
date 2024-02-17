@@ -345,7 +345,7 @@ const bool colortex15Clear = true;
 #define SHADOW_CSM_FITSCALE 0.1
 #define CSM_PLAYER_ID 0
 #define ROUGH_MIN 0.06
-#define WATER_ROUGH 0.06
+#define WATER_ROUGH 0.0
 #define MIP_BIAS 0.25 // [1.0 0.5 0.25]
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED
@@ -455,7 +455,7 @@ const bool colortex15Clear = true;
     #define RENDER_SHADOWS_ENABLED
 #endif
 
-#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SHADOW_ENABLED && defined WORLD_SKY_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
     #define RENDER_CLOUD_SHADOWS_ENABLED
 #endif
 
