@@ -112,9 +112,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
         
         #ifndef IRIS_FEATURE_SSBO
-        #endif
-
-        #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
@@ -131,6 +128,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #else
             float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
         #endif
+
+        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * eyeBrightF;
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
@@ -524,7 +524,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyLightColor;
+            // sampleAmbient *= skyLightColor;
+            sampleAmbient *= skyColorFinal;
         #endif
 
         //vec3 lightF = (sampleLit + sampleAmbient);

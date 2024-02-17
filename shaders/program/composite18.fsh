@@ -472,7 +472,7 @@ layout(location = 0) out vec4 outFinal;
 
                 vec2 refractMax = vec2(0.2);
                 refractMax.x *= viewWidth / viewHeight;
-                refraction = clamp(vec2(0.1 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
+                refraction = clamp(vec2(0.025 * linearDist * RefractionStrengthF), -refractMax, refractMax) * refractDir.xy;
 
                 #ifdef REFRACTION_SNELL
                     if (isEyeInWater == 1) {
@@ -790,7 +790,7 @@ layout(location = 0) out vec4 outFinal;
 
                                 vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                                 float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
-                                //ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 36);
+                                ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
                             }
                         #endif
                     #elif SKY_TYPE == SKY_TYPE_VANILLA
