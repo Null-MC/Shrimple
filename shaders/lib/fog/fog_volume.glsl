@@ -339,14 +339,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             samplePhase = phaseIso;
         #endif
 
+        float sampleF = 1.0;//_pow2(eyeLightF);
+        vec3 sampleColor = skyLightColor;
+        float sampleDepth = 0.0;
+
         #if defined WORLD_SHADOW_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
             //float eyeLightF = eyeBrightnessSmooth.y / 240.0;
 
-            float sampleF = 1.0;//_pow2(eyeLightF);
-            vec3 sampleColor = skyLightColor;
-
             #if SHADOW_TYPE != SHADOW_TYPE_NONE
-                float sampleDepth = 0.0;
                 vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
 
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -407,40 +407,37 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         sampleColor *= shadowColor;
                     }
                 #endif
-
-                #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
-                    if (isWater) {
-                        #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                            // TODO: replace traceLocalPos with water surface pos
-
-                            float causticLight = SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
-                            // causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-                            // sampleColor *= 0.5 + 0.5*mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
-                            sampleColor *= 0.8 + causticLight;
-                        #endif
-
-                        //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
-                    }
-                #endif
             #endif
-
-            #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
-                    // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
-                    //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-                    sampleF *= cloudShadow;// * 0.5 + 0.5;
-                #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                    //if (traceLocalPos.y < cloudHeight + CouldHeight) {
-                        float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
-                        sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
-                        //sampleF *= cloudShadow;
-                    //}
-                #endif
-            #endif
-
-            sampleLit += samplePhase * sampleF * sampleColor;
         #endif
+
+        #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
+            if (isWater) {
+                #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+                    // TODO: replace traceLocalPos with water surface pos
+
+                    sampleColor *= SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
+                #endif
+
+                //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
+            }
+        #endif
+
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
+                // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
+                //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+                sampleF *= cloudShadow * 0.7 + 0.3;
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                //if (traceLocalPos.y < cloudHeight + CouldHeight) {
+                    float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
+                    sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
+                    //sampleF *= cloudShadow;
+                //}
+            #endif
+        #endif
+
+        sampleLit += samplePhase * sampleF * sampleColor;
 
         // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     if (skyRainStrength > EPSILON) {
