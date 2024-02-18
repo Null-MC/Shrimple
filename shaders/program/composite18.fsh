@@ -298,7 +298,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/sampling/light_filter.glsl"
     #endif
 
-    #include "/lib/lighting/basic.glsl"
+    #include "/lib/lighting/traced.glsl"
 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
     #include "/lib/lighting/floodfill.glsl"
 #else
@@ -835,7 +835,6 @@ layout(location = 0) out vec4 outFinal;
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
                 float waterDist = min(viewDist, far);
-                vec3 vlLight = vec3(phaseIso + WaterAmbientF);
 
                 #ifdef WORLD_SKY_ENABLED
                     float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
@@ -846,10 +845,15 @@ layout(location = 0) out vec4 outFinal;
                     
                     eyeSkyLightF += 0.02;
 
-                    vlLight *= WorldSkyLightColor * eyeSkyLightF;
+                    //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+
+                    vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal) * eyeSkyLightF;
+                #else
+                    vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                 #endif
 
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, VOLUMETRIC_SAMPLES);
             }
         #endif
 
@@ -901,8 +905,6 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             if (waterDist > EPSILON) {
-                const float WaterAmbientF = 0.0;
-
                 float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
                 #ifdef WORLD_SKY_ENABLED
@@ -912,7 +914,7 @@ layout(location = 0) out vec4 outFinal;
                 eyeSkyLightF += 0.02;
 
                 vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF) * eyeSkyLightF;
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF, 8);
             }
 
             // vec3 viewDir = normalize(viewPos);

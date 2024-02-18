@@ -137,7 +137,7 @@ uniform float blindnessSmooth;
 #endif
 
 //#include "/lib/lighting/basic_hand.glsl"
-//#include "/lib/lighting/basic.glsl"
+//#include "/lib/lighting/traced.glsl"
 
 #if LIGHTING_TRACE_RES != 0
     #include "/lib/utility/temporal_offset.glsl"

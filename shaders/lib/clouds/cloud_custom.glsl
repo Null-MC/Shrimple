@@ -309,7 +309,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             if (i == stepCount-1) traceStepLen *= (1.0 - dither);
             else if (i == 0) traceStepLen *= dither;
 
-            vec3 sampleLight = (stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal) * traceStepLen;
+            vec3 sampleLight = (stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal) * stepLength;
             ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
         }
     }

@@ -329,7 +329,7 @@ uniform int frameCounter;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/lighting/basic.glsl"
+        #include "/lib/lighting/traced.glsl"
     #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
         #include "/lib/lighting/floodfill.glsl"
     #else

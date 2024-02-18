@@ -285,7 +285,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/sampling/light_filter.glsl"
     #endif
     
-    #include "/lib/lighting/basic.glsl"
+    #include "/lib/lighting/traced.glsl"
 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
     #include "/lib/lighting/floodfill.glsl"
 #else
