@@ -123,7 +123,7 @@ void main() {
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             final.rgb = GetCustomSkyColor(localSunDirection.y, viewUpF);
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #else
             final.rgb = GetVanillaFogColor(fogColor, viewUpF);
             final.rgb = RGBToLinear(final.rgb);
         #endif

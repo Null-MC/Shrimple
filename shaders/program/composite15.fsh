@@ -398,7 +398,12 @@ layout(location = 0) out vec4 outFinal;
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
                 float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+                #else
+                    vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+                #endif
             #endif
 
             #ifdef WORLD_WATER_ENABLED

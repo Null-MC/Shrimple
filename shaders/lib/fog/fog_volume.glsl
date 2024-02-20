@@ -124,7 +124,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         // #endif
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        #else
+            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+        #endif
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);

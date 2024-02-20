@@ -252,7 +252,12 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        #else
+            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+        #endif
 
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phaseCloud = GetCloudPhase(VoL);

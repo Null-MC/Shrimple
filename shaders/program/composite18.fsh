@@ -762,6 +762,17 @@ layout(location = 0) out vec4 outFinal;
             vec3 opaqueFinal = textureLod(BUFFER_FINAL, texcoord + refraction, 0).rgb;
         #endif
 
+        #ifdef WORLD_SKY_ENABLED
+            //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+            #else
+                vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
+            #endif
+        #endif
+
         #ifdef SKY_BORDER_FOG_ENABLED
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
@@ -788,8 +799,8 @@ layout(location = 0) out vec4 outFinal;
                                     const float phaseSky = phaseIso;
                                 #endif
 
-                                vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
                                 float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
+                                vec3 vlLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
                                 ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
                             }
                         #endif
@@ -846,7 +857,13 @@ layout(location = 0) out vec4 outFinal;
                     eyeSkyLightF += 0.02;
 
                     //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+                    // #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    //     vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+                    // #else
+                    //     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                    //     skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
+                    // #endif
 
                     vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal) * eyeSkyLightF;
                 #else

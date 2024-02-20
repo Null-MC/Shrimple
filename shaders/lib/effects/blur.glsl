@@ -304,10 +304,10 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
                 sampleColor.g = texelFetch(BUFFER_FINAL, ivec2(sampleCoordG * viewSize), 0).g;
                 sampleColor.b = texelFetch(BUFFER_FINAL, ivec2(sampleCoordB * viewSize), 0).b;
             #else
-                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
-                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod).r;
-                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod).g;
-                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod).b;
+                vec3 sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod.r).r;
+                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod.g).g;
+                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod.b).b;
             #endif
         #else
             sampleCoord = clamp(sampleCoord, screenCoordMin, screenCoordMax);
