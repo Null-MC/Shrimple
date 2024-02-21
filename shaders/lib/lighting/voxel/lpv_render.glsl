@@ -19,8 +19,13 @@ float LpvVoxelTest(const in ivec3 voxelCoord) {
 
 vec4 SampleLpvNearest(const in ivec3 lpvPos) {
     return (frameCounter % 2) == 0
+    #ifndef RENDER_GBUFFER
         ? texelFetch(texLPV_1, lpvPos, 0)
         : texelFetch(texLPV_2, lpvPos, 0);
+    #else
+        ? texelFetch(texLPV_2, lpvPos, 0)
+        : texelFetch(texLPV_1, lpvPos, 0);
+    #endif
 }
 
 vec4 SampleLpvLinear(const in vec3 lpvPos, const in vec3 normal) {
@@ -106,8 +111,13 @@ vec4 SampleLpvLinear(const in vec3 lpvPos, const in vec3 normal) {
         vec3 lpvTexcoord = GetLPVTexCoord(pos);
 
         return (frameCounter % 2) == 0
+        #ifndef RENDER_GBUFFER
             ? textureLod(texLPV_1, lpvTexcoord, 0)
             : textureLod(texLPV_2, lpvTexcoord, 0);
+        #else
+            ? textureLod(texLPV_2, lpvTexcoord, 0)
+            : textureLod(texLPV_1, lpvTexcoord, 0);
+        #endif
     #endif
 }
 
