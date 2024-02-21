@@ -361,7 +361,7 @@ void main() {
         #endif
 
             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                const int traceStepCount = CLOUD_STEPS;
+                // const int traceStepCount = CLOUD_STEPS;
 
                 float cloudDistNear = farMax;
 
@@ -376,13 +376,13 @@ void main() {
                     cloudDistFar = 0.0;
                 }
             #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                const int traceStepCount = VOLUMETRIC_SAMPLES;
+                // const int traceStepCount = VOLUMETRIC_SAMPLES;
 
                 const float cloudDistNear = 0.0;
                 float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
             #else
                 // const int traceStepCount = CLOUD_STEPS;
-                const int traceStepCount = VOLUMETRIC_SAMPLES;
+                // const int traceStepCount = VOLUMETRIC_SAMPLES;
 
                 vec3 cloudNear, cloudFar;
                 GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
@@ -390,12 +390,15 @@ void main() {
                 float cloudDistNear = length(cloudNear);
                 float cloudDistFar = min(length(cloudFar), SkyFar);
 
-                if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
-                    cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
+                // if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
+                //     cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
+                
+                if (depthTrans < 1.0)
+                    cloudDistFar = min(cloudDistFar, viewDist);
             #endif
 
             if (cloudDistFar > cloudDistNear)
-                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, traceStepCount, CLOUD_SHADOW_STEPS);
+                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, VOLUMETRIC_SAMPLES, CLOUD_SHADOW_STEPS);
 
         #ifdef WORLD_WATER_ENABLED
             }

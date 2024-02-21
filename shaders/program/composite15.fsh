@@ -396,6 +396,16 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         if (depthTransL < depthOpaqueL) {
+            #ifdef WORLD_SKY_ENABLED
+                float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+                #else
+                    vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+                #endif
+            #endif
+
             #ifdef WORLD_WATER_ENABLED
                 //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
@@ -475,8 +485,6 @@ layout(location = 0) out vec4 outFinal;
                 // }
 
                 if (waterDist > EPSILON) {
-                    vec3 vlLight = vec3(phaseIso + WaterAmbientF);
-
                     #ifdef WORLD_SKY_ENABLED
                         float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
@@ -485,14 +493,13 @@ layout(location = 0) out vec4 outFinal;
                         #endif
                         
                         eyeSkyLightF += 0.02;
-                    
-                        vlLight *= WorldSkyLightColor * eyeSkyLightF;
+
+                        vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal;
+                    #else
+                        vec3 vlLight = phaseIso + WaterAmbientF;
                     #endif
 
-                    vec3 scatterFinal = vec3(0.0);
-                    vec3 transmitFinal = vec3(1.0);
-                    ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
-                    final.rgb = final.rgb * transmitFinal + scatterFinal;
+                    ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
                 }
             #endif
 
@@ -568,9 +575,12 @@ layout(location = 0) out vec4 outFinal;
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
-                    vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                    vec4 scatterTransmit = ApplyScatteringTransmission(viewDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor);
-                    final = final * scatterTransmit.a + scatterTransmit.rgb;
+                    // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+
+                    vec3 vlLight = phaseAir * WorldSkyLightColor + AirAmbientF * skyColorFinal;
+                    ApplyScatteringTransmission(final.rgb, viewDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                    // final = final * scatterTransmit.a + scatterTransmit.rgb;
                 }
             #endif
         }

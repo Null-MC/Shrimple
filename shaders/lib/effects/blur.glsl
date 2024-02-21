@@ -21,12 +21,13 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 #ifdef WORLD_WATER_ENABLED
-    const float WaterBlurDistF = 32.0;
+    const float WaterBlurDistF = 40.0;
     const float WaterBlurPow = 1.5;
 
     float GetWaterBlurDistF(const in float viewDist) {
-        float waterDistF = min(viewDist / (WaterBlurDistF * WaterDensityF), 1.0);
-        return pow(waterDistF, WaterBlurPow);
+        float waterDistF = min(viewDist / WaterBlurDistF * WaterDensityF, 1.0);
+        //return pow(waterDistF, WaterBlurPow);
+        return waterDistF;
     }
 
     #ifdef EFFECT_BLUR_ABERRATION_ENABLED
@@ -303,10 +304,10 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
                 sampleColor.g = texelFetch(BUFFER_FINAL, ivec2(sampleCoordG * viewSize), 0).g;
                 sampleColor.b = texelFetch(BUFFER_FINAL, ivec2(sampleCoordB * viewSize), 0).b;
             #else
-                float sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
-                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod).r;
-                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod).g;
-                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod).b;
+                vec3 sampleLod = maxLod * max(sampleDistF - 0.1, 0.0);
+                sampleColor.r = textureLod(BUFFER_FINAL, sampleCoordR, sampleLod.r).r;
+                sampleColor.g = textureLod(BUFFER_FINAL, sampleCoordG, sampleLod.g).g;
+                sampleColor.b = textureLod(BUFFER_FINAL, sampleCoordB, sampleLod.b).b;
             #endif
         #else
             sampleCoord = clamp(sampleCoord, screenCoordMin, screenCoordMax);
@@ -320,9 +321,9 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         #endif
 
         #ifdef EFFECT_BLUR_ABERRATION_ENABLED
-            vec3 sampleWeight = vec3(exp(-3.0 * length2(diskOffset)));
+            vec3 sampleWeight = vec3(1.0);//exp(-1.0 * length2(diskOffset)));
         #else
-            float sampleWeight = exp(-3.0 * length2(diskOffset));
+            float sampleWeight = 1.0;//exp(-1.0 * length2(diskOffset));
         #endif
 
         sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;

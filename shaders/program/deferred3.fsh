@@ -49,7 +49,6 @@ uniform int fogShape;
     #endif
 
     #ifdef DISTANT_HORIZONS
-        uniform mat4 dhModelViewInverse;
         uniform mat4 dhProjectionInverse;
         uniform float dhNearPlane;
         uniform float dhFarPlane;
@@ -106,14 +105,19 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in float linea
 
             ivec2 iTexDepth = ivec2(sampleTex * viewSize);
             float sampleDepth = texelFetch(depthtex1, iTexDepth, 0).r;
-            float sampleLinearDepth = linearizeDepthFast(sampleDepth, near, far);
+            float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
 
-            if (sampleDepth >= 1.0) {
-                sampleDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
-                sampleLinearDepth = linearizeDepthFast(sampleDepth, dhNearPlane, dhFarPlane);
-            }
-                        
-            float fv = Gaussian(g_sigmaV, abs(sampleLinearDepth - linearDepth));
+            #ifdef DISTANT_HORIZONS
+                float dhDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
+                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+                if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
+                    sampleDepthL = dhDepthL;
+                    //sampleDepth = dhDepth;
+                }
+            #endif
+            
+            float fv = Gaussian(g_sigmaV, abs(sampleDepthL - linearDepth));
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;
@@ -130,38 +134,36 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in float linea
 layout(location = 0) out vec4 outAO;
 
 void main() {
-    float depth = texelFetch(depthtex1, ivec2(texcoord * viewSize), 0).r;
-    float linearDepth = linearizeDepthFast(depth, near, far);
-    float occlusion = 0.0;
+    ivec2 iTexDepth = ivec2(texcoord * viewSize);
+    float depth = texelFetch(depthtex1, iTexDepth, 0).r;
+    float depthL = linearizeDepthFast(depth, near, far);
+    mat4 projectionInv = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        bool isDepthDh = false;
-        if (depth >= 1.0) {
-            depth = texelFetch(dhDepthTex, ivec2(texcoord * viewSize), 0).r;
-            linearDepth = linearizeDepthFast(depth, dhNearPlane, dhFarPlane);
-            isDepthDh = true;
+        float dhDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+
+        if (depth >= 1.0 || (dhDepthL < depthL && dhDepth > 0.0)) {
+            projectionInv = dhProjectionInverse;
+            depthL = dhDepthL;
+            depth = dhDepth;
         }
     #endif
+
+    float occlusion = 0.0;
 
     if (depth < 1.0) {
         //occlusion = textureLod(colortex12, texcoord, 0).r;
 
-        occlusion = BilateralGaussianDepthBlur_5x(texcoord, linearDepth);
+        occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
         // occlusion = textureLod(colortex12, texcoord, 0).r;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-            vec3 viewPos, localPos;
 
-            if (isDepthDh) {
-                viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
-                localPos = (dhModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            }
-            else {
-                viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
-            }
-    
+            vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
+            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+
             #ifdef SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     float fogDist = length(viewPos);

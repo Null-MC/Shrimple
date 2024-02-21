@@ -280,7 +280,7 @@ uniform int frameCounter;
 
     #include "/lib/lighting/sampling.glsl"
 
-    #ifdef IS_TRACING_ENABLED
+    #ifdef IS_LPV_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
@@ -329,7 +329,7 @@ uniform int frameCounter;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/lighting/basic.glsl"
+        #include "/lib/lighting/traced.glsl"
     #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
         #include "/lib/lighting/floodfill.glsl"
     #else
@@ -623,7 +623,7 @@ void main() {
         float roughL = _pow2(roughness);
         
         #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
+            float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
             deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
         #endif
         
@@ -631,42 +631,35 @@ void main() {
             ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
         #endif
 
-        #if LIGHTING_MODE > LIGHTING_MODE_BASIC
+        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
-            vec3 skyDiffuse = vec3(0.0);
-            vec3 skySpecular = vec3(0.0);
 
-            blockDiffuse += emission * MaterialEmissionF;
+            GetFloodfillLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
 
-            GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
+            #ifdef WORLD_SKY_ENABLED
+                const bool tir = false; // TODO: ?
+                GetSkyLightingFinal(blockDiffuse, blockSpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, tir);
+            #else
+                blockDiffuse += WorldAmbientF;
+            #endif
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                 SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
             #endif
 
-            #ifdef WORLD_SKY_ENABLED
-                GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
-            #endif
-
-            vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-            vec3 specularFinal = blockSpecular + skySpecular;
-
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-                    if (IsMetal(metal_f0))
-                        diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                #else
-                    diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-                #endif
-
-                specularFinal *= GetMetalTint(albedo, metal_f0);
+                if (metal_f0 >= 0.5) {
+                    blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+                    blockSpecular *= albedo;
+                }
             #endif
 
-            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        #else
+            blockDiffuse += emission * MaterialEmissionF;
+
+            color.rgb = GetFinalLighting(albedo, blockDiffuse, blockSpecular, occlusion);
+        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             vec3 diffuse, specular = vec3(0.0);
-            // GetVanillaLighting(diffuse, vIn.lmcoord, vIn.localPos, localNormal, texNormal, shadowColor, sss);
             GetVanillaLighting(diffuse, vIn.lmcoord);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE

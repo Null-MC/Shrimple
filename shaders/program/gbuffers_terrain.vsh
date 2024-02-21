@@ -248,7 +248,7 @@ void main() {
     #endif
 
 
-    #ifdef IS_TRACING_ENABLED
+    #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 

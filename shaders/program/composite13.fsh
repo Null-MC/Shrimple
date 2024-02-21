@@ -319,7 +319,7 @@ void main() {
 
         float distOpaque = length(localPosOpaque);
         float distTranslucent = length(localPosTranslucent);
-        vec3 localViewDir = normalize(localPosOpaque);
+        vec3 localViewDir = localPosOpaque / distOpaque;
 
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
             bool isWater = false;
@@ -365,20 +365,33 @@ void main() {
                 vec3 cloudNear, cloudFar;
                 GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
                 
-                float cloudDistNear = length(cloudNear);
+                //float cloudDistNear = length(cloudNear);
                 float cloudDistFar = length(cloudFar);
 
-                if (cloudDistNear < distOpaque || depthOpaque >= 0.9999)
-                    cloudDistFar = min(cloudDistFar, min(distOpaque, far));
-                else {
-                    cloudDistNear = 0.0;
-                    cloudDistFar = 0.0;
-                }
+                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                    float cloudDistNear = distTranslucent;
+
+                    if (depthOpaque >= 1.0)
+                        cloudDistFar = SkyFar;
+                #else
+                    float cloudDistNear = max(length(cloudNear), distTranslucent);
+                #endif
+
+                // if (cloudDistNear < distOpaque || depthOpaque >= 0.9999)
+                //     cloudDistFar = min(cloudDistFar, min(distOpaque, far));
+                // else {
+                //     cloudDistNear = 0.0;
+                //     cloudDistFar = 0.0;
+                // }
+
+                if (depthOpaque < 1.0)
+                    cloudDistFar = min(cloudDistFar, distOpaque);
 
                 //float farMax = min(distOpaque, far);
 
                 // _TraceCloudVL(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
-                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
+                if (cloudDistFar > cloudDistNear)
+                    _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, VOLUMETRIC_SAMPLES, CLOUD_SHADOW_STEPS);
             }
         #endif
     }

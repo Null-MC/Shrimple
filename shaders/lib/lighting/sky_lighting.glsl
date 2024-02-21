@@ -2,16 +2,16 @@ const float skyLightSize = 8.0;
 const float skyLightDist = 100.0;
 
 
-void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, const in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
+void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
     vec3 localViewDir = -normalize(localPos);
 
     //vec2 lmSky = vec2(0.0, lmcoord.y);
 
     //vec3 skyLightColor = vec3(1.0);
 
-    // #if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
-    //     skyLightColor *= _pow3(lmcoord.y);
-    // #endif
+    #ifndef RENDER_SHADOWS_ENABLED
+        shadowColor *= _pow3(lmcoord.y);
+    #endif
 
     // #if !defined LIGHT_LEAK_FIX && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
     // //     float shadow = maxOf(abs(shadowPos * 2.0 - 1.0));
