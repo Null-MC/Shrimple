@@ -61,6 +61,7 @@ uniform int worldTime;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferPreviousModelView;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform vec3 upPosition;

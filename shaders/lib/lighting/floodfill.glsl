@@ -7,6 +7,10 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
     vec3 lpvPos = GetLPVPosition(localPos);
 
+    #ifdef RENDER_GBUFFER
+        lpvPos += GetLPVFrameOffset();
+    #endif
+
     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
         vec3 surfaceNormal = localNormal;
 
