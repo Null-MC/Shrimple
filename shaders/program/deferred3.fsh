@@ -68,7 +68,10 @@ uniform int fogShape;
     #endif
 
     #include "/lib/fog/fog_common.glsl"
-    #include "/lib/world/sky.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
+    #endif
 
     #ifdef WORLD_WATER_ENABLED
         #include "/lib/world/water.glsl"

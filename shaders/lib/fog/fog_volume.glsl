@@ -345,8 +345,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         float sampleF = 1.0;//_pow2(eyeLightF);
-        vec3 sampleColor = skyLightColor;
         float sampleDepth = 0.0;
+
+        #ifdef WORLD_SKY_ENABLED
+            vec3 sampleColor = skyLightColor;
+        #else
+            vec3 sampleColor = vec3(1.0);
+        #endif
 
         #if defined WORLD_SHADOW_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
             //float eyeLightF = eyeBrightnessSmooth.y / 240.0;
