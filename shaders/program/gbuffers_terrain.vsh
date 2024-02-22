@@ -247,6 +247,8 @@ void main() {
         #endif
     #endif
 
+    // #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL && !defined DEFERRED_BUFFER_ENABLED
+    // #endif
 
     #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;

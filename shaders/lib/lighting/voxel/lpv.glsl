@@ -41,7 +41,7 @@ float GetLpvFade(const in vec3 lpvPos) {
     return saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
 }
 
-#if defined RENDER_VERTEX || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LPV
+// #if defined RENDER_VERTEX || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LPV
     ivec3 GetLPVFrameOffset() {
         vec3 viewDir = getCameraViewDir(gbufferModelView);
         vec3 posNow = GetLpvCenter(cameraPosition, viewDir);
@@ -55,4 +55,4 @@ float GetLpvFade(const in vec3 lpvPos) {
 
         return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
     }
-#endif
+// #endif
