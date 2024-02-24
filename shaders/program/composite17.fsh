@@ -279,10 +279,10 @@ void main() {
     mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
-        float depthTransL = linearize_depth(depthTrans, near, farPlane);
+        float depthTransL = linearizeDepth(depthTrans, near, farPlane);
 
         float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
-        float dhDepthTransL = linearize_depth(dhDepthTrans, dhNearPlane, dhFarPlane);
+        float dhDepthTransL = linearizeDepth(dhDepthTrans, dhNearPlane, dhFarPlane);
 
         if (depthTrans >= 1.0 || (dhDepthTransL < depthTransL && dhDepthTrans > 0.0)) {
             depthTrans = dhDepthTrans;

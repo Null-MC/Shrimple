@@ -1,7 +1,7 @@
 float SampleWaterCaustics(const in vec3 localPos, const in float lightDist, const in float skyLight) {
     float causticTime = 0.25 * GetAnimationFactor();
 
-    vec3 shadowViewPos = localPos + fract(cameraPosition*0.01)*100.0 + vec3(1.0, 0.0, 3.0) * Water_WaveStrength * causticTime;
+    vec3 shadowViewPos = localPos + fract(cameraPosition*0.01)*100.0;// + vec3(1.0, 0.0, 3.0) * Water_WaveStrength * causticTime;
 
     #ifdef RENDER_SHADOWS_ENABLED
         #ifdef IRIS_FEATURE_SSBO

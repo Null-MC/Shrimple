@@ -32,7 +32,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                 float sampleDepth = texelFetch(depthtex0, depthCoord, 0).r;
             #endif
             
-            float sampleDepthL = linearize_depth(sampleDepth, near, farPlane);
+            float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
                 #ifdef RENDER_OPAQUE_POST_VL
@@ -41,7 +41,7 @@ void VL_GaussianFilter(inout vec3 final, const in vec2 texcoord, const in float 
                     float dhDepth = texelFetch(dhDepthTex, depthCoord, 0).r;
                 #endif
 
-                float dhDepthL = linearize_depth(dhDepth, dhNearPlane, dhFarPlane);
+                float dhDepthL = linearizeDepth(dhDepth, dhNearPlane, dhFarPlane);
 
                 if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
                     sampleDepth = dhDepth;

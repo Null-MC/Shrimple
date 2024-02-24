@@ -86,7 +86,7 @@ void main() {
 
     #ifdef DAMAGE_DEPTH_CHECK
         float depthOpaque = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
-        float depthOpaqueLinear = linearizeDepthFast(depthOpaque, near, far);
+        float depthOpaqueLinear = linearizeDepth(depthOpaque, near, farPlane);
         float depthLinear = rcp(gl_FragCoord.w);
 
         if (abs(depthLinear - depthOpaqueLinear) > 0.2) {

@@ -17,3 +17,6 @@ vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);
 	const float Water_WaveStrength = 0.00;
 	const float Water_CausticStrength = 0.00;
 #endif
+
+
+// float GetWaterPhase(const in float VoL) {return DHG(VoL, -0.12, 0.68, 0.24);}
