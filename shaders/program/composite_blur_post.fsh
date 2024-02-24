@@ -68,15 +68,16 @@ uniform float skyRainStrength;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    // ivec2 uv = ivec2(gl_FragCoord.xy);
-    // float depth = texelFetch(depthtex0, uv, 0).r;
-    float depth = textureLod(depthtex0, texcoord, 0.0).r;
+    ivec2 uv = ivec2(gl_FragCoord.xy);
+    float depth = texelFetch(depthtex0, uv, 0).r;
+    // float depth = textureLod(depthtex0, texcoord, 0.0).r;
 
     float depthL = linearizeDepthFast(depth, near, farPlane);
 
     #ifdef DISTANT_HORIZONS
         mat4 projectionInv = gbufferProjectionInverse;
 
+        // float dhDepth = textureLod(dhDepthTex, texcoord, 0).r;
         float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 

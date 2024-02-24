@@ -76,6 +76,7 @@ uniform int fogShape;
     #endif
 
     #ifdef WORLD_WATER_ENABLED
+        #include "/lib/lighting/hg.glsl"
         #include "/lib/world/water.glsl"
     #endif
 

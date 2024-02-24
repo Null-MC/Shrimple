@@ -1,6 +1,9 @@
+float GetWaterPhase(const in float VoL) {return DHG(VoL, -0.12, 0.68, 0.24);}
+
 void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
+
     float localRayLength = max(farDist - nearDist, 0.0);
     if (localRayLength < EPSILON) return;
 
@@ -30,6 +33,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowClipStart[4];
                 vec3 shadowClipStep[4];
+
                 for (int c = 0; c < 4; c++) {
                     shadowClipStart[c] = (cascadeProjection[c] * vec4(shadowViewStart, 1.0)).xyz * 0.5 + 0.5;
                     shadowClipStart[c].xy = shadowClipStart[c].xy * 0.5 + shadowProjectionPos[c];
@@ -40,6 +44,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     shadowClipStep[c] = (shadowClipEnd - shadowClipStart[c]) * inverseStepCountF;
                 }
             #else
+                float shadowSampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
+
                 #ifdef IRIS_FEATURE_SSBO
                     vec3 shadowClipStart = (shadowProjectionEx * vec4(shadowViewStart, 1.0)).xyz;
                     vec3 shadowClipEnd = (shadowProjectionEx * vec4(shadowViewEnd, 1.0)).xyz;
@@ -244,11 +250,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     float shadowDistF = 0.0;
                     
                     if (cascade >= 0) {
-                        float sampleBias = GetShadowOffsetBias(cascade);// 0.01 / (far * 3.0);
-                        traceShadowClipPos = shadowClipStart[cascade] + iStep * shadowClipStep[cascade];
-                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                        float shadowSampleBias = GetShadowOffsetBias(cascade);
+
+                        traceShadowClipPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
+                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
                         float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                        sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
+                        sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
 
                         texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
                         sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
@@ -256,8 +263,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         shadowFade = 0.0;
                     }
                 #else
-                    float sampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
-
                     vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
                     traceShadowClipPos = distort(traceShadowClipPos);
                     traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
@@ -271,9 +276,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     shadowFade = 1.0 - shadowFade;
 
                     if (shadowFade < 1.0) {
-                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), sampleBias);
+                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
                         float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                        sampleF = step(traceShadowClipPos.z - sampleBias, texDepth);
+                        sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
 
                         texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
                         sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;

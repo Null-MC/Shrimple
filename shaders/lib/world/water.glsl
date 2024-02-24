@@ -19,6 +19,4 @@ vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);
 #endif
 
 
-float GetWaterPhase(const in float VoL) {
-    return DHG(VoL, -0.12, 0.68, 0.24);
-}
+// float GetWaterPhase(const in float VoL) {return DHG(VoL, -0.12, 0.68, 0.24);}
