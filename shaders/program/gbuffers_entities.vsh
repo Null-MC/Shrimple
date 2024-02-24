@@ -104,7 +104,7 @@ uniform vec4 entityColor;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #ifdef IS_LPV_ENABLED
+    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/buffers/light_static.glsl"
     #endif
 #endif
@@ -140,7 +140,8 @@ uniform vec4 entityColor;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
-#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
+//#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
+#elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/buffers/block_static.glsl"
     #include "/lib/buffers/volume.glsl"
 

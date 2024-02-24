@@ -108,11 +108,11 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in float linea
 
             ivec2 iTexDepth = ivec2(sampleTex * viewSize);
             float sampleDepth = texelFetch(depthtex1, iTexDepth, 0).r;
-            float sampleDepthL = linearizeDepthFast(sampleDepth, near, far);
+            float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
                 float dhDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
-                float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+                float dhDepthL = linearizeDepth(dhDepth, dhNearPlane, dhFarPlane);
 
                 if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
                     sampleDepthL = dhDepthL;
@@ -139,12 +139,12 @@ layout(location = 0) out vec4 outAO;
 void main() {
     ivec2 iTexDepth = ivec2(texcoord * viewSize);
     float depth = texelFetch(depthtex1, iTexDepth, 0).r;
-    float depthL = linearizeDepthFast(depth, near, far);
+    float depthL = linearizeDepth(depth, near, farPlane);
     mat4 projectionInv = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
         float dhDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
-        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        float dhDepthL = linearizeDepth(dhDepth, dhNearPlane, dhFarPlane);
 
         if (depth >= 1.0 || (dhDepthL < depthL && dhDepth > 0.0)) {
             projectionInv = dhProjectionInverse;

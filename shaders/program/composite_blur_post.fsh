@@ -57,6 +57,7 @@ uniform float skyRainStrength;
 #include "/lib/sampling/ign.glsl"
 
 #ifdef WORLD_WATER_ENABLED
+    #include "/lib/lighting/hg.glsl"
     #include "/lib/world/water.glsl"
 #endif
 
@@ -67,15 +68,15 @@ uniform float skyRainStrength;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-    ivec2 uv = ivec2(gl_FragCoord.xy);
-    float depth = texelFetch(depthtex0, uv, 0).r;
-    //float depth = textureLod(depthtex0, texcoord, 0.0).r;
+    // ivec2 uv = ivec2(gl_FragCoord.xy);
+    // float depth = texelFetch(depthtex0, uv, 0).r;
+    float depth = textureLod(depthtex0, texcoord, 0.0).r;
 
     float depthL = linearizeDepthFast(depth, near, farPlane);
 
-    mat4 projectionInv = gbufferProjectionInverse;
-
     #ifdef DISTANT_HORIZONS
+        mat4 projectionInv = gbufferProjectionInverse;
+
         float dhDepth = texelFetch(dhDepthTex, uv, 0).r;
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
@@ -84,10 +85,14 @@ void main() {
             depthL = dhDepthL;
             projectionInv = dhProjectionInverse;
         }
+
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
+    #else
+        vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
     #endif
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
     float viewDist = length(viewPos);
 
     vec3 color = GetBlur(texcoord, depthL, 0.0, viewDist, isEyeInWater == 1);
