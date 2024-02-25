@@ -316,6 +316,9 @@
         #endif
 
         switch (lightType) {
+            case LIGHT_CREATE_XP:
+                lightColor = vec3(0.635, 0.89, 0.278);
+                break;
             case LIGHT_ROSE_QUARTZ_LAMP:
                 lightColor = vec3(0.898, 0.369, 0.459);
                 break;
@@ -783,6 +786,7 @@
         #endif
 
         switch (lightType) {
+            case LIGHT_CREATE_XP:
             case LIGHT_ROSE_QUARTZ_LAMP:
                 lightRange = 15.0;
                 break;
@@ -846,6 +850,7 @@
             case LIGHT_AMETHYST_BLOCK:
             case LIGHT_AMETHYST_CLUSTER:
             case LIGHT_CRYING_OBSIDIAN:
+            case LIGHT_CREATE_XP:
             case LIGHT_FIRE:
             case LIGHT_FROGLIGHT_OCHRE:
             case LIGHT_FROGLIGHT_PEARLESCENT:

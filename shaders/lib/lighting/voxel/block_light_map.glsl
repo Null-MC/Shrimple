@@ -516,6 +516,9 @@ uint GetSceneLightType(const in uint blockId) {
     #endif
 
     switch (blockId) {
+        case BLOCK_CREATE_XP:
+            lightType = LIGHT_CREATE_XP;
+            break;
         case BLOCK_ROSE_QUARTZ_LAMP_LIT:
             lightType = LIGHT_ROSE_QUARTZ_LAMP;
             break;
