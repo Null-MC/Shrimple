@@ -51,7 +51,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         float _far = farPlane;
     #endif
 
-    float startDepthLinear = linearizeDepthFast(clipPos.z, near, _far);
+    float startDepthLinear = linearizeDepth(clipPos.z, near, _far);
     //ivec2 iuv_start = ivec2(clipPos.xy * viewSize);
 
     #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
@@ -95,21 +95,21 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     #endif
 
 
-    const vec3 clipMin = vec3(0.0);
-    vec3 clipMax = vec3(1.0) - vec3(pixelSize, EPSILON);
+    // vec3 clipMin = vec3(pixelSize, 0.0);
+    // vec3 clipMax = vec3(1.0) - clipMin;
 
     int i;
     float alpha = 0.0;
     float texDepth;
     vec3 tracePos;
     for (i = 0; i < SSR_MAXSTEPS; i++) {
-        int l2 = int(exp2(level));
-        tracePos = lastTracePos + screenRay*l2;
+        float stepScale = exp2(level);
+        tracePos = screenRay*stepScale + lastTracePos;
 
 
         #if defined MATERIAL_REFLECT_HIZ && SSR_LOD_MAX > 0
             closestDist = minOf(nextDist);
-            vec2 ddaStep = direction.xy * closestDist * l2;
+            vec2 ddaStep = direction.xy * closestDist * stepScale;
 
             //float currLen2 = length2(currPos - origin);
             //if (currLen2 > traceRayLen2) currPos = endPos;
@@ -125,6 +125,9 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         #endif
 
 
+        vec3 clipMin = vec3(pixelSize, 0.0) * stepScale;
+        vec3 clipMax = vec3(1.0) - clipMin;
+
         vec3 t = clamp(tracePos, clipMin, clipMax);
         if (t != tracePos) {
             if (level > SSR_LodMin && i < SSR_MAXSTEPS - (level + 1)) {
@@ -132,7 +135,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
                 continue;
             }
 
-            lastVisPos = vec3(t.xy, saturate(tracePos.z));
+            lastVisPos = t;//vec3(t.xy, saturate(tracePos.z));
             if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
             break;
         }
@@ -151,7 +154,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         #endif
 
         //float minTraceDepth = min(tracePos.z, lastTracePos.z);
-        float traceDepthL = linearizeDepthFast(tracePos.z, near, _far);
+        float traceDepthL = linearizeDepth(tracePos.z, near, _far);
         //float sampleDepthL = linearizeDepthFast(texDepth, near, far);
 
         float bias = 0.002;//0.1 * sampleDepthL;

@@ -184,6 +184,13 @@ uniform vec4 entityColor;
 
 
 void main() {
+    #ifdef DEFERRED_BUFFER_ENABLED
+        if (entityId == ENTITY_SHADOW) {
+            gl_Position = vec4(-1.0);
+            return;
+        }
+    #endif
+
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
     vOut.color = gl_Color;
@@ -255,8 +262,10 @@ void main() {
 
             vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
-            if (entityLightColorRange.a > EPSILON)
-                lightValue = _pow2(entityLightColorRange.rgb) * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+            if (entityLightColorRange.a > EPSILON) {
+                lightColor = _pow2(entityLightColorRange.rgb);
+                lightValue = lightColor * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+            }
 
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                 StaticLightData lightInfo = StaticLightMap[lightType];

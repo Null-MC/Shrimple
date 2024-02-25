@@ -50,6 +50,7 @@ vec3 tonemap_Lottes(const in vec3 color) {
     const vec3 b =
         (-pow(midIn, a) + pow(hdrMax, a) * midOut) /
         ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+        
     const vec3 c =
         (pow(hdrMax, a * d) * pow(midIn, a) - pow(hdrMax, a) * pow(midIn, a * d) * midOut) /
         ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);

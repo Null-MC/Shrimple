@@ -29,6 +29,10 @@ vec4 GetSceneEntityLightColor(const in int entityId) {
     vec4 colorRange = vec4(0.0);
     
     switch (entityId) {
+        case ENTITY_FLAMES:
+            colorRange.rgb = RGBToLinear(vec3(0.851, 0.518, 0.239));
+            colorRange.a = 15.0;
+            break;
         case ENTITY_BLAZE:
             colorRange.rgb = RGBToLinear(vec3(0.813, 0.583, 0.180));
             colorRange.a = 8.0;

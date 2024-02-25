@@ -370,6 +370,8 @@ void main() {
         bool skipParallax = false;
         vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
         if (preN.a < EPSILON) skipParallax = true;
+
+        if (entityId == ENTITY_SHADOW) skipParallax = true;
     #endif
 
     float viewDist = length(vIn.localPos);
@@ -380,6 +382,9 @@ void main() {
         color.a = 1.0;
     }
     // else if (entityId == ENTITY_LIGHTNING_BOLT) {
+    //     color = vec4(1.0, 0.0, 0.0, 1.0);
+    // }
+    // else if (entityId == ENTITY_SHADOW) {
     //     color = vec4(1.0, 0.0, 0.0, 1.0);
     // }
     else {
@@ -436,6 +441,7 @@ void main() {
     sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
     emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
     GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
+    vec3 shadowColor = vec3(1.0);
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
@@ -456,8 +462,11 @@ void main() {
         metal_f0 = 0.0;
         emission = 1.0;
     }
+    else if (entityId == ENTITY_SHADOW) {
+        shadowColor = vec3(0.0);
+        occlusion = 0.0;
+    }
 
-    vec3 shadowColor = vec3(1.0);
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
@@ -580,54 +589,6 @@ void main() {
         vec3 albedo = RGBToLinear(color.rgb);
         float roughL = _pow2(roughness);
 
-        #ifdef RENDER_TRANSLUCENT
-            if (color.a > (0.5/255.0)) {
-                float NoV = abs(dot(texNormal, -localViewDir));
-
-                float F = F_schlickRough(NoV, metal_f0, roughL);
-                color.a += (1.0 - color.a) * F;
-            }
-        #endif
-
-        // #if LIGHTING_MODE > LIGHTING_MODE_BASIC
-        //     vec3 blockDiffuse = vec3(0.0);
-        //     vec3 blockSpecular = vec3(0.0);
-        //     vec3 skyDiffuse = vec3(0.0);
-        //     vec3 skySpecular = vec3(0.0);
-
-        //     blockDiffuse += emission * MaterialEmissionF;
-
-        //     GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-
-        //     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        //         SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        //     #endif
-
-        //     #ifdef WORLD_SKY_ENABLED
-        //         // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
-        //         //     const vec3 shadowPos = vec3(0.0);
-        //         // #endif
-
-        //         // float shadowFade = getShadowFade(shadowPos);
-        //         GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
-        //     #endif
-
-        //     vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-        //     vec3 specularFinal = blockSpecular + skySpecular;
-
-        //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //         #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        //             if (IsMetal(metal_f0))
-        //                 diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-        //         #else
-        //             diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-        //         #endif
-
-        //         specularFinal *= GetMetalTint(albedo, metal_f0);
-        //     #endif
-
-        //     color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        // #else
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             vec3 blockDiffuse = vec3(0.0);
             vec3 blockSpecular = vec3(0.0);
@@ -674,15 +635,15 @@ void main() {
             ApplyFog(color, vIn.localPos, localViewDir);
         #endif
 
-        #ifdef VL_BUFFER_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-            #endif
+        // #ifdef VL_BUFFER_ENABLED
+        //     #ifndef IRIS_FEATURE_SSBO
+        //         vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+        //     #endif
 
-            float farMax = min(viewDist - 0.05, far);
-            vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
-            color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-        #endif
+        //     float farMax = min(viewDist - 0.05, far);
+        //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, farMax);
+        //     color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+        // #endif
 
         outFinal = color;
 
