@@ -1,25 +1,29 @@
-# Provided by ShrikerChestTree v8.0.1
+# Provided by ShrikerChestTree v11.4.1
+
+/////PROFILE/////
 
 profile.VANILLA=Ванилла
 profile.SHADOWS=Тени
 profile.LIGHTS=Цветное Освещение
 profile.RTX=Трассировка Лучей
 
+#####SKY OPTIONS#####
 
 screen.SKY_OPTIONS=Настройки Неба
+
+=====Sun Path Rotation=====
 
 option.sunPathRotation=Наклон Солнца/Луны
 option.sunPathRotation.comment=Наклон Солнца/Луны вдоль оси вращения.
 suffix.sunPathRotation=°
 
-option.SKY_TYPE=Небо/Тип Тумана
+=====Sky Type=====
+
+option.SKY_TYPE=Тип Неба/Тумана
 value.SKY_TYPE.0=Ванильный
 value.SKY_TYPE.1=Кастомный
 
-option.SKY_CLOUD_TYPE=Облака
-value.SKY_CLOUD_TYPE.0=Никакие
-value.SKY_CLOUD_TYPE.1=Ванильные
-value.SKY_CLOUD_TYPE.2=Кастомные
+=====Border Fog=====
 
 option.SKY_BORDER_FOG_ENABLED=Границы Тумана
 
@@ -28,37 +32,89 @@ value.SKY_FOG_SHAPE.0=Обычный
 value.SKY_FOG_SHAPE.1=Сферический
 value.SKY_FOG_SHAPE.2=Цилиндрический
 
+=====Volumetric Fog=====
+
 option.SKY_VOL_FOG_TYPE=Объёмный Туман
 value.SKY_VOL_FOG_TYPE.0=Никакие
 value.SKY_VOL_FOG_TYPE.1=Быстрые
 value.SKY_VOL_FOG_TYPE.2=Детальные
 
+=====Volumetric Density=====
+
 option.SKY_DENSITY=Объёмная Плотность
 option.SKY_DENSITY.comment=Плотность объёмного тумана, используемого для объёмного освещения.
 suffix.SKY_DENSITY=%
+
+=====Weather Opacity=====
 
 option.SKY_WEATHER_OPACITY=Прозрачность Каплей
 option.SKY_WEATHER_OPACITY.comment=Определяет, насколько прозрачными будут капли от дождя.
 suffix.SKY_WEATHER_OPACITY=%
 
+/////BRIGHTNESS OPTIONS/////
 
 screen.SKY_BRIGHTNESS_OPTIONS=Настройка Яркости
+
+=====Sun Brightness=====
 
 option.SKY_SUN_BRIGHTNESS=Яркость Солнца
 suffix.SKY_SUN_BRIGHTNESS=%
 
+=====Moon Brightness=====
+
 option.SKY_MOON_BRIGHTNESS=Яркость Луны
 suffix.SKY_MOON_BRIGHTNESS=%
+
+=====Sky Brightness=====
 
 option.SKY_BRIGHTNESS=Яркость Неба
 suffix.SKY_BRIGHTNESS=%
 
+/////CLOUD OPTIONS/////
+
+screen.SKY_CLOUD_OPTIONS=Настройка Облака
+
+=====Cloud Type=====
+
+option.SKY_CLOUD_TYPE=Тип Облаков
+value.SKY_CLOUD_TYPE.0=Никакие
+value.SKY_CLOUD_TYPE.1=Ванильные
+value.SKY_CLOUD_TYPE.2=Детальные
+value.SKY_CLOUD_TYPE.3=Кубические
+
+=====Cloud Speed=====
+
+option.SKY_CLOUD_SPEED=Скорость Облаков
+option.SKY_CLOUD_SPEED.comment=Скорость перемещения облаков по небу/изменения. Влияет только на "детальные" облака.
+suffix.SKY_CLOUD_SPEED=x
+
+=====Cloud Coverage Minimum=====
+
+option.SKY_CLOUD_COVER_MIN=Минимальная Площадь
+suffix.SKY_CLOUD_COVER_MIN=%
+
+=====Cloud Altitude=====
+
+option.SKY_CLOUD_ALTITUDE="Y" Облаков
+option.SKY_CLOUD_ALTITUDE.comment=Уровень "Y" в мире, с которого начинается нижняя часть облаков. Для ванильной высоты облаков необходимо использовать мод Sodium Extra (значение=обычное).
+value.SKY_CLOUD_ALTITUDE.0=Обычное
+
+=====Cloud Height=====
+
+option.SKY_CLOUD_HEIGHT=Высота Облаков
+option.SKY_CLOUD_HEIGHT.comment=Диапазон вертикальных высот объёма облаков (в блоках). Только для детальных/кубических облаков.
+
+#####WORLD OPTIONS#####
 
 screen.WORLD_OPTIONS=Настройки Мира
 screen.WORLD_OPTIONS.comment=Настройки для всего остального.
 
+=====Wetness=====
+
 option.WORLD_WETNESS_ENABLED=Влажность
 option.WORLD_WETNESS_ENABLED.comment=Приводит к тому, что мокрые от дождя поверхности/блоки кажутся влажными (более тёмными, блестящими).
+
+=====Puddles=====
 
 option.WORLD_WETNESS_PUDDLES=Лужи
 option.WORLD_WETNESS_PUDDLES.comment=При дожде воздействует на материалы/блоки.
@@ -67,38 +123,84 @@ value.WORLD_WETNESS_PUDDLES.1=Обычная
 value.WORLD_WETNESS_PUDDLES.2=Пиксельная
 value.WORLD_WETNESS_PUDDLES.3=Детальная
 
+=====Waving=====
+
 option.WORLD_WAVING_ENABLED=Колышение Растений
 option.WORLD_WAVING_ENABLED.comment=Позволяет растениям колышаться на ветру.
+
+=====Ambient=====
 
 option.WORLD_AMBIENT_MODE=Окружающий Свет
 value.WORLD_AMBIENT_MODE.0=Выкл
 value.WORLD_AMBIENT_MODE.1=Обычный
 value.WORLD_AMBIENT_MODE.2=Детальный
 
+=====Ambient Occlusion Enabled=====
+
 option.WORLD_AO_ENABLED=Окклюзия Окружения
 option.WORLD_AO_ENABLED.comment=Способ окклюзии окружающего освещения.
+
+=====Sky Reflections=====
 
 option.WORLD_SKY_REFLECTIONS=Отражение Неба
 option.WORLD_SKY_REFLECTIONS.comment=Позволяет отражать небо, если включены спекулярные материалы/отражающие материалы.
 suffix.WORLD_SKY_REFLECTIONS=%
 
+=====Smoke=====
+
+option.WORLD_SMOKE=Дым Незера/Энда 
+
+=====Nether Ambient=====
+
+option.WORLD_NETHER_AMBIENT=Окружение в Незере
+suffix.WORLD_NETHER_AMBIENT=%
+
+=====The End Ambient=====
+
+option.WORLD_END_AMBIENT=Окружение в Энде
+suffix.WORLD_END_AMBIENT=%
+
+=====Overworld Curve Radius=====
+
+option.WORLD_CURVE_RADIUS=Радиус Верхнего Мира (в метрах)
+suffix.WORLD_CURVE_RADIUS=000
+value.WORLD_CURVE_RADIUS.3200=3200
+value.WORLD_CURVE_RADIUS.2400=2400
+value.WORLD_CURVE_RADIUS.1600=1600
+value.WORLD_CURVE_RADIUS.1200=1200
+value.WORLD_CURVE_RADIUS.0=ПЛОСКИЙ
+
+#####WATER OPTIONS#####
 
 screen.WATER_OPTIONS=Настройки Воды
 screen.WATER_OPTIONS.comment=Настройки для воды.
 
-option.WATER_SURFACE_TYPE=Поверхность
+=====Surface Type=====
+
+option.WATER_SURFACE_TYPE=Тип Поверхности
 value.WATER_SURFACE_TYPE.0=Текстура
 value.WATER_SURFACE_TYPE.1=Цвет
+
+=====Water Opacity=====
 
 option.WATER_OPACITY=Прозрачность
 option.WATER_OPACITY.comment=Насколько прозрачна будет вода.
 suffix.WATER_OPACITY=%
 
-option.WATER_WAVE_SIZE=Волны
+=====Wave Size=====
+
+option.WATER_WAVE_SIZE=Размер Волн
 value.WATER_WAVE_SIZE.0=Никакие
 value.WATER_WAVE_SIZE.1=Маленькие
 value.WATER_WAVE_SIZE.2=Средние
 value.WATER_WAVE_SIZE.3=Большие
+
+=====Wave Detail=====
+
+option.WATER_WAVE_DETAIL=Детальность Волн
+suffix.WATER_WAVE_DETAIL=x
+
+=====Water Surface Pixel=====
 
 option.WATER_SURFACE_PIXEL_RES=Пиксельная
 value.WATER_SURFACE_PIXEL_RES.0=Выкл
@@ -108,22 +210,36 @@ value.WATER_SURFACE_PIXEL_RES.32=32x (пикс.)
 value.WATER_SURFACE_PIXEL_RES.64=64x (пикс.)
 value.WATER_SURFACE_PIXEL_RES.128=128x (пикс.)
 
-option.WATER_VOL_FOG_TYPE=Объёмный Туман
+=====Water Volumetric Fog Type=====
+
+option.WATER_VOL_FOG_TYPE=Тип Объёмного Тумана
 value.WATER_VOL_FOG_TYPE.0=Никакой
 value.WATER_VOL_FOG_TYPE.1=Быстрый
 value.WATER_VOL_FOG_TYPE.2=Детальный
 
+=====Water Fog=====
+
 option.WATER_FOG_DENSITY=Плотность Тумана
 suffix.WATER_FOG_DENSITY=%
 
+=====Water Caustics=====
+
 option.WATER_CAUSTICS=Тень/Свет Воды
 
-option.WATER_TESSELLATION_QUALITY=Тесселяция
+=====Water Tessellation=====
+
+option.WATER_TESSELLATION_QUALITY=Качество Тесселяции
+value.WATER_TESSELLATION_QUALITY.0=Выкл
+
+=====Water Depth Layers=====
 
 option.WATER_DEPTH_LAYERS=Плотность Слоёв
 
+#####MATERIAL OPTIONS#####
 
 screen.MATERIAL_OPTIONS=Настройки Материалов (Normal map, PBR...)
+
+=====Normal Map=====
 
 option.MATERIAL_NORMALS=Нормальное Отображение
 option.MATERIAL_NORMALS.comment=Тип данных нормального отображенния.
@@ -132,6 +248,8 @@ value.MATERIAL_NORMALS.1=Интегрированный
 value.MATERIAL_NORMALS.2=Lab-PBR (Новый)
 value.MATERIAL_NORMALS.3=Old-PBR (СЕУСный (SEUS Renewed))
 
+=====Specular=====
+
 option.MATERIAL_SPECULAR=Спекуляр (Отражение)
 option.MATERIAL_SPECULAR.comment=Сколько света отражается от каждого пикселя блока/поверхности, исходя из ее шероховатости, металличности и f0.
 value.MATERIAL_SPECULAR.0=Выкл
@@ -139,21 +257,29 @@ value.MATERIAL_SPECULAR.1=Интегрированный
 value.MATERIAL_SPECULAR.2=Lab-PBR (Новый)
 value.MATERIAL_SPECULAR.3=Old-PBR (СЕУСный (SEUS Renewed))
 
+=====Occlusion=====
+
 option.MATERIAL_OCCLUSION=Окклюзия
 option.MATERIAL_OCCLUSION.comment=Какое количество окружающего света заслоняет каждый пиксель поверхности.
 value.MATERIAL_OCCLUSION.0=Выкл
 value.MATERIAL_OCCLUSION.1=Интегрированный
 value.MATERIAL_OCCLUSION.2=Lab-PBR
 
+=====Emission=====
+
 option.MATERIAL_EMISSION=Излучение
 value.MATERIAL_EMISSION.0=Интегрированный
 value.MATERIAL_EMISSION.1=Lab-PBR (Новый)
 value.MATERIAL_EMISSION.2=Old-PBR (СЕУСный (SEUS Renewed))
 
+=====Porisity=====
+
 option.MATERIAL_POROSITY=Пористость
 value.MATERIAL_POROSITY.0=Выкл
 value.MATERIAL_POROSITY.1=Интегрированный
 value.MATERIAL_POROSITY.2=Lab-PBR
+
+=====SSS=====
 
 option.MATERIAL_SSS=Подповерхностное Рассеивание
 option.MATERIAL_SSS.comment=Сколько нужно света от каждого пикселя подповерхностного рассеивания.
@@ -161,9 +287,12 @@ value.MATERIAL_SSS.0=Выкл
 value.MATERIAL_SSS.1=Интегрированный
 value.MATERIAL_SSS.2=Lab-PBR
 
+/////PARALLAX OPTIONS/////
 
 screen.MATERIAL_PARALLAX_OPTIONS=Настройки Вытеснения
 screen.MATERIAL_PARALLAX_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
+
+=====Parallax Mode=====
 
 option.DISPLACE_MODE=Тип
 option.DISPLACE_MODE.comment=Тип POM для визуализации. Гладкий POM будет иметь смягчённые края. Острый POM будут иметь жёсткие, как у модели, края. Тесселяция - делает PBR-текстуры объёмными и более гладкими!.
@@ -173,50 +302,77 @@ value.DISPLACE_MODE.2=Гладкий POM
 value.DISPLACE_MODE.3=Острый POM
 value.DISPLACE_MODE.4=Тесселяция
 
+=====Displace Depth=====
 
 option.MATERIAL_DISPLACE_DEPTH=Глубина
 suffix.MATERIAL_DISPLACE_DEPTH=%
 
+=====Displace Offset=====
+
 option.MATERIAL_DISPLACE_OFFSET=Смещение Поверхности
 suffix.MATERIAL_DISPLACE_OFFSET=%
 
+=====Tessellation Quality=====
+
 option.MATERIAL_TESSELLATION_QUALITY=Качество Тесселляции
-MATERIAL_TESSELLATION_QUALITY=x
+suffix.MATERIAL_TESSELLATION_QUALITY=x
+
+=====Tessellation Edge-Fade=====
 
 option.MATERIAL_TESSELLATION_EDGE_FADE=Затухание-Крёв Тесселляции
 
+=====Parallax Samples=====
+
 option.MATERIAL_PARALLAX_SAMPLES=POM-ые Образцы
+
+=====Parallax Shadow Samples=====
 
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM-ые Теневые Образцы
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Выкл.
 
+=====Parallax Maximum Distance=====
+
 option.MATERIAL_DISPLACE_MAX_DIST=Расстояние
 option.MATERIAL_DISPLACE_MAX_DIST.comment=Максимальное расстояние (в блоках) от камеры/игрока до отрисовки POM.
+
+=====Parallax Sharp Threshold=====
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Острые POM Пороги
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=Порог, при котором острый параллакс применяется к наклонным нормалям. [N / 255]
 suffix.MATERIAL_PARALLAX_SHARP_THRESHOLD=/255
 
+=====Parallax Shadow Smooth=====
+
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH=Гладкие POM Тени
 option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Включает более высокое качество теней при включении плавного POM.
 
+=====Parallax Depth Write=====
+
 option.MATERIAL_PARALLAX_DEPTH_WRITE=Глубина-Записи POM-а
 
-option.MATERIAL_PARALLAX_ENTITIES=Мобы
-option.MATERIAL_PARALLAX_ENTITIES.comment=Отключите параллакс для мобов, если он вызывает проблемы с рендерингом в некоторых модах.
+=====Parallax Entities=====
 
+option.MATERIAL_DISPLACE_ENTITIES=Мобы
+option.MATERIAL_DISPLACE_ENTITIES.comment=Отключите параллакс для мобов, если он вызывает проблемы с рендерингом в некоторых модах.
+
+/////NORMAL MAP OPTIONS/////
 
 screen.MATERIAL_NORMAL_OPTIONS=Нормальное Отображение
 screen.MATERIAL_NORMAL_OPTIONS.comment=Как каждый пиксель поверхности реагирует на направлённое освещение/направлённый свет.
 
+=====Normal Scale=====
 
 option.MATERIAL_NORMAL_SCALE=Разрешение
 option.MATERIAL_NORMAL_SCALE.comment=Масштаб текстуры, при котором генерируются нормали. Применяется только для интегрированных отображенний нормалей.
 suffix.MATERIAL_NORMAL_SCALE=x (пикс.)
 
+=====Normal Strenght=====
+
 option.MATERIAL_NORMAL_STRENGTH=Сила
 option.MATERIAL_NORMAL_STRENGTH.comment=Угловая сила генерируемых нормалей. Применяется только для интегрированных отображенний нормалей.
 suffix.MATERIAL_NORMAL_STRENGTH=%
+
+=====Normal Edge=====
 
 option.MATERIAL_NORMAL_EDGE=Краевые-Нормали
 option.MATERIAL_NORMAL_EDGE.comment=Как обрабатываются рёбра при генерации нормалей. Применяется только для интегрированных отображенний нормалей.
@@ -224,118 +380,194 @@ value.MATERIAL_NORMAL_EDGE.0=Средний/Обычный
 value.MATERIAL_NORMAL_EDGE.1=Высокий
 value.MATERIAL_NORMAL_EDGE.2=Низкий
 
+=====Normal Round=====
+
 option.MATERIAL_NORMAL_ROUND=Круглые края
 option.MATERIAL_NORMAL_ROUND.comment=Если эта опция включена, края сущностей будут иметь сглаженные нормали. Применяется только для интегрированных отображений нормалей.
 value.MATERIAL_NORMAL_ROUND.0=Выкл
 
+/////SPECULAR OPTIONS/////
 
 screen.MATERIAL_SPECULAR_OPTIONS=Настройки Отображения Спекуляра (Отражение)
+
+=====Brightness=====
 
 option.METAL_BRIGHTNESS=Яркость металла
 suffix.METAL_BRIGHTNESS=%
 
+=====HCM Albedo Tint=====
+
+option.MATERIAL_HCM_ALBEDO_TINT=Альбедовская Тонировка HCM
+option.MATERIAL_HCM_ALBEDO_TINT.comment=Альбедовская тонировка для жёстко-закодированных-металлов в LabPBR. Использование зависит от ресурс-пака.
+
+/////POROSITY OPTIONS/////
 
 screen.MATERIAL_POROSITY_OPTIONS=Настройки Пористости
 screen.MATERIAL_POROSITY_OPTIONS.comment=Какое количество воды поглощается каждым пикселем поверхности.
 
+=====Porosity Darken=====
+
 option.MATERIAL_POROSITY_DARKEN=Затемнение
 suffix.MATERIAL_POROSITY_DARKEN=%
 
+/////EMISSION OPTIONS/////
 
-screen.MATERIAL_EMISSION_OPTIONS=Излучение
+screen.MATERIAL_EMISSION_OPTIONS=Настройка Излучения
 screen.MATERIAL_EMISSION_OPTIONS.comment=Количество излучаемого света каждым пикселем поверхности.
 
+=====Emission Brightness=====
 
 option.MATERIAL_EMISSION_BRIGHTNESS=Яркость Излучения
 suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
+/////SSS OPTIONS/////
 
 screen.MATERIAL_SSS_OPTIONS=Настройки ПР
+
+=====SSS Strenght=====
 
 option.MATERIAL_SSS_STRENGTH=Сила
 suffix.MATERIAL_SSS_STRENGTH=%
 
+=====SSS Scatter=====
+
 option.MATERIAL_SSS_SCATTER=Рассеяние
-option.MATERIAL_SSS_MAXDIST.comment=Максимальное расстояние [в блоках], на которое ПР может рассеиваться наружу.
+option.MATERIAL_SSS_SCATTER.comment=Максимальное расстояние [в блоках], на которое ПР может рассеиваться наружу.
+
+=====SSS Maximum Distance=====
 
 option.MATERIAL_SSS_MAXDIST=Максимальная Дистанция
 option.MATERIAL_SSS_MAXDIST.comment=Максимальная дистанция [в блоках], на которое ПР может проникнуть сквозь блоки.
 
+/////REFLECT OPTIONS/////
 
-screen.MATERIAL_REFLECT_OPTIONS=Отражение
+screen.MATERIAL_REFLECT_OPTIONS=Настройки Отражения
+
+=====Reflections=====
 
 option.MATERIAL_REFLECTIONS=Отражение
 value.MATERIAL_REFLECTIONS.0=Никакое
 value.MATERIAL_REFLECTIONS.1=С небом
 value.MATERIAL_REFLECTIONS.2=В пространстве экрана
 
+=====Reflections Strenght=====
+
 option.MATERIAL_REFLECT_STRENGTH=Сила
 suffix.MATERIAL_REFLECT_STRENGTH=%
 
-option.SSR_MAXSTEPS=ПЭО Максимальное Количество Действий
+=====SSR Maximum Steps=====
+
+option.SSR_MAXSTEPS=Максимальное Количество Шагов
+option.SSR_MAXSTEPS.comment=Максимальное количество шагов для трассировки лучей в отражении пространства экрана. Большие значения повышают качество, но снижают производительность.
+
+=====Roughness Scattering=====
+
+option.REFLECTION_ROUGH_SCATTER=Рассеяние Шероховатости
+option.REFLECTION_ROUGH_SCATTER.comment=Более точное рассеивание отражений на шероховатых поверхностях.
+
+=====Rought Reflect Samples=====
 
 option.ROUGH_REFLECT_SAMPLES=Жёсткие Образцы
 option.ROUGH_REFLECT_SAMPLES.comment=Как много образцов/трассировок использовать для жёстких отражений. Сильно затратный.
 
+=====Reflections Clouds=====
+
 option.MATERIAL_REFLECT_CLOUDS=Облака
-option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях.
+option.MATERIAL_REFLECT_CLOUDS.comment=Позволять облакам быть видимыми в отражениях. Может сильно снизить производительность.
+
+=====Reflections Glass=====
 
 option.MATERIAL_REFLECT_GLASS=Стекло
 option.MATERIAL_REFLECT_GLASS.comment=Позволять обычному стеклу иметь отражения в вырезанных/невидимых участках.
 
-screen.MATERIAL_REFRACT_OPTIONS=Преломление
+/////REFRACTIONS OPTIONS/////
+
+screen.MATERIAL_REFRACT_OPTIONS=Настройки Преломления
+
+=====Refractions Enabled=====
 
 option.MATERIAL_REFRACT_ENABLED=Включено
+
+=====Refractions Strenght=====
 
 option.REFRACTION_STRENGTH=Сила
 option.REFRACTION_STRENGTH.suffix=%
 
+=====Refractions Blur=====
+
 option.REFRACTION_BLUR=Преломленное размытие
+
+=====Refractions Snells/TIR=====
 
 option.REFRACTION_SNELL=TIR/Снеллсовое окно
 
+#####LIGHTING OPTIONS#####
 
 screen.LIGHTING_OPTIONS=Настройка Освещения
 
+=====Lighting Mode=====
+
 option.LIGHTING_MODE=Режим
-option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
-value.LIGHTING_MODE.0=Vanilla
-value.LIGHTING_MODE.1=Световая Карта
+option.LIGHTING_MODE.comment=Как рассчитывается освещение. СветоваяКарта (Обычный) использует ванильное освещение. НаливноеЗаполнение (ОНЗ,ОНЗ ГО/LPV,LPV GI) позволяет использовать базовое цветное освещение. Включите трассировку лучей для теней от блочного света.
+value.LIGHTING_MODE.0=Ванилла
+value.LIGHTING_MODE.1=Обычный
 value.LIGHTING_MODE.2=Наливное Заполнение (LPV/LPV GI)
 value.LIGHTING_MODE.3=Трассировка лучей
+
+=====Lighting Mode Hand=====
 
 option.LIGHTING_MODE_HAND=Рука
 value.LIGHTING_MODE_HAND.0=Никакое
 value.LIGHTING_MODE_HAND.1=Простой
 value.LIGHTING_MODE_HAND.2=Трассировка-Лучей
 
+=====Lighting Minimum=====
 
 option.LIGHTING_MIN=Минимум
 option.LIGHTING_MIN.comment=Минимальное количество света для мира.
 suffix.LIGHTING_MIN=%
 
+=====Lighting Brightness=====
+
 option.LIGHTING_BRIGHTNESS=Яркость
 option.LIGHTING_BRIGHTNESS.comment=Яркость динамического освещения.
 suffix.LIGHTING_BRIGHTNESS=%
+
+=====Lighting Ambient=====
 
 option.LIGHTING_AMBIENT=Окружение
 option.LIGHTING_AMBIENT.comment=Количество ванильного окружающего освещения, добавляемого к динамическому освещению.
 suffix.LIGHTING_AMBIENT=%
 
+=====Lighting Colored Candles=====
+
+option.LIGHTING_COLORED_CANDLES=Цветные Свечи
+option.LIGHTING_COLORED_CANDLES.comment=Цветные свечи излучают цветной свет. Только для освещения наливногозаполнения или трассировки лучей.
+
+=====Lighting Temp=====
+
 option.LIGHTING_TEMP=Факельное/Огневая Температура
 suffix.LIGHTING_TEMP=°k
 
+/////LIGHTMAP OPTIONS/////
 
-screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты
+screen.LIGHTING_LIGHTMAP_OPTIONS=Настройки СветовойКарты (Обычный)
+
+=====Directional LightMap=====
 
 option.DIRECTIONAL_LIGHTMAP=Направление СветовойКарты
 option.DIRECTIONAL_LIGHTMAP.comment=Если эта опция включена, она пытается сымитировать направленное освещение с помощью ванильной световойкарты. Применяется только к освещению по умолчанию.
 
+=====Lighting Old=====
+
 option.LIGHTING_OLD=Старое Освещение
 option.LIGHTING_OLD.comment=Ванильное направлённое небесное-освещение.
 
+/////LPV OPTIONS/////
 
 screen.LIGHTING_LPV_OPTIONS=Настройки НаливногоЗаполнения
+
+=====LPV Size=====
 
 option.LPV_SIZE=Дистанция
 value.LPV_SIZE.0=Выкл
@@ -343,61 +575,89 @@ value.LPV_SIZE.1=Маленькая
 value.LPV_SIZE.2=Средняя
 value.LPV_SIZE.3=Большая
 
+=====LPV Sample Mode=====
+
 option.LPV_SAMPLE_MODE=Режим Образца
 value.LPV_SAMPLE_MODE.0=Точечная
 value.LPV_SAMPLE_MODE.1=Линейная
 value.LPV_SAMPLE_MODE.2=Воксельная-Тестовая
 
+=====LPV Bright Block=====
+
 option.LPV_BRIGHT_BLOCK=Световая Шкала Диапазона
 option.LPV_BRIGHT_BLOCK.comment=Масштабный фактор, характеризующий диапазону распространения света в пределах ОНЗ (LPV).
 suffix.LPV_BRIGHT_BLOCK=x
 
+=====LPV Sun Light Sample=====
+
 option.LPV_SHADOW_SAMPLES=Выборочный Подсчёт Солнечногосвета
 option.LPV_SHADOW_SAMPLES.comment=Число выборок солнечногосвета для каждого блока.
 
+=====LPV LightMap Mix=====
+
 option.LPV_LIGHTMAP_MIX=Микс СветовойКарты
 suffix.LPV_LIGHTMAP_MIX=%
+
+=====LPV Shadow Sample=====
 
 option.LPV_SHADOW_SAMPLES=Образцы Теней
 option.LPV_SHADOW_SAMPLES.comment=Сколько образцов использовать на блок при определении видимости солнца/луны (GI).
 value.LPV_SHADOW_SAMPLES.0=Выкл
 
+=====LPV Voxel Test=====
+
 option.LPV_VOXEL_TEST=Воксельное Тестирование
 option.LPV_VOXEL_TEST.comment=Линейная и кубическая выборка, выполняя дополнительные проверки видимости с помощью воксельных данных.
 
+/////RAY TRACING OPTIONS/////
 
 screen.LIGHTING_TRACE_OPTIONS=Настройки Трассировки лучей
+
+=====Lighting Ray Tracing Resolution=====
 
 option.LIGHTING_TRACE_RES=Разрешение
 value.LIGHTING_TRACE_RES.0=Высокое
 value.LIGHTING_TRACE_RES.1=Среднее
 value.LIGHTING_TRACE_RES.2=Низкое
 
+=====Lighting Ray Tracing Penumbra=====
+
 option.LIGHTING_TRACE_PENUMBRA=Размер Полутени
 option.LIGHTING_TRACE_PENUMBRA.comment=Размер полутени для мягких теней, отслеженных по технологии DDA.
 value.LIGHTING_TRACE_PENUMBRA.0=Выкл
 suffix.LIGHTING_TRACE_PENUMBRA=%
+
+=====Lighting Tint Mode=====
 
 option.LIGHTING_TINT_MODE=Режим Тонировки
 value.LIGHTING_TINT_MODE.0=Никакое
 value.LIGHTING_TINT_MODE.1=Обычное
 value.LIGHTING_TINT_MODE.2=Абсорбское
 
+=====Lighting Tint Strenght=====
+
 option.LIGHTING_TINT_STRENGTH=Сила Тонировки
 option.LIGHTING_TINT_STRENGTH.comment=Определяет, насколько сильно тонирован свет, проходящий через витраж.
 suffix.LIGHTING_TINT_STRENGTH=%
 value.LIGHTING_TINT_STRENGTH.0=Выкл
+
+=====Lighting Ray Traced Player Shadow=====
 
 option.LIGHTING_TRACED_PLAYER_SHADOW=Тень Игрока
 value.LIGHTING_TRACED_PLAYER_SHADOW.0=Никакое
 value.LIGHTING_TRACED_PLAYER_SHADOW.1=Кубическое
 value.LIGHTING_TRACED_PLAYER_SHADOW.2=Цилиндрическое
 
+=====Lighting Flicker=====
+
 option.LIGHTING_FLICKER=Динамический
 option.LIGHTING_FLICKER.comment=Позволяет источникам света иметь динамическую яркость/цвет; например, факелам, свечам, огню и т.д.
 
+/////LIGHTING BLOCK OPTIONS/////
 
-screen.LIGHTING_TRACE_BLOCK_OPTIONS=Освещение Блоков
+screen.LIGHTING_TRACE_BLOCK_OPTIONS=Настройка Освещения Блоков
+
+=====Dynamic Light Glow Berries=====
 
 option.DYN_LIGHT_GLOW_BERRIES=Освещение Светящиеся Ягоды
 option.DYN_LIGHT_GLOW_BERRIES.comment=Как обрабатывается освещение для светящиеся ягоды, чтобы избежать сильного влияния на производительность в пышном биоме.
@@ -405,11 +665,15 @@ value.DYN_LIGHT_GLOW_BERRIES.0=Выключен
 value.DYN_LIGHT_GLOW_BERRIES.1=Излучаемый
 value.DYN_LIGHT_GLOW_BERRIES.2=Трассировачный
 
+=====Dynamic Light Lava=====
+
 option.DYN_LIGHT_LAVA=Освещение Лавы
 option.DYN_LIGHT_LAVA.comment=Как будет обрабатываться освещение для лавы, чтобы избежать сильного влияния на производительность при больших озёр/источников лавы.
 value.DYN_LIGHT_LAVA.0=Выключен
 value.DYN_LIGHT_LAVA.1=Излучаемый
 value.DYN_LIGHT_LAVA.2=Трассировачный
+
+=====Dynamic Light Portal=====
 
 option.DYN_LIGHT_PORTAL=Освещение Портала в Незер
 option.DYN_LIGHT_PORTAL.comment=Как обрабатывается освещение для порталов в незер, чтобы избежать сильного влияния на производительность больших порталов.
@@ -417,11 +681,15 @@ value.DYN_LIGHT_PORTAL.0=Выключен
 value.DYN_LIGHT_PORTAL.1=Излучаемый
 value.DYN_LIGHT_PORTAL.2=Трассировачный
 
+=====Dynamic Light Redstone=====
+
 option.DYN_LIGHT_REDSTONE=Освещение редстоуна/Редстоуновой руды
 option.DYN_LIGHT_REDSTONE.comment=Как будет обрабатываться освещение для редстоуна, чтобы избежать сильного влияния на производительность при больших конструкций.
 value.DYN_LIGHT_REDSTONE.0=Выключен
 value.DYN_LIGHT_REDSTONE.1=Излучаемый
 value.DYN_LIGHT_REDSTONE.2=Трассировачный
+
+=====Dynamic Light Sea Pickle=====
 
 option.DYN_LIGHT_SEA_PICKLE=Освещение Морских Огурцов
 option.DYN_LIGHT_SEA_PICKLE.comment=Как обрабатывается освещение для морских огурцов, чтобы избежать сильного влияния на производительность в больших караловых рифов.
@@ -429,57 +697,83 @@ value.DYN_LIGHT_SEA_PICKLE.0=Выключен
 value.DYN_LIGHT_SEA_PICKLE.1=Излучаемый
 value.DYN_LIGHT_SEA_PICKLE.2=Трассировачный
 
+/////ADVANCED OPTIONS/////
 
 screen.LIGHTING_TRACE_ADVANCED_OPTIONS=Расширенный
+
+=====Lighting Bin Size=====
 
 option.LIGHT_BIN_SIZE=Размер Контейнера
 option.LIGHT_BIN_SIZE.comment=Кубический размер в блоках каждого светового контейнера. Использование меньших бинов позволит создать более плотное освещение. Использование больших контейнеров позволит применять динамическое освещение на больших дистанциях от игрока/камеры.
 
+=====Lighting Bin Maximum Count=====
+
 option.LIGHT_BIN_MAX_COUNT=Максимальный Свет Контейнера
 option.LIGHT_BIN_MAX_COUNT.comment=Максимальное количество света, которое может вместить каждый контейнер.
 
+=====Lighting Size X/Z=====
+
 option.LIGHT_SIZE_XZ=Горизонтальное Количество Контейнера
 
+=====Lighting Size Y=====
+
 option.LIGHT_SIZE_Y=Вертикальное Количество Контейнера
+
+=====Lighting Range=====
 
 option.LIGHTING_RANGE=Диапазон
 option.LIGHTING_RANGE.comment=Регулирует масштаб отбрасываемого блоками диапазона света. Внимание, увеличение может резко снизить производительность!
 suffix.LIGHTING_RANGE=%
 
+=====Lighting Ray Tracing Maximum Sample Count=====
+
 option.LIGHTING_TRACE_SAMPLE_MAX=Максимальное Количество Образцов
 option.LIGHTING_TRACE_SAMPLE_MAX.comment=Максимальное количество источников света, которое может быть образцовано на пиксель для каждого рендерного кадра. Установка меньшего значения увеличивает производительность, но также увеличивает временное размытие.
 value.LIGHTING_TRACE_SAMPLE_MAX.0=Бесконечное
 
-value.LIGHTING_TRACE_FILTER.0=OFF
+=====Lighting Ray Tracing Filter=====
+
+option.LIGHTING_TRACE_FILTER=Фильтр
+option.LIGHTING_TRACE_FILTER.comment=Применяет фильтр гаусса для сглаживания выборки света Трассировки Лучей.
+value.LIGHTING_TRACE_FILTER.0=Выкл
 value.LIGHTING_TRACE_FILTER.1=3x3
 value.LIGHTING_TRACE_FILTER.2=5x5
+
+=====Dynamic Lighting Weather=====
 
 option.DYN_LIGHT_WEATHER=Погодные Частицы
 option.DYN_LIGHT_WEATHER.comment=Будет ли применяться динамическое освещение к частицам погоды. Включение этой опции сильно сказывается на производительности!
 
+#####VOLIMETRIC OPTIONS#####
 
-screen.VOLUMETRIC_OPTIONS=Объёмный туман
+screen.VOLUMETRIC_OPTIONS=Настройки Объёмного тумана
+
+=====Volumetric Resolution=====
 
 option.VOLUMETRIC_RES=Разрешение
 value.VOLUMETRIC_RES.0=Высокое
 value.VOLUMETRIC_RES.1=Среднее
 value.VOLUMETRIC_RES.2=Низкое
 
-option.VOLUMETRIC_SAMPLES=Качество
-value.VOLUMETRIC_SAMPLES.12=Низкое
-value.VOLUMETRIC_SAMPLES.24=Среднее
-value.VOLUMETRIC_SAMPLES.36=Высокое
-value.VOLUMETRIC_SAMPLES.48=Очень Высокое
+=====Volumetric Sample Count=====
+
+option.VOLUMETRIC_SAMPLES=Количество Образцов
+
+=====Volumetric Brightness Sky=====
 
 option.VOLUMETRIC_BRIGHT_SKY=Яркость Солнца/Луны
 option.VOLUMETRIC_BRIGHT_SKY.comment=Регулирует яркость солнца и луны при применении объёмного освещения к туману.
 suffix.VOLUMETRIC_BRIGHT_SKY=%
 value.VOLUMETRIC_BRIGHT_SKY.0=Выкл
 
+=====Volumetric Brightness Block=====
+
 option.VOLUMETRIC_BRIGHT_BLOCK=Яркость Блочного Света
 option.VOLUMETRIC_BRIGHT_BLOCK.comment=Регулирует яркость блочно-базового освещения при применении объёмного освещения к туману.
 suffix.VOLUMETRIC_BRIGHT_BLOCK=%
 value.VOLUMETRIC_BRIGHT_BLOCK.0=Выкл
+
+=====Volumetric Block Mode=====
 
 option.VOLUMETRIC_BLOCK_MODE=Объёмный Свет Блока
 option.VOLUMETRIC_BLOCK_MODE.comment=Будет ли применяться объёмное освещение к туману для динамического освещения на основе блоков.
@@ -488,15 +782,25 @@ value.VOLUMETRIC_BLOCK_MODE.1=Излучаемый
 value.VOLUMETRIC_BLOCK_MODE.2=Трассировачный [Простой]
 value.VOLUMETRIC_BLOCK_MODE.3=Трассировачный [Полный]
 
+=====Volumetric Blur Size=====
+
 option.VOLUMETRIC_BLUR_SIZE=Фильтр
-option.VOLUMETRIC_BLUR_SIZE=Применять постфильтрацию объёмного освещения для получения более гладкого результата.
+option.VOLUMETRIC_BLUR_SIZE.comment=Применять постфильтрацию объёмного освещения для получения более гладкого результата.
+value.VOLUMETRIC_BLUR_SIZE.0=Выкл
+value.VOLUMETRIC_BLUR_SIZE.1=3x3
+value.VOLUMETRIC_BLUR_SIZE.2=5x5
+
+=====Volumetric Block Ray Tracing=====
 
 option.VOLUMETRIC_BLOCK_RT=Трассировка Лучей
 option.VOLUMETRIC_BLOCK_RT.comment=Включает объёмную трассировку лучей для блочного освещения; необходимо, чтобы было включено блочное освещение с трассировкой лучей. §c§lОСТОРОЖНО§r§c: может привести к снижению производительности!
 
+#####SHADOW OPTIONS#####
 
 screen.SHADOW_OPTIONS=Настройка Тени
 screen.SHADOW_OPTIONS.comment=Настройки для теней.
+
+=====Shadow Type=====
 
 option.SHADOW_TYPE=Тип
 option.SHADOW_TYPE.comment=Тип используемого теневого отображения.
@@ -504,17 +808,27 @@ value.SHADOW_TYPE.0=Никакое
 value.SHADOW_TYPE.2=Искажённый
 value.SHADOW_TYPE.3=Контактный
 
+=====ShadowMap Resolution=====
+
 option.shadowMapResolution=Разрешение
 option.shadowMapResolution.comment=Разрешение отображения теней. Более высокие значения показывают более точные тени.
+
+=====Shadow Distance=====
 
 option.shadowDistance=Расстояние
 option.shadowDistance.comment=На каком расстоянии будут отрисовываться тени.
 
+=====Shadow Colored=====
+
 option.SHADOW_COLORED=Цветные Тени
 option.SHADOW_COLORED.comment=Является ли солнечный/лунный свет тонированным при прохождении через полупрозрачные цветные блоки.
 
+=====Shadow Color Blend=====
+
 option.SHADOW_COLOR_BLEND=Наложение Цветов
 option.SHADOW_COLOR_BLEND.comment=Позволяет цветным теням наложить несколько цветов. На данный момент эта функция не работает, пока в Sodium не появится поддержка полупрозрачной сортировки.
+
+=====Shadow Bias Scale=====
 
 option.SHADOW_BIAS_SCALE=Шкала Погрешности
 option.SHADOW_BIAS_SCALE.comment=Увеличьте этот параметр, если вы получаете теневые acne. Уменьшите этот показатель, если у вас появится peter panning.
@@ -544,16 +858,23 @@ value.SHADOW_BIAS_SCALE.2.3=230%
 value.SHADOW_BIAS_SCALE.2.4=240%
 value.SHADOW_BIAS_SCALE.2.5=250%
 
+=====Shadow Distort Factor=====
+
 option.SHADOW_DISTORT_FACTOR=Искажённый
 option.SHADOW_DISTORT_FACTOR.comment=Величина искажения, применяемая к теням. Применяется только к искажённым теням.
 suffix.SHADOW_DISTORT_FACTOR=%
 
+=====Shadow Cloud Enabled=====
+
 option.SHADOW_CLOUD_ENABLED=Облачная Тень
 option.SHADOW_CLOUD_ENABLED.comment=Включает тени от облаков.
 
+/////SHADOW FILTER OPTIONS/////
 
-screen.SHADOW_FILTER_OPTIONS=Фильтрация
+screen.SHADOW_FILTER_OPTIONS=Настройки Фильтра
 screen.SHADOW_FILTER_OPTIONS.comment=Настройки фильтрации теней.
+
+=====Shadow Filter=====
 
 option.SHADOW_FILTER=Фильтрация
 option.SHADOW_FILTER.comment=Тип фильтрации для применения к выборке теней.
@@ -561,53 +882,84 @@ value.SHADOW_FILTER.0=Никакой
 value.SHADOW_FILTER.1=Мягко-Фиксированный
 value.SHADOW_FILTER.2=Мягко-Динамический
 
+=====Shadow Enable HWCOMP=====
+
 option.SHADOW_ENABLE_HWCOMP=Ускоренная-АФ
 option.SHADOW_ENABLE_HWCOMP.comment=При включении этой функции тени будут использовать аппаратную фильтрацию для повышения качества и производительности.
 
+=====Shadow PCF Size=====
+
 option.SHADOW_PCF_SIZE_MIN=Минимальный Радиус
-option.SHADOW_PCF_SIZE_MIN.comment=Минимальный радиус размытия тени; измеряется в блоках/метрах. Только для динамических мягких теней.
+option.SHADOW_PCF_SIZE_MIN.comment=Минимальный радиус размытия тени; измеряется в блоках/метрах. Только для мягко-динамических теней.
 suffix.SHADOW_PCF_SIZE_MIN=%
 
+=====Shadow PCF Size=====
+
 option.SHADOW_PCF_SIZE_MAX=Максимальный Радиус
-option.SHADOW_PCF_SIZE_MAX.comment=Максимальный/фиксированный радиус размытия тени; измеряется в блоках/метрах. Для фиксированных или динамических мягких теней.
+option.SHADOW_PCF_SIZE_MAX.comment=Максимальный/фиксированный радиус размытия тени; измеряется в блоках/метрах. Для мягко-фиксированных или мягко-динамических теней.
 suffix.SHADOW_PCF_SIZE_MAX=%
 
+=====Shadow PCF Samples=====
+
 option.SHADOW_PCF_SAMPLES=Образцы Размытия
-option.SHADOW_PCF_SAMPLES.comment=Количество образцов, используемых при размытии. Для фиксированных или динамических мягких теней.
+option.SHADOW_PCF_SAMPLES.comment=Количество образцов, используемых при размытии. Для мягко-фиксированных или мягко-динамических теней.
+
+=====Shadow PCSS Samples=====
 
 option.SHADOW_PCSS_SAMPLES=Образцы Блока
-option.SHADOW_PCSS_SAMPLES.comment=Количество образцов, используемых для определения ширины полутени. Только для динамических мягких теней.
+option.SHADOW_PCSS_SAMPLES.comment=Количество образцов, используемых для определения ширины полутени. Только для мягко-динамических теней.
+
+=====Shadow Blur Size=====
 
 option.SHADOW_BLUR_SIZE=Сглаживание
 option.SHADOW_BLUR_SIZE.comment=Применяет пост гауссовое размытие к буферу затенения для дополнительного сглаживания размытия. Применяется ко всем типам теней.
-value.SHADOW_BLUR_SIZE.0=OFF
+value.SHADOW_BLUR_SIZE.0=Выкл
 value.SHADOW_BLUR_SIZE.1=3x3
 value.SHADOW_BLUR_SIZE.2=5x5
 
+#####EFFECT OPTIONS#####
 
 screen.EFFECT_OPTIONS=Настройка Эффектов
+
+=====Auto Exprouse=====
 
 option.EFFECT_AUTO_EXPOSE=Авто-Экспозиция
 option.EFFECT_AUTO_EXPOSE.comment=Быстрый эффект авто-экспозиции, основанный на яркости в месте расположения камеры.
 
-option.TAA_ENABLED=ВС (TAA)
-option.TAA_ENABLED.comment=Включает временное сглаживание (TAA/ВС). Может вызывать эффект "призрака"/"следа" на движущихся объектах.
+/////FXAA OPTIONS/////
 
-option.FXAA_ENABLED=БНС (FXAA)
-option.FXAA_ENABLED.comment=Включает быстрое, но низкокачественное сглаживание (FXAA/БНС).
+screen.EFFECT_FXAA_OPTIONS=БНС (FXAA)
 
+=====FXAA Enabled=====
 
-screen.EFFECT_BLOOM_OPTIONS=Блюм (Разцветение/Bloom)
+option.EFFECT_FXAA_ENABLED=Включён
+option.EFFECT_FXAA_ENABLED.comment=Включает быстрое, но низкокачественное сглаживание (FXAA/БНС).
+
+=====FXAA Iterations=====
+
+option.EFFECT_FXAA_ITERATIONS=Итерация
+
+/////BLOOM OPTIONS/////
+
+screen.EFFECT_BLOOM_OPTIONS=Настройка Блюма (Разцветение/Bloom)
+
+=====Bloom Enabled=====
 
 option.EFFECT_BLOOM_ENABLED=Включён
+
+=====Bloom Strenght=====
 
 option.EFFECT_BLOOM_STRENGTH=Сила
 option.EFFECT_BLOOM_STRENGTH.comment=Количество блюма, применяемых к финальной сцене. Установите нулевое значение для отключения.
 suffix.EFFECT_BLOOM_STRENGTH=%
 
+=====Bloom Power=====
+
 option.EFFECT_BLOOM_POWER=Мощность
 option.EFFECT_BLOOM_POWER.comment=Кривая, применяемая к яркости. Более высокие значения уменьшают блюм в темных областях.
 suffix.EFFECT_BLOOM_POWER=x
+
+=====Bloom Threshold=====
 
 option.EFFECT_BLOOM_THRESHOLD=Порог
 option.EFFECT_BLOOM_THRESHOLD.comment=Порог яркости, который должен превысить свет, чтобы способствовать блюму.
@@ -617,54 +969,132 @@ option.EFFECT_BLOOM_HAND=Сила от Руки
 option.EFFECT_BLOOM_HAND.comment=Сила блюма от находящихся в руках предметов/блоков.
 suffix.EFFECT_BLOOM_HAND=%
 
+/////BLUR OPTIONS/////
 
 screen.EFFECT_BLUR_OPTIONS=Настройки Размытия
 
-option.EFFECT_BLUR_TYPE=Режим
-value.EFFECT_BLUR_TYPE.0=Выкл
-value.EFFECT_BLUR_TYPE.1=Дальность
-value.EFFECT_BLUR_TYPE.2=ГР (DOF)
+=====Blur Enabled=====
+
+option.EFFECT_BLUR_ENABLED=Включён
+
+=====Blur DOF Focus Scale=====
 
 option.EFFECT_BLUR_DOF_FOCUS_SCALE=Фокус ГР
 suffix.EFFECT_BLUR_DOF_FOCUS_SCALE=%
 
+=====Blur Sample Count=====
+
 option.EFFECT_BLUR_SAMPLE_COUNT=Количество Образцов
 
-option.EFFECT_BLUR_MAX_RADIUS=Радиус
+=====Blur Radius=====
 
-screen.EFFECT_SSAO_OPTIONS=ЭПОО
-screen.EFFECT_SSAO_OPTIONS.comment=Опции для Экранного-Пространства Окружающей Окколюзии
+option.EFFECT_BLUR_MAX_RADIUS=Радиус
+option.EFFECT_BLUR_MAX_RADIUS.comment=Максимальный радиус размытия, применяемый к дальним участкам местности (если не в воде).
+suffix.EFFECT_BLUR_MAX_RADIUS=px
+
+=====Blur Water Radius=====
+
+option.EFFECT_BLUR_WATER_RADIUS=Радиус Воды
+option.EFFECT_BLUR_WATER_RADIUS.comment=Максимальный радиус размытия, применяемый к дальним участкам местности если в воде.
+suffix.EFFECT_BLUR_WATER_RADIUS=px
+
+=====Blur Radius Weather=====
+
+option.EFFECT_BLUR_RADIUS_WEATHER=Радиус Погоды
+option.EFFECT_BLUR_RADIUS_WEATHER.comment=Максимальный радиус размытия, применяемый к дальним участкам местности если дождь/снег.
+suffix.EFFECT_BLUR_RADIUS_WEATHER=px
+
+=====Blur Radius Blind=====
+
+option.EFFECT_BLUR_RADIUS_BLIND=Радиус Слепоты
+option.EFFECT_BLUR_RADIUS_BLIND.comment=Максимальный радиус размытия, применяемый к дальним участкам местности если эффект слепоты активирован.
+suffix.EFFECT_BLUR_RADIUS_BLIND=px
+
+=====Blur Aberration=====
+
+option.EFFECT_BLUR_ABERRATION_ENABLED=Включить Аберрацию
+
+option.EFFECT_BLUR_ABERRATION_STRENGTH=Сила Аберрации
+suffix.EFFECT_BLUR_ABERRATION_STRENGTH=%
+
+/////SSAO OPTIONS/////
+
+screen.EFFECT_SSAO_OPTIONS=Настройки ЭПОО
+screen.EFFECT_SSAO_OPTIONS.comment=Настройки для Экранного-Пространства Окружающей Окколюзии
+
+=====SSAO Enabled=====
 
 option.EFFECT_SSAO_ENABLED=Включён
 
+=====SSAO Samples=====
+
 option.EFFECT_SSAO_SAMPLES=Количество Образцов
+option.EFFECT_SSAO_SAMPLES.comment=Количество образцов, используемых на пиксель при расчёте окружающей окколюзии.
+
+=====SSAO Radius=====
 
 option.EFFECT_SSAO_RADIUS=Радиус Блока
+option.EFFECT_SSAO_RADIUS.comment=Максимальный радиус (в блоках) для образцов из центра-точки.
+
+=====SSAO Strenght=====
 
 option.EFFECT_SSAO_STRENGTH=Сила
 suffix.EFFECT_SSAO_STRENGTH=x
 
+/////TAA OPTIONS/////
 
-screen.POST_OPTIONS=Пост-Обработка
+screen.EFFECT_TAA_OPTIONS=Настройки ВС (TAA)
+screen.EFFECT_TAA_OPTIONS.comment=Настройки Временого Сглаживания (ВС/TAA)
+
+=====TAA Enabled=====
+
+option.EFFECT_TAA_ENABLED=Включён
+option.EFFECT_TAA_ENABLED.comment=Включение временного сглаживания (ВС/TAA). Может вызывать эффект "призрака"/"следа" от движущихся объектов.
+
+=====TAA Maximum Accumulation=====
+
+option.EFFECT_TAA_MAX_ACCUM=Максимальные Кадры
+option.EFFECT_TAA_MAX_ACCUM.comment=Максимальное количество кадров, которые можно накапливать/комбинировать.
+
+=====TAA Sharpen=====
+
+option.EFFECT_TAA_SHARPEN=Резкость
+option.EFFECT_TAA_SHARPEN.comment=Делает ВС (TAA) более резким. Может вызывать визуальные артефакты.
+
+#####POST OPTIONS#####
+
+screen.POST_OPTIONS=Настройки Пост-Обработки
+
+=====Post Brightness=====
 
 option.POST_BRIGHTNESS=Яркость
 option.POST_BRIGHTNESS.comment=Яркость конечного изображения.
 suffix.POST_BRIGHTNESS=%
 
+=====Post Contrast=====
+
 option.POST_CONTRAST=Контраст
 option.POST_CONTRAST.comment=Контрастность конечного изображения.
 suffix.POST_CONTRAST=%
+
+=====Post Saturation=====
 
 option.POST_SATURATION=Насыщенность
 option.POST_SATURATION.comment=Насыщенность конечного изображения.
 suffix.POST_SATURATION=%
 
+=====Post Exposure=====
+
 option.POST_EXPOSURE=Экспозиция
+
+=====Gamma Out=====
 
 option.GAMMA_OUT=Гамма
 option.GAMMA_OUT.comment=Кривая-гамма конечного изображения.
 
-option.POST_TONEMAP=Тоноваякарта
+=====Post Tonemap=====
+
+option.POST_TONEMAP=Тонкарты
 option.POST_TONEMAP.comment=Предотвращает обрезание ярких цветов, что полезно при динамическом освещении.
 value.POST_TONEMAP.0=Выкл
 value.POST_TONEMAP.1=Reinhard
@@ -672,14 +1102,16 @@ value.POST_TONEMAP.2=ACES
 value.POST_TONEMAP.3=Heijl
 value.POST_TONEMAP.4=Lottes
 
-option.EFFECT_FXAA_ENABLED=FXAA Сглаживание
-option.EFFECT_FXAA_ENABLED.comment=Включает быстрое, но низкокачественное FXAA сглаживание.
+=====Post White Point=====
 
 option.POST_WHITE_POINT=Белая-Точка
 suffix.POST_WHITE_POINT=%
 
+#####DEBUG OPTIONS#####
 
 screen.DEBUG_OPTIONS=Shrimple (Перевод от ShrikerChestTree)
+
+=====Debug View=====
 
 option.DEBUG_VIEW=Вид Отладки
 option.DEBUG_VIEW.comment=Какой буфер выводит на экран.
@@ -695,28 +1127,53 @@ value.DEBUG_VIEW.8=Отложенный Грубый/Металл
 value.DEBUG_VIEW.9=Отложенный ОО
 value.DEBUG_VIEW.10=Отложенная Диффузия
 value.DEBUG_VIEW.11=Отложенное Спекулярное Отражение
-value.DEBUG_VIEW.12=Цветная Тень
-value.DEBUG_VIEW.13=Плита Блюма
-value.DEBUG_VIEW.14=Плита Плотности
-value.DEBUG_VIEW.15=Белый-Мир
+value.DEBUG_VIEW.12=Скорость
+value.DEBUG_VIEW.13=Цветная Тень
+value.DEBUG_VIEW.14=Плита Блюма
+value.DEBUG_VIEW.15=Плита Плотности
+value.DEBUG_VIEW.16=Белый-Мир
+
+=====Debug Translucent=====
+
+option.DEBUG_TRANSPARENT=Отладка Полупрозрачных
+option.DEBUG_TRANSPARENT.comment=Показывает вид отладки для полупрозрачных материалов, если он включён, и для непрозрачных в противном случае.
+
+=====Dynamic Lights Debug Counts=====
 
 option.DYN_LIGHT_DEBUG_COUNTS=Количество Показываемого Света
+
+=====Dynamic Lights Ore Blocks=====
 
 option.DYN_LIGHT_OREBLOCKS=Свет Блок-Руды
 option.DYN_LIGHT_OREBLOCKS.comment=При включении этой функции твёрдые блоки руды будут излучать цветной свет.
 
+=====Distant Horizons Clipping Distance=====
+
+option.DH_CLIP_DIST=Вырезание Дистанции DH
+option.DH_CLIP_DIST.comment=Дистанция от камеры, на котором ландшафт Distant Horizons начнёт вырезаться.
+suffix.DH_CLIP_DIST=%
+
+=====Animation World Time=====
+
 option.ANIM_WORLD_TIME=Анимация Мирового-Времени
 option.ANIM_WORLD_TIME.comment=Использует количество мирового времени для анимации чем постоянное. Очень полезная функция для записи модов, которые воспроизводятся с использованием масштабированного мирового времени.
+
+=====Alpha Test Tref Enabled=====
 
 option.ALPHATESTREF_ENABLED=Ванилла АльфаТест
 option.ALPHATESTREF_ENABLED.comment=Пороговое значение AlphaTest для вырезанных блоков. Отключается для жестко-закодированного 10% порога, если не работает должным образом.
 
+=====Light Colors=====
 
 screen.LIGHT_COLORS=Цвет Света
+
+=====Light Color Message=====
 
 option.LIGHT_COLOR_MESSAGE=https://editor.balintcsala.com
 option.LIGHT_COLOR_MESSAGE.comment=Используйте приведённую выше ссылку для редактирования цветов света.
 value.LIGHT_COLOR_MESSAGE.0=Перейти к Ссылке
+
+=====Block Light Color=====
 
 option.LIGHT_COLOR_AMETHYST=Аметист
 option.LIGHT_COLOR_BEACON=Маяк
@@ -739,3 +1196,39 @@ option.LIGHT_COLOR_SCULK_CATALYST=Скалковый Катализатор
 option.LIGHT_COLOR_SEA_LANTERN=Морской Фонарь
 option.LIGHT_COLOR_SEA_PICKLE=Морские Огурцы
 option.LIGHT_COLOR_SHROOMLIGHT=Грибосвет
+
+#####OTHER#####
+
+=====Light Leak Fix=====
+
+option.LIGHT_LEAK_FIX=ИСПРАВЛЕНИЕ_СВЕТОВОЙ_ДЫРЫ
+
+=====Water Multidepth Debug=====
+
+option.WATER_MULTIDEPTH_DEBUG=ОТЛАДКА_МНОГОГЛУБОКОЙ_ВОДЫ
+
+/////SKY COLOR OPTIONS/////
+
+screen.SKY_COLOR_OPTIONS=НАСТРОЙКИ_ЦВЕТА_НЕБА
+
+=====Sky Light Color Day=====
+
+option.SKY_LIGHT_COLOR_DAY_R=ЦВЕТ_СВЕТА_НЕБА_ДНЁМ_R
+option.SKY_LIGHT_COLOR_DAY_G=ЦВЕТ_СВЕТА_НЕБА_ДНЁМ_G
+option.SKY_LIGHT_COLOR_DAY_B=ЦВЕТ_СВЕТА_НЕБА_ДНЁМ_B
+
+=====Sky Light Color Horizon=====
+
+option.SKY_LIGHT_COLOR_HORIZON_R=ИСХОДНЫЙ_ЦВЕТ_СВЕТА_НЕБА_R
+option.SKY_LIGHT_COLOR_HORIZON_G=ИСХОДНЫЙ_ЦВЕТ_СВЕТА_НЕБА_G
+option.SKY_LIGHT_COLOR_HORIZON_B=ИСХОДНЫЙ_ЦВЕТ_СВЕТА_НЕБА_B
+
+=====Sky Light Color Night=====
+
+option.SKY_LIGHT_COLOR_NIGHT_R=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_R
+option.SKY_LIGHT_COLOR_NIGHT_G=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_G
+option.SKY_LIGHT_COLOR_NIGHT_B=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_B
+
+=====LPV GI=====
+
+option.LPV_GI=ОНЗ ГО
