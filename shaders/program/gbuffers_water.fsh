@@ -287,7 +287,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
