@@ -154,6 +154,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         }
 
         if (level > SSR_LodMin && i < SSR_MAXSTEPS - (level + 1)) {
+        // if (level > SSR_LodMin) {
            level--;
            continue;
         }
