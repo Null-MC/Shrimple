@@ -263,7 +263,7 @@ void main() {
             vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
             if (entityLightColorRange.a > EPSILON) {
-                lightColor = _pow2(entityLightColorRange.rgb);
+                vec3 lightColor = _pow2(entityLightColorRange.rgb);
                 lightValue = lightColor * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
             }
 

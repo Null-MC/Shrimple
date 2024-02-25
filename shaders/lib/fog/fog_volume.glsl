@@ -123,8 +123,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float shadowDistFar = min(shadowDistance, far);
     #endif
 
-    for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
-        float iStep = i + dither;// * step(1, i);
+    for (int i = 0; i <= VOLUMETRIC_SAMPLES; i++) {
+        float stepDither = dither * step(i, VOLUMETRIC_SAMPLES-1);
+
+        float iStep = i + stepDither;// * step(1, i);
         vec3 traceLocalPos = localStep * iStep + localStart;
         vec3 traceWorldPos = traceLocalPos + cameraPosition;
         float traceDist = length(traceLocalPos);
@@ -403,12 +405,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;
-        lightF *= stepLength;
 
         float traceStepLen = stepLength;
 
-        if (i == VOLUMETRIC_SAMPLES-1) traceStepLen *= (1.0 - dither);
+        if (i == VOLUMETRIC_SAMPLES) traceStepLen *= (1.0 - dither);
         else if (i == 0) traceStepLen *= dither;
+
+        // lightF *= traceStepLen;
+        lightF *= stepLength;
 
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
