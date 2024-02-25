@@ -26,6 +26,7 @@ bool IsTraceFullBlock(const in uint blockId) {
 
     if (blockId >= BLOCK_SMOKER_LIT_N && blockId <= BLOCK_SMOKER_LIT_W) result = true;
 
+    if (blockId == BLOCK_CREATE_XP) result = true;
     if (blockId == BLOCK_ROSE_QUARTZ_LAMP_LIT) result = true;
 
     if (blockId >= 1000) result = true;
