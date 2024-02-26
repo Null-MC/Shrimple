@@ -21,6 +21,11 @@
 #define WATER_TEXTURED 0
 #define WATER_COLORED 1
 
+// #define WATER_COLOR_AUTO 0
+// #define WATER_COLOR_DEFAULT 1
+// #define WATER_COLOR_TROPICAL 2
+// #define WATER_COLOR_SWAMP 3
+
 #define WATER_WAVES_NONE 0
 // #define WATER_WAVES_BASIC 1
 // #define WATER_WAVES_FANCY 2

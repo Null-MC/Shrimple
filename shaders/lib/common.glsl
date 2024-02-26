@@ -107,6 +107,7 @@ const bool colortex15Clear = true;
 
 // Water Options
 #define WATER_SURFACE_TYPE 0 // [0 1]
+#define WATER_COLOR_TYPE 0 // [0 1 2 3]
 #define WATER_OPACITY 75 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WATER_SURFACE_PIXEL_RES 0 // [0 8 16 32 64 128]
 #define WATER_VOL_FOG_TYPE 2 // [0 1 2]

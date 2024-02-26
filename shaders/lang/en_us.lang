@@ -118,9 +118,15 @@ value.WORLD_CURVE_RADIUS.0=FLAT
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.
 
+option.WATER_COLOR_TYPE=Color
+value.WATER_COLOR_TYPE.0=Automatic
+value.WATER_COLOR_TYPE.1=Default
+value.WATER_COLOR_TYPE.2=Tropical
+value.WATER_COLOR_TYPE.3=Swamp
+
 option.WATER_SURFACE_TYPE=Surface
-value.WATER_SURFACE_TYPE.0=Textured
-value.WATER_SURFACE_TYPE.1=Colored
+value.WATER_SURFACE_TYPE.0=Texture
+value.WATER_SURFACE_TYPE.1=Color
 
 option.WATER_OPACITY=Opacity
 option.WATER_OPACITY.comment=Determines how transparent water blocks will be.
