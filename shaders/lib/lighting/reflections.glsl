@@ -340,7 +340,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                         float phaseSky = GetSkyPhase(VoL);
                         vlLight += saturate(phaseSky) * WorldSkyLightColor;
                     #else
-                        vlLight += phaseIso;
+                        #ifdef WORLD_SKY_ENABLED
+                            vlLight += phaseIso * WorldSkyLightColor;
+                        #else
+                            vlLight += phaseIso;
+                        #endif
                     #endif
 
                     float reflectFogDist = reflectDist;
