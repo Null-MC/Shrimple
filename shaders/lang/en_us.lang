@@ -49,7 +49,7 @@ suffix.SKY_BRIGHTNESS=%
 
 screen.SKY_CLOUD_OPTIONS=Clouds
 
-option.SKY_CLOUD_TYPE=Clouds
+option.SKY_CLOUD_TYPE=Type
 value.SKY_CLOUD_TYPE.0=None
 value.SKY_CLOUD_TYPE.1=Vanilla
 value.SKY_CLOUD_TYPE.2=Fancy
