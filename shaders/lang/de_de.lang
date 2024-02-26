@@ -37,8 +37,9 @@ value.WORLD_WETNESS_PUDDLES.1=Standard
 value.WORLD_WETNESS_PUDDLES.2=Pixel
 value.WORLD_WETNESS_PUDDLES.3=Schön
 
-option.WORLD_WAVING_ENABLED=Wehende Pflanzen
-option.WORLD_WAVING_ENABLED.comment=Lässt Pflanzen im Wind wehen.
+option.WORLD_WIND_STRENGTH=Wehende Pflanzen
+option.WORLD_WIND_STRENGTH.comment=Lässt Pflanzen im Wind wehen.
+suffix.WORLD_WIND_STRENGTH=x
 
 option.WORLD_AMBIENT_MODE=Umgebungslicht
 value.WORLD_AMBIENT_MODE.0=Aus

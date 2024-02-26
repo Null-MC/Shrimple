@@ -93,7 +93,7 @@ const bool colortex15Clear = true;
 
 // World Options
 #define WORLD_WETNESS_ENABLED
-#define WORLD_WAVING_ENABLED
+#define WORLD_WIND_STRENGTH 8 // [0 2 4 6 8 10 12 14 16 18 20]
 //#define WORLD_AMBIENT_MODE 1 // [0 1 2]
 #define WORLD_AO_ENABLED
 //#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]

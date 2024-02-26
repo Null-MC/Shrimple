@@ -83,8 +83,9 @@ value.WORLD_WETNESS_PUDDLES.1=Basic
 value.WORLD_WETNESS_PUDDLES.2=Pixel
 value.WORLD_WETNESS_PUDDLES.3=Fancy
 
-option.WORLD_WAVING_ENABLED=Waving Plants
-option.WORLD_WAVING_ENABLED.comment=Allows plants to wave in the wind.
+option.WORLD_WIND_STRENGTH=Waving Plants
+option.WORLD_WIND_STRENGTH.comment=Allows plants to wave in the wind.
+suffix.WORLD_WIND_STRENGTH=x
 
 option.WORLD_AMBIENT_MODE=Ambient Lighting
 value.WORLD_AMBIENT_MODE.0=OFF

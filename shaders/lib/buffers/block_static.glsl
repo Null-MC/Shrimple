@@ -10,7 +10,7 @@ struct StaticBlockData {        // 76 x1280 =97280
     float materialMetalF0;      // 4
     float materialSSS;          // 4
 
-    #ifdef WORLD_WAVING_ENABLED
+    #if WORLD_WIND_STRENGTH > 0
         float wavingRange;          // 4
         uint wavingAttachment;      // 4
     #endif

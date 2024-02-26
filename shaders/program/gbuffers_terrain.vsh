@@ -139,7 +139,7 @@ uniform float far;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
+#if defined WORLD_SKY_ENABLED && WORLD_WIND_STRENGTH > 0
     #include "/lib/world/waving.glsl"
 #endif
 

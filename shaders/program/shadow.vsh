@@ -47,7 +47,7 @@ uniform int blockEntityId;
     #include "/lib/buffers/shadow.glsl"
 #endif
 
-#ifdef WORLD_WAVING_ENABLED
+#if WORLD_WIND_STRENGTH > 0
     #include "/lib/buffers/block_static.glsl"
     #include "/lib/sampling/noise.glsl"
     #include "/lib/world/waving.glsl"
@@ -125,7 +125,7 @@ void main() {
     vec4 viewPos = gl_ModelViewMatrix * pos;
     vec4 localPos = shadowModelViewInverse * viewPos;
 
-    #ifdef WORLD_WAVING_ENABLED
+    #if WORLD_WIND_STRENGTH > 0
         ApplyWavingOffset(localPos.xyz, localPos.xyz, blockId);
     #endif
 

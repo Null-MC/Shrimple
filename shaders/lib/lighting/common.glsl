@@ -6,7 +6,7 @@ vec4 BasicVertex() {
     #endif
 
     #if defined RENDER_TERRAIN || defined RENDER_WATER
-        #if defined WORLD_SKY_ENABLED && defined WORLD_WAVING_ENABLED
+        #if defined WORLD_SKY_ENABLED && WORLD_WIND_STRENGTH > 0
             vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
 
             ApplyWavingOffset(pos.xyz, localPos, vOut.blockId);

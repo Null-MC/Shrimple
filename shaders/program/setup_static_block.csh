@@ -20,7 +20,7 @@ const ivec3 workGroups = ivec3(4, 5, 1);
 
     #include "/lib/lighting/voxel/block_light_map.glsl"
 
-    #ifdef WORLD_WAVING_ENABLED
+    #if WORLD_WIND_STRENGTH > 0
         #include "/lib/world/waving_blocks.glsl"
     #endif
 
@@ -43,7 +43,7 @@ void main() {
         block.materialMetalF0 = GetBlockMetalF0(blockId);
         block.materialSSS = GetBlockSSS(blockId);
 
-        #ifdef WORLD_WAVING_ENABLED
+        #if WORLD_WIND_STRENGTH > 0
             GetBlockWavingRangeAttachment(blockId, block.wavingRange, block.wavingAttachment);
         #endif
 

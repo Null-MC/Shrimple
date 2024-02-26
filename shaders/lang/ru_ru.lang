@@ -125,8 +125,9 @@ value.WORLD_WETNESS_PUDDLES.3=Детальная
 
 =====Waving=====
 
-option.WORLD_WAVING_ENABLED=Колышение Растений
-option.WORLD_WAVING_ENABLED.comment=Позволяет растениям колышаться на ветру.
+option.WORLD_WIND_STRENGTH=Колышение Растений
+option.WORLD_WIND_STRENGTH.comment=Позволяет растениям колышаться на ветру.
+suffix.WORLD_WIND_STRENGTH=x
 
 =====Ambient=====
 

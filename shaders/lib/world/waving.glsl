@@ -1,8 +1,7 @@
-const float wavingScale = 8.0;
 const float wavingHeight = 0.6;
 
 vec3 waving_fbm(const in vec3 worldPos, const in float time) {
-    vec2 position = worldPos.xz * rcp(wavingScale);
+    vec2 position = worldPos.xz * rcp(WORLD_WIND_STRENGTH);
     // float time = GetAnimationFactor() / 3.6;
 
     float iter = 0.0;
@@ -28,7 +27,7 @@ vec3 waving_fbm(const in vec3 worldPos, const in float time) {
         speed *= 1.3;
     }
 
-    position = (position * wavingScale) - worldPos.xz;
+    position = (position * WORLD_WIND_STRENGTH) - worldPos.xz;
     return vec3(position.x, height / waveSum * wavingHeight - 0.5 * wavingHeight, position.y);
 }
 
