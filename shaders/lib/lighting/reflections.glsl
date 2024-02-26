@@ -338,7 +338,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY && defined WORLD_SKY_ENABLED
                         float VoL = dot(localSkyLightDirection, reflectLocalDir);
                         float phaseSky = GetSkyPhase(VoL);
-                        vlLight += phaseSky * WorldSkyLightColor;
+                        vlLight += saturate(phaseSky) * WorldSkyLightColor;
                     #else
                         vlLight += phaseIso;
                     #endif
