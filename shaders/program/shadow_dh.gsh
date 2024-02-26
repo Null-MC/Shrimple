@@ -36,6 +36,7 @@ out VertexData {
 
     #ifdef IRIS_FEATURE_SSBO
         #include "/lib/buffers/scene.glsl"
+        #include "/lib/buffers/shadow.glsl"
     #endif
 
     #include "/lib/utility/matrix.glsl"

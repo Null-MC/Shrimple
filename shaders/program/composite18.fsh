@@ -931,37 +931,40 @@ layout(location = 0) out vec4 outFinal;
                 vec3 vlTransmit = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
                 final.rgb = final.rgb * vlTransmit + vlScatter;
             #endif
-        #endif
-
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && (!defined WORLD_SKY_ENABLED || SKY_CLOUD_TYPE <= CLOUDS_VANILLA)
-            #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater == 0) {
-            #endif
-
-                float maxDist = min(viewDist, far);
-                vec3 _ambient = vec3(AirAmbientF);
-
-
-                #ifdef WORLD_SKY_ENABLED
-                    vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
-
-                    float skyLightF = eyeBrightnessSmooth.y / 240.0;
-                    skyLightF = _pow2(skyLightF);
-
-                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                        skyLightColor *= skyLightF;
-                    #endif
-
-                    _ambient *= skyLightColor;
-                #else
-                    const vec3 skyLightColor = vec3(0.0);
+        #else
+            #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && (!defined WORLD_SKY_ENABLED || SKY_CLOUD_TYPE <= CLOUDS_VANILLA)
+                #ifdef WORLD_WATER_ENABLED
+                    if (isEyeInWater == 0) {
                 #endif
 
-                vec3 vlLight = (phaseAir * skyLightColor + _ambient);
-                ApplyScatteringTransmission(final.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                    float maxDist = min(viewDist, far);
+                    // vec3 _ambient = vec3(AirAmbientF);
+                    vec3 vlLight = vec3(0.0);
 
-            #ifdef WORLD_WATER_ENABLED
-                }
+                    #ifdef WORLD_SKY_ENABLED
+                        vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
+
+                        float skyLightF = eyeBrightnessSmooth.y / 240.0;
+                        skyLightF = _pow2(skyLightF);
+
+                        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                            skyLightColor *= skyLightF;
+                        #endif
+
+                        vlLight += phaseAir * skyLightColor;
+                        vlLight += AirAmbientF * skyColorFinal;
+                    #else
+                        //const vec3 skyLightColor = vec3(0.0);
+                        vlLight += phaseAir;
+                        vlLight += AirAmbientF;
+                    #endif
+
+                    //vec3 vlLight = (phaseAir * skyLightColor + _ambient);
+                    ApplyScatteringTransmission(final.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+
+                #ifdef WORLD_WATER_ENABLED
+                    }
+                #endif
             #endif
         #endif
 
