@@ -386,11 +386,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #elif LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
                 vec3 lpvLight = vec3(0.0);
 
-                #ifdef LPV_GI
+                #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     if (!isWater) {
                 #endif
-                    lpvLight = 64.0 * GetLpvBlockLight(lpvSample, 3.0) * DynamicLightBrightness;
-                #ifdef LPV_GI
+                    lpvLight = 32.0 * GetLpvBlockLight(lpvSample, 3.0) * DynamicLightBrightness;
+                #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     }
                 #endif
 
