@@ -304,7 +304,7 @@ const bool colortex15Clear = true;
 #define EFFECT_SSAO_BIAS 0.04
 
 #define EFFECT_TAA_ENABLED
-#define EFFECT_TAA_MAX_ACCUM 16 // [8 12 16 20 24 28 32 48 64]
+#define EFFECT_TAA_MAX_ACCUM 16 // [4 6 8 10 12 16 20 24 28 32 48 64]
 #define EFFECT_TAA_SHARPEN
 
 //#define EFFECT_FXAA_ENABLED

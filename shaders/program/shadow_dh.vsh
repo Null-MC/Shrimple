@@ -28,6 +28,18 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
+#ifdef RENDER_SHADOWS_ENABLED
+    // #include "/lib/utility/matrix.glsl"
+    // #include "/lib/buffers/shadow.glsl"
+    // #include "/lib/shadows/common.glsl"
+
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        // #include "/lib/shadows/cascaded/common.glsl"
+    #elif SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        #include "/lib/shadows/distorted/common.glsl"
+    #endif
+#endif
+
 
 void main() {
     vOut.materialId = uint(dhMaterialId);
@@ -58,6 +70,17 @@ void main() {
 
         vOut.cameraViewDist = length(localPos.xyz);
 
-        gl_Position = shadowModelViewEx * localPos;
+        #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+            #ifdef IRIS_FEATURE_SSBO
+                gl_Position = shadowModelViewProjection * localPos;
+            #else
+                gl_Position = gl_ModelViewMatrix * localPos;
+                gl_Position = gl_ProjectionMatrix * gl_Position;
+            #endif
+
+            gl_Position.xyz = distort(gl_Position.xyz);
+        #else
+            gl_Position = shadowModelViewEx * localPos;
+        #endif
     #endif
 }

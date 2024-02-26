@@ -129,7 +129,7 @@ void main() {
         ApplyWavingOffset(localPos.xyz, localPos.xyz, blockId);
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT
+    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && (WATER_WAVE_SIZE > 0 || defined PHYSICS_OCEAN)
         if ((renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD)) {
             float viewDist = length(localPos.xyz);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);

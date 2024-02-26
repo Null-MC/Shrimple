@@ -25,35 +25,24 @@ out VertexData {
     #endif
 } vOut;
 
-uniform mat4 gbufferModelView;
-uniform vec3 cameraPosition;
-uniform float far;
-
-#ifdef RENDER_SHADOWS_ENABLED
-    uniform mat4 gbufferProjection;
+#if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     uniform mat4 shadowModelView;
+    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferProjection;
+    uniform vec3 cameraPosition;
     uniform float dhFarPlane;
     uniform float near;
-#endif
+    uniform float far;
 
-#ifdef IRIS_FEATURE_SSBO
-    #include "/lib/buffers/scene.glsl"
-#endif
-
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
-    #include "/lib/shadows/common.glsl"
-
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
+    #ifdef IRIS_FEATURE_SSBO
+        #include "/lib/buffers/scene.glsl"
     #endif
-#endif
+
+    #include "/lib/utility/matrix.glsl"
+    #include "/lib/shadows/common.glsl"
+    #include "/lib/shadows/cascaded/common.glsl"
 
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
     // returns: tile [0-3] or -1 if excluded
     int GetShadowRenderTile(const in vec3 blockPos) {
         const int max = 4;
@@ -67,11 +56,6 @@ uniform float far;
 #endif
 
 void main() {
-    // float minDist = vIn[0].cameraViewDist;
-    // minDist = min(minDist, vIn[1].cameraViewDist);
-    // minDist = min(minDist, vIn[2].cameraViewDist);
-    // if (minDist < 0.5 * min(shadowDistance, far)) return;
-
     #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 originShadowViewPos = (gl_in[0].gl_Position.xyz + gl_in[1].gl_Position.xyz + gl_in[2].gl_Position.xyz) * rcp(3.0);
@@ -119,17 +103,11 @@ void main() {
             }
         #else
             for (int v = 0; v < 3; v++) {
+                gl_Position = gl_in[v].gl_Position;
+
                 vOut.color = vIn[v].color;
                 vOut.materialId = vIn[v].materialId;
                 vOut.cameraViewDist = vIn[v].cameraViewDist;
-
-                #ifdef IRIS_FEATURE_SSBO
-                    gl_Position = shadowProjectionEx * gl_in[v].gl_Position;
-                #else
-                    gl_Position = gl_ProjectionMatrix * gl_in[v].gl_Position;
-                #endif
-
-                gl_Position.xyz = distort(gl_Position.xyz);
 
                 EmitVertex();
             }

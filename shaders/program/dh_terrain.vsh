@@ -144,13 +144,13 @@ void main() {
             const float geoNoL = 1.0;
         #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
-        #else
-            vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
-        #endif
+        // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //     ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+        // #else
+        //     vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
+        // #endif
 
-        #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
+        #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
             vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
         #endif
     #endif
