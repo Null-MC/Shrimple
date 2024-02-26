@@ -319,18 +319,35 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 if (reflectDist > 0.0) {
-                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                    vec3 vlLight = vec3(0.0);
+
+                    #ifdef WORLD_SKY_ENABLED
+                        // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                        #if SKY_TYPE == SKY_TYPE_CUSTOM
+                            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+                        #else
+                            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                            skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
+                        #endif
+
+                        vlLight += AirAmbientF * skyColorFinal;
+                    #else
+                        vlLight += AirAmbientF;
+                    #endif
+
+                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY && defined WORLD_SKY_ENABLED
                         float VoL = dot(localSkyLightDirection, reflectLocalDir);
                         float phaseSky = GetSkyPhase(VoL);
-                        vec3 vlLight = vec3(phaseSky + AirAmbientF);
+                        vlLight += phaseSky * WorldSkyLightColor;
                     #else
-                        vec3 vlLight = vec3(phaseIso + AirAmbientF);
+                        vlLight += phaseIso;
                     #endif
 
                     float reflectFogDist = reflectDist;
 
                     #ifdef WORLD_SKY_ENABLED
-                        vlLight *= skyLightColor * pow5(skyLight);
+                        // vlLight *= skyLightColor * pow5(skyLight);
+                        vlLight *= pow5(skyLight);
 
                         reflectFogDist = min(reflectFogDist, farMax);
                         // TODO: Limit reflectDist < cloudNear
