@@ -178,15 +178,7 @@ screen.WATER_OPTIONS.comment=Настройки для воды.
 
 =====Surface Type=====
 
-option.WATER_SURFACE_TYPE=Тип Поверхности
-value.WATER_SURFACE_TYPE.0=Текстура
-value.WATER_SURFACE_TYPE.1=Цвет
-
-=====Water Opacity=====
-
-option.WATER_OPACITY=Прозрачность
-option.WATER_OPACITY.comment=Насколько прозрачна будет вода.
-suffix.WATER_OPACITY=%
+# option.WATER_TEXTURED=
 
 =====Wave Size=====
 

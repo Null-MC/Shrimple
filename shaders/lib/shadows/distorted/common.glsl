@@ -47,7 +47,8 @@ vec3 distort(const in vec3 pos) {
             vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
             return (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
         #else
-            return (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
+            // return (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
+            return mat3(shadowModelViewProjection) * offsetLocalPos + shadowModelViewProjection[3].xyz;
         #endif
     }
 #endif

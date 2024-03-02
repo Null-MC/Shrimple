@@ -84,7 +84,7 @@ const bool colortex15Clear = true;
 #define SKY_WEATHER_CLOUD_ONLY
 
 // Sky Cloud Options
-#define SKY_CLOUD_TYPE 2 // [0 1 2 3]
+#define SKY_CLOUD_TYPE 1 // [0 1 2 3]
 #define SKY_CLOUD_SPEED 24 // [0 2 4 8 12 16 20 24 32 48 64 96 128]
 #define SKY_CLOUD_COVER_MIN 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define SKY_CLOUD_ALTITUDE 0 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 750 800 850 900 950 1000 1100 1200]
@@ -95,7 +95,7 @@ const bool colortex15Clear = true;
 #define WORLD_WETNESS_ENABLED
 #define WORLD_WIND_STRENGTH 8 // [0 2 4 6 8 10 12 14 16 18 20]
 //#define WORLD_AMBIENT_MODE 1 // [0 1 2]
-#define WORLD_AO_ENABLED
+//#define WORLD_AO_ENABLED
 //#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WETNESS_PUDDLES 3 // [0 1 2 3]
 #define WORLD_NETHER_AMBIENT 10 // [0 1 2 3 4 5 6 8 10 15 20 25 30 35 40 50]
@@ -106,9 +106,9 @@ const bool colortex15Clear = true;
 
 
 // Water Options
-#define WATER_SURFACE_TYPE 0 // [0 1]
+//#define WATER_TEXTURED
 #define WATER_COLOR_TYPE 0 // [0 1 2 3]
-#define WATER_OPACITY 75 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+//#define WATER_OPACITY 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WATER_SURFACE_PIXEL_RES 0 // [0 8 16 32 64 128]
 #define WATER_VOL_FOG_TYPE 2 // [0 1 2]
 #define WATER_FOG_DENSITY 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 500 600]
@@ -313,13 +313,13 @@ const bool colortex15Clear = true;
 
 
 // Post-Processing
-#define POST_TONEMAP 4 // [0 1 2 3 4]
+#define POST_TONEMAP 2 // [0 1 2 3 4]
 #define POST_BRIGHTNESS 100 // [0 10 20 30 40 50 60 70 75 80 85 90 95 100 105 110 115 120 125 130 140 150 160 170 180 190 200 220 240 260 280 300]
 #define POST_SATURATION 100 // [0 10 20 30 40 50 60 70 75 80 82 84 86 88 90 92 94 96 98 100 102 104 106 108 110 112 114 116 118 120 125 130 140 150 160 170 180 190 200]
 #define POST_CONTRAST 100 // [80 85 90 92 94 96 98 100 102 104 106 108 110 115 120]
 #define GAMMA_OUT 2.2 // [0.6 0.8 1.0 1.2 1.4 1.6 1.8 1.9 2.0 2.1 2.2 2.3 2.4 2.5 2.6 2.8 3.0 3.4 3.8 4.2 4.6 5.0 6.0 7.0 8.0]
 #define POST_WHITE_POINT 300 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 700 800 900]
-#define POST_EXPOSURE -0.4 // [-2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
+#define POST_EXPOSURE -0.8 // [-2.0 -1.8 -1.6 -1.4 -1.2 -1.0 -0.8 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0]
 
 
 // Debug Options
@@ -534,7 +534,6 @@ const float WorldMinLightF = LIGHTING_MIN * 0.01;
 const float WorldSunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
 const float WorldMoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
 const float WorldSkyBrightnessF = SKY_BRIGHTNESS * 0.01;
-const float WorldWaterOpacityF = WATER_OPACITY * 0.01;
 const float WorldRainOpacityF = SKY_WEATHER_OPACITY * 0.01;
 const float WorldWaterDensityF = WATER_FOG_DENSITY * 0.01;
 const float WorldCurveRadius = WORLD_CURVE_RADIUS * 1000.0;
@@ -572,6 +571,8 @@ const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
+
+const float WorldWaterOpacityF = 0.02;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
@@ -717,8 +718,12 @@ float smootherstep(const in float x) {
     return _pow3(x) * (x * (6.0 * x - 15.0) + 10.0);
 }
 
-void fixNaNs(inout vec3 vec) {
-    if (isnan(vec.x) || isinf(vec.x)) vec.x = EPSILON;
-    if (isnan(vec.y) || isinf(vec.y)) vec.y = EPSILON;
-    if (isnan(vec.z) || isinf(vec.z)) vec.z = EPSILON;
+// void fixNaNs(inout vec3 vec) {
+//     if (isnan(vec.x) || isinf(vec.x)) vec.x = EPSILON;
+//     if (isnan(vec.y) || isinf(vec.y)) vec.y = EPSILON;
+//     if (isnan(vec.z) || isinf(vec.z)) vec.z = EPSILON;
+// }
+
+vec3 mul3(const in mat4 matrix, const in vec3 vector) {
+	return mat3(matrix) * vector + matrix[3].xyz;
 }

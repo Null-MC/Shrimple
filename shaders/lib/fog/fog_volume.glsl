@@ -21,11 +21,15 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
     #ifdef WORLD_SKY_ENABLED
         #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
             #ifdef IRIS_FEATURE_SSBO
-                vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
-                vec3 shadowViewEnd = (shadowModelViewEx * vec4(localEnd, 1.0)).xyz;
+                // vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
+                vec3 shadowViewStart = mat3(shadowModelViewEx) * localStart + shadowModelViewEx[3].xyz;
+                // vec3 shadowViewEnd = (shadowModelViewEx * vec4(localEnd, 1.0)).xyz;
+                vec3 shadowViewEnd = mat3(shadowModelViewEx) * localEnd + shadowModelViewEx[3].xyz;
             #else
-                vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
-                vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
+                // vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
+                vec3 shadowViewStart = mat3(shadowModelView) * localStart + shadowModelView[3].xyz;
+                // vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
+                vec3 shadowViewEnd = mat3(shadowModelView) * localEnd + shadowModelView[3].xyz;
             #endif
 
             vec3 shadowViewStep = (shadowViewEnd - shadowViewStart) * inverseStepCountF;
@@ -47,8 +51,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 float shadowSampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
 
                 #ifdef IRIS_FEATURE_SSBO
-                    vec3 shadowClipStart = (shadowProjectionEx * vec4(shadowViewStart, 1.0)).xyz;
-                    vec3 shadowClipEnd = (shadowProjectionEx * vec4(shadowViewEnd, 1.0)).xyz;
+                    // vec3 shadowClipStart = (shadowProjectionEx * vec4(shadowViewStart, 1.0)).xyz;
+                    vec3 shadowClipStart = mat3(shadowProjectionEx) * shadowViewStart + shadowProjectionEx[3].xyz;
+                    // vec3 shadowClipEnd = (shadowProjectionEx * vec4(shadowViewEnd, 1.0)).xyz;
+                    vec3 shadowClipEnd = mat3(shadowProjectionEx) * shadowViewEnd + shadowProjectionEx[3].xyz;
                 #else
                     vec3 shadowClipStart = (shadowProjection * vec4(shadowViewStart, 1.0)).xyz;
                     vec3 shadowClipEnd = (shadowProjection * vec4(shadowViewEnd, 1.0)).xyz;
@@ -60,7 +66,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            // vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * shadowLightPosition + gbufferModelViewInverse[3].xyz;
+            localSkyLightDirection = normalize(localSkyLightDirection);
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 

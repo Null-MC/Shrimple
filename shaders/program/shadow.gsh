@@ -69,7 +69,8 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    // #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/block_voxel.glsl"
         #include "/lib/buffers/light_static.glsl"
@@ -83,7 +84,8 @@ uniform float far;
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    // #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
@@ -154,7 +156,7 @@ void main() {
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    #if defined IRIS_FEATURE_SSBO && (LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
+    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
 
         bool isRenderEntity = renderStage == MC_RENDER_STAGE_BLOCK_ENTITIES
                            || renderStage == MC_RENDER_STAGE_ENTITIES;
@@ -171,7 +173,7 @@ void main() {
             bool intersects = true;
 
             #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
-                vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
+                vec3 lightViewPos = mul3(gbufferModelView, originPos);
 
                 const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
                 //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
@@ -322,7 +324,8 @@ void main() {
         // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 originShadowViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xyz;
+            // vec3 originShadowViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xyz;
+            vec3 originShadowViewPos = mul3(shadowModelViewEx, originPos);
 
             int shadowTile = GetShadowRenderTile(originShadowViewPos);
             if (shadowTile < 0) return;
@@ -354,7 +357,9 @@ void main() {
                     vOut.color = vIn[v].color;
                     vOut.blockId = vIn[v].blockId;
 
-                    gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
+                    // gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
+                    gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
+                    gl_Position.w = 1.0;
 
                     gl_Position.xy = gl_Position.xy * 0.5 + 0.5;
                     gl_Position.xy = gl_Position.xy * 0.5 + shadowTilePos;
@@ -372,12 +377,13 @@ void main() {
                 vOut.blockId = vIn[v].blockId;
 
                 #ifdef IRIS_FEATURE_SSBO
-                    gl_Position = shadowProjectionEx * gl_in[v].gl_Position;
+                    gl_Position.xyz = mul3(shadowProjectionEx, gl_in[v].gl_Position.xyz);
                 #else
-                    gl_Position = gl_ProjectionMatrix * gl_in[v].gl_Position;
+                    gl_Position.xyz = mul3(gl_ProjectionMatrix, gl_in[v].gl_Position.xyz);
                 #endif
 
                 gl_Position.xyz = distort(gl_Position.xyz);
+                gl_Position.w = 1.0;
 
                 EmitVertex();
             }

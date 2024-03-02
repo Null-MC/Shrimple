@@ -18,8 +18,8 @@
 #define FOG_SHAPE_SPHERE 1
 #define FOG_SHAPE_CYLINDER 2
 
-#define WATER_TEXTURED 0
-#define WATER_COLORED 1
+// #define WATER_TEXTURED 0
+// #define WATER_COLORED 1
 
 // #define WATER_COLOR_AUTO 0
 // #define WATER_COLOR_DEFAULT 1

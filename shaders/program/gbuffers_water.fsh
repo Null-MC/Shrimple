@@ -454,7 +454,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
 
-        #if WATER_SURFACE_TYPE == WATER_COLORED
+        #ifndef WATER_TEXTURED
             if (isWater) skipParallax = true;
         #endif
 
@@ -553,6 +553,10 @@ void main() {
     if (isWater) {
         alphaThreshold = -1.0;
         // color.a = max(color.a, 0.02);
+
+        #ifndef WATER_TEXTURED
+            color = vec4(vec3(1.0), WorldWaterOpacityF);
+        #endif
     }
 
     #ifdef MATERIAL_REFLECT_GLASS
@@ -566,14 +570,13 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            #if WATER_SURFACE_TYPE == WATER_COLORED
-                color = vec4(1.0);
-            #elif defined DISTANT_HORIZONS
-                float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
-                color = mix(color, vec4(1.0), distF);
-            #endif
+            // #ifndef WATER_TEXTURED
+            //     // color = vec4(vec3(1.0), WorldWaterOpacityF);
+            // #elif defined DISTANT_HORIZONS
+            //     float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
+            //     color = mix(color, vec4(1.0), distF);
+            // #endif
 
-            color.a *= WorldWaterOpacityF;
             color.a = max(color.a, 0.02);
 
             color = mix(color, vec4(1.0), oceanFoam);

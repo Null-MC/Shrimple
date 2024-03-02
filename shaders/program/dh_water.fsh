@@ -452,7 +452,7 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            #if WATER_SURFACE_TYPE == WATER_COLORED
+            #ifndef WATER_TEXTURED
                 // color.rgb = vIn.color.rgb;
                 color.a = 1.0;
             #endif

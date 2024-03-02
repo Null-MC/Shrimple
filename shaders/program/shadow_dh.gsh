@@ -91,7 +91,9 @@ void main() {
                     vOut.materialId = vIn[v].materialId;
                     vOut.cameraViewDist = vIn[v].cameraViewDist;
 
-                    gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
+                    gl_Position.w = 1.0;
+                    // gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
+                    gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
 
                     gl_Position.xy = gl_Position.xy * 0.5 + 0.5;
                     gl_Position.xy = gl_Position.xy * 0.5 + shadowTilePos;

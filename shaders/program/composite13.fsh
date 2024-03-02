@@ -296,10 +296,12 @@ void main() {
 
         #ifdef DISTANT_HORIZONS
             vec3 viewPosOpaque = unproject(projectionInvOpaque * vec4(clipPosOpaque, 1.0));
-            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            // vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            vec3 localPosOpaque = mat3(gbufferModelViewInverse) * viewPosOpaque + gbufferModelViewInverse[3].xyz;
 
             vec3 viewPosTranslucent = unproject(projectionInvTrans * vec4(clipPosTranslucent, 1.0));
-            vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            // vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            vec3 localPosTranslucent = mat3(gbufferModelViewInverse) * viewPosTranslucent + gbufferModelViewInverse[3].xyz;
         #else
             #ifndef IRIS_FEATURE_SSBO
                 vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));

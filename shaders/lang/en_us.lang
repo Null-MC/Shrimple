@@ -125,13 +125,7 @@ value.WATER_COLOR_TYPE.1=Default
 value.WATER_COLOR_TYPE.2=Tropical
 value.WATER_COLOR_TYPE.3=Swamp
 
-option.WATER_SURFACE_TYPE=Surface
-value.WATER_SURFACE_TYPE.0=Texture
-value.WATER_SURFACE_TYPE.1=Color
-
-option.WATER_OPACITY=Opacity
-option.WATER_OPACITY.comment=Determines how transparent water blocks will be.
-suffix.WATER_OPACITY=%
+option.WATER_TEXTURED=Texture
 
 option.WATER_WAVE_SIZE=Waves
 value.WATER_WAVE_SIZE.0=None

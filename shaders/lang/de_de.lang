@@ -70,14 +70,6 @@ suffix.SKY_MOON_BRIGHTNESS=%
 screen.WATER_OPTIONS=Wasser
 screen.WATER_OPTIONS.comment=Einstellungen für Wasser.
 
-option.WATER_SURFACE_TYPE=Oberfläche
-value.WATER_SURFACE_TYPE.0=Texturiert
-value.WATER_SURFACE_TYPE.1=Gefärbt
-
-option.WATER_OPACITY=Deckkraft
-option.WATER_OPACITY.comment=Bestimmt, wie transparent Wasserblöcke sind.
-suffix.WATER_OPACITY=%
-
 option.WATER_WAVE_SIZE=Wellen
 option.WATER_WAVE_SIZE.comment=Beschreibt, wie sich die Wasseroberfläche bewegt.
 value.WATER_WAVE_SIZE.0=Gar nicht

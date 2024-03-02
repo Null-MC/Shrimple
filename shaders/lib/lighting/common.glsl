@@ -7,17 +7,20 @@ vec4 BasicVertex() {
 
     #if defined RENDER_TERRAIN || defined RENDER_WATER
         #if defined WORLD_SKY_ENABLED && WORLD_WIND_STRENGTH > 0
-            vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+            // vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
+            vec3 localPos = mat3(gl_ModelViewMatrix) * pos.xyz + gl_ModelViewMatrix[3].xyz;
+            localPos = mat3(gbufferModelViewInverse) * localPos + gbufferModelViewInverse[3].xyz;
 
             ApplyWavingOffset(pos.xyz, localPos, vOut.blockId);
         #endif
     #endif
 
-    vec4 viewPos = gl_ModelViewMatrix * pos;
+    // vec4 viewPos = gl_ModelViewMatrix * pos;
+    vec3 viewPos = mat3(gl_ModelViewMatrix) * pos.xyz + gl_ModelViewMatrix[3].xyz;
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && ((defined RENDER_WATER && WATER_TESSELLATION_QUALITY == 0) || defined RENDER_TERRAIN)
         if (vOut.blockId == BLOCK_WATER || vOut.blockId == BLOCK_LILY_PAD) {
-            float viewDist = length(viewPos.xyz);
+            float viewDist = length(viewPos);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
             distF = 1.0 - _pow2(distF);
 
@@ -33,7 +36,8 @@ vec4 BasicVertex() {
                 distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
-            vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+            // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+            vOut.localPos = mat3(gbufferModelViewInverse) * viewPos + gbufferModelViewInverse[3].xyz;
 
             #ifdef PHYSICS_OCEAN
                 vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
@@ -80,19 +84,23 @@ vec4 BasicVertex() {
                 #endif
             #endif
 
-            viewPos = gl_ModelViewMatrix * pos;
+            // viewPos = gl_ModelViewMatrix * pos;
+            viewPos = mat3(gl_ModelViewMatrix) * pos.xyz + gl_ModelViewMatrix[3].xyz;
         }
     #endif
 
-    vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+    // vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+    vOut.localPos = mat3(gbufferModelViewInverse) * viewPos + gbufferModelViewInverse[3].xyz;
 
     #if WORLD_CURVE_RADIUS > 0
         #ifdef WORLD_CURVE_SHADOWS
             vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
-            viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+            // viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+            viewPos = mat3(gbufferModelView) * vOut.localPos + gbufferModelView[3].xyz;
         #else
             vec3 worldPos = GetWorldCurvedPosition(vOut.localPos);
-            viewPos = gbufferModelView * vec4(worldPos, 1.0);
+            // viewPos = gbufferModelView * vec4(worldPos, 1.0);
+            viewPos = mat3(gbufferModelView) * worldPos + gbufferModelView[3].xyz;
         #endif
     #endif
 
@@ -141,5 +149,5 @@ vec4 BasicVertex() {
         #endif
     #endif
 
-    return viewPos;
+    return vec4(viewPos, 1.0);
 }

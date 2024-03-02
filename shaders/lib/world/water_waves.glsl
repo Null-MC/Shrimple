@@ -47,7 +47,8 @@ vec3 GetWaveHeight(const in vec3 position, const in float skyLight, const in flo
         weight *= 0.82;
     }
 
-    wavePos.y += valueSum / max(weightSum, EPSILON);
+    float heightDelta = valueSum / max(weightSum, EPSILON);
+    wavePos.y += _pow2(heightDelta);
     wavePos.y -= WaterWaveSurfaceOffset;
 
     vec3 delta = wavePos / WaterWaveScaleF - position;

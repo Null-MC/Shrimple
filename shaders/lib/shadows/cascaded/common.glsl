@@ -58,13 +58,17 @@ float GetShadowOffsetBias(const in int cascade) {
 }
 
 bool CascadeContainsPosition(const in vec3 shadowViewPos, const in int cascade, const in float padding) {
-    return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade] - padding))
-        && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade] + padding));
+    return clamp(shadowViewPos.xy, cascadeViewMin[cascade] - padding, cascadeViewMax[cascade] + padding) == shadowViewPos.xy;
+
+    // return all(greaterThan(shadowViewPos.xy, cascadeViewMin[cascade] - padding))
+    //     && all(lessThan(shadowViewPos.xy, cascadeViewMax[cascade] + padding));
 }
 
 bool CascadeIntersectsPosition(const in vec3 shadowViewPos, const in int cascade) {
-    return all(greaterThan(shadowViewPos.xy + 3.0, cascadeViewMin[cascade]))
-        && all(lessThan(shadowViewPos.xy - 3.0, cascadeViewMax[cascade]));
+    return clamp(shadowViewPos.xy, cascadeViewMin[cascade] - 3.0, cascadeViewMax[cascade] + 3.0) == shadowViewPos.xy;
+
+    // return all(greaterThan(shadowViewPos.xy + 3.0, cascadeViewMin[cascade]))
+    //     && all(lessThan(shadowViewPos.xy - 3.0, cascadeViewMax[cascade]));
 }
 
 int GetShadowCascade(const in vec3 shadowViewPos, const in float padding) {
