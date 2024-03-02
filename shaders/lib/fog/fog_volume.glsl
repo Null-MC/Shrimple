@@ -248,66 +248,64 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec3 sampleColor = vec3(1.0);
         #endif
 
-        #if defined WORLD_SHADOW_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
-            #if SHADOW_TYPE != SHADOW_TYPE_NONE
-                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+        #ifdef RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
+            vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
 
-                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                    vec3 traceShadowClipPos = vec3(-1.0);
-                    float shadowFade = 1.0;
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                vec3 traceShadowClipPos = vec3(-1.0);
+                float shadowFade = 1.0;
 
-                    int cascade = GetShadowCascade(shadowViewPos, -0.01);
-                    float shadowDistF = 0.0;
-                    
-                    if (cascade >= 0) {
-                        float shadowSampleBias = GetShadowOffsetBias(cascade);
+                int cascade = GetShadowCascade(shadowViewPos, -0.01);
+                float shadowDistF = 0.0;
+                
+                if (cascade >= 0) {
+                    float shadowSampleBias = GetShadowOffsetBias(cascade);
 
-                        traceShadowClipPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
-                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
-                        float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                        sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
+                    traceShadowClipPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
+                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
+                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                    sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
 
-                        texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                        sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
-                        shadowDistF = 1.0;
-                        shadowFade = 0.0;
-                    }
-                #else
-                    vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
-                    traceShadowClipPos = distort(traceShadowClipPos);
-                    traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
+                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
+                    shadowDistF = 1.0;
+                    shadowFade = 0.0;
+                }
+            #else
+                vec3 traceShadowClipPos = shadowClipStep * iStep + shadowClipStart;
+                traceShadowClipPos = distort(traceShadowClipPos);
+                traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                    // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
-                    float shadowViewDist = length(shadowViewPos.xy);
-                    // float shadowDistFar = min(shadowDistance, far);
-                    float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-                    shadowFade *= step(-1.0, traceShadowClipPos.z);
-                    shadowFade *= step(traceShadowClipPos.z, 1.0);
-                    shadowFade = 1.0 - shadowFade;
+                // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
+                float shadowViewDist = length(shadowViewPos.xy);
+                // float shadowDistFar = min(shadowDistance, far);
+                float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+                shadowFade *= step(-1.0, traceShadowClipPos.z);
+                shadowFade *= step(traceShadowClipPos.z, 1.0);
+                shadowFade = 1.0 - shadowFade;
 
-                    if (shadowFade < 1.0) {
-                        //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
-                        float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
-                        sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
+                if (shadowFade < 1.0) {
+                    //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
+                    float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
+                    sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);
 
-                        texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
-                        sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
-                    }
-                #endif
+                    texDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+                    sampleDepth = max(traceShadowClipPos.z - texDepth, 0.0) * shadowDepthRange;
+                }
+            #endif
 
-                #ifdef SHADOW_COLORED
-                    float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
+            #ifdef SHADOW_COLORED
+                float transparentShadowDepth = texture(shadowtex0, traceShadowClipPos.xy).r;
 
-                    if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowFade < 1.0)) {
-                        vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
-                        shadowColor = RGBToLinear(shadowColor);
+                if (traceShadowClipPos.z - transparentShadowDepth >= EPSILON && (shadowFade < 1.0)) {
+                    vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
+                    shadowColor = RGBToLinear(shadowColor);
 
-                        if (any(greaterThan(shadowColor, EPSILON3)))
-                            shadowColor = normalize(shadowColor) * 1.73;
+                    if (any(greaterThan(shadowColor, EPSILON3)))
+                        shadowColor = normalize(shadowColor) * 1.73;
 
-                        sampleColor *= shadowColor;
-                    }
-                #endif
+                    sampleColor *= shadowColor;
+                }
             #endif
         #endif
 
