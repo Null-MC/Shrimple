@@ -34,7 +34,11 @@ const float phaseAir = phaseIso;
 
 
 float GetSkyDensity(const in float worldY) {
-    return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
+	float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
+    // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
+
+	//float heightF = saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
+    return AirDensityF * _pow2(heightF);
 }
 
 float GetSkyPhase(const in float VoL) {

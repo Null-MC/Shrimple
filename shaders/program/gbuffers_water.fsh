@@ -546,7 +546,20 @@ void main() {
         }
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    #ifdef DISTANT_HORIZONS
+        float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
+        float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
+
+        float farTrans = dh_clipDistF * far;
+        float lodMinF = smoothstep(0.5 * farTrans, farTrans, viewDist);
+        float lodFinal = max(lodGrad, 4.0 * lodMinF);
+
+        vec4 color;
+        color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
+        color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
+    #else
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+    #endif
 
     float alphaThreshold = 0.1;//(1.5/255.0);
 

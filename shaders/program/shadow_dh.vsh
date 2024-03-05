@@ -76,7 +76,6 @@ void main() {
             #ifdef IRIS_FEATURE_SSBO
                 gl_Position.xyz = mul3(shadowModelViewProjection, localPos);
             #else
-                // gl_Position = vec4(TransformFast(gl_ModelViewMatrix, localPos), 1.0);
                 gl_Position.xyz = mul3(gl_ModelViewMatrix, localPos);
                 gl_Position.xyz = mul3(gl_ProjectionMatrix, gl_Position.xyz);
             #endif
