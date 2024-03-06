@@ -1,5 +1,5 @@
-const float WorldAtmosphereMin =  62.0;
-const float WorldAtmosphereMax = 462.0;
+const float WorldAtmosphereMin =  80.0;
+const float WorldAtmosphereMax = 800.0;
 
 const float SkyDensityF = SKY_DENSITY * 0.01;
 const float phaseAir = phaseIso;
@@ -23,7 +23,7 @@ const float phaseAir = phaseIso;
 
 	const float AirAmbientF = 0.0;//mix(0.02, 0.0, skyRainStrength);
 	const vec3 AirScatterColor = _RGBToLinear(vec3(0.482, 0.514, 0.541));
-	const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.827, 0.831, 0.851));//mix(0.02, 0.006, skyRainStrength);
+	const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.737, 0.745, 0.769));//mix(0.02, 0.006, skyRainStrength);
 #else
 	const float AirDensityF = SkyDensityF;
 	vec3 AirAmbientF = RGBToLinear(fogColor);
@@ -34,11 +34,11 @@ const float phaseAir = phaseIso;
 
 
 float GetSkyDensity(const in float worldY) {
-	float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
+	// float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
     // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
 
-	//float heightF = saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
-    return AirDensityF * _pow2(heightF);
+	float heightF = 1.0 - saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
+    return AirDensityF * pow5(heightF);
 }
 
 float GetSkyPhase(const in float VoL) {
