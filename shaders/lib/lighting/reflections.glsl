@@ -111,7 +111,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
     float _far = far;
     #ifdef DISTANT_HORIZONS
-        _far = dhFarPlane;
+        _far = 0.5*dhFarPlane;
     #endif
 
     float reflectDist = 0.0;
@@ -359,7 +359,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
                     //reflectFogDist = clamp(reflectFogDist, EPSILON, 128.0);
 
-                    ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                    ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 48);
                 }
             #endif
 
