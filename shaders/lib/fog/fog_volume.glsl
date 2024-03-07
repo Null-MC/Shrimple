@@ -395,7 +395,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     if (!isWater) {
                 #endif
-                    lpvLight = 32.0 * GetLpvBlockLight(lpvSample, 3.0) * DynamicLightBrightness;
+                    lpvLight = 9.0 * GetLpvBlockLight(lpvSample, 2.0) * DynamicLightBrightness;
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     }
                 #endif
