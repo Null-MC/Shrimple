@@ -1,6 +1,6 @@
-#define SKY_LIGHT_COLOR_DAY_R 242 // [0]
-#define SKY_LIGHT_COLOR_DAY_G 238 // [0]
-#define SKY_LIGHT_COLOR_DAY_B 220 // [0]
+#define SKY_LIGHT_COLOR_DAY_R 255 // [0]
+#define SKY_LIGHT_COLOR_DAY_G 247 // [0]
+#define SKY_LIGHT_COLOR_DAY_B 217 // [0]
 
 #define SKY_LIGHT_COLOR_HORIZON_R 207 // [0]
 #define SKY_LIGHT_COLOR_HORIZON_G 138 // [0]

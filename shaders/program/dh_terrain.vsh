@@ -107,25 +107,25 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vec4 vPos = gl_Vertex;
+    vec3 vPos = gl_Vertex.xyz;
 
     vec3 cameraOffset = fract(cameraPosition);
-    vPos.xyz = floor(vPos.xyz + cameraOffset + 0.5) - cameraOffset;
+    vPos = floor(vPos + cameraOffset + 0.5) - cameraOffset;
     
-    vec4 viewPos = gl_ModelViewMatrix * vPos;
-    vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+    vec3 viewPos = mul3(gl_ModelViewMatrix, vPos);
+    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
     #if WORLD_CURVE_RADIUS > 0
         #ifdef WORLD_CURVE_SHADOWS
             vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
-            viewPos = gbufferModelView * vec4(vOut.localPos, 1.0);
+            viewPos = mul3(gbufferModelView, vOut.localPos);
         #else
             vec3 worldPos = GetWorldCurvedPosition(vOut.localPos);
-            viewPos = gbufferModelView * vec4(worldPos, 1.0);
+            viewPos = mul3(gbufferModelView, worldPos);
         #endif
     #endif
 
-    gl_Position = gl_ProjectionMatrix * viewPos;
+    gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 
     #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);

@@ -44,11 +44,10 @@ vec3 distort(const in vec3 pos) {
         vec3 offsetLocalPos = localPos + localNormal * bias;
 
         #ifndef IRIS_FEATURE_SSBO
-            vec3 shadowViewPos = (shadowModelView * vec4(offsetLocalPos, 1.0)).xyz;
-            return (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
+            vec3 shadowViewPos = mul3(shadowModelView, offsetLocalPos);
+            return mul3(shadowProjection, shadowViewPos);
         #else
-            // return (shadowModelViewProjection * vec4(offsetLocalPos, 1.0)).xyz;
-            return mat3(shadowModelViewProjection) * offsetLocalPos + shadowModelViewProjection[3].xyz;
+            return mul3(shadowModelViewProjection, offsetLocalPos);
         #endif
     }
 #endif
