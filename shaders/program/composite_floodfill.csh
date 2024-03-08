@@ -405,13 +405,13 @@ void main() {
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
-                        float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
+                        float bounceF = 1.0;//GetLpvBounceF(voxelPos, bounceOffset);
 
                         //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             skyLightBrightF *= DynamicLightAmbientF;
                         //#endif
 
-                        lightValue.rgb += (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
+                        lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
                     }
                 #endif
 
