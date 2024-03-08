@@ -6,9 +6,9 @@
 #include "/lib/common.glsl"
 
 in VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED

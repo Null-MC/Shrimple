@@ -6,9 +6,9 @@
 #include "/lib/common.glsl"
 
 out VertexData {
+    vec4 color;
     vec2 lmcoord;
     vec2 texcoord;
-    vec4 color;
     vec3 localPos;
 
     #ifdef RENDER_CLOUD_SHADOWS_ENABLED
@@ -84,8 +84,8 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-    vOut.localPos = (gbufferModelViewInverse * viewPos).xyz;
+    vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

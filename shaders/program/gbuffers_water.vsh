@@ -23,11 +23,11 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+    #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
         vec3 surfacePos;
     #endif
 
-    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
+    #ifdef WATER_TESSELLATION_ENABLED
         float vertexY;
     #endif
 
@@ -223,11 +223,12 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
-        vOut.surfacePos = (gbufferModelViewInverse * (gl_ModelViewMatrix * gl_Vertex)).xyz;
+    #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
+        vOut.surfacePos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
+        vOut.surfacePos = mul3(gbufferModelViewInverse, vOut.surfacePos);
     #endif
 
-    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
+    #ifdef WATER_TESSELLATION_ENABLED
         vOut.vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
     #endif
 
@@ -276,7 +277,7 @@ void main() {
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
-        vec3 originPos = vOut.localPos + at_midBlock/64.0;
+        vec3 originPos = at_midBlock/64.0 + vOut.localPos;
         bool intersects = true;
 
         // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
