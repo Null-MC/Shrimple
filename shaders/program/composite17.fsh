@@ -24,7 +24,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
     uniform sampler3D texLPV_2;
 #endif
 
-#if VOLUMETRIC_BRIGHT_SKY > 0 && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if VOLUMETRIC_BRIGHT_SKY > 0 && defined RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -236,7 +236,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
     
     #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
-        // #include "/lib/utility/hsv.glsl"
+        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"

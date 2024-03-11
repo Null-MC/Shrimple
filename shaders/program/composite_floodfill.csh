@@ -31,7 +31,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
         uniform float rainStrength;
         uniform float skyRainStrength;
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef RENDER_SHADOWS_ENABLED
             uniform sampler2D shadowtex0;
             uniform sampler2D shadowtex1;
 
@@ -70,6 +70,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     // #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/block_voxel.glsl"
     #include "/lib/buffers/volume.glsl"
+    #include "/lib/utility/hsv.glsl"
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
@@ -77,7 +78,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
         #include "/lib/buffers/shadow.glsl"
 
         #include "/lib/sampling/noise.glsl"
@@ -115,9 +116,15 @@ ivec3 GetLPVVoxelOffset() {
 vec4 GetLpvValue(in ivec3 texCoord) {
     if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec4(0.0);
 
-    return (frameCounter % 2) == 0
+    vec4 lpvSample = (frameCounter % 2) == 0
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
+
+    //lpvSample.b = sqrt(lpvSample.b);
+    lpvSample.b = exp2(lpvSample.b * LPV_VALUE_SCALE) - 1.0;
+    lpvSample.rgb = HsvToRgb(lpvSample.rgb);
+
+    return lpvSample;
 }
 
 float GetBlockBounceF(const in uint blockId) {
@@ -135,7 +142,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
     return GetBlockBounceF(blockId);// * bounceF * 0.98 + 0.02;
 }
 
-#if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
     vec4 SampleShadow(const in vec3 blockLocalPos) {
         const float giScale = 0.08;
 
@@ -380,7 +387,7 @@ void main() {
             lightMixed.rgb *= mixWeight * tint;
             lightValue += lightMixed;
 
-            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && LPV_SHADOW_SAMPLES > 0
+            #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && LPV_SHADOW_SAMPLES > 0
                 vec4 shadowColorF = SampleShadow(blockLocalPos);
 
                 #ifdef LPV_GI
@@ -419,6 +426,9 @@ void main() {
                 lightValue.a = max(lightValue.a, skyLightFinal);
             #endif
         }
+
+        lightValue.rgb = RgbToHsv(lightValue.rgb);
+        lightValue.b = log2(lightValue.b + 1.0) / LPV_VALUE_SCALE;
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);

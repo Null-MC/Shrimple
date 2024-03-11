@@ -28,7 +28,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -63,7 +63,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -122,10 +122,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
+#ifdef RENDER_SHADOWS_ENABLED
+    uniform mat4 shadowProjection;
 #endif
 
 #ifdef IS_IRIS
@@ -228,7 +226,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/sampling/atlas.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -467,7 +465,7 @@ void main() {
         occlusion = 0.0;
     }
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif

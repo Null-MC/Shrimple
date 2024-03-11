@@ -117,7 +117,7 @@ uniform int heldBlockLightValue2;
     uniform mat4 gbufferPreviousModelView;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #ifndef IRIS_FEATURE_SSBO
         uniform mat4 shadowModelView;
     #endif
@@ -242,6 +242,7 @@ uniform int heldBlockLightValue2;
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
     #include "/lib/buffers/volume.glsl"
+    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/lpv_render.glsl"

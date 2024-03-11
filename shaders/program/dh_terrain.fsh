@@ -17,7 +17,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -54,7 +54,7 @@ uniform sampler2D lightmap;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -109,7 +109,7 @@ uniform int frameCounter;
     uniform mat4 shadowModelView;
     uniform vec3 shadowLightPosition;
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef SHADOW_ENABLED
         uniform mat4 shadowProjection;
     #endif
 #endif
@@ -199,7 +199,7 @@ uniform int frameCounter;
 
 #include "/lib/fog/fog_render.glsl"
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -384,8 +384,7 @@ void main() {
             float shadowViewDist = length(shadowViewPos.xy);
             float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #else
+            #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                 shadowFade *= step(-1.0, vIn.shadowPos.z);
                 shadowFade *= step(vIn.shadowPos.z, 1.0);
             #endif

@@ -30,19 +30,11 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         uniform float skyRainStrength;
         uniform vec3 sunPosition;
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowModelView;
+            uniform mat4 shadowProjection;
             //uniform vec3 cameraPosition;
             uniform float far;
-        #endif
-
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-            uniform mat4 shadowProjection;
-        #endif
-
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            // uniform float near;
-            //uniform float far;
         #endif
     #endif
 
@@ -78,7 +70,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         #include "/lib/world/sky.glsl"
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #include "/lib/utility/matrix.glsl"
         #include "/lib/shadows/common.glsl"
         #include "/lib/buffers/shadow.glsl"
@@ -130,7 +122,7 @@ void main() {
         gbufferPreviousModelViewProjection = gbufferPreviousProjection * gbufferPreviousModelView;
         //gbufferPreviousModelViewProjectionInverse = inverse(gbufferPreviousModelViewProjection);
 
-        #if (defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE) //|| defined LIGHT_COLOR_ENABLED
+        #if (defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED) //|| defined LIGHT_COLOR_ENABLED
             // shadowModelViewEx = shadowModelView;
             // shadowModelViewEx[3][0] = 0.0;
             // shadowModelViewEx[3][1] = 0.0;

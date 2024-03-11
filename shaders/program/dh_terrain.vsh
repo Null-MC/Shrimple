@@ -17,7 +17,7 @@ out VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -53,7 +53,7 @@ uniform vec3 cameraPosition;
         uniform float near;
     #endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+    #if defined SHADOW_ENABLED && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight;
     #endif
@@ -138,7 +138,7 @@ void main() {
             vOut.shadowTile = -1;
         #endif
 
-        #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+        #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && !defined RENDER_BILLBOARD
             float geoNoL = dot(localSkyLightDirection, vOut.localNormal);
         #else
             const float geoNoL = 1.0;

@@ -12,7 +12,5 @@ uniform sampler2D BUFFER_BLOOM_TILES;
 layout(location = 0) out vec3 outFinal;
 
 void main() {
-    vec3 color = texelFetch(BUFFER_BLOOM_TILES, ivec2(gl_FragCoord.xy), 0).rgb;
-
-    outFinal = color;
+    outFinal = texelFetch(BUFFER_BLOOM_TILES, ivec2(gl_FragCoord.xy), 0).rgb;
 }

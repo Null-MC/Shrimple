@@ -32,7 +32,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler3D TEX_CLOUDS;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     //#if VOLUMETRIC_BRIGHT_SKY > 0
         uniform sampler2D shadowtex0;
         uniform sampler2D shadowtex1;
@@ -230,7 +230,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #include "/lib/buffers/shadow.glsl"
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

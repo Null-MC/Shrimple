@@ -8,16 +8,18 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
     #endif
 
     float viewDistF = 1.0 - saturate(viewDist / MATERIAL_DISPLACE_MAX_DIST);
-    int maxSampleCount = int(viewDistF * MATERIAL_PARALLAX_SAMPLES);
+    float maxSampleCount = viewDistF * MATERIAL_PARALLAX_SAMPLES + 0.5;
 
     vec2 localSize = atlasSize * vIn.atlasBounds[1];
     if (all(greaterThan(localSize, EPSILON2)))
         stepCoord.y *= localSize.x / localSize.y;
 
-    int i;
+    float i;
     texDepth = 1.0;
     float depthDist = 1.0;
-    for (i = 0; i <= maxSampleCount && depthDist >= (1.0/255.0); i++) {
+    for (i = 0.0; i < (MATERIAL_PARALLAX_SAMPLES+0.5); i += 1.0) {
+        if (i > maxSampleCount || depthDist < (1.0/255.0)) break;
+
         #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
             prevTexDepth = texDepth;
         #endif
@@ -25,9 +27,6 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         vec2 localTraceCoord = texcoord - i * stepCoord;
 
         #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
-            //vec2 traceAtlasCoord = GetAtlasCoord(localCoord - i * stepCoord, vIn.atlasBounds);
-            //texDepth = TextureGradLinear(normals, traceAtlasCoord, atlasSize, dFdXY, 3);
-
             vec2 uv[4];
             vec2 atlasTileSize = vIn.atlasBounds[1] * atlasSize;
             vec2 f = GetLinearCoords(localTraceCoord, atlasTileSize, uv);
@@ -41,18 +40,13 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         #else
             vec2 traceAtlasCoord = GetAtlasCoord(localTraceCoord, vIn.atlasBounds);
             texDepth = textureGrad(normals, traceAtlasCoord, dFdXY[0], dFdXY[1]).a;
-            //texDepth = texture(normals, traceAtlasCoord).a;
         #endif
 
         depthDist = MaterialTessellationOffset - i * stepDepth - texDepth;
-        //depthDist *= rcp(MaterialTessellationOffset);
-        //if (texDepth >= 1.0 - i * stepDepth) break;
     }
 
-    i = max(i - 1, 0);
-    int pI = max(i - 1, 0);
-    //traceDepth.xy = localCoord - pI * stepCoord;
-    //traceDepth.z = 1.0 - pI * stepDepth;
+    i = max(i - 1.0, 0.0);
+    float pI = max(i - 1.0, 0.0);
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 currentTraceOffset = texcoord - i * stepCoord;
@@ -66,23 +60,15 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         traceDepth.xy = mix(prevTraceOffset, currentTraceOffset, t);
         traceDepth.z = mix(prevTraceDepth, currentTraceDepth, t);
     #else
-        // shadow_tex.xy = prevTraceOffset;
-        // shadow_tex.z = prevTraceDepth;
         traceDepth.xy = texcoord - pI * stepCoord;
         traceDepth.z = max(MaterialTessellationOffset - pI * stepDepth, 0.0);
     #endif
 
-    //return GetAtlasCoord(localCoord - i * stepCoord);
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
-        //return i == 1 ? texcoord : GetAtlasCoord(traceDepth.xy);
         return GetAtlasCoord(traceDepth.xy, vIn.atlasBounds);
     #else
         return GetAtlasCoord(texcoord - i * stepCoord, vIn.atlasBounds);
     #endif
-}
-
-vec2 GetParallaxCoord(const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-    return GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceDepth);
 }
 
 float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in vec3 tanLightDir) {
@@ -93,14 +79,14 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
     float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
-    int i;
     float shadow = 1.0;
-    for (i = 0; i + skip < MATERIAL_PARALLAX_SHADOW_SAMPLES; i++) {
+    for (float i = 0.0; i < (MATERIAL_PARALLAX_SHADOW_SAMPLES+0.5); i += 1.0) {
+        if (i + skip > (MATERIAL_PARALLAX_SHADOW_SAMPLES+0.5)) break;
         if (shadow < 0.001) break;
 
         float stepF = i + dither;
-        float traceDepth = traceTex.z + stepF * stepDepth;
-        vec2 localCoord = traceTex.xy + stepF * stepCoord;
+        float traceDepth = stepF * stepDepth + traceTex.z;
+        vec2 localCoord = stepF * stepCoord + traceTex.xy;
 
         #if DISPLACE_MODE == DISPLACE_POM_SMOOTH && defined MATERIAL_PARALLAX_SHADOW_SMOOTH
             vec2 uv[4];
@@ -131,11 +117,11 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
 #if DISPLACE_MODE == DISPLACE_POM_SHARP
     vec3 GetParallaxSlopeNormal(const in vec2 atlasCoord, const in mat2 dFdXY, const in float traceDepth, const in vec3 tanViewDir) {
-        vec2 atlasPixelSize = 1.0 / atlasSize;
+        vec2 atlasPixelSize = rcp(atlasSize);
         float atlasAspect = atlasSize.x / atlasSize.y;
 
         vec2 tex_snapped = floor(atlasCoord * atlasSize) * atlasPixelSize;
-        vec2 tex_offset = atlasCoord - (tex_snapped + 0.5 * atlasPixelSize);
+        vec2 tex_offset = atlasCoord - (0.5 * atlasPixelSize + tex_snapped);
 
         vec2 stepSign = sign(tex_offset);
         vec2 viewSign = sign(-tanViewDir.xy);
@@ -160,30 +146,35 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 
         float height_x = textureGrad(normals, tX, dFdXY[0], dFdXY[1]).a;
         float height_y = textureGrad(normals, tY, dFdXY[0], dFdXY[1]).a;
+        vec3 signMask = vec3(0.0);
 
         if (dir) {
             if (!(traceDepth > height_y && -viewSign.y != stepSign.y)) {
-                if (traceDepth > height_x) return vec3(viewSign.x, 0.0, 0.0);
-
-                if (abs(tanViewDir.y) > abs(tanViewDir.x))
-                    return vec3(0.0, viewSign.y, 0.0);
+                if (traceDepth > height_x)
+                    signMask.x = 1.0;
+                else if (abs(tanViewDir.y) > abs(tanViewDir.x))
+                    signMask.y = 1.0;
                 else
-                    return vec3(viewSign.x, 0.0, 0.0);
+                    signMask.x = 1.0;
             }
-
-            return vec3(0.0, viewSign.y, 0.0);
+            else {
+                signMask.y = 1.0;
+            }
         }
         else {
             if (!(traceDepth > height_x && -viewSign.x != stepSign.x)) {
-                if (traceDepth > height_y) return vec3(0.0, viewSign.y, 0.0);
-
-                if (abs(tanViewDir.y) > abs(tanViewDir.x))
-                    return vec3(0.0, viewSign.y, 0.0);
+                if (traceDepth > height_y)
+                    signMask.y = 1.0;
+                else if (abs(tanViewDir.y) > abs(tanViewDir.x))
+                    signMask.y = 1.0;
                 else
-                    return vec3(viewSign.x, 0.0, 0.0);
+                    signMask.x = 1.0;
             }
-
-            return vec3(viewSign.x, 0.0, 0.0);
+            else {
+                signMask.x = 1.0;
+            }
         }
+
+        return signMask * vec3(viewSign, 0.0);
     }
 #endif
