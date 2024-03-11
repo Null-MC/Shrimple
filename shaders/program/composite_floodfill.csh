@@ -107,6 +107,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 
+const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
+
 ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
     ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
@@ -124,7 +126,7 @@ vec4 GetLpvValue(in ivec3 texCoord) {
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
 
-    lpvSample.b = exp2(lpvSample.b * LPV_VALUE_SCALE) - 1.0;
+    lpvSample.ba = exp2(lpvSample.ba * LpvBlockSkyRange) - 1.0;
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
 
     #ifdef LPV_BLEND_ALT
@@ -422,7 +424,18 @@ void main() {
                             skyLightBrightF *= DynamicLightAmbientF;
                         //#endif
 
-                        lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
+
+
+                        vec3 skyLight = RgbToHsv(shadowColorF.rgb);
+                        //skyLight.b = (skyLightRange);
+
+                        skyLight.b = exp2(skyLightRange * shadowColorF.a) - 1.0;
+                        skyLight = HsvToRgb(skyLight);
+
+
+
+                        // lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
+                        lightValue.rgb += skyLight;
                     }
                 #endif
 
@@ -436,7 +449,7 @@ void main() {
         #endif
 
         lightValue.rgb = RgbToHsv(lightValue.rgb);
-        lightValue.b = log2(lightValue.b + 1.0) / LPV_VALUE_SCALE;
+        lightValue.ba = log2(lightValue.ba + 1.0) / LpvBlockSkyRange;
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);

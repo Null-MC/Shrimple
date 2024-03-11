@@ -27,6 +27,7 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
         : texelFetch(texLPV_1, lpvPos, 0);
     #endif
 
+    lpvSample.b = _pow2(lpvSample.b);
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
     return lpvSample;
 }
@@ -251,7 +252,7 @@ vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
     //lpvSample.b = sqrt(lpvSample.b);
     // lpvSample.rgb = HsvToRgb(lpvSample.rgb);
 
-    return lpvSample.rgb * LPV_VALUE_SCALE / 16.0;
+    return lpvSample.rgb * LPV_BLOCKLIGHT_SCALE / 16.0;
     //return pow(lpvSample.rgb, vec3(power));// / 16.0;
 
     // vec3 hsv = lpvSample.rgb;
@@ -268,10 +269,14 @@ vec3 GetLpvBlockLight(const in vec4 lpvSample) {
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {
-    // return sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
-    // return saturate(log2(lpvSample.a / LPV_SKYLIGHT_RANGE + 1.0));
-    float skyLightFinal = log2(lpvSample.a + 1.0) / LPV_SKYLIGHT_RANGE;
-    // float skyLightFinal = log2(lpvSample.a + 1.0) / log2(LPV_SKYLIGHT_RANGE + 1.0);
-    // return saturate(_pow2(skyLightFinal));
-    return saturate(9.0 * skyLightFinal);
+    const float skyLightScale = 1.0;//255.0 / LPV_SKYLIGHT_RANGE;
+    
+    return saturate(lpvSample.a * skyLightScale);
+
+    // // return sqrt(saturate(lpvSample.a / LPV_SKYLIGHT_RANGE));
+    // // return saturate(log2(lpvSample.a / LPV_SKYLIGHT_RANGE + 1.0));
+    // float skyLightFinal = log2(lpvSample.a + 1.0) / LPV_SKYLIGHT_RANGE;
+    // // float skyLightFinal = log2(lpvSample.a + 1.0) / log2(LPV_SKYLIGHT_RANGE + 1.0);
+    // // return saturate(_pow2(skyLightFinal));
+    // return saturate(9.0 * skyLightFinal);
 }
