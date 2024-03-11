@@ -71,7 +71,10 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/buffers/volume.glsl"
 
     #include "/lib/utility/hsv.glsl"
-    #include "/lib/utility/oklab.glsl"
+
+    #ifdef LPV_BLEND_ALT
+        #include "/lib/utility/jzazbz.glsl"
+    #endif
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
@@ -123,6 +126,10 @@ vec4 GetLpvValue(in ivec3 texCoord) {
 
     lpvSample.b = exp2(lpvSample.b * LPV_VALUE_SCALE) - 1.0;
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
+
+    #ifdef LPV_BLEND_ALT
+        lpvSample.rgb = RgbToJab(lpvSample.rgb);
+    #endif
 
     return lpvSample;
 }
@@ -423,6 +430,10 @@ void main() {
                 lightValue.a = max(lightValue.a, skyLightFinal);
             #endif
         }
+
+        #ifdef LPV_BLEND_ALT
+            lightValue.rgb = JabToRgb(lightValue.rgb);
+        #endif
 
         lightValue.rgb = RgbToHsv(lightValue.rgb);
         lightValue.b = log2(lightValue.b + 1.0) / LPV_VALUE_SCALE;
