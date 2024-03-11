@@ -19,7 +19,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
     vec3 localStep = localViewDir * stepLength;
 
     #ifdef WORLD_SKY_ENABLED
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef RENDER_SHADOWS_ENABLED
             #ifdef IRIS_FEATURE_SSBO
                 // vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
                 vec3 shadowViewStart = mat3(shadowModelViewEx) * localStart + shadowModelViewEx[3].xyz;
@@ -119,7 +119,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
     #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            float shadowDepthRange = far * 3.0;
+            float shadowDepthRange = GetShadowRange(0);
         #else
             float shadowDepthRange = GetShadowRange();
         #endif
@@ -395,7 +395,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     if (!isWater) {
                 #endif
-                    lpvLight = 6.0 * GetLpvBlockLight(lpvSample, 2.0) * DynamicLightBrightness;
+                    lpvLight = 5.0 * GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     }
                 #endif

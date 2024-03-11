@@ -31,7 +31,7 @@ out VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -75,7 +75,7 @@ uniform vec4 entityColor;
         uniform float near;
     #endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+    #if defined SHADOW_ENABLED && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight;
     #endif
@@ -143,7 +143,11 @@ uniform vec4 entityColor;
 //#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
 #elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/buffers/block_static.glsl"
-    #include "/lib/buffers/volume.glsl"
+
+    #if LPV_SIZE > 0
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/utility/hsv.glsl"
+    #endif
 
     #ifdef LIGHTING_FLICKER
         #include "/lib/utility/anim.glsl"
@@ -158,7 +162,11 @@ uniform vec4 entityColor;
     //#include "/lib/lighting/voxel/block_mask.glsl"
     //#include "/lib/lighting/voxel/blocks.glsl"
 
-    #include "/lib/lighting/voxel/lpv.glsl"
+    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
+        #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_write.glsl"
+    #endif
+
     #include "/lib/lighting/voxel/entities.glsl"
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/items.glsl"
@@ -244,7 +252,9 @@ void main() {
             // #endif
 
             uint lightType = LIGHT_NONE;//StaticBlockMap[vOut.blockId].lightType;
-            vec3 lightValue = vec3(0.0);
+            // vec3 lightValue = vec3(0.0);
+            vec3 lightColor = vec3(0.0);
+            float lightRange = 0.0;
 
             vec3 playerOffset = originPos - (eyePosition - cameraPosition);
             playerOffset.y += 1.0;
@@ -263,15 +273,17 @@ void main() {
             vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
             if (entityLightColorRange.a > EPSILON) {
-                vec3 lightColor = _pow2(entityLightColorRange.rgb);
-                lightValue = lightColor * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+                lightColor = entityLightColorRange.rgb;
+                lightRange = entityLightColorRange.a;
+                // vec3 lightColor = _pow2(entityLightColorRange.rgb);
+                // lightValue = lightColor * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
             }
 
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                 StaticLightData lightInfo = StaticLightMap[lightType];
-                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                 vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                float lightRange = lightRangeSize.x * 255.0;
+                lightRange = lightRangeSize.x * 255.0;
 
                 lightColor = RGBToLinear(lightColor);
                 //lightColor = pow(lightColor, vec3(2.0));
@@ -282,21 +294,22 @@ void main() {
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
-                lightColor = _pow2(lightColor);
-                lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                // lightColor = _pow2(lightColor);
+                // lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
             }
 
-            if (any(greaterThan(lightValue, EPSILON3))) {
+            if (lightRange > EPSILON) {
                 vec3 viewDir = getCameraViewDir(gbufferModelView);
                 vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
                 ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
-                if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
-                    if (frameCounter % 2 == 0)
-                        imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-                    else
-                        imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
-                }
+                AddLpvLight(imgCoordPrev, lightColor, lightRange);
+                // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
+                //     if (frameCounter % 2 == 0)
+                //         imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                //     else
+                //         imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                // }
             }
         }
     #endif

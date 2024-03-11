@@ -39,7 +39,7 @@
             float shadow = 1.0;
     #endif
 
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef RENDER_SHADOWS_ENABLED
             #ifdef EFFECT_TAA_ENABLED
                 float dither = InterleavedGradientNoiseTime();
             #else

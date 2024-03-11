@@ -113,6 +113,7 @@ uniform float far;
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_write.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
@@ -237,49 +238,38 @@ void main() {
                         lightType = LIGHT_TORCH_FLOOR;
                 }
 
-                vec3 lightValue = vec3(0.0);
+                vec3 lightColor = vec3(0.0);
+                float lightRange = 0.0;
+
                 if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                     StaticLightData lightInfo = StaticLightMap[lightType];
-                    vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                    lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                    float lightRange = lightRangeSize.x * 255.0;
+                    lightRange = lightRangeSize.x * 255.0;
 
                     lightColor = RGBToLinear(lightColor);
-                    //lightColor = pow(lightColor, vec3(2.0));
 
-                    //vec2 lightNoise = vec2(0.0);
                     #ifdef LIGHTING_FLICKER
                        vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
-
-                    lightColor = _pow2(lightColor);
-                    lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0);
                 }
 
                 vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
-                if (entityLightColorRange.a > EPSILON)
-                    lightValue = _pow2(entityLightColorRange.rgb) * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
+                if (entityLightColorRange.a > EPSILON) {
+                    lightColor = entityLightColorRange.rgb;
+                    lightRange = entityLightColorRange.a;
+                }
 
-                if (any(greaterThan(lightValue, EPSILON3))) {
+                if (lightRange > EPSILON) {
                     vec3 viewDir = getCameraViewDir(gbufferModelView);
                     vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
                     ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
-                    // lightValue = RgbToHsv(lightValue/16.0);
-                    // lightValue.z = exp2(lightValue.z*16.0) - 1.0;
-
-                    if (frameCounter % 2 == 0)
-                        imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-                    else
-                        imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                    AddLpvLight(imgCoordPrev, lightColor, lightRange);
                 }
             #endif
-            // #else
-            //     if (intersects && !IsTraceEmptyBlock(vBlockId[0]))
-            //         SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
-            // #endif
         }
 
         // else if (renderStage == MC_RENDER_STAGE_ENTITIES) {

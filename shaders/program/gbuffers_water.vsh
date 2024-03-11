@@ -194,18 +194,20 @@ uniform float far;
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 
+    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/utility/hsv.glsl"
+    #endif
+
     #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/lighting/voxel/lpv.glsl"
+        #include "/lib/lighting/voxel/lpv_write.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/light_mask.glsl"
-    #endif
-
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
-        #include "/lib/buffers/volume.glsl"
     #endif
 
     #include "/lib/lighting/voxel/lights_render.glsl"
@@ -263,7 +265,6 @@ void main() {
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-        //vec3 viewPos = (gbufferModelView * vec4(vOut.localPos, 1.0)).xyz;
         vOut.viewPos_T = viewPos.xyz * matViewTBN;
 
         #ifdef WORLD_SHADOW_ENABLED
@@ -323,12 +324,14 @@ void main() {
             vec3 playerOffset = originPos - (eyePosition - cameraPosition);
             playerOffset.y += 1.0;
 
-            vec3 lightValue = vec3(0.0);
+            vec3 lightColor = vec3(0.0);
+            float lightRange = 0.0;
+
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                 StaticLightData lightInfo = StaticLightMap[lightType];
-                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                 vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                float lightRange = lightRangeSize.x * 255.0;
+                lightRange = lightRangeSize.x * 255.0;
 
                 lightColor = RGBToLinear(lightColor);
 
@@ -337,21 +340,22 @@ void main() {
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
 
-                lightColor = _pow2(lightColor);
-                lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+                // lightColor = _pow2(lightColor);
+                // lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
             }
 
-            if (any(greaterThan(lightValue, EPSILON3))) {
+            if (lightRange > EPSILON) {
                 vec3 viewDir = getCameraViewDir(gbufferModelView);
                 vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
                 ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
-                if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
-                    if (frameCounter % 2 == 0)
-                        imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-                    else
-                        imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
-                }
+                // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
+                    AddLpvLight(imgCoordPrev, lightColor, lightRange);
+                    // if (frameCounter % 2 == 0)
+                    //     imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
+                    // else
+                    //     imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
+                // }
             }
         #endif
     #endif

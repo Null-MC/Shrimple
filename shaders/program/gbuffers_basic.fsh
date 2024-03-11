@@ -15,7 +15,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -40,7 +40,7 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -73,7 +73,7 @@ uniform int frameCounter;
 #ifdef WORLD_SHADOW_ENABLED
     uniform vec3 shadowLightPosition;
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef SHADOW_ENABLED
         uniform mat4 shadowProjection;
     #endif
 #endif
@@ -150,7 +150,7 @@ uniform int frameCounter;
     #endif
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -165,7 +165,7 @@ uniform int frameCounter;
 #endif
 
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && SHADOW_BLUR_SIZE > 0))
+#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
@@ -195,9 +195,9 @@ void main() {
 	const float sss = 0.0;
 
     vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
-           vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+           vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         #endif
 
         float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
@@ -220,7 +220,7 @@ void main() {
         }
     #endif
 
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && SHADOW_BLUR_SIZE > 0))
+    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const float roughness = 1.0;

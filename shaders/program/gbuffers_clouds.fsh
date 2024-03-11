@@ -17,7 +17,7 @@ in VertexData {
         float viewPosZ;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -90,7 +90,7 @@ uniform vec3 skyColor;
     
     uniform vec3 shadowLightPosition;
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef SHADOW_ENABLED
         uniform mat4 shadowProjection;
 
         #ifdef RENDER_CLOUD_SHADOWS_ENABLED
@@ -182,7 +182,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -234,7 +234,7 @@ uniform int heldBlockLightValue2;
 
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
-        // #include "/lib/utility/hsv.glsl"
+        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lighting/voxel/lpv.glsl"
         #include "/lib/lighting/voxel/lpv_render.glsl"
@@ -304,7 +304,7 @@ void main() {
     const float sss = 1.0;
 
     vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif

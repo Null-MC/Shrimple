@@ -22,7 +22,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -68,7 +68,7 @@ uniform sampler2D noisetex;
     uniform sampler2D texDepthNear;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
     
@@ -81,9 +81,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#ifdef DISTANT_HORIZONS
-    uniform sampler2D depthtex0;
-#endif
+uniform sampler2D depthtex0;
 
 uniform int worldTime;
 uniform int frameCounter;
@@ -144,10 +142,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
+#ifdef RENDER_SHADOWS_ENABLED
+    uniform mat4 shadowProjection;
 #endif
 
 uniform int heldItemId;
@@ -165,10 +161,8 @@ uniform int heldBlockLightValue2;
 //     uniform mat4 shadowModelView;
 // #endif
 
-#ifdef DISTANT_HORIZONS
-    uniform float dhNearPlane;
-    uniform float dhFarPlane;
-#endif
+uniform float dhNearPlane;
+uniform float dhFarPlane;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -241,7 +235,9 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/buffers/shadow.glsl"
+#endif
 
+#ifdef RENDER_SHADOWS_ENABLED
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded/common.glsl"
         #include "/lib/shadows/cascaded/render.glsl"
@@ -497,18 +493,13 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            #ifdef DISTANT_HORIZONS
-                float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
-            #else
-                float shadowDistFar = min(shadowDistance, far);
-            #endif
+            float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
 
             vec3 shadowViewPos = (shadowModelViewEx * vec4(vIn.localPos, 1.0)).xyz;
             float shadowViewDist = length(shadowViewPos.xy);
             float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #else
+            #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                 shadowFade *= step(-1.0, vIn.shadowPos.z);
                 shadowFade *= step(vIn.shadowPos.z, 1.0);
             #endif

@@ -34,7 +34,7 @@ out VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -62,7 +62,7 @@ uniform ivec2 atlasSize;
         uniform float near;
     #endif
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE && defined IS_IRIS
+    #if defined SHADOW_ENABLED && defined IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight;
     #endif
@@ -102,7 +102,7 @@ uniform ivec2 atlasSize;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 

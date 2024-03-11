@@ -18,7 +18,7 @@ float LpvVoxelTest(const in ivec3 voxelCoord) {
 }
 
 vec4 SampleLpvNearest(const in ivec3 lpvPos) {
-    return (frameCounter % 2) == 0
+    vec4 lpvSample = (frameCounter % 2) == 0
     #ifndef RENDER_GBUFFER
         ? texelFetch(texLPV_1, lpvPos, 0)
         : texelFetch(texLPV_2, lpvPos, 0);
@@ -26,74 +26,94 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
         ? texelFetch(texLPV_2, lpvPos, 0)
         : texelFetch(texLPV_1, lpvPos, 0);
     #endif
+
+    lpvSample.rgb = HsvToRgb(lpvSample.rgb);
+    return lpvSample;
 }
 
 vec4 SampleLpvLinear(const in vec3 lpvPos, const in vec3 normal) {
-    #ifdef LPV_VOXEL_TEST
-        vec3 pos = lpvPos + 1.001 * normal - 0.5;
-        //ivec3 coord = ivec3(lpvPos);
-        ivec3 lpvCoord = ivec3(pos + 0.01);
-        vec3 lpvF = saturate(pos - lpvCoord);
+    vec3 pos = lpvPos + 0.499 * normal;
 
-        //lpvCoord = ivec3(pos + 0.01);
+    // #ifdef LPV_VOXEL_TEST
+        // vec3 pos = lpvPos + 1.001 * normal - 0.5;
+        pos -= 0.5;
+        pos += 0.01;
+        ivec3 lpvCoord = ivec3(floor(pos));
+        vec3 lpvF = fract(pos);
 
         vec4 sample_x1y1z1 = SampleLpvNearest(lpvCoord + ivec3(0, 0, 0));
         vec4 sample_x2y1z1 = SampleLpvNearest(lpvCoord + ivec3(1, 0, 0));
         vec4 sample_x1y2z1 = SampleLpvNearest(lpvCoord + ivec3(0, 1, 0));
         vec4 sample_x2y2z1 = SampleLpvNearest(lpvCoord + ivec3(1, 1, 0));
 
+        // sample_x1y1z1.rgb = HsvToRgb(sample_x1y1z1.rgb);
+        // sample_x2y1z1.rgb = HsvToRgb(sample_x2y1z1.rgb);
+        // sample_x1y2z1.rgb = HsvToRgb(sample_x1y2z1.rgb);
+        // sample_x2y2z1.rgb = HsvToRgb(sample_x2y2z1.rgb);
+
         vec4 sample_x1y1z2 = SampleLpvNearest(lpvCoord + ivec3(0, 0, 1));
         vec4 sample_x2y1z2 = SampleLpvNearest(lpvCoord + ivec3(1, 0, 1));
         vec4 sample_x1y2z2 = SampleLpvNearest(lpvCoord + ivec3(0, 1, 1));
         vec4 sample_x2y2z2 = SampleLpvNearest(lpvCoord + ivec3(1, 1, 1));
 
-        vec3 lpvCameraOffset = fract(cameraPosition);
-        vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-        ivec3 voxelPos = ivec3(lpvPos - SceneLPVCenter + VoxelBlockCenter + voxelCameraOffset - lpvCameraOffset + 0.5);
+        // sample_x1y1z2.rgb = HsvToRgb(sample_x1y1z2.rgb);
+        // sample_x2y1z2.rgb = HsvToRgb(sample_x2y1z2.rgb);
+        // sample_x1y2z2.rgb = HsvToRgb(sample_x1y2z2.rgb);
+        // sample_x2y2z2.rgb = HsvToRgb(sample_x2y2z2.rgb);
 
-        float voxel_x1y1z1 = LpvVoxelTest(voxelPos + ivec3(0, 0, 0));
-        float voxel_x2y1z1 = LpvVoxelTest(voxelPos + ivec3(1, 0, 0));
-        float voxel_x1y2z1 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
-        float voxel_x2y2z1 = LpvVoxelTest(voxelPos + ivec3(1, 1, 0));
+        #ifdef LPV_VOXEL_TEST
+            vec3 lpvCameraOffset = fract(cameraPosition);
+            vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+            ivec3 voxelPos = ivec3(lpvPos - SceneLPVCenter + VoxelBlockCenter + voxelCameraOffset - lpvCameraOffset + 0.5);
 
-        float voxel_x1y1z2 = LpvVoxelTest(voxelPos + ivec3(0, 0, 1));
-        float voxel_x2y1z2 = LpvVoxelTest(voxelPos + ivec3(1, 0, 1));
-        float voxel_x1y2z2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 1));
-        float voxel_x2y2z2 = LpvVoxelTest(voxelPos + ivec3(1, 1, 1));
+            float voxel_x1y1z1 = LpvVoxelTest(voxelPos + ivec3(0, 0, 0));
+            float voxel_x2y1z1 = LpvVoxelTest(voxelPos + ivec3(1, 0, 0));
+            float voxel_x1y2z1 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
+            float voxel_x2y2z1 = LpvVoxelTest(voxelPos + ivec3(1, 1, 0));
 
-        sample_x1y1z1 *= voxel_x1y1z1;
-        sample_x2y1z1 *= voxel_x2y1z1;
-        sample_x1y2z1 *= voxel_x1y2z1;
-        sample_x2y2z1 *= voxel_x2y2z1;
+            float voxel_x1y1z2 = LpvVoxelTest(voxelPos + ivec3(0, 0, 1));
+            float voxel_x2y1z2 = LpvVoxelTest(voxelPos + ivec3(1, 0, 1));
+            float voxel_x1y2z2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 1));
+            float voxel_x2y2z2 = LpvVoxelTest(voxelPos + ivec3(1, 1, 1));
 
-        sample_x1y1z2 *= voxel_x1y1z2;
-        sample_x2y1z2 *= voxel_x2y1z2;
-        sample_x1y2z2 *= voxel_x1y2z2;
-        sample_x2y2z2 *= voxel_x2y2z2;
+            // sample_x1y1z1 *= voxel_x1y1z1;
+            // sample_x2y1z1 *= voxel_x2y1z1;
+            // sample_x1y2z1 *= voxel_x1y2z1;
+            // sample_x2y2z1 *= voxel_x2y2z1;
+
+            // sample_x1y1z2 *= voxel_x1y1z2;
+            // sample_x2y1z2 *= voxel_x2y1z2;
+            // sample_x1y2z2 *= voxel_x1y2z2;
+            // sample_x2y2z2 *= voxel_x2y2z2;
 
 
-        // TODO: Add special checks for avoiding diagonal blending between occluded edges/corners
+            // TODO: Add special checks for avoiding diagonal blending between occluded edges/corners
 
-        // TODO: preload voxel grid into array
-        // then prevent blending if all but current and opposing quadrants are empty
+            // TODO: preload voxel grid into array
+            // then prevent blending if all but current and opposing quadrants are empty
 
-        // ivec3 iq = 1 - ivec3(step(vec3(0.5), lpvF));
-        // float voxel_iqx = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(iq.x, 0, 0));
-        // float voxel_iqy = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(0, iq.y, 0));
-        // float voxel_iqz = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(0, 0, iq.z));
-        // float voxel_corner = 1.0 - voxel_iqx * voxel_iqy * voxel_iqz;
+            // ivec3 iq = 1 - ivec3(step(vec3(0.5), lpvF));
+            // float voxel_iqx = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(iq.x, 0, 0));
+            // float voxel_iqy = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(0, iq.y, 0));
+            // float voxel_iqz = 1.0 - LpvVoxelTest(ivec3(voxelPos) + ivec3(0, 0, iq.z));
+            // float voxel_corner = 1.0 - voxel_iqx * voxel_iqy * voxel_iqz;
 
-        // float voxel_y1 = LpvVoxelTest(ivec3(voxelPos + vec3(0, 0, 0)));
-        // sample_x1y1z1 *= voxel_y1;
-        // sample_x2y1z1 *= voxel_y1;
-        // sample_x1y1z2 *= voxel_y1;
-        // sample_x2y1z2 *= voxel_y1;
+            // float voxel_y1 = LpvVoxelTest(ivec3(voxelPos + vec3(0, 0, 0)));
+            // sample_x1y1z1 *= voxel_y1;
+            // sample_x2y1z1 *= voxel_y1;
+            // sample_x1y1z2 *= voxel_y1;
+            // sample_x2y1z2 *= voxel_y1;
 
-        // float voxel_y2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
-        // sample_x1y2z1 *= voxel_y2;
-        // sample_x2y2z1 *= voxel_y2;
-        // sample_x1y2z2 *= voxel_y2;
-        // sample_x2y2z2 *= voxel_y2;
+            // float voxel_y2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
+            // sample_x1y2z1 *= voxel_y2;
+            // sample_x2y2z1 *= voxel_y2;
+            // sample_x1y2z2 *= voxel_y2;
+            // sample_x2y2z2 *= voxel_y2;
+        #endif
+
+
+        //vec3 lpvF2 = _smoothstep(lpvF);
+        //lpvF = mix(lpvF2, lpvF, abs(normal));
 
 
         vec4 sample_y1z1 = mix(sample_x1y1z1, sample_x2y1z1, lpvF.x);
@@ -106,19 +126,28 @@ vec4 SampleLpvLinear(const in vec3 lpvPos, const in vec3 normal) {
         vec4 sample_z2 = mix(sample_y1z2, sample_y2z2, lpvF.y);
 
         return mix(sample_z1, sample_z2, lpvF.z);// * voxel_corner;
-    #else
-        vec3 pos = lpvPos + 0.499 * normal;
-        vec3 lpvTexcoord = GetLPVTexCoord(pos);
+    // #else
+    //     // vec3 pos = lpvPos + 0.499 * normal;
 
-        return (frameCounter % 2) == 0
-        #ifndef RENDER_GBUFFER
-            ? textureLod(texLPV_1, lpvTexcoord, 0)
-            : textureLod(texLPV_2, lpvTexcoord, 0);
-        #else
-            ? textureLod(texLPV_2, lpvTexcoord, 0)
-            : textureLod(texLPV_1, lpvTexcoord, 0);
-        #endif
-    #endif
+    //     // pos += 0.5;
+    //     // vec3 tF1 = floor(pos);
+    //     // vec3 tF2 = fract(pos);
+    //     // tF2 = _smoothstep(tF2);
+    //     // vec3 pos2 = tF1 + tF2 - 0.5;
+
+    //     // pos = mix(pos2, pos, abs(normal));
+
+    //     vec3 lpvTexcoord = GetLPVTexCoord(pos);
+
+    //     return (frameCounter % 2) == 0
+    //     #ifndef RENDER_GBUFFER
+    //         ? textureLod(texLPV_1, lpvTexcoord, 0)
+    //         : textureLod(texLPV_2, lpvTexcoord, 0);
+    //     #else
+    //         ? textureLod(texLPV_2, lpvTexcoord, 0)
+    //         : textureLod(texLPV_1, lpvTexcoord, 0);
+    //     #endif
+    // #endif
 }
 
 vec4 SampleLpvCubic(in vec3 lpvPos, const in vec3 normal) {
@@ -189,23 +218,41 @@ vec4 SampleLpvCubic(in vec3 lpvPos, const in vec3 normal) {
     return mix(sample_z1, sample_z2, mixF.z);
 }
 
+// vec4 SampleLpvCubic2(in vec2 uv, const in vec2 tex) {
+//     //float textureResolution = float(textureSize(sam,0).x);
+//     uv = uv*textureResolution + 0.5;
+//     vec2 iuv = floor( uv );
+//     vec2 fuv = fract( uv );
+//     uv = iuv + fuv*fuv*(3.0-2.0*fuv);
+//     uv = (uv - 0.5)/textureResolution;
+//     return texture( sam, uv );
+// }
+
 vec4 SampleLpv(const in vec3 lpvPos, const in vec3 normal) {
     #if LPV_SAMPLE_MODE == LPV_SAMPLE_CUBIC
-        return SampleLpvCubic(lpvPos, normal);
+        vec4 lpvSample = SampleLpvCubic(lpvPos, normal);
     #elif LPV_SAMPLE_MODE == LPV_SAMPLE_LINEAR
-        return SampleLpvLinear(lpvPos, normal);
+        vec4 lpvSample = SampleLpvLinear(lpvPos, normal);
     #else
         ivec3 coord = ivec3(lpvPos + 0.4999 * normal);
-        return SampleLpvNearest(coord);
+        vec4 lpvSample = SampleLpvNearest(coord);
     #endif
+
+    return lpvSample;
 }
 
-vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float power) {
+vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
     //const float sampleF = (1.0/15.0) / DynamicLightRangeF;
 
-    float lum = max(luminance(lpvSample.rgb), EPSILON);
-    float lum2 = log2(lum + 1.0) / (15.0 * DynamicLightRangeF);
-    return saturate(lpvSample.rgb / lum) * pow(lum2, power);
+    // float lum = max(luminance(lpvSample.rgb), EPSILON);
+    // float lum2 = log2(lum + 1.0) / (15.0 * DynamicLightRangeF);
+    // return saturate(lpvSample.rgb / lum) * pow(lum2, power);
+
+    //lpvSample.b = sqrt(lpvSample.b);
+    // lpvSample.rgb = HsvToRgb(lpvSample.rgb);
+
+    return lpvSample.rgb * LPV_VALUE_SCALE / 16.0;
+    //return pow(lpvSample.rgb, vec3(power));// / 16.0;
 
     // vec3 hsv = lpvSample.rgb;
     // hsv.z = log2(hsv.z + 1.0) * sampleF * 0.1;

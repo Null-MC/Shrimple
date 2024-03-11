@@ -20,7 +20,7 @@ uniform sampler2D TEX_LIGHTMAP;
 //     uniform sampler2D BUFFER_ROUGHNESS;
 // #endif
 
-#if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+#ifndef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowcolor0;
 #endif
 

@@ -35,7 +35,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -72,7 +72,7 @@ out VertexData {
         vec3 cloudPos;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -130,7 +130,7 @@ void main() {
         vOut.cloudPos = _interpolate(vIn[0].cloudPos, vIn[1].cloudPos, vIn[2].cloudPos);
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vOut.shadowPos[0] = _interpolate(vIn[0].shadowPos[0], vIn[1].shadowPos[0], vIn[2].shadowPos[0]);
             vOut.shadowPos[1] = _interpolate(vIn[0].shadowPos[1], vIn[1].shadowPos[1], vIn[2].shadowPos[1]);

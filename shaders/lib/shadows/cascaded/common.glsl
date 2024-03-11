@@ -30,7 +30,7 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
 
     bias += cascadeNormalBias[cascade];
 
-    return bias * max(1.0 - geoNoL, 0.0) * SHADOW_BIAS_SCALE;
+    return bias * max(1.0 - geoNoL, 0.0) * ShadowBiasScale;
 }
 
 float GetShadowOffsetBias(const in int cascade) {
@@ -48,13 +48,13 @@ float GetShadowOffsetBias(const in int cascade) {
     // float zNear = -_far;
     // float zFar = _far * 2.0;
     float shadowDepthRange = GetShadowRange(cascade);
-    return cascadeOffsetBias[cascade] / shadowDepthRange * SHADOW_BIAS_SCALE;
+    return cascadeOffsetBias[cascade] / shadowDepthRange * ShadowBiasScale;
 
     // float blocksPerPixelScale = max(shadowProjectionSize[cascade].x, shadowProjectionSize[cascade].y) / cascadeTexSize;
 
     // float zRangeBias = 0.0000001;
     // float xySizeBias = blocksPerPixelScale * tile_dist_bias_factor;
-    // return mix(xySizeBias, zRangeBias, geoNoL) * SHADOW_BIAS_SCALE;
+    // return mix(xySizeBias, zRangeBias, geoNoL) * ShadowBiasScale;
 }
 
 bool CascadeContainsPosition(const in vec3 shadowViewPos, const in int cascade, const in float padding) {

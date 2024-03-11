@@ -3,12 +3,12 @@ float GetShadowRange() {
 }
 
 float GetShadowNormalBias(const in float geoNoL) {
-    return 0.06 * max(1.0 - geoNoL, 0.0) * SHADOW_BIAS_SCALE;
+    return 0.06 * max(1.0 - geoNoL, 0.0) * ShadowBiasScale;
 }
 
 float GetShadowOffsetBias() {
     float shadowDepthRange = GetShadowRange();
-    return 0.02 / shadowDepthRange * SHADOW_BIAS_SCALE;
+    return 0.02 / shadowDepthRange * ShadowBiasScale;
 }
 
 vec3 distort(const in vec3 pos) {

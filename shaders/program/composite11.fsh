@@ -15,7 +15,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
 
-#if !(defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE)
+#ifndef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowcolor0;
 #endif
 

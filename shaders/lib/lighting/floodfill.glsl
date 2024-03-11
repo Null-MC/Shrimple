@@ -23,7 +23,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         lpvFade = smootherstep(lpvFade);
         //lpvFade *= 1.0 - LpvLightmapMixF;
 
-        vec3 lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
+        vec3 lpvLight = 3.0 * GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
         blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade);
     }
     else {

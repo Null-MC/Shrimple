@@ -23,7 +23,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     #ifdef IRIS_FEATURE_SSBO
         vec3 localSkyLightDir = localSkyLightDirection;
     #else
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #ifdef RENDER_SHADOWS_ENABLED
             vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         #else
             vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);

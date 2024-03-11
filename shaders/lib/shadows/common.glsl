@@ -46,7 +46,7 @@ mat4 BuildShadowProjectionMatrix() {
     return BuildOrthoProjectionMatrix(maxDist, maxDist, -far, far);
 }
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !(defined RENDER_SHADOW || defined RENDER_SHADOW_DH || defined RENDER_CLOUDS)
+#if defined RENDER_SHADOWS_ENABLED && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !(defined RENDER_SHADOW || defined RENDER_SHADOW_DH || defined RENDER_CLOUDS)
     vec3 ApplyCloudShadows(const in vec3 localPos) {
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);

@@ -122,7 +122,7 @@ vec4 BasicVertex() {
                 vOut.shadowTile = -1;
             #endif
 
-            #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+            #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && !defined RENDER_BILLBOARD
                 vec3 skyLightDir = normalize(shadowLightPosition);
                 float geoNoL = dot(skyLightDir, viewNormal);
             #else
