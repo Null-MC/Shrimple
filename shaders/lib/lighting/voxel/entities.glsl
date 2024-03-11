@@ -29,21 +29,25 @@ vec4 GetSceneEntityLightColor(const in int entityId) {
     vec4 colorRange = vec4(0.0);
     
     switch (entityId) {
-        case ENTITY_FLAMES:
-            colorRange.rgb = RGBToLinear(vec3(0.851, 0.518, 0.239));
-            colorRange.a = 15.0;
-            break;
         case ENTITY_BLAZE:
             colorRange.rgb = RGBToLinear(vec3(0.813, 0.583, 0.180));
             colorRange.a = 8.0;
             break;
-        case ENTITY_MAGMA_CUBE:
-            colorRange.rgb = RGBToLinear(vec3(0.707, 0.373, 0.157));
-            colorRange.a = 12.0;
-            break;
         case ENTITY_END_CRYSTAL:
             colorRange.rgb = RGBToLinear(vec3(0.848, 0.165, 0.724));
             colorRange.a = 15.0;
+            break;
+        case ENTITY_FLAMES:
+            colorRange.rgb = RGBToLinear(vec3(0.851, 0.518, 0.239));
+            colorRange.a = 15.0;
+            break;
+        case ENTITY_GLOW_SQUID:
+            colorRange.rgb = RGBToLinear(vec3(0.333, 0.851, 0.839));
+            colorRange.a = 6.0;
+            break;
+        case ENTITY_MAGMA_CUBE:
+            colorRange.rgb = RGBToLinear(vec3(0.707, 0.373, 0.157));
+            colorRange.a = 12.0;
             break;
         case ENTITY_TNT:
             colorRange.rgb = RGBToLinear(vec3(1.0));

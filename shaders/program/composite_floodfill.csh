@@ -67,10 +67,11 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/blocks.glsl"
 
     #include "/lib/buffers/scene.glsl"
-    // #include "/lib/buffers/lighting.glsl"
     #include "/lib/buffers/block_voxel.glsl"
     #include "/lib/buffers/volume.glsl"
+
     #include "/lib/utility/hsv.glsl"
+    #include "/lib/utility/oklab.glsl"
 
     #include "/lib/lighting/voxel/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
@@ -120,7 +121,6 @@ vec4 GetLpvValue(in ivec3 texCoord) {
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
 
-    //lpvSample.b = sqrt(lpvSample.b);
     lpvSample.b = exp2(lpvSample.b * LPV_VALUE_SCALE) - 1.0;
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
 
@@ -265,8 +265,6 @@ vec4 sampleShared(ivec3 pos) {
 }
 
 vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
-    //return sampleShared(fragCoord);
-
     vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0)) * ((mask     ) & 1);
     vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0)) * ((mask >> 1) & 1);
     vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0)) * ((mask >> 2) & 1);
@@ -275,7 +273,6 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
 
     vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    //return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF * frameTime);
     return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
 }
 
