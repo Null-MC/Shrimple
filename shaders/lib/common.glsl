@@ -248,7 +248,7 @@ const bool colortex15Clear = true;
 #define LPV_BRIGHT_MOON 0.02
 #define LPV_FALLOFF 0.2 // [0.001]
 #define LPV_SKYLIGHT_RANGE 24.0 // [16 24 32]
-#define LPV_BLOCKLIGHT_SCALE 32.0
+#define LPV_BLOCKLIGHT_SCALE 32.0 // [16 24 32 48 64 96 128]
 //#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST

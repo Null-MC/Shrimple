@@ -12,13 +12,13 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     #endif
 
     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
-        vec3 surfaceNormal = localNormal;
+        // vec3 surfaceNormal = localNormal;
 
-        if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            surfaceNormal = normalize(localNormal + texNormal);
-        }
+        // if (!all(lessThan(abs(texNormal), EPSILON3))) {
+        //     surfaceNormal = normalize(localNormal + texNormal);
+        // }
 
-        vec4 lpvSample = SampleLpv(lpvPos, surfaceNormal);
+        vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
         //lpvFade *= 1.0 - LpvLightmapMixF;

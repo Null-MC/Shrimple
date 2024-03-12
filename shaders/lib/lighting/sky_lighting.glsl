@@ -134,7 +134,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         lpvFade = 1.0;//smootherstep(lpvFade);
         lpvFade *= 1.0 - LpvLightmapMixF;
 
-        vec4 lpvSample = SampleLpv(lpvPos, texNormal);
+        vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
         #ifdef LPV_GI
             #if LIGHTING_MODE == LIGHTING_MODE_NONE

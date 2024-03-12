@@ -10,12 +10,14 @@
 
 const ivec3 SceneLPVCenter = SceneLPVSize / 2;
 
+#define LPV_FRUSTUM_OFFSET 0.4
+
 vec3 getCameraViewDir(const in mat4 matModelView) {
     return vec3(matModelView[0].z, matModelView[1].z, matModelView[2].z);
 }
 
 vec3 GetLpvCenter(const in vec3 viewPos, const in vec3 viewDir) {
-    ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * 0.4));
+    ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * LPV_FRUSTUM_OFFSET));
     return (SceneLPVCenter + offset) + fract(viewPos);
 }
 
