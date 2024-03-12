@@ -27,9 +27,10 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
         : texelFetch(texLPV_1, lpvPos, 0);
     #endif
 
-    lpvSample.b = _pow2(lpvSample.b);
+    //lpvSample.b = _pow2(lpvSample.b);
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
-    return lpvSample;
+
+    return lpvSample / DynamicLightRangeF;
 }
 
 vec4 SampleLpvLinear(const in vec3 lpvPos, const in vec3 normal) {
@@ -252,7 +253,7 @@ vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
     //lpvSample.b = sqrt(lpvSample.b);
     // lpvSample.rgb = HsvToRgb(lpvSample.rgb);
 
-    return lpvSample.rgb * LPV_BLOCKLIGHT_SCALE / 16.0;
+    return (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) / 8.0;
     //return pow(lpvSample.rgb, vec3(power));// / 16.0;
 
     // vec3 hsv = lpvSample.rgb;

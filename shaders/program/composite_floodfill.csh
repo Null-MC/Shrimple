@@ -67,6 +67,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     #include "/lib/blocks.glsl"
 
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/block_static.glsl"
     #include "/lib/buffers/block_voxel.glsl"
     #include "/lib/buffers/volume.glsl"
 
@@ -357,38 +358,46 @@ void main() {
 
         vec4 lightValue = vec4(0.0);
 
-        bool allowLight = false;
+        //bool allowLight = false;
+        float mixWeight = blockId == BLOCK_EMPTY ? 1.0 : 0.0;
+        uint mixMask = 0xFFFF;
         vec3 tint = vec3(1.0);
+
+        if (blockId > 0 && blockId != BLOCK_EMPTY) {
+            ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
+        }
 
         #ifdef LPV_GLASS_TINT
             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
                 tint = GetLightGlassTint(blockId);
-                allowLight = true;
+                mixWeight = 1.0;
             }
             else {
         #endif
-            allowLight = IsTraceOpenBlock(blockId);
+            // if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
         #ifdef LPV_GLASS_TINT
             }
         #endif
 
-        float mixWeight = 1.0;
-        uint mixMask = 0xFFFF;
-        if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
-            mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
-            mixWeight = 0.5;
-            allowLight = true;
-        }
-        else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
-            allowLight = true;
-            mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
-        }
-        else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
-            allowLight = true;
-            mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
-        }
+        // // float mixWeight = 1.0;
+        // uint mixMask = 0xFFFF;
+        // if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
+        //     mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
+        //     mixWeight = 0.5;
+        //     // allowLight = true;
+        // }
+        // else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+        //     // allowLight = true;
+        //     mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+        //     mixWeight = 1.0;
+        // }
+        // else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
+        //     // allowLight = true;
+        //     mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+        //     mixWeight = 1.0;
+        // }
         
-        if (allowLight) {
+        if (mixWeight > EPSILON) {
             vec4 lightMixed = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
             lightMixed.rgb *= mixWeight * tint;
             lightValue += lightMixed;

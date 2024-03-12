@@ -138,7 +138,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         #ifdef LPV_GI
             #if LIGHTING_MODE == LIGHTING_MODE_NONE
-                vec3 lpvSkyLight = 10.0*GetLpvBlockLight(lpvSample);
+                vec3 lpvSkyLight = GetLpvBlockLight(lpvSample);
                 ambientLight = mix(ambientLight, lpvSkyLight, lpvFade);
             #endif
         #else

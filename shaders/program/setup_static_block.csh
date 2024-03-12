@@ -24,6 +24,10 @@ const ivec3 workGroups = ivec3(4, 5, 1);
         #include "/lib/world/waving_blocks.glsl"
     #endif
 
+    #ifdef IS_LPV_ENABLED
+        #include "/lib/lighting/voxel/blocks.glsl"
+    #endif
+
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
         #include "/lib/lighting/voxel/collisions.glsl"
     #endif
@@ -45,6 +49,32 @@ void main() {
 
         #if WORLD_WIND_STRENGTH > 0
             GetBlockWavingRangeAttachment(blockId, block.wavingRange, block.wavingAttachment);
+        #endif
+
+        #ifdef IS_LPV_ENABLED
+            float mixWeight = 0.0;
+            uint mixMask = 0xFFFF;
+
+            if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
+                mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
+                mixWeight = 0.5;
+                // allowLight = true;
+            }
+            else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+                // allowLight = true;
+                mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
+                // allowLight = true;
+                mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+                mixWeight = 1.0;
+            }
+            else {
+                if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
+            }
+
+            block.lpv_data = BuildBlockLpvData(mixMask, mixWeight);
         #endif
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
