@@ -606,7 +606,7 @@ const float shadowDistanceRenderMul = -1.0;
 const int shadowMapResolution = 1024; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
 
 const float shadowNearPlane = -1.0;
-const float shadowFarPlane = -1.0;
+//const float shadowFarPlane = -1.0;
 
 #ifdef MC_SHADOW_QUALITY
     const float shadowMapSize = shadowMapResolution * MC_SHADOW_QUALITY;
