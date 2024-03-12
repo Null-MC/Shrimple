@@ -347,24 +347,6 @@ void main() {
 
         if (blockId > 0 && blockId != BLOCK_EMPTY) {
             ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
-
-
-
-            // uint lightType = StaticBlockMap[blockId].lightType;
-
-            // if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-            //     StaticLightData lightInfo = StaticLightMap[lightType];
-            //     lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-            //     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-            //     lightRange = lightRangeSize.x * 255.0;
-
-            //     lightColor = RGBToLinear(lightColor);
-
-            //     #ifdef LIGHTING_FLICKER
-            //        vec2 lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-            //        ApplyLightFlicker(lightColor, lightType, lightNoise);
-            //     #endif
-            // }
         }
 
         #ifdef LPV_GLASS_TINT

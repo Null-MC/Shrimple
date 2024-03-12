@@ -3,7 +3,8 @@ const float skyLightDist = 100.0;
 
 
 void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
-    vec3 localViewDir = -normalize(localPos);
+    float viewDist = length(localPos);
+    vec3 localViewDir = -localPos / viewDist;
 
     //vec2 lmSky = vec2(0.0, lmcoord.y);
 
@@ -40,11 +41,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 r = reflect(-localViewDir, texNormal);
         vec3 L = localSkyLightDir * skyLightDist;
         vec3 centerToRay = dot(L, r) * r - L;
-        vec3 closestPoint = L + centerToRay * saturate(skyLightSize / length(centerToRay));
+        vec3 closestPoint = centerToRay * saturate(skyLightSize / length(centerToRay)) + L;
         localSkyLightDir = normalize(closestPoint);
     }
 
-    float viewDist = length(localPos);
+    // float viewDist = length(localPos);
     float shadowDistF = saturate(viewDist / shadowDistance);
     float skyNoLm = max(dot(texNormal, localSkyLightDir), 0.0);
 
@@ -55,7 +56,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
     //skyLightColor *= 1.0 - 0.7 * rainStrength;
 
-    vec3 skyLightShadowColor = shadowColor;
+    vec3 skyLightShadowColor = shadowColor * skyLightColor;
 
     // #ifdef RENDER_SHADOWS_ENABLED
     //     skyLightShadowColor *= mix(1.0, pow5(lmcoord.y) * skyNoLm, smoothstep(0.6, 1.0, shadowDistF));
@@ -63,8 +64,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     //     skyLightShadowColor *= pow5(lmcoord.y);// * skyNoLm;
     //     //skyLightShadowColor *= smootherstep(lmcoord.y);
     // #endif
-
-    skyLightShadowColor *= skyLightColor;
 
     // #ifndef RENDER_SHADOWS_ENABLED
     //     skyLightShadowColor *= pow5(lmcoord.y);
@@ -131,7 +130,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 lpvPos = GetLPVPosition(localPos);
 
         float lpvFade = GetLpvFade(lpvPos);
-        lpvFade = 1.0;//smootherstep(lpvFade);
+        lpvFade = smootherstep(lpvFade);
         lpvFade *= 1.0 - LpvLightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);

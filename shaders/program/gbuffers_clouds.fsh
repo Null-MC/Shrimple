@@ -306,7 +306,7 @@ void main() {
     vec3 shadowColor = vec3(1.0);
     #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         #endif
     
         float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
@@ -381,35 +381,36 @@ void main() {
         vec3 specularFinal = vec3(0.0);
 
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
+            //GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
 
             // #ifdef WORLD_SKY_ENABLED
-            //     const bool tir = false; // TODO: ?
+            //     const bool tir = false;
             //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, tir);
             // #else
             //     diffuseFinal += WorldAmbientF;
             // #endif
-            diffuseFinal += albedo.rgb * WorldSkyLightColor;
+            // TODO: add ambient light
+            diffuseFinal += albedo.rgb * (shadowColor) * WorldSkyLightColor;
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                 SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
             #endif
 
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= albedo.rgb;
-                }
-            #endif
+            // #if MATERIAL_SPECULAR != SPECULAR_NONE
+            //     if (metal_f0 >= 0.5) {
+            //         diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+            //         specularFinal *= albedo.rgb;
+            //     }
+            // #endif
 
-            diffuseFinal += emission * MaterialEmissionF;
+            // diffuseFinal += emission * MaterialEmissionF;
 
             final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             GetVanillaLighting(diffuseFinal, lmcoord);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false; // TODO: ?
+                const bool tir = false;
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, tir);
             #endif
 
@@ -439,8 +440,10 @@ void main() {
         
             vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-            vec3 vlLight = (phaseAir + AirAmbientF) * skyLightColor;
+            float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
 
+            vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
             ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
         

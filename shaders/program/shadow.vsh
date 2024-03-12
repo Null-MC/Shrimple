@@ -105,14 +105,14 @@ void main() {
         vOut.originPos -= 0.05 * geoViewNormal;
     }
 
-    #ifdef SHADOW_FRUSTUM_CULL
-        if (isRenderTerrain && blockId > 0) {
-            if (clamp(vOut.originPos.xy, shadowViewBoundsMin, shadowViewBoundsMax) != vOut.originPos.xy) {
-                gl_Position = vec4(-1.0);
-                return;
-            }
-        }
-    #endif
+    // #ifdef SHADOW_FRUSTUM_CULL
+    //     if (isRenderTerrain && blockId > 0) {
+    //         if (clamp(vOut.originPos.xy, shadowViewBoundsMin, shadowViewBoundsMax) != vOut.originPos.xy) {
+    //             gl_Position = vec4(-1.0);
+    //             return;
+    //         }
+    //     }
+    // #endif
 
     vOut.originPos = mul3(shadowModelViewInverse, vOut.originPos);
 

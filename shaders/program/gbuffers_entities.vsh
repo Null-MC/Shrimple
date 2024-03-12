@@ -251,15 +251,13 @@ void main() {
             //     }
             // #endif
 
-            uint lightType = LIGHT_NONE;//StaticBlockMap[vOut.blockId].lightType;
-            // vec3 lightValue = vec3(0.0);
+            uint lightType = LIGHT_NONE;
             vec3 lightColor = vec3(0.0);
             float lightRange = 0.0;
 
             vec3 playerOffset = originPos - (eyePosition - cameraPosition);
             playerOffset.y += 1.0;
 
-            // if (entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
             if (entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
                 uint itemLightType = GetSceneItemLightType(currentRenderedItemId);
                 if (itemLightType > 0) lightType = itemLightType;
@@ -275,27 +273,20 @@ void main() {
             if (entityLightColorRange.a > EPSILON) {
                 lightColor = entityLightColorRange.rgb;
                 lightRange = entityLightColorRange.a;
-                // vec3 lightColor = _pow2(entityLightColorRange.rgb);
-                // lightValue = lightColor * (exp2(entityLightColorRange.a * DynamicLightRangeF) - 1.0);
             }
 
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
                 StaticLightData lightInfo = StaticLightMap[lightType];
                 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                lightColor = RGBToLinear(lightColor);
+
                 vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                 lightRange = lightRangeSize.x * 255.0;
 
-                lightColor = RGBToLinear(lightColor);
-                //lightColor = pow(lightColor, vec3(2.0));
-
-                //vec2 lightNoise = vec2(0.0);
                 #ifdef LIGHTING_FLICKER
                    vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
-
-                // lightColor = _pow2(lightColor);
-                // lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
             }
 
             if (lightRange > EPSILON) {
@@ -304,12 +295,6 @@ void main() {
                 ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
                 AddLpvLight(imgCoordPrev, lightColor, lightRange);
-                // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
-                //     if (frameCounter % 2 == 0)
-                //         imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-                //     else
-                //         imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
-                // }
             }
         }
     #endif

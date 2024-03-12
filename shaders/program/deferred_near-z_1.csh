@@ -9,9 +9,12 @@ layout (local_size_x = 8, local_size_y = 8) in;
 
 const vec2 workGroupsRender = vec2(0.5, 0.5);
 
-shared float sharedBuffer[324];
-
 layout(r32f) uniform image2D imgDepthNear;
+
+const int sharedSize = 8*2 +2;
+shared float sharedBuffer[sharedSize*sharedSize];
+// shared float sharedBuffer[324];
+
 
 uniform sampler2D depthtex0;
 
@@ -21,9 +24,8 @@ uniform sampler2D depthtex0;
 
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
-uniform float near;
-// uniform float far;
 uniform float farPlane;
+uniform float near;
 
 #ifdef DISTANT_HORIZONS
     uniform float dhNearPlane;
@@ -45,7 +47,7 @@ void copyToShared(const in ivec2 kernelPos, const in ivec2 depthPos, const in iv
         float dhDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
 
-        if (dhDepthL < depthL || depth >= 1.0) {
+        if (depth >= 1.0 || (dhDepth > 0.0 && dhDepthL < depthL)) {
             depth = dhDepth;
             depthL = dhDepthL;
         }

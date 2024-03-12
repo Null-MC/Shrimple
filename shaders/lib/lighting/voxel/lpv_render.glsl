@@ -210,7 +210,7 @@ vec3 GetLpvBlockLight(const in vec4 lpvSample) {
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {
-    const float skyLightScale = 1.0;//255.0 / LPV_SKYLIGHT_RANGE;
-    
-    return saturate(lpvSample.a * skyLightScale);
+    float skyLight = saturate(lpvSample.a);
+    return _pow2(skyLight);
+    // return skyLight;
 }

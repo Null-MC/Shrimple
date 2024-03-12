@@ -5,6 +5,8 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+// layout(early_fragment_tests) in;
+
 in VertexData {
     vec4 color;
     vec2 lmcoord;

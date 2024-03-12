@@ -249,14 +249,11 @@ void main() {
         #endif
     #endif
 
-    // #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL && !defined DEFERRED_BUFFER_ENABLED
-    // #endif
-
     #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
-        vec3 originPos = vOut.localPos + at_midBlock/64.0;
+        vec3 originPos = at_midBlock/64.0 + vOut.localPos;
         bool intersects = true;
 
         // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
@@ -274,7 +271,7 @@ void main() {
         //     }
         // #endif
 
-        uint lightType = StaticBlockMap[blockId].lightType;
+        // uint lightType = StaticBlockMap[blockId].lightType;
 
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetVoxelBlockPosition(originPos);
@@ -285,6 +282,8 @@ void main() {
                 SetVoxelBlockMask(blockCell, gridIndex, blockId);
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+                uint lightType = StaticBlockMap[blockId].lightType;
+
                 if (lightType > 0) {
                     if (!intersects) lightType = LIGHT_IGNORED;
 
@@ -298,36 +297,36 @@ void main() {
             #endif
         }
 
-        #ifdef IS_LPV_ENABLED
-            vec3 playerOffset = originPos - (eyePosition - cameraPosition);
-            playerOffset.y += 1.0;
+        // #ifdef IS_LPV_ENABLED
+        //     vec3 playerOffset = originPos - (eyePosition - cameraPosition);
+        //     playerOffset.y += 1.0;
 
-            vec3 lightColor = vec3(0.0);
-            float lightRange = 0.0;
+        //     vec3 lightColor = vec3(0.0);
+        //     float lightRange = 0.0;
 
-            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                StaticLightData lightInfo = StaticLightMap[lightType];
-                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                lightRange = lightRangeSize.x * 255.0;
+        //     if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+        //         StaticLightData lightInfo = StaticLightMap[lightType];
+        //         lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+        //         vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+        //         lightRange = lightRangeSize.x * 255.0;
 
-                lightColor = RGBToLinear(lightColor);
+        //         lightColor = RGBToLinear(lightColor);
 
-                #ifdef LIGHTING_FLICKER
-                   vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
-                   ApplyLightFlicker(lightColor, lightType, lightNoise);
-                #endif
-            }
+        //         #ifdef LIGHTING_FLICKER
+        //            vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+        //            ApplyLightFlicker(lightColor, lightType, lightNoise);
+        //         #endif
+        //     }
 
-            if (lightRange > EPSILON) {
-                vec3 viewDir = getCameraViewDir(gbufferModelView);
-                vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
-                ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
+        //     if (lightRange > EPSILON) {
+        //         vec3 viewDir = getCameraViewDir(gbufferModelView);
+        //         vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
+        //         ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 
-                // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
-                    AddLpvLight(imgCoordPrev, lightColor, lightRange);
-                // }
-            }
-        #endif
+        //         // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
+        //             AddLpvLight(imgCoordPrev, lightColor, lightRange);
+        //         // }
+        //     }
+        // #endif
     #endif
 }
