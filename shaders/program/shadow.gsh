@@ -223,26 +223,26 @@ void main() {
                     float lightRange = 0.0;
 
                     // WARN: MAKE THESE WORK AGAIN!!!!
-                    // if (entityId == ENTITY_SPECTRAL_ARROW)
-                    //     lightType = LIGHT_TORCH_FLOOR;
-                    // else if (entityId == ENTITY_TORCH_ARROW)
-                    //     lightType = LIGHT_TORCH_FLOOR;
+                    if (entityId == ENTITY_SPECTRAL_ARROW)
+                        lightType = LIGHT_TORCH_FLOOR;
+                    else if (entityId == ENTITY_TORCH_ARROW)
+                        lightType = LIGHT_TORCH_FLOOR;
 
                     //if (itemLightType > 0) lightType = itemLightType;
 
-                    // if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                    //     StaticLightData lightInfo = StaticLightMap[lightType];
-                    //     lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                    //     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                    //     lightRange = lightRangeSize.x * 255.0;
+                    if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                        StaticLightData lightInfo = StaticLightMap[lightType];
+                        lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                        vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                        lightRange = lightRangeSize.x * 255.0;
 
-                    //     lightColor = RGBToLinear(lightColor);
+                        lightColor = RGBToLinear(lightColor);
 
-                    //     #ifdef LIGHTING_FLICKER
-                    //        vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
-                    //        ApplyLightFlicker(lightColor, lightType, lightNoise);
-                    //     #endif
-                    // }
+                        #ifdef LIGHTING_FLICKER
+                           vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                           ApplyLightFlicker(lightColor, lightType, lightNoise);
+                        #endif
+                    }
 
                     vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
