@@ -603,7 +603,7 @@ const float drynessHalflife = 20.0;
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 400 600 800 1000 1200 1400 1600 2000 2400 2800 3200 3600 4000]
 const float shadowIntervalSize = 2.0f;
 const float shadowDistanceRenderMul = -1.0;
-const int shadowMapResolution = 1536; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
+const int shadowMapResolution = 1024; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
 
 const float shadowNearPlane = -1.0;
 const float shadowFarPlane = -1.0;
@@ -632,6 +632,8 @@ const bool shadowcolor0Nearest = false;
 	const float voxelDistance = 32.0;
 #elif LPV_SIZE == 1
 	const float voxelDistance = 16.0;
+#else
+	const float voxelDistance = 0.0;
 #endif
 
 //const mat4 TEXTURE_MATRIX_2 = mat4(vec4(0.00390625, 0.0, 0.0, 0.0), vec4(0.0, 0.00390625, 0.0, 0.0), vec4(0.0, 0.0, 0.00390625, 0.0), vec4(0.03125, 0.03125, 0.03125, 1.0));

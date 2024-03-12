@@ -188,112 +188,79 @@ void main() {
                 }
             #endif
 
-            uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
+            vec3 cameraOffset = fract(cameraPosition);
+            vec3 lightGridOrigin = floor(originPos + cameraOffset) - cameraOffset + 0.5;
 
-            //#if LIGHTING_MODE == LIGHTING_MODE_TRACED
-                vec3 cf = fract(cameraPosition);
-                vec3 lightGridOrigin = floor(originPos + cf) - cf + 0.5;
+            ivec3 gridCell, blockCell;
+            vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+            if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
+                uint gridIndex = GetVoxelGridCellIndex(gridCell);
 
-                ivec3 gridCell, blockCell;
-                vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
-                if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-                    uint gridIndex = GetVoxelGridCellIndex(gridCell);
+                if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
+                    SetVoxelBlockMask(blockCell, gridIndex, vIn[0].blockId);
 
-                    if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
-                        SetVoxelBlockMask(blockCell, gridIndex, vIn[0].blockId);
+                #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+                    uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
 
-                    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-                        //uint lightType = GetSceneLightType(vBlockId[0]);
-                        //uint lightType = StaticBlockMap[vBlockId[0]].lightType;
+                    if (lightType > 0) {
+                        if (!intersects) lightType = LIGHT_IGNORED;
 
-                        if (lightType > 0) {
-                            if (!intersects) lightType = LIGHT_IGNORED;
-
-                            if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
-                                if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
-                                #ifdef DYN_LIGHT_DEBUG_COUNTS
-                                    else atomicAdd(SceneLightMaxCount, 1u);
-                                #endif
-                            }
+                        if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
+                            if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
+                            #ifdef DYN_LIGHT_DEBUG_COUNTS
+                                else atomicAdd(SceneLightMaxCount, 1u);
+                            #endif
                         }
-                    #endif
-                }
-            //#endif
+                    }
+                #endif
+            }
 
             #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
-                // if (!IsTraceEmptyBlock(vBlockId[0]))
-                //     SetVoxelBlockMask(blockCell, gridIndex, vBlockId[0]);
-
-                vec3 playerOffset = originPos - (eyePosition - cameraPosition);
-                playerOffset.y += 1.0;
-
-                //if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && _lengthSq(playerOffset) > 2.0) {
                 if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
-                    uint itemLightType = GetSceneItemLightType(currentRenderedItemId);
-                    if (itemLightType > 0) lightType = itemLightType;
+                    uint lightType = GetSceneItemLightType(currentRenderedItemId);
 
-                    if (entityId == ENTITY_SPECTRAL_ARROW)
-                        lightType = LIGHT_TORCH_FLOOR;
-                    else if (entityId == ENTITY_TORCH_ARROW)
-                        lightType = LIGHT_TORCH_FLOOR;
-                }
+                    vec3 lightColor = vec3(0.0);
+                    float lightRange = 0.0;
 
-                vec3 lightColor = vec3(0.0);
-                float lightRange = 0.0;
+                    // WARN: MAKE THESE WORK AGAIN!!!!
+                    // if (entityId == ENTITY_SPECTRAL_ARROW)
+                    //     lightType = LIGHT_TORCH_FLOOR;
+                    // else if (entityId == ENTITY_TORCH_ARROW)
+                    //     lightType = LIGHT_TORCH_FLOOR;
 
-                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                    StaticLightData lightInfo = StaticLightMap[lightType];
-                    lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                    lightRange = lightRangeSize.x * 255.0;
+                    //if (itemLightType > 0) lightType = itemLightType;
 
-                    lightColor = RGBToLinear(lightColor);
+                    // if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                    //     StaticLightData lightInfo = StaticLightMap[lightType];
+                    //     lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                    //     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                    //     lightRange = lightRangeSize.x * 255.0;
 
-                    #ifdef LIGHTING_FLICKER
-                       vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
-                       ApplyLightFlicker(lightColor, lightType, lightNoise);
-                    #endif
-                }
+                    //     lightColor = RGBToLinear(lightColor);
 
-                vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
+                    //     #ifdef LIGHTING_FLICKER
+                    //        vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                    //        ApplyLightFlicker(lightColor, lightType, lightNoise);
+                    //     #endif
+                    // }
 
-                if (entityLightColorRange.a > EPSILON) {
-                    lightColor = entityLightColorRange.rgb;
-                    lightRange = entityLightColorRange.a;
-                }
+                    vec4 entityLightColorRange = GetSceneEntityLightColor(entityId);
 
-                if (lightRange > EPSILON) {
-                    vec3 viewDir = getCameraViewDir(gbufferModelView);
-                    vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
-                    ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
+                    if (entityLightColorRange.a > EPSILON) {
+                        lightColor = entityLightColorRange.rgb;
+                        lightRange = entityLightColorRange.a;
+                    }
 
-                    AddLpvLight(imgCoordPrev, lightColor, lightRange);
+                    if (lightRange > EPSILON) {
+                        vec3 viewDir = getCameraViewDir(gbufferModelView);
+                        vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
+                        ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
+
+                        AddLpvLight(imgCoordPrev, lightColor, lightRange);
+                    }
                 }
             #endif
         }
-
-        // else if (renderStage == MC_RENDER_STAGE_ENTITIES) {
-        //     if (entityId == ENTITY_LIGHTNING_BOLT) return;
-
-        //     #if LIGHTING_MODE != LIGHTING_MODE_NONE
-        //         if (entityId == ENTITY_PLAYER) {
-        //             for (int i = 0; i < 3; i++) {
-        //                 if (vVertexId[i] % 600 == 300) {
-        //                     HandLightPos1 = (shadowModelViewInverse * gl_in[i].gl_Position).xyz;
-        //                 }
-        //             }
-
-        //             if (vVertexId[0] == 5) {
-        //                 HandLightPos2 = (shadowModelViewInverse * gl_in[0].gl_Position).xyz;
-        //             }
-        //         }
-        //     #endif
-
-        //     // vec4 light = GetSceneEntityLightColor(entityId, vVertexId);
-        //     // if (light.a > EPSILON) {
-        //     //     AddSceneBlockLight(0, vOriginPos[0], light.rgb, light.a);
-        //     // }
-        // }
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
@@ -314,7 +281,6 @@ void main() {
         // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            // vec3 originShadowViewPos = (shadowModelViewEx * vec4(originPos, 1.0)).xyz;
             vec3 originShadowViewPos = mul3(shadowModelViewEx, originPos);
 
             int shadowTile = GetShadowRenderTile(originShadowViewPos);
@@ -347,7 +313,6 @@ void main() {
                     vOut.color = vIn[v].color;
                     vOut.blockId = vIn[v].blockId;
 
-                    // gl_Position = cascadeProjection[c] * gl_in[v].gl_Position;
                     gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
                     gl_Position.w = 1.0;
 

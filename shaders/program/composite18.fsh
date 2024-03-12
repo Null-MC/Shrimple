@@ -506,7 +506,7 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     #if LPV_SIZE > 0
-                        blockDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
+                        blockDiffuse += GetLpvAmbientLighting(localPos, localNormal, texNormal) * occlusion;
                     #endif
 
                     #if MATERIAL_SPECULAR != SPECULAR_NONE

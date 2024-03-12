@@ -12,6 +12,12 @@ const ivec3 SceneLPVCenter = SceneLPVSize / 2;
 
 #define LPV_FRUSTUM_OFFSET 0.4
 
+vec3 Lpv_RgbToHsv(const in vec3 lightColor, const in float lightRange) {
+    vec3 lightValue = RgbToHsv(lightColor);
+    lightValue.b = (lightRange * DynamicLightRangeF) / LPV_BLOCKLIGHT_SCALE;
+    return lightValue;
+}
+
 vec3 getCameraViewDir(const in mat4 matModelView) {
     return vec3(matModelView[0].z, matModelView[1].z, matModelView[2].z);
 }

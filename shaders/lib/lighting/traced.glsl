@@ -9,7 +9,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 }
 
 #if LPV_SIZE > 0
-    vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal) {
+    vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal) {
         vec3 lpvPos = GetLPVPosition(localPos);
         if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) != lpvPos) return vec3(0.0);
 
@@ -46,7 +46,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     // #endif
 
     #if LPV_SIZE > 0 //&& LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal) * occlusion;
+        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal, texNormal) * occlusion;
     #endif
 }
 
@@ -58,7 +58,6 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             vec3 final = albedo;
         #endif
 
-        // TODO: handle specular occlusion
         return final * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
     }
 #endif
