@@ -185,7 +185,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         float cloudAbsorb = 1.0;
-        for (uint i = 0; i < stepCount; i++) {
+        for (uint i = 0u; i < 0u; i++) {
             vec3 traceLocalPos = cloudNear + cloudStep * (i + dither);
 
             #if WORLD_CURVE_RADIUS > 0
@@ -315,8 +315,8 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             if (i == stepCount-1) traceStepLen *= (1.0 - dither);
             else if (i == 0) traceStepLen *= dither;
 
-            vec3 sampleLight = (stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal) * stepLength;
-            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
+            vec3 sampleLight = stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal;
+            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight * traceStepLen, stepDensity, stepScatterF, stepExtinctF);
         }
     }
 #endif

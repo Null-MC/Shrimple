@@ -146,7 +146,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec3 curvedWorldPos = curvedLocalPos;
             curvedWorldPos.xz += cameraPosition.xz;
         #else
-            float traceAltitude = traceLocalPos.y + cameraPosition.y;
+            float traceAltitude = traceWorldPos.y;
         #endif
 
         #if LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
@@ -217,7 +217,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         float sampleCloudF = SampleCloudOctaves(curvedWorldPos, traceAltitude, CloudTraceOctaves);
                     #else
                         // vec3 traceWorldPos = traceLocalPos + cameraPosition;
-                        float sampleCloudF = SampleCloudOctaves(traceWorldPos, CloudTraceOctaves);
+                        float sampleCloudF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudTraceOctaves);
                     #endif
 
                     sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
@@ -395,7 +395,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     if (!isWater) {
                 #endif
-                    lpvLight = GetLpvBlockLight(lpvSample) * DynamicLightBrightness;
+                    lpvLight = GetLpvBlockLight(lpvSample);
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     }
                 #endif
@@ -413,14 +413,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         vec3 lightF = sampleLit + sampleAmbient;
 
         float traceStepLen = stepLength;
-
         if (i == VOLUMETRIC_SAMPLES) traceStepLen *= (1.0 - dither);
         else if (i == 0) traceStepLen *= dither;
 
-        // lightF *= traceStepLen;
-        lightF *= stepLength;
-
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF * traceStepLen, sampleDensity, sampleScattering, sampleExtinction);
 
         if (all(lessThan(transmitFinal, EPSILON3))) break;
     }

@@ -201,12 +201,13 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texN
     return SampleLpv(samplePos);
 }
 
-vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
-    return (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) / 8.0;
-}
+// vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
+//     return (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) / 8.0 * DynamicLightBrightness;
+// }
 
 vec3 GetLpvBlockLight(const in vec4 lpvSample) {
-    return GetLpvBlockLight(lpvSample, 1.0);
+    // return GetLpvBlockLight(lpvSample, 1.0);
+    return (1.0/8.0) * (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) * DynamicLightBrightness;
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {

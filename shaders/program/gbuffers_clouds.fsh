@@ -165,7 +165,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/water.glsl"
 #endif
 
-#ifdef SKY_BORDER_FOG_ENABLED
+// #ifdef SKY_BORDER_FOG_ENABLED
     #include "/lib/fog/fog_common.glsl"
 
     #ifdef WORLD_SKY_ENABLED
@@ -177,7 +177,7 @@ uniform int heldBlockLightValue2;
     #endif
 
     #include "/lib/fog/fog_render.glsl"
-#endif
+// #endif
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
@@ -440,8 +440,16 @@ void main() {
         
             vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
+            // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+
             float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+            #else
+                vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+            #endif
 
             vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
             ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
