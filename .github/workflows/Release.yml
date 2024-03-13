@@ -49,7 +49,7 @@ jobs:
           project_id: 832754
           release_type: beta
       - name: Publish to CurseForge, Modrinth
-        uses: Kir-Antipov/mc-publish@v3.2
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
           name: Shrimple v${{ github.event.inputs.version }}
           version: v${{ github.event.inputs.version }}
@@ -60,11 +60,6 @@ jobs:
           modrinth-id: BS9T99lD
           #curseforge-token: ${{ secrets.CF_API_TOKEN }}
           #curseforge-id: 832754
-          loaders: |
-            optifine
-            iris
+          loaders: iris
           game-versions: |
-            1.19.3
-            1.19.2
-            1.19.1
-            1.19
+            >=1.16.5
