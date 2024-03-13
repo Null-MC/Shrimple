@@ -1,4 +1,4 @@
-# Provided by ShrikerChestTree v11.4.1
+Provided by ShrikerChestTree v12.3
 
 /////PROFILE/////
 
@@ -76,7 +76,7 @@ screen.SKY_CLOUD_OPTIONS=Настройка Облака
 
 =====Cloud Type=====
 
-option.SKY_CLOUD_TYPE=Тип Облаков
+option.SKY_CLOUD_TYPE=Тип
 value.SKY_CLOUD_TYPE.0=Никакие
 value.SKY_CLOUD_TYPE.1=Ванильные
 value.SKY_CLOUD_TYPE.2=Детальные
@@ -176,9 +176,17 @@ value.WORLD_CURVE_RADIUS.0=ПЛОСКИЙ
 screen.WATER_OPTIONS=Настройки Воды
 screen.WATER_OPTIONS.comment=Настройки для воды.
 
-=====Surface Type=====
+=====Color=====
 
-# option.WATER_TEXTURED=
+option.WATER_COLOR_TYPE=Цвет
+value.WATER_COLOR_TYPE.0=Автоматически
+value.WATER_COLOR_TYPE.1=Обычный
+value.WATER_COLOR_TYPE.2=Тропический
+value.WATER_COLOR_TYPE.3=Болотный
+
+=====Textured=====
+
+option.WATER_TEXTURED=Текстура
 
 =====Wave Size=====
 
@@ -793,6 +801,11 @@ option.VOLUMETRIC_BLOCK_RT.comment=Включает объёмную трасс�
 screen.SHADOW_OPTIONS=Настройка Тени
 screen.SHADOW_OPTIONS.comment=Настройки для теней.
 
+=====Shadow=====
+
+option.SHADOW_ENABLED=Включён
+option.SHADOW_ENABLED.comment=Тени от солнца и луны.
+
 =====Shadow Type=====
 
 option.SHADOW_TYPE=Тип
@@ -825,31 +838,7 @@ option.SHADOW_COLOR_BLEND.comment=Позволяет цветным теням �
 
 option.SHADOW_BIAS_SCALE=Шкала Погрешности
 option.SHADOW_BIAS_SCALE.comment=Увеличьте этот параметр, если вы получаете теневые acne. Уменьшите этот показатель, если у вас появится peter panning.
-value.SHADOW_BIAS_SCALE.0.1=10%
-value.SHADOW_BIAS_SCALE.0.2=20%
-value.SHADOW_BIAS_SCALE.0.3=30%
-value.SHADOW_BIAS_SCALE.0.4=40%
-value.SHADOW_BIAS_SCALE.0.5=50%
-value.SHADOW_BIAS_SCALE.0.6=60%
-value.SHADOW_BIAS_SCALE.0.7=70%
-value.SHADOW_BIAS_SCALE.0.8=80%
-value.SHADOW_BIAS_SCALE.0.9=90%
-value.SHADOW_BIAS_SCALE.1.0=100%
-value.SHADOW_BIAS_SCALE.1.1=110%
-value.SHADOW_BIAS_SCALE.1.2=120%
-value.SHADOW_BIAS_SCALE.1.3=130%
-value.SHADOW_BIAS_SCALE.1.4=140%
-value.SHADOW_BIAS_SCALE.1.5=150%
-value.SHADOW_BIAS_SCALE.1.6=160%
-value.SHADOW_BIAS_SCALE.1.7=170%
-value.SHADOW_BIAS_SCALE.1.8=180%
-value.SHADOW_BIAS_SCALE.1.9=190%
-value.SHADOW_BIAS_SCALE.2.0=200%
-value.SHADOW_BIAS_SCALE.2.1=210%
-value.SHADOW_BIAS_SCALE.2.2=220%
-value.SHADOW_BIAS_SCALE.2.3=230%
-value.SHADOW_BIAS_SCALE.2.4=240%
-value.SHADOW_BIAS_SCALE.2.5=250%
+suffix.SHADOW_BIAS_SCALE=%
 
 =====Shadow Distort Factor=====
 
