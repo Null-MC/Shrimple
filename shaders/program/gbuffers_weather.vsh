@@ -37,6 +37,7 @@ uniform vec3 cameraPosition;
 
 uniform float cloudHeight;
 uniform float skyRainStrength;
+uniform float eyeBrightnessSmooth;
 
 #ifdef SKY_WEATHER_CLOUD_ONLY
 	uniform int worldTime;

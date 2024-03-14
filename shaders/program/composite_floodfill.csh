@@ -198,15 +198,13 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                vec3 shadowPos = (shadowModelViewEx * vec4(blockLpvPos, 1.0)).xyz;
-                //int cascade = GetShadowCascade(shadowPos, 0.0);
-                shadowPos = (cascadeProjection[cascade] * vec4(shadowPos, 1.0)).xyz;
+                vec3 shadowPos = mul3(shadowModelViewEx, blockLpvPos);
+                shadowPos = mul3(cascadeProjection[cascade], shadowPos);
 
                 shadowPos = shadowPos * 0.5 + 0.5;
                 shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
-                //shadowPos.xy = shadowPos.xy * 2.0 - 1.0;
             #else
-                vec3 shadowPos = (shadowModelViewProjection * vec4(blockLpvPos, 1.0)).xyz;
+                vec3 shadowPos = mul3(shadowModelViewProjection, blockLpvPos);
 
                 shadowPos = distort(shadowPos);
                 shadowPos = shadowPos * 0.5 + 0.5;
@@ -246,10 +244,9 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             //if (i == 0) waterDepth = max(shadowPos.z - texDepthTrans, 0.0) * shadowDistMax;
 
             if (isWater) {
-                shadowDist = max(shadowPos.z - texDepthTrans, EPSILON) * shadowDistMax;
-                sampleColor *= exp(shadowDist * -WaterAbsorbF);
+                // shadowDist = max(shadowPos.z - texDepthTrans, EPSILON) * shadowDistMax;
+                // sampleColor *= exp(shadowDist * -WaterAbsorbF);
                 sampleF *= 0.0;//DynamicLightAmbientF;// * exp(-shadowDist);
-                //sampleF = 0.0;
             }
             // else {
             //     sampleColor *= sampleF;
@@ -258,7 +255,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             shadowF += vec4(sampleColor * sampleF, sampleF);
         }
 
-        shadowF *= rcp(maxSamples);
+        shadowF /= maxSamples;
         //shadowF = RGBToLinear(shadowF);
 
         // #ifdef SHADOW_CLOUD_ENABLED
@@ -267,9 +264,6 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         //     shadowF *= cloudF;
         // #endif
 
-        // WARN: this is just a test! make skylight GI more dark and saturated
-        //shadowF.rgb = _pow2(shadowF.rgb);
-
         return saturate(shadowF);
     }
 #endif
@@ -277,6 +271,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 const ivec3 lpvFlatten = ivec3(1, 10, 100);
 
 shared vec4 lpvSharedData[10*10*10];
+shared uint voxelSharedData[10*10*10];
 
 int getSharedCoord(ivec3 pos) {
     return sumOf(pos * lpvFlatten);
@@ -286,16 +281,74 @@ vec4 sampleShared(ivec3 pos) {
     return lpvSharedData[getSharedCoord(pos + 1)];
 }
 
-vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0)) * ((mask     ) & 1);
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0)) * ((mask >> 1) & 1);
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0)) * ((mask >> 2) & 1);
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0)) * ((mask >> 3) & 1);
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1)) * ((mask >> 4) & 1);
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1)) * ((mask >> 5) & 1);
+vec4 sampleShared(ivec3 pos, int mask_index) {
+    int shared_index = getSharedCoord(pos + 1);
 
-    vec4 avgColor = nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2;
-    return avgColor * (1.0/6.0) * (1.0 - LPV_FALLOFF);
+    float mixWeight = 1.0;
+    uint mixMask = 0xFFFF;
+    uint blockId = voxelSharedData[shared_index];
+    
+    if (blockId > 0 && blockId != BLOCK_EMPTY)
+        ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
+
+    return lpvSharedData[shared_index] * ((mixMask >> mask_index) & 1u);// * mixWeight;
+}
+
+vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1) * ((mask     ) & 1u);
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0) * ((mask >> 1) & 1u);
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3) * ((mask >> 2) & 1u);
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2) * ((mask >> 3) & 1u);
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5) * ((mask >> 4) & 1u);
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4) * ((mask >> 5) & 1u);
+
+    const float avgFalloff = (1.0/6.0) * (1.0 - LPV_FALLOFF);
+    return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
+}
+
+void PopulateShared() {
+    uint i1 = uint(gl_LocalInvocationIndex) * 2u;
+    if (i1 >= 1000u) return;
+
+    uint i2 = i1 + 1u;
+    ivec3 voxelOffset = GetLPVVoxelOffset();
+    ivec3 imgCoordOffset = GetLPVFrameOffset();
+    ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
+
+    ivec3 pos1 = workGroupOffset + ivec3(i1 / lpvFlatten) % 10;
+    ivec3 pos2 = workGroupOffset + ivec3(i2 / lpvFlatten) % 10;
+
+    ivec3 lpvPos1 = imgCoordOffset + pos1;
+    ivec3 lpvPos2 = imgCoordOffset + pos2;
+
+    lpvSharedData[i1] = GetLpvValue(lpvPos1);
+    lpvSharedData[i2] = GetLpvValue(lpvPos2);
+
+
+    uint blockId1 = BLOCK_EMPTY;
+    uint blockId2 = BLOCK_EMPTY;
+
+    ivec3 voxelPos1 = voxelOffset + pos1;
+    ivec3 voxelPos2 = voxelOffset + pos2;
+
+    if (clamp(voxelPos1, ivec3(0), VoxelBlockSize - 1) == voxelPos1) {
+        ivec3 gridCell = ivec3(floor(voxelPos1 / LIGHT_BIN_SIZE));
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        ivec3 blockCell = voxelPos1 - gridCell * LIGHT_BIN_SIZE;
+
+        blockId1 = GetVoxelBlockMask(blockCell, gridIndex);
+    }
+
+    if (clamp(voxelPos2, ivec3(0), VoxelBlockSize - 1) == voxelPos2) {
+        ivec3 gridCell = ivec3(floor(voxelPos2 / LIGHT_BIN_SIZE));
+        uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        ivec3 blockCell = voxelPos2 - gridCell * LIGHT_BIN_SIZE;
+
+        blockId2 = GetVoxelBlockMask(blockCell, gridIndex);
+    }
+
+    voxelSharedData[i1] = blockId1;
+    voxelSharedData[i2] = blockId2;
 }
 
 void main() {
@@ -303,34 +356,12 @@ void main() {
         uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
         if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
 
-        uint id1 = uint(gl_LocalInvocationIndex) * 2u;
-        if (id1 < 1000u) {
-            uint id2 = id1 + 1u;
-            ivec3 imgCoordOffset = GetLPVFrameOffset();
-            ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) + imgCoordOffset - 1;
-
-            ivec3 p1 = ivec3(id1 / lpvFlatten) % 10;
-            lpvSharedData[id1] = GetLpvValue(workGroupOffset + p1);
-
-            ivec3 p2 = ivec3(id2 / lpvFlatten) % 10;
-            lpvSharedData[id2] = GetLpvValue(workGroupOffset + p2);
-        }
+        PopulateShared();
 
         barrier();
 
         ivec3 imgCoord = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
-
-        ivec3 voxelOffset = GetLPVVoxelOffset();
-
-        ivec3 voxelPos = voxelOffset + imgCoord;
-        ivec3 gridCell = ivec3(floor(voxelPos / LIGHT_BIN_SIZE));
-        uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        ivec3 blockCell = voxelPos - gridCell * LIGHT_BIN_SIZE;
-
-        uint blockId = BLOCK_EMPTY;
-        if (clamp(voxelPos, ivec3(0), VoxelBlockSize - 1) == voxelPos)
-            blockId = GetVoxelBlockMask(blockCell, gridIndex);
 
         // vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell - VoxelBlockCenter + cameraOffset + 0.5;
 
@@ -338,16 +369,15 @@ void main() {
         vec3 lpvCenter = GetLpvCenter(cameraPosition, viewDir);
         vec3 blockLocalPos = imgCoord - lpvCenter + 0.5;
 
-        vec4 lightValue = vec4(0.0);
+        uint blockId = voxelSharedData[getSharedCoord(ivec3(gl_LocalInvocationID) + 1)];
 
-        //bool allowLight = false;
+        vec4 lightValue = vec4(0.0);
         float mixWeight = blockId == BLOCK_EMPTY ? 1.0 : 0.0;
         uint mixMask = 0xFFFF;
         vec3 tint = vec3(1.0);
 
-        if (blockId > 0 && blockId != BLOCK_EMPTY) {
+        if (blockId > 0 && blockId != BLOCK_EMPTY)
             ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
-        }
 
         #ifdef LPV_GLASS_TINT
             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {

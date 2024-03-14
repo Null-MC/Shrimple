@@ -34,6 +34,11 @@ const ivec3 workGroups = ivec3(4, 5, 1);
 #endif
 
 
+uint BuildLpvMask(const in uint north, const in uint east, const in uint south, const in uint west, const in uint up, const in uint down) {
+    return east | (west << 1) | (down << 2) | (up << 3) | (south << 4) | (north << 5);
+}
+
+
 void main() {
     #ifdef IRIS_FEATURE_SSBO
         uint blockId = uint(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 32);
@@ -55,23 +60,97 @@ void main() {
             float mixWeight = 0.0;
             uint mixMask = 0xFFFF;
 
-            if (blockId == BLOCK_SLAB_TOP || blockId == BLOCK_SLAB_BOTTOM) {
-                mixMask = mixMask & ~(1 << 2) & ~(1 << 3);
-                mixWeight = 0.5;
-                // allowLight = true;
-            }
-            else if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
-                // allowLight = true;
-                mixMask = mixMask & ~(1 << 4) & ~(1 << 5);
+            if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
+
+            if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
+                mixMask = BuildLpvMask(0u, 1u, 0u, 1u, 1u, 1u);
                 mixWeight = 1.0;
             }
             else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
-                // allowLight = true;
-                mixMask = mixMask & ~(1 << 0) & ~(1 << 1);
+                mixMask = BuildLpvMask(1u, 0u, 1u, 0u, 1u, 1u);
                 mixWeight = 1.0;
             }
-            else {
-                if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
+            else if (blockId == BLOCK_SLAB_TOP) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 0u, 1u);
+                mixWeight = 0.5;
+            }
+            else if (blockId == BLOCK_SLAB_BOTTOM) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 1u, 0u);
+                mixWeight = 0.5;
+            }
+            else if (blockId == BLOCK_STAIRS_BOTTOM_N) {
+                mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 1u, 0u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_BOTTOM_E) {
+                mixMask = BuildLpvMask(1u, 0u, 1u, 1u, 1u, 0u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_BOTTOM_S) {
+                mixMask = BuildLpvMask(1u, 1u, 0u, 1u, 1u, 0u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_BOTTOM_W) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 0u, 1u, 0u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_TOP_N) {
+                mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 0u, 1u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_TOP_E) {
+                mixMask = BuildLpvMask(1u, 0u, 1u, 1u, 0u, 1u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_TOP_S) {
+                mixMask = BuildLpvMask(1u, 1u, 0u, 1u, 0u, 1u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_STAIRS_TOP_W) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 0u, 0u, 1u);
+                mixWeight = 0.25;
+            }
+            // TODO: stairs inner & outer
+            else if (blockId == BLOCK_WALL_POST_TALL_ALL || blockId == BLOCK_WALL_TALL_ALL
+                  || blockId == BLOCK_WALL_POST_TALL_N_W_S
+                  || blockId == BLOCK_WALL_POST_TALL_N_E_S
+                  || blockId == BLOCK_WALL_POST_TALL_W_N_E
+                  || blockId == BLOCK_WALL_POST_TALL_W_S_E) {
+                mixMask = BuildLpvMask(0u, 0u, 0u, 0u, 1u, 1u);
+                mixWeight = 0.125;
+            }
+            else if (blockId == BLOCK_WALL_POST_TALL_N_S || blockId == BLOCK_WALL_TALL_N_S) {
+                mixMask = BuildLpvMask(1u, 0u, 1u, 0u, 1u, 1u);
+                mixWeight = 0.25;
+            }
+            else if (blockId == BLOCK_WALL_POST_TALL_W_E || blockId == BLOCK_WALL_TALL_W_E) {
+                mixMask = BuildLpvMask(0u, 1u, 0u, 1u, 1u, 1u);
+                mixWeight = 0.25;
+            }
+            // TODO: more walls
+            else if (blockId == BLOCK_TRAPDOOR_BOTTOM) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 1u, 0u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_TRAPDOOR_TOP) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 0u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_TRAPDOOR_N) {
+                mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 1u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_TRAPDOOR_E) {
+                mixMask = BuildLpvMask(1u, 0u, 1u, 1u, 1u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_TRAPDOOR_S) {
+                mixMask = BuildLpvMask(1u, 1u, 0u, 1u, 1u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_TRAPDOOR_W) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 0u, 1u, 1u);
+                mixWeight = 1.0;
             }
 
             block.lpv_data = BuildBlockLpvData(mixMask, mixWeight);
