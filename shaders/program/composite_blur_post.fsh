@@ -88,10 +88,10 @@ void main() {
         }
 
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
+        vec3 viewPos = unproject(projectionInv, clipPos);
     #else
         vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-        vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+        vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
     #endif
 
     float viewDist = length(viewPos);

@@ -41,9 +41,9 @@ value.SKY_VOL_FOG_TYPE.2=Детальные
 
 =====Volumetric Density=====
 
-option.SKY_DENSITY=Объёмная Плотность
-option.SKY_DENSITY.comment=Плотность объёмного тумана, используемого для объёмного освещения.
-suffix.SKY_DENSITY=%
+option.SKY_FOG_DENSITY=Объёмная Плотность
+option.SKY_FOG_DENSITY.comment=Плотность объёмного тумана, используемого для объёмного освещения.
+suffix.SKY_FOG_DENSITY=%
 
 =====Weather Opacity=====
 

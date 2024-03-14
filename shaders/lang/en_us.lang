@@ -26,9 +26,9 @@ value.SKY_VOL_FOG_TYPE.0=None
 value.SKY_VOL_FOG_TYPE.1=Fast
 value.SKY_VOL_FOG_TYPE.2=Fancy
 
-option.SKY_DENSITY=Volumetric Density
-option.SKY_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
-suffix.SKY_DENSITY=%
+option.SKY_FOG_DENSITY=Volumetric Density
+option.SKY_FOG_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
+suffix.SKY_FOG_DENSITY=%
 
 option.SKY_WEATHER_OPACITY=Rain Opacity
 option.SKY_WEATHER_OPACITY.comment=Determines how transparent falling rain particles will be.

@@ -231,15 +231,15 @@ void main() {
         vec3 clipPos = vec3(tex2, depth) * 2.0 - 1.0;
 
         #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+            vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
         #else
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
         #endif
 
         float viewDist = length(localPos);
         float bias = GetBias_RT(viewDist);
-        localPos += localNormal * bias;
+        localPos = localNormal * bias + localPos;
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);

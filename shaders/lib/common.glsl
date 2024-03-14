@@ -80,7 +80,8 @@ const bool colortex15Clear = true;
 #define SKY_SUN_BRIGHTNESS 400  // [10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
 #define SKY_MOON_BRIGHTNESS 10 // [1 2 4 6 8 10 12 14 16 18 20 25 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400]
 #define SKY_BRIGHTNESS 400  // [10 20 30 40 50 60 70 80 90 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 800]
-#define SKY_DENSITY 6 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 3.5 4.0 4.5 5 6 7 8 9 10 12 14 16 18 20 24 28 32 36 40 48 56 62 70]
+#define SKY_FOG_DENSITY 6 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 3.5 4.0 4.5 5 6 7 8 9 10 12 14 16 18 20 24 28 32 36 40 48 56 62 70]
+#define SKY_CAVE_FOG_DENSITY 48 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.5 3.0 3.5 4.0 4.5 5 6 7 8 9 10 12 14 16 18 20 24 28 32 36 40 48 56 62 70]
 #define SKY_WEATHER_CLOUD_ONLY
 
 // Sky Cloud Options
@@ -715,6 +716,10 @@ vec3 unproject(const in vec4 pos) {
     return pos.xyz / pos.w;
 }
 
+vec3 unproject(const in mat4 matProj, const in vec3 pos) {
+    return unproject(matProj * vec4(pos, 1.0));
+}
+
 float expStep(const in float x) {
     return 1.0 - exp(-x*x);
 }
@@ -734,12 +739,6 @@ uint float2half(const in uint f) {
 float smootherstep(const in float x) {
     return _pow3(x) * (x * (6.0 * x - 15.0) + 10.0);
 }
-
-// void fixNaNs(inout vec3 vec) {
-//     if (isnan(vec.x) || isinf(vec.x)) vec.x = EPSILON;
-//     if (isnan(vec.y) || isinf(vec.y)) vec.y = EPSILON;
-//     if (isnan(vec.z) || isinf(vec.z)) vec.z = EPSILON;
-// }
 
 vec3 mul3(const in mat4 matrix, const in vec3 vector) {
 	return mat3(matrix) * vector + matrix[3].xyz;

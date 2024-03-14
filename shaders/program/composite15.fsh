@@ -208,34 +208,6 @@ layout(location = 0) out vec4 outFinal;
         //     depth = depth * 0.5 + 0.5;
         // }
 
-        // mat4 _projectionInvOpaque = gbufferProjectionInverse;
-        // float _nearOpaque = near;
-        // float _farOpaque = far * 4.0;
-
-        // mat4 _projectionInvTrans = gbufferProjectionInverse;
-        // float _nearTrans = near;
-        // float _farTrans = far * 4.0;
-
-        // #ifdef DISTANT_HORIZONS
-        //     if (depthTrans >= 1.0 || depthTrans == depthOpaque) {
-        //         depthTrans = textureLod(dhDepthTex, texcoord, 0).r;
-        //         _projectionInvTrans = dhProjectionInverse;
-        //         _nearTrans = dhNearPlane;
-        //         _farTrans = dhFarPlane;
-        //     }
-
-        //     if (depthOpaque >= 1.0) {
-        //         depthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
-        //         _projectionInvOpaque = dhProjectionInverse;
-        //         _nearOpaque = dhNearPlane;
-        //         _farOpaque = dhFarPlane;
-        //     }
-        // #endif
-
-        // float depthTransL = linearizeDepthFast(depthTrans, _nearTrans, _farTrans);
-        // float depthOpaqueL = linearizeDepthFast(depthOpaque, _nearOpaque, _farOpaque);
-
-        // float farPlane = far * 4.0;
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
         float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
         mat4 projectionInvOpaque = gbufferProjectionInverse;
@@ -261,34 +233,25 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        // #ifdef DISTANT_HORIZONS
-        //     if (depthOpaqueL <= depthTransL) {
-        //         depthTrans = 1.0;
-        //         depthTransL = _farTrans;
-        //     }
-        // #endif
-
-        //vec2 viewSize = vec2(viewWidth, viewHeight);
-
         vec3 clipPosOpaque = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
         vec3 clipPosTrans = vec3(texcoord, depthTrans) * 2.0 - 1.0;
 
         #ifdef DISTANT_HORIZONS
-            vec3 viewPosOpaque = unproject(projectionInvOpaque * vec4(clipPosOpaque, 1.0));
-            vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+            vec3 viewPosOpaque = unproject(projectionInvOpaque, clipPosOpaque);
+            vec3 localPosOpaque = mul3(gbufferModelViewInverse, viewPosOpaque);
 
-            vec3 viewPosTranslucent = unproject(projectionInvTrans * vec4(clipPosTrans, 1.0));
-            vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+            vec3 viewPosTranslucent = unproject(projectionInvTrans, clipPosTrans);
+            vec3 localPosTranslucent = mul3(gbufferModelViewInverse, viewPosTranslucent);
         #else
             #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTrans, 1.0));
-                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse, clipPosOpaque);
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse, clipPosTrans);
+                vec3 localPosOpaque = mul3(gbufferModelViewInverse, viewPosOpaque);
+                vec3 localPosTranslucent = mul3(gbufferModelViewInverse, viewPosTranslucent);
             #else
-                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse, clipPosOpaque);
+                vec3 localPosOpaque = mul3(gbufferModelViewInverse, viewPosOpaque);
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse, clipPosTrans);
             #endif
         #endif
         
@@ -390,8 +353,6 @@ layout(location = 0) out vec4 outFinal;
                 //     float waterSurfaceNoL = max(dot(waterSurfaceViewNormal, -viewDir), 0.0);
                 //     final.rgb = mix(final.rgb, vec3(1.0), 1.0 - waterSurfaceNoL);
                 // }
-            #else
-                // final.rgb *= exp(waterDist * -WaterAbsorbF);
             #endif
         #endif
 
@@ -424,37 +385,7 @@ layout(location = 0) out vec4 outFinal;
                 //float waterDepthFinal = 0.0;
                 float waterDepthAirFinal = 0.0;
 
-                #if WATER_DEPTH_LAYERS > 1
-                    // uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
-                    // uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
-
-                    // float waterDepth[WATER_DEPTH_LAYERS+1];
-                    // GetAllWaterDepths(waterPixelIndex, distTranslucent, waterDepth);
-
-                    // if (isEyeInWater == 1) {
-                    //     if (waterDepth[1] < distOpaque) {
-                    //         waterDepthFinal += max(min(waterDepth[2], distOpaque) - min(waterDepth[1], distOpaque), 0.0);
-                    //     }
-
-                    //     #if WATER_DEPTH_LAYERS >= 4
-                    //         if (waterDepth[3] < distOpaque)
-                    //             waterDepthFinal += max(min(waterDepth[4], distOpaque) - min(waterDepth[3], distOpaque), 0.0);
-                    //     #endif
-                    // }
-                    // else {
-                    //     waterDepthFinal = max(min(waterDepth[1], distOpaque) - min(waterDepth[0], distOpaque), 0.0);
-
-                    //     #if WATER_DEPTH_LAYERS >= 3
-                    //         if (waterDepth[2] < distOpaque)
-                    //             waterDepthFinal += max(min(waterDepth[3], distOpaque) - min(waterDepth[2], distOpaque), 0.0);
-                    //     #endif
-
-                    //     #if WATER_DEPTH_LAYERS >= 5
-                    //         if (waterDepth[4] < distOpaque)
-                    //             waterDepthFinal += max(min(waterDepth[5], distOpaque) - min(waterDepth[4], distOpaque), 0.0);
-                    //     #endif
-                    // }
-                #else
+                #if WATER_DEPTH_LAYERS == 1
                     float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
                     bool isWater = deferredShadowA > 0.5;
 
@@ -472,8 +403,6 @@ layout(location = 0) out vec4 outFinal;
                         waterDist = max(farDist - distTranslucent, 0.0);
                     }
                 #endif
-
-                //final *= exp(waterDepthFinal * -WaterAbsorbF);
             #endif
 
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
@@ -508,30 +437,6 @@ layout(location = 0) out vec4 outFinal;
                     vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
                 #endif
 
-                // #ifndef DH_COMPAT_ENABLED
-                //     if (depthOpaque < 1.0) {
-                //         #if SKY_TYPE == SKY_TYPE_CUSTOM
-                //             vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
-
-                //             float fogDist = GetShapedFogDistance(localPosOpaque);
-                //             float fogF = GetCustomFogFactor(fogDist);
-                //         #elif SKY_TYPE == SKY_TYPE_VANILLA
-                //             vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                //             vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-                //             fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
-
-                //             float fogF = deferredFog.a;
-                //         #endif
-
-                //         final = mix(final, fogColorFinal * WorldSkyBrightnessF, fogF);
-                //     }
-                // #endif
-
-                // #ifdef WORLD_SKY_ENABLED
-                //     fogDist = length(localPosOpaque);
-                //     ApplyCustomRainFog(final, fogDist, localSunDirection.y);
-                // #endif
-
                 #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
                     if (isWater) {
                         // water fog from outside water
@@ -549,13 +454,6 @@ layout(location = 0) out vec4 outFinal;
                             final = mix(final, fogColorFinal, fogF);
                         #else
                             ApplyVanillaFog(final, localPosOpaque);
-                            //vec3 localViewDir = normalize(localPos);
-
-                            // float fogF = GetVanillaFogFactor(localPos);
-                            // vec3 fogColorFinal = GetVanillaFogColor(fogColor, localViewDir.y);
-                            // fogColorFinal = RGBToLinear(fogColorFinal);
-
-                            // color = mix(color, fogColorFinal, fogF);
                         #endif
                     }
                 #endif
@@ -580,7 +478,6 @@ layout(location = 0) out vec4 outFinal;
 
                     vec3 vlLight = phaseAir * WorldSkyLightColor + AirAmbientF * skyColorFinal;
                     ApplyScatteringTransmission(final.rgb, viewDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
-                    // final = final * scatterTransmit.a + scatterTransmit.rgb;
                 }
             #endif
         }

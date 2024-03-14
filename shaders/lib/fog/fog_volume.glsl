@@ -21,15 +21,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
     #ifdef WORLD_SKY_ENABLED
         #ifdef RENDER_SHADOWS_ENABLED
             #ifdef IRIS_FEATURE_SSBO
-                // vec3 shadowViewStart = (shadowModelViewEx * vec4(localStart, 1.0)).xyz;
-                vec3 shadowViewStart = mat3(shadowModelViewEx) * localStart + shadowModelViewEx[3].xyz;
-                // vec3 shadowViewEnd = (shadowModelViewEx * vec4(localEnd, 1.0)).xyz;
-                vec3 shadowViewEnd = mat3(shadowModelViewEx) * localEnd + shadowModelViewEx[3].xyz;
+                vec3 shadowViewStart = mul3(shadowModelViewEx, localStart);
+                vec3 shadowViewEnd = mul3(shadowModelViewEx, localEnd);
             #else
-                // vec3 shadowViewStart = (shadowModelView * vec4(localStart, 1.0)).xyz;
-                vec3 shadowViewStart = mat3(shadowModelView) * localStart + shadowModelView[3].xyz;
-                // vec3 shadowViewEnd = (shadowModelView * vec4(localEnd, 1.0)).xyz;
-                vec3 shadowViewEnd = mat3(shadowModelView) * localEnd + shadowModelView[3].xyz;
+                vec3 shadowViewStart = mul3(shadowModelView, localStart);
+                vec3 shadowViewEnd = mul3(shadowModelView, localEnd);
             #endif
 
             vec3 shadowViewStep = (shadowViewEnd - shadowViewStart) * inverseStepCountF;
@@ -39,10 +35,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 vec3 shadowClipStep[4];
 
                 for (int c = 0; c < 4; c++) {
-                    shadowClipStart[c] = (cascadeProjection[c] * vec4(shadowViewStart, 1.0)).xyz * 0.5 + 0.5;
+                    shadowClipStart[c] = mul3(cascadeProjection[c], shadowViewStart) * 0.5 + 0.5;
                     shadowClipStart[c].xy = shadowClipStart[c].xy * 0.5 + shadowProjectionPos[c];
 
-                    vec3 shadowClipEnd = (cascadeProjection[c] * vec4(shadowViewEnd, 1.0)).xyz * 0.5 + 0.5;
+                    vec3 shadowClipEnd = mul3(cascadeProjection[c], shadowViewEnd) * 0.5 + 0.5;
                     shadowClipEnd.xy = shadowClipEnd.xy * 0.5 + shadowProjectionPos[c];
 
                     shadowClipStep[c] = (shadowClipEnd - shadowClipStart[c]) * inverseStepCountF;
@@ -51,13 +47,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 float shadowSampleBias = GetShadowOffsetBias();// (0.01 / 256.0);
 
                 #ifdef IRIS_FEATURE_SSBO
-                    // vec3 shadowClipStart = (shadowProjectionEx * vec4(shadowViewStart, 1.0)).xyz;
-                    vec3 shadowClipStart = mat3(shadowProjectionEx) * shadowViewStart + shadowProjectionEx[3].xyz;
-                    // vec3 shadowClipEnd = (shadowProjectionEx * vec4(shadowViewEnd, 1.0)).xyz;
-                    vec3 shadowClipEnd = mat3(shadowProjectionEx) * shadowViewEnd + shadowProjectionEx[3].xyz;
+                    vec3 shadowClipStart = mul3(shadowProjectionEx, shadowViewStart);
+                    vec3 shadowClipEnd = mul3(shadowProjectionEx, shadowViewEnd);
                 #else
-                    vec3 shadowClipStart = (shadowProjection * vec4(shadowViewStart, 1.0)).xyz;
-                    vec3 shadowClipEnd = (shadowProjection * vec4(shadowViewEnd, 1.0)).xyz;
+                    vec3 shadowClipStart = mul3(shadowProjection, shadowViewStart);
+                    vec3 shadowClipEnd = mul3(shadowProjection, shadowViewEnd);
                 #endif
 
                 vec3 shadowClipStep = (shadowClipEnd - shadowClipStart) * inverseStepCountF;
@@ -66,8 +60,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-            // vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-            vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * shadowLightPosition + gbufferModelViewInverse[3].xyz;
+            vec3 localSkyLightDirection = mul3(gbufferModelViewInverse, shadowLightPosition);
             localSkyLightDirection = normalize(localSkyLightDirection);
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
@@ -407,7 +400,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyColorFinal;
+            sampleAmbient *= skyColorFinal + 0.014;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;

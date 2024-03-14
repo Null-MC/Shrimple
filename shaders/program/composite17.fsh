@@ -294,14 +294,14 @@ void main() {
     vec3 clipPos = vec3(depthCoord / viewSize, depthTrans) * 2.0 - 1.0;
 
     #ifdef DISTANT_HORIZONS
-        vec3 viewPos = unproject(projectionInvTrans * vec4(clipPos, 1.0));
-        vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+        vec3 viewPos = unproject(projectionInvTrans, clipPos);
+        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
     #else
         #ifndef IRIS_FEATURE_SSBO
-            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+            vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
         #else
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
         #endif
     #endif
 

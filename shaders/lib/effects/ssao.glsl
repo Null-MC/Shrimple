@@ -25,7 +25,7 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         rotatePhase += GOLDEN_ANGLE;
 
         vec3 sampleViewPos = viewPos + vec3(offset, 0.0);
-        vec3 sampleClipPos = unproject(gbufferProjection * vec4(sampleViewPos, 1.0)) * 0.5 + 0.5;
+        vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos) * 0.5 + 0.5;
         //sampleClipPos = saturate(sampleClipPos);
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
         sampleCount++;
@@ -43,12 +43,12 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
             if (sampleClipDepth >= 1.0) continue;
 
             sampleClipPos.z = sampleClipDepth;
-            sampleViewPos = unproject(projectionInv * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
+            sampleViewPos = unproject(projectionInv, sampleClipPos * 2.0 - 1.0);
         #else
             if (sampleClipDepth >= 1.0) continue;
 
             sampleClipPos.z = sampleClipDepth;
-            sampleViewPos = unproject(gbufferProjectionInverse * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
+            sampleViewPos = unproject(gbufferProjectionInverse, sampleClipPos * 2.0 - 1.0);
         #endif
 
         // sampleClipPos.z = sampleClipDepth;

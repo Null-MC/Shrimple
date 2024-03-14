@@ -295,23 +295,21 @@ void main() {
         vec3 clipPosTranslucent = vec3(texcoord, depthTrans) * 2.0 - 1.0;
 
         #ifdef DISTANT_HORIZONS
-            vec3 viewPosOpaque = unproject(projectionInvOpaque * vec4(clipPosOpaque, 1.0));
-            // vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
-            vec3 localPosOpaque = mat3(gbufferModelViewInverse) * viewPosOpaque + gbufferModelViewInverse[3].xyz;
+            vec3 viewPosOpaque = unproject(projectionInvOpaque, clipPosOpaque);
+            vec3 localPosOpaque = mul3(gbufferModelViewInverse, viewPosOpaque);
 
-            vec3 viewPosTranslucent = unproject(projectionInvTrans * vec4(clipPosTranslucent, 1.0));
-            // vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
-            vec3 localPosTranslucent = mat3(gbufferModelViewInverse) * viewPosTranslucent + gbufferModelViewInverse[3].xyz;
+            vec3 viewPosTranslucent = unproject(projectionInvTrans, clipPosTranslucent);
+            vec3 localPosTranslucent = mul3(gbufferModelViewInverse, viewPosTranslucent);
         #else
             #ifndef IRIS_FEATURE_SSBO
-                vec3 viewPosOpaque = unproject(gbufferProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 localPosOpaque = (gbufferModelViewInverse * vec4(viewPosOpaque, 1.0)).xyz;
+                vec3 viewPosOpaque = unproject(gbufferProjectionInverse, clipPosOpaque);
+                vec3 localPosOpaque = mul3(gbufferModelViewInverse, viewPosOpaque);
 
-                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse * vec4(clipPosTranslucent, 1.0));
-                vec3 localPosTranslucent = (gbufferModelViewInverse * vec4(viewPosTranslucent, 1.0)).xyz;
+                vec3 viewPosTranslucent = unproject(gbufferProjectionInverse, clipPosTranslucent);
+                vec3 localPosTranslucent = mul3(gbufferModelViewInverse, viewPosTranslucent);
             #else
-                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse * vec4(clipPosOpaque, 1.0));
-                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTranslucent, 1.0));
+                vec3 localPosOpaque = unproject(gbufferModelViewProjectionInverse, clipPosOpaque);
+                vec3 localPosTranslucent = unproject(gbufferModelViewProjectionInverse, clipPosTranslucent);
             #endif
         #endif
 

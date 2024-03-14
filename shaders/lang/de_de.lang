@@ -333,9 +333,9 @@ value.VOLUMETRIC_SAMPLES.24=Mittel
 value.VOLUMETRIC_SAMPLES.36=Hoch
 value.VOLUMETRIC_SAMPLES.48=Sehr Hoch
 
-option.SKY_DENSITY=Dichte
-option.SKY_DENSITY.comment=Beschreibt die Dichte des atmosphärischen Nebels, der für die volumetrische Beleuchtung verwendet wird.
-suffix.SKY_DENSITY=%
+option.SKY_FOG_DENSITY=Dichte
+option.SKY_FOG_DENSITY.comment=Beschreibt die Dichte des atmosphärischen Nebels, der für die volumetrische Beleuchtung verwendet wird.
+suffix.SKY_FOG_DENSITY=%
 
 option.VOLUMETRIC_RES=Auflösung
 value.VOLUMETRIC_RES.0=Voll

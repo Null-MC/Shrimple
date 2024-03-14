@@ -165,8 +165,8 @@ void main() {
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
 
-            vec3 viewPos = unproject(projectionInv * vec4(clipPos, 1.0));
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            vec3 viewPos = unproject(projectionInv, clipPos);
+            vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
             #ifdef SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM

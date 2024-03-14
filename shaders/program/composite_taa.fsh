@@ -59,23 +59,23 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     #ifdef DISTANT_HORIZONS
         vec3 localPos;
         if (isDepthDh) {
-            vec3 viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
-            localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            vec3 viewPos = unproject(dhProjectionInverse, clipPos);
+            localPos = mul3(gbufferModelViewInverse, viewPos);
         }
         else {
             #ifdef IRIS_FEATURE_SSBO
-                localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+                localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
             #else
-                vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+                localPos = mul3(gbufferModelViewInverse, viewPos);
             #endif
         }
     #else
         #ifdef IRIS_FEATURE_SSBO
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+            vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
         #else
-            vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-            vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+            vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+            vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
         #endif
     #endif
 
@@ -84,23 +84,23 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     #ifdef DISTANT_HORIZONS
         vec3 clipPosPrev;
         if (isDepthDh) {
-            vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-            clipPosPrev = unproject(dhPreviousProjection * vec4(viewPosPrev, 1.0));
+            vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+            clipPosPrev = unproject(dhPreviousProjection, viewPosPrev);
         }
         else {
             #ifdef IRIS_FEATURE_SSBO
-                clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+                clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
             #else
-                vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-                clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+                vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+                clipPosPrev = unproject(gbufferPreviousProjection, viewPosPrev);
             #endif
         }
     #else
         #ifdef IRIS_FEATURE_SSBO
-            vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection * vec4(localPosPrev, 1.0));
+            vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
         #else
-            vec3 viewPosPrev = (gbufferPreviousModelView * vec4(localPosPrev, 1.0)).xyz;
-            vec3 clipPosPrev = unproject(gbufferPreviousProjection * vec4(viewPosPrev, 1.0));
+            vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+            vec3 clipPosPrev = unproject(gbufferPreviousProjection, viewPosPrev);
         #endif
     #endif
 
@@ -113,7 +113,7 @@ void neighborClampColor(inout vec3 colorPrev, const in vec2 texcoord) {
 
     for (int x = -1; x <= 1; ++x) {
         for (int y = -1; y <= 1; ++y) {
-            vec2 sampleCoord = texcoord + vec2(x, y) * pixelSize;
+            vec2 sampleCoord = vec2(x, y) * pixelSize + texcoord;
             // vec3 sampleColor = textureLod(BUFFER_FINAL, sampleCoord, 0).rgb;
             vec3 sampleColor = texelFetch(BUFFER_FINAL, ivec2(sampleCoord * viewSize), 0).rgb;
 

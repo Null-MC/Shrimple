@@ -38,7 +38,7 @@ layout(location = 0) out vec4 outAO;
 void main() {
     float depth = textureLod(depthtex1, texcoord, 0).r;
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
+    vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
 
     float occlusion = 0.0;
     bool hasData = false;
@@ -52,7 +52,7 @@ void main() {
 
             if (depth < 1.0) {
                 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-                viewPos = unproject(dhProjectionInverse * vec4(clipPos, 1.0));
+                viewPos = unproject(dhProjectionInverse, clipPos);
                 hasData = true;
             }
         }

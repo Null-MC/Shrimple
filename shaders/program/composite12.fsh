@@ -348,14 +348,14 @@ layout(location = 0) out vec4 outFinal;
             vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
 
             #ifdef DISTANT_HORIZONS
-                vec3 viewPos = unproject(projectionInvOpaque * vec4(clipPos, 1.0));
-                vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                vec3 viewPos = unproject(projectionInvOpaque, clipPos);
+                vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
             #else
                 #ifndef IRIS_FEATURE_SSBO
-                    vec3 viewPos = unproject(gbufferProjectionInverse * vec4(clipPos, 1.0));
-                    vec3 localPos = (gbufferModelViewInverse * vec4(viewPos, 1.0)).xyz;
+                    vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+                    vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
                 #else
-                    vec3 localPos = unproject(gbufferModelViewProjectionInverse * vec4(clipPos, 1.0));
+                    vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
                 #endif
             #endif
 
@@ -404,8 +404,10 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
+            vec3 worldPos = cameraPosition + localPos;
+
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
                 // deferredShadow.rgb *= cloudShadow;
             #endif
@@ -421,7 +423,7 @@ layout(location = 0) out vec4 outFinal;
 
             float skyWetness = 0.0, puddleF = 0.0;
             #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-                skyWetness = GetSkyWetness(localPos + cameraPosition, localNormal, deferredLighting.xy);
+                skyWetness = GetSkyWetness(worldPos, localNormal, deferredLighting.xy);
 
                 #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
                     puddleF = GetWetnessPuddleF(skyWetness, porosity);
@@ -435,7 +437,7 @@ layout(location = 0) out vec4 outFinal;
                     bool hasWaterDepth = false;
 
                     vec3 clipPosTrans = vec3(texcoord, depthTrans) * 2.0 - 1.0;
-                    vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse * vec4(clipPosTrans, 1.0));
+                    vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse, clipPosTrans);
                     float distTrans = length(localPosTrans);
 
                     float waterDepth[WATER_DEPTH_LAYERS+1];
@@ -465,7 +467,7 @@ layout(location = 0) out vec4 outFinal;
                         const float shadowDepth = 8.0; // TODO
                         float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
 
-                        deferredShadow *= 0.3 + 0.7*causticLight;
+                        deferredShadow *= causticLight*0.7 + 0.3;
                     #endif
                 }
             #endif
@@ -617,7 +619,7 @@ layout(location = 0) out vec4 outFinal;
                             #endif
 
                             vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
-                            float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
+                            float airDensity = GetSkyDensity(worldPos.y);
 
                             vec3 scatterFinal = vec3(0.0);
                             vec3 transmitFinal = vec3(1.0);
