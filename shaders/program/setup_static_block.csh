@@ -62,12 +62,20 @@ void main() {
 
             if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
 
-            if (blockId == BLOCK_DOOR_N || blockId == BLOCK_DOOR_S) {
-                mixMask = BuildLpvMask(0u, 1u, 0u, 1u, 1u, 1u);
+            if (blockId == BLOCK_DOOR_N) {
+                mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 1u, 1u);
                 mixWeight = 1.0;
             }
-            else if (blockId == BLOCK_DOOR_W || blockId == BLOCK_DOOR_E) {
-                mixMask = BuildLpvMask(1u, 0u, 1u, 0u, 1u, 1u);
+            if (blockId == BLOCK_DOOR_S) {
+                mixMask = BuildLpvMask(1u, 1u, 0u, 1u, 1u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_DOOR_W) {
+                mixMask = BuildLpvMask(1u, 1u, 1u, 0u, 1u, 1u);
+                mixWeight = 1.0;
+            }
+            else if (blockId == BLOCK_DOOR_E) {
+                mixMask = BuildLpvMask(1u, 0u, 1u, 1u, 1u, 1u);
                 mixWeight = 1.0;
             }
             else if (blockId == BLOCK_SLAB_TOP) {

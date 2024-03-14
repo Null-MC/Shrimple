@@ -185,7 +185,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         float cloudAbsorb = 1.0;
-        for (uint i = 0u; i < 0u; i++) {
+        for (uint i = 0u; i < stepCount; i++) {
             vec3 traceLocalPos = cloudNear + cloudStep * (i + dither);
 
             #if WORLD_CURVE_RADIUS > 0
