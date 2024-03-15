@@ -254,8 +254,8 @@ uniform float cloudHeight;
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     
-    #include "/lib/lighting/voxel/lpv.glsl"
-    #include "/lib/lighting/voxel/lpv_render.glsl"
+    #include "/lib/lpv/lpv.glsl"
+    #include "/lib/lpv/lpv_render.glsl"
 #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE

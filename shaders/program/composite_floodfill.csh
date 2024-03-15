@@ -80,7 +80,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
         #include "/lib/utility/jzazbz.glsl"
     #endif
 
-    #include "/lib/lighting/voxel/lpv.glsl"
+    #include "/lib/lpv/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"

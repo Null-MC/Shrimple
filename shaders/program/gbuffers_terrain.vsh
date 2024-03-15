@@ -180,8 +180,8 @@ uniform float far;
     #endif
 
     #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
-        #include "/lib/lighting/voxel/lpv.glsl"
-        #include "/lib/lighting/voxel/lpv_write.glsl"
+        #include "/lib/lpv/lpv.glsl"
+        #include "/lib/lpv/lpv_write.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
