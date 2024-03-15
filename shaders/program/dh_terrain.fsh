@@ -414,7 +414,7 @@ void main() {
                 if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
                     shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 
-                shadowColor = min(shadowF, lmShadow);
+                shadowF = min(shadowF, lmShadow);
                 shadowColor = vec3(shadowF);
             #endif
 
