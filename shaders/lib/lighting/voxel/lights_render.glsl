@@ -17,7 +17,7 @@
 
         if (isBigFireSource) {
             const float tempFireMax = LIGHTING_TEMP_FIRE;// + (0.5*TEMP_FIRE_RANGE);
-            const float tempFireMin = LIGHTING_TEMP_FIRE - (TEMP_FIRE_RANGE);
+            const float tempFireMin = LIGHTING_TEMP_FIRE - TEMP_FIRE_RANGE;
             blackbodyTemp = mix(tempFireMin, tempFireMax, flickerNoise);
         }
 
@@ -33,7 +33,7 @@
         if (blackbodyTemp > 0.0)
             blackbodyColor = blackbody(blackbodyTemp);
 
-        float flickerBrightness = 0.6 + 0.4 * smootherstep(flickerNoise);
+        float flickerBrightness = smootherstep(flickerNoise) * 0.4 + 0.6;
 
         if (isBigFireSource) {
             lightColor = flickerBrightness * blackbodyColor;

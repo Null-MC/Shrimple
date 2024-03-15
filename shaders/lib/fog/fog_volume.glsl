@@ -85,7 +85,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
             //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
-            vec3 lightWorldDir = localSkyLightDirection / localSkyLightDirection.y;
+            // TODO: Why TF was this dividing by Y?
+            vec3 lightWorldDir = localSkyLightDirection;// / localSkyLightDirection.y;
         #endif
 
         float VoL = dot(localSkyLightDirection, localViewDir);
@@ -194,17 +195,17 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 sampleDensity = GetSkyDensity(traceAltitude);
 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    if (skyRainStrength > EPSILON) {
-                        const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-                        //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
-                        float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-                        // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(skyRainStrength);
-                        cloudUnder *= _pow2(skyRainStrength);
+                    // if (skyRainStrength > EPSILON) {
+                    //     const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+                    //     //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
+                    //     float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+                    //     // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(skyRainStrength);
+                    //     cloudUnder *= _pow2(skyRainStrength);
 
-                        sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
-                        sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);
-                        sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
-                    }
+                    //     sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
+                    //     sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);
+                    //     sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
+                    // }
 
                     #if WORLD_CURVE_RADIUS > 0
                         float sampleCloudF = SampleCloudOctaves(curvedWorldPos, traceAltitude, CloudTraceOctaves);
@@ -228,7 +229,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             sampleDensity = smokeF * SmokeDensityF;
             sampleScattering = vec3(SmokeScatterF);
             sampleExtinction = vec3(SmokeAbsorbF);
-            sampleAmbient = SmokeAmbientF * (0.25 + 0.75*fogColor);
+            sampleAmbient = SmokeAmbientF * (fogColor*0.75 + 0.25);
             samplePhase = phaseIso;
         #endif
 
@@ -319,7 +320,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                 // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
                 //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
-                sampleF *= cloudShadow * 0.7 + 0.3;
+                sampleF *= cloudShadow;// * 0.7 + 0.3;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
                     float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
@@ -388,7 +389,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     if (!isWater) {
                 #endif
-                    lpvLight = GetLpvBlockLight(lpvSample);
+                    lpvLight = 2.0 * GetLpvBlockLight(lpvSample);
                 #if defined LPV_GI && LPV_SHADOW_SAMPLES > 0
                     }
                 #endif
@@ -409,7 +410,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         if (i == VOLUMETRIC_SAMPLES) traceStepLen *= (1.0 - dither);
         else if (i == 0) traceStepLen *= dither;
 
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF * traceStepLen, sampleDensity, sampleScattering, sampleExtinction);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF * stepLength, sampleDensity, sampleScattering, sampleExtinction);
 
         if (all(lessThan(transmitFinal, EPSILON3))) break;
     }

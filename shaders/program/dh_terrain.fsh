@@ -383,27 +383,38 @@ void main() {
             shadowColor = vec3(0.0);
         }
         else {
-            #ifdef DISTANT_HORIZONS
-                float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
-            #else
-                float shadowDistFar = min(shadowDistance, far);
-            #endif
+            // #ifdef DISTANT_HORIZONS
+            //     float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+            // #else
+            //     float shadowDistFar = min(shadowDistance, far);
+            // #endif
 
-            vec3 shadowViewPos = mul3(shadowModelView, vIn.localPos);
-            float shadowViewDist = length(shadowViewPos.xy);
-            float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+            // vec3 shadowViewPos = mul3(shadowModelView, vIn.localPos);
+            // float shadowViewDist = length(shadowViewPos.xy);
+            // float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
 
-            #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
-                shadowFade *= step(-1.0, vIn.shadowPos.z);
-                shadowFade *= step(vIn.shadowPos.z, 1.0);
-            #endif
+            // #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
+            //     shadowFade *= step(-1.0, vIn.shadowPos.z);
+            //     shadowFade *= step(vIn.shadowPos.z, 1.0);
+            // #endif
 
-            shadowFade = 1.0 - shadowFade;
+            // shadowFade = 1.0 - shadowFade;
+            float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
+
+            float lmShadow = pow(lmFinal.y, 9);
+            if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
 
             #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+                if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                    shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+
+                shadowColor = min(shadowColor, vec3(lmShadow));
             #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+                float shadowF = 1.0;
+                if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                    shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+                
+                shadowColor = min(shadowF, lmShadow);
                 shadowColor = vec3(shadowF);
             #endif
 

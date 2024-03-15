@@ -37,7 +37,7 @@ uniform vec3 cameraPosition;
 
 uniform float cloudHeight;
 uniform float skyRainStrength;
-uniform float eyeBrightnessSmooth;
+uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef SKY_WEATHER_CLOUD_ONLY
 	uniform int worldTime;
@@ -138,13 +138,15 @@ void main() {
             const float CloudHeight = 4.0;
         #endif
 
+        vec3 worldPos = cameraPosition + vOut.localPos;
+
 	    float cloudAlt = GetCloudAltitude();
-        float cloudY = smoothstep(0.0, CloudHeight * 0.5, vOut.localPos.y + cameraPosition.y - cloudAlt);
+        float cloudY = smoothstep(0.0, CloudHeight * 0.5, worldPos.y - cloudAlt);
         vOut.color.a *= 1.0 - cloudY;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
             const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-            float cloudDensity = TraceCloudDensity(cameraPosition + vOut.localPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+            float cloudDensity = TraceCloudDensity(worldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
             vOut.color.a *= smoothstep(0.0, 0.5, cloudDensity);
         #endif
     #endif

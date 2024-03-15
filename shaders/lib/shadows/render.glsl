@@ -87,7 +87,7 @@
             #endif
         #endif
 
-        shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
+        //shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
         #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
             // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

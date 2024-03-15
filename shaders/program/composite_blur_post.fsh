@@ -54,6 +54,7 @@ uniform float skyRainStrength;
 #endif
 
 #include "/lib/sampling/depth.glsl"
+#include "/lib/sampling/gaussian.glsl"
 #include "/lib/sampling/ign.glsl"
 
 #ifdef WORLD_WATER_ENABLED

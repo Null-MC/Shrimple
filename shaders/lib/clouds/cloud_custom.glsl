@@ -206,7 +206,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             cloudAbsorb *= exp(traceStepLen * sampleD * -CloudAbsorbF);
         }
 
-        return cloudAbsorb;
+        return cloudAbsorb * 0.74 + 0.26;
     }
 
     // float _TraceCloudShadow(in vec3 worldPos, const in float dither, const in int stepCount) {
@@ -277,8 +277,9 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         float cloudAlt = GetCloudAltitude();
         //vec3 cloudOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
-        for (uint i = 0; i < stepCount; i++) {
-            vec3 traceLocalPos = traceStep * (i + dither) + traceStart;
+        for (uint i = 0; i <= stepCount; i++) {
+            float stepDither = dither * step(i, stepCount-1);
+            vec3 traceLocalPos = traceStep * (i + stepDither) + traceStart;
 
             #if WORLD_CURVE_RADIUS > 0
                 float traceAltitude = GetWorldAltitude(traceLocalPos);
@@ -298,7 +299,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
 
             float sampleCloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, shadowStepCount);
             // float sampleCloudShadow = _TraceCloudShadow(worldPos, traceLocalPos, dither, shadowStepCount);
-            sampleCloudShadow = sampleCloudShadow * 0.7 + 0.3;
+            sampleCloudShadow = sampleCloudShadow;// * 0.7 + 0.3;
 
             // float fogDist = GetShapedFogDistance(traceLocalPos);
             // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * SkyFar, SkyFar, 1.0);
@@ -312,11 +313,11 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
             float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
 
             float traceStepLen = stepLength;
-            if (i == stepCount-1) traceStepLen *= (1.0 - dither);
+            if (i == stepCount) traceStepLen *= (1.0 - dither);
             else if (i == 0) traceStepLen *= dither;
 
             vec3 sampleLight = stepPhase * sampleCloudShadow * skyLightColor + stepAmbientF * skyColorFinal;
-            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight * traceStepLen, stepDensity, stepScatterF, stepExtinctF);
+            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight * stepLength, stepDensity, stepScatterF, stepExtinctF);
         }
     }
 #endif

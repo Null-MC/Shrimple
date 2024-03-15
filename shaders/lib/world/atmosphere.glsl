@@ -13,7 +13,7 @@ const float phaseAir = phaseIso;
 
 #ifdef WORLD_SKY_ENABLED
     #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-        float AirDensityF = mix(SkyDensityF, max(SkyDensityF, 0.04), skyRainStrength);
+        float AirDensityF = mix(SkyDensityF, max(SkyDensityF, 0.16), skyRainStrength);
     #else
         const float AirDensityF = 0.0;
     #endif

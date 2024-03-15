@@ -1,6 +1,7 @@
 #define BLUR_BLIND_DIST 12.0
 
-const vec3 aberrationF = vec3(3.0, 2.0, 1.0) * (EFFECT_BLUR_ABERRATION_STRENGTH * 0.01);
+const float BlurAberrationStrengthF = EFFECT_BLUR_ABERRATION_STRENGTH * 0.01;
+const vec3 aberrationF = vec3(3.0, 2.0, 1.0) * BlurAberrationStrengthF;
 
 
 mat2 GetBlurRotation() {
@@ -21,10 +22,11 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 #ifdef WORLD_WATER_ENABLED
-    const float WaterBlurDistF = 40.0;
-    const float WaterBlurPow = 1.5;
+    const float WaterBlurDistF = 22.0;
+    //const float WaterBlurPow = 1.5;
 
     float GetWaterBlurDistF(const in float viewDist) {
+        // float waterDistF = smoothstep(0.0, WaterBlurDistF / WaterDensityF, viewDist);
         float waterDistF = min(viewDist / WaterBlurDistF * WaterDensityF, 1.0);
         //return pow(waterDistF, WaterBlurPow);
         return waterDistF;
@@ -32,6 +34,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 
     #ifdef EFFECT_BLUR_ABERRATION_ENABLED
         vec3 GetWaterBlurDistF(const in vec3 viewDist) {
+            // vec3 waterDistF = smoothstep(0.0, WaterBlurDistF / WaterDensityF, viewDist);
             vec3 waterDistF = min(viewDist / WaterBlurDistF * WaterDensityF, 1.0);
             //return pow(waterDistF, vec3(WaterBlurPow));
             return waterDistF;
@@ -161,16 +164,16 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         float cosine = cos(theta);
         
         vec2 diskOffset = rotation * (vec2(cosine, sine) * r);
-        vec2 sampleCoord = saturate(texcoord + diskOffset * pixelRadius);
+        vec2 sampleCoord = saturate(diskOffset * pixelRadius + texcoord);
 
         #ifdef EFFECT_BLUR_ABERRATION_ENABLED
-            vec2 sampleCoordR = saturate(sampleCoord + aberrationOffset * aberrationF.r);
+            vec2 sampleCoordR = saturate(aberrationOffset * aberrationF.r + sampleCoord);
             ivec2 sampleUVR = ivec2(sampleCoordR * viewSize);
 
-            vec2 sampleCoordG = saturate(sampleCoord + aberrationOffset * aberrationF.g);
+            vec2 sampleCoordG = saturate(aberrationOffset * aberrationF.g + sampleCoord);
             ivec2 sampleUVG = ivec2(sampleCoordG * viewSize);
 
-            vec2 sampleCoordB = saturate(sampleCoord + aberrationOffset * aberrationF.b);
+            vec2 sampleCoordB = saturate(aberrationOffset * aberrationF.b + sampleCoord);
             ivec2 sampleUVB = ivec2(sampleCoordB * viewSize);
 
             #ifdef RENDER_TRANSLUCENT_BLUR_POST
@@ -255,9 +258,11 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
         #endif
 
         #ifdef EFFECT_BLUR_ABERRATION_ENABLED
-            vec3 sampleDistF = saturate((sampleDepthL - minDepth) / _far);
+            vec3 sampleDepthDiff = max(sampleDepthL - minDepth, 0.0);
+            vec3 sampleDistF = saturate(sampleDepthDiff / _far);
         #else
-            float sampleDistF = saturate((sampleDepthL - minDepth) / _far);
+            float sampleDepthDiff = max(sampleDepthL - minDepth, 0.0);
+            float sampleDistF = saturate(sampleDepthDiff / _far);
         #endif
 
         // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
@@ -277,14 +282,19 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
 
         #if EFFECT_BLUR_WATER_RADIUS > 0 && defined WORLD_WATER_ENABLED
             if (isWater) {
-                sampleDistF = GetWaterBlurDistF(max(sampleDepthL - minDepth, 0.0));
+                sampleDistF = GetWaterBlurDistF(sampleDepthDiff);
                 // sampleDistF = sampleWaterDistF;//max(sampleDistF, sampleWaterDistF);
             }
         #endif
 
         #if EFFECT_BLUR_RADIUS_BLIND > 0
             if (blindnessSmooth > EPSILON) {
-                float blindDistF = min(viewDist / BLUR_BLIND_DIST, 1.0);
+                #ifdef EFFECT_BLUR_ABERRATION_ENABLED
+                    vec3 blindDistF = min(sampleDepthDiff / BLUR_BLIND_DIST, 1.0);
+                #else
+                    float blindDistF = min(sampleDepthDiff / BLUR_BLIND_DIST, 1.0);
+                #endif
+
                 sampleDistF = mix(sampleDistF, max(sampleDistF, blindDistF), blindnessSmooth);
             }
         #endif
@@ -320,13 +330,14 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
             #endif
         #endif
 
+        const float blurSigma = 0.5;
         #ifdef EFFECT_BLUR_ABERRATION_ENABLED
-            vec3 sampleWeight = vec3(1.0);//exp(-1.0 * length2(diskOffset)));
+            vec3 sampleWeight = vec3(Gaussian(blurSigma, r));
         #else
-            float sampleWeight = 1.0;//exp(-1.0 * length2(diskOffset));
+            float sampleWeight = Gaussian(blurSigma, r);
         #endif
 
-        sampleWeight *= step(minDepth, sampleDepth) * sampleDistF;
+        sampleWeight *= step(minDepth, sampleDepthL);// * sampleDistF;
 
         color += sampleColor * sampleWeight;
         maxWeight += sampleWeight;
