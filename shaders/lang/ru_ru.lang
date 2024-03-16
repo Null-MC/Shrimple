@@ -149,7 +149,9 @@ suffix.WORLD_SKY_REFLECTIONS=%
 
 =====Smoke=====
 
-option.WORLD_SMOKE=Дым Незера/Энда 
+option.WORLD_NETHER_SMOKE=Дым Незера/Энда 
+
+option.WORLD_END_SMOKE=Дым Незера/Энда 
 
 =====Nether Ambient=====
 

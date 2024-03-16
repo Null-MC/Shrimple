@@ -165,10 +165,10 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
 #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
     vec4 SampleShadow(const in vec3 blockLocalPos) {
-        const float giScale = 0.08;
+        const float giScale = 0.24;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos = (shadowModelView * vec4(blockLocalPos, 1.0)).xyz;
+            vec3 shadowPos = mul3(shadowModelView, blockLocalPos);
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
             float shadowDistMax = GetShadowRange(cascade);
@@ -408,15 +408,17 @@ void main() {
                         skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
 
-                        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                            // float skyLightRange = mix(1.0, 6.0, sunUpF);
+                            float skyLightRange = mix(5.0, 9.0, sunUpF);
+                        #else
+                           // float skyLightRange = mix(1.0, 16.0, sunUpF);
                             float skyLightRange = mix(1.0, 6.0, sunUpF);
-                        //#else
-                        //    float skyLightRange = mix(1.0, 16.0, sunUpF);
-                        //#endif
+                        #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
-                        float bounceF = 1.0;//GetLpvBounceF(voxelPos, bounceOffset);
+                        //float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
                         //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             skyLightBrightF *= DynamicLightAmbientF;
@@ -425,8 +427,6 @@ void main() {
 
 
                         vec3 skyLight = RgbToHsv(shadowColorF.rgb);
-                        //skyLight.b = (skyLightRange);
-
                         skyLight.b = exp2(skyLightRange * shadowColorF.a) - 1.0;
                         skyLight = HsvToRgb(skyLight);
 

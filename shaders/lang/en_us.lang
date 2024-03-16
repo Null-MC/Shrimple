@@ -14,28 +14,12 @@ option.SKY_TYPE=Sky/Fog Type
 value.SKY_TYPE.0=Vanilla
 value.SKY_TYPE.1=Custom
 
-option.SKY_BORDER_FOG_ENABLED=Border Fog
-
-option.SKY_FOG_SHAPE=Border Fog Shape
-value.SKY_FOG_SHAPE.0=Default
-value.SKY_FOG_SHAPE.1=Sphere
-value.SKY_FOG_SHAPE.2=Cylinder
-
-option.SKY_VOL_FOG_TYPE=Volumetric Fog
-value.SKY_VOL_FOG_TYPE.0=None
-value.SKY_VOL_FOG_TYPE.1=Fast
-value.SKY_VOL_FOG_TYPE.2=Fancy
-
-option.SKY_FOG_DENSITY=Volumetric Density
-option.SKY_FOG_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
-suffix.SKY_FOG_DENSITY=%
-
 option.SKY_WEATHER_OPACITY=Rain Opacity
 option.SKY_WEATHER_OPACITY.comment=Determines how transparent falling rain particles will be.
 suffix.SKY_WEATHER_OPACITY=%
 
 
-screen.SKY_BRIGHTNESS_OPTIONS=Brightness
+screen.SKY_BRIGHTNESS_OPTIONS=Sky Brightness
 
 option.SKY_SUN_BRIGHTNESS=Sun Light
 suffix.SKY_SUN_BRIGHTNESS=%
@@ -45,6 +29,9 @@ suffix.SKY_MOON_BRIGHTNESS=%
 
 option.SKY_BRIGHTNESS=Sky
 suffix.SKY_BRIGHTNESS=%
+
+
+screen.SKY_COLOR_OPTIONS=Sky Light Colors
 
 
 screen.SKY_CLOUD_OPTIONS=Clouds
@@ -68,6 +55,30 @@ value.SKY_CLOUD_ALTITUDE.0=Default
 
 option.SKY_CLOUD_HEIGHT=Height
 option.SKY_CLOUD_HEIGHT.comment=The vertical height range of the cloud volume (in blocks). For fancy/cubed clouds only.
+
+
+screen.SKY_FOG_OPTIONS=Fog
+
+option.SKY_VOL_FOG_TYPE=Volumetric Fog
+value.SKY_VOL_FOG_TYPE.0=None
+value.SKY_VOL_FOG_TYPE.1=Fast
+value.SKY_VOL_FOG_TYPE.2=Fancy
+
+option.SKY_FOG_DENSITY=Volumetric Density
+option.SKY_FOG_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
+suffix.SKY_FOG_DENSITY=%
+
+option.SKY_CAVE_FOG_ENABLED=Cave Fog
+
+option.SKY_CAVE_FOG_DENSITY=Cave Fog Density
+suffix.SKY_CAVE_FOG_DENSITY=%
+
+option.SKY_BORDER_FOG_ENABLED=Border Fog
+
+option.SKY_FOG_SHAPE=Border Fog Shape
+value.SKY_FOG_SHAPE.0=Default
+value.SKY_FOG_SHAPE.1=Sphere
+value.SKY_FOG_SHAPE.2=Cylinder
 
 
 screen.WORLD_OPTIONS=World
@@ -99,7 +110,9 @@ option.WORLD_SKY_REFLECTIONS=Sky Reflections
 option.WORLD_SKY_REFLECTIONS.comment=Allows the sky to be reflected when specular materials are enabled.
 suffix.WORLD_SKY_REFLECTIONS=%
 
-option.WORLD_SMOKE=Nether/End Smoke
+option.WORLD_NETHER_SMOKE=Nether Smoke
+
+option.WORLD_END_SMOKE=End Smoke
 
 option.WORLD_NETHER_AMBIENT=Nether Ambient
 suffix.WORLD_NETHER_AMBIENT=%
@@ -127,23 +140,6 @@ value.WATER_COLOR_TYPE.3=Swamp
 
 option.WATER_TEXTURED=Texture
 
-option.WATER_WAVE_SIZE=Waves
-value.WATER_WAVE_SIZE.0=None
-value.WATER_WAVE_SIZE.1=Small
-value.WATER_WAVE_SIZE.2=Medium
-value.WATER_WAVE_SIZE.3=Large
-
-option.WATER_WAVE_DETAIL=Wave Detail
-suffix.WATER_WAVE_DETAIL=x
-
-option.WATER_SURFACE_PIXEL_RES=Pixelated
-value.WATER_SURFACE_PIXEL_RES.0=OFF
-value.WATER_SURFACE_PIXEL_RES.8=8x
-value.WATER_SURFACE_PIXEL_RES.16=16x
-value.WATER_SURFACE_PIXEL_RES.32=32x
-value.WATER_SURFACE_PIXEL_RES.64=64x
-value.WATER_SURFACE_PIXEL_RES.128=128x
-
 option.WATER_VOL_FOG_TYPE=Volumetric Fog
 value.WATER_VOL_FOG_TYPE.0=None
 value.WATER_VOL_FOG_TYPE.1=Fast
@@ -152,12 +148,28 @@ value.WATER_VOL_FOG_TYPE.2=Fancy
 option.WATER_FOG_DENSITY=Density
 suffix.WATER_FOG_DENSITY=%
 
+option.WATER_DEPTH_LAYERS=Depth Layers
+
+
+screen.WATER_WAVE_OPTIONS=Water Waves
+
+option.WATER_WAVE_SIZE=Size
+value.WATER_WAVE_SIZE.0=None
+value.WATER_WAVE_SIZE.1=Small
+value.WATER_WAVE_SIZE.2=Medium
+value.WATER_WAVE_SIZE.3=Large
+
+option.WATER_WAVE_DETAIL=Detail
+suffix.WATER_WAVE_DETAIL=x
+
 option.WATER_CAUSTICS=Caustics
 
 option.WATER_TESSELLATION_QUALITY=Tessellation Quality
 value.WATER_TESSELLATION_QUALITY.0=OFF
 
-option.WATER_DEPTH_LAYERS=Depth Layers
+option.WATER_SURFACE_PIXEL_RES=Pixelated
+value.WATER_SURFACE_PIXEL_RES.0=OFF
+suffix.WATER_SURFACE_PIXEL_RES=x
 
 
 screen.MATERIAL_OPTIONS=Materials
@@ -403,6 +415,9 @@ suffix.LPV_LIGHTMAP_MIX=%
 option.LPV_SHADOW_SAMPLES=Shadow Samples
 option.LPV_SHADOW_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
 value.LPV_SHADOW_SAMPLES.0=OFF
+
+option.LPV_GI=Global Illumination
+option.LPV_GI.comment=Allows sun/moon light to bounce colored lighting onto nearby surfaces. Requires "Shadow Samples" to be set above zero.
 
 option.LPV_VOXEL_TEST=Voxel Test
 option.LPV_VOXEL_TEST.comment=Improves linear & cubic sampling by performing extra visibility checks using voxel data.

@@ -126,7 +126,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     //ambientLight *= ambientF;
 
 
-    #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0 && !defined RENDER_CLOUDS //&& LIGHTING_MODE != LIGHTING_MODE_FLOODFILL
+    #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetLPVPosition(localPos);
 
         float lpvFade = GetLpvFade(lpvPos);
@@ -135,13 +135,12 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
-        #ifdef LPV_GI
-            #if LIGHTING_MODE == LIGHTING_MODE_NONE
-                vec3 lpvSkyLight = GetLpvBlockLight(lpvSample);
-                ambientLight = mix(ambientLight, lpvSkyLight, lpvFade);
-            #endif
+        float lpvSkyLight = GetLpvSkyLight(lpvSample);
+
+        #if defined LPV_GI && LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+            vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample) + lpvSkyLight;
+            ambientLight = mix(ambientLight, lpvSkyLightColor, lpvFade);
         #else
-            float lpvSkyLight = GetLpvSkyLight(lpvSample);
             ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
         #endif
 
@@ -157,8 +156,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float moon_NoL = max(-sun_NoL, 0.0) * 0.5 + 0.5;
     sun_NoL = max(sun_NoL, 0.0) * 0.5 + 0.5;
 
+    sun_NoL *= max(localSunDirection.y, 0.0);
+    moon_NoL *= max(-localSunDirection.y, 0.0);
+
     vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * WorldSunBrightnessF;
-    skyAmbientLight += moon_NoL * WorldMoonLightColor * WorldMoonBrightnessF;
+    skyAmbientLight += 10.0 * moon_NoL * WorldMoonLightColor * WorldMoonBrightnessF;
     ambientLight *= skyAmbientLight * ambientF;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))

@@ -511,21 +511,30 @@ void main() {
             // #endif
 
             // shadowFade = 1.0 - shadowFade;
-            float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
 
-            float lmShadow = pow(lmFinal.y, 9);
-            if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                float shadowFade = 0.0;
+                float lmShadow = 1.0;
+            #else
+                float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
+
+                float lmShadow = pow(lmFinal.y, 9);
+                if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
+            #endif
 
             #ifdef SHADOW_COLORED
                 // shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-                if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                //if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                if (shadowFade < 1.0)
                     shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
 
                 //shadowColor = mix(shadowColor, vec3(lmShadow), shadowFade);
                 shadowColor = min(shadowColor, vec3(lmShadow));
             #else
                 float shadowF = 1.0;
-                if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                if (shadowFade < 1.0)
                     shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
             
                 // float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
