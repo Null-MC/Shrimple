@@ -370,7 +370,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                                 vec3 traceOrigin = GetVoxelBlockPosition(lightPos);
                                 vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
-                                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange);
+                                bool traceSelf = ((lightData.z >> 1u) & 1u) == 1u;
+
+                                lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange, traceSelf);
                             }
                         #endif
 
@@ -381,7 +383,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         blockLightAccum += lightAtt * lightColor * samplePhase;
                     }
 
-                    blockLightAccum *= 9.0 * DynamicLightBrightness;
+                    blockLightAccum *= 32.0 * DynamicLightBrightness;
                 }
             #elif LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
                 vec3 lpvLight = vec3(0.0);
