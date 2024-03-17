@@ -391,7 +391,7 @@ void main() {
             lightMixed.rgb *= mixWeight * tint;
             lightValue += lightMixed;
 
-            #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && LPV_SHADOW_SAMPLES > 0
+            #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && defined IS_LPV_SKYLIGHT_ENABLED
                 vec4 shadowColorF = SampleShadow(blockLocalPos);
 
                 #ifdef LPV_GI

@@ -27,7 +27,7 @@ uniform sampler2D TEX_LIGHTMAP;
     uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
+#if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -240,7 +240,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/voxel/lights_render.glsl"
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
+#if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     

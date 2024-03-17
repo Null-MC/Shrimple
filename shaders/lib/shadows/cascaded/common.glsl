@@ -1,5 +1,11 @@
 const float tile_dist[4] = float[](5, 12, 30, 80);
 
+const float cascadeNormalBias[] = float[]
+    (0.06, 0.15, 0.30, 0.60);
+
+const float cascadeOffsetBias[] = float[]
+    (0.06, 0.20, 0.40, 0.80);
+
 
 // tile: 0-3
 vec2 GetShadowTilePos(const in int tile) {
@@ -14,12 +20,6 @@ vec2 GetShadowTilePos(const in int tile) {
 float GetShadowRange(const in int cascade) {
     return -2.0 / cascadeProjection[cascade][2][2];
 }
-
-const float cascadeNormalBias[] = float[]
-    (0.06, 0.15, 0.30, 0.60);
-
-const float cascadeOffsetBias[] = float[]
-    (0.06, 0.20, 0.40, 0.80);
 
 float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
     float bias = 0.0;

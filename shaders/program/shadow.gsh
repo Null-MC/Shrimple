@@ -26,7 +26,7 @@ out VertexData {
     #endif
 } vOut;
 
-#if defined LIGHTING_FLICKER && (LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0))
+#if defined LIGHTING_FLICKER && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler2D noisetex;
 #endif
 
@@ -46,7 +46,7 @@ uniform float far;
     #endif
 #endif
 
-#if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+#if LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED
     uniform int entityId;
     uniform int frameCounter;
     uniform vec3 eyePosition;
@@ -109,7 +109,7 @@ uniform float far;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
+    #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
         #include "/lib/lpv/lpv.glsl"
@@ -215,7 +215,7 @@ void main() {
                 #endif
             }
 
-            #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
+            #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
                 if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
                     uint lightType = GetSceneItemLightType(currentRenderedItemId);
 

@@ -162,7 +162,7 @@ uniform vec4 entityColor;
     //#include "/lib/lighting/voxel/block_mask.glsl"
     //#include "/lib/lighting/voxel/blocks.glsl"
 
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0)
+    #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/lpv/lpv.glsl"
         #include "/lib/lpv/lpv_write.glsl"
     #endif

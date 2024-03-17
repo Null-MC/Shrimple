@@ -133,7 +133,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
@@ -197,7 +197,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0) || defined VOLUMETRIC_BLOCK_RT
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED || defined VOLUMETRIC_BLOCK_RT
         #include "/lib/blocks.glsl"
 
         // #include "/lib/buffers/lighting.glsl"
@@ -235,7 +235,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/sampling.glsl"
     #endif
     
-    #if LPV_SIZE > 0 && (LIGHTING_MODE != LIGHTING_MODE_NONE || LPV_SHADOW_SAMPLES > 0) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+    #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED) //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
         #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lpv/lpv.glsl"
