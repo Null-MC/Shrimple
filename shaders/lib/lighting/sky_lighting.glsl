@@ -71,7 +71,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
     vec3 ambientLight = RGBToLinear(lightmapColor);
 
+    float diffuseF = 1.0;
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
+        diffuseF = 0.75;
+
         vec3 lpvPos = GetLPVPosition(localPos);
 
         float lpvFade = GetLpvFade(lpvPos);
@@ -80,7 +83,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
-        float lpvSkyLight = GetLpvSkyLight(lpvSample);
+        float lpvSkyLight = 3.0 * GetLpvSkyLight(lpvSample);
 
         #if defined LPV_GI && LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample) + lpvSkyLight;
@@ -162,7 +165,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         #endif
     #endif
 
-    skyDiffuse += accumDiffuse;
+    skyDiffuse += accumDiffuse * diffuseF;
 
     if (lightningStrength > EPSILON) {
         vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);

@@ -410,7 +410,7 @@ void main() {
 
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             // float skyLightRange = mix(1.0, 6.0, sunUpF);
-                            float skyLightRange = mix(5.0, 9.0, sunUpF);
+                            float skyLightRange = mix(2.0, 4.0, sunUpF);
                         #else
                            // float skyLightRange = mix(1.0, 16.0, sunUpF);
                             float skyLightRange = mix(1.0, 6.0, sunUpF);
