@@ -23,7 +23,7 @@ uniform float far;
 layout(location = 0) out vec4 outColor0;
 
 void main() {
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    #if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         vec2 p = gl_FragCoord.xy / shadowMapSize - vIn.shadowTilePos;
         if (clamp(p, vec2(0.0), vec2(0.5)) != p) {discard; return;}
     #endif
