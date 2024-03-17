@@ -47,7 +47,7 @@ void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFin
 
     for (int i = 0; i < stepCount; i++) {
         transmitFinal *= stepTransmittance;
-        scatterFinal += lightIntegral * transmitFinal;
+        scatterFinal = lightIntegral * transmitFinal + scatterFinal;
     }
 }
 

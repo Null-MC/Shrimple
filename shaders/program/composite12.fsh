@@ -619,13 +619,17 @@ layout(location = 0) out vec4 outFinal;
                                 const float phaseSky = phaseIso;
                             #endif
 
-                            vec3 vlLight = (phaseSky + AirAmbientF) * skyLightColor;
+                            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+                            #else
+                                vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+                                skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
+                            #endif
+
+                            vec3 vlLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
                             float airDensity = GetSkyDensity(worldPos.y);
 
-                            vec3 scatterFinal = vec3(0.0);
-                            vec3 transmitFinal = vec3(1.0);
-                            ApplyScatteringTransmission(scatterFinal, transmitFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
-                            fogColorFinal = fogColorFinal * transmitFinal + scatterFinal;
+                            ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 16);
                         }
                     #endif
                 #elif SKY_TYPE == SKY_TYPE_VANILLA
