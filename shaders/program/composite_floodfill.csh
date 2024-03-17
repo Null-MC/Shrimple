@@ -449,25 +449,27 @@ void main() {
         lightValue.rgb = RgbToHsv(lightValue.rgb);
         lightValue.ba = log2(lightValue.ba + 1.0) / LpvBlockSkyRange;
 
-        if (blockId > 0 && blockId != BLOCK_EMPTY) {
-            uint lightType = StaticBlockMap[blockId].lightType;
+        #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+            if (blockId > 0 && blockId != BLOCK_EMPTY) {
+                uint lightType = StaticBlockMap[blockId].lightType;
 
-            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                StaticLightData lightInfo = StaticLightMap[lightType];
-                vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-                vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-                float lightRange = lightRangeSize.x * 255.0;
+                if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                    StaticLightData lightInfo = StaticLightMap[lightType];
+                    vec3 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+                    float lightRange = lightRangeSize.x * 255.0;
 
-                lightColor = RGBToLinear(lightColor);
+                    lightColor = RGBToLinear(lightColor);
 
-                #ifdef LIGHTING_FLICKER
-                   vec2 lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
-                   ApplyLightFlicker(lightColor, lightType, lightNoise);
-                #endif
+                    #ifdef LIGHTING_FLICKER
+                       vec2 lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                       ApplyLightFlicker(lightColor, lightType, lightNoise);
+                    #endif
 
-                lightValue.rgb = Lpv_RgbToHsv(lightColor, lightRange);
+                    lightValue.rgb = Lpv_RgbToHsv(lightColor, lightRange);
+                }
             }
-        }
+        #endif
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);

@@ -1,5 +1,7 @@
 #define DDA_MAX_STEP ((LIGHTING_RANGE/100.0) * 24)
 
+const uint DDAStepCount = uint(DDA_MAX_STEP);
+
 
 bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 rayStart, const in vec3 rayInv) {
     vec3 t1 = (boxMin - rayStart) * rayInv;
@@ -10,10 +12,6 @@ bool BoxRayTest(const in vec3 boxMin, const in vec3 boxMax, const in vec3 raySta
 
     float rmin = maxOf(tmin);
     float rmax = minOf(tmax);
-
-    //return rmin <= rmax;
-
-    //if (rmin >= 1.0) return false;
 
     return !isinf(rmin) && min(rmax, 1.0) >= max(rmin, 0.0);
 }
@@ -47,11 +45,11 @@ bool CylinderRayTest(const in vec3 rayOrigin, const in vec3 rayVec, const in flo
 
 bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 rayInv) {
     BlockCollisionData blockData = StaticBlockMap[blockId].Collisions;
-    //uint shapeCount = blockData.Count;
 
     bool hit = false;
-    for (uint i = 0u; i < min(blockData.Count, BLOCK_MASK_PARTS) && !hit; i++) {
-        //uvec2 shapeBounds = blockData.Bounds[i];
+    for (uint i = 0u; i < BLOCK_MASK_PARTS; i++) {
+        if (hit || i >= blockData.Count) break;
+
         vec3 boundsMin = unpackUnorm4x8(blockData.Bounds[i].x).xyz;
         vec3 boundsMax = unpackUnorm4x8(blockData.Bounds[i].y).xyz;
 
@@ -62,16 +60,11 @@ bool TraceHitTest(const in uint blockId, const in vec3 rayStart, const in vec3 r
 }
 
 vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in bool traceSelf) {
-    //if (ivec3(origin) == ivec3(endPos)) return vec3(1.0);
-
     vec3 traceRay = endPos - origin;
     float traceRayLen = length(traceRay);
     if (traceRayLen < EPSILON) return vec3(1.0);
 
     vec3 direction = traceRay / traceRayLen;
-    // if (abs(direction.x) < EPSILON) direction.x = EPSILON;
-    // if (abs(direction.y) < EPSILON) direction.y = EPSILON;
-    // if (abs(direction.z) < EPSILON) direction.z = EPSILON;
 
     vec3 stepDir = sign(direction);
     vec3 stepSizes = rcp(abs(direction));
@@ -99,7 +92,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
         nextDist += stepSizes * stepAxis;
     }
 
-    for (int i = 0; i < DDA_MAX_STEP && !hit && currDist2 < traceRayLen2; i++) {
+    for (int i = 0; i < DDAStepCount; i++) {
+        if (hit || currDist2 >= traceRayLen2) break;
+
         vec3 rayStart = currPos;
 
         float closestDist = minOf(nextDist);
@@ -186,11 +181,8 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
                     if (blockId == BLOCK_SOLID || IsTraceFullBlock(blockId)) hit = true;
                     else {
                         vec3 ray = currPos - rayStart;
-                        // if (abs(ray.x) < EPSILON) ray.x = EPSILON;
-                        // if (abs(ray.y) < EPSILON) ray.y = EPSILON;
-                        // if (abs(ray.z) < EPSILON) ray.z = EPSILON;
-
                         vec3 rayInv = rcp(ray);
+
                         hit = TraceHitTest(blockId, rayStart - voxelPos, rayInv);
                     }
                 }
@@ -210,46 +202,6 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
     if (hit) color = vec3(0.0);
     return color;
 }
-
-// vec3 TraceRay(const in vec3 origin, const in vec3 endPos, const in float range) {
-//     vec3 traceRay = endPos - origin;
-//     float traceRayLen = length(traceRay);
-//     if (traceRayLen < EPSILON) return vec3(1.0);
-
-//     float dither = 0.0;
-//     #ifndef RENDER_COMPUTE
-//         dither = InterleavedGradientNoise(gl_FragCoord.xy);
-//     #endif
-
-//     int stepCount = int(0.5 * DYN_LIGHT_RAY_QUALITY * range);
-//     vec3 stepSize = traceRay / stepCount;
-//     vec3 color = vec3(1.0);
-//     bool hit = false;
-    
-//     uint blockIdLast;
-//     for (int i = 1; i < stepCount && !hit; i++) {
-//         vec3 gridPos = (i + dither) * stepSize + origin;
-        
-//         ivec3 gridCell, blockCell;
-//         if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-//             uint gridIndex = GetVoxelGridCellIndex(gridCell);
-//             uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-
-//             if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
-//                 color *= GetLightGlassTint(blockId);
-//             }
-//             else if (blockId != BLOCK_EMPTY) {
-//                 vec3 blockPos = fract(gridPos);
-//                 hit = TraceHitTest(blockId, blockPos, vec3(0.0));
-//                 if (hit) color = vec3(0.0);
-//             }
-
-//             blockIdLast = blockId;
-//         }
-//     }
-
-//     return color;
-// }
 
 #ifndef RENDER_COMPUTE
     vec3 GetLightPenumbraOffset() {

@@ -270,7 +270,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 traceShadowClipPos = distort(traceShadowClipPos);
                 traceShadowClipPos = traceShadowClipPos * 0.5 + 0.5;
 
-                // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
                 float shadowViewDist = length(shadowViewPos.xy);
                 // float shadowDistFar = min(shadowDistance, far);
                 float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);

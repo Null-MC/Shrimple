@@ -200,7 +200,6 @@ void main() {
 
         vec3 blockDiffuse = vec3(0.0);
         vec3 blockSpecular = vec3(0.0);
-        //GetFinalBlockLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, sss);
         SampleDynamicLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
 
         // #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
@@ -222,9 +221,6 @@ void main() {
 
             blockSpecular *= GetMetalTint(albedo, metal_f0);
         #endif
-
-        // if (!all(lessThan(abs(texNormal), EPSILON3)))
-        //     texNormal = texNormal * 0.5 + 0.5;
 
         outDiffuse = vec4(blockDiffuse, 1.0);
 

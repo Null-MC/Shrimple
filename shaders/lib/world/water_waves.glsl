@@ -35,7 +35,7 @@ vec3 GetWaveHeight(const in vec3 position, const in float skyLight, const in flo
         float iterMod = mod(iter, TAU);
         vec2 p = vec2(sin(iterMod), cos(iterMod));
 
-        vec2 octave = waveDx(wavePos.xz, p, frequency, time * timeMultiplier);
+        vec2 octave = waveDx(wavePos.xz, p, frequency, 1.3*time * timeMultiplier);
         wavePos.xz += p * octave.y * weight * DRAG_MULT;
 
         valueSum += octave.x * weight;

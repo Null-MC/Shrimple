@@ -327,7 +327,7 @@ layout(location = 0) out vec4 outFinal;
             float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
             float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
 
-            if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
+            if (depthTrans >= 1.0 || (dhDepthTransL < depthTransL && dhDepthTrans > 0.0)) {
                 //depthTrans = dhDepthTrans;
                 depthTransL = dhDepthTransL;
             }
@@ -335,7 +335,7 @@ layout(location = 0) out vec4 outFinal;
             float dhDepthOpaque = textureLod(dhDepthTex1, texcoord, 0).r;
             float dhDepthOpaqueL = linearizeDepthFast(dhDepthOpaque, dhNearPlane, dhFarPlane);
 
-            if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
+            if (depthOpaque >= 1.0 || (dhDepthOpaqueL < depthOpaqueL && dhDepthOpaque > 0.0)) {
                 depthOpaque = dhDepthOpaque;
                 depthOpaqueL = dhDepthOpaqueL;
                 projectionInvOpaque = dhProjectionInverse;
