@@ -270,7 +270,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         #endif
 
         float cloudDist = distMax - distMin;
-        float stepLength = cloudDist / stepCount;
+        float stepLength = cloudDist / (stepCount+1);
         vec3 traceStep = localViewDir * stepLength;
         vec3 traceStart = localViewDir * distMin;
 

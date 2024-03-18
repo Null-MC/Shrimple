@@ -18,7 +18,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
     const float inverseStepCountF = rcp(VOLUMETRIC_SAMPLES);
     
-    float stepLength = localRayLength * inverseStepCountF;
+    float stepLength = localRayLength / (VOLUMETRIC_SAMPLES + 1);
     vec3 localStep = localViewDir * stepLength;
 
     #ifdef WORLD_SKY_ENABLED
