@@ -86,7 +86,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         float lpvSkyLight = 3.0 * GetLpvSkyLight(lpvSample);
 
         #if defined LPV_GI && LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample) + lpvSkyLight;
+            vec3 lpvSkyLightColor = 0.5*GetLpvBlockLight(lpvSample) + 0.5*lpvSkyLight;
             ambientLight = mix(ambientLight, lpvSkyLightColor, lpvFade);
         #else
             ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);

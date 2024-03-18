@@ -171,8 +171,8 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 cloudNear, cloudFar;
         GetCloudNearFar(worldPos, localLightDir, cloudNear, cloudFar);
         
-        float cloudDistNear = min(length(cloudNear), SkyFar);
-        float cloudDistFar = min(length(cloudFar), SkyFar);
+        float cloudDistNear = length(cloudNear);
+        float cloudDistFar = length(cloudFar);
         float cloudDist = cloudDistFar - cloudDistNear;
 
         if (cloudDist < EPSILON) return 1.0;
@@ -186,14 +186,15 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
 
         float cloudAbsorb = 1.0;
         for (uint i = 0u; i < stepCount; i++) {
-            vec3 traceLocalPos = cloudNear + cloudStep * (i + dither);
+            vec3 traceLocalPos = worldPos + cloudNear - cameraPosition;
+            traceLocalPos += cloudStep * (i + dither);
 
             #if WORLD_CURVE_RADIUS > 0
                 float traceAltitude = GetWorldAltitude(traceLocalPos);
                 vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
-                traceWorldPos.xz += worldPos.xz;
+                traceWorldPos.xz += cameraPosition.xz;
             #else
-                vec3 traceWorldPos = traceLocalPos + worldPos;
+                vec3 traceWorldPos = traceLocalPos + cameraPosition;
                 float traceAltitude = traceWorldPos.y;
             #endif
 
@@ -299,7 +300,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
 
             float sampleCloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, shadowStepCount);
             // float sampleCloudShadow = _TraceCloudShadow(worldPos, traceLocalPos, dither, shadowStepCount);
-            sampleCloudShadow = sampleCloudShadow;// * 0.7 + 0.3;
+            //sampleCloudShadow = sampleCloudShadow * 0.7 + 0.3;
 
             // float fogDist = GetShapedFogDistance(traceLocalPos);
             // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * SkyFar, SkyFar, 1.0);
