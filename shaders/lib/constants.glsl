@@ -6,6 +6,7 @@
 #define PUDDLES_BASIC 1
 #define PUDDLES_PIXEL 2
 #define PUDDLES_FANCY 3
+#define PUDDLES_FULL 4
 
 #define SKY_TYPE_VANILLA 0
 #define SKY_TYPE_CUSTOM 1

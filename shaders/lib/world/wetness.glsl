@@ -16,16 +16,20 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 l
     #if WORLD_WETNESS_PUDDLES == PUDDLES_PIXEL
         worldPos = floor(worldPos * 16.0) / 16.0;
     #endif
-    
-    vec2 texPos = worldPos.xz + worldPos.y * 0.12;
-    float wetnessNoise = textureLod(noisetex, texPos * 0.04, 0).r;
-    wetnessNoise *= 1.0 - 0.7*textureLod(noisetex, texPos * 0.01, 0).g;
 
-    float rf = min(wetness * 40.0, 1.0);
-    vec2 s2 = 1.0 - textureLod(noisetex, texPos * 0.3, 0).rg;
-    wetnessNoise = min(wetnessNoise, 1.0 - smoothstep(0.9 - 0.8 * rf, 1.0, s2.r * s2.g) * rf);
+    #if WORLD_WETNESS_PUDDLES != PUDDLES_FULL
+        vec2 texPos = worldPos.xz + worldPos.y * 0.12;
+        float wetnessNoise = textureLod(noisetex, texPos * 0.04, 0).r;
+        wetnessNoise *= 1.0 - 0.7*textureLod(noisetex, texPos * 0.01, 0).g;
 
-    return max(skyWetness - wetnessNoise, 0.0);
+        float rf = min(wetness * 40.0, 1.0);
+        vec2 s2 = 1.0 - textureLod(noisetex, texPos * 0.3, 0).rg;
+        wetnessNoise = min(wetnessNoise, 1.0 - smoothstep(0.9 - 0.8 * rf, 1.0, s2.r * s2.g) * rf);
+
+        return max(skyWetness - wetnessNoise, 0.0);
+    #else
+        return skyWetness;
+    #endif
 }
 
 float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
