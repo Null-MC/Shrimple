@@ -36,9 +36,9 @@ void main() {
 
     ApplyPostExposure(color);
 
-    ApplyPostTonemap(color);
-
     ApplyPostGrading(color);
+
+    ApplyPostTonemap(color);
 
     color = LinearToRGB(color, GAMMA_OUT);
 

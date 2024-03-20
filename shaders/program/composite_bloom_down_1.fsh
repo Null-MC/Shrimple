@@ -31,7 +31,7 @@ uniform float nightVision;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/effects/bloom.glsl"
-#include "/lib/post/tonemap.glsl"
+// #include "/lib/post/tonemap.glsl"
 
 
 /* RENDERTARGETS: 15 */
@@ -46,7 +46,7 @@ void main() {
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
         
-    ApplyPostExposure(color);
+    //ApplyPostExposure(color);
 
     float power = EFFECT_BLOOM_POWER;
     // if (isEyeInWater == 1) power = 1.0;
