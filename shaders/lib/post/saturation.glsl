@@ -50,4 +50,6 @@ void ApplyPostGrading(inout vec3 color) {
             color = (matSaturation * vec4(color, 1.0)).rgb;
         #endif
     #endif
+
+    color *= RGBToLinear(vec3(0.922, 0.969, 1.000));
 }
