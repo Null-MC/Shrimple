@@ -9,11 +9,6 @@ out VertexData {
     float cameraViewDist;
 
     flat uint materialId;
-
-    // #if defined RENDER_SHADOWS_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //     // TODO: this isn't really needed but throws error without
-    //     flat vec2 shadowTilePos;
-    // #endif
 } vOut;
 
 uniform mat4 shadowModelView;
