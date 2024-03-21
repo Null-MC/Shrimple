@@ -740,6 +740,9 @@ value.POST_TONEMAP.2=ACES
 value.POST_TONEMAP.3=Heijl
 value.POST_TONEMAP.4=Lottes
 
+option.POST_TEMP=Temperature
+suffix.POST_TEMP=00°k
+
 option.POST_WHITE_POINT=White-Point
 suffix.POST_WHITE_POINT=%
 

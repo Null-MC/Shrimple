@@ -1,5 +1,5 @@
-const float WorldAtmosphereMin =  80.0;
-const float WorldAtmosphereMax = 1400.0;
+const float WorldAtmosphereMin =  0.0;
+const float WorldAtmosphereMax = 900.0;
 
 const float SkyDensityF = SKY_FOG_DENSITY * 0.01;
 const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
@@ -38,14 +38,16 @@ float GetSkyDensity(const in float worldY) {
     // float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
     // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
 
-    float heightF = 1.0 - saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
-    float densityFinal = AirDensityF * pow4(heightF);
+    float densityFinal = AirDensityF;
 
     #ifdef SKY_CAVE_FOG_ENABLED
         float eyeLightF = eyeBrightnessSmooth.y / 240.0;
         float caveF = 1.0 - smoothstep(0.0, 0.1, eyeLightF);
         densityFinal = mix(densityFinal, CaveFogDensityF, caveF);
     #endif
+
+    float heightF = 1.0 - saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
+    densityFinal *= pow3(heightF);
 
     return densityFinal;
 }
