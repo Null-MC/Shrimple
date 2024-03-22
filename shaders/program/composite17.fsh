@@ -187,6 +187,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
     #endif
+
+    #include "/lib/sky/sky_trace.glsl"
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -276,10 +278,9 @@ void main() {
     // ivec2 depthCoord = ivec2(texcoord * viewSize);// + int(0.5 * bufferScale);
     float depthTrans = texelFetch(depthtex0, depthCoord, 0).r;
 
-    mat4 projectionInvTrans = gbufferProjectionInverse;
-
     #ifdef DISTANT_HORIZONS
         float depthTransL = linearizeDepth(depthTrans, near, farPlane);
+        mat4 projectionInvTrans = gbufferProjectionInverse;
 
         float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
         float dhDepthTransL = linearizeDepth(dhDepthTrans, dhNearPlane, dhFarPlane);
@@ -355,50 +356,64 @@ void main() {
         if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
     #endif
 
-    #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater != 1) {
         #endif
 
-            #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                // const int traceStepCount = CLOUD_STEPS;
-
-                float cloudDistNear = farMax;
-
+            #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
                 #ifdef DISTANT_HORIZONS
-                    float cloudDistFar = max(SkyFar, dhFarPlane);
+                    float _far = max(SkyFar, dhFarPlane);
                 #else
-                    float cloudDistFar = SkyFar;
+                    float _far = SkyFar;
                 #endif
 
-                if (depthTrans < 1.0) {
-                    cloudDistNear = 0.0;
-                    cloudDistFar = 0.0;
-                }
-            #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                // const int traceStepCount = VOLUMETRIC_SAMPLES;
-
-                const float cloudDistNear = 0.0;
-                float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
-            #else
-                // const int traceStepCount = CLOUD_STEPS;
-                // const int traceStepCount = VOLUMETRIC_SAMPLES;
-
-                vec3 cloudNear, cloudFar;
-                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
-                
-                float cloudDistNear = length(cloudNear);
-                float cloudDistFar = min(length(cloudFar), SkyFar);
-
-                // if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
-                //     cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
-                
                 if (depthTrans < 1.0)
-                    cloudDistFar = min(cloudDistFar, viewDist);
-            #endif
+                    _far = min(_far, viewDist);
 
-            if (cloudDistFar > cloudDistNear)
-                _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
+                if (_far > farDist)
+                    _TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, _far, 16);
+            #else
+                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                    // const int traceStepCount = CLOUD_STEPS;
+
+                    float cloudDistNear = farMax;
+
+                    #ifdef DISTANT_HORIZONS
+                        float cloudDistFar = max(SkyFar, dhFarPlane);
+                    #else
+                        float cloudDistFar = SkyFar;
+                    #endif
+
+                    if (depthTrans < 1.0) {
+                        cloudDistNear = 0.0;
+                        cloudDistFar = 0.0;
+                    }
+                #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                    // const int traceStepCount = VOLUMETRIC_SAMPLES;
+
+                    const float cloudDistNear = 0.0;
+                    float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
+                #else
+                    // const int traceStepCount = CLOUD_STEPS;
+                    // const int traceStepCount = VOLUMETRIC_SAMPLES;
+
+                    vec3 cloudNear, cloudFar;
+                    GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+                    
+                    float cloudDistNear = length(cloudNear);
+                    float cloudDistFar = min(length(cloudFar), SkyFar);
+
+                    // if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
+                    //     cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
+                    
+                    if (depthTrans < 1.0)
+                        cloudDistFar = min(cloudDistFar, viewDist);
+                #endif
+
+                if (cloudDistFar > cloudDistNear)
+                    _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
+            #endif
 
         #ifdef WORLD_WATER_ENABLED
             }

@@ -93,9 +93,10 @@ layout(location = 0) out vec4 outAO;
 
 void main() {
     float depth = textureLod(depthtex1, texcoord, 0).r;
-    mat4 projectionInv = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
+        mat4 projectionInv = gbufferProjectionInverse;
+
         if (depth >= 1.0) {
             depth = textureLod(dhDepthTex, texcoord, 0).r;
             projectionInv = dhProjectionInverse;
@@ -103,7 +104,12 @@ void main() {
     #endif
 
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
-    vec3 viewPos = unproject(projectionInv, clipPos);
+
+    #ifdef DISTANT_HORIZONS
+        vec3 viewPos = unproject(projectionInv, clipPos);
+    #else
+        vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+    #endif
 
     vec4 final = vec4(1.0);
 

@@ -22,6 +22,7 @@ deferred6		near-z [3]
 deferred7		near-z [4]
 deferred8		near-z [5]
 
+deferred10		ss-shadows
 
 composite1		propagate LPV
 

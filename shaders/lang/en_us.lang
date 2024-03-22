@@ -568,15 +568,32 @@ value.SHADOW_TYPE.3=Cascaded
 
 option.shadowMapResolution=Resolution
 option.shadowMapResolution.comment=Resolution of the shadow map. Higher numbers mean more accurate shadows.
+suffix.shadowMapResolution=x
 
 option.shadowDistance=Distance
-option.shadowDistance.comment=How far away shadows will be rendered.
+option.shadowDistance.comment=How far away shadows will be rendered, in blocks/meters.
+suffix.shadowDistance=m
 
 option.SHADOW_COLORED=Color Tinting
 option.SHADOW_COLORED.comment=Determines if sun/moon light is tinted when passing through translucent colored blocks.
 
 option.SHADOW_COLOR_BLEND=Color Blending
 option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple colors. Currently broken until Sodium supports translucent-sorting.
+
+option.SHADOW_CLOUD_ENABLED=Clouds
+option.SHADOW_CLOUD_ENABLED.comment=Enables shadows from clouds.
+
+option.SHADOW_FILTER=Filtering
+option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
+value.SHADOW_FILTER.0=None
+value.SHADOW_FILTER.1=Soft-Fixed
+value.SHADOW_FILTER.2=Soft-Dynamic
+
+option.LIGHT_LEAK_FIX=Light-Leak Fix
+option.LIGHT_LEAK_FIX.comment=Prevents light-leaking into caves and other dark areas by forcing areas with zero sky-light to be fully shadowed.
+
+
+screen.SHADOW_ADVANCED_OPTIONS=Advanced Shadow Options
 
 option.SHADOW_BIAS_SCALE=Bias Scale
 option.SHADOW_BIAS_SCALE.comment=Increase this if you get shadow acne. Decrease this if you get peter panning.
@@ -586,18 +603,9 @@ option.SHADOW_DISTORT_FACTOR=Distortion
 option.SHADOW_DISTORT_FACTOR.comment=The amount of distortion to apply to the shadow map. Applies to distorted shadows only.
 suffix.SHADOW_DISTORT_FACTOR=%
 
-option.SHADOW_CLOUD_ENABLED=Clouds
-option.SHADOW_CLOUD_ENABLED.comment=Enables shadows from clouds.
+option.SHADOW_SCREEN=Screen-Space
 
-
-screen.SHADOW_FILTER_OPTIONS=Filtering
-screen.SHADOW_FILTER_OPTIONS.comment=Options for shadow filtering.
-
-option.SHADOW_FILTER=Filtering
-option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
-value.SHADOW_FILTER.0=None
-value.SHADOW_FILTER.1=Soft-Fixed
-value.SHADOW_FILTER.2=Soft-Dynamic
+option.SHADOW_SCREEN_STEPS=Screen-Space Steps
 
 option.SHADOW_ENABLE_HWCOMP=HW-Accelerated
 option.SHADOW_ENABLE_HWCOMP.comment=When enabled, shadows will leverage hardware-filtering for better quality and performance.
@@ -616,7 +624,7 @@ option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring. Fo
 option.SHADOW_PCSS_SAMPLES=Blocker Samples
 option.SHADOW_PCSS_SAMPLES.comment=The number of samples to use for determining penumbra width. For dynamic soft-shadows only.
 
-option.SHADOW_BLUR_SIZE=Smooth
+option.SHADOW_BLUR_SIZE=Blur Filter
 option.SHADOW_BLUR_SIZE.comment=Applies a post gaussian blur to the shadowing buffer to further smooth blur. Applies to all shadow types.
 value.SHADOW_BLUR_SIZE.0=OFF
 value.SHADOW_BLUR_SIZE.1=3x3

@@ -1,12 +1,12 @@
-const float WorldAtmosphereMin =  0.0;
-const float WorldAtmosphereMax = 900.0;
+const float WorldAtmosphereMin =  20.0;
+const float WorldAtmosphereMax = 960.0;
 
 const float SkyDensityF = SKY_FOG_DENSITY * 0.01;
 const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
 const float phaseAir = phaseIso;
 
 #ifdef DISTANT_HORIZONS
-    float SkyFar = max(2000.0, 2.0*dhFarPlane);
+    float SkyFar = max(2000.0, dhFarPlane);
 #else
     const float SkyFar = 2000.0;
 #endif
@@ -47,7 +47,7 @@ float GetSkyDensity(const in float worldY) {
     #endif
 
     float heightF = 1.0 - saturate((worldY - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
-    densityFinal *= pow3(heightF);
+    densityFinal *= pow(heightF, 8);
 
     return densityFinal;
 }

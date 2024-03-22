@@ -264,12 +264,11 @@ void main() {
 
     float depthOpaqueL = linearizeDepth(depthOpaque, near, farPlane);
     float depthTransL = linearizeDepth(depthTrans, near, farPlane);
-    mat4 projectionInvOpaque = gbufferProjectionInverse;
-    mat4 projectionInvTrans = gbufferProjectionInverse;
 
     #ifdef DISTANT_HORIZONS
         float dhDepthTrans = texelFetch(dhDepthTex, iTex, 0).r;
         float dhDepthTransL = linearizeDepth(dhDepthTrans, dhNearPlane, dhFarPlane);
+        mat4 projectionInvTrans = gbufferProjectionInverse;
 
         if (dhDepthTransL < depthTransL || depthTrans >= 1.0) {
             depthTrans = dhDepthTrans;
@@ -279,6 +278,7 @@ void main() {
 
         float dhDepthOpaque = texelFetch(dhDepthTex1, iTex, 0).r;
         float dhDepthOpaqueL = linearizeDepth(dhDepthOpaque, dhNearPlane, dhFarPlane);
+        mat4 projectionInvOpaque = gbufferProjectionInverse;
 
         if (dhDepthOpaqueL < depthOpaqueL || depthOpaque >= 1.0) {
             depthOpaque = dhDepthOpaque;

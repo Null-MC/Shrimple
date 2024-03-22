@@ -321,11 +321,11 @@ layout(location = 0) out vec4 outFinal;
 
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
         float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);
-        mat4 projectionInvOpaque = gbufferProjectionInverse;
 
         #ifdef DISTANT_HORIZONS
             float dhDepthTrans = textureLod(dhDepthTex, texcoord, 0).r;
             float dhDepthTransL = linearizeDepthFast(dhDepthTrans, dhNearPlane, dhFarPlane);
+            mat4 projectionInvOpaque = gbufferProjectionInverse;
 
             if (depthTrans >= 1.0 || (dhDepthTransL < depthTransL && dhDepthTrans > 0.0)) {
                 //depthTrans = dhDepthTrans;
