@@ -124,8 +124,11 @@ uniform float far;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        #include "/lib/buffers/shadow.glsl"
+    #endif
+
     #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
     #include "/lib/shadows/common.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

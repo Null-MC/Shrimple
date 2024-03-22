@@ -44,7 +44,7 @@ uniform int blockEntityId;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
-    #include "/lib/buffers/shadow.glsl"
+    //#include "/lib/buffers/shadow.glsl"
 #endif
 
 #if WORLD_WIND_STRENGTH > 0
@@ -94,7 +94,8 @@ void main() {
             blockId = BLOCK_EMPTY;
     }
 
-    vOut.originPos = gl_Vertex.xyz;
+    vec4 pos = gl_Vertex;
+    vOut.originPos = pos.xyz;
     if ((blockId < BLOCK_LIGHT_1 || blockId > BLOCK_LIGHT_15) && isRenderTerrain) {
         vOut.originPos += at_midBlock / 64.0;
     }
@@ -121,7 +122,6 @@ void main() {
 
     vOut.blockId = blockId;
 
-    vec4 pos = gl_Vertex;
     vec3 viewPos = mul3(gl_ModelViewMatrix, pos.xyz);
     vec3 localPos = mul3(shadowModelViewInverse, viewPos);
 

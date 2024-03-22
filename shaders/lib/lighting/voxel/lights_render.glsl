@@ -72,9 +72,9 @@
 // }
 
 void ParseLightPosition(const in uvec4 data, out vec3 position) {
-    position.x = uintBitsToFloat(half2float(data.x & uint(0xffff)));
-    position.y = uintBitsToFloat(half2float(data.x >> 16u));
-    position.z = uintBitsToFloat(half2float(data.y & uint(0xffff)));
+    const uvec3 offsets = uvec3(0u, 16u, 0u);
+    uvec3 posHalf = (data.xxy >> offsets) & uint(0xffff);
+    position = uintBitsToFloat(half2float(posHalf));
 }
 
 void ParseLightSize(const in uvec4 data, out float size) {
@@ -86,9 +86,8 @@ void ParseLightRange(const in uvec4 data, out float range) {
 }
 
 void ParseLightColor(const in uvec4 data, out vec3 color) {
-    color.r = ((data.z >>  8u) & 255u) / 255.0;
-    color.g = ((data.z >> 16u) & 255u) / 255.0;
-    color.b = ((data.z >> 24u) & 255u) / 255.0;
+    const uvec3 offsets = uvec3(8u, 16u, 24u);
+    color = ((data.zzz >> offsets) & 255u) / 255.0;
 }
 
 void ParseLightData(const in uvec4 data, out vec3 position, out float size, out float range, out vec3 color) {

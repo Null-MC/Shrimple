@@ -297,8 +297,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     vec3 shadowColor = texture(shadowcolor0, traceShadowClipPos.xy).rgb;
                     shadowColor = RGBToLinear(shadowColor);
 
-                    if (any(greaterThan(shadowColor, EPSILON3)))
-                        shadowColor = normalize(shadowColor) * 1.73;
+                    float lum = luminance(shadowColor);
+                    if (lum > 0.0) shadowColor /= lum;
+
+                    // if (any(greaterThan(shadowColor, EPSILON3)))
+                    //     shadowColor = normalize(shadowColor) * 1.73;
 
                     sampleColor *= shadowColor;
                 }

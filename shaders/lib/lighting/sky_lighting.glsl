@@ -26,7 +26,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 localViewDir = -localPos / viewDist;
 
     #ifndef RENDER_SHADOWS_ENABLED
-        shadowColor *= _pow3(lmcoord.y);
+        // shadowColor *= _pow3(lmcoord.y);
+        shadowColor *= pow(lmcoord.y, 9);
     #endif
     
     #ifdef IRIS_FEATURE_SSBO

@@ -552,6 +552,8 @@ void main() {
                 #endif
             }
         }
+    #else
+        // shadowColor = vec3(pow(lmFinal.y, 9));
     #endif
 
     vec3 texNormal = vec3(0.0, 0.0, 1.0);

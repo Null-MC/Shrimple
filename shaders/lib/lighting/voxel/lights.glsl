@@ -1151,9 +1151,13 @@
             uvec4 lightData;
 
             // position
-            lightData.x  = float2half(floatBitsToUint(position.x));
-            lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
-            lightData.y  = float2half(floatBitsToUint(position.z));
+            const uvec3 pos_offsets = uvec3(0u, 16u, 0u);
+            uvec3 pos_packed = float2half(floatBitsToUint(position)) << pos_offsets;
+            lightData.x  = pos_packed.x | pos_packed.y;
+            lightData.y  = pos_packed.z;
+            // lightData.x  = float2half(floatBitsToUint(position.x));
+            // lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
+            // lightData.y  = float2half(floatBitsToUint(position.z));
 
             // size
             uint bitSize = uint(clamp(size * 255.0, 0.0, 255.0) + 0.5);
@@ -1171,10 +1175,9 @@
             lightData.z |= mask;
 
             // color
-            uvec3 bitColor = uvec3(saturate(color) * 255.0 + 0.5);
-            lightData.z |= bitColor.r << 8u;
-            lightData.z |= bitColor.g << 16u;
-            lightData.z |= bitColor.b << 24u;
+            const uvec3 color_offsets = uvec3(8u, 16u, 24u);
+            uvec3 color_packed = uvec3(saturate(color) * 255.0 + 0.5) << color_offsets;
+            lightData.z |= color_packed.r | color_packed.g | color_packed.b;
 
             return lightData;
         }

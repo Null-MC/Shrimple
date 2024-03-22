@@ -65,6 +65,9 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                         sampleColor = textureLod(shadowcolor0, shadowPos.xy + pixelOffset, 0);
                         sampleColor.rgb = RGBToLinear(sampleColor.rgb);
                         
+                        float lum = luminance(sampleColor.rgb);
+                        if (lum > 0.0) sampleColor.rgb /= lum;
+
                         sampleColor.rgb = mix(sampleColor.rgb, vec3(0.0), _pow2(sampleColor.a));
                     }
                 }
@@ -139,6 +142,9 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 vec4 shadowColor = textureLod(shadowcolor0, shadowPos.xy, 0);
                 shadowColor.rgb = RGBToLinear(shadowColor.rgb);
 
+                float lum = luminance(shadowColor.rgb);
+                if (lum > 0.0) shadowColor.rgb /= lum;
+
                 shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
                 
                 return shadowColor.rgb;
@@ -195,6 +201,9 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 
             vec4 shadowColor = texture(shadowcolor0, shadowPos.xy);
             shadowColor.rgb = RGBToLinear(shadowColor.rgb);
+
+            float lum = luminance(shadowColor.rgb);
+            if (lum > 0.0) shadowColor.rgb /= lum;
 
             shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
 

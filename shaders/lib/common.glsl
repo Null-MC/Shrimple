@@ -745,7 +745,17 @@ uint half2float(const in uint h) {
     return ((h & uint(0x8000)) << 16u) | (((h & uint(0x7c00)) + uint(0x1c000)) << 13u) | ((h & uint(0x03ff)) << 13u);
 }
 
+uvec3 half2float(const in uvec3 h) {
+    return ((h & uint(0x8000)) << 16u) | (((h & uint(0x7c00)) + uint(0x1c000)) << 13u) | ((h & uint(0x03ff)) << 13u);
+}
+
 uint float2half(const in uint f) {
+    return ((f >> 16u) & uint(0x8000)) |
+        ((((f & uint(0x7f800000)) - uint(0x38000000)) >> 13u) & uint(0x7c00)) |
+        ((f >> 13u) & uint(0x03ff));
+}
+
+uvec3 float2half(const in uvec3 f) {
     return ((f >> 16u) & uint(0x8000)) |
         ((((f & uint(0x7f800000)) - uint(0x38000000)) >> 13u) & uint(0x7c00)) |
         ((f >> 13u) & uint(0x03ff));
