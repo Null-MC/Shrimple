@@ -74,7 +74,7 @@ void main() {
         }
     #endif
 
-    float occlusion = 0.0;
+    float occlusion = 1.0;
 
     if (depth < 1.0) {
         #ifdef EFFECT_TAA_ENABLED
@@ -142,18 +142,26 @@ void main() {
                 }
 
                 float traceDepthL = linearizeDepth(traceScreenPos.z, near, dhFarPlane);
-                if (traceDepthL > sampleDepthL) {
-                    occlusion = 1.0;
-                    break;
-                }
             #else
-                if (traceScreenPos.z > sampleDepth) {
-                    occlusion = 1.0;
-                    break;
-                }
+                float traceDepthL = linearizeDepth(traceScreenPos.z, near, farPlane);
             #endif
+
+            float sampleDiff = traceDepthL - sampleDepthL;
+            if (sampleDiff > 0.0) {
+                // occlusion *= 1.0 - rcp(sampleDiff + 1.0);
+                // break;
+                vec3 traceViewPos = unproject(dhProjectionFullInv, traceScreenPos * 2.0 - 1.0);
+
+                float traceDist = length(traceViewPos - viewPos);
+
+                // occlusion *= 1.0 - saturate(sampleDiff/traceDist);
+                occlusion *= step(traceDist, sampleDiff);
+                //break;
+            }
+
+            if (occlusion < EPSILON) break;
         }
     }
 
-    outShadow = vec4(vec3(1.0 - occlusion), 1.0);
+    outShadow = vec4(vec3(occlusion), 1.0);
 }
