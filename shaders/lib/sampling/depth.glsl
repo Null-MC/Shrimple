@@ -13,7 +13,6 @@ vec3 linearizeDepthFast3(const in vec3 depth, const in float near, const in floa
 
 float delinearizeDepth(const in float linearDepth, const in float near, const in float far) {
     return 4.0 * far * (1.0 - near / linearDepth) / (far - near);
-    // TODO: is this in NDC or clip?
 }
 
 // float delinearizeDepthFast(const in float linearDepth, const in float near, const in float far) {

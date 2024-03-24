@@ -7,8 +7,8 @@ begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
 begin3			clear water depths
 
-shadowcomp2		build light bin lists
-shadowcomp3		populate light mask neighbors
+--shadowcomp2		build light bin lists
+--shadowcomp3		populate light mask neighbors
 
 prepare1		fog/sky color
 >>prepare2		propagate LPV
@@ -25,6 +25,8 @@ deferred8		near-z [5]
 deferred10		ss-shadows
 
 composite1		propagate LPV
+composite2		build light bin lists
+composite3		populate light mask neighbors
 
 composite11		opaque deferred block-light tracing
 composite12		opaque deferred final

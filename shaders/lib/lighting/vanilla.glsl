@@ -1,14 +1,3 @@
-// #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0
-//     vec3 GetLpvAmbient(const in vec3 lpvPos, const in vec3 normal) {
-//         vec3 lpvLight = SampleLpv(lpvPos, normal).rgb;
-//         //lpvLight = log2(lpvLight + EPSILON) / LpvRangeF;
-//         lpvLight *= 0.1;
-//         lpvLight /= (lpvLight + 2.0);
-//         //lpvLight *= DynamicLightAmbientF;
-//         return lpvLight;
-//     }
-// #endif
-
 void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     vec2 lmFinal = lmcoord;
 
@@ -24,15 +13,6 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in v
 
         diffuse = lightmapBlock * DynamicLightBrightness;
     #endif
-
-    // #if LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0
-    //     vec3 lpvPos = GetLPVPosition(localPos);
-    //     float lpvFade = GetLpvFade(lpvPos);
-    //     lpvFade = _smoothstep(lpvFade);
-
-    //     vec3 lpvLight = GetLpvAmbient(lpvPos, localNormal);
-    //     diffuse += lpvLight * lpvFade;
-    // #endif
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {

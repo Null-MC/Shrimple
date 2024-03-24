@@ -13,24 +13,21 @@ uniform sampler2D depthtex1;
     uniform sampler2D dhDepthTex;
 #endif
 
-// #ifdef RENDER_SHADOWS_ENABLED
-    uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform sampler2D shadowtex0;
+uniform sampler2D shadowtex1;
 
-    uniform sampler2D shadowtex1;
+#ifdef SHADOW_COLORED
+    uniform sampler2D shadowcolor0;
+#endif
 
-    //#ifdef SHADOW_COLORED
-        uniform sampler2D shadowtex0;
-        uniform sampler2D shadowcolor0;
-    //#endif
-
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex1HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
+#ifdef SHADOW_ENABLE_HWCOMP
+    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+        uniform sampler2DShadow shadowtex1HW;
+    #else
+        uniform sampler2DShadow shadow;
     #endif
-// #endif
+#endif
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjection;
