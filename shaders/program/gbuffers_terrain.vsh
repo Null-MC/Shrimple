@@ -79,6 +79,10 @@ uniform float far;
     uniform vec3 eyePosition;
 #endif
 
+#ifdef WORLD_SHADOW_ENABLED
+    uniform vec3 shadowLightPosition;
+#endif
+
 // #ifdef WORLD_SHADOW_ENABLED
 //     uniform mat4 shadowModelView;
 //     uniform mat4 shadowProjection;
