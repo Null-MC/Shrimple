@@ -15,59 +15,59 @@ in VertexData {
 
     flat uint materialId;
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn;
 
 uniform sampler2D noisetex;
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
-    uniform sampler2D shadowcolor0;
-#endif
+// #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
+//     uniform sampler2D shadowcolor0;
+// #endif
 
 #ifdef WORLD_SKY_ENABLED
     // #ifdef WORLD_WETNESS_ENABLED
     //     uniform sampler3D TEX_RIPPLES;
     // #endif
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform sampler2D TEX_CLOUDS_VANILLA;
-        #endif
-    #endif
+    // #ifdef SHADOW_CLOUD_ENABLED
+    //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //         uniform sampler3D TEX_CLOUDS;
+    //     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    //         uniform sampler2D TEX_CLOUDS_VANILLA;
+    //     #endif
+    // #endif
 #endif
 
 uniform sampler2D lightmap;
 
-#if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-    uniform sampler3D texLPV_1;
-    uniform sampler3D texLPV_2;
-#endif
+// #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
+//     uniform sampler3D texLPV_1;
+//     uniform sampler3D texLPV_2;
+// #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
+// #ifdef RENDER_SHADOWS_ENABLED
+//     uniform sampler2D shadowtex0;
+//     uniform sampler2D shadowtex1;
 
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex1HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-#endif
+//     #ifdef SHADOW_ENABLE_HWCOMP
+//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+//             uniform sampler2DShadow shadowtex1HW;
+//         #else
+//             uniform sampler2DShadow shadow;
+//         #endif
+//     #endif
+// #endif
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -75,9 +75,11 @@ uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
-uniform vec3 skyColor;
+
+uniform float dhFarPlane;
 uniform float far;
 
+uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogStart;
@@ -92,10 +94,10 @@ uniform int frameCounter;
     uniform float frameTimeCounter;
 #endif
 
-#ifdef IS_LPV_ENABLED
-    uniform vec3 previousCameraPosition;
-    uniform mat4 gbufferPreviousModelView;
-#endif
+// #ifdef IS_LPV_ENABLED
+//     uniform vec3 previousCameraPosition;
+//     uniform mat4 gbufferPreviousModelView;
+// #endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -112,14 +114,14 @@ uniform int frameCounter;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
-    uniform mat4 shadowModelView;
-    uniform vec3 shadowLightPosition;
+// #ifdef WORLD_SHADOW_ENABLED
+//     uniform mat4 shadowModelView;
+//     uniform vec3 shadowLightPosition;
 
-    #ifdef SHADOW_ENABLED
-        uniform mat4 shadowProjection;
-    #endif
-#endif
+//     #ifdef SHADOW_ENABLED
+//         uniform mat4 shadowProjection;
+//     #endif
+// #endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
@@ -131,30 +133,26 @@ uniform int frameCounter;
 #if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != LIGHTING_MODE_TRACED
     uniform float blindnessSmooth;
 
-    uniform int heldItemId;
-    uniform int heldItemId2;
-    uniform int heldBlockLightValue;
-    uniform int heldBlockLightValue2;
+    // uniform int heldItemId;
+    // uniform int heldItemId2;
+    // uniform int heldBlockLightValue;
+    // uniform int heldBlockLightValue2;
     
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+    // #ifdef IS_IRIS
+    //     uniform bool firstPersonCamera;
+    //     uniform vec3 eyePosition;
+    // #endif
 #endif
 
-#ifdef DISTANT_HORIZONS
-    uniform float dhFarPlane;
-#endif
+// #if AF_SAMPLES > 1
+//     uniform float viewWidth;
+//     uniform float viewHeight;
+//     uniform vec4 spriteBounds;
+// #endif
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
-
-#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-    uniform float alphaTestRef;
-#endif
+// #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+//     uniform float alphaTestRef;
+// #endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -207,17 +205,17 @@ uniform int frameCounter;
 #include "/lib/fog/fog_render.glsl"
 
 #ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/buffers/shadow.glsl"
+    // #include "/lib/buffers/shadow.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
+    // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //     #include "/lib/shadows/cascaded/common.glsl"
+    //     #include "/lib/shadows/cascaded/render.glsl"
+    // #else
+    //     #include "/lib/shadows/distorted/common.glsl"
+    //     #include "/lib/shadows/distorted/render.glsl"
+    // #endif
 
-    #include "/lib/shadows/render.glsl"
+    // #include "/lib/shadows/render.glsl"
 #endif
 
 #ifdef LIGHTING_FLICKER
@@ -400,40 +398,40 @@ void main() {
 
             // shadowFade = 1.0 - shadowFade;
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                float shadowFade = 0.0;
-                float lmShadow = 1.0;
-            #else
-                float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
+            // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            //     float shadowFade = 0.0;
+            //     float lmShadow = 1.0;
+            // #else
+            //     float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
 
-                float lmShadow = pow(lmFinal.y, 9);
-                if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
-            #endif
+            //     float lmShadow = pow(lmFinal.y, 9);
+            //     if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
+            // #endif
 
-            #ifdef SHADOW_COLORED
-                // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-                if (shadowFade < 1.0)
-                    shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+            // #ifdef SHADOW_COLORED
+            //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+            //     if (shadowFade < 1.0)
+            //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
 
-                shadowColor = min(shadowColor, vec3(lmShadow));
-            #else
-                float shadowF = 1.0;
-                // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-                if (shadowFade < 1.0)
-                    shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+            //     shadowColor = min(shadowColor, vec3(lmShadow));
+            // #else
+            //     float shadowF = 1.0;
+            //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+            //     if (shadowFade < 1.0)
+            //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
                 
-                shadowF = min(shadowF, lmShadow);
-                shadowColor = vec3(shadowF);
-            #endif
+            //     shadowF = min(shadowF, lmShadow);
+            //     shadowColor = vec3(shadowF);
+            // #endif
 
-            lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
+            // lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
 
-            if (viewDist < shadowDistance) {
-                #ifndef LIGHT_LEAK_FIX
-                    float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
-                    lmFinal.y = max(lmFinal.y, lightF);
-                #endif
-            }
+            // if (viewDist < shadowDistance) {
+            //     #ifndef LIGHT_LEAK_FIX
+            //         float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
+            //         lmFinal.y = max(lmFinal.y, lightF);
+            //     #endif
+            // }
 
             //shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
 

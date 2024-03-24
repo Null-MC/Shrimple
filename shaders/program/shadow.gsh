@@ -10,14 +10,16 @@ layout(triangle_strip, max_vertices=12) out;
 in VertexData {
     vec4 color;
     vec2 texcoord;
+    float viewDist;
 
     flat int blockId;
     flat vec3 originPos;
 } vIn[];
 
 out VertexData {
-    vec2 texcoord;
     vec4 color;
+    vec2 texcoord;
+    float viewDist;
 
     flat uint blockId;
 
@@ -312,8 +314,9 @@ void main() {
                 for (int v = 0; v < 3; v++) {
                     vOut.shadowTilePos = shadowTilePos;
 
-                    vOut.texcoord = vIn[v].texcoord;
                     vOut.color = vIn[v].color;
+                    vOut.texcoord = vIn[v].texcoord;
+                    vOut.viewDist = vIn[v].viewDist;
                     vOut.blockId = vIn[v].blockId;
 
                     gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
@@ -330,8 +333,9 @@ void main() {
             }
         #else
             for (int v = 0; v < 3; v++) {
-                vOut.texcoord = vIn[v].texcoord;
                 vOut.color = vIn[v].color;
+                vOut.texcoord = vIn[v].texcoord;
+                vOut.viewDist = vIn[v].viewDist;
                 vOut.blockId = vIn[v].blockId;
 
                 #ifdef IRIS_FEATURE_SSBO

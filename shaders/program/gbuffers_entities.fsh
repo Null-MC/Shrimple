@@ -28,7 +28,7 @@ in VertexData {
         vec3 cloudPos;
     #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -226,7 +226,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/sampling/atlas.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -467,7 +467,7 @@ void main() {
         occlusion = 0.0;
     }
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif

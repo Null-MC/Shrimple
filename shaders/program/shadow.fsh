@@ -5,8 +5,9 @@
 #include "/lib/common.glsl"
 
 in VertexData {
-    vec2 texcoord;
     vec4 color;
+    vec2 texcoord;
+    float viewDist;
 
     flat uint blockId;
 
@@ -17,13 +18,19 @@ in VertexData {
 
 uniform sampler2D gtexture;
 
+uniform int frameCounter;
 uniform int renderStage;
+uniform float far;
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
 
 #include "/lib/blocks.glsl"
+
+#ifdef DISTANT_HORIZONS
+    #include "/lib/sampling/ign.glsl"
+#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -37,10 +44,25 @@ void main() {
 
     vec4 color = texture(gtexture, vIn.texcoord);
 
-    float alphaF = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+    float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
         ? (1.5/255.0) : alphaTestRef;
 
-    if (color.a < alphaF) {
+    #ifdef DISTANT_HORIZONS
+        #ifdef EFFECT_TAA_ENABLED
+            float ditherOut = InterleavedGradientNoiseTime();
+        #else
+            float ditherOut = GetScreenBayerValue();
+        #endif
+
+        float transitionF = smoothstep(0.5 * far, far, vIn.viewDist);
+        transitionF = pow2(1.0 - transitionF);
+
+        color.a /= alphaThreshold;
+        color.a *= mix(ditherOut, 1.0, transitionF) * transitionF;
+        color.a *= alphaThreshold;
+    #endif
+
+    if (color.a < alphaThreshold) {
         discard;
         return;
     }

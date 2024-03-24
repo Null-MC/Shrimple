@@ -36,18 +36,18 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn[];
 
 out VertexData {
@@ -78,18 +78,18 @@ out VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vOut;
 
 #if DISPLACE_MODE == DISPLACE_TESSELATION
@@ -136,7 +136,7 @@ void main() {
         vOut.localPos += GetSampleOffset();
 
         // gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
-        gl_Position = mat3(gbufferModelView) * vOut.localPos + gbufferModelView[3].xyz;
+        gl_Position = mul3(gbufferModelView, vOut.localPos);
 
         // TODO: update shadow pos
     #endif
@@ -149,22 +149,22 @@ void main() {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vOut.cloudPos = _interpolate(vIn[0].cloudPos, vIn[1].cloudPos, vIn[2].cloudPos);
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vOut.cloudPos = _interpolate(vIn[0].cloudPos, vIn[1].cloudPos, vIn[2].cloudPos);
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vOut.shadowPos[0] = _interpolate(vIn[0].shadowPos[0], vIn[1].shadowPos[0], vIn[2].shadowPos[0]);
-            vOut.shadowPos[1] = _interpolate(vIn[0].shadowPos[1], vIn[1].shadowPos[1], vIn[2].shadowPos[1]);
-            vOut.shadowPos[2] = _interpolate(vIn[0].shadowPos[2], vIn[1].shadowPos[2], vIn[2].shadowPos[2]);
-            vOut.shadowPos[3] = _interpolate(vIn[0].shadowPos[3], vIn[1].shadowPos[3], vIn[2].shadowPos[3]);
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vOut.shadowPos[0] = _interpolate(vIn[0].shadowPos[0], vIn[1].shadowPos[0], vIn[2].shadowPos[0]);
+    //         vOut.shadowPos[1] = _interpolate(vIn[0].shadowPos[1], vIn[1].shadowPos[1], vIn[2].shadowPos[1]);
+    //         vOut.shadowPos[2] = _interpolate(vIn[0].shadowPos[2], vIn[1].shadowPos[2], vIn[2].shadowPos[2]);
+    //         vOut.shadowPos[3] = _interpolate(vIn[0].shadowPos[3], vIn[1].shadowPos[3], vIn[2].shadowPos[3]);
 
-            vOut.shadowTile = vIn[0].shadowTile;
-        #else
-            vOut.shadowPos = _interpolate(vIn[0].shadowPos, vIn[1].shadowPos, vIn[2].shadowPos);
-        #endif
-    #endif
+    //         vOut.shadowTile = vIn[0].shadowTile;
+    //     #else
+    //         vOut.shadowPos = _interpolate(vIn[0].shadowPos, vIn[1].shadowPos, vIn[2].shadowPos);
+    //     #endif
+    // #endif
 
     #if DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = gl_ProjectionMatrix * gl_Position;

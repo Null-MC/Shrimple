@@ -69,8 +69,10 @@ uniform mat4 gbufferModelViewInverse;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/apply.glsl"
     #else
         #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/apply.glsl"
     #endif
 #endif
 

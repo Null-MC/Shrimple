@@ -3,12 +3,12 @@ float GetShadowRange() {
 }
 
 float GetShadowNormalBias(const in float geoNoL) {
-    return 0.06 * max(1.0 - geoNoL, 0.0) * ShadowBiasScale;
+    return 0.08 * max(1.0 - geoNoL, 0.0) * ShadowBiasScale;
 }
 
 float GetShadowOffsetBias() {
     float shadowDepthRange = GetShadowRange();
-    return 0.02 / shadowDepthRange * ShadowBiasScale;
+    return 0.08 / shadowDepthRange * ShadowBiasScale;
 }
 
 vec3 distort(const in vec3 pos) {
@@ -38,16 +38,16 @@ vec3 distort(const in vec3 pos) {
 //     return SHADOW_DISTORTED_BIAS / shadowMapResolution * _pow2(numerator) / ShadowDistortF;
 // }
 
-#if (defined RENDER_VERTEX || defined RENDER_TESS_EVAL) && !defined RENDER_SHADOW
-    vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
-        float bias = GetShadowNormalBias(geoNoL);
-        vec3 offsetLocalPos = localNormal * bias + localPos;
+// #if (defined RENDER_VERTEX || defined RENDER_TESS_EVAL) && !defined RENDER_SHADOW
+//     vec3 ApplyShadows(const in vec3 localPos, const in vec3 localNormal, const in float geoNoL) {
+//         float bias = GetShadowNormalBias(geoNoL);
+//         vec3 offsetLocalPos = localNormal * bias + localPos;
 
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 shadowViewPos = mul3(shadowModelView, offsetLocalPos);
-            return mul3(shadowProjection, shadowViewPos);
-        #else
-            return mul3(shadowModelViewProjection, offsetLocalPos);
-        #endif
-    }
-#endif
+//         #ifndef IRIS_FEATURE_SSBO
+//             vec3 shadowViewPos = mul3(shadowModelView, offsetLocalPos);
+//             return mul3(shadowProjection, shadowViewPos);
+//         #else
+//             return mul3(shadowModelViewProjection, offsetLocalPos);
+//         #endif
+//     }
+// #endif

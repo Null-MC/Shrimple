@@ -38,18 +38,18 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn[];
 
 out VertexData {
@@ -80,18 +80,18 @@ out VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vOut[];
 
 #include "/lib/utility/tessellation.glsl"
@@ -126,22 +126,22 @@ void main() {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vOut[gl_InvocationID].shadowPos[0] = vIn[gl_InvocationID].shadowPos[0];
-            vOut[gl_InvocationID].shadowPos[1] = vIn[gl_InvocationID].shadowPos[1];
-            vOut[gl_InvocationID].shadowPos[2] = vIn[gl_InvocationID].shadowPos[2];
-            vOut[gl_InvocationID].shadowPos[3] = vIn[gl_InvocationID].shadowPos[3];
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vOut[gl_InvocationID].shadowPos[0] = vIn[gl_InvocationID].shadowPos[0];
+    //         vOut[gl_InvocationID].shadowPos[1] = vIn[gl_InvocationID].shadowPos[1];
+    //         vOut[gl_InvocationID].shadowPos[2] = vIn[gl_InvocationID].shadowPos[2];
+    //         vOut[gl_InvocationID].shadowPos[3] = vIn[gl_InvocationID].shadowPos[3];
 
-            vOut[gl_InvocationID].shadowTile = vIn[gl_InvocationID].shadowTile;
-        #else
-            vOut[gl_InvocationID].shadowPos = vIn[gl_InvocationID].shadowPos;
-        #endif
-    #endif
+    //         vOut[gl_InvocationID].shadowTile = vIn[gl_InvocationID].shadowTile;
+    //     #else
+    //         vOut[gl_InvocationID].shadowPos = vIn[gl_InvocationID].shadowPos;
+    //     #endif
+    // #endif
 
     if (gl_InvocationID == 0) {
         #if DISPLACE_MODE == DISPLACE_TESSELATION

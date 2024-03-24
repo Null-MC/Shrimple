@@ -13,18 +13,18 @@ out VertexData {
 
     flat uint materialId;
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vOut;
 
 uniform sampler2D lightmap;
@@ -92,6 +92,7 @@ uniform vec3 cameraPosition;
         #include "/lib/shadows/cascaded/common.glsl"
     #else
         #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/apply.glsl"
     #endif
 #endif
 
@@ -134,24 +135,24 @@ void main() {
     vOut.localNormal = normalize(gl_Normal);
 
     #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vOut.shadowTile = -1;
-        #endif
+        // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //     vOut.shadowTile = -1;
+        // #endif
 
-        #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && !defined RENDER_BILLBOARD
-            float geoNoL = dot(localSkyLightDirection, vOut.localNormal);
-        #else
-            const float geoNoL = 1.0;
-        #endif
+        // #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && !defined RENDER_BILLBOARD
+        //     float geoNoL = dot(localSkyLightDirection, vOut.localNormal);
+        // #else
+        //     const float geoNoL = 1.0;
+        // #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
-        #else
-            vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
-        #endif
+        // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //     ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+        // #else
+        //     vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
+        // #endif
 
-        #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
-            vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
-        #endif
+        // #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
+        //     vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
+        // #endif
     #endif
 }

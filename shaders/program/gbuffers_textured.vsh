@@ -77,6 +77,7 @@ uniform vec3 cameraPosition;
         #include "/lib/shadows/cascaded/common.glsl"
     #else
         #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/apply.glsl"
     #endif
 #endif
 

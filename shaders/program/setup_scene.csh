@@ -27,7 +27,7 @@ void main() {
 
         matColorPost = matSaturation * (matContrast * matBrightness);
         
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+        #if defined WORLD_SHADOW_ENABLED && (defined SHADOW_ENABLED || defined SHADOW_CLOUD_ENABLED)
             const float goldenAngle = PI * (3.0 - sqrt(5.0));
             const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 

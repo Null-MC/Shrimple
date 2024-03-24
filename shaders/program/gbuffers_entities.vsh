@@ -31,7 +31,7 @@ out VertexData {
         vec3 cloudPos;
     #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -137,8 +137,10 @@ uniform vec4 entityColor;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/apply.glsl"
     #else
         #include "/lib/shadows/distorted/common.glsl"
+        #include "/lib/shadows/distorted/apply.glsl"
     #endif
 //#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
 #elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED

@@ -11,6 +11,7 @@ in vec3 at_midBlock;
 out VertexData {
     vec4 color;
     vec2 texcoord;
+    float viewDist;
 
     flat int blockId;
     flat vec3 originPos;
@@ -124,6 +125,7 @@ void main() {
 
     vec3 viewPos = mul3(gl_ModelViewMatrix, pos.xyz);
     vec3 localPos = mul3(shadowModelViewInverse, viewPos);
+    vOut.viewDist = length(localPos);
 
     #if WORLD_WIND_STRENGTH > 0
         ApplyWavingOffset(localPos, localPos, blockId);
@@ -131,8 +133,8 @@ void main() {
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && (WATER_WAVE_SIZE > 0 || defined PHYSICS_OCEAN)
         if ((renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD)) {
-            float viewDist = length(localPos);
-            float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);
+            //float viewDist = length(localPos);
+            float distF = 1.0 - smoothstep(0.2, 2.8, vOut.viewDist);
             distF = 1.0 - _pow2(distF);
 
             if (vOut.blockId == BLOCK_WATER) {

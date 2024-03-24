@@ -37,7 +37,11 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return texture(shadowtex1HW, shadowPos + vec3(offset, -bias)).r;
         #endif
     #else
-        float texDepth = texture(shadowtex0, shadowPos.xy + offset).r;
+        #ifdef RENDER_TRANSLUCENT
+            float texDepth = texture(shadowtex0, shadowPos.xy + offset).r;
+        #else
+            float texDepth = texture(shadowtex1, shadowPos.xy + offset).r;
+        #endif
         return step(shadowPos.z - bias, texDepth);
     #endif
 }

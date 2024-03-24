@@ -19,7 +19,7 @@
             vec2 cascadeViewMax[4];         // 32
         #endif
 
-        #if SHADOW_FILTER > 0
+        #if defined WORLD_SHADOW_ENABLED && (SHADOW_FILTER > 0 || defined SHADOW_CLOUD_ENABLED)
             vec2 pcfDiskOffset[max(SHADOW_PCF_SAMPLES, SHADOW_PCSS_SAMPLES)];     // 256
             vec2 pcssDiskOffset[max(SHADOW_PCF_SAMPLES, SHADOW_PCSS_SAMPLES)];    // 256
         #endif

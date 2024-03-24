@@ -33,18 +33,18 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn;
 
 #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_DEPTH_WRITE
@@ -63,22 +63,22 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
-    uniform sampler2D shadowcolor0;
-#endif
+// #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
+//     uniform sampler2D shadowcolor0;
+// #endif
 
 #ifdef WORLD_SKY_ENABLED
     #ifdef WORLD_WETNESS_ENABLED
         uniform sampler3D TEX_RIPPLES;
     #endif
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform sampler2D TEX_CLOUDS_VANILLA;
-        #endif
-    #endif
+    // #ifdef SHADOW_CLOUD_ENABLED
+    //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //         uniform sampler3D TEX_CLOUDS;
+    //     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    //         uniform sampler2D TEX_CLOUDS_VANILLA;
+    //     #endif
+    // #endif
 #endif
 
 // #if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != LIGHTING_MODE_TRACED
@@ -90,18 +90,18 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
+// #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+//     uniform sampler2D shadowtex0;
+//     uniform sampler2D shadowtex1;
 
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex1HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-#endif
+//     #ifdef SHADOW_ENABLE_HWCOMP
+//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+//             uniform sampler2DShadow shadowtex1HW;
+//         #else
+//             uniform sampler2DShadow shadow;
+//         #endif
+//     #endif
+// #endif
 
 uniform ivec2 atlasSize;
 uniform int renderStage;
@@ -146,14 +146,14 @@ uniform int frameCounter;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
-    uniform mat4 shadowModelView;
-    uniform vec3 shadowLightPosition;
+// #ifdef WORLD_SHADOW_ENABLED
+//     uniform mat4 shadowModelView;
+//     uniform vec3 shadowLightPosition;
 
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
-#endif
+//     #if SHADOW_TYPE != SHADOW_TYPE_NONE
+//         uniform mat4 shadowProjection;
+//     #endif
+// #endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
@@ -176,11 +176,11 @@ uniform int frameCounter;
     #endif
 #endif
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
+// #if AF_SAMPLES > 1
+//     uniform float viewWidth;
+//     uniform float viewHeight;
+//     uniform vec4 spriteBounds;
+// #endif
 
 #ifdef DISTANT_HORIZONS
     uniform float dhFarPlane;
@@ -222,9 +222,9 @@ uniform int frameCounter;
 // #include "/lib/world/foliage.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
+// #if AF_SAMPLES > 1
+//     #include "/lib/sampling/anisotropic.glsl"
+// #endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -249,17 +249,17 @@ uniform int frameCounter;
 #include "/lib/fog/fog_render.glsl"
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #include "/lib/buffers/shadow.glsl"
+    // #include "/lib/buffers/shadow.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
+    // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //     #include "/lib/shadows/cascaded/common.glsl"
+    //     #include "/lib/shadows/cascaded/render.glsl"
+    // #else
+    //     #include "/lib/shadows/distorted/common.glsl"
+    //     #include "/lib/shadows/distorted/render.glsl"
+    // #endif
 
-    #include "/lib/shadows/render.glsl"
+    // #include "/lib/shadows/render.glsl"
 #endif
 
 #include "/lib/material/normalmap.glsl"
@@ -448,14 +448,29 @@ void main() {
         float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
         float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
 
-        float lodMinF = smoothstep(0.6 * far, 0.9 * far, viewDist);
-        float lodFinal = max(lodGrad, 4.0 * lodMinF);
+        float transitionF = smoothstep(0.6 * far, 0.9 * far, viewDist);
+        float lodFinal = max(lodGrad, 4.0 * transitionF);
 
         vec4 color;
         color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
         color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
     #else
         vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+    #endif
+
+    #ifdef DISTANT_HORIZONS
+        #ifdef EFFECT_TAA_ENABLED
+            float ditherOut = InterleavedGradientNoiseTime();
+        #else
+            float ditherOut = GetScreenBayerValue();
+        #endif
+
+        transitionF = smoothstep(0.5 * far, far, viewDist);
+        transitionF = pow2(1.0 - transitionF);
+
+        color.a /= alphaTestRef;
+        color.a *= mix(ditherOut, 1.0, transitionF) * transitionF;
+        color.a *= alphaTestRef;
     #endif
 
     if (color.a < alphaTestRef) {
@@ -484,16 +499,16 @@ void main() {
     
     vec3 shadowColor = vec3(1.0);
     #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-        #endif
+        // #ifndef IRIS_FEATURE_SSBO
+        //     vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+        // #endif
 
-        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+        // float skyGeoNoL = dot(localNormal, localSkyLightDirection);
 
-        if (skyGeoNoL < EPSILON && sss < EPSILON) {
-            shadowColor = vec3(0.0);
-        }
-        else {
+        // if (skyGeoNoL < EPSILON && sss < EPSILON) {
+        //     shadowColor = vec3(0.0);
+        // }
+        // else {
             // #ifdef DISTANT_HORIZONS
             //     float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
             // #else
@@ -513,45 +528,45 @@ void main() {
             // shadowFade = 1.0 - shadowFade;
 
 
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                float shadowFade = 0.0;
-                float lmShadow = 1.0;
-            #else
-                float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
+            // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            //     float shadowFade = 0.0;
+            //     float lmShadow = 1.0;
+            // #else
+            //     float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
 
-                float lmShadow = pow(lmFinal.y, 9);
-                if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
-            #endif
+            //     float lmShadow = pow(lmFinal.y, 9);
+            //     if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
+            // #endif
 
-            #ifdef SHADOW_COLORED
-                // shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-                //if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-                if (shadowFade < 1.0)
-                    shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+            // #ifdef SHADOW_COLORED
+            //     // shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+            //     //if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+            //     if (shadowFade < 1.0)
+            //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
 
-                //shadowColor = mix(shadowColor, vec3(lmShadow), shadowFade);
-                shadowColor = min(shadowColor, vec3(lmShadow));
-            #else
-                float shadowF = 1.0;
-                // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-                if (shadowFade < 1.0)
-                    shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+            //     //shadowColor = mix(shadowColor, vec3(lmShadow), shadowFade);
+            //     shadowColor = min(shadowColor, vec3(lmShadow));
+            // #else
+            //     float shadowF = 1.0;
+            //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+            //     if (shadowFade < 1.0)
+            //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
             
-                // float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                //shadowF = mix(shadowF, lmShadow, shadowFade);
-                shadowF = min(shadowF, lmShadow);
-                shadowColor = vec3(shadowF);
-            #endif
+            //     // float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+            //     //shadowF = mix(shadowF, lmShadow, shadowFade);
+            //     shadowF = min(shadowF, lmShadow);
+            //     shadowColor = vec3(shadowF);
+            // #endif
 
-            lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
+            // lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
 
-            if (viewDist < shadowDistance) {
-                #ifndef LIGHT_LEAK_FIX
-                    float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
-                    lmFinal.y = max(lmFinal.y, lightF);
-                #endif
-            }
-        }
+            // if (viewDist < shadowDistance) {
+            //     #ifndef LIGHT_LEAK_FIX
+            //         float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
+            //         lmFinal.y = max(lmFinal.y, lightF);
+            //     #endif
+            // }
+        // }
     #else
         // shadowColor = vec3(pow(lmFinal.y, 9));
     #endif
