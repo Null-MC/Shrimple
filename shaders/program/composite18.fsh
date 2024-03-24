@@ -291,6 +291,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/lighting/sky_lighting.glsl"
+    #include "/lib/sky/sky_trace.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -760,24 +761,37 @@ layout(location = 0) out vec4 outFinal;
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
 
-                        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                            float fogFarDist = SkyFar - far;
-
-                            if (fogFarDist > 0.0) {
-                                float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
-                                vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-
-                                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                                    float VoL = dot(localSkyLightDirection, localViewDir);
-                                    float phaseSky = GetSkyPhase(VoL);
+                        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                            #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+                                #ifdef DISTANT_HORIZONS
+                                    float skyTraceFar = max(SkyFar, dhFarPlane);
                                 #else
-                                    const float phaseSky = phaseIso;
+                                    float skyTraceFar = SkyFar;
                                 #endif
 
-                                float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
-                                vec3 vlLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
-                                ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
-                            }
+                                vec3 skyScatter = vec3(0.0);
+                                vec3 skyTransmit = vec3(1.0);
+                                _TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 16);
+                                fogColorFinal = fogColorFinal * skyTransmit + skyScatter;
+                            #else
+                                float fogFarDist = SkyFar - far;
+
+                                if (fogFarDist > 0.0) {
+                                    float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+                                    vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+
+                                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+                                        float VoL = dot(localSkyLightDirection, localViewDir);
+                                        float phaseSky = GetSkyPhase(VoL);
+                                    #else
+                                        const float phaseSky = phaseIso;
+                                    #endif
+
+                                    float airDensity = GetSkyDensity(cameraPosition.y + localPos.y);
+                                    vec3 vlLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
+                                    ApplyScatteringTransmission(fogColorFinal, fogFarDist, vlLight, airDensity, AirScatterColor, AirExtinctColor, 8);
+                                }
+                            #endif
                         #endif
                     #elif SKY_TYPE == SKY_TYPE_VANILLA
                         vec4 deferredFog = unpackUnorm4x8(deferredData.b);

@@ -1155,9 +1155,6 @@
             uvec3 pos_packed = float2half(floatBitsToUint(position)) << pos_offsets;
             lightData.x  = pos_packed.x | pos_packed.y;
             lightData.y  = pos_packed.z;
-            // lightData.x  = float2half(floatBitsToUint(position.x));
-            // lightData.x |= float2half(floatBitsToUint(position.y)) << 16u;
-            // lightData.y  = float2half(floatBitsToUint(position.z));
 
             // size
             uint bitSize = uint(clamp(size * 255.0, 0.0, 255.0) + 0.5);
