@@ -6,28 +6,24 @@ float GetShadowNormalBias(const in float geoNoL) {
     return 0.08 * max(1.0 - geoNoL, 0.0) * ShadowBiasScale;
 }
 
-float GetShadowOffsetBias() {
-    float shadowDepthRange = GetShadowRange();
-    return 0.08 / shadowDepthRange * ShadowBiasScale;
+float GetShadowOffsetBias(const in vec3 pos) {
+    // float shadowDepthRange = GetShadowRange();
+    // return 0.08 / shadowDepthRange * ShadowBiasScale;
+
+    #if SHADOW_DISTORT_FACTOR > 0
+        float numerator = length(pos.xy) + ShadowDistortF;
+        return ShadowBiasScale * rcp(shadowMapResolution) * _pow2(numerator) / ShadowDistortF;
+    #else
+        return ShadowBiasScale * rcp(shadowMapResolution);
+    #endif
 }
 
 vec3 distort(const in vec3 pos) {
-    #if SHADOW_DISTORT_FACTOR == 0
-        return pos;
-    #else
+    #if SHADOW_DISTORT_FACTOR > 0
         float factor = length(pos.xy) + ShadowDistortF;
-        //float factor = maxOf(abs(pos.xy)) + ShadowDistortF;
-
         return vec3((pos.xy / factor) * (1.0 + ShadowDistortF), pos.z);
-
-        // const float CURVE_FACTOR = 1.0;
-
-        // vec2 absUV = abs(pos.xy);
-        // float maxCoord = minOf(absUV) / maxOf(absUV);
-        // float maxLen = sqrt(1.0 + _pow2(maxCoord));
-        // float fac1 = length(pos.xy) + ShadowDistortF;
-        // float fac = mix(1.0, fac1, pow(1.0 - length(pos.xy) / maxLen, CURVE_FACTOR));
-        // return vec3(pos.xy / fac, pos.z);
+    #else
+        return pos;
     #endif
 }
 

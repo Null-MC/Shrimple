@@ -603,6 +603,7 @@ const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 
 const float WorldWaterOpacityF = 0.02;
+const float ShadowScreenSlope = 0.85;
 
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

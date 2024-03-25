@@ -249,7 +249,7 @@ void main() {
                     #endif
 
                     traceDist = length(traceViewPos - viewPos);
-                    shadowTrace *= step(traceDist, sampleDiff);
+                    shadowTrace *= step(traceDist, sampleDiff * ShadowScreenSlope);
                 }
             }
 
