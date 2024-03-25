@@ -279,7 +279,7 @@ uniform int frameCounter;
         #include "/lib/lighting/vanilla.glsl"
     #endif
 
-    #include "/lib/lighting/basic_hand.glsl"
+    // #include "/lib/lighting/basic_hand.glsl"
 #endif
 
 
@@ -525,9 +525,9 @@ void main() {
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);
             #endif
 
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
+            // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            //     SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+            // #endif
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
         #endif

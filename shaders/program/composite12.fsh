@@ -669,9 +669,6 @@ layout(location = 0) out vec4 outFinal;
 #else
     // Pass-through for world-specific flags not working in shader.properties
     
-    uniform sampler2D colortex0;
-
-
     void main() {
         outFinal = texture(colortex0, texcoord);
     }

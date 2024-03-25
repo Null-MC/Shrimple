@@ -29,7 +29,11 @@ uniform float far;
 #include "/lib/blocks.glsl"
 
 #ifdef DISTANT_HORIZONS
-    #include "/lib/sampling/ign.glsl"
+    #ifdef EFFECT_TAA_ENABLED
+        #include "/lib/sampling/ign.glsl"
+    #else
+        #include "/lib/sampling/bayer.glsl"
+    #endif
 #endif
 
 

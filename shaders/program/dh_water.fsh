@@ -359,17 +359,10 @@ void main() {
     float viewDist = length(vIn.localPos);
     bool isWater = (vIn.materialId == DH_BLOCK_WATER);
 
-    // mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec3 worldPos = vIn.localPos + cameraPosition;
-    //vec3 texNormal = vec3(0.0, 0.0, 1.0);
-    // vec2 atlasCoord = vIn.texcoord;
-    // vec2 localCoord = vIn.localCoord;
-    // bool skipParallax = false;
-    // vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = vIn.lmcoord;
 
     vec3 localNormal = normalize(vIn.localNormal);
-    //vec3 localNormal = normalize(cross(dFdx(vIn.localPos), dFdy(vIn.localPos)));
     if (!gl_FrontFacing) localNormal = -localNormal;
     vec3 texNormal = localNormal;
 
@@ -380,14 +373,11 @@ void main() {
             #ifdef PHYSICS_OCEAN
                 float waviness = max(vIn.physics_localWaviness, 0.02);
                 WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
-                // waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
             #elif WATER_WAVE_SIZE > 0
                 float waveDistF = 32.0 / (32.0 + viewDist);
 
-                // vec2 waterUvOffset;
-                // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset).xzy;
                 float time = GetAnimationFactor();
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.localPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
                 vec3 wavePos = vIn.localPos;// + waveOffset;// * waveDistF;
@@ -405,10 +395,6 @@ void main() {
     float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     if (depthL < depthDhL && depth < 1.0) {discard; return;}
 
-    // if (isWater && !gl_FrontFacing)
-    //     texNormal = -texNormal;
-
-    //float viewDistXZ = length(vIn.localPos.xz);
     if (viewDist < dh_clipDistF * far) {
         discard;
         return;
@@ -423,29 +409,6 @@ void main() {
     #endif
 
     float porosity = 0.0;
-    // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    //     float surface_roughness, surface_metal_f0;
-    //     // GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
-    //     surface_roughness = 0.95;
-    //     surface_metal_f0 = 0.04;
-
-    //     // porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
-    //     porosity = 0.75;
-    //     float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
-    //     float puddleF = GetWetnessPuddleF(skyWetness, porosity);
-
-    //     #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
-    //         vec4 rippleNormalStrength = vec4(0.0);
-    //         if (isWater) puddleF = 1.0;
-
-    //         // TODO: this also needs to check vertex offset!
-    //         if ((localNormal.y >= 1.0 - EPSILON) || (localNormal.y <= -1.0 + EPSILON)) {
-    //             rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
-    //             // localCoord += rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-    //             // atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-    //         }
-    //     #endif
-    // #endif
 
     vec4 color = vIn.color;
 
@@ -453,10 +416,11 @@ void main() {
         if (isWater) {
             #ifndef WATER_TEXTURED
                 // color.rgb = vIn.color.rgb;
-                color.a = 1.0;
+                // color.a = 1.0;
+                color.a = WorldWaterOpacityF;
             #endif
 
-            color.a *= WorldWaterOpacityF;
+            //color.a *= WorldWaterOpacityF;
             color.a = max(color.a, 0.02);
 
             color = mix(color, vec4(1.0), oceanFoam);
@@ -522,23 +486,6 @@ void main() {
         }
     #endif
 
-    // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    //     #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-    //         // if (!isWater)
-    //         //     ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
-
-    //         #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-    //             if (skyRainStrength > EPSILON)
-    //                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
-    //         #endif
-    //     #endif
-    // #endif
-
-    // #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-    //     if (!isWater)
-    //         ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
-    // #endif
-
     float roughL = _pow2(roughness);
 
     #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
@@ -573,7 +520,9 @@ void main() {
         outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
-        vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);
+        vec3 diffuseFinal = vec3(0.0);
+        vec3 specularFinal = vec3(0.0);
+
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             // GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
 
@@ -611,51 +560,6 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
         #endif
-
-        // #if LIGHTING_MODE > LIGHTING_MODE_BASIC
-        //     vec3 blockDiffuse = vec3(0.0);
-        //     vec3 blockSpecular = vec3(0.0);
-
-        //     diffuseFinal += emission * MaterialEmissionF;
-            
-        //     GetFinalBlockLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, sss);
-
-        //     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        //         SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        //     #endif
-
-        //     #ifdef WORLD_SKY_ENABLED
-        //         GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, false);
-        //     #endif
-
-        //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-        //         #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-        //             if (IsMetal(metal_f0))
-        //                 diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-        //         #else
-        //             diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-        //         #endif
-
-        //         specularFinal *= GetMetalTint(albedo, metal_f0);
-        //     #endif
-
-        //     color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        //     color.a = min(color.a + luminance(specularFinal), 1.0);
-        // #else
-        //     GetVanillaLighting(diffuseFinal, lmFinal);
-
-        //     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-        //         const bool tir = false; // TODO: ?
-        //         GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
-        //     #endif
-
-        //     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        //         SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        //     #endif
-
-        //     color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-        //     color.a = min(color.a + luminance(specularFinal), 1.0);
-        // #endif
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {
