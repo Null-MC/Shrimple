@@ -490,6 +490,7 @@ void main() {
 
     #if MATERIAL_EMISSION == EMISSION_NONE
         if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+        if (vIn.blockId == BLOCK_GLOW_LICHEN) emission = 0.0;
     #endif
 
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED

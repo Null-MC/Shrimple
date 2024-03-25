@@ -9,7 +9,7 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_FINAL_PREV;
-uniform sampler2D BUFFER_DEPTH_PREV;
+// uniform sampler2D BUFFER_DEPTH_PREV;
 uniform sampler2D BUFFER_VELOCITY;
 // uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
