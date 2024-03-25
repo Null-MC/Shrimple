@@ -256,7 +256,8 @@ void main() {
             vOut.localPos += GetSampleOffset();
 
             // gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
-            gl_Position = mat3(gbufferModelView) * vOut.localPos + gbufferModelView[3].xyz;
+            gl_Position.xyz = mul3(gbufferModelView, vOut.localPos);
+            gl_Position.w = 1.0;
 
             // TODO: update shadow pos
         #endif
