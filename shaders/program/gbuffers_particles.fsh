@@ -25,7 +25,7 @@ in VertexData {
     //     vec3 cloudPos;
     // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -68,7 +68,7 @@ uniform sampler2D lightmap;
     uniform sampler3D TEX_CLOUDS;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -140,10 +140,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 eyePosition;
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    uniform mat4 shadowProjection;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -160,10 +158,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float dhFarPlane;
 #endif
 
-#if AF_SAMPLES > 1
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
+// #if AF_SAMPLES > 1
+//     uniform float viewHeight;
+//     uniform vec4 spriteBounds;
+// #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
@@ -222,9 +220,9 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
+// #if AF_SAMPLES > 1
+//     #include "/lib/sampling/anisotropic.glsl"
+// #endif
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
@@ -246,7 +244,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/fog/fog_render.glsl"
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -447,7 +445,7 @@ void main() {
     #endif
 
     vec3 shadowColor = vec3(1.0);
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
