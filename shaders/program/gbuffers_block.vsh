@@ -51,10 +51,13 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform ivec2 atlasSize;
 
+#ifdef WORLD_SKY_ENABLED
+    uniform vec3 shadowLightPosition;
+#endif
+
 #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
-    uniform vec3 shadowLightPosition;
     uniform float far;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
