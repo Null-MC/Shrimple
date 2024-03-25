@@ -219,7 +219,8 @@ void main() {
                 vOut.localPos.y += distF * waveOffset.y;
             #endif
 
-            gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
+            gl_Position.xyz = mul3(gbufferModelView, vOut.localPos);
+            gl_Position.w = 1.0;
 
             // TODO: is this really worth it?
             // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

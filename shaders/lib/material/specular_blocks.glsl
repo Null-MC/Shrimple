@@ -64,6 +64,12 @@ float GetBlockRoughness(const in uint blockId) {
 
     // 1000
     switch (blockId) {
+        case BLOCK_BUDDING_AMETHYST:
+            smoothness = 0.8;
+            break;
+        case BLOCK_CALCITE:
+            smoothness = 0.4;
+            break;
         case BLOCK_COAL:
             smoothness = 0.60;
             break;
@@ -112,6 +118,11 @@ float GetBlockRoughness(const in uint blockId) {
             break;
         case BLOCK_QUARTZ:
             smoothness = 0.50;
+            break;
+        case BLOCK_RAW_COPPER:
+        case BLOCK_RAW_GOLD:
+        case BLOCK_RAW_IRON:
+            smoothness = 0.5;
             break;
         case BLOCK_WOOL:
             smoothness = 0.0;
@@ -162,12 +173,15 @@ float GetBlockMetalF0(const in uint blockId) {
         case BLOCK_COPPER:
         case BLOCK_COPPER_EXPOSED:
         case BLOCK_COPPER_WEATHERED:
+        case BLOCK_RAW_COPPER:
             metal_f0 = (234.5/255.0);
             break;
         case BLOCK_GOLD:
+        case BLOCK_RAW_GOLD:
             metal_f0 = (231.5/255.0);
             break;
         case BLOCK_IRON:
+        case BLOCK_RAW_IRON:
             metal_f0 = (230.5/255.0);
             break;
     }
