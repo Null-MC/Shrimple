@@ -11,45 +11,45 @@ out VertexData {
     vec2 texcoord;
     vec3 localPos;
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vOut;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
-#ifdef WORLD_SHADOW_ENABLED
-    uniform mat4 shadowModelView;
-    uniform mat4 shadowProjection;
-    uniform vec3 shadowLightPosition;
-    uniform vec3 cameraPosition;
-    uniform float far;
+// #ifdef WORLD_SHADOW_ENABLED
+//     uniform mat4 shadowModelView;
+//     uniform mat4 shadowProjection;
+//     uniform vec3 shadowLightPosition;
+//     uniform vec3 cameraPosition;
+//     uniform float far;
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        uniform mat4 gbufferProjection;
-        uniform float near;
-    #endif
+//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+//         uniform mat4 gbufferProjection;
+//         uniform float near;
+//     #endif
 
-    #if defined SHADOW_ENABLED && defined IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight;
-        uniform vec3 eyePosition;
-    #endif
+//     #if defined SHADOW_ENABLED && defined IS_IRIS
+//         uniform float cloudTime;
+//         uniform float cloudHeight;
+//         uniform vec3 eyePosition;
+//     #endif
 
-    #ifdef DISTANT_HORIZONS
-        uniform float dhFarPlane;
-    #endif
-#endif
+//     #ifdef DISTANT_HORIZONS
+//         uniform float dhFarPlane;
+//     #endif
+// #endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -57,24 +57,24 @@ uniform mat4 gbufferModelViewInverse;
 
 #include "/lib/utility/lightmap.glsl"
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
+// #ifdef RENDER_SHADOWS_ENABLED
+//     #include "/lib/utility/matrix.glsl"
+//     #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
+//     #ifdef SHADOW_CLOUD_ENABLED
+//         #include "/lib/clouds/cloud_vanilla.glsl"
+//     #endif
     
-    #include "/lib/shadows/common.glsl"
+//     #include "/lib/shadows/common.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/apply.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/apply.glsl"
-    #endif
-#endif
+//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+//         #include "/lib/shadows/cascaded/common.glsl"
+//         #include "/lib/shadows/cascaded/apply.glsl"
+//     #else
+//         #include "/lib/shadows/distorted/common.glsl"
+//         #include "/lib/shadows/distorted/apply.glsl"
+//     #endif
+// #endif
 
 
 void main() {
@@ -89,19 +89,19 @@ void main() {
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vOut.shadowTile = -1;
-        #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vOut.shadowTile = -1;
+    //     #endif
 
-        vec3 localNormal = normalize(gl_NormalMatrix * gl_Normal);
-        localNormal = mat3(gbufferModelViewInverse) * localNormal;
+    //     vec3 localNormal = normalize(gl_NormalMatrix * gl_Normal);
+    //     localNormal = mat3(gbufferModelViewInverse) * localNormal;
 
-        const float geoNoL = 1.0;
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            ApplyShadows(vOut.localPos, localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
-        #else
-            vOut.shadowPos = ApplyShadows(vOut.localPos, localNormal, geoNoL);
-        #endif
-    #endif
+    //     const float geoNoL = 1.0;
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         ApplyShadows(vOut.localPos, localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+    //     #else
+    //         vOut.shadowPos = ApplyShadows(vOut.localPos, localNormal, geoNoL);
+    //     #endif
+    // #endif
 }

@@ -28,11 +28,11 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -71,7 +71,7 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -127,7 +127,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform mat4 shadowProjection;
 #endif
 
@@ -223,7 +223,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -409,7 +409,7 @@ void main() {
     #endif
 
     vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif

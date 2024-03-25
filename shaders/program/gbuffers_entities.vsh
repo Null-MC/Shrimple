@@ -27,9 +27,9 @@ out VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
     #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

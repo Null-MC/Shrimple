@@ -32,11 +32,11 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -69,11 +69,11 @@ out VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -111,11 +111,11 @@ void main() {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vOut[gl_InvocationID].shadowPos[0] = vIn[gl_InvocationID].shadowPos[0];
             vOut[gl_InvocationID].shadowPos[1] = vIn[gl_InvocationID].shadowPos[1];

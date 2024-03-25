@@ -1,34 +1,34 @@
-#if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA && !defined RENDER_CLOUDS
-    float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
-        #ifdef RENDER_FRAG
-            #ifdef EFFECT_TAA_ENABLED
-                float dither = InterleavedGradientNoiseTime();
-            #else
-                float dither = InterleavedGradientNoise();
-            #endif
-        #else
-            float dither = 0.0;
-        #endif
+// #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA && !defined RENDER_CLOUDS
+//     float SampleCloudShadow(const in vec3 skyLightDir, const in vec3 cloudShadowPos) {
+//         #ifdef RENDER_FRAG
+//             #ifdef EFFECT_TAA_ENABLED
+//                 float dither = InterleavedGradientNoiseTime();
+//             #else
+//                 float dither = InterleavedGradientNoise();
+//             #endif
+//         #else
+//             float dither = 0.0;
+//         #endif
 
-        float angle = fract(dither) * TAU;
-        float s = sin(angle), c = cos(angle);
-        mat2 rotation = mat2(c, -s, s, c);
+//         float angle = fract(dither) * TAU;
+//         float s = sin(angle), c = cos(angle);
+//         mat2 rotation = mat2(c, -s, s, c);
 
-        float cloudF = 0.0;
-        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-            vec2 offset = (rotation * pcfDiskOffset[i]) * rcp(1024.0 * SHADOW_CLOUD_RADIUS);
+//         float cloudF = 0.0;
+//         for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+//             vec2 offset = (rotation * pcfDiskOffset[i]) * rcp(1024.0 * SHADOW_CLOUD_RADIUS);
 
-            float cloudSample = textureLod(TEX_CLOUDS_VANILLA, cloudShadowPos.xy + offset, 0).a;
-            cloudF += cloudSample * step(0.0, cloudShadowPos.z);
-        }
+//             float cloudSample = textureLod(TEX_CLOUDS_VANILLA, cloudShadowPos.xy + offset, 0).a;
+//             cloudF += cloudSample * step(0.0, cloudShadowPos.z);
+//         }
 
-        cloudF *= rcp(SHADOW_PCF_SAMPLES);
+//         cloudF *= rcp(SHADOW_PCF_SAMPLES);
 
-        float skyLightF = smoothstep(0.1, 0.3, skyLightDir.y);
+//         float skyLightF = smoothstep(0.1, 0.3, skyLightDir.y);
 
-        return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
-    }
-#endif
+//         return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
+//     }
+// #endif
 
 #ifdef RENDER_FRAG
     #ifdef SHADOW_COLORED
@@ -89,13 +89,13 @@
 
         //shadow = 1.0 - (1.0 - shadow) * (1.0 - shadowFade);
 
-        #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
-            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, time, CLOUD_SHADOW_STEPS);
-            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                shadow *= SampleCloudShadow(skyLightDir, vIn.cloudPos);
-            #endif
-        #endif
+        // #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS
+        //     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     //     shadow *= TraceCloudShadow(cameraPosition + vLocalPos, skyLightDir, time, CLOUD_SHADOW_STEPS);
+        //     #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        //         shadow *= SampleCloudShadow(skyLightDir, vIn.cloudPos);
+        //     #endif
+        // #endif
 
         return shadow;
     }

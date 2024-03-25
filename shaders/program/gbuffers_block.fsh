@@ -24,11 +24,11 @@ in VertexData {
         #endif
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -55,13 +55,13 @@ uniform sampler2D lightmap;
         uniform sampler3D TEX_RIPPLES;
     #endif
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform sampler2D TEX_CLOUDS_VANILLA;
-        #endif
-    #endif
+    // #ifdef SHADOW_CLOUD_ENABLED
+    //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //         uniform sampler3D TEX_CLOUDS;
+    //     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    //         uniform sampler2D TEX_CLOUDS_VANILLA;
+    //     #endif
+    // #endif
 #endif
 
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
@@ -73,7 +73,7 @@ uniform sampler2D lightmap;
     uniform sampler2D shadowcolor0;
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -128,7 +128,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     uniform vec3 shadowLightPosition;
 
     #ifdef SHADOW_ENABLED
@@ -170,11 +170,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float dhFarPlane;
 #endif
 
-#if AF_SAMPLES > 1
-    uniform float viewWidth;
-    uniform float viewHeight;
-    uniform vec4 spriteBounds;
-#endif
+// #if AF_SAMPLES > 1
+//     uniform float viewWidth;
+//     uniform float viewHeight;
+//     uniform vec4 spriteBounds;
+// #endif
 
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
@@ -239,7 +239,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -289,9 +289,9 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/clouds/cloud_vars.glsl"
         #include "/lib/world/lightning.glsl"
         
-        #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #endif
+        // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        // #endif
     #endif
 
     #include "/lib/lighting/voxel/item_light_map.glsl"
@@ -455,7 +455,7 @@ void main() {
     vec2 lmFinal = vIn.lmcoord;
 
     vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif

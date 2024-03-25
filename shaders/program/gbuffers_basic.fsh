@@ -11,47 +11,47 @@ in VertexData {
     vec2 texcoord;
     vec3 localPos;
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn;
 
 uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 
-#if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS_VANILLA;
-    #endif
-#endif
+// #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+//     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+//         uniform sampler3D TEX_CLOUDS;
+//     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+//         uniform sampler2D TEX_CLOUDS_VANILLA;
+//     #endif
+// #endif
 
-#if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE)
-    uniform sampler2D shadowcolor0;
-#endif
+// #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE)
+//     uniform sampler2D shadowcolor0;
+// #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
+// #ifdef RENDER_SHADOWS_ENABLED
+//     uniform sampler2D shadowtex0;
+//     uniform sampler2D shadowtex1;
 
-    #ifdef SHADOW_ENABLE_HWCOMP
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex1HW;
-        #else
-            uniform sampler2DShadow shadow;
-        #endif
-    #endif
-#endif
+//     #ifdef SHADOW_ENABLE_HWCOMP
+//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+//             uniform sampler2DShadow shadowtex1HW;
+//         #else
+//             uniform sampler2DShadow shadow;
+//         #endif
+//     #endif
+// #endif
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -142,27 +142,27 @@ uniform int frameCounter;
 
 #include "/lib/fog/fog_render.glsl"
 
-#ifdef WORLD_SKY_ENABLED
-    #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/lighting/scatter_transmit.glsl"
-        #include "/lib/clouds/cloud_vars.glsl"
-        #include "/lib/clouds/cloud_custom.glsl"
-    #endif
-#endif
+// #ifdef WORLD_SKY_ENABLED
+//     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+//         #include "/lib/lighting/scatter_transmit.glsl"
+//         #include "/lib/clouds/cloud_vars.glsl"
+//         #include "/lib/clouds/cloud_custom.glsl"
+//     #endif
+// #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/buffers/shadow.glsl"
+// #ifdef RENDER_SHADOWS_ENABLED
+//     #include "/lib/buffers/shadow.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
+//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+//         #include "/lib/shadows/cascaded/common.glsl"
+//         #include "/lib/shadows/cascaded/render.glsl"
+//     #else
+//         #include "/lib/shadows/distorted/common.glsl"
+//         #include "/lib/shadows/distorted/render.glsl"
+//     #endif
 
-    #include "/lib/shadows/render.glsl"
-#endif
+//     #include "/lib/shadows/render.glsl"
+// #endif
 
 
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
@@ -195,30 +195,30 @@ void main() {
 	const float sss = 0.0;
 
     vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-           vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-        #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #ifndef IRIS_FEATURE_SSBO
+    //        vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    //     #endif
 
-        float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
+    //     float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
 
-        if (skyGeoNoL < EPSILON && sss < EPSILON) {
-            shadowColor = vec3(0.0);
-        }
-        else {
-            float viewDist = length(vIn.localPos);
-            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+    //     if (skyGeoNoL < EPSILON && sss < EPSILON) {
+    //         shadowColor = vec3(0.0);
+    //     }
+    //     else {
+    //         float viewDist = length(vIn.localPos);
+    //         float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
 
-            #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-            #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                shadowColor = vec3(shadowF);
+    //         #ifdef SHADOW_COLORED
+    //             shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+    //         #else
+    //             float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+    //             shadowColor = vec3(shadowF);
 
-                // lmFinal.y = max(lmFinal.y, shadowF);
-            #endif
-        }
-    #endif
+    //             // lmFinal.y = max(lmFinal.y, shadowF);
+    //         #endif
+    //     }
+    // #endif
 
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

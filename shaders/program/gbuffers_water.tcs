@@ -44,9 +44,9 @@ in VertexData {
         float physics_localWaviness;
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -91,9 +91,9 @@ out VertexData {
         float physics_localWaviness;
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vec3 cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vec3 cloudPos;
+    // #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -147,9 +147,9 @@ void main() {
         vOut[gl_InvocationID].physics_localWaviness = vIn[gl_InvocationID].physics_localWaviness;
     #endif
 
-    #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
-    #endif
+    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+    //     vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
+    // #endif
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

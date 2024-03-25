@@ -143,9 +143,9 @@ vec4 BasicVertex() {
                 #endif
             #endif
 
-            #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS && SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
-                vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
-            #endif
+            // #if defined RENDER_CLOUD_SHADOWS_ENABLED && !defined RENDER_CLOUDS && SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
+            //     vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
+            // #endif
         #endif
     #endif
 
