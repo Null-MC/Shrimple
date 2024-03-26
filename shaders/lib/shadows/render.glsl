@@ -32,10 +32,10 @@
 
 #ifdef RENDER_FRAG
     #ifdef SHADOW_COLORED
-        vec3 GetFinalShadowColor(const in vec3 skyLightDir, const in float shadowFade, const in float sss) {
+        vec3 GetFinalShadowColor(const in vec3 skyLightDir, const in float geoNoL, const in float sss) {
             vec3 shadow = vec3(1.0);
     #else
-        float GetFinalShadowFactor(const in vec3 skyLightDir, const in float shadowFade, const in float sss) {
+        float GetFinalShadowFactor(const in vec3 skyLightDir, const in float geoNoL, const in float sss) {
             float shadow = 1.0;
     #endif
 
@@ -79,10 +79,12 @@
                 vec3 _shadowPos = vIn.shadowPos;
                 _shadowPos.xy += rcp(shadowDistance) * sssOffset;
 
+                float offsetBias = GetShadowOffsetBias(_shadowPos, geoNoL) + bias;
+
                 #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(_shadowPos, bias);
+                    shadow = GetShadowColor(_shadowPos, offsetBias);
                 #else
-                    shadow = GetShadowFactor(_shadowPos, bias);
+                    shadow = GetShadowFactor(_shadowPos, offsetBias);
                 #endif
             #endif
         #endif

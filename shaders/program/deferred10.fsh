@@ -181,10 +181,12 @@ void main() {
             vec3 _shadowPos = shadowPos;
             _shadowPos.xy += rcp(shadowDistance) * sssOffset;
 
+            float offsetBias = GetShadowOffsetBias(_shadowPos, geoNoL) + bias;
+
             #ifdef SHADOW_COLORED
-                vec3 shadowSample = GetShadowColor(_shadowPos, bias);
+                vec3 shadowSample = GetShadowColor(_shadowPos, offsetBias);
             #else
-                vec3 shadowSample = vec3(GetShadowFactor(_shadowPos, bias));
+                vec3 shadowSample = vec3(GetShadowFactor(_shadowPos, offsetBias));
             #endif
         #endif
 
