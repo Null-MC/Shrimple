@@ -1,7 +1,7 @@
 // https://www.shadertoy.com/view/4tcXD2
 
 vec3 encodePalYuv(vec3 rgb) {
-    rgb = RGBToLinear(rgb);
+    // rgb = RGBToLinear(rgb);
 
     return vec3(
         dot(rgb, vec3(0.299, 0.587, 0.114)),
@@ -17,8 +17,8 @@ vec3 decodePalYuv(vec3 yuv) {
         dot(yuv, vec3(1.0, 2.03211, 0.0))
     );
 
-    return LinearToRGB(rgb);
-    // return rgb;
+    // return LinearToRGB(rgb);
+    return rgb;
 }
 
 
@@ -28,7 +28,13 @@ vec4 ApplyTAA(const in vec2 uv) {
     vec2 uvLast = getReprojectedClipPos(texcoord, depth, velocity, false).xy;
 
 	//vec2 uv = fragCoord.xy / iResolution.xy;
-    vec4 lastColor = textureLod(BUFFER_FINAL_PREV, uvLast, 0);
+    //vec4 lastColor = textureLod(BUFFER_FINAL_PREV, uvLast, 0);
+
+    #ifdef EFFECT_TAA_SHARPEN
+        vec4 lastColor = sampleHistoryCatmullRom(uvLast);
+    #else
+        vec4 lastColor = textureLod(BUFFER_FINAL_PREV, uvLast, 0);
+    #endif
     
     vec3 antialiased = lastColor.rgb;
     float mixRate = min(lastColor.a, 0.5);
@@ -76,8 +82,10 @@ vec4 ApplyTAA(const in vec2 uv) {
     vec3 diff = antialiased - preclamping;
     float clampAmount = dot(diff, diff);
     
+    const float weightMax = rcp(EFFECT_TAA_MAX_ACCUM);
+    
     mixRate += clampAmount * 4.0;
-    mixRate = clamp(mixRate, 0.05, 0.5);
+    mixRate = clamp(mixRate, weightMax, 0.5);
     
     antialiased = decodePalYuv(antialiased);
         
