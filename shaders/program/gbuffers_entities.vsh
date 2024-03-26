@@ -189,7 +189,7 @@ uniform vec4 entityColor;
 #include "/lib/lighting/common.glsl"
 
 #ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa.glsl"
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 

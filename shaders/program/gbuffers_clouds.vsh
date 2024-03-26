@@ -86,7 +86,7 @@ uniform vec3 cameraPosition;
 #include "/lib/lighting/common.glsl"
 
 #ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa.glsl"
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 

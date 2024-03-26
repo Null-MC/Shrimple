@@ -105,7 +105,7 @@ out VertexData {
     #include "/lib/sampling/atlas.glsl"
 
     #ifdef EFFECT_TAA_ENABLED
-        #include "/lib/effects/taa.glsl"
+        #include "/lib/effects/taa_jitter.glsl"
     #endif
 #endif
 

@@ -11,7 +11,7 @@ varying vec4 starData; //rgb = star color, a = flag for weather or not this pixe
     uniform int frameCounter;
 	uniform vec2 pixelSize;
 
-    #include "/lib/effects/taa.glsl"
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 

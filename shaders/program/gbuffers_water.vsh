@@ -216,7 +216,7 @@ uniform float far;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa.glsl"
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 

@@ -14,7 +14,7 @@ out VertexData {
     uniform int frameCounter;
 	uniform vec2 pixelSize;
 
-    #include "/lib/effects/taa.glsl"
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 
