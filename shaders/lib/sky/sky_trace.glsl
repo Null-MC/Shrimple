@@ -8,7 +8,7 @@ float GetTraceDither() {
     #endif
 }
 
-void _TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount) {
+void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount) {
     // float dither = GetTraceDither();
 
     float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);

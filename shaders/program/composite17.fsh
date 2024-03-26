@@ -372,7 +372,7 @@ void main() {
                     _far = min(_far, viewDist);
 
                 if (_far > farDist)
-                    _TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, _far, 16);
+                    TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, _far, 16);
             #else
                 #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
                     // const int traceStepCount = CLOUD_STEPS;
