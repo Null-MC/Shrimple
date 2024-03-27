@@ -444,33 +444,31 @@ void main() {
         #endif
     #endif
 
-    #ifdef DISTANT_HORIZONS
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
         float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
         float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
 
-        float transitionF = smoothstep(0.6 * far, 0.9 * far, viewDist);
-        float lodFinal = max(lodGrad, 4.0 * transitionF);
+        float lodFadeF = smoothstep(0.6 * far, 0.9 * far, viewDist);
+        float lodFinal = max(lodGrad, 4.0 * lodFadeF);
 
         vec4 color;
         color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
         color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
-    #else
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
-    #endif
 
-    #ifdef DISTANT_HORIZONS
         #ifdef EFFECT_TAA_ENABLED
             float ditherOut = InterleavedGradientNoiseTime();
         #else
             float ditherOut = GetScreenBayerValue();
         #endif
 
-        transitionF = smoothstep(0.5 * far, far, viewDist);
-        transitionF = pow2(1.0 - transitionF);
+        float ditherFadeF = smoothstep(0.5 * far, far, viewDist);
+        ditherFadeF = pow2(1.0 - ditherFadeF);
 
         color.a /= alphaTestRef;
-        color.a *= mix(ditherOut, 1.0, transitionF) * transitionF;
+        color.a *= mix(ditherOut, 1.0, ditherFadeF) * ditherFadeF;
         color.a *= alphaTestRef;
+    #else
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
     #endif
 
     if (color.a < alphaTestRef) {

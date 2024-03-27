@@ -1,10 +1,10 @@
 const float tile_dist[4] = float[](5, 12, 30, 80);
 
 const float cascadeNormalBias[] = float[]
-    (0.06, 0.15, 0.30, 0.60);
+    (0.1, 0.2, 0.4, 0.8);
 
 const float cascadeOffsetBias[] = float[]
-    (0.06, 0.20, 0.40, 0.80);
+    (0.1, 0.2, 0.4, 0.8);
 
 
 // tile: 0-3

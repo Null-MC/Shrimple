@@ -281,7 +281,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 shadowFade = 1.0 - shadowFade;
 
                 if (shadowFade < 1.0) {
-                    float shadowSampleBias = GetShadowOffsetBias(traceShadowClipPos, 0.0);// (0.01 / 256.0);
+                    float shadowSampleBias = -0.002;//GetShadowOffsetBias(traceShadowClipPos * 2.0 - 1.0, 0.0);// (0.01 / 256.0);
                     //sampleF = CompareDepth(traceShadowClipPos, vec2(0.0), shadowSampleBias);
                     float texDepth = texture(shadowtex1, traceShadowClipPos.xy).r;
                     sampleF = step(traceShadowClipPos.z - shadowSampleBias, texDepth);

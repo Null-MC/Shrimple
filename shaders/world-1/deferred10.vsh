@@ -1,4 +1,4 @@
 #version 430 compatibility
 
-#include "overworld.glsl"
+#include "nether.glsl"
 #include "/program/deferred_shadows.vsh"

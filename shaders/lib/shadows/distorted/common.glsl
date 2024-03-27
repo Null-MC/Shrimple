@@ -10,11 +10,12 @@ float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
     // float shadowDepthRange = GetShadowRange();
     // return 0.08 / shadowDepthRange * ShadowBiasScale;
 
-    float bias = rcp(shadowMapResolution) * (1.0 - pow(max(geoNoL, 0.0), 8));
+    float bias = rcp(shadowMapResolution) * (1.0 - pow(abs(geoNoL), 8));
 
     #if SHADOW_DISTORT_FACTOR > 0
-        float numerator = length(pos.xy) + ShadowDistortF;
-        bias *= _pow2(numerator) / ShadowDistortF;
+        // float numerator = length(pos.xy) + ShadowDistortF;
+        float factor = length(pos.xy) + ShadowDistortF;
+        bias *= _pow2(factor) / ShadowDistortF;
     #endif
 
     return bias * ShadowBiasScale;
@@ -23,7 +24,8 @@ float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
 vec3 distort(const in vec3 pos) {
     #if SHADOW_DISTORT_FACTOR > 0
         float factor = length(pos.xy) + ShadowDistortF;
-        return vec3((pos.xy / factor) * (1.0 + ShadowDistortF), pos.z);
+        // return vec3((pos.xy / factor) * (1.0 + ShadowDistortF), pos.z);
+        return vec3(pos.xy / factor, pos.z);
     #else
         return pos;
     #endif

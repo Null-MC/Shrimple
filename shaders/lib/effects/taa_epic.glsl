@@ -27,9 +27,6 @@ vec4 ApplyTAA(const in vec2 uv) {
     vec3 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz;
     vec2 uvLast = getReprojectedClipPos(texcoord, depth, velocity, false).xy;
 
-	//vec2 uv = fragCoord.xy / iResolution.xy;
-    //vec4 lastColor = textureLod(BUFFER_FINAL_PREV, uvLast, 0);
-
     #ifdef EFFECT_TAA_SHARPEN
         vec4 lastColor = sampleHistoryCatmullRom(uvLast);
     #else
@@ -83,7 +80,7 @@ vec4 ApplyTAA(const in vec2 uv) {
     float clampAmount = dot(diff, diff);
     
     const float weightMax = rcp(EFFECT_TAA_MAX_ACCUM);
-    
+
     mixRate += clampAmount * 4.0;
     mixRate = clamp(mixRate, weightMax, 0.5);
     
