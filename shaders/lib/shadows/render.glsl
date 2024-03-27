@@ -48,9 +48,9 @@
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
-                float zRange = -2.0 / cascadeProjection[cascadeIndex][2][2];
+                float zRange = GetShadowRange(cascadeIndex);
             #else
-                float zRange = -2.0 / shadowProjectionEx[2][2];
+                float zRange = GetShadowRange();
             #endif
 
             // float bias = sss * dither;
