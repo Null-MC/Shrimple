@@ -268,6 +268,10 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/sky/sky_trace.glsl"
+#endif
+
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     //#include "/lib/utility/depth_tiles.glsl"
     #include "/lib/lighting/reflections.glsl"
@@ -279,7 +283,6 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/lighting/sky_lighting.glsl"
-    #include "/lib/sky/sky_trace.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED

@@ -277,6 +277,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lpv/lpv_render.glsl"
 #endif
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/sky/sky_trace.glsl"
+#endif
+
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #include "/lib/lighting/reflections.glsl"
 #endif

@@ -172,6 +172,10 @@ in vec2 texcoord;
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
 
+        #ifdef WORLD_SKY_ENABLED
+            #include "/lib/sky/sky_trace.glsl"
+        #endif
+
         #include "/lib/utility/depth_tiles.glsl"
         #include "/lib/effects/ssr.glsl"
         #include "/lib/lighting/fresnel.glsl"

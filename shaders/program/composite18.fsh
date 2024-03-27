@@ -277,6 +277,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/effects/ssr.glsl"
 #endif
 
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/sky/sky_trace.glsl"
+#endif
+
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
         #include "/lib/clouds/cloud_vanilla.glsl"
@@ -291,7 +295,6 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/lighting/sky_lighting.glsl"
-    #include "/lib/sky/sky_trace.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
