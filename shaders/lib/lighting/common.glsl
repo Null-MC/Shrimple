@@ -6,7 +6,7 @@ vec4 BasicVertex() {
     #endif
 
     #if defined RENDER_TERRAIN || defined RENDER_WATER
-        #if defined WORLD_SKY_ENABLED && WORLD_WIND_STRENGTH > 0
+        #if WORLD_WIND_STRENGTH > 0 //&& defined WORLD_SKY_ENABLED
             // vec3 localPos = (gbufferModelViewInverse * (gl_ModelViewMatrix * pos)).xyz;
             vec3 localPos = mat3(gl_ModelViewMatrix) * pos.xyz + gl_ModelViewMatrix[3].xyz;
             localPos = mat3(gbufferModelViewInverse) * localPos + gbufferModelViewInverse[3].xyz;
