@@ -395,11 +395,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
                 vec3 lpvLight = vec3(0.0);
 
-                #if defined LPV_GI && defined IS_LPV_SKYLIGHT_ENABLED
+                #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && defined IS_LPV_ENABLED
                     if (!isWater) {
                 #endif
                     lpvLight = 2.0 * GetLpvBlockLight(lpvSample);
-                #if defined LPV_GI && defined IS_LPV_SKYLIGHT_ENABLED
+                #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && defined IS_LPV_ENABLED
                     }
                 #endif
 

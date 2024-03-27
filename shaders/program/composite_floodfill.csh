@@ -55,7 +55,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
     uniform float frameTime;
     uniform int frameCounter;
-    uniform float frameTimeCounter;
+    //uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
     uniform mat4 gbufferModelView;
@@ -63,6 +63,12 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
     #ifdef DISTANT_HORIZONS
         uniform float dhFarPlane;
+    #endif
+
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #else
+        uniform float frameTimeCounter;
     #endif
 
     #include "/lib/blocks.glsl"
@@ -222,7 +228,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             //sampleColor *= step(shadowDist, EPSILON);// * max(1.0 - (shadowDist * far / 8.0), 0.0);
 
             vec3 sampleColor = vec3(0.0);
-            #ifdef LPV_GI
+            #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                 sampleColor = textureLod(shadowcolor0, shadowPos.xy, 0).rgb;
                 sampleColor = RGBToLinear(sampleColor);
                 //sampleColor = 10.0 * _pow3(sampleColor);
@@ -394,7 +400,7 @@ void main() {
             #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && defined IS_LPV_SKYLIGHT_ENABLED
                 vec4 shadowColorF = SampleShadow(blockLocalPos);
 
-                #ifdef LPV_GI
+                #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                     if (blockId != BLOCK_WATER) {
                         ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 

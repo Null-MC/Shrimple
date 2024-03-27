@@ -398,27 +398,29 @@ value.LPV_SIZE.1=Small
 value.LPV_SIZE.2=Medium
 value.LPV_SIZE.3=Large
 
+option.LPV_SKYLIGHT=Sky Light
+value.LPV_SKYLIGHT.0=None
+value.LPV_SKYLIGHT.1=Basic
+value.LPV_SKYLIGHT.2=Fancy
+
+option.LPV_LIGHTMAP_MIX=LightMap Mix
+suffix.LPV_LIGHTMAP_MIX=%
+
+
+screen.LIGHTING_LPV_ADVANCED_OPTIONS=Advanced FloodFill Options
+
 option.LPV_SAMPLE_MODE=Sample Mode
 value.LPV_SAMPLE_MODE.0=Nearest
 value.LPV_SAMPLE_MODE.1=Linear
 value.LPV_SAMPLE_MODE.2=Cubic
 
-option.LPV_BRIGHT_BLOCK=Light Range Scale
-option.LPV_BRIGHT_BLOCK.comment=Scale factor for how far light propagates within LPV.
-suffix.LPV_BRIGHT_BLOCK=x
-
-option.LPV_SHADOW_SAMPLES=Sunlight Sample Count
-option.LPV_SHADOW_SAMPLES.comment=The number of sunlight samples to take per-block.
-
-option.LPV_LIGHTMAP_MIX=LightMap Mix
-suffix.LPV_LIGHTMAP_MIX=%
-
 option.LPV_SHADOW_SAMPLES=Shadow Samples
 option.LPV_SHADOW_SAMPLES.comment=Determines how many samples to use per-block when determining sun/moon visibility.
 value.LPV_SHADOW_SAMPLES.0=OFF
 
-option.LPV_GI=Global Illumination
-option.LPV_GI.comment=Allows sun/moon light to bounce colored lighting onto nearby surfaces. Requires "Shadow Samples" to be set above zero.
+option.LPV_BRIGHT_BLOCK=Light Range Scale
+option.LPV_BRIGHT_BLOCK.comment=Scale factor for how far light propagates within LPV.
+suffix.LPV_BRIGHT_BLOCK=x
 
 option.LPV_VOXEL_TEST=Voxel Test
 option.LPV_VOXEL_TEST.comment=Improves linear & cubic sampling by performing extra visibility checks using voxel data.

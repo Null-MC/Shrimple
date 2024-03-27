@@ -1212,7 +1212,3 @@ option.SKY_LIGHT_COLOR_HORIZON_B=ИСХОДНЫЙ_ЦВЕТ_СВЕТА_НЕБА_B
 option.SKY_LIGHT_COLOR_NIGHT_R=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_R
 option.SKY_LIGHT_COLOR_NIGHT_G=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_G
 option.SKY_LIGHT_COLOR_NIGHT_B=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_B
-
-=====LPV GI=====
-
-option.LPV_GI=ОНЗ ГО

@@ -247,12 +247,12 @@ const bool colortex15Clear = true;
 
 // Dynamic LPV
 #define LPV_SIZE 0 // [0 1 2 3]
+#define LPV_SKYLIGHT 0 // [0 1 2]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
-#define LPV_SHADOW_SAMPLES 0 // [0 1 2 3 4 5 6 7 8 9 12 15 18 21 25]
+#define LPV_SHADOW_SAMPLES 6 // [1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_LIGHTMAP_MIX 20 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_BRIGHT_BLOCK 1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
-#define LPV_SKYLIGHT_ENABLED
 #define LPV_BRIGHT_SUN 1.0
 #define LPV_BRIGHT_MOON 0.02
 #define LPV_FALLOFF 0.2 // [0.001]
@@ -261,7 +261,7 @@ const bool colortex15Clear = true;
 //#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST
-//#define LPV_GI
+
 
 //#define DYN_LIGHT_OCTREE
 #define DYN_LIGHT_OCTREE_LEVELS 2u
@@ -481,7 +481,7 @@ const bool colortex15Clear = true;
     #define IS_LPV_ENABLED
 #endif
 
-#if defined IS_LPV_ENABLED && defined LPV_SKYLIGHT_ENABLED && LPV_SHADOW_SAMPLES > 0
+#if defined IS_LPV_ENABLED && LPV_SKYLIGHT != LPV_SKYLIGHT_NONE
     #define IS_LPV_SKYLIGHT_ENABLED
 #endif
 
