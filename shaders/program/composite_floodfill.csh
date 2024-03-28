@@ -15,6 +15,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     const ivec3 workGroups = ivec3(8, 8, 8);
 #endif
 
+const vec2 LpvBlockSkyFalloff = vec2(0.02, 0.0);
+
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
     #ifdef LIGHTING_FLICKER
@@ -308,7 +310,7 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5) * ((mask >> 4) & 1u);
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4) * ((mask >> 5) & 1u);
 
-    const float avgFalloff = (1.0/6.0) * (1.0 - LPV_FALLOFF);
+    const vec4 avgFalloff = (1.0/6.0) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
 

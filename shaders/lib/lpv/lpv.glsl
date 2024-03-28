@@ -9,8 +9,7 @@
 #endif
 
 const ivec3 SceneLPVCenter = SceneLPVSize / 2;
-
-#define LPV_FRUSTUM_OFFSET 0.4
+const float LpvFrustumOffsetF = LPV_FRUSTUM_OFFSET * 0.01;
 
 vec3 Lpv_RgbToHsv(const in vec3 lightColor, const in float lightRange) {
     vec3 lightValue = RgbToHsv(lightColor);
@@ -23,7 +22,7 @@ vec3 getCameraViewDir(const in mat4 matModelView) {
 }
 
 vec3 GetLpvCenter(const in vec3 viewPos, const in vec3 viewDir) {
-    ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * LPV_FRUSTUM_OFFSET));
+    ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * LpvFrustumOffsetF));
     return (SceneLPVCenter + offset) + fract(viewPos);
 }
 

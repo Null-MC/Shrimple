@@ -251,13 +251,9 @@ const bool colortex15Clear = true;
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_SHADOW_SAMPLES 6 // [1 2 3 4 5 6 7 8 9 12 15 18 21 25]
 #define LPV_LIGHTMAP_MIX 20 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 55 60 65 70 75 80 85 90 95 100]
-#define LPV_BRIGHT_BLOCK 1 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
-//#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
-#define LPV_BRIGHT_SUN 1.0
-#define LPV_BRIGHT_MOON 0.02
-#define LPV_FALLOFF 0.002 // [0.001]
 #define LPV_SKYLIGHT_RANGE 32.0 // [16 24 32]
 #define LPV_BLOCKLIGHT_SCALE 32.0 // [16 24 32 48 64 96 128]
+#define LPV_FRUSTUM_OFFSET 30 // [0 5 10 15 20 25 30 35 40 45 50]
 //#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST
@@ -586,7 +582,7 @@ const float DynamicLightPenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
 const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
 const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
 const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
-const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
+// const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
 const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN * 0.01;
 const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX * 0.01;
 const float ShadowBiasScale = SHADOW_BIAS_SCALE * 0.01;
