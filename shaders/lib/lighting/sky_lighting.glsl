@@ -86,7 +86,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
         #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
-            #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+            #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
                 lpvSkyLight *= 0.25;
             #endif
 
