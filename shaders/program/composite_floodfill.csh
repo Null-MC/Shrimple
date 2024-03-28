@@ -402,32 +402,33 @@ void main() {
 
                 #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                     if (blockId != BLOCK_WATER) {
-                        ivec3 bounceOffset = ivec3(sign(-localSunDirection));
+                        // ivec3 bounceOffset = ivec3(sign(-localSunDirection));
 
-                        // make sure diagonals dont exist
-                        int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
-                        bounceOffset.xz *= 1 - bounceYF;
-                        bounceOffset.y *= bounceYF;
+                        // // make sure diagonals dont exist
+                        // int bounceYF = int(step(0.5, abs(localSunDirection.y)) + 0.5);
+                        // bounceOffset.xz *= 1 - bounceYF;
+                        // bounceOffset.y *= bounceYF;
 
                         float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                        float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
-                        skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
+                        //float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
+                        //skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
+                        float skyLightRange = mix(1.0, 4.0, sunUpF);
 
-                        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                            // float skyLightRange = mix(1.0, 6.0, sunUpF);
-                            float skyLightRange = mix(2.0, 4.0, sunUpF);
-                        #else
-                           // float skyLightRange = mix(1.0, 16.0, sunUpF);
-                            float skyLightRange = mix(1.0, 6.0, sunUpF);
-                        #endif
+                        // #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                        //     // float skyLightRange = mix(1.0, 6.0, sunUpF);
+                        //     float skyLightRange = mix(2.0, 4.0, sunUpF);
+                        // #else
+                        //    // float skyLightRange = mix(1.0, 16.0, sunUpF);
+                        //     float skyLightRange = mix(1.0, 6.0, sunUpF);
+                        // #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
                         //float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
                         //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                            skyLightBrightF *= DynamicLightAmbientF;
+                        //    skyLightBrightF *= DynamicLightAmbientF;
                         //#endif
 
 

@@ -255,7 +255,7 @@ const bool colortex15Clear = true;
 //#define LPV_RANGE 100 // [25 50 75 100 150 200 250 300 400 600 800 1200 1600]
 #define LPV_BRIGHT_SUN 1.0
 #define LPV_BRIGHT_MOON 0.02
-#define LPV_FALLOFF 0.2 // [0.001]
+#define LPV_FALLOFF 0.002 // [0.001]
 #define LPV_SKYLIGHT_RANGE 32.0 // [16 24 32]
 #define LPV_BLOCKLIGHT_SCALE 32.0 // [16 24 32 48 64 96 128]
 //#define LPV_BLEND_ALT

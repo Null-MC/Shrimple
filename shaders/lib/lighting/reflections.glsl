@@ -69,9 +69,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     vec3 viewDir = viewPos / viewDist;
     vec3 reflectViewDir = reflect(viewDir, texViewNormal);
 
-    //float distF = 32.0 / (viewDist + 32.0);
-    //roughness = pow(roughness, 0.5 + 0.5 * distF);
-
     #ifdef REFLECTION_ROUGH_SCATTER
         #ifdef EFFECT_TAA_ENABLED
             vec3 seed = vec3(gl_FragCoord.xy, 1.0 + frameCounter);
@@ -87,23 +84,13 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         reflectViewDir = normalize(reflectViewDir);
     #endif
 
-    vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
-    //if (all(lessThan(abs(reflectLocalDir), EPSILON3))) return vec3(0.0);
-    reflectLocalDir = normalize(reflectLocalDir);
-    //return reflectLocalDir * 0.5 + 0.5;
-
+    vec3 reflectLocalDir = normalize(mat3(gbufferModelViewInverse) * reflectViewDir);
 
     #ifdef WORLD_SKY_ENABLED
         vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
     #else
         vec3 reflectColor = RGBToLinear(fogColor) * WorldSkyBrightnessF;
     #endif
-
-    // #if SKY_CLOUD_TYPE != CLOUDS_NONE
-    //     float farMax = SkyFar;
-    // #else
-    //     float farMax = far;
-    // #endif
 
     float _far = far;
     #ifdef DISTANT_HORIZONS
@@ -125,15 +112,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             vec3 reflectClipPos = unproject(gbufferProjection, reflectViewPos) * 0.5 + 0.5;
         #endif
 
-        // clipPos.z += 0.002;
-        // reflectClipPos.z += 0.002;
-
         vec3 clipRay = reflectClipPos - clipPos;
 
-        //if (length2(clipRay) > EPSILON) clipRay = normalize(clipRay);
-        //return clipRay * 0.5 + 0.5;
-
-        //vec2 viewSize = vec2(viewWidth, viewHeight);
         float maxLod = log2(minOf(viewSize));
         float roughMip = sqrt(roughness) * maxLod;
 
@@ -141,7 +121,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);
         reflectF = reflection.a;
         reflectDepth = reflection.z;
-    // return col;
 
         if (reflection.z < 1.0 && reflection.a > 0.0) {
             reflectClipPos = reflection.xyz * 2.0 - 1.0;
@@ -238,11 +217,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         #endif
 
         if (cloudDistFar > cloudDistNear) {
-            //vec4 cloudScatterTransmit = TraceCloudVL(cameraPosition + localPos, reflectLocalDir, reflectDist, reflectDepth, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-            // vec4 cloudScatterTransmit = _TraceCloudVL(worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
             vec3 cloudScatter = vec3(0.0);
             vec3 cloudTransmit = vec3(1.0);
-            // _TraceCloudVL(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
             _TraceClouds(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
             reflectColor = reflectColor * cloudTransmit + cloudScatter;
         }
@@ -253,11 +229,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {
-                // const float WaterAmbientF = 0.0;
-
-                // vec3 vlLight = (0.25 + WaterAmbientF) * WorldSkyLightColor * pow5(skyLight);// * eyeSkyLightF;
-                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, WaterScatterF, WaterAbsorbF);
-                
                 float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
                 #ifdef WORLD_SKY_ENABLED

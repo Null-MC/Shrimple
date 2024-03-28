@@ -91,7 +91,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
             #endif
 
             vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);
-            lpvSkyLightColor *= lpvSkyLight / max(luminance(lpvSkyLightColor), EPSILON);
+
+            // lpvSkyLightColor *= lpvSkyLight / max(luminance(lpvSkyLightColor), EPSILON);
+            lpvSkyLightColor = RgbToHsv(lpvSkyLightColor);
+            lpvSkyLightColor.z = lpvSkyLight;
+            lpvSkyLightColor = HsvToRgb(lpvSkyLightColor);
 
             ambientLight = mix(ambientLight, lpvSkyLightColor, lpvFade);
         #else
