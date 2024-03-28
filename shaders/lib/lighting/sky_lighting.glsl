@@ -17,7 +17,6 @@ float GetSkyDiffuseLighting(const in vec3 localViewDir, const in vec3 localSkyLi
     float diffuseLoHm = max(dot(localSkyLightDir, H), 0.0);
 
     float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
-
     return D * mix(1.0, MaterialSssStrengthF, sss);
 }
 
@@ -86,15 +85,14 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
-        #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY //&& LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+        #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+            #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                lpvSkyLight *= 0.25;
+            #endif
+
             vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);
-            
-            vec3 lpvSkyLightHSV = RgbToHsv(lpvSkyLightColor);
-            lpvSkyLightHSV.z = lpvSkyLight;
-            lpvSkyLightColor = HsvToRgb(lpvSkyLightHSV);
+            lpvSkyLightColor *= lpvSkyLight / max(luminance(lpvSkyLightColor), EPSILON);
 
-
-            //vec3 lpvSkyLightColor = 0.5*GetLpvBlockLight(lpvSample) + 0.5*lpvSkyLight;
             ambientLight = mix(ambientLight, lpvSkyLightColor, lpvFade);
         #else
             ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);

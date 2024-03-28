@@ -24,10 +24,6 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
                 else {
             #endif
                 
-                // vec3 skyColorFinal = RGBToLinear(skyColor);
-                // reflectColor = GetCustomSkyFogColor(localSunDirection.y);
-                // reflectColor = GetSkyFogColor(skyColorFinal, reflectColor, reflectDir.y);
-                //reflectColor = GetCustomSkyFogColor(localSunDirection.y) * WorldSkyBrightnessF;
                 reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * WorldSkyBrightnessF;
 
                 #if !defined MATERIAL_REFLECT_CLOUDS && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
@@ -287,48 +283,6 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
             #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 if (reflectDist > 0.0) {
-                    // vec3 vlLight = vec3(0.0);
-
-                    // #ifdef WORLD_SKY_ENABLED
-                    //     // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                    //     #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    //         vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
-                    //     #else
-                    //         vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-                    //         skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
-                    //     #endif
-
-                    //     vlLight += AirAmbientF * skyColorFinal;
-                    // #else
-                    //     vlLight += AirAmbientF;
-                    // #endif
-
-                    // #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY && defined WORLD_SKY_ENABLED
-                    //     float VoL = dot(localSkyLightDirection, reflectLocalDir);
-                    //     float phaseSky = GetSkyPhase(VoL);
-                    //     vlLight += saturate(phaseSky) * WorldSkyLightColor;
-                    // #else
-                    //     #ifdef WORLD_SKY_ENABLED
-                    //         vlLight += phaseIso * WorldSkyLightColor;
-                    //     #else
-                    //         vlLight += phaseIso;
-                    //     #endif
-                    // #endif
-
-                    // float reflectFogDist = reflectDist;
-
-                    // #ifdef WORLD_SKY_ENABLED
-                    //     // vlLight *= skyLightColor * pow5(skyLight);
-                    //     vlLight *= pow5(skyLight);
-
-                    //     reflectFogDist = min(reflectFogDist, farMax);
-                    //     // TODO: Limit reflectDist < cloudNear
-                    // #endif
-
-                    //reflectFogDist = clamp(reflectFogDist, EPSILON, 128.0);
-
-                    // ApplyScatteringTransmission(reflectColor, reflectFogDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 48);
-
                     bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
                     float _skyFar = !isSkyFrag ? reflectDist : SkyFar;
 
