@@ -415,15 +415,16 @@ void main() {
                         //float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
                         //skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
-                        float skyLightRange = mix(1.0, 4.0, sunUpF);
 
-                        // #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                        #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+                            float skyLightRange = mix(1.0, 4.0, sunUpF) * DynamicLightAmbientF;
                         //     // float skyLightRange = mix(1.0, 6.0, sunUpF);
                         //     float skyLightRange = mix(2.0, 4.0, sunUpF);
-                        // #else
+                        #else
+                            float skyLightRange = mix(4.0, 16.0, sunUpF);
                         //    // float skyLightRange = mix(1.0, 16.0, sunUpF);
                         //     float skyLightRange = mix(1.0, 6.0, sunUpF);
-                        // #endif
+                        #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
@@ -435,7 +436,7 @@ void main() {
 
 
 
-                        vec3 skyLight = RgbToHsv(shadowColorF.rgb);
+                        vec3 skyLight = RgbToHsv(shadowColorF.rgb * WorldSkyLightColor);
                         skyLight.b = exp2(skyLightRange * shadowColorF.a) - 1.0;
                         skyLight = HsvToRgb(skyLight);
 
