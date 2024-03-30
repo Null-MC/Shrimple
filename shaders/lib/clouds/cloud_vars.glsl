@@ -22,7 +22,7 @@ float CloudAbsorbF        = mix(0.09, 0.12, skyRainStrength);
 #define CLOUD_REFLECT_SHADOW_STEPS 4
 
 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-    const int CloudMaxOctaves = 4;
+    const int CloudMaxOctaves = 5;
     const int CloudTraceOctaves = 2;
     const int CloudShadowOctaves = 2;
     const float CloudHeight = SKY_CLOUD_HEIGHT;

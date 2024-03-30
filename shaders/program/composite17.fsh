@@ -411,8 +411,8 @@ void main() {
                         cloudDistFar = min(cloudDistFar, viewDist);
                 #endif
 
-                if (cloudDistFar > cloudDistNear)
-                    _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
+                // if (cloudDistFar > cloudDistNear)
+                //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
             #endif
 
         #ifdef WORLD_WATER_ENABLED

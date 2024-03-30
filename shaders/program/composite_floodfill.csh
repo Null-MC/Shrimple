@@ -172,7 +172,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 }
 
 #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
-    vec4 SampleShadow(const in vec3 blockLocalPos) {
+    vec4 SampleShadow(const in vec3 blockLocalPos, out float shadowDist) {
         const float giScale = 0.24;
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -192,6 +192,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         maxSamples = clamp(maxSamples, 1u, uint(LPV_SHADOW_SAMPLES));
 
         vec4 shadowF = vec4(0.0);
+        shadowDist = 0.0;
         //float shadowWeight = 0.0;
         for (uint i = 0; i < LPV_SHADOW_SAMPLES; i++) {
             if (i >= maxSamples) break;
@@ -219,9 +220,11 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             #endif
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
-            float shadowDist = texDepth - shadowPos.z;
-            float sampleF = step(shadowBias, shadowDist);
+            float sampleDist = texDepth - shadowPos.z;
+            float sampleF = step(shadowBias, sampleDist);
             //sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * giScale, 0.0);
+
+            shadowDist += max(sampleDist, 0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
@@ -236,7 +239,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 //sampleColor = 10.0 * _pow3(sampleColor);
 
                 // TODO: fade out color
-                float colorF = min(abs(shadowDist * shadowDistMax) * giScale, 1.0);
+                float colorF = min(abs(sampleDist * shadowDistMax) * giScale, 1.0);
                 // sampleColor = mix(sampleColor, vec3(1.0), colorF);
                 sampleColor *= 1.0 - colorF;
             #endif
@@ -264,6 +267,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
         }
 
         shadowF /= maxSamples;
+        shadowDist = (shadowDist / maxSamples) * shadowDistMax;
         //shadowF = RGBToLinear(shadowF);
 
         // #ifdef SHADOW_CLOUD_ENABLED
@@ -400,7 +404,8 @@ void main() {
             lightValue += lightMixed;
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && defined IS_LPV_SKYLIGHT_ENABLED
-                vec4 shadowColorF = SampleShadow(blockLocalPos);
+                float shadowDist;
+                vec4 shadowColorF = SampleShadow(blockLocalPos, shadowDist);
 
                 #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                     if (blockId != BLOCK_WATER) {
@@ -443,7 +448,7 @@ void main() {
 
 
                         // lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
-                        lightValue.rgb += skyLight;
+                        lightValue.rgb += skyLight / max(shadowDist, 1.0);
                     }
                 #endif
 

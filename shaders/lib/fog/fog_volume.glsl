@@ -213,7 +213,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     #if WORLD_CURVE_RADIUS > 0
                         float sampleCloudF = SampleCloudOctaves(curvedWorldPos, traceAltitude, CloudTraceOctaves);
                     #else
-                        // vec3 traceWorldPos = traceLocalPos + cameraPosition;
                         float sampleCloudF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudTraceOctaves);
                     #endif
 
