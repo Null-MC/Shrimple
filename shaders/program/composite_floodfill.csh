@@ -407,6 +407,8 @@ void main() {
                 float shadowDist;
                 vec4 shadowColorF = SampleShadow(blockLocalPos, shadowDist);
 
+                float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+
                 #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                     if (blockId != BLOCK_WATER) {
                         // ivec3 bounceOffset = ivec3(sign(-localSunDirection));
@@ -416,13 +418,13 @@ void main() {
                         // bounceOffset.xz *= 1 - bounceYF;
                         // bounceOffset.y *= bounceYF;
 
-                        float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+                        // float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
                         //float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
                         //skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
 
                         #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
-                            float skyLightRange = mix(1.0, 4.0, sunUpF) * DynamicLightAmbientF;
+                            float skyLightRange = mix(0.5, 4.0, sunUpF) * DynamicLightAmbientF;
                         //     // float skyLightRange = mix(1.0, 6.0, sunUpF);
                         //     float skyLightRange = mix(2.0, 4.0, sunUpF);
                         #else
@@ -452,7 +454,8 @@ void main() {
                     }
                 #endif
 
-                float skyLightFinal = exp2(LPV_SKYLIGHT_RANGE * shadowColorF.a) - 1.0;
+                float skyLightDistF = sunUpF * 0.75 + 0.25;
+                float skyLightFinal = exp2(LPV_SKYLIGHT_RANGE * skyLightDistF * shadowColorF.a) - 1.0;
                 lightValue.a = max(lightValue.a, skyLightFinal);
             #endif
         }
