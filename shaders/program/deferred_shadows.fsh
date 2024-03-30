@@ -9,6 +9,7 @@ in vec2 texcoord;
 
 #ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D depthtex1;
+    uniform sampler2D depthtex2;
 
     #ifdef DISTANT_HORIZONS
         uniform sampler2D dhDepthTex;
@@ -82,6 +83,14 @@ void main() {
     #ifdef RENDER_SHADOWS_ENABLED
         ivec2 uv = ivec2(texcoord * viewSize);
         float depth = textureLod(depthtex1, texcoord, 0).r;
+        float depthHand = textureLod(depthtex2, texcoord, 0).r;
+        bool isHand = depthHand > depth + EPSILON;
+
+        if (isHand) {
+            depth = depth * 2.0 - 1.0;
+            depth /= MC_HAND_DEPTH;
+            depth = depth * 0.5 + 0.5;
+        }
 
         #ifdef DISTANT_HORIZONS
             float dhDepth = textureLod(dhDepthTex, texcoord, 0).r;
@@ -229,6 +238,17 @@ void main() {
 
                     ivec2 sampleUV = ivec2(traceScreenPos.xy * viewSize);
                     float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
+                    float sampleDepthHand = texelFetch(depthtex2, sampleUV, 0).r;
+                    bool isSampleHand = sampleDepthHand > sampleDepth + EPSILON;
+
+                    if (isSampleHand && !isHand) continue;
+
+                    if (sampleDepthHand > sampleDepth + EPSILON) {
+                        sampleDepth = sampleDepth * 2.0 - 1.0;
+                        sampleDepth /= MC_HAND_DEPTH;
+                        sampleDepth = sampleDepth * 0.5 + 0.5;
+                    }
+
                     float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
 
                     #ifdef DISTANT_HORIZONS
