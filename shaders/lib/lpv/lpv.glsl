@@ -17,17 +17,13 @@ vec3 Lpv_RgbToHsv(const in vec3 lightColor, const in float lightRange) {
     return lightValue;
 }
 
-vec3 getCameraViewDir(const in mat4 matModelView) {
-    return vec3(matModelView[0].z, matModelView[1].z, matModelView[2].z);
-}
-
 vec3 GetLpvCenter(const in vec3 viewPos, const in vec3 viewDir) {
     ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * LpvFrustumOffsetF));
     return (SceneLPVCenter + offset) + fract(viewPos);
 }
 
 vec3 GetLPVPosition(const in vec3 position) {
-    vec3 viewDir = getCameraViewDir(gbufferModelView);
+    vec3 viewDir = gbufferModelViewInverse[2].xyz;
     return position + GetLpvCenter(cameraPosition, viewDir);
 }
 
@@ -42,7 +38,7 @@ vec3 GetLPVTexCoord(const in vec3 lpvPos) {
 float GetLpvFade(const in vec3 lpvPos) {
     const vec3 lpvSizeInner = SceneLPVCenter - LPV_PADDING;
 
-    vec3 viewDir = getCameraViewDir(gbufferModelView);
+    vec3 viewDir = gbufferModelViewInverse[2].xyz;
     vec3 lpvDist = abs(lpvPos - SceneLPVCenter);
     vec3 lpvDistF = max(lpvDist - lpvSizeInner, vec3(0.0));
     return saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
@@ -50,11 +46,12 @@ float GetLpvFade(const in vec3 lpvPos) {
 
 // #if defined RENDER_VERTEX || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LPV
     ivec3 GetLPVFrameOffset() {
-        vec3 viewDir = getCameraViewDir(gbufferModelView);
+        vec3 viewDir = gbufferModelViewInverse[2].xyz;
         vec3 posNow = GetLpvCenter(cameraPosition, viewDir);
 
         //vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
-        vec3 viewDirPrev = getCameraViewDir(gbufferPreviousModelView);
+        // vec3 viewDirPrev = getCameraViewDir(gbufferPreviousModelView);
+        vec3 viewDirPrev = vec3(gbufferPreviousModelView[0].z, gbufferPreviousModelView[1].z, gbufferPreviousModelView[2].z);
         vec3 posPrev = GetLpvCenter(previousCameraPosition, viewDirPrev);
 
         //vec3 posLast = (SceneLPVCenter + offsetPrev) + fract(previousCameraPosition);

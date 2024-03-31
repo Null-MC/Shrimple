@@ -292,7 +292,7 @@ void main() {
             }
 
             if (lightRange > EPSILON) {
-                vec3 viewDir = getCameraViewDir(gbufferModelView);
+                vec3 viewDir = gbufferModelViewInverse[2].xyz;
                 vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
                 ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
 

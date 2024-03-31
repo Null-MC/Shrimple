@@ -771,3 +771,7 @@ float smootherstep(const in float x) {
 vec3 mul3(const in mat4 matrix, const in vec3 vector) {
 	return mat3(matrix) * vector + matrix[3].xyz;
 }
+
+// vec3 getCameraViewDir(const in mat4 matModelView) {
+//     return vec3(matModelView[0].z, matModelView[1].z, matModelView[2].z);
+// }

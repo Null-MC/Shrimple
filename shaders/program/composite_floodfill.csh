@@ -60,7 +60,7 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.002);
     //uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
-    uniform mat4 gbufferModelView;
+    uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferPreviousModelView;
 
     #ifdef DISTANT_HORIZONS
@@ -133,7 +133,7 @@ ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
     ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
 
-    vec3 viewDir = getCameraViewDir(gbufferModelView);
+    vec3 viewDir = gbufferModelViewInverse[2].xyz;
     ivec3 lpvOrigin = ivec3(GetLpvCenter(cameraPosition, viewDir) + 0.5);
 
     return voxelOrigin - lpvOrigin;
@@ -377,7 +377,7 @@ void main() {
 
         // vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell - VoxelBlockCenter + cameraOffset + 0.5;
 
-        vec3 viewDir = getCameraViewDir(gbufferModelView);
+        vec3 viewDir = gbufferModelViewInverse[2].xyz;
         vec3 lpvCenter = GetLpvCenter(cameraPosition, viewDir);
         vec3 blockLocalPos = imgCoord - lpvCenter + 0.5;
 
