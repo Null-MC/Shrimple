@@ -15,7 +15,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     const ivec3 workGroups = ivec3(8, 8, 8);
 #endif
 
-const vec2 LpvBlockSkyFalloff = vec2(0.02, 0.0);
+const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.002);
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0

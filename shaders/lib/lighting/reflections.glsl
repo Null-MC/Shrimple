@@ -252,7 +252,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             else {
         #endif
 
-            #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+            #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 if (reflectDist > 0.0) {
                     bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
                     float _skyFar = !isSkyFrag ? reflectDist : SkyFar;
