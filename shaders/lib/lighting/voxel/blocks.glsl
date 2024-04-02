@@ -71,5 +71,7 @@ bool IsTraceOpenBlock(const in uint blockId) {
 
     if (blockId >= BLOCK_SOUL_TORCH_FLOOR && blockId <= BLOCK_SOUL_TORCH_WALL_W) result = true;
 
+    if (blockId >= BLOCK_SIGN_WALL_N && blockId <= BLOCK_SIGN_WALL_W) result = true;
+
     return result;
 }

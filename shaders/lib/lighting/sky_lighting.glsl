@@ -73,7 +73,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     float diffuseF = 1.0;
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
-        diffuseF = 0.75;
+        //diffuseF = 0.75;
 
         vec3 lpvPos = GetLPVPosition(localPos);
 
