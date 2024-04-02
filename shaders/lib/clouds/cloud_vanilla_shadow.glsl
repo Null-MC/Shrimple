@@ -14,14 +14,18 @@
 //     return 1.0 - cloudF;
 // }
 
-vec2 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in vec2 cloudOffset) {
+vec3 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in vec2 cloudOffset) {
     worldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
     worldPos.y += eyePosition.y;
 
+    float dist = (cloudHeight - worldPos.y) / localDir.y;
+    worldPos.xz = worldPos.xz + localDir.xz * dist;
+
     vec2 cloudTexcoord;
-    cloudTexcoord = worldPos.xz + localDir.xz / localDir.y * (cloudHeight - worldPos.y);
+    cloudTexcoord = localDir.xz * dist + worldPos.xz;
     cloudTexcoord = ((cloudTexcoord + vec2(0.0, 4.0)) / 12.0 - cloudOffset.xy) / 256.0;
-    return cloudTexcoord;
+
+    return vec3(cloudTexcoord, dist);
 }
 
 #ifndef RENDER_VERTEX
@@ -29,8 +33,12 @@ vec2 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in v
         const int maxLod = int(log2(256));
 
         vec3 vertexWorldPos = localPos + camOffset;
-        vec2 cloudTexcoord = GetCloudShadowTexcoord(vertexWorldPos, localDir, cloudOffset);
-        float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexcoord, blur * maxLod).a;
+        vec3 cloudTexcoord = GetCloudShadowTexcoord(vertexWorldPos, localDir, cloudOffset);
+        float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexcoord.xy, blur * maxLod).a;
+
+        cloudF *= 1.0 - smoothstep(far, 3.0 * far, cloudTexcoord.z);
+
+        cloudF *= step(0.0, localDir.y);
 
         return 1.0 - 0.7 * cloudF;
     }
