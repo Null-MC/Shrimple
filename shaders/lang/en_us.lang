@@ -613,12 +613,12 @@ option.SHADOW_ENABLE_HWCOMP=HW-Accelerated
 option.SHADOW_ENABLE_HWCOMP.comment=When enabled, shadows will leverage hardware-filtering for better quality and performance.
 
 option.SHADOW_PCF_SIZE_MIN=Min Radius
-option.SHADOW_PCF_SIZE_MIN.comment=The minimum radius of the shadow blurring; measured in blocks/meters. For dynamic soft-shadows only.
-suffix.SHADOW_PCF_SIZE_MIN=%
+option.SHADOW_PCF_SIZE_MIN.comment=The minimum radius of the shadow blurring; measured in pixels. For dynamic soft-shadows only.
+suffix.SHADOW_PCF_SIZE_MIN=px
 
 option.SHADOW_PCF_SIZE_MAX=Max Radius
 option.SHADOW_PCF_SIZE_MAX.comment=The maximum/fixed radius of the shadow blurring; measured in blocks/meters. For fixed or dynamic soft-shadows.
-suffix.SHADOW_PCF_SIZE_MAX=%
+suffix.SHADOW_PCF_SIZE_MAX=m
 
 option.SHADOW_PCF_SAMPLES=Blur Samples
 option.SHADOW_PCF_SAMPLES.comment=The number of samples to use when blurring. For fixed or dynamic soft-shadows.

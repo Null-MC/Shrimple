@@ -19,10 +19,10 @@ vec3 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in v
     worldPos.y += eyePosition.y;
 
     float dist = (cloudHeight - worldPos.y) / localDir.y;
-    worldPos.xz = worldPos.xz + localDir.xz * dist;
+    worldPos.xz = localDir.xz * dist + worldPos.xz;
 
     vec2 cloudTexcoord;
-    cloudTexcoord = localDir.xz * dist + worldPos.xz;
+    cloudTexcoord = worldPos.xz;
     cloudTexcoord = ((cloudTexcoord + vec2(0.0, 4.0)) / 12.0 - cloudOffset.xy) / 256.0;
 
     return vec3(cloudTexcoord, dist);
@@ -36,7 +36,7 @@ vec3 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in v
         vec3 cloudTexcoord = GetCloudShadowTexcoord(vertexWorldPos, localDir, cloudOffset);
         float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexcoord.xy, blur * maxLod).a;
 
-        cloudF *= 1.0 - smoothstep(far, 3.0 * far, cloudTexcoord.z);
+        cloudF *= 1.0 - smoothstep(0.8*far, 3.0 * far, cloudTexcoord.z);
 
         cloudF *= step(0.0, localDir.y);
 
