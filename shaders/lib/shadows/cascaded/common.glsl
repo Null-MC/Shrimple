@@ -25,7 +25,7 @@ float GetShadowNormalBias(const in int cascade, const in float geoNoL) {
     float bias = 0.0;
 
     #if SHADOW_FILTER == SHADOW_FILTER_PCF
-        bias += 0.0008 * SHADOW_PCF_SIZE_MAX;
+        bias += 0.008 * SHADOW_PCF_SIZE_MAX;
     #endif
 
     bias += cascadeNormalBias[cascade];
