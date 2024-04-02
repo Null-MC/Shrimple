@@ -46,15 +46,15 @@ mat4 BuildShadowProjectionMatrix() {
     return BuildOrthoProjectionMatrix(maxDist, maxDist, -far, far);
 }
 
-#if defined RENDER_SHADOWS_ENABLED && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !(defined RENDER_SHADOW || defined RENDER_SHADOW_DH || defined RENDER_CLOUDS)
-    vec3 ApplyCloudShadows(const in vec3 localPos) {
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-        #endif
+// #if defined RENDER_SHADOWS_ENABLED && defined SHADOW_CLOUD_ENABLED && defined RENDER_VERTEX && !(defined RENDER_SHADOW || defined RENDER_SHADOW_DH || defined RENDER_CLOUDS)
+//     vec3 ApplyCloudShadows(const in vec3 localPos) {
+//         #ifndef IRIS_FEATURE_SSBO
+//             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+//         #endif
 
-        vec2 cloudOffset = GetCloudOffset();
-        vec3 camOffset = GetCloudCameraOffset();
-        vec3 worldPos = localPos + camOffset;
-        return GetCloudShadowPosition(worldPos, localSkyLightDirection, cloudOffset);
-    }
-#endif
+//         vec2 cloudOffset = GetCloudOffset();
+//         vec3 camOffset = GetCloudCameraOffset();
+//         vec3 worldPos = localPos + camOffset;
+//         return GetCloudShadowPosition(worldPos, localSkyLightDirection, cloudOffset);
+//     }
+// #endif

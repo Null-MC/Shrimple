@@ -114,6 +114,7 @@ uniform ivec2 eyeBrightnessSmooth;
 	#include "/lib/world/atmosphere.glsl"
 	#include "/lib/fog/fog_common.glsl"
 	#include "/lib/clouds/cloud_custom.glsl"
+	#include "/lib/clouds/cloud_custom_shadow.glsl"
 #endif
 
 #include "/lib/lighting/common.glsl"

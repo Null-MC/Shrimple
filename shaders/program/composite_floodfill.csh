@@ -67,6 +67,16 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
         uniform float dhFarPlane;
     #endif
 
+    #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+        // uniform float skyRainStrength;
+        uniform vec3 eyePosition;
+        uniform float cloudHeight;
+        uniform float cloudTime;
+
+        // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #endif
+    #endif
+
     #ifdef ANIM_WORLD_TIME
         uniform int worldTime;
     #else
@@ -109,20 +119,37 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
         #include "/lib/sampling/ign.glsl"
 
         #include "/lib/world/sky.glsl"
+        #include "/lib/clouds/cloud_vars.glsl"
 
         #ifdef WORLD_WATER_ENABLED
             #include "/lib/world/water.glsl"
         #endif
 
-        #ifdef SHADOW_CLOUD_ENABLED
-            #include "/lib/shadows/render.glsl"
-        #endif
+        // #ifdef SHADOW_CLOUD_ENABLED
+        //     #include "/lib/shadows/render.glsl"
+        // #endif
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
         #else
             #include "/lib/shadows/distorted/common.glsl"
         #endif
+
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_custom.glsl"
+                #include "/lib/clouds/cloud_custom_shadow.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+                #include "/lib/clouds/cloud_vanilla_shadow.glsl"
+            #endif
+        #endif
+    #endif
+
+    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
+        // #include "/lib/world/lightning.glsl"
+        //#include "/lib/lighting/hg.glsl"
+
     #endif
 #endif
 
@@ -406,6 +433,18 @@ void main() {
             #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && defined IS_LPV_SKYLIGHT_ENABLED
                 float shadowDist;
                 vec4 shadowColorF = SampleShadow(blockLocalPos, shadowDist);
+
+                #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+                    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                        vec3 worldPos = cameraPosition + blockLocalPos;
+                        float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    #else
+                        vec2 cloudOffset = GetCloudOffset();
+                        vec3 camOffset = GetCloudCameraOffset();
+                        float cloudShadow = SampleCloudShadow(blockLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
+                    #endif
+                    shadowColorF.a *= cloudShadow;
+                #endif
 
                 float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
 

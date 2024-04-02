@@ -31,10 +31,19 @@ in vec2 texcoord;
         #endif
     #endif
 
+    #if defined WORLD_SKY_ENABLED && ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            uniform sampler3D TEX_CLOUDS;
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform sampler2D TEX_CLOUDS_VANILLA;
+        #endif
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferProjectionInverse;
+    uniform vec3 cameraPosition;
     uniform int frameCounter;
 
     uniform vec2 viewSize;
@@ -44,15 +53,21 @@ in vec2 texcoord;
     uniform float near;
     uniform float far;
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        uniform vec3 cameraPosition;
-    #endif
-
     #ifdef DISTANT_HORIZONS
         uniform mat4 dhProjection;
         uniform mat4 dhProjectionInverse;
         uniform float dhNearPlane;
         uniform float dhFarPlane;
+    #endif
+
+    #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+        uniform float skyRainStrength;
+        uniform float cloudHeight;
+        uniform float cloudTime;
+
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            uniform vec3 eyePosition;
+        #endif
     #endif
 
     #include "/lib/sampling/depth.glsl"
@@ -62,6 +77,32 @@ in vec2 texcoord;
     #ifdef IRIS_FEATURE_SSBO
         #include "/lib/buffers/scene.glsl"
         #include "/lib/buffers/shadow.glsl"
+    #endif
+
+    // #include "/lib/world/atmosphere.glsl"
+
+    // #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    //     #if SKY_TYPE == SKY_TYPE_CUSTOM
+    //         #include "/lib/fog/fog_custom.glsl"
+    //     #elif SKY_TYPE == SKY_TYPE_VANILLA
+    //         #include "/lib/fog/fog_vanilla.glsl"
+    //     #endif
+    // #endif
+
+    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #include "/lib/clouds/cloud_vars.glsl"
+        // #include "/lib/world/lightning.glsl"
+        //#include "/lib/lighting/hg.glsl"
+
+        #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_custom.glsl"
+                #include "/lib/clouds/cloud_custom_shadow.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+                #include "/lib/clouds/cloud_vanilla_shadow.glsl"
+            #endif
+        #endif
     #endif
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -203,6 +244,21 @@ void main() {
             #endif
 
             shadowFinal *= mix(shadowSample, vec3(1.0), shadowFade);
+
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                    vec3 worldPos = cameraPosition + localPos;
+                    float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    shadowFinal *= cloudShadow;
+                #else
+                    vec2 cloudOffset = GetCloudOffset();
+                    vec3 camOffset = GetCloudCameraOffset();
+                    //vec3 worldPos = cameraPosition + localPos;
+                    //float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    float cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
+                    shadowFinal *= cloudShadow;
+                #endif
+            #endif
 
             #ifdef SHADOW_SCREEN
                 float viewDist = length(viewPos);

@@ -329,9 +329,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 sampleF *= cloudShadow;// * 0.7 + 0.3;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
-                    float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset);
-                    sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
-                    //sampleF *= cloudShadow;
+                    float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset, 0.0);
+                    //sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
+                    sampleF *= cloudShadow;
                 }
             #endif
         #endif

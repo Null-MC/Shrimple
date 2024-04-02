@@ -262,6 +262,8 @@ uniform int heldBlockLightValue2;
     #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"
+            #include "/lib/clouds/cloud_custom_shadow.glsl"
+            #include "/lib/clouds/cloud_custom_trace.glsl"
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
@@ -410,12 +412,12 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 worldPos = cameraPosition + localPos;
 
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                // deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
-                deferredShadow.rgb *= cloudShadow;
-                // deferredShadow.rgb *= cloudShadow;
-            #endif
+            // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            //     float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+            //     // deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
+            //     deferredShadow.rgb *= cloudShadow;
+            //     // deferredShadow.rgb *= cloudShadow;
+            // #endif
 
             vec3 albedo = RGBToLinear(deferredColor);
             float occlusion = deferredLighting.z;

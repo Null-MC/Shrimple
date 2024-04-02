@@ -248,6 +248,8 @@ uniform int heldBlockLightValue2;
 
     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         #include "/lib/clouds/cloud_custom.glsl"
+        #include "/lib/clouds/cloud_custom_shadow.glsl"
+        #include "/lib/clouds/cloud_custom_trace.glsl"
     #endif
 #endif
 
