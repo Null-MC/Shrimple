@@ -28,12 +28,9 @@ void main() {
         matColorPost = matSaturation * (matContrast * matBrightness);
         
         #if defined WORLD_SHADOW_ENABLED && (defined SHADOW_ENABLED || defined SHADOW_CLOUD_ENABLED)
-            const float goldenAngle = PI * (3.0 - sqrt(5.0));
-            const float PHI = (1.0 + sqrt(5.0)) / 2.0;
-
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
                 float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
-                float theta = i * goldenAngle + PHI;
+                float theta = i * GoldenAngle + PHI;
                 
                 float sine = sin(theta);
                 float cosine = cos(theta);
@@ -43,7 +40,7 @@ void main() {
 
             for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
                 float r = sqrt((i + 0.5) / SHADOW_PCSS_SAMPLES);
-                float theta = i * goldenAngle + PHI;
+                float theta = i * GoldenAngle + PHI;
                 
                 float sine = sin(theta);
                 float cosine = cos(theta);

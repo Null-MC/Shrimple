@@ -41,6 +41,7 @@ uniform float far;
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
     uniform float near;
 
     #ifdef DISTANT_HORIZONS

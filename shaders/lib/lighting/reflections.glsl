@@ -91,6 +91,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #else
         vec3 reflectColor = RGBToLinear(fogColor) * WorldSkyBrightnessF;
     #endif
+    
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+    #endif
 
     float _far = far;
     #ifdef DISTANT_HORIZONS
@@ -133,9 +137,9 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             reflectDist = min(length(reflectViewPos - viewPos), _far);
 
             #ifdef SKY_BORDER_FOG_ENABLED
-                #ifndef IRIS_FEATURE_SSBO
-                    vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                #endif
+                // #ifndef IRIS_FEATURE_SSBO
+                //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+                // #endif
 
                 vec3 fogColorFinal = vec3(0.0);
                 float fogF = 0.0;
@@ -224,6 +228,11 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         }
     #else
         #ifdef WORLD_SKY_ENABLED
+            #ifndef IRIS_FEATURE_SSBO
+                // vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+                vec3 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
+            #endif
+
             vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
         #endif
 

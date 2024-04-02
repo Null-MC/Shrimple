@@ -13,6 +13,7 @@ out VertexData {
 
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
+uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
 
 #ifdef IRIS_FEATURE_SSBO

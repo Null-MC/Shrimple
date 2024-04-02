@@ -108,6 +108,13 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         #endif
     #endif
 
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+
+        vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
+        vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
+    #endif
+
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 

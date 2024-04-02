@@ -43,6 +43,8 @@ in vec2 texcoord;
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferProjectionInverse;
+    uniform mat4 shadowModelView;
+    uniform mat4 shadowProjection;
     uniform vec3 cameraPosition;
     uniform int frameCounter;
 
@@ -52,6 +54,10 @@ in vec2 texcoord;
     uniform float farPlane;
     uniform float near;
     uniform float far;
+
+    #ifndef IRIS_FEATURE_SSBO
+        uniform vec3 shadowLightPosition;
+    #endif
 
     #ifdef DISTANT_HORIZONS
         uniform mat4 dhProjection;
@@ -79,20 +85,8 @@ in vec2 texcoord;
         #include "/lib/buffers/shadow.glsl"
     #endif
 
-    // #include "/lib/world/atmosphere.glsl"
-
-    // #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
-    //     #if SKY_TYPE == SKY_TYPE_CUSTOM
-    //         #include "/lib/fog/fog_custom.glsl"
-    //     #elif SKY_TYPE == SKY_TYPE_VANILLA
-    //         #include "/lib/fog/fog_vanilla.glsl"
-    //     #endif
-    // #endif
-
     #if defined WORLD_SKY_ENABLED && defined IS_IRIS
         #include "/lib/clouds/cloud_vars.glsl"
-        // #include "/lib/world/lightning.glsl"
-        //#include "/lib/lighting/hg.glsl"
 
         #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
@@ -194,7 +188,7 @@ void main() {
                 // float lmShadow = pow(lmFinal.y, 9);
                 // if (shadowPos == clamp(shadowPos, -0.85, 0.85)) lmShadow = 1.0;
 
-                float zRange = -2.0 / shadowProjectionEx[2][2];
+                float zRange = GetShadowRange();
             #endif
 
             // #ifdef SHADOW_COLORED

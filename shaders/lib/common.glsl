@@ -601,6 +601,9 @@ const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 const float WorldWaterOpacityF = 0.02;
 const float ShadowScreenSlope = 0.85;
 
+const float GoldenAngle = PI * (3.0 - sqrt(5.0));
+const float PHI = (1.0 + sqrt(5.0)) / 2.0;
+
 const float invPI = 1.0 / PI;
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float uint32MaxInv = 1.0 / UINT32_MAX;

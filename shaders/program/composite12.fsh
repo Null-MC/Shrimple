@@ -145,6 +145,16 @@ uniform int heldBlockLightValue2;
     uniform float dhFarPlane;
 #endif
 
+#ifndef IRIS_FEATURE_SSBO
+    #ifdef WORLD_SKY_ENABLED
+        uniform float lightningPosition;
+    #endif
+
+    #if MC_VERSION > 11900
+        uniform float darknessFactor;
+    #endif
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
@@ -601,6 +611,10 @@ layout(location = 0) out vec4 outFinal;
 
             #ifdef SKY_BORDER_FOG_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    #ifndef IRIS_FEATURE_SSBO
+                        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+                    #endif
+
                     vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
                     fogColorFinal *= WorldSkyBrightnessF;
 

@@ -81,7 +81,7 @@ vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
         #ifdef IRIS_FEATURE_SSBO
             return WorldSkyLightColor;
         #else
-            return CalculateSkyLightColor(sunDir);
+            return CalculateSkyLightColor(sunDir.y);
         #endif
     }
 
@@ -89,8 +89,8 @@ vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
         #ifdef IRIS_FEATURE_SSBO
             return WorldSkyLightColor;
         #else
-            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-            return CalculateSkyLightColor(localSunDirection);
+            vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+            return CalculateSkyLightColor(localSunDirection.y);
         #endif
     }
 

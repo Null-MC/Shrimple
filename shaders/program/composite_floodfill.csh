@@ -23,58 +23,56 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
         uniform sampler2D noisetex;
     #endif
 
-    #ifdef WORLD_WATER_ENABLED
-        uniform vec3 WaterAbsorbColor;
-        uniform vec3 WaterScatterColor;
-        uniform float waterDensitySmooth;
-    #endif
+    #ifdef RENDER_SHADOWS_ENABLED
+        uniform sampler2D shadowtex0;
+        uniform sampler2D shadowtex1;
 
-    #ifdef WORLD_SKY_ENABLED
-        uniform float rainStrength;
-        uniform float skyRainStrength;
+        uniform sampler2D shadowcolor0;
 
-        #ifdef RENDER_SHADOWS_ENABLED
-            uniform sampler2D shadowtex0;
-            uniform sampler2D shadowtex1;
-
-            uniform sampler2D shadowcolor0;
-
-            #ifdef SHADOW_CLOUD_ENABLED
-                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    uniform sampler3D TEX_CLOUDS;
-                #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                    uniform sampler2D TEX_CLOUDS_VANILLA;
-                #endif
-            #endif
-
-            uniform float far;
-
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                uniform mat4 shadowModelView;
+        #ifdef SHADOW_CLOUD_ENABLED
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                uniform sampler3D TEX_CLOUDS;
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                uniform sampler2D TEX_CLOUDS_VANILLA;
             #endif
         #endif
     #endif
 
     uniform float frameTime;
     uniform int frameCounter;
-    //uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
     uniform vec3 previousCameraPosition;
     uniform mat4 gbufferModelViewInverse;
     uniform mat4 gbufferPreviousModelView;
 
+    #ifdef WORLD_SKY_ENABLED
+        uniform float rainStrength;
+        uniform float skyRainStrength;
+
+        #ifdef RENDER_SHADOWS_ENABLED
+            uniform mat4 shadowProjection;
+            uniform float far;
+
+            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                uniform mat4 shadowModelView;
+            #endif
+        #endif
+
+        #ifdef SHADOW_CLOUD_ENABLED
+            uniform vec3 eyePosition;
+            uniform float cloudHeight;
+            uniform float cloudTime;
+        #endif
+    #endif
+
     #ifdef DISTANT_HORIZONS
         uniform float dhFarPlane;
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-        // uniform float skyRainStrength;
-        uniform vec3 eyePosition;
-        uniform float cloudHeight;
-        uniform float cloudTime;
-
-        // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        // #endif
+    #ifdef WORLD_WATER_ENABLED
+        uniform vec3 WaterAbsorbColor;
+        uniform vec3 WaterScatterColor;
+        uniform float waterDensitySmooth;
     #endif
 
     #ifdef ANIM_WORLD_TIME

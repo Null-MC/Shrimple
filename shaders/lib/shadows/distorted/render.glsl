@@ -46,7 +46,15 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             
             vec3 shadowColor = vec3(0.0);
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-                vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
+                #ifdef IRIS_FEATURE_SSBO
+                    vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
+                #else
+                    float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                    float theta = i * GoldenAngle + PHI;
+
+                    vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                    vec2 pixelOffset = (rotation * pcfDiskOffset) * pixelRadius;
+                #endif
 
                 vec4 sampleColor = vec4(1.0);
 
@@ -93,8 +101,16 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
             float shadow = 0.0;
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-                vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
-                // vec3 samplePos = distort(shadowPos) * 0.5 + 0.5;
+                // vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
+                #ifdef IRIS_FEATURE_SSBO
+                    vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
+                #else
+                    float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                    float theta = i * GoldenAngle + PHI;
+                    
+                    vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                    vec2 pixelOffset = (rotation * pcfDiskOffset) * pixelRadius;
+                #endif
 
                 shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
             }
@@ -140,7 +156,16 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
         float blockers = 0.0;
         float avgDist = 0.0;
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
-            vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
+            // vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
+            #ifdef IRIS_FEATURE_SSBO
+                vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
+            #else
+                float r = sqrt((i + 0.5) / SHADOW_PCSS_SAMPLES);
+                float theta = i * GoldenAngle + PHI;
+                
+                vec2 pcssDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                vec2 pixelOffset = (rotation * pcssDiskOffset) * pixelRadius;
+            #endif
 
             vec3 _shadowPos = shadowPos;
             _shadowPos.xy += pixelOffset;

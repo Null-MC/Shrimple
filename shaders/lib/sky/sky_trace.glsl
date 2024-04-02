@@ -11,6 +11,13 @@ float GetTraceDither() {
 void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount) {
     // float dither = GetTraceDither();
 
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+        vec3 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
+
+        vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    #endif
+
     float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
     vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
