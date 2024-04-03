@@ -1,4 +1,4 @@
-const vec3 colorSkyDay     = _RGBToLinear(vec3(0.176, 0.369, 0.612)) * 0.5;
+const vec3 colorSkyDay     = _RGBToLinear(vec3(0.176, 0.369, 0.612)) * 0.7;
 const vec3 colorFogDay     = _RGBToLinear(vec3(0.541, 0.600, 0.651)) * 0.7;
 
 const vec3 colorSkyNight   = _RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;

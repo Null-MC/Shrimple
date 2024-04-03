@@ -1,5 +1,5 @@
 const float WorldAtmosphereMin =  20.0;
-const float WorldAtmosphereMax = 960.0;
+const float WorldAtmosphereMax = 1200.0;
 
 const float SkyDensityF = SKY_FOG_DENSITY * 0.01;
 const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
@@ -22,7 +22,7 @@ const float phaseAir = phaseIso;
     const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.922, 0.933, 0.941));
     const vec3 AirExtinctColor_rain = _RGBToLinear(1.0 - vec3(0.576, 0.604, 0.62));
 
-    const float AirAmbientF = 0.08;//mix(0.02, 0.0, skyRainStrength);
+    const float AirAmbientF = 0.04;//mix(0.02, 0.0, skyRainStrength);
     const vec3 AirScatterColor = _RGBToLinear(vec3(0.541, 0.514, 0.482));
     const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.737, 0.745, 0.769));//mix(0.02, 0.006, skyRainStrength);
 #else
