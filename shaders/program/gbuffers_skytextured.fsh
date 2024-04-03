@@ -49,7 +49,12 @@ uniform int frameCounter;
 #endif
 
 void main() {
-    vec4 color = textureLod(gtexture, vIn.texcoord, 0) * vIn.color;
+    vec4 color = textureLod(gtexture, vIn.texcoord, 0);
+
+    #if SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
+        color.rgb *= vIn.color.rgb;
+    #endif
+
     color.rgb = RGBToLinear(color.rgb);// * WorldSkyBrightnessF;
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));

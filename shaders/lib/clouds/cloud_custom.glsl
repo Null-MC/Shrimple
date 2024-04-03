@@ -9,7 +9,7 @@ float GetCloudDither() {
 }
 
 float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int octaveCount) {
-    float _str = pow(skyRainStrength, 0.333);
+    //float _str = pow(skyRainStrength, 0.333);
     float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
     float sampleD = 0.0;
 
@@ -30,7 +30,8 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
         testPos.x += cloudTimeF;
 
         float sampleF = textureLod(texClouds, testPos.xzy * sampleScale * (octave+1), 0).r;
-        sampleD += pow(sampleF, 2.0 - 0.5*_str) * rcp(exp2(octave));
+        // sampleD += pow(sampleF, 2.0 - 0.5*_str) * rcp(exp2(octave));
+        sampleD += pow2(sampleF) * rcp(exp2(octave));
     }
 
     const float sampleMaxInv = rcp(1.0 - rcp(exp2(octaveCount)));
@@ -44,7 +45,7 @@ float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int
     const float CloudCoverMin = 1.0 - sqrt(CloudCoverMinF);
 
     // float threshold = mix(CloudCoverMin, 0.0, _str);
-    float threshold = CloudCoverMin * (1.0 - 0.6*skyRainStrength);
+    float threshold = CloudCoverMin * (1.0 - 0.7*skyRainStrength);
     sampleD = max(sampleD - threshold, 0.0) / (1.0 - threshold);
 
     sampleD = smootherstep(sampleD);
