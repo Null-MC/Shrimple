@@ -365,11 +365,12 @@ void main() {
         #endif
 
             #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                #ifdef DISTANT_HORIZONS
-                    float _far = max(SkyFar, dhFarPlane);
-                #else
-                    float _far = SkyFar;
-                #endif
+                // #ifdef DISTANT_HORIZONS
+                //     float _far = max(SkyFar, dhFarPlane);
+                // #else
+                //     float _far = SkyFar;
+                // #endif
+                float _far = SkyFar;
 
                 if (depthTrans < 1.0)
                     _far = min(_far, viewDist);
@@ -382,11 +383,12 @@ void main() {
 
                     float cloudDistNear = farMax;
 
-                    #ifdef DISTANT_HORIZONS
-                        float cloudDistFar = max(SkyFar, dhFarPlane);
-                    #else
-                        float cloudDistFar = SkyFar;
-                    #endif
+                    // #ifdef DISTANT_HORIZONS
+                    //     float cloudDistFar = max(SkyFar, dhFarPlane);
+                    // #else
+                    //     float cloudDistFar = SkyFar;
+                    // #endif
+                    float cloudDistFar = SkyFar;
 
                     if (depthTrans < 1.0) {
                         cloudDistNear = 0.0;

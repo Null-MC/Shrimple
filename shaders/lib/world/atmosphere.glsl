@@ -6,9 +6,9 @@ const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
 const float phaseAir = phaseIso;
 
 #ifdef DISTANT_HORIZONS
-    float SkyFar = max(2000.0, dhFarPlane);
+    float SkyFar = max(4000.0, dhFarPlane);
 #else
-    const float SkyFar = 2000.0;
+    const float SkyFar = 4000.0;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
