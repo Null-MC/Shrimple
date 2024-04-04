@@ -222,6 +222,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         }
     }
 
-    blockDiffuse += accumDiffuse * DynamicLightBrightness * 6.0;
-    blockSpecular += accumSpecular * DynamicLightBrightness * 6.0;
+    blockDiffuse += accumDiffuse * DynamicLightBrightness * 3.0;
+    blockSpecular += accumSpecular * DynamicLightBrightness * 3.0;
 }
