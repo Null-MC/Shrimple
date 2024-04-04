@@ -359,7 +359,7 @@ const bool colortex15Clear = true;
 #define MIP_BIAS 0.25 // [1.0 0.5 0.25]
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED
-//#define DEFERRED_PARTICLES
+#define DEFERRED_PARTICLES
 #define RIPPLE_STRENGTH 0.03
 //#define HCM_LAZANYI
 
