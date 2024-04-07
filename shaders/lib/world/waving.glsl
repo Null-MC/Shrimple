@@ -5,8 +5,8 @@ vec3 waving_fbm(const in vec3 worldPos, const in float time) {
     // float time = GetAnimationFactor() / 3.6;
 
     float iter = 0.0;
-    float frequency = 3.0;
-    float speed = 1.0;
+    float frequency = 2.5;
+    float speed = 1.6;
     float weight = 1.0;
     float height = 0.0;
     float waveSum = 0.0;
@@ -20,11 +20,11 @@ vec3 waving_fbm(const in vec3 worldPos, const in float time) {
         
         position -= force * 0.03;
         height += wave * weight;
-        iter += 12.0;
+        iter += 1.3;
         waveSum += weight;
-        weight *= 0.8;
+        weight *= 0.6;
         frequency *= 1.1;
-        speed *= 1.3;
+        speed *= 1.4;
     }
 
     position = (position * WORLD_WIND_STRENGTH) - worldPos.xz;

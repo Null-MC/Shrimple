@@ -233,7 +233,7 @@ void main() {
 
 
     // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0 && !defined RENDER_SHADOWS_ENABLED
-    #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
+    #if defined IS_LPV_ENABLED && !defined RENDER_SHADOWS_ENABLED
         if (entityId > 0 || currentRenderedItemId > 0) {
             vec3 originPos = vOut.localPos; // TODO: offset by normal?
             bool intersects = true;
