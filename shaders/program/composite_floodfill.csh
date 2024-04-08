@@ -275,7 +275,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             // bool isWater = shadowPos.z < texDepth + EPSILON
             //     && shadowPos.z > texDepthTrans + shadowBias;
 
-            bool isWater = texDepthTrans < texDepth - EPSILON;
+            bool isWater = false;//texDepthTrans < texDepth - EPSILON;
 
             //if (i == 0) waterDepth = max(shadowPos.z - texDepthTrans, 0.0) * shadowDistMax;
 
