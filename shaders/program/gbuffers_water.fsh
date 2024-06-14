@@ -21,12 +21,6 @@ in VertexData {
         vec3 surfacePos;
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
-    #endif
-
-
     #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
         vec3 viewPos_T;
 
@@ -159,14 +153,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float skyRainStrength;
     uniform float skyWetnessSmooth;
 
-    uniform float cloudHeight;
-    
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-    #endif
-
     #ifdef IS_IRIS
         uniform float lightningStrength;
+        uniform float cloudHeight;
+        uniform float cloudTime;
     #endif
 #endif
 
@@ -255,7 +245,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
-    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
     
     #ifdef WORLD_WETNESS_ENABLED
@@ -351,9 +341,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #ifdef PHYSICS_OCEAN
-        #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE > 0
+    #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -441,13 +429,6 @@ void main() {
         // TODO: discard if DH opaque nearer?
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        if (isWater && !gl_FrontFacing && isEyeInWater != 1) {
-            discard;
-            return;
-        }
-    #endif
-
     vec3 localViewDir = normalize(vIn.localPos);
 
     vec3 localNormal = normalize(vIn.localNormal);
@@ -463,13 +444,7 @@ void main() {
         if (isWater && abs(vIn.localNormal.y) > 0.5) {
             skipParallax = true;
 
-            #ifdef PHYSICS_OCEAN
-                float waviness = max(vIn.physics_localWaviness, 0.02);
-                WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
-                waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
-                texNormal = wave.normal;
-                oceanFoam = wave.foam;
-            #elif WATER_WAVE_SIZE > 0
+            #if WATER_WAVE_SIZE > 0
                 float waveDistF = 32.0 / (32.0 + viewDist);
 
                 // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset);
@@ -484,9 +459,7 @@ void main() {
                 waterUvOffset = waveOffset.xz * waveDistF;
 
                 if (localNormal.y < 0.0) texNormal = -texNormal;
-            #endif
 
-            #if defined PHYSICS_OCEAN || WATER_WAVE_SIZE > 0
                 if (localNormal.y >= 1.0 - EPSILON) {
                     localCoord += waterUvOffset;
                     atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);

@@ -67,13 +67,10 @@ in vec2 texcoord;
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+        uniform vec3 eyePosition;
         uniform float skyRainStrength;
         uniform float cloudHeight;
         uniform float cloudTime;
-
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            uniform vec3 eyePosition;
-        #endif
     #endif
 
     #include "/lib/sampling/depth.glsl"
@@ -86,7 +83,7 @@ in vec2 texcoord;
     #endif
 
     #if defined WORLD_SKY_ENABLED && defined IS_IRIS
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
 
         #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

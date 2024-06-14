@@ -92,10 +92,6 @@ uniform vec3 skyColor;
 
     #ifdef SHADOW_ENABLED
         uniform mat4 shadowProjection;
-
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-            uniform float cloudTime;
-        #endif
     #endif
 #endif
 
@@ -110,6 +106,7 @@ uniform int heldBlockLightValue2;
     uniform float lightningStrength;
     uniform vec3 eyePosition;
     uniform float cloudHeight;
+    uniform float cloudTime;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
@@ -157,7 +154,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
 
-#include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/clouds/cloud_common.glsl"
 #include "/lib/world/sky.glsl"
 #include "/lib/world/lightning.glsl"
 
@@ -357,7 +354,7 @@ void main() {
         vec4 final = albedo;
 
         // TODO: do clouds have lightmap coords?
-        const vec2 lmcoord = vec2(0.0, 1.0);
+        //const vec2 lmcoord = vec2(0.0, 1.0);
 
         // #if LIGHTING_MODE > LIGHTING_MODE_BASIC
         //     vec3 diffuseFinal = vec3(0.0);
@@ -380,44 +377,28 @@ void main() {
         vec3 diffuseFinal = vec3(0.0);
         vec3 specularFinal = vec3(0.0);
 
-        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            //GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
+        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        #else
+            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+        #endif
 
-            // #ifdef WORLD_SKY_ENABLED
-            //     const bool tir = false;
-            //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, tir);
-            // #else
-            //     diffuseFinal += WorldAmbientF;
-            // #endif
-            // TODO: add ambient light
-            diffuseFinal += albedo.rgb * (shadowColor) * WorldSkyLightColor;
+        #if LIGHTING_MODE == LIGHTING_MODE_NONE
+            diffuseFinal += albedo.rgb * (1.0 + fogColor);
+        #else
+            diffuseFinal += albedo.rgb * (shadowColor * WorldSkyLightColor + skyColorFinal);
+        #endif
 
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
-            #endif
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE <= LIGHTING_MODE_FLOODFILL
+            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+        #endif
 
-            // #if MATERIAL_SPECULAR != SPECULAR_NONE
-            //     if (metal_f0 >= 0.5) {
-            //         diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            //         specularFinal *= albedo.rgb;
-            //     }
-            // #endif
-
-            // diffuseFinal += emission * MaterialEmissionF;
-
+        #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
             final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
-        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, lmcoord);
-
-            #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false;
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, tir);
-            #endif
-
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
-            #endif
-
+        // #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+        #else
             final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
         #endif
 
@@ -442,14 +423,6 @@ void main() {
 
             // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
             // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
-
-            float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-            #if SKY_TYPE == SKY_TYPE_CUSTOM
-                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
-            #else
-                vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-                skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
-            #endif
 
             vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
             ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);

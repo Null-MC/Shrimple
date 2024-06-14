@@ -1,3 +1,6 @@
+const float CloudCoverMinF = 1.0 - SKY_CLOUD_COVER_MIN * 0.01;
+const float CloudCoverMaxF = 1.0 - SKY_CLOUD_COVER_MAX * 0.01;
+
 float GetCloudDither() {
     #ifndef RENDER_FRAG
         return 0.0;
@@ -8,52 +11,32 @@ float GetCloudDither() {
     #endif
 }
 
-float SampleCloudOctaves(in vec3 worldPos, const in float altitude, const in int octaveCount) {
-    //float _str = pow(skyRainStrength, 0.333);
-    float cloudTimeF = mod((cloudTime/3072.0), 1.0) * SKY_CLOUD_SPEED;
-    float sampleD = 0.0;
+float SampleClouds(const in vec3 worldPos, const in vec2 cloudOffset) {
+    vec3 cloudPos = worldPos;
+    cloudPos.y -= GetCloudAltitude();
+    cloudPos /= CloudSize;
 
-    const vec3 sampleScale = vec3(0.5, 0.5, 1.0);
-    const float sampleDensity = 1.3;
+    vec3 texcoord = cloudPos.xzy - vec3(cloudOffset, 0.0);
 
-    for (int octave = 0; octave < octaveCount; octave++) {
-        float scale = exp2(CloudMaxOctaves - octave);
+    const ivec3 CloudTexSize = ivec3(256, 256, 16);
+    ivec3 uv = ivec3(texcoord) % CloudTexSize;
 
-        vec3 testPos = worldPos / CloudSize;
+    float cloudF = texelFetch(TEX_CLOUDS, uv, 0).r;
 
-        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
-            testPos = floor(testPos);
-        #endif
+    cloudF *= step(mod(cloudPos.y, 4.0), 1.0);
 
-        testPos /= scale;
+    cloudF *= step(0.01, cloudPos.y);
+    cloudF *= step(cloudPos.y, CloudHeight - 0.01);
 
-        testPos.x += cloudTimeF;
+    // float middle;
+    // middle = step(1.0, cloudPos.y);
+    // middle *= step(cloudPos.y, 7.0);
+    // cloudF *= 1.0 - middle;
 
-        float sampleF = textureLod(texClouds, testPos.xzy * sampleScale * (octave+1), 0).r;
-        // sampleD += pow(sampleF, 2.0 - 0.5*_str) * rcp(exp2(octave));
-        sampleD += pow2(sampleF) * rcp(exp2(octave));
-    }
-
-    const float sampleMaxInv = rcp(1.0 - rcp(exp2(octaveCount)));
-    sampleD = saturate(sampleD * sampleMaxInv * sampleDensity);
-
-    float cloudAlt = GetCloudAltitude();
-    float z = saturate((altitude - cloudAlt) / CloudHeight);
-    sampleD *= sqrt(z - z*z) * 2.0;
-
-    const float CloudCoverMinF = SKY_CLOUD_COVER_MIN * 0.01;
-    const float CloudCoverMin = 1.0 - sqrt(CloudCoverMinF);
-
-    // float threshold = mix(CloudCoverMin, 0.0, _str);
-    float threshold = CloudCoverMin * (1.0 - 0.7*skyRainStrength);
-    sampleD = max(sampleD - threshold, 0.0) / (1.0 - threshold);
-
-    sampleD = smootherstep(sampleD);
-    return pow5(sampleD);
-}
-
-float SampleCloudOctaves(in vec3 worldPos, const in int octaveCount) {
-    return SampleCloudOctaves(worldPos, worldPos.y, octaveCount);
+    // float threshold = skyRainStrength * 0.6 + 0.2;
+    float threshold = mix(CloudCoverMinF, CloudCoverMaxF, skyRainStrength);
+    // return step(threshold, cloudF);
+    return smoothstep(threshold, threshold + 0.02, cloudF);
 }
 
 float raySphere(const in vec3 ro, const in vec3 rd, const in vec3 sph, const in float rad) {
@@ -101,7 +84,8 @@ void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec
         cloudFar = localViewDir * _far;
     #else
         float cloudOffset = cloudAlt - worldPos.y;
-        vec3 cloudPosHigh = vec3(localViewDir.xz * ((cloudOffset + CloudHeight) / localViewDir.y), cloudOffset + CloudHeight).xzy;
+        float heightScaled = CloudSize * CloudHeight;
+        vec3 cloudPosHigh = vec3(localViewDir.xz * ((cloudOffset + heightScaled) / localViewDir.y), cloudOffset + heightScaled).xzy;
         vec3 cloudPosLow = vec3(localViewDir.xz * ((cloudOffset) / localViewDir.y), cloudOffset).xzy;
 
         if (cloudPosLow.y > 0.0) {

@@ -145,7 +145,7 @@ uniform int frameCounter;
 // #ifdef WORLD_SKY_ENABLED
 //     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
 //         #include "/lib/lighting/scatter_transmit.glsl"
-//         #include "/lib/clouds/cloud_vars.glsl"
+//         #include "/lib/clouds/cloud_common.glsl"
 //         #include "/lib/clouds/cloud_custom.glsl"
 //     #endif
 // #endif

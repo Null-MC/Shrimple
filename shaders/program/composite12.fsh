@@ -266,7 +266,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS
-    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 
     #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED

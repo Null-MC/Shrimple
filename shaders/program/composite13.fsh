@@ -215,7 +215,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
     #include "/lib/fog/fog_common.glsl"
-    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM

@@ -7,35 +7,44 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudDist = cloudDistFar - cloudDistNear;
 
     if (cloudDist < EPSILON) return 1.0;
-    cloudDist = min(cloudDist, 512.0);
+    //cloudDist = min(cloudDist, 512.0);
 
     float dither = GetCloudDither();
     float cloudAlt = GetCloudAltitude();
+    vec2 cloudOffset = GetCloudOffset();
+    //vec3 camOffset = GetCloudCameraOffset();
 
     float cloudStepLen = cloudDist / stepCount;
     vec3 cloudStep = localLightDir * cloudStepLen;
 
     float cloudAbsorb = 1.0;
-    for (uint i = 0u; i < stepCount; i++) {
-        vec3 traceLocalPos = worldPos + cloudNear - cameraPosition;
-        traceLocalPos += cloudStep * (i + dither);
+    for (uint i = 0u; i <= stepCount; i++) {
+        // vec3 traceLocalPos = worldPos + cloudNear - cameraPosition;
+        // traceLocalPos += cloudStep * (i + dither);
 
         #if WORLD_CURVE_RADIUS > 0
+            vec3 traceLocalPos = worldPos + cloudNear - cameraPosition;
+            traceLocalPos += cloudStep * (i + dither);
+
             float traceAltitude = GetWorldAltitude(traceLocalPos);
             vec3 traceWorldPos = GetWorldCurvedPosition(traceLocalPos);
             traceWorldPos.xz += cameraPosition.xz;
         #else
-            vec3 traceWorldPos = traceLocalPos + cameraPosition;
-            float traceAltitude = traceWorldPos.y;
+            vec3 traceWorldPos = worldPos + cloudNear;
+            traceWorldPos += cloudStep * (i + dither);
+
+            //vec3 traceWorldPos = traceLocalPos + cameraPosition;
+            //float traceAltitude = traceWorldPos.y;
         #endif
 
-        float sampleD = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudShadowOctaves) * CloudDensityF;
+        float sampleD = SampleClouds(traceWorldPos, cloudOffset) * CloudDensityF;
 
         float traceStepLen = cloudStepLen;
-        // if (i == stepCount-1) traceStepLen *= (1.0 - dither);
-        // else if (i == 0) traceStepLen *= dither;
+        if (i == stepCount) traceStepLen *= (1.0 - dither);
+        else if (i == 0) traceStepLen *= dither;
 
         cloudAbsorb *= exp(traceStepLen * sampleD * -CloudAbsorbF);
+        // cloudAbsorb *= 1.0 - sampleD;
     }
 
     return cloudAbsorb * 0.74 + 0.26;
@@ -93,6 +102,8 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
         vec3 cloudStep = localLightDir * cloudStepLen;
 
         float cloudAlt = GetCloudAltitude();
+        vec2 cloudOffset = GetCloudOffset();
+        //vec3 camOffset = GetCloudCameraOffset();
         //vec3 sampleOffset = worldPos - vec3(0.0, cloudAlt, 0.0);
 
         for (float i = 0.0; i < sampleCount; i++) {
@@ -107,7 +118,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
                 float traceAltitude = traceWorldPos.y;
             #endif
 
-            cloudDensity += SampleCloudOctaves(traceWorldPos, traceAltitude, CloudShadowOctaves);
+            cloudDensity += SampleClouds(traceWorldPos, cloudOffset);
         }
     }
 

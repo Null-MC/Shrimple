@@ -161,7 +161,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
     #include "/lib/fog/fog_common.glsl"
-    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 #endif
 
@@ -378,46 +378,69 @@ void main() {
                 if (_far > farDist)
                     TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, _far, 16);
             #else
+                vec3 cloudNear, cloudFar;
+                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+                
+                float cloudDistNear = length(cloudNear);
+                float cloudDistFar = min(length(cloudFar), SkyFar);
+                int cloudSampleCount = int(mix(CLOUD_STEPS_MAX, CLOUD_STEPS_MIN, abs(localViewDir.y)));
+
                 #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                    // const int traceStepCount = CLOUD_STEPS;
-
-                    float cloudDistNear = farMax;
-
-                    // #ifdef DISTANT_HORIZONS
-                    //     float cloudDistFar = max(SkyFar, dhFarPlane);
-                    // #else
-                    //     float cloudDistFar = SkyFar;
-                    // #endif
-                    float cloudDistFar = SkyFar;
-
+                    // float vlDistFar = farMax;
+                    float skyDistFar = SkyFar;
                     if (depthTrans < 1.0) {
-                        cloudDistNear = 0.0;
-                        cloudDistFar = 0.0;
+                        cloudDistNear = min(cloudDistNear, viewDist);
+                        cloudDistFar  = min(cloudDistFar,  viewDist);
+                        skyDistFar = min(skyDistFar, viewDist);
                     }
+
+                    cloudDistNear = max(cloudDistNear, farMax);
+                    cloudDistFar  = max(cloudDistFar,  farMax);
+
+                    // if (cloudDistNear - farMax > EPSILON)
+                    //     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farMax, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+
+                    // if (cloudDistFar - cloudDistNear > EPSILON)
+                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+
+                    // if (skyDistFar - cloudDistFar > EPSILON)
+                    //     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
                 #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                    // const int traceStepCount = VOLUMETRIC_SAMPLES;
+                    float skyDistFar = SkyFar;
+                    if (depthTrans < 1.0) {
+                        cloudDistNear = min(cloudDistNear, viewDist);
+                        cloudDistFar  = min(cloudDistFar,  viewDist);
+                        skyDistFar = min(skyDistFar, viewDist);
+                    }
 
-                    const float cloudDistNear = 0.0;
-                    float cloudDistFar = depthTrans < 1.0 ? viewDist : SkyFar;
+                    if (cloudDistNear - near > EPSILON)
+                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+
+                    if (cloudDistFar - cloudDistNear > EPSILON)
+                        _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+
+                    if (skyDistFar - cloudDistFar > EPSILON)
+                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
                 #else
-                    // const int traceStepCount = CLOUD_STEPS;
-                    // const int traceStepCount = VOLUMETRIC_SAMPLES;
+                    //float skyDistFar = SkyFar;
+                    if (depthTrans < 1.0) {
+                        cloudDistNear = min(cloudDistNear, viewDist);
+                        cloudDistFar  = min(cloudDistFar,  viewDist);
+                        //skyDistFar = min(skyDistFar, viewDist);
+                    }
 
-                    vec3 cloudNear, cloudFar;
-                    GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
-                    
-                    float cloudDistNear = length(cloudNear);
-                    float cloudDistFar = min(length(cloudFar), SkyFar);
+                    // if (cloudDistNear - near > EPSILON)
+                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, 16, CLOUD_SHADOW_STEPS);
 
-                    // if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
-                    //     cloudDistFar = depthTrans < 1.0 ? min(cloudDistFar, viewDist) : SkyFar;
-                    
-                    if (depthTrans < 1.0)
-                        cloudDistFar = min(cloudDistFar, viewDist);
+                    if (cloudDistFar - cloudDistNear > EPSILON)
+                        _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+
+                    // if (skyDistFar - cloudDistFar > EPSILON)
+                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, 16, CLOUD_SHADOW_STEPS);
                 #endif
 
-                if (cloudDistFar > cloudDistNear)
-                    _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
+                // if (cloudDistFar > cloudDistNear)
+                //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
             #endif
 
         #ifdef WORLD_WATER_ENABLED

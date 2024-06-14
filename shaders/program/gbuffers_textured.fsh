@@ -93,14 +93,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float skyRainStrength;
     
-    uniform float cloudHeight;
-
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
-        uniform float cloudTime;
-    #endif
-
     #ifdef IS_IRIS
         uniform float lightningStrength;
+        uniform float cloudHeight;
+        uniform float cloudTime;
     #endif
 #endif
 
@@ -205,7 +201,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    #include "/lib/clouds/cloud_vars.glsl"
+    #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 
     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA

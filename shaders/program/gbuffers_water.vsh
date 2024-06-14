@@ -39,11 +39,6 @@ out VertexData {
         #endif
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
-    #endif
-
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     //     vec3 cloudPos;
     // #endif
@@ -177,9 +172,7 @@ uniform float far;
 #include "/lib/material/normalmap.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #ifdef PHYSICS_OCEAN
-        #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE > 0
+    #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif

@@ -97,13 +97,10 @@ uniform float skyRainStrength;
 
 #ifdef IS_IRIS
     uniform float lightningStrength;
-
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE
-        uniform float cloudTime;
-    #endif
+    uniform float cloudHeight;
+    uniform float cloudTime;
 #endif
 
-uniform float cloudHeight;
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -175,7 +172,7 @@ uniform float cloudHeight;
 #include "/lib/world/sky.glsl"
 
 #include "/lib/fog/fog_common.glsl"
-#include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/clouds/cloud_common.glsl"
 #include "/lib/world/lightning.glsl"
 
 #if WORLD_CURVE_RADIUS > 0

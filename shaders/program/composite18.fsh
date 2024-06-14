@@ -109,10 +109,7 @@ uniform int heldBlockLightValue2;
     //uniform float wetness;
 
     uniform float cloudHeight;
-
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
-        uniform float cloudTime;
-    #endif
+    uniform float cloudTime;
 
     #ifdef IS_IRIS
         uniform float lightningStrength;
@@ -241,7 +238,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     //#if SKY_CLOUD_TYPE != CLOUDS_NONE
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
     //#endif
     
     #include "/lib/world/lightning.glsl"
@@ -319,8 +316,6 @@ uniform int heldBlockLightValue2;
     #if VOLUMETRIC_BLUR_SIZE > 0
         #include "/lib/sampling/fog_filter.glsl"
     #endif
-#else
-    //#include "/lib/world/clouds.glsl"
 #endif
 
 #ifdef EFFECT_BLUR_ENABLED
@@ -805,7 +800,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #ifndef IRIS_FEATURE_SSBO
-            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+            vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
         #endif
 
         if (isWater) {

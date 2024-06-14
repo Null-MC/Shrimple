@@ -35,11 +35,6 @@ in VertexData {
         #endif
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
-    #endif
-
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     //     vec3 cloudPos;
     // #endif
@@ -78,11 +73,6 @@ out VertexData {
         #endif
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
-    #endif
-
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     //     vec3 cloudPos;
     // #endif
@@ -112,6 +102,7 @@ uniform mat4 gbufferModelView;
     #endif
 
     #if defined WORLD_SHADOW_ENABLED && WATER_TESSELLATION_QUALITY > 0
+        uniform mat4 shadowProjection;
         uniform vec3 shadowLightPosition;
         uniform float far;
     #endif
@@ -127,9 +118,7 @@ uniform mat4 gbufferModelView;
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/utility/anim.glsl"
 
-    #ifdef PHYSICS_OCEAN
-        #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE > 0
+    #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 
@@ -201,15 +190,7 @@ void main() {
                 distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
-            #ifdef PHYSICS_OCEAN
-                vOut.physics_localWaviness = texelFetch(physics_waviness, ivec2(pos.xz) - physics_textureOffset, 0).r;
-
-                #ifdef WATER_DISPLACEMENT
-                    vOut.localPos.y += distF * physics_waveHeight(pos.xz, PHYSICS_ITERATIONS_OFFSET, vOut.physics_localWaviness, physics_gameTime);
-                #endif
-
-                vOut.physics_localPosition = pos.xyz;
-            #elif WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
+            #if WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
                 float time = GetAnimationFactor();
                 //vOut.localPos = (gbufferModelViewInverse * gl_Position).xyz;
 
@@ -270,11 +251,6 @@ void main() {
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
             vOut.lightPos_T = _interpolate(vIn[0].lightPos_T, vIn[1].lightPos_T, vIn[2].lightPos_T);
         #endif
-    #endif
-
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vOut.physics_localPosition = _interpolate(vIn[0].physics_localPosition, vIn[1].physics_localPosition, vIn[2].physics_localPosition);
-        vOut.physics_localWaviness = _interpolate(vIn[0].physics_localWaviness, vIn[1].physics_localWaviness, vIn[2].physics_localWaviness);
     #endif
 
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED

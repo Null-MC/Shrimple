@@ -105,7 +105,7 @@ uniform ivec2 eyeBrightnessSmooth;
 	#endif
 #endif
 
-#include "/lib/clouds/cloud_vars.glsl"
+#include "/lib/clouds/cloud_common.glsl"
 
 #if defined SKY_WEATHER_CLOUD_ONLY && SKY_CLOUD_TYPE > CLOUDS_VANILLA
 	#include "/lib/lighting/hg.glsl"

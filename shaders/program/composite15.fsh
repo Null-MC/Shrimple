@@ -87,9 +87,6 @@ in vec2 texcoord;
         #if SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
             uniform float cloudHeight;
-        #endif
-
-        #if defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE && defined IS_IRIS
             uniform vec3 eyePosition;
         #endif
     #endif
@@ -152,7 +149,7 @@ in vec2 texcoord;
 
     #ifdef WORLD_SKY_ENABLED
         #if SKY_CLOUD_TYPE != CLOUDS_NONE
-            #include "/lib/clouds/cloud_vars.glsl"
+            #include "/lib/clouds/cloud_common.glsl"
         #endif
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

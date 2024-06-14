@@ -250,7 +250,7 @@ uniform ivec2 eyeBrightnessSmooth;
 // #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
 #ifndef DEFERRED_BUFFER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
@@ -339,7 +339,7 @@ uniform ivec2 eyeBrightnessSmooth;
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 3) out vec4 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 1,2,3,9,7 */
@@ -575,7 +575,7 @@ void main() {
 
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(shadowColor + dither, 0.0);
-        outDeferredTexNormal = texNormal * 0.5 + 0.5;
+        outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);

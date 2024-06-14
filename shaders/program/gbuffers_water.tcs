@@ -39,11 +39,6 @@ in VertexData {
         #endif
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
-    #endif
-
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
     //     vec3 cloudPos;
     // #endif
@@ -84,11 +79,6 @@ out VertexData {
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
             vec3 lightPos_T;
         #endif
-    #endif
-
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vec3 physics_localPosition;
-        float physics_localWaviness;
     #endif
 
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
@@ -140,11 +130,6 @@ void main() {
         #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
             vOut[gl_InvocationID].lightPos_T = vIn[gl_InvocationID].lightPos_T;
         #endif
-    #endif
-
-    #if defined WORLD_WATER_ENABLED && defined PHYSICS_OCEAN
-        vOut[gl_InvocationID].physics_localPosition = vIn[gl_InvocationID].physics_localPosition;
-        vOut[gl_InvocationID].physics_localWaviness = vIn[gl_InvocationID].physics_localWaviness;
     #endif
 
     // #ifdef RENDER_CLOUD_SHADOWS_ENABLED

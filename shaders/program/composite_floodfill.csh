@@ -117,7 +117,7 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
         #include "/lib/sampling/ign.glsl"
 
         #include "/lib/world/sky.glsl"
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
 
         #ifdef WORLD_WATER_ENABLED
             #include "/lib/world/water.glsl"

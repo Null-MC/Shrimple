@@ -96,7 +96,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float cloudAlt = GetCloudAltitude();
-            vec3 cloudOffset = cameraPosition - vec3(0.0, cloudAlt, 0.0);
+            // vec3 cloudOffset = cameraPosition - vec3(0.0, cloudAlt, 0.0);
+            vec2 cloudOffset = GetCloudOffset();
             float phaseCloud = GetCloudPhase(VoL);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();
@@ -210,11 +211,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     //     sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
                     // }
 
-                    #if WORLD_CURVE_RADIUS > 0
-                        float sampleCloudF = SampleCloudOctaves(curvedWorldPos, traceAltitude, CloudTraceOctaves);
-                    #else
-                        float sampleCloudF = SampleCloudOctaves(traceWorldPos, traceAltitude, CloudTraceOctaves);
-                    #endif
+                    // #if WORLD_CURVE_RADIUS > 0
+                    //     float sampleCloudF = SampleClouds(curvedWorldPos, traceAltitude, CloudTraceOctaves);
+                    // #else
+                        float sampleCloudF = SampleClouds(traceWorldPos, cloudOffset);
+                    // #endif
 
                     sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
                     sampleScattering = mix(sampleScattering, CloudScatterColor, sampleCloudF);

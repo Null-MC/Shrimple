@@ -286,7 +286,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
         
         // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA

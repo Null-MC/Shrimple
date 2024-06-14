@@ -114,6 +114,10 @@ uniform int frameCounter;
     #endif
 #endif
 
+#ifdef IS_IRIS
+    uniform vec3 eyePosition;
+#endif
+
 // #ifdef WORLD_SHADOW_ENABLED
 //     uniform mat4 shadowModelView;
 //     uniform vec3 shadowLightPosition;
@@ -225,7 +229,7 @@ uniform int frameCounter;
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/clouds/cloud_vars.glsl"
+        #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
