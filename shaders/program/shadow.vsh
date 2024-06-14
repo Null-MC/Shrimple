@@ -59,9 +59,7 @@ uniform int blockEntityId;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
-    #ifdef PHYSICS_OCEAN
-        #include "/lib/physics_mod/ocean.glsl"
-    #elif WATER_WAVE_SIZE > 0
+    #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
 #endif
@@ -131,7 +129,7 @@ void main() {
         ApplyWavingOffset(localPos, localPos, blockId);
     #endif
 
-    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && (WATER_WAVE_SIZE > 0 || defined PHYSICS_OCEAN)
+    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && WATER_WAVE_SIZE > 0
         if ((renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD)) {
             //float viewDist = length(localPos);
             float distF = 1.0 - smoothstep(0.2, 2.8, vOut.viewDist);
@@ -150,10 +148,7 @@ void main() {
                 distF *= 1.0 - smoothstep(0.8*waterClipFar, waterClipFar, viewDistXZ);
             #endif
 
-            #ifdef PHYSICS_OCEAN
-                float physics_localWaviness = texelFetch(physics_waviness, ivec2(gl_Vertex.xz) - physics_textureOffset, 0).r;
-                localPos.y += distF * physics_waveHeight(gl_Vertex.xz, PHYSICS_ITERATIONS_OFFSET, physics_localWaviness, physics_gameTime);
-            #elif WATER_WAVE_SIZE > 0
+            #if WATER_WAVE_SIZE > 0
                 vec2 lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 
                 float time = GetAnimationFactor();
