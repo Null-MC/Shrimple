@@ -463,6 +463,8 @@ void main() {
     //texNormal = matLocalTBN * texNormal;
 
     //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+    
+    if (!gl_FrontFacing) texNormal = -texNormal;
 
     float roughL = _pow2(roughness);
 
