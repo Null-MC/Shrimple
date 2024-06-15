@@ -199,6 +199,7 @@ uniform ivec2 eyeBrightnessSmooth;
     
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
+        #include "/lib/water/water_depths_read.glsl"
     #endif
 
     // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)

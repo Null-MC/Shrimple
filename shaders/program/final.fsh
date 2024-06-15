@@ -80,6 +80,7 @@ uniform float far;
 
     #if WATER_DEPTH_LAYERS > 1 && defined WATER_MULTIDEPTH_DEBUG
         #include "/lib/buffers/water_depths.glsl"
+        #include "/lib/water/water_depths_read.glsl"
     #endif
 #endif
 

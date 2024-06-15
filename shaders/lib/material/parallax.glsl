@@ -1,6 +1,6 @@
 vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-    vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * MaterialTessellationOffset) / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
-    const float stepDepth = MaterialTessellationOffset / MATERIAL_PARALLAX_SAMPLES;
+    vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * MaterialParallaxOffset) / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
+    const float stepDepth = MaterialParallaxOffset / MATERIAL_PARALLAX_SAMPLES;
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 atlasPixelSize = rcp(atlasSize);
@@ -42,7 +42,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
             texDepth = textureGrad(normals, traceAtlasCoord, dFdXY[0], dFdXY[1]).a;
         #endif
 
-        depthDist = MaterialTessellationOffset - i * stepDepth - texDepth;
+        depthDist = MaterialParallaxOffset - i * stepDepth - texDepth;
     }
 
     i = max(i - 1.0, 0.0);
@@ -50,9 +50,9 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 currentTraceOffset = texcoord - i * stepCoord;
-        float currentTraceDepth = max(MaterialTessellationOffset - i * stepDepth, 0.0);
+        float currentTraceDepth = max(MaterialParallaxOffset - i * stepDepth, 0.0);
         vec2 prevTraceOffset = texcoord - pI * stepCoord;
-        float prevTraceDepth = max(MaterialTessellationOffset - pI * stepDepth, 0.0);
+        float prevTraceDepth = max(MaterialParallaxOffset - pI * stepDepth, 0.0);
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
         t = clamp(t, 0.0, 1.0);
@@ -61,7 +61,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
         traceDepth.z = mix(prevTraceDepth, currentTraceDepth, t);
     #else
         traceDepth.xy = texcoord - pI * stepCoord;
-        traceDepth.z = max(MaterialTessellationOffset - pI * stepDepth, 0.0);
+        traceDepth.z = max(MaterialParallaxOffset - pI * stepDepth, 0.0);
     #endif
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH

@@ -170,6 +170,7 @@ uniform int heldBlockLightValue2;
     
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
+        #include "/lib/water/water_depths_read.glsl"
     #endif
 #endif
 
@@ -330,9 +331,9 @@ layout(location = 0) out vec4 outFinal;
         bool isHand = handClipDepth > depthOpaque;
 
         // if (isHand) {
-        //     depth = depth * 2.0 - 1.0;
-        //     depth /= MC_HAND_DEPTH;
-        //     depth = depth * 0.5 + 0.5;
+        //     depthOpaque = depthOpaque * 2.0 - 1.0;
+        //     depthOpaque /= MC_HAND_DEPTH;
+        //     depthOpaque = depthOpaque * 0.5 + 0.5;
         // }
 
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);

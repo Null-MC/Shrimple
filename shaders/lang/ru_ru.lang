@@ -292,8 +292,8 @@ value.MATERIAL_SSS.2=Lab-PBR
 
 /////PARALLAX OPTIONS/////
 
-screen.MATERIAL_PARALLAX_OPTIONS=Настройки Вытеснения
-screen.MATERIAL_PARALLAX_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
+screen.MATERIAL_DISPLACE_OPTIONS=Настройки Вытеснения
+screen.MATERIAL_DISPLACE_OPTIONS.comment=Как смещается глубина каждого пикселя поверхности (POM).
 
 =====Parallax Mode=====
 
@@ -309,11 +309,6 @@ value.DISPLACE_MODE.4=Тесселяция
 
 option.MATERIAL_DISPLACE_DEPTH=Глубина
 suffix.MATERIAL_DISPLACE_DEPTH=%
-
-=====Displace Offset=====
-
-option.MATERIAL_DISPLACE_OFFSET=Смещение Поверхности
-suffix.MATERIAL_DISPLACE_OFFSET=%
 
 =====Tessellation Quality=====
 

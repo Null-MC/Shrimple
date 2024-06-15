@@ -145,8 +145,8 @@ option.MATERIAL_NORMAL_ROUND.comment=Wenn diese Option aktiviert ist, verfügen 
 value.MATERIAL_NORMAL_ROUND.0=Aus
 
 
-screen.MATERIAL_PARALLAX_OPTIONS=Parallax
-screen.MATERIAL_PARALLAX_OPTIONS.comment=Beschreibt, wie die Tiefe jedes Pixels der Oberfläche verschoben wird.
+screen.MATERIAL_DISPLACE_OPTIONS=Displacement
+screen.MATERIAL_DISPLACE_OPTIONS.comment=Beschreibt, wie die Tiefe jedes Pixels der Oberfläche verschoben wird.
 
 option.DISPLACE_MODE=Typ
 option.DISPLACE_MODE.comment=Der Typ des zu rendernden POM. Glattes POM hat weiche Kanten. Scharfes POM weist modellähnliche harte Kanten auf.

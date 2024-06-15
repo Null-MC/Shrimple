@@ -209,6 +209,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
+        #include "/lib/water/water_depths_read.glsl"
     #endif
 #endif
 

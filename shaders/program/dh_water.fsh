@@ -176,6 +176,7 @@ uniform float dhFarPlane;
 
     #if WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
+        #include "/lib/water/water_depths_write.glsl"
     #endif
 #endif
 

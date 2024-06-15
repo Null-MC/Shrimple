@@ -114,6 +114,7 @@ in vec2 texcoord;
 
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             #include "/lib/buffers/water_depths.glsl"
+            #include "/lib/water/water_depths_read.glsl"
         #endif
     #endif
 
@@ -200,14 +201,18 @@ layout(location = 0) out vec4 outFinal;
         //float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
         float depthOpaque = texelFetch(depthtex1, iTex, 0).r;
         float depthTrans = texelFetch(depthtex0, iTex, 0).r;
-        //float handClipDepth = textureLod(depthtex2, texcoord, 0).r;
-        //bool isHand = handClipDepth > depthOpaque;
+        float handClipDepth = texelFetch(depthtex2, iTex, 0).r;
+        bool isHand = handClipDepth > depthOpaque;
 
-        // if (isHand) {
-        //     depth = depth * 2.0 - 1.0;
-        //     depth /= MC_HAND_DEPTH;
-        //     depth = depth * 0.5 + 0.5;
-        // }
+        if (isHand) {
+            depthOpaque = depthOpaque * 2.0 - 1.0;
+            depthOpaque /= MC_HAND_DEPTH;
+            depthOpaque = depthOpaque * 0.5 + 0.5;
+
+            // depthTrans = depthTrans * 2.0 - 1.0;
+            // depthTrans /= MC_HAND_DEPTH;
+            // depthTrans = depthTrans * 0.5 + 0.5;
+        }
 
         float depthOpaqueL = linearizeDepthFast(depthOpaque, near, farPlane);
         float depthTransL = linearizeDepthFast(depthTrans, near, farPlane);

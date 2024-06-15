@@ -212,8 +212,8 @@ value.MATERIAL_SSS.1=Integrated
 value.MATERIAL_SSS.2=Lab-PBR
 
 
-screen.MATERIAL_PARALLAX_OPTIONS=Displacement
-screen.MATERIAL_PARALLAX_OPTIONS.comment=Describes how the depth of each pixel of the surface is displaced.
+screen.MATERIAL_DISPLACE_OPTIONS=Displacement
+screen.MATERIAL_DISPLACE_OPTIONS.comment=Describes how the depth of each pixel of the surface is displaced.
 
 option.DISPLACE_MODE=Type
 option.DISPLACE_MODE.comment=The type of POM to render. Smooth POM will have softened edges. Sharp POM will have model-like hard edges.
@@ -226,21 +226,22 @@ value.DISPLACE_MODE.4=Tessellation
 option.MATERIAL_DISPLACE_DEPTH=Depth
 suffix.MATERIAL_DISPLACE_DEPTH=%
 
-option.MATERIAL_DISPLACE_OFFSET=Surface Offset
-suffix.MATERIAL_DISPLACE_OFFSET=%
+option.MATERIAL_DISPLACE_MAX_DIST=Max Distance
+option.MATERIAL_DISPLACE_MAX_DIST.comment=The maximum distance (in blocks) from the camera to render POM.
 
-option.MATERIAL_TESSELLATION_QUALITY=Tess Quality
-suffix.MATERIAL_TESSELLATION_QUALITY=x
+option.MATERIAL_DISPLACE_ENTITIES=Entities
+option.MATERIAL_DISPLACE_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
 
-option.MATERIAL_TESSELLATION_EDGE_FADE=Tess Edge-Fade
+
+screen.MATERIAL_DISPLACE_POM_OPTIONS=Parallax Options
 
 option.MATERIAL_PARALLAX_SAMPLES=POM Samples
 
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=POM Shadow Samples
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=OFF
 
-option.MATERIAL_DISPLACE_MAX_DIST=Max Distance
-option.MATERIAL_DISPLACE_MAX_DIST.comment=The maximum distance (in blocks) from the camera to render POM.
+option.MATERIAL_PARALLAX_OFFSET=Surface Offset
+suffix.MATERIAL_PARALLAX_OFFSET=%
 
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD=Sharp POM Threshold
 option.MATERIAL_PARALLAX_SHARP_THRESHOLD.comment=The threshold for which sharp parallax applies slope-normals. [N / 255]
@@ -251,8 +252,16 @@ option.MATERIAL_PARALLAX_SHADOW_SMOOTH.comment=Enables higher quality shadows wh
 
 option.MATERIAL_PARALLAX_DEPTH_WRITE=Depth-Write POM
 
-option.MATERIAL_DISPLACE_ENTITIES=Entities
-option.MATERIAL_DISPLACE_ENTITIES.comment=Disable parallax for entities if it causes rendering issues with certain mods.
+
+screen.MATERIAL_DISPLACE_TESS_OPTIONS=Tessellation Options
+
+option.MATERIAL_TESSELLATION_QUALITY=Tess Quality
+suffix.MATERIAL_TESSELLATION_QUALITY=x
+
+option.MATERIAL_TESSELLATION_OFFSET=Surface Offset
+suffix.MATERIAL_TESSELLATION_OFFSET=%
+
+option.MATERIAL_TESSELLATION_EDGE_FADE=Tess Edge-Fade
 
 
 screen.MATERIAL_NORMAL_OPTIONS=Normal Map Options

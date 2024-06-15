@@ -153,7 +153,8 @@ const bool colortex15Clear = true;
 #define MATERIAL_PARALLAX_SHADOW_SAMPLES 0 // [0 16 24 32 48 64 96 128]
 //#define MATERIAL_PARALLAX_SHADOW_SMOOTH
 #define MATERIAL_DISPLACE_DEPTH 25 // [5 10 15 20 25 30 40 50 60 70 80 90 100]
-#define MATERIAL_DISPLACE_OFFSET 100 // [0 25 50 75 100]
+#define MATERIAL_PARALLAX_OFFSET 100 // [0 25 50 75 100]
+#define MATERIAL_TESSELLATION_OFFSET 50 // [0 25 50 75 100]
 #define MATERIAL_DISPLACE_MAX_DIST 30 // [10 20 30 40 50 60 70 80]
 #define MATERIAL_PARALLAX_SHARP_THRESHOLD 1 // [1 2 3 4 6 8 12 16 20 24 28]
 //#define MATERIAL_PARALLAX_DEPTH_WRITE
@@ -568,7 +569,8 @@ const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
 const float MaterialMetalBrightnessF = METAL_BRIGHTNESS * 0.01;
 const float MaterialReflectionStrength = MATERIAL_REFLECT_STRENGTH * 0.01;
-const float MaterialTessellationOffset = MATERIAL_DISPLACE_OFFSET * 0.01;
+const float MaterialParallaxOffset = MATERIAL_PARALLAX_OFFSET * 0.01;
+const float MaterialTessellationOffset = MATERIAL_TESSELLATION_OFFSET * 0.01;
 const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float MaterialSssStrengthF = MATERIAL_SSS_STRENGTH * 0.01;
 const float ParallaxDepthF = MATERIAL_DISPLACE_DEPTH * 0.01;
