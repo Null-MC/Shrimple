@@ -316,7 +316,7 @@ void main() {
     float viewDist = length(localPos);
     vec3 localViewDir = localPos / viewDist;
 
-    float farMax = far;// - 0.002;
+    float farMax = 2000.0;// - 0.002;
     #ifdef DISTANT_HORIZONS
         farMax = 0.5*dhFarPlane;// - 0.1;
     #endif
@@ -382,7 +382,7 @@ void main() {
                 GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
                 
                 float cloudDistNear = length(cloudNear);
-                float cloudDistFar = min(length(cloudFar), SkyFar);
+                float cloudDistFar = min(length(cloudFar), 2000.0);
                 int cloudSampleCount = int(mix(CLOUD_STEPS_MAX, CLOUD_STEPS_MIN, abs(localViewDir.y)));
 
                 #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY

@@ -123,10 +123,6 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
             #include "/lib/world/water.glsl"
         #endif
 
-        // #ifdef SHADOW_CLOUD_ENABLED
-        //     #include "/lib/shadows/render.glsl"
-        // #endif
-
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             #include "/lib/shadows/cascaded/common.glsl"
         #else
@@ -142,12 +138,6 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
             #endif
         #endif
-    #endif
-
-    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
-        // #include "/lib/world/lightning.glsl"
-        //#include "/lib/lighting/hg.glsl"
-
     #endif
 #endif
 
@@ -332,12 +322,15 @@ vec4 sampleShared(ivec3 pos, int mask_index) {
 }
 
 vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1) * ((mask     ) & 1u);
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0) * ((mask >> 1) & 1u);
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3) * ((mask >> 2) & 1u);
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2) * ((mask >> 3) & 1u);
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5) * ((mask >> 4) & 1u);
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4) * ((mask >> 5) & 1u);
+    uvec3 m1 = (uvec3(mask) >> uvec3(0, 2, 4)) & uvec3(1u);
+    uvec3 m2 = (uvec3(mask) >> uvec3(1, 3, 5)) & uvec3(1u);
+
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1) * m1.x;
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0) * m2.x;
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3) * m1.y;
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2) * m2.y;
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5) * m1.z;
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4) * m2.z;
 
     const vec4 avgFalloff = (1.0/6.0) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;

@@ -9,7 +9,7 @@ const float PHYSICS_WEIGHT = 0.8;
 const float PHYSICS_FREQUENCY_MULT = 1.18;
 const float PHYSICS_SPEED_MULT = 1.07;
 const float PHYSICS_ITER_INC = 12.0;
-const float PHYSICS_NORMAL_STRENGTH = 0.6;
+const float PHYSICS_NORMAL_STRENGTH = 1.0;
 
 // this is the surface detail from the physics options, ranges from 13 to 48 (yeah I know weird)
 uniform int physics_iterationsNormal;

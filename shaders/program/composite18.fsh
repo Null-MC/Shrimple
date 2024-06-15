@@ -616,7 +616,7 @@ layout(location = 0) out vec4 outFinal;
                     SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                 #endif
 
-                if (isWater) diffuse *= WorldWaterOpacityF;
+                //if (isWater) diffuse *= WorldWaterOpacityF;
                 //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
 
                 final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);

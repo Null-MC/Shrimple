@@ -7,7 +7,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudDist = cloudDistFar - cloudDistNear;
 
     if (cloudDist < EPSILON) return 1.0;
-    //cloudDist = min(cloudDist, 512.0);
+    cloudDist = min(cloudDist, 128.0);
 
     float dither = GetCloudDither();
     float cloudAlt = GetCloudAltitude();

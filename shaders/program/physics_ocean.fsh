@@ -362,20 +362,27 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    float oceanFoam = 0.0;
+    float waviness = max(vIn.physics_localWaviness, 0.02);
+    WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
+    waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
+    texNormal = wave.normal.xzy;
+    float oceanFoam = wave.foam;
 
-    //if (abs(vIn.localNormal.y) > 0.5) {
-        float waviness = max(vIn.physics_localWaviness, 0.02);
-        WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
-        waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
-        texNormal = wave.normal.xzy;
-        oceanFoam = wave.foam;
+    // if (localNormal.y >= 1.0 - EPSILON) {
+    //     localCoord += waterUvOffset;
+    //     atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+    // }
 
-        // if (localNormal.y >= 1.0 - EPSILON) {
-        //     localCoord += waterUvOffset;
-        //     atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-        // }
-    //}
+    //#define WATER_EDGE_FOAM
+    #ifdef WATER_EDGE_FOAM
+        if (isWater) {
+            // TODO: edge ocean foam
+            float edgeDepth1 = texture(depthtex1, texcoord).r;
+            float edgeDepth2 = texture(depthtex1, texcoord).r;
+            float edgeDepth3 = texture(depthtex1, texcoord).r;
+            float edgeDepth4 = texture(depthtex1, texcoord).r;
+        }
+    #endif
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         SetWaterDepth(viewDist);
