@@ -4,7 +4,7 @@ const float tilePadding = 2.0;
 
 const float EffectBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 const float EffectBloomBrightnessF = EFFECT_BLOOM_BRIGHT * 0.01;
-const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
+const float Bloom_HandStrength = EFFECT_BLOOM_HAND_STRENGTH * 0.01;
 
 
 float GetBloomTileScale(const in int tile) {

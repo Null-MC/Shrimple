@@ -938,9 +938,9 @@ option.EFFECT_BLOOM_THRESHOLD=Порог
 option.EFFECT_BLOOM_THRESHOLD.comment=Порог яркости, который должен превысить свет, чтобы способствовать блюму.
 suffix.EFFECT_BLOOM_THRESHOLD=%
 
-option.EFFECT_BLOOM_HAND=Сила от Руки
-option.EFFECT_BLOOM_HAND.comment=Сила блюма от находящихся в руках предметов/блоков.
-suffix.EFFECT_BLOOM_HAND=%
+option.EFFECT_BLOOM_HAND_STRENGTH=Сила от Руки
+option.EFFECT_BLOOM_HAND_STRENGTH.comment=Сила блюма от находящихся в руках предметов/блоков.
+suffix.EFFECT_BLOOM_HAND_STRENGTH=%
 
 /////BLUR OPTIONS/////
 

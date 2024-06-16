@@ -9,7 +9,7 @@ in vec2 texcoord;
 
 uniform sampler2D BUFFER_FINAL;
 
-#if EFFECT_BLOOM_HAND != 100
+#if EFFECT_BLOOM_HAND_STRENGTH != 100
     uniform sampler2D depthtex1;
     uniform sampler2D depthtex2;
 #endif
@@ -51,7 +51,7 @@ void main() {
     float brightness = luminance(color);
     color *= pow(saturate(brightness * EffectBloomBrightnessF), EFFECT_BLOOM_POWER);
 
-    #if EFFECT_BLOOM_HAND != 100
+    #if EFFECT_BLOOM_HAND_STRENGTH != 100
         float depth1 = textureLod(depthtex1, tex, 0).r;
         float depth2 = textureLod(depthtex2, tex, 0).r;
 
