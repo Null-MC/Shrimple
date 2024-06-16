@@ -2,29 +2,28 @@
 
 A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic, while adding some optional features:
  - Waving Plants.
- - FXAA (anti-aliasing).
- - Sharp/Soft Shadows.
- - CSM (Cascaded Shadow Mapping).
- - Dynamic colored lighting.
- - Ray-Traced block-light shadows.
- - Volumetric fog lighting.
  - Rain puddles & ripples.
+ - Volumetric fog lighting.
+ - TAA / FXAA (anti-aliasing).
+ - Normal / Specular Mapping (PBR).
  - POM (Parallax Occlusion Mapping).
- - Normal Mapping.
- - Specular (shininess).
+ - Dynamic Soft Shadows / +Cascaded Shadow Mapping.
+ - Dynamic Colored Lighting / +Ray-Traced block-light shadows.
 
 
 ## Mod Support
+ - BigGlobe
  - Create
  - Create Deco
  - Distant Horizons
  - Maccaws Lights
+ - PhysicsMod
  - Supplementaries
 
 
 ## FAQ
 - **Q:** Why isn't block-lighting being ray traced?  
-**A:** RT is off by default. Either change BLock Light > Mode to "Traced", or apply the "RTX" profile.
+**A:** RT is off by default. Either change Block Light > Mode to "Traced", or apply the "RTX" profile.
 
 - **Q:** How do I make colored/dynamic/traced shadows work further from player/camera?  
 **A:** You can increase the Block Lighting > Advanced > Horizontal/Vertical Bin Counts. Increasing the Bin Size option will also help, but it will educe the maximum "density" of light sources per area.

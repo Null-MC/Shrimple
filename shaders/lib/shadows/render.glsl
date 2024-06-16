@@ -55,10 +55,10 @@
 
             // float bias = sss * dither;
 
-            vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
-            sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
+            // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
+            // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
-            float bias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / zRange;
+            float sssBias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / zRange;
 
             //sssOffset = (sssOffset);
 
@@ -66,25 +66,25 @@
                 // int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
 
                 if (cascadeIndex >= 0) {
-                    vec3 _shadowPos = vIn.shadowPos[cascadeIndex];
-                    _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
+                    // vec3 _shadowPos = vIn.shadowPos[cascadeIndex];
+                    // _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
 
                     #ifdef SHADOW_COLORED
-                        shadow = GetShadowColor(_shadowPos, cascadeIndex, bias);
+                        shadow = GetShadowColor(vIn.shadowPos[cascadeIndex], cascadeIndex, sssBias);
                     #else
-                        shadow = GetShadowFactor(_shadowPos, cascadeIndex, bias);
+                        shadow = GetShadowFactor(vIn.shadowPos[cascadeIndex], cascadeIndex, sssBias);
                     #endif
                 }
             #else
-                vec3 _shadowPos = vIn.shadowPos;
-                _shadowPos.xy += rcp(shadowDistance) * sssOffset;
+                // vec3 _shadowPos = vIn.shadowPos;
+                // _shadowPos.xy += rcp(shadowDistance) * sssOffset;
 
-                float offsetBias = GetShadowOffsetBias(_shadowPos, geoNoL) + bias;
+                float offsetBias = GetShadowOffsetBias(vIn.shadowPos, geoNoL);
 
                 #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(_shadowPos, offsetBias);
+                    shadow = GetShadowColor(vIn.shadowPos, offsetBias, sssBias);
                 #else
-                    shadow = GetShadowFactor(_shadowPos, offsetBias);
+                    shadow = GetShadowFactor(vIn.shadowPos, offsetBias, sssBias);
                 #endif
             #endif
         #endif

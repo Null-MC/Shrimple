@@ -29,7 +29,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 #if SHADOW_FILTER != 0
     // PCF
     #ifdef SHADOW_COLORED
-        vec3 GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
+        vec3 GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias, const in float sss) {
             #ifdef RENDER_FRAG
                 #ifdef EFFECT_TAA_ENABLED
                     float dither = InterleavedGradientNoiseTime();
@@ -58,7 +58,9 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
                 vec4 sampleColor = vec4(1.0);
 
-                vec3 samplePos = shadowPos + vec3(pixelOffset, -bias);
+                float sampleBias = bias + sss * InterleavedGradientNoiseTime(i);
+
+                vec3 samplePos = shadowPos + vec3(pixelOffset, -sampleBias);
                 samplePos = distort(samplePos) * 0.5 + 0.5;
 
                 float depthOpaque = textureLod(shadowtex1, samplePos.xy, 0).r;
@@ -84,7 +86,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             return shadowColor * rcp(SHADOW_PCF_SAMPLES);
         }
     #else
-        float GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
+        float GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias, const in float sss) {
             #ifdef RENDER_FRAG
                 #ifdef EFFECT_TAA_ENABLED
                     float dither = InterleavedGradientNoiseTime();
@@ -112,7 +114,9 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
                     vec2 pixelOffset = (rotation * pcfDiskOffset) * pixelRadius;
                 #endif
 
-                shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
+                float sampleBias = bias + sss * InterleavedGradientNoiseTime(i);
+
+                shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, sampleBias);
             }
 
             return shadow * rcp(SHADOW_PCF_SAMPLES);
@@ -186,7 +190,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     }
 
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias) {
+        vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize);
 
             // blocker search
@@ -211,10 +215,10 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
             float scale = min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
             vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * scale;
-            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias * (1.0 + 9.0*scale));
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias * (1.0 + 9.0*scale), sssBias);
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias) {
+        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize);
 
             // blocker search
@@ -222,28 +226,28 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             if (blockerDistance <= 0.0) return 1.0;
 
             vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
-            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }
     #endif
 #elif SHADOW_FILTER == 1
     // PCF
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias) {
+        vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize), minShadowPixelRadius);
 
-            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias) {
+        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize), minShadowPixelRadius);
 
-            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }
     #endif
 #elif SHADOW_FILTER == 0
     // Unfiltered
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(in vec3 shadowPos, const in float offsetBias) {
+        vec3 GetShadowColor(in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             shadowPos = distort(shadowPos) * 0.5 + 0.5;
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
@@ -263,7 +267,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             return shadowColor.rgb;
         }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias) {
+        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
             return CompareDepth(shadowPos, vec2(0.0), offsetBias);
         }
     #endif

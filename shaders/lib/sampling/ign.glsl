@@ -32,4 +32,8 @@ float InterleavedGradientNoiseTime(const in vec2 pixel) {
     float InterleavedGradientNoiseTime() {
         return InterleavedGradientNoiseTime(gl_FragCoord.xy);
     }
+    
+    float InterleavedGradientNoiseTime(const in int offset) {
+        return InterleavedGradientNoiseTime(gl_FragCoord.xy + offset);
+    }
 #endif
