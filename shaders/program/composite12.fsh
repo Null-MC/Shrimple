@@ -103,9 +103,10 @@ uniform int heldBlockLightValue2;
     uniform float wetness;
     
     uniform float cloudHeight;
+    uniform float cloudTime;
 
     #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
-        uniform float cloudTime;
+        // uniform float cloudTime;
     #endif
 
     #ifdef IS_IRIS

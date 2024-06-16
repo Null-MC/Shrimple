@@ -66,7 +66,7 @@ in vec2 texcoord;
         uniform float dhFarPlane;
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
+    #if defined WORLD_SKY_ENABLED //&& defined SHADOW_CLOUD_ENABLED
         uniform vec3 eyePosition;
         uniform float skyRainStrength;
         uniform float cloudHeight;
