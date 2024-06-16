@@ -58,11 +58,9 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
             #endif
         #endif
 
-        #ifdef SHADOW_CLOUD_ENABLED
-            uniform vec3 eyePosition;
-            uniform float cloudHeight;
-            uniform float cloudTime;
-        #endif
+        uniform vec3 eyePosition;
+        uniform float cloudHeight;
+        uniform float cloudTime;
     #endif
 
     #ifdef DISTANT_HORIZONS

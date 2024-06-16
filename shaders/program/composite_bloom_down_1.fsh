@@ -49,7 +49,8 @@ void main() {
     ApplyPostExposure(color);
 
     float brightness = luminance(color);
-    color *= pow(saturate(brightness * EffectBloomBrightnessF), EFFECT_BLOOM_POWER);
+    float brightness_new = pow(brightness * EffectBloomBrightnessF, EFFECT_BLOOM_POWER);
+    color *= min(brightness_new / brightness, 1.0);
 
     #if EFFECT_BLOOM_HAND_STRENGTH != 100
         float depth1 = textureLod(depthtex1, tex, 0).r;
