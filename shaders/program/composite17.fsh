@@ -317,7 +317,7 @@ void main() {
     float viewDist = length(localPos);
     vec3 localViewDir = localPos / viewDist;
 
-    float farMax = 4000.0;// - 0.002;
+    float farMax = 2000.0;// - 0.002;
     #ifdef DISTANT_HORIZONS
         farMax = 0.5*dhFarPlane;// - 0.1;
     #endif

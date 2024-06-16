@@ -245,11 +245,6 @@ void main() {
             #endif
 
             #ifdef SHADOW_SCREEN
-                // uint deferredDataR = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).r;
-                // vec3 geoNormal = unpackUnorm4x8(deferredDataR).xyz * 2.0 - 1.0;
-                // geoNormal = normalize(geoNormal);
-                // float geoNoL = dot(geoNormal, localSkyLightDirection);
-            
                 if (geoNoL > 0.0) {
                     float viewDist = length(viewPos);
                     vec3 lightViewDir = mat3(gbufferModelView) * localSkyLightDirection;
