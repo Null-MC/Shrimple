@@ -5,14 +5,14 @@ const float CloudSpeed = 0.01;
 const vec3 CloudScatterColor_clear = _RGBToLinear(vec3(0.84));
 const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.92));
 
-const vec3 CloudAbsorbColor_clear = _RGBToLinear(1.0 - vec3(0.70));
+const vec3 CloudAbsorbColor_clear = _RGBToLinear(1.0 - vec3(0.69));
 const vec3 CloudAbsorbColor_rain  = _RGBToLinear(1.0 - vec3(0.54));
 
-float CloudDensityF       = mix(0.4, 0.8, skyRainStrength);
+float CloudDensityF       = mix(0.6, 0.8, skyRainStrength);
 float CloudAmbientF       = mix(0.12, 0.24, skyRainStrength);
 vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, skyRainStrength);
 vec3 CloudAbsorbColor     = mix(CloudAbsorbColor_clear, CloudAbsorbColor_rain, skyRainStrength);
-float CloudAbsorbF        = mix(0.4, 0.4, skyRainStrength);
+float CloudAbsorbF        = mix(0.1, 0.4, skyRainStrength);
 
 
 #define CLOUD_STEPS_MIN 12
@@ -27,7 +27,7 @@ float CloudAbsorbF        = mix(0.4, 0.4, skyRainStrength);
     // const int CloudTraceOctaves = 2;
     // const int CloudShadowOctaves = 2;
     const float CloudHeight = 16.0;//SKY_CLOUD_HEIGHT;
-    const float CloudSize = 12.0;
+    const float CloudSize = 16.0;
 // #elif SKY_CLOUD_TYPE == CLOUDS_CUSTOM_CUBE
 //     const int CloudMaxOctaves = 5;
 //     const int CloudTraceOctaves = 2;

@@ -131,9 +131,11 @@ void main() {
         //     vec3 texViewNormal = normalize(cross(dFdx(viewPos), dFdy(viewPos)));
         // #endif
 
+        float viewDist = length(viewPos);
+
         float occlusion = GetSpiralOcclusion(texcoord, viewPos, texViewNormal);
 
-        float viewDist = length(viewPos);
+        // fade away from nearby surfaces
         occlusion *= smoothstep(0.0, 6.0, viewDist);
 
         #ifdef SKY_BORDER_FOG_ENABLED

@@ -34,9 +34,11 @@ float SampleClouds(const in vec3 worldPos, const in vec2 cloudOffset) {
     // cloudF *= 1.0 - middle;
 
     // float threshold = skyRainStrength * 0.6 + 0.2;
-    float threshold = mix(CloudCoverMinF, CloudCoverMaxF, skyRainStrength);
+    // float threshold = mix(CloudCoverMinF, CloudCoverMaxF, skyRainStrength);
+    float threshold = 1.0 - mix(0.28, 0.42, skyRainStrength);
     // return step(threshold, cloudF);
-    return smoothstep(threshold, threshold + 0.02, cloudF);
+    // return smoothstep(threshold, threshold + 0.02, cloudF);
+    return step(threshold, cloudF);
 }
 
 float raySphere(const in vec3 ro, const in vec3 rd, const in vec3 sph, const in float rad) {
