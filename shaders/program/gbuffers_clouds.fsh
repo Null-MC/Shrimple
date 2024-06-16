@@ -281,6 +281,8 @@ void main() {
         return;
     }
 
+    albedo.a = sqrt(albedo.a);
+
     float viewDist = length(vIn.localPos);
 
     #ifdef DISTANT_HORIZONS

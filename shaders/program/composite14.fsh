@@ -133,6 +133,9 @@ void main() {
 
         float occlusion = GetSpiralOcclusion(texcoord, viewPos, texViewNormal);
 
+        float viewDist = length(viewPos);
+        occlusion *= smoothstep(0.0, 6.0, viewDist);
+
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
             float fogF = 0.0;
@@ -140,8 +143,8 @@ void main() {
             #if SKY_TYPE == SKY_TYPE_CUSTOM
                 #ifdef WORLD_WATER_ENABLED
                     if (isEyeInWater == 1) {
-                        float fogDist = length(localPos);
-                        fogF = GetCustomWaterFogFactor(fogDist);
+                        //float fogDist = length(localPos);
+                        fogF = GetCustomWaterFogFactor(viewDist);
                     }
                     else {
                 #endif
