@@ -26,6 +26,7 @@ uniform float playerMood;
 
 #include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
+#include "/lib/post/exposure.glsl"
 
 
 /* RENDERTARGETS: 0 */

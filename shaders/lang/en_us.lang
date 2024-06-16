@@ -663,17 +663,17 @@ option.EFFECT_BLOOM_STRENGTH=Strength
 option.EFFECT_BLOOM_STRENGTH.comment=The amount of bloom to apply to the final scene. Set to zero to disable.
 suffix.EFFECT_BLOOM_STRENGTH=%
 
-option.EFFECT_BLOOM_POWER=Power
-option.EFFECT_BLOOM_POWER.comment=The curve applied to brightness. Higher values will reduce bloom in darker areas.
-suffix.EFFECT_BLOOM_POWER=x
-
-option.EFFECT_BLOOM_THRESHOLD=Threshold
-option.EFFECT_BLOOM_THRESHOLD.comment=The brightness threshold light needs to exceed to contribute to bloom.
-suffix.EFFECT_BLOOM_THRESHOLD=%
-
 option.EFFECT_BLOOM_HAND=Hand Strength
 option.EFFECT_BLOOM_HAND.comment=Determines the strength of bloom from in-hand items/blocks.
 suffix.EFFECT_BLOOM_HAND=%
+
+option.EFFECT_BLOOM_BRIGHT=Brightness
+option.EFFECT_BLOOM_BRIGHT.comment=The multiplier applied to input brightness.
+suffix.EFFECT_BLOOM_BRIGHT=%
+
+option.EFFECT_BLOOM_POWER=Power
+option.EFFECT_BLOOM_POWER.comment=The curve applied to brightness. Higher values will reduce bloom in darker areas.
+suffix.EFFECT_BLOOM_POWER=x
 
 
 screen.EFFECT_BLUR_OPTIONS=Blur

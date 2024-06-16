@@ -292,9 +292,10 @@ const bool colortex15Clear = true;
 //#define EFFECT_AUTO_EXPOSE
 
 #define EFFECT_BLOOM_ENABLED
-#define EFFECT_BLOOM_STRENGTH 60 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define EFFECT_BLOOM_POWER 6.0 // [1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 6.0 7.0 8.0 9.0]
-#define EFFECT_BLOOM_HAND 20 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_STRENGTH 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_HAND 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_BRIGHT 85 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_POWER 2.0 // [1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 6.0 7.0 8.0 9.0]
 #define EFFECT_BLOOM_TILE_MAX 6
 
 #define EFFECT_BLUR_ENABLED
@@ -596,8 +597,8 @@ const float DepthOfFieldFocusScale = EFFECT_BLUR_DOF_FOCUS_SCALE * 0.01;
 const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
 const float PostSaturationF = POST_SATURATION * 0.01;
 const float PostContrastF = POST_CONTRAST * 0.01;
-const float PostBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
-const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
+// const float EffectBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
+// const float Bloom_HandStrength = EFFECT_BLOOM_HAND * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 

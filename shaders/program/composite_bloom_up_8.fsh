@@ -34,7 +34,7 @@ void main() {
     vec3 color4 = textureLodOffset(BUFFER_BLOOM_TILES, srcTex, 0, ivec2(1,1)).rgb;
 
     vec3 color = (color1 + color2 + color3 + color4) * 0.25;
-    color *= PostBloomStrengthF;
+    color *= EffectBloomStrengthF;
     
     DitherBloom(color);
 
