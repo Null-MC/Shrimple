@@ -58,9 +58,9 @@ void GetCloudNearFar(const in vec3 worldPos, const in vec3 localViewDir, out vec
 
     #if WORLD_CURVE_RADIUS > 0
         vec3 worldCenter = cameraPosition;
-        worldCenter.y = -WorldCurveRadius;
+        worldCenter.y = -World_CurveRadius;
 
-        float radiusNear = WorldCurveRadius + cloudAlt;
+        float radiusNear = World_CurveRadius + cloudAlt;
         float radiusFar = radiusNear + CloudHeight;
         float distNear = raySphere(worldPos, localViewDir, worldCenter, radiusNear);
         float distFar = raySphere(worldPos, localViewDir, worldCenter, radiusFar);

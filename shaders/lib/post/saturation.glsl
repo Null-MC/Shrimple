@@ -59,10 +59,10 @@ void ApplyPostGrading(inout vec3 color) {
         #ifdef IRIS_FEATURE_SSBO
             color = (matColorPost * vec4(color, 1.0)).rgb;
         #else
-            mat4 matContrast = GetContrastMatrix(PostContrastF);
-            mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
+            mat4 matContrast = GetContrastMatrix(Post_ContrastF);
+            mat4 matSaturation = GetSaturationMatrix(Post_SaturationF);
 
-            color *= PostBrightnessF;
+            color *= Post_BrightnessF;
             color = (matContrast * vec4(color, 1.0)).rgb;
             color = (matSaturation * vec4(color, 1.0)).rgb;
         #endif

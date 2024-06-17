@@ -21,7 +21,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = _smoothstep(lpvFade);
-        //lpvFade *= 1.0 - LpvLightmapMixF;
+        //lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec3 lpvLight = GetLpvBlockLight(lpvSample);
         blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade);
@@ -38,5 +38,5 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specu
         vec3 final = albedo;
     #endif
 
-    return final * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
+    return final * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
 }

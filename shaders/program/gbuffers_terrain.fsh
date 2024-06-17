@@ -681,7 +681,7 @@ void main() {
         
         #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
-            deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
+            deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
         #endif
         
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

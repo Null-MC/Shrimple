@@ -426,7 +426,7 @@ layout(location = 0) out vec4 outFinal;
 
             // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             //     float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-            //     // deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - ShadowCloudBrightnessF);
+            //     // deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
             //     deferredShadow.rgb *= cloudShadow;
             //     // deferredShadow.rgb *= cloudShadow;
             // #endif
@@ -618,7 +618,7 @@ layout(location = 0) out vec4 outFinal;
                     #endif
 
                     vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
-                    fogColorFinal *= WorldSkyBrightnessF;
+                    fogColorFinal *= Sky_BrightnessF;
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
@@ -644,7 +644,7 @@ layout(location = 0) out vec4 outFinal;
                 #elif SKY_TYPE == SKY_TYPE_VANILLA
                     vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                     vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    fogColorFinal = RGBToLinear(fogColorFinal) * WorldSkyBrightnessF;
+                    fogColorFinal = RGBToLinear(fogColorFinal) * Sky_BrightnessF;
                     float fogF = deferredFog.a;
                 #endif
 
@@ -653,7 +653,7 @@ layout(location = 0) out vec4 outFinal;
         }
         else {
             #ifdef WORLD_NETHER
-                final.rgb = RGBToLinear(fogColor) * WorldSkyBrightnessF;
+                final.rgb = RGBToLinear(fogColor) * Sky_BrightnessF;
             #else
                 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             #endif

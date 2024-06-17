@@ -70,7 +70,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
         #else
             vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
             skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
@@ -326,12 +326,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
                 // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
-                //sampleColor *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+                //sampleColor *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0);
                 sampleF *= cloudShadow;// * 0.7 + 0.3;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
                     float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset, 0.0);
-                    //sampleF *= 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudShadow, 1.0);
+                    //sampleF *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudShadow, 1.0);
                     sampleF *= cloudShadow;
                 }
             #endif
@@ -390,7 +390,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         blockLightAccum += lightAtt * lightColor * samplePhase;
                     }
 
-                    blockLightAccum *= 32.0 * DynamicLightBrightness;
+                    blockLightAccum *= 32.0 * Lighting_Brightness;
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
                 vec3 lpvLight = vec3(0.0);
@@ -406,7 +406,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 blockLightAccum += phaseIso * lpvLight * lpvFade;
             #endif
 
-            sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * DynamicLightBrightness;
+            sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * Lighting_Brightness;
         #endif
 
         #ifdef WORLD_SKY_ENABLED

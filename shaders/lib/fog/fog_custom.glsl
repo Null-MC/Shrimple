@@ -20,7 +20,7 @@ const vec3 colorRainFogDay = _RGBToLinear(vec3(0.097, 0.092, 0.106)) * 0.5;
         float brightnessF = 1.0 - WaterMinBrightness;
 
         #ifdef WORLD_SKY_ENABLED
-            float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+            float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * Sky_SunBrightnessF;
             float weatherBrightness = 1.0 - 0.92 * rainStrength;
             float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
 
@@ -90,7 +90,7 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
 
     vec3 GetCustomRainFogColor(const in float sunUpF) {
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * WorldSunBrightnessF;
+        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * Sky_SunBrightnessF;
         return RGBToLinear(vec3(0.214, 0.242, 0.247)) * skyBrightness * eyeBrightness;
     }
 

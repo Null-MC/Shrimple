@@ -823,7 +823,7 @@
                 break;
         }
 
-        return lightRange * DynamicLightRangeF;
+        return lightRange * Lighting_RangeF;
     }
 
     float GetSceneLightLevel(const in uint lightType) {
@@ -976,16 +976,16 @@
                 lightOffset = vec3(0.0, -0.2, 0.0);
                 break;
             case LIGHT_JACK_O_LANTERN_N:
-                lightOffset = vec3(0.0, 0.0, -0.4) * DynamicLightPenumbraF;
+                lightOffset = vec3(0.0, 0.0, -0.4) * Lighting_PenumbraF;
                 break;
             case LIGHT_JACK_O_LANTERN_E:
-                lightOffset = vec3(0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+                lightOffset = vec3(0.4, 0.0, 0.0) * Lighting_PenumbraF;
                 break;
             case LIGHT_JACK_O_LANTERN_S:
-                lightOffset = vec3(0.0, 0.0, 0.4) * DynamicLightPenumbraF;
+                lightOffset = vec3(0.0, 0.0, 0.4) * Lighting_PenumbraF;
                 break;
             case LIGHT_JACK_O_LANTERN_W:
-                lightOffset = vec3(-0.4, 0.0, 0.0) * DynamicLightPenumbraF;
+                lightOffset = vec3(-0.4, 0.0, 0.0) * Lighting_PenumbraF;
                 break;
             case LIGHT_LANTERN:
                 lightOffset = vec3(0.0, -0.2, 0.0);

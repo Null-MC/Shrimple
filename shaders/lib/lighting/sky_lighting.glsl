@@ -55,7 +55,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 WorldSkyLightColor = GetSkyLightColor();
     #endif
 
-    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * WorldSkyBrightnessF;
+    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * Sky_BrightnessF;
 
     vec3 skyLightShadowColor = shadowColor * skyLightColor;
 
@@ -79,7 +79,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
-        lpvFade *= 1.0 - LpvLightmapMixF;
+        lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
@@ -118,7 +118,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 
-    float ambientF = mix(DynamicLightAmbientF, 2.0, horizonF);
+    float ambientF = mix(Lighting_AmbientF, 2.0, horizonF);
 
     float sun_NoL = dot(texNormal, localSunDirection);
     float moon_NoL = max(-sun_NoL, 0.0) * 0.5 + 0.5;
@@ -127,8 +127,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     sun_NoL *= max(localSunDirection.y, 0.0);
     moon_NoL *= max(-localSunDirection.y, 0.0);
 
-    vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * WorldSunBrightnessF;
-    skyAmbientLight += moon_NoL * WorldMoonLightColor * WorldMoonBrightnessF;
+    vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * Sky_SunBrightnessF;
+    skyAmbientLight += moon_NoL * WorldMoonLightColor * Sky_MoonBrightnessF;
     ambientLight *= skyAmbientLight * ambientF;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))

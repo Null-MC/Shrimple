@@ -1,4 +1,4 @@
-const float minShadowPixelRadius = ShadowMinPcfSize * shadowPixelSize;
+const float minShadowPixelRadius = Shadow_MinPcfSize * shadowPixelSize;
 
 
 float SampleDepth(const in vec2 shadowPos) {
@@ -133,7 +133,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
         vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
 
         //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
-        //float maxRes = shadowMapSize / ShadowDistortF;
+        //float maxRes = shadowMapSize / Shadow_DistortF;
 
         vec2 pixelPerBlockScale = shadowMapSize / shadowProjectionSize;
         return 2.0 * blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
@@ -191,7 +191,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
-            vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize);
+            vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize);
 
             // blocker search
             float blockerDistance = FindBlockerDistance(shadowPos, maxPixelRadius, offsetBias);
@@ -219,7 +219,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
-            vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize);
+            vec2 maxPixelRadius = GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize);
 
             // blocker search
             float blockerDistance = FindBlockerDistance(shadowPos, maxPixelRadius, offsetBias);
@@ -233,13 +233,13 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     // PCF
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
-            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize), minShadowPixelRadius);
+            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
 
             return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {
-            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, ShadowMaxPcfSize), minShadowPixelRadius);
+            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
 
             return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }

@@ -45,6 +45,6 @@ float GetSceneLightEmission(const in uint lightType) {
             #endif
         #endif
 
-        return emission * DynamicLightBrightness;
+        return emission * Lighting_Brightness;
     }
 #endif

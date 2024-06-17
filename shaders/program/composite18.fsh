@@ -496,7 +496,7 @@ layout(location = 0) out vec4 outFinal;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
 
-            //if (isWater) deferredColor.a *= WorldWaterOpacityF;
+            //if (isWater) deferredColor.a *= Water_OpacityF;
 
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 vec3 blockDiffuse = vec3(0.0);
@@ -617,8 +617,8 @@ layout(location = 0) out vec4 outFinal;
                     SampleHandLight(diffuse, specular, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                 #endif
 
-                //if (isWater) diffuse *= WorldWaterOpacityF;
-                //if (isWater) deferredColor.rgb *= WorldWaterOpacityF;
+                //if (isWater) diffuse *= Water_OpacityF;
+                //if (isWater) deferredColor.rgb *= Water_OpacityF;
 
                 final.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
                 final.a = min(deferredColor.a + luminance(specular), 1.0);
@@ -741,9 +741,9 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef WORLD_SKY_ENABLED
             //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;
             #if SKY_TYPE == SKY_TYPE_CUSTOM
-                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+                vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;// * eyeBrightF;
             #else
                 vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
                 skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
@@ -757,7 +757,7 @@ layout(location = 0) out vec4 outFinal;
                 if (depthTrans < 1.0) {
                     #if SKY_TYPE == SKY_TYPE_CUSTOM
                         vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
-                        fogColorFinal *= WorldSkyBrightnessF;
+                        fogColorFinal *= Sky_BrightnessF;
 
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
@@ -784,7 +784,7 @@ layout(location = 0) out vec4 outFinal;
                         vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                         vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
                         fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
-                        fogColorFinal *= WorldSkyBrightnessF;
+                        fogColorFinal *= Sky_BrightnessF;
 
                         float fogF = deferredFog.a;
                     #endif
@@ -833,9 +833,9 @@ layout(location = 0) out vec4 outFinal;
                     eyeSkyLightF += 0.02;
 
                     //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;
+                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;
                     // #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    //     vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF;// * eyeBrightF;
+                    //     vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;// * eyeBrightF;
                     // #else
                     //     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
                     //     skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;

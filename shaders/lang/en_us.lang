@@ -133,20 +133,25 @@ value.WORLD_CURVE_RADIUS.0=FLAT
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.
 
+option.WATER_VOL_FOG_TYPE=Volumetric Fog
+value.WATER_VOL_FOG_TYPE.0=None
+value.WATER_VOL_FOG_TYPE.1=Fast
+value.WATER_VOL_FOG_TYPE.2=Fancy
+
+option.WATER_TEXTURED=Texture
+
+option.WATER_OPACITY=Opacity
+option.WATER_OPACITY.comment=How transparent the water surface will be.
+suffix.WATER_OPACITY=%
+
 option.WATER_COLOR_TYPE=Color
 value.WATER_COLOR_TYPE.0=Automatic
 value.WATER_COLOR_TYPE.1=Default
 value.WATER_COLOR_TYPE.2=Tropical
 value.WATER_COLOR_TYPE.3=Swamp
 
-option.WATER_TEXTURED=Texture
-
-option.WATER_VOL_FOG_TYPE=Volumetric Fog
-value.WATER_VOL_FOG_TYPE.0=None
-value.WATER_VOL_FOG_TYPE.1=Fast
-value.WATER_VOL_FOG_TYPE.2=Fancy
-
 option.WATER_FOG_DENSITY=Density
+option.WATER_FOG_DENSITY.comment=How dense/transparent water fog will be.
 suffix.WATER_FOG_DENSITY=%
 
 option.WATER_DEPTH_LAYERS=Depth Layers

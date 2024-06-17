@@ -327,7 +327,7 @@ void main() {
         return;
     }
 
-    color.a *= WorldRainOpacityF;
+    color.a *= Sky_RainOpacityF;
 
     const vec3 normal = vec3(0.0);
     const float occlusion = 1.0;

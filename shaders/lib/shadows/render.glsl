@@ -26,7 +26,7 @@
 
 //         float skyLightF = smoothstep(0.1, 0.3, skyLightDir.y);
 
-//         return 1.0 - (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
+//         return 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0) * skyLightF;
 //     }
 // #endif
 
@@ -47,7 +47,7 @@
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
+                int cascadeIndex = GetShadowCascade(vIn.shadowPos, Shadow_MaxPcfSize);
                 float zRange = GetShadowRange(cascadeIndex);
             #else
                 float zRange = GetShadowRange();
@@ -63,7 +63,7 @@
             //sssOffset = (sssOffset);
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                // int cascadeIndex = GetShadowCascade(vIn.shadowPos, ShadowMaxPcfSize);
+                // int cascadeIndex = GetShadowCascade(vIn.shadowPos, Shadow_MaxPcfSize);
 
                 if (cascadeIndex >= 0) {
                     // vec3 _shadowPos = vIn.shadowPos[cascadeIndex];

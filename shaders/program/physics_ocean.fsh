@@ -392,7 +392,7 @@ void main() {
     vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
 
     #ifndef WATER_TEXTURED
-        color = vec4(vec3(1.0), WorldWaterOpacityF);
+        color = vec4(vec3(1.0), Water_OpacityF);
     #endif
     
     color.a = max(color.a, 0.02);

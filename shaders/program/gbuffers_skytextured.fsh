@@ -55,7 +55,7 @@ void main() {
         color.rgb *= vIn.color.rgb;
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);// * WorldSkyBrightnessF;
+    color.rgb = RGBToLinear(color.rgb);// * Sky_BrightnessF;
 
     //color.a = saturate(length2(color.rgb) / sqrt(3.0));
 
@@ -72,9 +72,9 @@ void main() {
         #endif
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            color.rgb *= 10.0 * WorldSunLightColor * WorldSunBrightnessF;
+            color.rgb *= 10.0 * WorldSunLightColor * Sky_SunBrightnessF;
         #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= 10.0 * WorldSkyBrightnessF;
+            color.rgb *= 10.0 * Sky_BrightnessF;
         #endif
 
         color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);
@@ -87,17 +87,17 @@ void main() {
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             color.rgb *= 4.0 * WorldMoonLightColor;
         #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= WorldSkyBrightnessF;
+            color.rgb *= Sky_BrightnessF;
         #endif
 
         color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
     }
     else {
-        color.rgb *= WorldSkyBrightnessF;
+        color.rgb *= Sky_BrightnessF;
     }
 
     // #ifdef WORLD_END
-    //     color.rgb *= WorldSkyBrightnessF;
+    //     color.rgb *= Sky_BrightnessF;
     // #endif
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)

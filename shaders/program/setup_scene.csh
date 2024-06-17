@@ -21,9 +21,9 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 void main() {
     #ifdef IRIS_FEATURE_SSBO
-        mat4 matContrast = GetContrastMatrix(PostContrastF);
-        mat4 matBrightness = GetBrightnessMatrix(PostBrightnessF);
-        mat4 matSaturation = GetSaturationMatrix(PostSaturationF);
+        mat4 matContrast = GetContrastMatrix(Post_ContrastF);
+        mat4 matBrightness = GetBrightnessMatrix(Post_BrightnessF);
+        mat4 matSaturation = GetSaturationMatrix(Post_SaturationF);
 
         matColorPost = matSaturation * (matContrast * matBrightness);
         

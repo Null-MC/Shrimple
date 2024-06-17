@@ -414,10 +414,10 @@ void main() {
             #ifndef WATER_TEXTURED
                 // color.rgb = vIn.color.rgb;
                 // color.a = 1.0;
-                color.a = WorldWaterOpacityF;
+                color.a = Water_OpacityF;
             #endif
 
-            //color.a *= WorldWaterOpacityF;
+            //color.a *= Water_OpacityF;
             color.a = max(color.a, 0.02);
 
             color = mix(color, vec4(1.0), oceanFoam);

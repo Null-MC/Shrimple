@@ -15,12 +15,12 @@ float GetVoxelFade(const in vec3 voxelPos) {
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
-        lpvFade *= 1.0 - LpvLightmapMixF;
+        lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
         vec3 lpvLight = 0.5 * GetLpvBlockLight(lpvSample);
 
-        return lpvLight * lpvFade * DynamicLightAmbientF;
+        return lpvLight * lpvFade * Lighting_AmbientF;
     }
 #endif
 
@@ -54,6 +54,6 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
             vec3 final = albedo;
         #endif
 
-        return final * (WorldMinLightF * occlusion + diffuse) + specular * _pow3(occlusion);
+        return final * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
     }
 #endif

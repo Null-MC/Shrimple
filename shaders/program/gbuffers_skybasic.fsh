@@ -106,7 +106,7 @@ void main() {
                 float bright = hash13(localViewDir * 0.2);
                 float temp = _pow2(bright) * 8000.0 + 2000.0;
 
-                bright *= (_pow3(bright) * 4.0) * WorldSunBrightnessF;
+                bright *= (_pow3(bright) * 4.0) * Sky_SunBrightnessF;
                 bright *= smoothstep(0.02, -0.16, localSunDirection.y);
 
                 final.rgb = blackbody(temp) * bright;
@@ -128,7 +128,7 @@ void main() {
             final.rgb = RGBToLinear(final.rgb);
         #endif
 
-        final.rgb *= WorldSkyBrightnessF;
+        final.rgb *= Sky_BrightnessF;
     }
 
     //final.rgb *= 1.0 - blindnessSmooth;

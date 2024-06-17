@@ -115,7 +115,7 @@ const bool colortex15Clear = true;
 // Water Options
 //#define WATER_TEXTURED
 #define WATER_COLOR_TYPE 0 // [0 1 2 3]
-//#define WATER_OPACITY 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define WATER_OPACITY 0 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WATER_SURFACE_PIXEL_RES 0 // [0 8 16 32 64 128]
 #define WATER_VOL_FOG_TYPE 2 // [0 1 2]
 #define WATER_FOG_DENSITY 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300 320 340 360 380 400 500 600]
@@ -555,16 +555,16 @@ const bool colortex15Clear = true;
 #endif
 
 
-const vec3 HandLightOffsetL = vec3(-0.16, -0.24, -0.08);
-const vec3 HandLightOffsetR = vec3( 0.16, -0.24, -0.08);
+const vec3 HandLight_OffsetL = vec3(-0.16, -0.24, -0.08);
+const vec3 HandLight_OffsetR = vec3( 0.16, -0.24, -0.08);
 
-const float WorldMinLightF = LIGHTING_MIN * 0.01;
-const float WorldSunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
-const float WorldMoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
-const float WorldSkyBrightnessF = SKY_BRIGHTNESS * 0.01;
-const float WorldRainOpacityF = SKY_WEATHER_OPACITY * 0.01;
-const float WorldWaterDensityF = WATER_FOG_DENSITY * 0.01;
-const float WorldCurveRadius = WORLD_CURVE_RADIUS * 1000.0;
+const float Sky_SunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
+const float Sky_MoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
+const float Sky_BrightnessF = SKY_BRIGHTNESS * 0.01;
+const float Sky_RainOpacityF = SKY_WEATHER_OPACITY * 0.01;
+const float Water_DensityF = WATER_FOG_DENSITY * 0.01;
+const float Water_OpacityF = WATER_OPACITY * 0.01;
+const float World_CurveRadius = WORLD_CURVE_RADIUS * 1000.0;
 const float MaterialNormalStrengthF = MATERIAL_NORMAL_STRENGTH * 0.01;
 const float MaterialNormalRoundF = MATERIAL_NORMAL_ROUND * 0.01;
 const float MaterialEmissionF = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
@@ -580,29 +580,29 @@ const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
 const float VolumetricBrightnessSky = VOLUMETRIC_BRIGHT_SKY * 0.01;
 const float VolumetricBrightnessBlock = VOLUMETRIC_BRIGHT_BLOCK * 0.01;
 const float VolumetricSkyDayDensityF = VOLUMETRIC_SKY_DAY_DENSITY * 0.01;
-const float DynamicLightAmbientF = LIGHTING_AMBIENT * 0.01;
-const float DynamicLightTintF = LIGHTING_TINT_STRENGTH * 0.01;
-const float DynamicLightPenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
-const float DynamicLightBrightness = LIGHTING_BRIGHTNESS * 0.01;
-const float DynamicLightRangeF = LIGHTING_RANGE * 0.01;
-const float LpvLightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
+const float Lighting_MinF = LIGHTING_MIN * 0.01;
+const float Lighting_AmbientF = LIGHTING_AMBIENT * 0.01;
+const float Lighting_TintF = LIGHTING_TINT_STRENGTH * 0.01;
+const float Lighting_PenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
+const float Lighting_Brightness = LIGHTING_BRIGHTNESS * 0.01;
+const float Lighting_RangeF = LIGHTING_RANGE * 0.01;
+const float Lpv_LightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 // const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
-const float ShadowMinPcfSize = SHADOW_PCF_SIZE_MIN;
-const float ShadowMaxPcfSize = SHADOW_PCF_SIZE_MAX;
-const float ShadowBiasScale = SHADOW_BIAS_SCALE * 0.01;
-const float ShadowDistortF = 1.0 - SHADOW_DISTORT_FACTOR * 0.01;
-const float ShadowCloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
+const float Shadow_MinPcfSize = SHADOW_PCF_SIZE_MIN;
+const float Shadow_MaxPcfSize = SHADOW_PCF_SIZE_MAX;
+const float Shadow_BiasScale = SHADOW_BIAS_SCALE * 0.01;
+const float Shadow_DistortF = 1.0 - SHADOW_DISTORT_FACTOR * 0.01;
+const float Shadow_CloudBrightnessF = SHADOW_CLOUD_BRIGHTNESS * 0.01;
 const float RefractionStrengthF = REFRACTION_STRENGTH * 0.01;
 const float DepthOfFieldFocusScale = EFFECT_BLUR_DOF_FOCUS_SCALE * 0.01;
-const float PostBrightnessF = POST_BRIGHTNESS * 0.01;
-const float PostSaturationF = POST_SATURATION * 0.01;
-const float PostContrastF = POST_CONTRAST * 0.01;
+const float Post_BrightnessF = POST_BRIGHTNESS * 0.01;
+const float Post_SaturationF = POST_SATURATION * 0.01;
+const float Post_ContrastF = POST_CONTRAST * 0.01;
 // const float EffectBloomStrengthF = EFFECT_BLOOM_STRENGTH * 0.01;
 // const float Bloom_HandStrength = EFFECT_BLOOM_HAND_STRENGTH * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 
-const float WorldWaterOpacityF = 0.02;
 const float ShadowScreenSlope = 0.85;
 
 const float GoldenAngle = PI * (3.0 - sqrt(5.0));
@@ -621,9 +621,9 @@ const float wetnessHalflife = 16000.0;
 const float drynessHalflife = 20.0;
 
 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    const float ShadowNormalBias = SHADOW_CASCADED_NORMAL_BIAS * ShadowBiasScale;
+    const float ShadowNormalBias = SHADOW_CASCADED_NORMAL_BIAS * Shadow_BiasScale;
 #else
-    const float ShadowNormalBias = SHADOW_DISTORTED_NORMAL_BIAS * ShadowBiasScale;
+    const float ShadowNormalBias = SHADOW_DISTORTED_NORMAL_BIAS * Shadow_BiasScale;
 #endif
 
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 450 500 600 700 800 900 1000 1200 1400 1600 1800 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000]

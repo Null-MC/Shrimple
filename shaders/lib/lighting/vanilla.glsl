@@ -11,7 +11,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in v
         lightmapBlock = RGBToLinear(lightmapBlock) * blackbody(LIGHTING_TEMP);
         // TODO: just ditch lightmap and use blackbody temp?
 
-        diffuse = lightmapBlock * DynamicLightBrightness;
+        diffuse = lightmapBlock * Lighting_Brightness;
     #endif
 }
 
@@ -33,7 +33,7 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, c
         vec3 final = albedo;
     #endif
 
-	final *= (WorldMinLightF + diffuse) * occlusion + emission * MaterialEmissionF;
+	final *= (Lighting_MinF + diffuse) * occlusion + emission * MaterialEmissionF;
 	final += specular;
 
 	return final;

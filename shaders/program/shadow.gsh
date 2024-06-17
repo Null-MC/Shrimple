@@ -183,7 +183,7 @@ void main() {
             #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
                 vec3 lightViewPos = mul3(gbufferModelView, originPos);
 
-                const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+                const float maxLightRange = 16.0 * Lighting_RangeF + 1.0;
                 //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
                 if (lightViewPos.z > maxLightRange) intersects = false;
                 else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;

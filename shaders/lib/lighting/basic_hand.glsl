@@ -29,7 +29,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     vec3 accumSpecular = vec3(0.0);
 
     if (lightRangeR > 0.0) {
-        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetR, 1.0)).xyz;
+        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLight_OffsetR, 1.0)).xyz;
 
         #ifdef IS_IRIS
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
@@ -111,7 +111,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     float lightRangeL = GetSceneItemLightRange(heldItemId2, heldBlockLightValue2);
 
     if (lightRangeL > 0.0) {
-        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLightOffsetL, 1.0)).xyz;
+        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLight_OffsetL, 1.0)).xyz;
 
         #ifdef IS_IRIS
             if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
@@ -184,6 +184,6 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
         }
     }
 
-    blockDiffuse += accumDiffuse * DynamicLightBrightness;
-    blockSpecular += accumSpecular * DynamicLightBrightness;
+    blockDiffuse += accumDiffuse * Lighting_Brightness;
+    blockSpecular += accumSpecular * Lighting_Brightness;
 }

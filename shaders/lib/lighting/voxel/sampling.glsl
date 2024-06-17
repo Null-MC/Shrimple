@@ -102,7 +102,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 diffuseLightPos = lightPos;
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
-            vec3 offset = GetLightPenumbraOffset() * DynamicLightPenumbraF;
+            vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
             diffuseLightPos += lightSize * offset;
         #endif
 
@@ -222,6 +222,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         }
     }
 
-    blockDiffuse += accumDiffuse * DynamicLightBrightness * 3.0;
-    blockSpecular += accumSpecular * DynamicLightBrightness * 3.0;
+    blockDiffuse += accumDiffuse * Lighting_Brightness * 3.0;
+    blockSpecular += accumSpecular * Lighting_Brightness * 3.0;
 }

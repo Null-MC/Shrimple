@@ -279,7 +279,7 @@ void main() {
         // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
         //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
 
-        //     const float maxLightRange = 16.0 * DynamicLightRangeF + 1.0;
+        //     const float maxLightRange = 16.0 * Lighting_RangeF + 1.0;
         //     //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
         //     if (lightViewPos.z > maxLightRange) intersects = false;
         //     else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
@@ -338,7 +338,7 @@ void main() {
         //         #endif
 
         //         // lightColor = _pow2(lightColor);
-        //         // lightValue = lightColor * (exp2(lightRange * DynamicLightRangeF) - 1.0)*2.0;
+        //         // lightValue = lightColor * (exp2(lightRange * Lighting_RangeF) - 1.0)*2.0;
         //     }
 
         //     if (lightRange > EPSILON) {

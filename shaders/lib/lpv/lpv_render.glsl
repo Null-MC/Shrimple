@@ -29,7 +29,7 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
 
     lpvSample.rgb = HsvToRgb(lpvSample.rgb);
 
-    return lpvSample / DynamicLightRangeF;
+    return lpvSample / Lighting_RangeF;
 }
 
 vec4 SampleLpvLinear(const in vec3 lpvPos) {
@@ -202,12 +202,12 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texN
 }
 
 // vec3 GetLpvBlockLight(in vec4 lpvSample, const in float power) {
-//     return (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) / 8.0 * DynamicLightBrightness;
+//     return (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) / 8.0 * Lighting_Brightness;
 // }
 
 vec3 GetLpvBlockLight(const in vec4 lpvSample) {
     // return GetLpvBlockLight(lpvSample, 1.0);
-    return (1.0/8.0) * (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) * DynamicLightBrightness;
+    return (1.0/8.0) * (lpvSample.rgb * LPV_BLOCKLIGHT_SCALE) * Lighting_Brightness;
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {

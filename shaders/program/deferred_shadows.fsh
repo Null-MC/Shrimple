@@ -175,7 +175,7 @@ void main() {
 
                 float shadowFade = 0.0; // TODO
 
-                int cascadeIndex = GetShadowCascade(shadowPos, ShadowMaxPcfSize);
+                int cascadeIndex = GetShadowCascade(shadowPos, Shadow_MaxPcfSize);
                 float zRange = -2.0 / cascadeProjection[cascadeIndex][2][2];
             #else
                 vec3 shadowPos = ApplyShadows(localPos, localNormal, geoNoL);

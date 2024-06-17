@@ -13,7 +13,7 @@ const float LpvFrustumOffsetF = LPV_FRUSTUM_OFFSET * 0.01;
 
 vec3 Lpv_RgbToHsv(const in vec3 lightColor, const in float lightRange) {
     vec3 lightValue = RgbToHsv(lightColor);
-    lightValue.b = (lightRange * DynamicLightRangeF) / LPV_BLOCKLIGHT_SCALE;
+    lightValue.b = (lightRange * Lighting_RangeF) / LPV_BLOCKLIGHT_SCALE;
     return lightValue;
 }
 

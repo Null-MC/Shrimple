@@ -23,7 +23,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
 
     float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
     #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * WorldSkyBrightnessF * eyeBrightF;
+        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
     #else
         vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
         skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;

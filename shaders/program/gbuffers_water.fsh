@@ -544,7 +544,7 @@ void main() {
         // color.a = max(color.a, 0.02);
 
         #ifndef WATER_TEXTURED
-            color = vec4(vec3(1.0), WorldWaterOpacityF);
+            color = vec4(vec3(1.0), Water_OpacityF);
         #endif
     }
 
@@ -560,7 +560,7 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             // #ifndef WATER_TEXTURED
-            //     // color = vec4(vec3(1.0), WorldWaterOpacityF);
+            //     // color = vec4(vec3(1.0), Water_OpacityF);
             // #elif defined DISTANT_HORIZONS
             //     float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
             //     color = mix(color, vec4(1.0), distF);

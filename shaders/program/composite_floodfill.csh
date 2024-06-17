@@ -270,7 +270,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             if (isWater) {
                 // shadowDist = max(shadowPos.z - texDepthTrans, EPSILON) * shadowDistMax;
                 // sampleColor *= exp(shadowDist * -WaterAbsorbF);
-                sampleF *= 0.0;//DynamicLightAmbientF;// * exp(-shadowDist);
+                sampleF *= 0.0;//Lighting_AmbientF;// * exp(-shadowDist);
             }
             // else {
             //     sampleColor *= sampleF;
@@ -435,7 +435,7 @@ void main() {
                     shadowColorF.a *= cloudShadow;
                 #endif
 
-                float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
+                float sunUpF = smoothstep(-0.2, 0.1, localSunDirection.y);
 
                 #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
                     if (blockId != BLOCK_WATER) {
@@ -447,12 +447,12 @@ void main() {
                         // bounceOffset.y *= bounceYF;
 
                         // float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                        //float skyLightBrightF = mix(WorldMoonBrightnessF, WorldSunBrightnessF, sunUpF);
+                        //float skyLightBrightF = mix(Sky_MoonBrightnessF, Sky_SunBrightnessF, sunUpF);
                         //skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
                         // TODO: make darker at night
 
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                            float skyLightRange = 6.0 * sunUpF * DynamicLightAmbientF;
+                            float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
                         //     // float skyLightRange = mix(1.0, 6.0, sunUpF);
                         //     float skyLightRange = mix(2.0, 4.0, sunUpF);
                         #else
@@ -466,7 +466,7 @@ void main() {
                         //float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
 
                         //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                        //    skyLightBrightF *= DynamicLightAmbientF;
+                        //    skyLightBrightF *= Lighting_AmbientF;
                         //#endif
 
 
@@ -477,7 +477,7 @@ void main() {
 
 
 
-                        // lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * DynamicLightRangeF) - 1.0);
+                        // lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * Lighting_RangeF) - 1.0);
                         lightValue.rgb += skyLight / max(shadowDist, 1.0);
                     }
                 #endif

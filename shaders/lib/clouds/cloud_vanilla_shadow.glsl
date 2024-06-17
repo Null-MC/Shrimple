@@ -8,7 +8,7 @@
 //     float cloudF = SampleClouds(localPos, localDir, cloudOffset, camOffset, 0.0);
 //     //cloudF = 1.0 - 0.5 * cloudF;
 
-//     //float cloudShadow = (1.0 - ShadowCloudBrightnessF) * min(cloudF, 1.0);
+//     //float cloudShadow = (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0);
 
 //     //return 1.0 - cloudShadow;
 //     return 1.0 - cloudF;

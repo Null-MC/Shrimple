@@ -165,13 +165,13 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
             #if LIGHTING_TINT_MODE == LIGHT_TINT_ABSORB
                 if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {
                     vec3 glassTint = GetLightGlassTint(blockId);
-                    color *= exp(-2.0 * DynamicLightTintF * closestDist * (1.0 - glassTint));
+                    color *= exp(-2.0 * Lighting_TintF * closestDist * (1.0 - glassTint));
                 }
                 else {
             #elif LIGHTING_TINT_MODE == LIGHT_TINT_BASIC
                 if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
-                    vec3 glassTint = GetLightGlassTint(blockId) * DynamicLightTintF;
-                    glassTint += max(1.0 - DynamicLightTintF, 0.0);
+                    vec3 glassTint = GetLightGlassTint(blockId) * Lighting_TintF;
+                    glassTint += max(1.0 - Lighting_TintF, 0.0);
                     color *= glassTint;
                 }
                 else {
