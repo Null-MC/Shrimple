@@ -26,7 +26,7 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 **A:** RT is off by default. Either change Block Light > Mode to "Traced", or apply the "RTX" profile.
 
 - **Q:** How do I make colored/dynamic/traced shadows work further from player/camera?  
-**A:** You can increase the Block Lighting > Advanced > Horizontal/Vertical Bin Counts. Increasing the Bin Size option will also help, but it will educe the maximum "density" of light sources per area.
+**A:** You can increase the Block Lighting > Advanced > Horizontal/Vertical Bin Counts. Increasing the Bin Size option will also help, but it will reduce the maximum "density" of light sources per area.
 
 - **Q:** How do I make colored/dynamic/traced shadows faster?  
 **A:** There are several options under Block Lighting > Advanced settings:
