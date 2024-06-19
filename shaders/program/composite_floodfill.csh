@@ -159,12 +159,9 @@ vec4 GetLpvValue(in ivec3 texCoord) {
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
 
-    lpvSample.ba = exp2(lpvSample.ba * LpvBlockSkyRange) - 1.0;
-    lpvSample.rgb = HsvToRgb(lpvSample.rgb);
-
-    #ifdef LPV_BLEND_ALT
-        lpvSample.rgb = RgbToJab(lpvSample.rgb);
-    #endif
+    vec4 hsv_sky = vec4(RgbToHsv(lpvSample.rgb), lpvSample.a);
+    hsv_sky.zw = exp2(hsv_sky.zw * LpvBlockSkyRange) - 1.0;
+    lpvSample = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
 
     return lpvSample;
 }
@@ -391,8 +388,6 @@ void main() {
         ivec3 imgCoord = ivec3(gl_GlobalInvocationID);
         if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
 
-        // vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell - VoxelBlockCenter + cameraOffset + 0.5;
-
         vec3 viewDir = gbufferModelViewInverse[2].xyz;
         vec3 lpvCenter = GetLpvCenter(cameraPosition, viewDir);
         vec3 blockLocalPos = imgCoord - lpvCenter + 0.5;
@@ -453,31 +448,16 @@ void main() {
 
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
-                        //     // float skyLightRange = mix(1.0, 6.0, sunUpF);
-                        //     float skyLightRange = mix(2.0, 4.0, sunUpF);
                         #else
                             float skyLightRange = 8.0 * sunUpF;
-                        //    // float skyLightRange = mix(1.0, 16.0, sunUpF);
-                        //     float skyLightRange = mix(1.0, 6.0, sunUpF);
                         #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
-
-                        //float bounceF = GetLpvBounceF(voxelPos, bounceOffset);
-
-                        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                        //    skyLightBrightF *= Lighting_AmbientF;
-                        //#endif
-
-
 
                         vec3 skyLight = RgbToHsv(shadowColorF.rgb * WorldSkyLightColor);
                         skyLight.b = exp2(skyLightRange * shadowColorF.a) - 1.0;
                         skyLight = HsvToRgb(skyLight);
 
-
-
-                        // lightValue.rgb += 3.0 * (shadowColorF.rgb * skyLightBrightF) * (exp2(skyLightRange * bounceF * Lighting_RangeF) - 1.0);
                         lightValue.rgb += skyLight / max(shadowDist, 1.0);
                     }
                 #endif
@@ -487,13 +467,6 @@ void main() {
                 lightValue.a = max(lightValue.a, skyLightFinal);
             #endif
         }
-
-        #ifdef LPV_BLEND_ALT
-            lightValue.rgb = JabToRgb(lightValue.rgb);
-        #endif
-
-        lightValue.rgb = RgbToHsv(lightValue.rgb);
-        lightValue.ba = log2(lightValue.ba + 1.0) / LpvBlockSkyRange;
 
         #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
             if (blockId > 0 && blockId != BLOCK_EMPTY) {
@@ -512,10 +485,16 @@ void main() {
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 
-                    lightValue.rgb = Lpv_RgbToHsv(lightColor, lightRange);
+                    vec3 hsv = RgbToHsv(lightColor);
+                    hsv.z = exp2(lightRange) - 1.0;
+                    lightValue.rgb += HsvToRgb(hsv);
                 }
             }
         #endif
+
+        vec4 hsv_sky = vec4(RgbToHsv(lightValue.rgb), lightValue.a);
+        hsv_sky.zw = log2(hsv_sky.zw + 1.0) / LpvBlockSkyRange;
+        lightValue = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);
