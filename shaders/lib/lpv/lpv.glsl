@@ -10,12 +10,7 @@
 
 const ivec3 SceneLPVCenter = SceneLPVSize / 2;
 const float LpvFrustumOffsetF = LPV_FRUSTUM_OFFSET * 0.01;
-
-vec3 Lpv_RgbToHsv(const in vec3 lightColor, const in float lightRange) {
-    vec3 lightValue = RgbToHsv(lightColor);
-    lightValue.b = (lightRange * Lighting_RangeF) / LPV_BLOCKLIGHT_SCALE;
-    return lightValue;
-}
+const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
 
 vec3 GetLpvCenter(const in vec3 viewPos, const in vec3 viewDir) {
     ivec3 offset = ivec3(floor(viewDir * SceneLPVSize * LpvFrustumOffsetF));
@@ -44,19 +39,14 @@ float GetLpvFade(const in vec3 lpvPos) {
     return saturate(1.0 - maxOf((lpvDistF / LPV_PADDING)));
 }
 
-// #if defined RENDER_VERTEX || defined RENDER_SHADOW || defined RENDER_COMPOSITE_LPV
-    ivec3 GetLPVFrameOffset() {
-        vec3 viewDir = gbufferModelViewInverse[2].xyz;
-        vec3 posNow = GetLpvCenter(cameraPosition, viewDir);
+ivec3 GetLPVFrameOffset() {
+    vec3 viewDir = gbufferModelViewInverse[2].xyz;
+    vec3 posNow = GetLpvCenter(cameraPosition, viewDir);
 
-        //vec3 posLast = GetLPVPosition(previousCameraPosition - cameraPosition);
-        // vec3 viewDirPrev = getCameraViewDir(gbufferPreviousModelView);
-        vec3 viewDirPrev = vec3(gbufferPreviousModelView[0].z, gbufferPreviousModelView[1].z, gbufferPreviousModelView[2].z);
-        vec3 posPrev = GetLpvCenter(previousCameraPosition, viewDirPrev);
+    vec3 viewDirPrev = vec3(gbufferPreviousModelView[0].z, gbufferPreviousModelView[1].z, gbufferPreviousModelView[2].z);
+    vec3 posPrev = GetLpvCenter(previousCameraPosition, viewDirPrev);
 
-        //vec3 posLast = (SceneLPVCenter + offsetPrev) + fract(previousCameraPosition);
-        vec3 posLast = posNow + (previousCameraPosition - cameraPosition) - (posPrev - posNow);
+    vec3 posLast = posNow + (previousCameraPosition - cameraPosition) - (posPrev - posNow);
 
-        return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
-    }
-// #endif
+    return GetLPVImgCoord(posNow) - GetLPVImgCoord(posLast);
+}

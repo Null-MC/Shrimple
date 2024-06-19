@@ -140,7 +140,7 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
 #endif
 
 
-const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
+// const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
 
 ivec3 GetLPVVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
