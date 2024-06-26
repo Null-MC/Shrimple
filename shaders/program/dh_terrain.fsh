@@ -177,6 +177,7 @@ uniform int frameCounter;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/noise.glsl"
 
+#include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
@@ -263,7 +264,6 @@ uniform int frameCounter;
 
     #ifdef IS_LPV_ENABLED
         #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lpv/lpv.glsl"
         #include "/lib/lpv/lpv_render.glsl"

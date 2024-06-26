@@ -200,6 +200,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/ign.glsl"
 #include "/lib/sampling/atlas.glsl"
 
+#include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
@@ -317,7 +318,6 @@ uniform ivec2 eyeBrightnessSmooth;
     // #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 && (LIGHTING_MODE > LIGHTING_MODE_BASIC || LPV_SHADOW_SAMPLES > 0)
     #ifdef IS_LPV_ENABLED
         #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/lpv/lpv.glsl"
         #include "/lib/lpv/lpv_render.glsl"

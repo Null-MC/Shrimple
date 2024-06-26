@@ -27,8 +27,6 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
         : texelFetch(texLPV_1, lpvPos, 0);
     #endif
 
-    lpvSample.rgb = HsvToRgb(lpvSample.rgb);
-
     return lpvSample / Lighting_RangeF;
 }
 
@@ -117,6 +115,12 @@ vec4 SampleLpv(const in vec3 samplePos) {
         ivec3 coord = ivec3(samplePos);
         vec4 lpvSample = SampleLpvNearest(coord);
     #endif
+
+    lpvSample.rgb = RGBToLinear(lpvSample.rgb);
+
+    vec3 hsv = RgbToHsv(lpvSample.rgb);
+    hsv.z = pow(hsv.z, 1.5);
+    lpvSample.rgb = HsvToRgb(hsv);
 
     return lpvSample;
 }

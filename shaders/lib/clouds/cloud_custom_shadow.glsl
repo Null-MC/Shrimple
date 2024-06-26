@@ -7,7 +7,7 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
     float cloudDist = cloudDistFar - cloudDistNear;
 
     if (cloudDist < EPSILON) return 1.0;
-    cloudDist = min(cloudDist, 64.0);
+    cloudDist = min(cloudDist, 24.0);
 
     float dither = GetCloudDither();
     float cloudAlt = GetCloudAltitude();
@@ -40,14 +40,15 @@ float TraceCloudShadow(const in vec3 worldPos, const in vec3 localLightDir, cons
         float sampleD = SampleClouds(traceWorldPos, cloudOffset) * CloudDensityF;
 
         float traceStepLen = cloudStepLen;
-        if (i == stepCount) traceStepLen *= (1.0 - dither);
-        else if (i == 0) traceStepLen *= dither;
+        // if (i == stepCount) traceStepLen *= (1.0 - dither);
+        // else if (i == 0) traceStepLen *= dither;
 
         cloudAbsorb *= exp(traceStepLen * sampleD * -CloudAbsorbF);
         // cloudAbsorb *= 1.0 - sampleD;
     }
 
-    return cloudAbsorb * 0.74 + 0.26;
+    // return cloudAbsorb * 0.74 + 0.26;
+    return cloudAbsorb;
 }
 
 // float _TraceCloudShadow(in vec3 worldPos, const in float dither, const in int stepCount) {
@@ -96,7 +97,7 @@ float TraceCloudDensity(const in vec3 worldPos, const in vec3 localLightDir, con
     float sampleCountInv = rcp(sampleCount);
 
     if (cloudDist > EPSILON) {
-        float dither = GetCloudDither();
+        float dither = 0.0;//GetCloudDither();
     
         float cloudStepLen = cloudDist * sampleCountInv;
         vec3 cloudStep = localLightDir * cloudStepLen;

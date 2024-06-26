@@ -189,6 +189,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/gaussian.glsl"
 // #include "/lib/sampling/bilateral_gaussian.glsl"
 
+#include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/temporal_offset.glsl"
@@ -254,7 +255,6 @@ uniform int heldBlockLightValue2;
 
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
     #include "/lib/buffers/volume.glsl"
-    #include "/lib/utility/hsv.glsl"
     
     #include "/lib/lpv/lpv.glsl"
     #include "/lib/lpv/lpv_render.glsl"

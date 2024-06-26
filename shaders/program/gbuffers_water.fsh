@@ -225,6 +225,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
@@ -354,7 +355,6 @@ uniform int heldBlockLightValue2;
 
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/hsv.glsl"
         
         #include "/lib/lpv/lpv.glsl"
         #include "/lib/lpv/lpv_render.glsl"

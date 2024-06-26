@@ -1,5 +1,5 @@
 // float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.36, 0.64, 0.5);}
-float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
+float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.18);}
 
 #ifdef RENDER_FRAG
     vec3 GetSkyColorUp() {
@@ -15,7 +15,7 @@ float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
     }
 
     void _TraceClouds(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount, const in int shadowStepCount) {
-        float dither = GetCloudDither();
+        float dither = 0.0;//GetCloudDither();
 
         float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
@@ -32,6 +32,7 @@ float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
         #endif
 
         float cloudDist = distMax - distMin;
+        cloudDist = min(cloudDist, 128.0);
         float stepLength = cloudDist / stepCount;
         vec3 traceStep = localViewDir * stepLength;
         vec3 traceStart = localViewDir * distMin;
@@ -42,7 +43,7 @@ float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
         //vec3 camOffset = GetCloudCameraOffset();
 
         for (uint i = 0; i <= stepCount; i++) {
-            float stepDither = dither * step(i, stepCount-1);
+            float stepDither = dither;// * step(i, stepCount-1);
             vec3 traceLocalPos = traceStep * (i + stepDither) + traceStart;
 
             #if WORLD_CURVE_RADIUS > 0
@@ -78,8 +79,8 @@ float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
             float stepPhase = mix(phaseSky, phaseCloud, sampleCloudF);
 
             float traceStepLen = stepLength;
-            if (i == stepCount) traceStepLen *= (1.0 - dither);
-            else if (i == 0) traceStepLen *= dither;
+            // if (i == stepCount) traceStepLen *= (1.0 - dither);
+            // else if (i == 0) traceStepLen *= dither;
 
             vec3 sampleLight = stepPhase * sampleCloudShadow * skyLightColor;// + stepAmbientF * skyColorFinal;
 
@@ -90,7 +91,7 @@ float GetCloudPhase(const in float VoL) {return DHG(VoL, -0.16, 0.84, 0.18);}
     }
 
     void TraceCloudSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 worldPos, const in vec3 localViewDir, const in float distMin, const in float distMax, const in int stepCount, const in int shadowStepCount) {
-        float dither = GetCloudDither();
+        float dither = 0.0;//GetCloudDither();
 
         float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;

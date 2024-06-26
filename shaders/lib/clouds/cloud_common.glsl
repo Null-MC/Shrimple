@@ -8,11 +8,11 @@ const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.92));
 const vec3 CloudAbsorbColor_clear = _RGBToLinear(1.0 - vec3(0.69));
 const vec3 CloudAbsorbColor_rain  = _RGBToLinear(1.0 - vec3(0.54));
 
-float CloudDensityF       = mix(0.6, 0.8, skyRainStrength);
-float CloudAmbientF       = mix(0.12, 0.24, skyRainStrength);
+float CloudDensityF       = mix(0.72, 0.88, skyRainStrength);
+float CloudAmbientF       = mix(0.08, 0.24, skyRainStrength);
 vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, skyRainStrength);
 vec3 CloudAbsorbColor     = mix(CloudAbsorbColor_clear, CloudAbsorbColor_rain, skyRainStrength);
-float CloudAbsorbF        = mix(0.1, 0.4, skyRainStrength);
+float CloudAbsorbF        = mix(0.11, 0.42, skyRainStrength);
 
 
 #define CLOUD_STEPS_MIN 12

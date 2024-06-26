@@ -159,6 +159,8 @@ vec4 GetLpvValue(in ivec3 texCoord) {
         ? imageLoad(imgSceneLPV_2, texCoord)
         : imageLoad(imgSceneLPV_1, texCoord);
 
+    lpvSample.rgb = RGBToLinear(lpvSample.rgb);
+
     vec4 hsv_sky = vec4(RgbToHsv(lpvSample.rgb), lpvSample.a);
     hsv_sky.zw = exp2(hsv_sky.zw * LpvBlockSkyRange) - 1.0;
     lpvSample = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
@@ -449,16 +451,19 @@ void main() {
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
                         #else
-                            float skyLightRange = 8.0 * sunUpF;
+                            float skyLightRange = 12.0 * sunUpF;
                         #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
 
-                        vec3 skyLight = RgbToHsv(shadowColorF.rgb * WorldSkyLightColor);
-                        skyLight.b = exp2(skyLightRange * shadowColorF.a) - 1.0;
-                        skyLight = HsvToRgb(skyLight);
+                        vec3 skyLight = shadowColorF.rgb * WorldSkyLightColor;
 
-                        lightValue.rgb += skyLight / max(shadowDist, 1.0);
+                        // vec3 hsv = RgbToHsv(skyLight);
+                        // hsv.y *= 0.65;
+                        // hsv.z = exp2(skyLightRange * shadowColorF.a) - 1.0;
+                        // skyLight = HsvToRgb(hsv);
+
+                        lightValue.rgb += skyLight;// / max(shadowDist, 1.0);
                     }
                 #endif
 
@@ -487,6 +492,7 @@ void main() {
 
                     vec3 hsv = RgbToHsv(lightColor);
                     hsv.z = exp2(lightRange) - 1.0;
+                    // hsv.z = lightRange / 15.0;
                     lightValue.rgb += HsvToRgb(hsv);
                 }
             }
@@ -495,6 +501,8 @@ void main() {
         vec4 hsv_sky = vec4(RgbToHsv(lightValue.rgb), lightValue.a);
         hsv_sky.zw = log2(hsv_sky.zw + 1.0) / LpvBlockSkyRange;
         lightValue = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
+
+        lightValue.rgb = LinearToRGB(lightValue.rgb);
 
         if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
             lightValue = vec4(0.0);
