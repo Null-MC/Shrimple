@@ -18,7 +18,7 @@ vec4 BasicVertex() {
     // vec4 viewPos = gl_ModelViewMatrix * pos;
     vec3 viewPos = mat3(gl_ModelViewMatrix) * pos.xyz + gl_ModelViewMatrix[3].xyz;
 
-    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && ((defined RENDER_WATER && WATER_TESSELLATION_QUALITY == 0) || defined RENDER_TERRAIN)
+    #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && ((defined RENDER_WATER && !defined WATER_TESSELLATION_ENABLED) || defined RENDER_TERRAIN)
         if (vOut.blockId == BLOCK_WATER || vOut.blockId == BLOCK_LILY_PAD) {
             float viewDist = length(viewPos);
             float distF = 1.0 - smoothstep(0.2, 2.8, viewDist);

@@ -17,7 +17,7 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
 

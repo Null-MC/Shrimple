@@ -404,8 +404,8 @@ void main() {
                     // if (cloudDistFar - cloudDistNear > EPSILON)
                     //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
 
-                    // if (skyDistFar - cloudDistFar > EPSILON)
-                    //     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+                    if (skyDistFar - cloudDistFar > EPSILON)
+                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
                 #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
                     float skyDistFar = SkyFar;
                     if (depthTrans < 1.0) {

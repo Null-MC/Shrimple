@@ -912,6 +912,22 @@
                 size = (10.0/16.0);
                 break;
             case LIGHT_CANDLES_4:
+            case LIGHT_BLACK_CANDLES_4:
+            case LIGHT_BLUE_CANDLES_4:
+            case LIGHT_BROWN_CANDLES_4:
+            case LIGHT_CYAN_CANDLES_4:
+            case LIGHT_GRAY_CANDLES_4:
+            case LIGHT_GREEN_CANDLES_4:
+            case LIGHT_LIGHT_BLUE_CANDLES_4:
+            case LIGHT_LIGHT_GRAY_CANDLES_4:
+            case LIGHT_LIME_CANDLES_4:
+            case LIGHT_MAGENTA_CANDLES_4:
+            case LIGHT_ORANGE_CANDLES_4:
+            case LIGHT_PINK_CANDLES_4:
+            case LIGHT_PURPLE_CANDLES_4:
+            case LIGHT_RED_CANDLES_4:
+            case LIGHT_WHITE_CANDLES_4:
+            case LIGHT_YELLOW_CANDLES_4:
             case LIGHT_END_ROD:
             case LIGHT_BLAST_FURNACE_N:
             case LIGHT_BLAST_FURNACE_E:
@@ -921,6 +937,22 @@
                 break;
             case LIGHT_AMETHYST_BUD_MEDIUM:
             case LIGHT_CANDLES_3:
+            case LIGHT_BLACK_CANDLES_3:
+            case LIGHT_BLUE_CANDLES_3:
+            case LIGHT_BROWN_CANDLES_3:
+            case LIGHT_CYAN_CANDLES_3:
+            case LIGHT_GRAY_CANDLES_3:
+            case LIGHT_GREEN_CANDLES_3:
+            case LIGHT_LIGHT_BLUE_CANDLES_3:
+            case LIGHT_LIGHT_GRAY_CANDLES_3:
+            case LIGHT_LIME_CANDLES_3:
+            case LIGHT_MAGENTA_CANDLES_3:
+            case LIGHT_ORANGE_CANDLES_3:
+            case LIGHT_PINK_CANDLES_3:
+            case LIGHT_PURPLE_CANDLES_3:
+            case LIGHT_RED_CANDLES_3:
+            case LIGHT_WHITE_CANDLES_3:
+            case LIGHT_YELLOW_CANDLES_3:
             case LIGHT_LANTERN:
             case LIGHT_SOUL_LANTERN:
             case LIGHT_STREET_LAMP:
@@ -928,9 +960,41 @@
                 size = (6.0/16.0);
                 break;
             case LIGHT_CANDLES_2:
+            case LIGHT_BLACK_CANDLES_2:
+            case LIGHT_BLUE_CANDLES_2:
+            case LIGHT_BROWN_CANDLES_2:
+            case LIGHT_CYAN_CANDLES_2:
+            case LIGHT_GRAY_CANDLES_2:
+            case LIGHT_GREEN_CANDLES_2:
+            case LIGHT_LIGHT_BLUE_CANDLES_2:
+            case LIGHT_LIGHT_GRAY_CANDLES_2:
+            case LIGHT_LIME_CANDLES_2:
+            case LIGHT_MAGENTA_CANDLES_2:
+            case LIGHT_ORANGE_CANDLES_2:
+            case LIGHT_PINK_CANDLES_2:
+            case LIGHT_PURPLE_CANDLES_2:
+            case LIGHT_RED_CANDLES_2:
+            case LIGHT_WHITE_CANDLES_2:
+            case LIGHT_YELLOW_CANDLES_2:
                 size = (4.0/16.0);
                 break;
             case LIGHT_CANDLES_1:
+            case LIGHT_BLACK_CANDLES_1:
+            case LIGHT_BLUE_CANDLES_1:
+            case LIGHT_BROWN_CANDLES_1:
+            case LIGHT_CYAN_CANDLES_1:
+            case LIGHT_GRAY_CANDLES_1:
+            case LIGHT_GREEN_CANDLES_1:
+            case LIGHT_LIGHT_BLUE_CANDLES_1:
+            case LIGHT_LIGHT_GRAY_CANDLES_1:
+            case LIGHT_LIME_CANDLES_1:
+            case LIGHT_MAGENTA_CANDLES_1:
+            case LIGHT_ORANGE_CANDLES_1:
+            case LIGHT_PINK_CANDLES_1:
+            case LIGHT_PURPLE_CANDLES_1:
+            case LIGHT_RED_CANDLES_1:
+            case LIGHT_WHITE_CANDLES_1:
+            case LIGHT_YELLOW_CANDLES_1:
             case LIGHT_CANDLE_CAKE:
                 size = (2.0/16.0);
                 break;

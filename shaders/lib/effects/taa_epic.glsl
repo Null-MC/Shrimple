@@ -39,8 +39,11 @@ vec4 ApplyTAA(const in vec2 uv) {
         }
     #endif
 
+    vec2 unjitterCoord = texcoord;
+    //unjitterCoord += 0.5*getJitterOffset(frameCounter);
+
     vec3 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz;
-    vec2 uvLast = getReprojectedClipPos(texcoord, depth, velocity, isDhDepth).xy;
+    vec2 uvLast = getReprojectedClipPos(unjitterCoord, depth, velocity, isDhDepth).xy;
 
     #ifdef EFFECT_TAA_SHARPEN
         vec4 lastColor = sampleHistoryCatmullRom(uvLast);
@@ -49,7 +52,8 @@ vec4 ApplyTAA(const in vec2 uv) {
     #endif
 
     vec3 antialiased = lastColor.rgb;
-    float mixRate = min(lastColor.a, 0.5);
+    // float mixRate = min(lastColor.a, 0.5);
+    float mixRate = clamp(lastColor.a, EPSILON, 0.5);
     // #ifdef EFFECT_TAA_ACCUM
     //     mixRate = 0.0;
     // #endif
@@ -95,12 +99,12 @@ vec4 ApplyTAA(const in vec2 uv) {
    	vec3 preclamping = antialiased;
     vec3 clamped = clamp(antialiased, minColor, maxColor);
     #ifdef EFFECT_TAA_ACCUM
-        antialiased = mix(antialiased, clamped, 0.05);
+        antialiased = mix(antialiased, clamped, mixRate);
     #else
         antialiased = clamped;
     #endif
     
-    mixRate = rcp(1.0 / mixRate + 1.0);
+    mixRate = rcp(rcp(mixRate) + 1.0);
     
     vec3 diff = antialiased - preclamping;
     float clampAmount = dot(diff, diff);

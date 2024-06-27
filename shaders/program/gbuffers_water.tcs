@@ -23,11 +23,11 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
 
-    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
         float vertexY;
     #endif
 
@@ -65,11 +65,11 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
 
-    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
         float vertexY;
     #endif
 
@@ -116,11 +116,11 @@ void main() {
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
 
-    #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vOut[gl_InvocationID].surfacePos = vIn[gl_InvocationID].surfacePos;
     #endif
 
-    #if WATER_TESSELLATION_QUALITY > 0 && WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
         vOut[gl_InvocationID].vertexY = vIn[gl_InvocationID].vertexY;
     #endif
 
@@ -155,7 +155,7 @@ void main() {
             maxQuality = MATERIAL_TESSELLATION_QUALITY;
         #endif
 
-        #if defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0
+        #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
             if (vIn[0].blockId == BLOCK_WATER)
                 maxQuality = MAX_TESS_LEVEL;
         #endif

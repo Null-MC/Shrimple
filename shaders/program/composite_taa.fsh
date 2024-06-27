@@ -77,7 +77,7 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
         #endif
     #endif
 
-    vec3 localPosPrev = localPos - velocity + cameraPosition - previousCameraPosition;
+    vec3 localPosPrev = localPos - velocity + (cameraPosition - previousCameraPosition);
 
     #ifdef DISTANT_HORIZONS
         vec3 clipPosPrev;

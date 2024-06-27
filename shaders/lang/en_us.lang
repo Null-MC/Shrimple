@@ -140,7 +140,7 @@ value.WATER_VOL_FOG_TYPE.2=Fancy
 
 option.WATER_TEXTURED=Texture
 
-option.WATER_OPACITY=Opacity
+option.WATER_OPACITY=Surface Opacity
 option.WATER_OPACITY.comment=How transparent the water surface will be.
 suffix.WATER_OPACITY=%
 
@@ -150,7 +150,7 @@ value.WATER_COLOR_TYPE.1=Default
 value.WATER_COLOR_TYPE.2=Tropical
 value.WATER_COLOR_TYPE.3=Swamp
 
-option.WATER_FOG_DENSITY=Density
+option.WATER_FOG_DENSITY=Volume Density
 option.WATER_FOG_DENSITY.comment=How dense/transparent water fog will be.
 suffix.WATER_FOG_DENSITY=%
 

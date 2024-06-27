@@ -23,11 +23,11 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
-    #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
 
-    #ifdef WATER_TESSELLATION_ENABLED
+    #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
         float vertexY;
     #endif
 
@@ -220,18 +220,18 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
+    #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vOut.surfacePos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
         vOut.surfacePos = mul3(gbufferModelViewInverse, vOut.surfacePos);
     #endif
 
-    #ifdef WATER_TESSELLATION_ENABLED
+    #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
         vOut.vertexY = saturate(-at_midBlock.y/64.0 + 0.5);
     #endif
 
     vec4 viewPos = BasicVertex();
 
-    #if (defined RENDER_WATER && defined WORLD_WATER_ENABLED && WATER_TESSELLATION_QUALITY > 0) || DISPLACE_MODE == DISPLACE_TESSELATION
+    #if (defined WORLD_WATER_ENABLED && WATER_TESSELLATION_ENABLED) || DISPLACE_MODE == DISPLACE_TESSELATION
         gl_Position = viewPos;
         
         #if DISPLACE_MODE != DISPLACE_TESSELATION
