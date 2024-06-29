@@ -93,7 +93,9 @@ void main() {
         color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
     }
     else {
-        color.rgb *= Sky_BrightnessF;
+        #ifndef WORLD_END
+            color.rgb *= Sky_BrightnessF;
+        #endif
     }
 
     // #ifdef WORLD_END
