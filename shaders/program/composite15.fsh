@@ -431,7 +431,7 @@ layout(location = 0) out vec4 outFinal;
 
                         vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal;
                     #else
-                        vec3 vlLight = phaseIso + WaterAmbientF;
+                        vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                     #endif
 
                     ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
