@@ -227,11 +227,14 @@ uniform int frameCounter;
 //     #include "/lib/sampling/anisotropic.glsl"
 // #endif
 
+#if defined(WORLD_WETNESS_ENABLED) && (defined(WORLD_SKY_ENABLED) || defined(WORLD_WATER_ENABLED))
+    #include "/lib/material/porosity.glsl"
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 
     #ifdef WORLD_WETNESS_ENABLED
-        #include "/lib/material/porosity.glsl"
         #include "/lib/world/wetness.glsl"
         #include "/lib/world/wetness_ripples.glsl"
     #endif
