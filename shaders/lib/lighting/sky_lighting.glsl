@@ -66,10 +66,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * skyLightShadowColor;
 
-    vec2 lmcoordFinal = vec2(0.0, lmcoord.y);
-    lmcoordFinal = LightMapTex(lmcoordFinal);
-    vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordFinal, 0).rgb;
-    vec3 ambientLight = RGBToLinear(lightmapColor);
+    vec2 lmcoordSkyFinal = vec2(0.0, lmcoord.y);
+    lmcoordSkyFinal = LightMapTex(lmcoordSkyFinal);
+    vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordSkyFinal, 0).rgb;
+    vec3 ambientSkyLight = RGBToLinear(lightmapColor);
 
     float diffuseF = 1.0;
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
@@ -102,9 +102,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
             lpvSkyLightColor = HsvToRgb(lpvSkyLightColor);
 
-            ambientLight = mix(ambientLight, lpvSkyLightColor, lpvFade);
+            ambientSkyLight = mix(ambientSkyLight, lpvSkyLightColor, lpvFade);
         #else
-            ambientLight = mix(ambientLight, vec3(lpvSkyLight), lpvFade);
+            ambientSkyLight = mix(ambientSkyLight, vec3(lpvSkyLight), lpvFade);
         #endif
     #endif
 
@@ -118,23 +118,36 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 
-    float ambientF = mix(Lighting_AmbientF, 2.0, horizonF);
+    float ambientF = mix(Lighting_AmbientF, 1.0, horizonF);
 
-    float sun_NoL = dot(texNormal, localSunDirection);
-    float moon_NoL = max(-sun_NoL, 0.0) * 0.5 + 0.5;
-    sun_NoL = max(sun_NoL, 0.0) * 0.5 + 0.5;
 
-    sun_NoL *= max(localSunDirection.y, 0.0);
-    moon_NoL *= max(-localSunDirection.y, 0.0);
 
-    vec3 skyAmbientLight = sun_NoL * WorldSunLightColor * Sky_SunBrightnessF;
-    skyAmbientLight += moon_NoL * WorldMoonLightColor * Sky_MoonBrightnessF;
-    ambientLight *= skyAmbientLight * ambientF;
+    // float sun_NoL = dot(texNormal, localSunDirection);
+    // float moon_NoL = max(-sun_NoL, 0.0) * 0.8 + 0.2;
+    // sun_NoL = max(sun_NoL, 0.0) * 0.8 + 0.2;
+
+    // sun_NoL *= max(localSunDirection.y, 0.0);
+    // moon_NoL *= max(-localSunDirection.y, 0.0);
+
+    // vec3 ambientSkyLight_direct = sun_NoL * WorldSunLightColor * Sky_SunBrightnessF;
+    // ambientSkyLight_direct += moon_NoL * WorldMoonLightColor * Sky_MoonBrightnessF;
+
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        vec3 ambientSkyLight_indirect = GetCustomSkyColor(localSunDirection.y, texNormal.y);
+    #else
+        vec3 ambientSkyLight_indirect = GetVanillaFogColor(fogColor, texNormal.y);
+        ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
+    #endif
+
+
+
+    // ambientSkyLight *= (ambientSkyLight_indirect + 0.1*ambientSkyLight_direct) * Sky_BrightnessF * ambientF;
+    ambientSkyLight *= ambientSkyLight_indirect * Sky_BrightnessF * ambientF;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))
-    //     ambientLight *= (texNormal.y * 0.3 + 0.7);
+    //     ambientSkyLight *= (texNormal.y * 0.3 + 0.7);
 
-    accumDiffuse += ambientLight * occlusion;// * roughL;
+    accumDiffuse += ambientSkyLight * occlusion;// * roughL;
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         #if MATERIAL_SPECULAR == SPECULAR_LABPBR
