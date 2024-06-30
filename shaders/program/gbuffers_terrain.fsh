@@ -626,9 +626,6 @@ void main() {
     vec3 localTangent = normalize(vIn.localTangent.xyz);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
 
-    vec3 localViewDir = normalize(vIn.localPos);
-    texNormal = normalize(matLocalTBN * texNormal);
-
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
         // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
             #if DISPLACE_MODE == DISPLACE_TESSELATION
@@ -642,6 +639,9 @@ void main() {
             #endif
         // }
     #endif
+
+    vec3 localViewDir = normalize(vIn.localPos);
+    texNormal = normalize(matLocalTBN * texNormal);
 
     // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     //     float skyNoL = dot(texNormal, localSkyLightDirection);

@@ -55,9 +55,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 WorldSkyLightColor = GetSkyLightColor();
     #endif
 
-    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);// * Sky_BrightnessF;
-
-    vec3 skyLightShadowColor = shadowColor * skyLightColor;
+    vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
+    // vec3 skyLightShadowColor = shadowColor * WorldSkyLightColor;
 
     float geoNoL = 1.0;
     if (!all(lessThan(abs(localNormal), EPSILON3)))
