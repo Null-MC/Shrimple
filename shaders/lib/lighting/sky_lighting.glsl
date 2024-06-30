@@ -94,7 +94,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 
-    float ambientF = mix(Lighting_AmbientF, 1.0, horizonF);
+    float ambientF = mix(Lighting_AmbientF, 1.5, pow(skyRainStrength, 0.75));
+    ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
 
 

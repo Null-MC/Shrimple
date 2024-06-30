@@ -812,18 +812,17 @@ layout(location = 0) out vec4 outFinal;
 
         if (isWater) {
             if (tir) final.a = 1.0;
-
-            //final.rgb *= final.a;
-            final.rgb += opaqueFinal * (1.0 - final.a);
         }
-        else {
-            vec3 tint = albedo;
-            if (any(greaterThan(tint, EPSILON3)))
-                tint = normalize(tint) * 1.7;
+        // else {
+        //     vec3 tint = albedo;
+        //     if (any(greaterThan(tint, EPSILON3)))
+        //         tint = normalize(tint) * 1.7;
 
-            tint = mix(tint, vec3(1.0), pow(1.0 - final.a, 3.0));
-            final.rgb = mix(opaqueFinal * tint, final.rgb, final.a);
-        }
+        //     tint = mix(tint, vec3(1.0), pow(1.0 - final.a, 3.0));
+        //     opaqueFinal *= tint;
+        // }
+
+        final.rgb += opaqueFinal * (1.0 - final.a);
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
