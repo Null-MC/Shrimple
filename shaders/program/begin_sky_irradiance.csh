@@ -31,6 +31,10 @@ uniform int fogShape;
     uniform float darknessLightFactor;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform float dhFarPlane;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
