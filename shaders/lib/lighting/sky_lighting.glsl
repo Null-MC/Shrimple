@@ -142,7 +142,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
 
     // ambientSkyLight *= (ambientSkyLight_indirect + 0.1*ambientSkyLight_direct) * Sky_BrightnessF * ambientF;
-    ambientSkyLight *= ambientSkyLight_indirect * Sky_BrightnessF * ambientF;
+    ambientSkyLight *= 3.0 * ambientSkyLight_indirect * Sky_BrightnessF * ambientF;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))
     //     ambientSkyLight *= (texNormal.y * 0.3 + 0.7);
