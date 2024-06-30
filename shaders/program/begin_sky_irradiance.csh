@@ -35,8 +35,6 @@ uniform int fogShape;
     #include "/lib/buffers/scene.glsl"
 #endif
 
-#include "/lib/buffers/sky_irradiance.glsl"
-
 #include "/lib/sampling/erp.glsl"
 
 #include "/lib/lighting/hg.glsl"
