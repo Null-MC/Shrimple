@@ -293,7 +293,8 @@ void main() {
         return;
     }
 
-    albedo.a = sqrt(albedo.a);
+    // albedo.a = sqrt(albedo.a);
+    albedo.a = min(albedo.a * SkyCloudOpacityF, 1.0);
 
     float viewDist = length(vIn.localPos);
 

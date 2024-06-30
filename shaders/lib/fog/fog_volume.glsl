@@ -418,13 +418,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             sampleAmbient *= skyColorFinal + vlSkyMinLight;
         #endif
 
-        vec3 lightF = sampleLit + sampleAmbient;
+        vec3 lightF = stepLength * (sampleLit + sampleAmbient);
 
         float traceStepLen = stepLength;
         // if (i == VOLUMETRIC_SAMPLES) traceStepLen *= (1.0 - dither);
         // else if (i == 0) traceStepLen *= dither;
 
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF * stepLength, sampleDensity, sampleScattering, sampleExtinction);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);
 
         //if (all(lessThan(transmitFinal, EPSILON3))) break;
     }

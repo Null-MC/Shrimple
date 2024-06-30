@@ -42,9 +42,12 @@ value.SKY_CLOUD_TYPE.1=Vanilla
 value.SKY_CLOUD_TYPE.2=Fancy
 value.SKY_CLOUD_TYPE.3=Cubed
 
-option.SKY_CLOUD_SPEED=Cloud Speed
+option.SKY_CLOUD_SPEED=Speed
 option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.
 suffix.SKY_CLOUD_SPEED=x
+
+option.SKY_CLOUD_OPACITY=Opacity
+suffix.SKY_CLOUD_OPACITY=%
 
 option.SKY_CLOUD_COVER_MIN=Min Coverage
 suffix.SKY_CLOUD_COVER_MIN=%

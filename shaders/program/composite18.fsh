@@ -976,7 +976,11 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         vec4 overlayColor = textureLod(BUFFER_OVERLAY, texcoord, 0);
-        final = mix(final, overlayColor, overlayColor.a);
+        // final = mix(final, overlayColor, overlayColor.a);
+        final.rgb *= 1.0 - overlayColor.a;
+        final.rgb += overlayColor.rgb;
+        final.a = max(final.a, overlayColor.a);
+        // = mix(final, overlayColor, overlayColor.a);
         
         outFinal = final;
     }

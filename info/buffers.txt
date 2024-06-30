@@ -34,7 +34,7 @@ colortex5		RGBA16F		1.0		final previous [taa]
 colortex7		RGBA16F		1.0	 	velocity buffer [taa]
 colortex8		RGB16F		 *		volumetric scattering
 colortex10		RGB16F		 *		volumetric transmission
-colortex15		RGBA16F		1.0		bloom | deferred weather particles
+colortex15		RGBA16F		1.0		bloom | deferred weather particles + clouds
 
 
 

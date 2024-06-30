@@ -80,6 +80,7 @@ const bool colortex15Clear = true;
 // Sky Cloud Options
 #define SKY_CLOUD_TYPE 1 // [0 1 2]
 #define SKY_CLOUD_SPEED 24 // [0 2 4 8 12 16 20 24 32 48 64 96 128]
+#define SKY_CLOUD_OPACITY 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 160 165 170 175 180 185 190 195 200]
 #define SKY_CLOUD_COVER_MIN 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define SKY_CLOUD_COVER_MAX 55 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define SKY_CLOUD_ALTITUDE 0 // [0 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 450 500 550 600 650 700 750 800 850 900 950 1000 1100 1200]
@@ -561,6 +562,7 @@ const float Sky_SunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
 const float Sky_MoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
 const float Sky_BrightnessF = SKY_BRIGHTNESS * 0.01;
 const float Sky_RainOpacityF = SKY_WEATHER_OPACITY * 0.01;
+const float SkyCloudOpacityF = SKY_CLOUD_OPACITY * 0.01;
 const float Water_DensityF = WATER_FOG_DENSITY * 0.01;
 const float Water_OpacityF = WATER_OPACITY * 0.01;
 const float World_CurveRadius = WORLD_CURVE_RADIUS * 1000.0;
