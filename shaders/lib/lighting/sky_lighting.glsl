@@ -132,17 +132,22 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     // vec3 ambientSkyLight_direct = sun_NoL * WorldSunLightColor * Sky_SunBrightnessF;
     // ambientSkyLight_direct += moon_NoL * WorldMoonLightColor * Sky_MoonBrightnessF;
 
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 ambientSkyLight_indirect = GetCustomSkyColor(localSunDirection.y, texNormal.y);
-    #else
-        vec3 ambientSkyLight_indirect = GetVanillaFogColor(fogColor, texNormal.y);
-        ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
-    #endif
 
+    // #if SKY_TYPE == SKY_TYPE_CUSTOM
+    //     vec3 ambientSkyLight_indirect = GetCustomSkyColor(localSunDirection.y, texNormal.y);
+    // #else
+    //     vec3 ambientSkyLight_indirect = GetVanillaFogColor(fogColor, texNormal.y);
+    //     ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
+    // #endif
+
+    vec2 uvSky = DirectionToUV(texNormal);
+    vec3 ambientSkyLight_indirect = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+    //ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
+    //ambientSkyLight_indirect *= Sky_BrightnessF;
 
 
     // ambientSkyLight *= (ambientSkyLight_indirect + 0.1*ambientSkyLight_direct) * Sky_BrightnessF * ambientF;
-    ambientSkyLight *= 3.0 * ambientSkyLight_indirect * Sky_BrightnessF * ambientF;
+    ambientSkyLight *= 3.0 * ambientSkyLight_indirect * ambientF;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))
     //     ambientSkyLight *= (texNormal.y * 0.3 + 0.7);

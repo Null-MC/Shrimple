@@ -9,13 +9,11 @@ const int colortex2Format  = RGBA8;
 const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
-const int colortex6Format  = R32F;
 const int colortex7Format  = RGBA16F;
 const int colortex8Format = RGB16F;
 const int colortex9Format = RGB8;
 const int colortex10Format = RGB16F;
 const int colortex11Format = RGBA16F;
-const int colortex12Format = RGB16F;
 const int colortex15Format = RGBA16F;
 */
 
@@ -46,8 +44,8 @@ const bool colortex4Clear = false;
 const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex5Clear = false;
 
-const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-const bool colortex6Clear = false;
+// const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
+// const bool colortex6Clear = false;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex7Clear = true;
@@ -64,8 +62,8 @@ const bool colortex10Clear = true;
 const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex11Clear = false;
 
-const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-const bool colortex12Clear = false;
+// const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
+// const bool colortex12Clear = false;
 
 const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex15Clear = true;
@@ -336,7 +334,7 @@ const bool colortex15Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18]
 //#define DEBUG_TRANSPARENT
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define DH_TRANSITION

@@ -22,13 +22,14 @@ uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferPreviousModelView;
-uniform int frameCounter;
 
+uniform float viewWidth;
+uniform float viewHeight;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform float near;
-// uniform float far;
 uniform float farPlane;
+uniform int frameCounter;
 
 #ifdef DISTANT_HORIZONS
     uniform mat4 dhModelViewInverse;

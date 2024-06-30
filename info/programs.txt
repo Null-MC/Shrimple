@@ -6,6 +6,7 @@ setup4			build static light data
 begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
 begin3			clear water depths
+begin4			sky irradiance
 
 --shadowcomp2		build light bin lists
 --shadowcomp3		populate light mask neighbors

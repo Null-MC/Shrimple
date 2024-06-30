@@ -47,6 +47,10 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
+#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     uniform sampler2D normals;
 #endif
@@ -224,6 +228,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
@@ -263,6 +268,10 @@ uniform int heldBlockLightValue2;
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/fog/fog_water_custom.glsl"
+    #endif
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
@@ -368,7 +377,7 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
+    #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/lighting/sky_lighting.glsl"
     #endif
 

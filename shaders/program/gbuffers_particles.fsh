@@ -39,6 +39,10 @@ uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
+#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if defined MATERIAL_PARTICLES && (MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR)
     uniform sampler2D normals;
 #endif
@@ -209,6 +213,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
@@ -238,6 +243,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/fog/fog_water_custom.glsl"
+    #endif
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
@@ -342,7 +351,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
+    #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/lighting/sky_lighting.glsl"
     #endif
 

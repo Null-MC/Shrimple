@@ -144,7 +144,8 @@
 #define DEBUG_VIEW_SHADOW_COLOR 14
 #define DEBUG_VIEW_BLOOM_TILES 15
 #define DEBUG_VIEW_DEPTH_TILES 16
-#define DEBUG_VIEW_WHITEWORLD 17
+#define DEBUG_VIEW_SKY_IRRADIANCE 17
+#define DEBUG_VIEW_WHITEWORLD 18
 
 #define BUFFER_FINAL colortex0
 #define BUFFER_DEFERRED_COLOR colortex1
@@ -152,13 +153,11 @@
 #define BUFFER_DEFERRED_DATA colortex3
 #define BUFFER_BLOCK_DIFFUSE colortex4
 #define BUFFER_FINAL_PREV colortex5
-#define BUFFER_DEPTH_PREV colortex6
 #define BUFFER_VELOCITY colortex7
 #define BUFFER_DEFERRED_NORMAL_TEX colortex9
 #define BUFFER_VL_SCATTER colortex8
 #define BUFFER_VL_TRANSMIT colortex10
 #define BUFFER_BLOCK_SPECULAR colortex11
-#define BUFFER_RT_ACCUMULATE colortex12
 #define BUFFER_BLOOM_TILES colortex15
 #define BUFFER_OVERLAY colortex15
 

@@ -31,15 +31,9 @@ colortex9		RGB16F		1.0		texture normal.xyz
 colortex4		RGB16F		 *	 	block-light diffuse
 colortex11		RGBA16F		 *	 	block-light specular
 colortex5		RGBA16F		1.0		final previous [taa]
-colortex6		R16F		1.0		depth previous [taa]
 colortex7		RGBA16F		1.0	 	velocity buffer [taa]
---colortex9		R32F		1.0		depth tiles
---colortex12	RGB16F		1.0	 	vanilla SSAO
-colortex12		RGB16F		1.0	 	block-light accumulation
 colortex8		RGB16F		 *		volumetric scattering
 colortex10		RGB16F		 *		volumetric transmission
-colortex13		R32F		1.0		weather particle depth
---colortex14		RGB8		1.0		deferred roughness, metal/f0, porosity
 colortex15		RGBA16F		1.0		bloom | deferred weather particles
 
 

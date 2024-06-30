@@ -19,6 +19,10 @@ uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D TEX_LIGHTMAP;
 
+#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
     uniform sampler3D texCaustics;
 #endif
@@ -186,6 +190,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/erp.glsl"
 #include "/lib/sampling/gaussian.glsl"
 // #include "/lib/sampling/bilateral_gaussian.glsl"
 
@@ -224,6 +229,10 @@ uniform int heldBlockLightValue2;
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/fog/fog_water_custom.glsl"
+    #endif
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif

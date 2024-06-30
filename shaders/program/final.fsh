@@ -44,6 +44,8 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_BLOOM_TILES;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 	uniform sampler2D texDepthNear;
+#elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
+	uniform sampler2D texSkyIrradiance;
 #endif
 
 uniform float viewWidth;
@@ -134,6 +136,10 @@ void main() {
 		vec3 color = vec3(0.0);
 		if (texcoord.x < 0.5 && texcoord.y < 0.75)
 			color = texelFetch(texDepthNear, ivec2(gl_FragCoord.xy), 0).rrr;
+	#elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
+		vec3 color = textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
+		// color = color / (color + 1.0);
+		// color = LinearToRGB(color);
 	#else
 		#ifdef EFFECT_FXAA_ENABLED
 			vec3 color = FXAA(texcoord);

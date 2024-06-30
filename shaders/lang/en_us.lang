@@ -792,7 +792,8 @@ value.DEBUG_VIEW.13=Velocity
 value.DEBUG_VIEW.14=Shadow Color
 value.DEBUG_VIEW.15=Bloom Tiles
 value.DEBUG_VIEW.16=Depth Tiles
-value.DEBUG_VIEW.17=White-World
+value.DEBUG_VIEW.17=Sky Irradiance
+value.DEBUG_VIEW.18=White-World
 
 option.DEBUG_TRANSPARENT=Debug Translucent
 option.DEBUG_TRANSPARENT.comment=Shows the debug view for translucent materials when enabled, opaque otherwise.

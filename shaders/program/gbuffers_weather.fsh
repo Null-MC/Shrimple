@@ -31,6 +31,10 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
+#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
@@ -158,6 +162,7 @@ uniform float skyRainStrength;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
@@ -186,6 +191,10 @@ uniform float skyRainStrength;
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/fog/fog_water_custom.glsl"
+    #endif
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
@@ -267,7 +276,9 @@ uniform float skyRainStrength;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#include "/lib/lighting/sky_lighting.glsl"
+#if LIGHTING_MODE != LIGHTING_MODE_NONE
+    #include "/lib/lighting/sky_lighting.glsl"
+#endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
     #include "/lib/lighting/traced.glsl"

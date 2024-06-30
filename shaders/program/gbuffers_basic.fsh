@@ -136,6 +136,10 @@ uniform int frameCounter;
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
     #include "/lib/fog/fog_custom.glsl"
+    
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/fog/fog_water_custom.glsl"
+    #endif
 #elif SKY_TYPE == SKY_TYPE_VANILLA
     #include "/lib/fog/fog_vanilla.glsl"
 #endif

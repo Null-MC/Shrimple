@@ -61,20 +61,23 @@ vec4 ApplyTAA(const in vec2 uv) {
     if (saturate(uvLast) != uvLast)
         mixRate = 1.0;
     
-    vec2 off = pixelSize;// 1.0 / iResolution.xy;
     vec3 in0 = textureLod(BUFFER_FINAL, uv, 0).rgb;
+    // return vec4(in0, 1.0);
+    // return vec4(lastColor.rgb, 1.0);
     
     antialiased = mix(antialiased * antialiased, in0 * in0, mixRate);
     antialiased = sqrt(antialiased);
+
+    // vec2 pixelSize = rcp(vec2(viewWidth, viewHeight));
     
-    vec3 in1 = textureLod(BUFFER_FINAL, uv + vec2(+off.x, 0.0), 0).rgb;
-    vec3 in2 = textureLod(BUFFER_FINAL, uv + vec2(-off.x, 0.0), 0).rgb;
-    vec3 in3 = textureLod(BUFFER_FINAL, uv + vec2(0.0, +off.y), 0).rgb;
-    vec3 in4 = textureLod(BUFFER_FINAL, uv + vec2(0.0, -off.y), 0).rgb;
-    vec3 in5 = textureLod(BUFFER_FINAL, uv + vec2(+off.x, +off.y), 0).rgb;
-    vec3 in6 = textureLod(BUFFER_FINAL, uv + vec2(-off.x, +off.y), 0).rgb;
-    vec3 in7 = textureLod(BUFFER_FINAL, uv + vec2(+off.x, -off.y), 0).rgb;
-    vec3 in8 = textureLod(BUFFER_FINAL, uv + vec2(-off.x, -off.y), 0).rgb;
+    vec3 in1 = textureLod(BUFFER_FINAL, uv + vec2(+pixelSize.x, 0.0), 0).rgb;
+    vec3 in2 = textureLod(BUFFER_FINAL, uv + vec2(-pixelSize.x, 0.0), 0).rgb;
+    vec3 in3 = textureLod(BUFFER_FINAL, uv + vec2(0.0, +pixelSize.y), 0).rgb;
+    vec3 in4 = textureLod(BUFFER_FINAL, uv + vec2(0.0, -pixelSize.y), 0).rgb;
+    vec3 in5 = textureLod(BUFFER_FINAL, uv + vec2(+pixelSize.x, +pixelSize.y), 0).rgb;
+    vec3 in6 = textureLod(BUFFER_FINAL, uv + vec2(-pixelSize.x, +pixelSize.y), 0).rgb;
+    vec3 in7 = textureLod(BUFFER_FINAL, uv + vec2(+pixelSize.x, -pixelSize.y), 0).rgb;
+    vec3 in8 = textureLod(BUFFER_FINAL, uv + vec2(-pixelSize.x, -pixelSize.y), 0).rgb;
     
     antialiased = encodePalYuv(antialiased);
     in0 = encodePalYuv(in0);
