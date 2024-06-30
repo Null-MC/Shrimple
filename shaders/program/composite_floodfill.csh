@@ -458,10 +458,10 @@ void main() {
 
                         vec3 skyLight = shadowColorF.rgb * WorldSkyLightColor;
 
-                        // vec3 hsv = RgbToHsv(skyLight);
+                        vec3 hsv = RgbToHsv(skyLight);
                         // hsv.y *= 0.65;
-                        // hsv.z = exp2(skyLightRange * shadowColorF.a) - 1.0;
-                        // skyLight = HsvToRgb(hsv);
+                        hsv.z = exp2(skyLightRange * shadowColorF.a) - 1.0;
+                        skyLight = HsvToRgb(hsv);
 
                         lightValue.rgb += skyLight;// / max(shadowDist, 1.0);
                     }

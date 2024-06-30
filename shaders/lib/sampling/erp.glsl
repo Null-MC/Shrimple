@@ -1,10 +1,14 @@
+// #define ERP_FOCUS
+
 const vec2 TAU_PI = vec2(TAU, PI);
 const vec2 TAU_PI_INV = rcp(TAU_PI);
 
 vec3 DirectionFromUV(in vec2 uv) {
-    uv.y = uv.y * 2.0 - 1.0;
-    uv.y = _pow2(uv.y) * sign(uv.y);
-    uv.y = uv.y * 0.5 + 0.5;
+    #ifdef ERP_FOCUS
+        uv.y = uv.y * 2.0 - 1.0;
+        uv.y = _pow2(uv.y) * sign(uv.y);
+        uv.y = uv.y * 0.5 + 0.5;
+    #endif
 
     vec2 sphereCoord = (uv - vec2(0.5, 0.0)) * TAU_PI;
 
@@ -24,9 +28,11 @@ vec2 DirectionToUV(const in vec3 dir) {
 
     uv = (uv * TAU_PI_INV) + vec2(0.5, 0.0);
 
-    uv.y = uv.y * 2.0 - 1.0;
-    uv.y = sqrt(abs(uv.y)) * sign(uv.y);
-    uv.y = uv.y * 0.5 + 0.5;
+    #ifdef ERP_FOCUS
+        uv.y = uv.y * 2.0 - 1.0;
+        uv.y = sqrt(abs(uv.y)) * sign(uv.y);
+        uv.y = uv.y * 0.5 + 0.5;
+    #endif
 
     return uv;
 }

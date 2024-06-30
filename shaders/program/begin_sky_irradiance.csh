@@ -18,6 +18,7 @@ uniform vec3 cameraPosition;
 uniform float rainStrength;
 uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
+uniform int isEyeInWater;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -64,7 +65,7 @@ uniform int fogShape;
         const float weatherF = 1.0;
         float stepDist = SkyFar / stepCount;
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-        vec3 vlLight = 1000.0/stepCount * (phaseAir + AirAmbientF) * skyLightColor;
+        vec3 vlLight = 2800.0/stepCount * (phaseAir + AirAmbientF) * skyLightColor;
 
         vec3 scatterFinal = vec3(0.0);
         vec3 transmitFinal = vec3(1.0);
@@ -96,8 +97,6 @@ vec3 SampleSkyColor(const in vec3 localDir) {
     #if SKY_VOL_FOG_TYPE > 0
         ApplyVL(skyColor, localDir);
     #endif
-
-    //skyColor *= saturate(localDir.y + 1.0);
 
     return skyColor;
 }
@@ -133,23 +132,20 @@ vec3 CalculateIrradiance(const in vec3 normal) {
 }
 
 void main() {
-    //vec2 size = vec2(gl_WorkGroupSize.xy * gl_NumWorkGroups.xy);
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-
     vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / 8.0;
-    //texcoord.y = 1.0 - texcoord.y;
 
     vec3 normal = DirectionFromUV(texcoord);
-    skyColorBuffer[uv.y*8 + uv.x] = SampleSkyColor(normal);
+    vec3 skyColor = SampleSkyColor(normal);
 
+    skyColorBuffer[uv.y*8 + uv.x] = skyColor;
     memoryBarrierShared();
 
     vec3 irradiance = CalculateIrradiance(normal);
 
     // irradiance = vec3(texcoord, 0.0);
     // irradiance = vec3(dot(normal, localSkyLightDirection));
-    // irradiance = skyColorBuffer[uv.y*8 + uv.x];
+    // irradiance = skyColor;
 
-    //irradiance = LinearToRGB(irradiance);
     imageStore(imgSkyIrradiance, uv, vec4(irradiance, 1.0));
 }
