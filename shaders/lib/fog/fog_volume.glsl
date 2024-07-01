@@ -327,20 +327,20 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             }
         #endif
 
-        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                float cloudShadow = TraceCloudShadow(traceWorldPos, lightWorldDir, CLOUD_SHADOW_STEPS);
+                float cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
                 //sampleColor *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0);
                 sampleF *= cloudShadow;// * 0.7 + 0.3;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
-                    float cloudShadow = SampleCloudShadow(traceLocalPos, lightWorldDir, cloudOffset, camOffset, 0.0);
+                    float cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
                     //sampleF *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudShadow, 1.0);
                     sampleF *= cloudShadow;
                 }
             #endif
-        #endif
+        // #endif
 
         sampleLit += samplePhase * sampleF * sampleColor;
 
@@ -418,10 +418,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             sampleAmbient *= skyColorFinal + vlSkyMinLight;
         #endif
 
-        vec3 lightF = stepLength * (sampleLit + sampleAmbient);
+        vec3 lightF = sampleLit + sampleAmbient;
 
         float traceStepLen = stepLength;
-        // if (i == VOLUMETRIC_SAMPLES) traceStepLen *= (1.0 - dither);
+        // if (i == VOLUMETRIC_SAMPLES-1) traceStepLen *= (1.0 - dither);
         // else if (i == 0) traceStepLen *= dither;
 
         ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, sampleDensity, sampleScattering, sampleExtinction);

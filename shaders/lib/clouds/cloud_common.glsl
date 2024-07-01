@@ -2,15 +2,16 @@ const float CloudSpeed = 0.01;
 // const float CloudDensityF = 0.6;
 // const float CloudAmbientF = 0.1;
 
-const vec3 CloudScatterColor_clear = _RGBToLinear(vec3(0.84));
-const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.92));
-
+const vec3 CloudScatterColor_clear = _RGBToLinear(vec3(0.54));
 const vec3 CloudAbsorbColor_clear = _RGBToLinear(1.0 - vec3(0.69));
+
+const vec3 CloudScatterColor_rain  = _RGBToLinear(vec3(0.62));
 const vec3 CloudAbsorbColor_rain  = _RGBToLinear(1.0 - vec3(0.54));
 
 float CloudRainF = pow(skyRainStrength, 0.75);
-float CloudDensityF       = mix(0.72, 0.88, CloudRainF);
-float CloudAmbientF       = mix(0.08, 0.24, CloudRainF);
+
+float CloudDensityF       = mix(0.62, 0.88, CloudRainF);
+float CloudAmbientF       = mix(0.12, 0.24, CloudRainF);
 vec3 CloudScatterColor    = mix(CloudScatterColor_clear, CloudScatterColor_rain, CloudRainF);
 vec3 CloudAbsorbColor     = mix(CloudAbsorbColor_clear, CloudAbsorbColor_rain, CloudRainF);
 float CloudAbsorbF        = mix(0.11, 0.42, CloudRainF);

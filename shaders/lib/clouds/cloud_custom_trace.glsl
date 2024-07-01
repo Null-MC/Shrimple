@@ -86,7 +86,7 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
 
             sampleLight += stepAmbientF * skyColorFinal + 0.08;
 
-            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight * stepLength, stepDensity, stepScatterF, stepExtinctF);
+            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, stepDensity, stepScatterF, stepExtinctF);
         }
     }
 
@@ -133,7 +133,7 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
             // else if (i == 0) traceStepLen *= dither;
 
             vec3 sampleLight = phaseSky * sampleCloudShadow * skyLightColor + AirAmbientF * skyColorFinal;
-            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight * stepLength, airDensity, AirScatterColor, AirExtinctColor);
+            ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, sampleLight, airDensity, AirScatterColor, AirExtinctColor);
         }
     }
 #endif

@@ -1,13 +1,13 @@
 vec2 ApplyScatteringTransmission(const in float traceDist, const in float inScattering, const in float density, const in float scatterF, const in float extinctF) {
-    float lightIntegral = inScattering * scatterF * density;
+    float lightIntegral = inScattering * scatterF * density * traceDist;
     float transmittance = exp(-traceDist * extinctF * density);
 
     return vec2(lightIntegral, transmittance);
 }
 
 void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFinal, const in float traceDist, const in vec3 inScattering, const in float density, const in vec3 scatterF, const in vec3 extinctF) {
+    scatterFinal += inScattering * scatterF * density * traceDist * transmitFinal;
     transmitFinal *= exp(-traceDist * extinctF * density);
-    scatterFinal += inScattering * scatterF * density * transmitFinal;
 }
 
 void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFinal, const in float traceDist, const in vec3 inScattering, const in float density, const in vec3 scatterF, const in vec3 extinctF, const in int stepCount) {
@@ -17,8 +17,8 @@ void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFin
     vec3 stepTransmittance = exp(-stepDist * extinctF * density);
 
     for (int i = 0; i < stepCount; i++) {
-        transmitFinal *= stepTransmittance;
         scatterFinal = lightIntegral * transmitFinal + scatterFinal;
+        transmitFinal *= stepTransmittance;
     }
 }
 

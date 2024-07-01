@@ -61,6 +61,6 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         // else if (i == 0) traceStepLen *= dither;
 
         vec3 sampleLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight * stepLength, airDensity, AirScatterColor, AirExtinctColor);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight, airDensity, AirScatterColor, AirExtinctColor);
     }
 }
