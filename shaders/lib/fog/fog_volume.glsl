@@ -328,6 +328,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+        #ifdef WORLD_SKY_ENABLED
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 float cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
@@ -340,7 +341,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleF *= cloudShadow;
                 }
             #endif
-        // #endif
+        #endif
 
         sampleLit += samplePhase * sampleF * sampleColor;
 
