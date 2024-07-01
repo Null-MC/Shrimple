@@ -1,4 +1,4 @@
 #version 430 core
 
 #include "overworld.glsl"
-#include "/program/begin_sky_irradiance.csh"
+#include "/program/prepare_sky.csh"

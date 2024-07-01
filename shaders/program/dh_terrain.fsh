@@ -273,11 +273,15 @@ uniform int frameCounter;
         #include "/lib/lpv/lpv_render.glsl"
     #endif
     
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        #include "/lib/lighting/reflections.glsl"
-    #endif
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            #include "/lib/lighting/reflections.glsl"
+        #endif
 
-    #include "/lib/lighting/sky_lighting.glsl"
+        #ifdef WORLD_SKY_ENABLED
+            #include "/lib/lighting/sky_lighting.glsl"
+        #endif
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/traced.glsl"

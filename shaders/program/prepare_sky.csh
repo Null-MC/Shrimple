@@ -1,5 +1,5 @@
-#define RENDER_BEGIN_SKY_IRRADIANCE
-#define RENDER_BEGIN
+#define RENDER_PREPARE_SKY
+#define RENDER_PREPARE
 #define RENDER_COMPUTE
 
 #include "/lib/constants.glsl"
@@ -7,11 +7,9 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(1, 1, 1);
+const ivec3 workGroups = ivec3(8, 4, 1);
 
-layout(rgba16f) uniform writeonly image2D imgSkyIrradiance;
-
-shared vec3 skyColorBuffer[64];
+layout(rgba16f) uniform writeonly image2D imgSky;
 
 uniform float far;
 uniform vec3 cameraPosition;
@@ -65,21 +63,19 @@ uniform int fogShape;
 
         const int stepCount = 8;
         const float weatherF = 1.0;
-        float stepDist = SkyFar / stepCount;
+        float stepDist = (SkyFar - far) / stepCount;
+
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-        vec3 vlLight = 2800.0/stepCount * (phaseAir + AirAmbientF) * skyLightColor;
+        vec3 lightIntegral = (phaseAir + AirAmbientF) * skyLightColor * AirScatterColor * stepDist;
 
         vec3 scatterFinal = vec3(0.0);
         vec3 transmitFinal = vec3(1.0);
         for (int i = 0; i < stepCount; i++) {
-            vec3 traceLocalPos = localDir * stepDist * i;
+            vec3 traceLocalPos = localDir * (stepDist * i + far);
             float airDensity = GetSkyDensity(traceLocalPos.y + cameraPosition.y);
 
-            vec3 lightIntegral = vlLight * AirScatterColor * airDensity;// * stepDist;
-            vec3 stepTransmittance = exp(-stepDist * AirExtinctColor * airDensity);
-
-            transmitFinal *= stepTransmittance;
-            scatterFinal = lightIntegral * transmitFinal + scatterFinal;
+            scatterFinal += lightIntegral * airDensity * transmitFinal;
+            transmitFinal *= exp(-stepDist * airDensity * AirExtinctColor);
         }
 
         skyColor = skyColor * transmitFinal + scatterFinal;
@@ -103,51 +99,14 @@ vec3 SampleSkyColor(const in vec3 localDir) {
     return skyColor;
 }
 
-vec3 CalculateIrradiance(const in vec3 normal) {
-    const float sampleDelta = 0.2;
-
-    vec3 up    = vec3(0.0, 1.0, 0.0);
-    vec3 right = normalize(cross(up, normal));
-    up         = normalize(cross(normal, right));
-
-    float nrSamples = 0.0;
-    vec3 irradiance = vec3(0.0);  
-    for (float phi = 0.0; phi < TAU; phi += sampleDelta) {
-        for (float theta = 0.0; theta < 0.5*PI; theta += sampleDelta) {
-            // spherical to cartesian (in tangent space)
-            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
-
-            // tangent space to world
-            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal; 
-            sampleVec = normalize(sampleVec);
-
-            // vec3 skyColor = SampleSkyColor(sampleVec);
-            ivec2 uv = ivec2(DirectionToUV(sampleVec) * 8.0 + 0.5);
-            vec3 skyColor = skyColorBuffer[uv.y*8 + uv.x];
-
-            irradiance += skyColor * cos(theta) * sin(theta);
-            nrSamples++;
-        }
-    }
-
-    return PI * (irradiance / nrSamples);
-}
-
 void main() {
+    uvec2 size = gl_WorkGroupSize.xy * gl_NumWorkGroups.xy;
+
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / 8.0;
+    vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / size;
 
     vec3 normal = DirectionFromUV(texcoord);
     vec3 skyColor = SampleSkyColor(normal);
 
-    skyColorBuffer[uv.y*8 + uv.x] = skyColor;
-    memoryBarrierShared();
-
-    vec3 irradiance = CalculateIrradiance(normal);
-
-    // irradiance = vec3(texcoord, 0.0);
-    // irradiance = vec3(dot(normal, localSkyLightDirection));
-    // irradiance = skyColor;
-
-    imageStore(imgSkyIrradiance, uv, vec4(irradiance, 1.0));
+    imageStore(imgSky, uv, vec4(skyColor, 1.0));
 }

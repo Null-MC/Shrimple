@@ -6,13 +6,14 @@ setup4			build static light data
 begin1			prepare shadow/scene ssbo
 begin2			clear light mask bin counts
 begin3			clear water depths
-begin4			sky irradiance
+--begin4			sky irradiance
 
 --shadowcomp2		build light bin lists
 --shadowcomp3		populate light mask neighbors
 
-prepare1		fog/sky color
->>prepare2		propagate LPV
+prepare1		fog/sky color [nether only]
+prepare2		sky LUT
+prepare3		sky irradiance LUT
 
 deferred1		hi-z DDA
 deferred2		non-deferred SSAO

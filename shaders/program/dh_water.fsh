@@ -307,15 +307,15 @@ uniform float dhFarPlane;
         #include "/lib/lpv/lpv_render.glsl"
     #endif
 
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        // #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        //     #include "/lib/shadows/clouds.glsl"
-        // #endif
-    
-        #include "/lib/lighting/reflections.glsl"
-    #endif
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            #include "/lib/lighting/reflections.glsl"
+        #endif
 
-    #include "/lib/lighting/sky_lighting.glsl"
+        #ifdef WORLD_SKY_ENABLED
+            #include "/lib/lighting/sky_lighting.glsl"
+        #endif
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/traced.glsl"

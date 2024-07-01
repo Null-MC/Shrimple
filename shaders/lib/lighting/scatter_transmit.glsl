@@ -17,7 +17,7 @@ void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFin
     vec3 stepTransmittance = exp(-stepDist * extinctF * density);
 
     for (int i = 0; i < stepCount; i++) {
-        scatterFinal = lightIntegral * transmitFinal + scatterFinal;
+        scatterFinal += lightIntegral * transmitFinal;
         transmitFinal *= stepTransmittance;
     }
 }

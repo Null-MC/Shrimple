@@ -26,6 +26,10 @@ uniform sampler2D TEX_LIGHTMAP;
 
 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler2D texSkyIrradiance;
+
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        uniform sampler2D texSky;
+    #endif
 #endif
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE

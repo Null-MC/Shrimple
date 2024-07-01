@@ -45,6 +45,7 @@ uniform sampler2D colortex0;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 	uniform sampler2D texDepthNear;
 #elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
+	uniform sampler2D texSky;
 	uniform sampler2D texSkyIrradiance;
 #endif
 
@@ -137,7 +138,7 @@ void main() {
 		if (texcoord.x < 0.5 && texcoord.y < 0.75)
 			color = texelFetch(texDepthNear, ivec2(gl_FragCoord.xy), 0).rrr;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
-		vec3 color = textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
+		vec3 color = 0.1*textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
 		// color = color / (color + 1.0);
 		// color = LinearToRGB(color);
 	#else

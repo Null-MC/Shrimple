@@ -9,36 +9,39 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 reflectColor;
+        // #if SKY_TYPE == SKY_TYPE_CUSTOM
+        //     vec3 reflectColor;
 
-            #ifdef WORLD_WATER_ENABLED
-                if (isEyeInWater == 1) {
-                    // #ifndef IRIS_FEATURE_SSBO
-                    //     vec3 WorldSkyLightColor = GetSkyLightColor();
-                    // #endif
+        //     #ifdef WORLD_WATER_ENABLED
+        //         if (isEyeInWater == 1) {
+        //             // #ifndef IRIS_FEATURE_SSBO
+        //             //     vec3 WorldSkyLightColor = GetSkyLightColor();
+        //             // #endif
 
-                    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-                    reflectColor = GetCustomWaterFogColor(localSunDirection.y);
-                }
-                else {
-            #endif
+        //             vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        //             reflectColor = GetCustomWaterFogColor(localSunDirection.y);
+        //         }
+        //         else {
+        //     #endif
                 
-                reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * Sky_BrightnessF;
+        //         reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * Sky_BrightnessF;
 
-                #if !defined MATERIAL_REFLECT_CLOUDS && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                    // TODO
-                #endif
+        //         #if !defined MATERIAL_REFLECT_CLOUDS && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+        //             // TODO
+        //         #endif
 
-            #ifdef WORLD_WATER_ENABLED
-                }
-            #endif
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
-            reflectColor = RGBToLinear(reflectColor);
-        #else
-            vec3 reflectColor = RGBToLinear(skyColor) * Sky_BrightnessF;
-        #endif
+        //     #ifdef WORLD_WATER_ENABLED
+        //         }
+        //     #endif
+        // #elif SKY_TYPE == SKY_TYPE_VANILLA
+        //     vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
+        //     reflectColor = RGBToLinear(reflectColor);
+        // #else
+        //     vec3 reflectColor = RGBToLinear(skyColor) * Sky_BrightnessF;
+        // #endif
+
+        vec2 uvSky = DirectionToUV(reflectDir);
+        vec3 reflectColor = textureLod(texSky, uvSky, 0).rgb;
 
         #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;

@@ -31,8 +31,12 @@ uniform sampler2D gtexture;
 uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
-#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+#if LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler2D texSkyIrradiance;
+#endif
+
+#if MATERIAL_REFLECTIONS != REFLECT_NONE //&& !defined DEFERRED_BUFFER_ENABLED
+    uniform sampler2D texSky;
 #endif
 
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)

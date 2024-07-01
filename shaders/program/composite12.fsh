@@ -21,6 +21,10 @@ uniform sampler2D TEX_LIGHTMAP;
 
 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler2D texSkyIrradiance;
+
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        uniform sampler2D texSky;
+    #endif
 #endif
 
 #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS

@@ -39,8 +39,14 @@ uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
 
-#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-    uniform sampler2D texSkyIrradiance;
+#ifdef WORLD_SKY_ENABLED
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        uniform sampler2D texSkyIrradiance;
+    #endif
+
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined DEFERRED_BUFFER_ENABLED
+        uniform sampler2D texSky;
+    #endif
 #endif
 
 #if defined MATERIAL_PARTICLES && (MATERIAL_NORMALS == NORMALMAP_OLDPBR || MATERIAL_NORMALS == NORMALMAP_LABPBR || defined PARALLAX_ENABLED || MATERIAL_OCCLUSION == OCCLUSION_LABPBR)
