@@ -90,7 +90,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     vec3 reflectLocalDir = normalize(mat3(gbufferModelViewInverse) * reflectViewDir);
 
     #ifdef WORLD_SKY_ENABLED
-        vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
+        //vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
+        vec2 uvSky = DirectionToUV(reflectLocalDir);
+        vec3 skyColor = textureLod(texSky, uvSky, 0).rgb;
+        vec3 reflectColor = skyColor * pow5(skyLight);
     #else
         vec3 reflectColor = RGBToLinear(fogColor) * Sky_BrightnessF;
     #endif
@@ -170,14 +173,15 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                     #ifdef SKY_BORDER_FOG_ENABLED
                         if (reflection.z < 1.0) {
                             vec3 reflectLocalPos = mat3(gbufferModelViewInverse) * reflectViewPos;
+                            fogColorFinal = skyColor;
 
                             #if SKY_TYPE == SKY_TYPE_CUSTOM
-                                fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
+                                // fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
 
                                 float fogDist = GetShapedFogDistance(reflectLocalPos);
                                 fogF = GetCustomFogFactor(fogDist);
                             #elif SKY_TYPE == SKY_TYPE_VANILLA
-                                fogColorFinal = RGBToLinear(fogColor);
+                                //fogColorFinal = RGBToLinear(fogColor);
                                 fogF = GetVanillaFogFactor(reflectLocalPos);
                             #endif
                         }
@@ -190,7 +194,10 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                 col = mix(col, fogColorFinal, fogF * (1.0 - reflectF));
             #endif
         }
-        else reflectDist = _far;
+        // else reflectDist = _far;
+
+        if (reflection.z >= 1.0)
+            reflectDist = _far;
 
         reflectColor = mix(reflectColor, col, reflectF);
     #elif MATERIAL_REFLECTIONS == REFLECT_SKY
@@ -198,9 +205,9 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     #endif
 
     #ifdef DISTANT_HORIZONS
-        float farMax = max(SkyFar, dhFarPlane);
+        float farMax = dhFarPlane;
     #else
-        float farMax = SkyFar;
+        float farMax = far;
     #endif
 
     vec3 worldPos = cameraPosition + localPos;
@@ -267,12 +274,12 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
             #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
                 if (reflectDist > 0.0) {
                     bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
-                    float _skyFar = !isSkyFrag ? reflectDist : SkyFar;
+                    float _skyFar = !isSkyFrag ? reflectDist : farMax;
 
                     vec3 scatterFinal = vec3(0.0);
                     vec3 transmitFinal = vec3(1.0);
                     TraceSky(scatterFinal, transmitFinal, worldPos, reflectLocalDir, 0.0, _skyFar, 12);
-                    reflectColor = reflectColor * transmitFinal + scatterFinal;
+                    reflectColor = reflectColor * transmitFinal + scatterFinal * pow5(skyLight);
                 }
             #endif
 
