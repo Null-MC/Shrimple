@@ -23,11 +23,15 @@ vec3 decodePalYuv(vec3 yuv) {
 
 
 vec4 ApplyTAA(const in vec2 uv) {
-    float depth = textureLod(depthtex1, uv, 0).r;
+    vec2 unjitterCoord = uv;
+    unjitterCoord -= 0.5*getJitterOffset(frameCounter);
+    //unjitterCoord += 0.5*getJitterOffset(frameCounter-1);
+
+    float depth = textureLod(depthtex1, unjitterCoord, 0).r;
     bool isDhDepth = false;
 
     #ifdef DISTANT_HORIZONS
-        float dhDepth = textureLod(dhDepthTex1, uv, 0).r;
+        float dhDepth = textureLod(dhDepthTex1, unjitterCoord, 0).r;
 
         float depthL = linearizeDepthFast(depth, near, farPlane);
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
@@ -39,11 +43,8 @@ vec4 ApplyTAA(const in vec2 uv) {
         }
     #endif
 
-    vec2 unjitterCoord = texcoord;
-    //unjitterCoord += 0.5*getJitterOffset(frameCounter);
-
-    vec3 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz;
-    vec2 uvLast = getReprojectedClipPos(unjitterCoord, depth, velocity, isDhDepth).xy;
+    vec3 velocity = textureLod(BUFFER_VELOCITY, unjitterCoord, 0).xyz;
+    vec2 uvLast = getReprojectedClipPos(uv, depth, velocity, isDhDepth).xy;
 
     #ifdef EFFECT_TAA_SHARPEN
         vec4 lastColor = sampleHistoryCatmullRom(uvLast);

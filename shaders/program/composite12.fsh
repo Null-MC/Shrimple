@@ -625,38 +625,41 @@ layout(location = 0) out vec4 outFinal;
             // #endif
 
             #ifdef SKY_BORDER_FOG_ENABLED
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    #ifndef IRIS_FEATURE_SSBO
-                        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                    #endif
+                vec2 uvSky = DirectionToUV(localViewDir);
+                vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
 
-                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                    // #ifndef IRIS_FEATURE_SSBO
+                    //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+                    // #endif
+
+                    // vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
-                #elif SKY_TYPE == SKY_TYPE_VANILLA
+                #else
                     vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                     
-                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    fogColorFinal = RGBToLinear(fogColorFinal);
+                    // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    // fogColorFinal = RGBToLinear(fogColorFinal);
 
                     float fogF = deferredFog.a;
                 #endif
 
-                fogColorFinal *= Sky_BrightnessF;
+                // fogColorFinal *= Sky_BrightnessF;
 
                 #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     #ifdef DISTANT_HORIZONS
-                        float skyTraceFar = max(SkyFar, dhFarPlane);
+                        float skyTraceFar = max(far, dhFarPlane);
                     #else
-                        float skyTraceFar = SkyFar;
+                        float skyTraceFar = far;
                     #endif
 
                     vec3 skyScatter = vec3(0.0);
                     vec3 skyTransmit = vec3(1.0);
 
                     #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                        TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 16);
+                        TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8);
                     #else
                         TraceCloudSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8, CLOUD_SHADOW_STEPS);
                     #endif
@@ -669,7 +672,7 @@ layout(location = 0) out vec4 outFinal;
         }
         else {
             #ifdef WORLD_NETHER
-                final.rgb = RGBToLinear(fogColor) * Sky_BrightnessF;
+                final = RGBToLinear(fogColor) * Sky_BrightnessF;
             #else
                 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             #endif
