@@ -18,9 +18,10 @@ const vec2 taa_offsets[16] = vec2[](
 
 
 vec2 getJitterOffset(const in int frameOffset) {
-	return (taa_offsets[frameOffset % 16] * 2.0 - 1.0) * pixelSize;
+	return (taa_offsets[frameOffset % 16] - 0.5) * pixelSize;
 }
 
 void jitter(inout vec4 ndcPos) {
-	ndcPos.xy += getJitterOffset(frameCounter) * ndcPos.w;
+	vec2 offset = getJitterOffset(frameCounter);
+	ndcPos.xy += 2.0 * offset * ndcPos.w;
 }

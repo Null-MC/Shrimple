@@ -215,7 +215,7 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
 
             float scale = min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
             vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * scale;
-            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias * (1.0 + 9.0*scale), sssBias);
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias, const in float sssBias) {

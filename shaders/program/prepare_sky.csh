@@ -40,9 +40,6 @@ uniform int fogShape;
 #include "/lib/sampling/erp.glsl"
 
 #include "/lib/lighting/hg.glsl"
-#if SKY_VOL_FOG_TYPE > 0
-    #include "/lib/lighting/scatter_transmit.glsl"
-#endif
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/sky.glsl"
@@ -55,32 +52,37 @@ uniform int fogShape;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
-
 #if SKY_VOL_FOG_TYPE > 0
-    void ApplyVL(inout vec3 skyColor, const in vec3 localDir, float distMin, float distMax) {
-        float VoL = dot(localSkyLightDirection, localDir);
-        float phaseAir = GetSkyPhase(VoL);
-
-        const int stepCount = 8;
-        const float weatherF = 1.0;
-        float stepDist = (distMax - distMin) / stepCount;
-
-        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-        vec3 lightIntegral = (phaseAir + AirAmbientF) * skyLightColor * AirScatterColor * stepDist;
-
-        vec3 scatterFinal = vec3(0.0);
-        vec3 transmitFinal = vec3(1.0);
-        for (int i = 0; i < stepCount; i++) {
-            vec3 traceLocalPos = localDir * (stepDist * i + distMin);
-            float airDensity = GetSkyDensity(traceLocalPos.y + cameraPosition.y);
-
-            scatterFinal += lightIntegral * airDensity * transmitFinal;
-            transmitFinal *= exp(-stepDist * airDensity * AirExtinctColor);
-        }
-
-        skyColor = skyColor * transmitFinal + scatterFinal;
-    }
+    #include "/lib/lighting/scatter_transmit.glsl"
+    #include "/lib/sky/sky_trace.glsl"
 #endif
+
+
+// #if SKY_VOL_FOG_TYPE > 0
+//     void ApplyVL(inout vec3 skyColor, const in vec3 localDir, float distMin, float distMax) {
+//         float VoL = dot(localSkyLightDirection, localDir);
+//         float phaseAir = GetSkyPhase(VoL);
+
+//         const int stepCount = 8;
+//         const float weatherF = 1.0;
+//         float stepDist = (distMax - distMin) / stepCount;
+
+//         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+//         vec3 lightIntegral = (phaseAir + AirAmbientF) * skyLightColor * AirScatterColor * stepDist;
+
+//         vec3 scatterFinal = vec3(0.0);
+//         vec3 transmitFinal = vec3(1.0);
+//         for (int i = 0; i < stepCount; i++) {
+//             vec3 traceLocalPos = localDir * (stepDist * i + distMin);
+//             float airDensity = GetSkyDensity(traceLocalPos.y + cameraPosition.y);
+
+//             scatterFinal += lightIntegral * airDensity * transmitFinal;
+//             transmitFinal *= exp(-stepDist * airDensity * AirExtinctColor);
+//         }
+
+//         skyColor = skyColor * transmitFinal + scatterFinal;
+//     }
+// #endif
 
 vec3 SampleSkyColor(const in vec3 localDir) {
     #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -98,7 +100,12 @@ vec3 SampleSkyColor(const in vec3 localDir) {
             _far = dhFarPlane;
         #endif
         
-        ApplyVL(skyColor, localDir, _far, SkyFar);
+        // ApplyVL(skyColor, localDir, _far, SkyFar);
+
+        vec3 scatterFinal = vec3(0.0);
+        vec3 transmitFinal = vec3(1.0);
+        TraceSky(scatterFinal, transmitFinal, cameraPosition, localDir, _far, SkyFar, 16);
+        skyColor = skyColor * transmitFinal + scatterFinal;
     #endif
 
     return skyColor;

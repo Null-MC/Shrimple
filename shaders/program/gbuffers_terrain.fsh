@@ -414,7 +414,10 @@ void main() {
             float surface_roughness, surface_metal_f0;
             GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
 
-            porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            #if MATERIAL_POROSITY != 0
+                porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            #endif
+
             skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
@@ -504,7 +507,7 @@ void main() {
     float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
 
-    #if defined(WORLD_WETNESS_ENABLED) && (defined(WORLD_SKY_ENABLED) || defined(WORLD_WATER_ENABLED))
+    #if MATERIAL_POROSITY != 0 && defined(WORLD_WETNESS_ENABLED) && (defined(WORLD_SKY_ENABLED) || defined(WORLD_WATER_ENABLED))
         porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
     #endif
 

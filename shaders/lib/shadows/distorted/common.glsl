@@ -2,23 +2,26 @@ float GetShadowRange() {
     return -2.0 / shadowProjection[2][2];
 }
 
+vec3 GetShadowSize() {
+    return vec3(2.0, 2.0, -2.0) / vec3(
+        shadowProjection[0].x,
+        shadowProjection[1].y,
+        shadowProjection[2].z);
+}
+
 float GetShadowNormalBias(const in float geoNoL) {
     return 0.08 * max(1.0 - geoNoL, 0.0) * Shadow_BiasScale;
 }
 
 float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
-    float shadowDepthRange = GetShadowRange();
-    // return 0.08 / shadowDepthRange * Shadow_BiasScale;
+    float len = length(pos.xy);
+    float factor = len / (len + Shadow_DistortF);
+    vec3 shadowSize = GetShadowSize();
 
-    float bias = rcp(shadowMapResolution) * (1.0 - 0.9*pow(abs(geoNoL), 8));
+    float bias_xy = 0.00001 * (maxOf(shadowSize.xy) / shadowMapResolution);// / factor;
+    float bias_z = 0.000001 * shadowSize.z;
 
-    #if SHADOW_DISTORT_FACTOR > 0
-        // float numerator = length(pos.xy) + Shadow_DistortF;
-        float factor = length(pos.xy) + Shadow_DistortF;
-        bias *= _pow2(factor) / Shadow_DistortF;
-    #endif
-
-    return bias / (0.001*shadowDepthRange) * Shadow_BiasScale;
+    return mix(bias_xy, bias_z, abs(geoNoL)) * Shadow_BiasScale;
 }
 
 vec3 distort(const in vec3 pos) {

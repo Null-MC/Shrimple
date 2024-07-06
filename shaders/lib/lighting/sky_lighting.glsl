@@ -65,10 +65,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * skyLightShadowColor;
 
-    vec2 lmcoordSkyFinal = vec2(0.0, lmcoord.y);
-    lmcoordSkyFinal = LightMapTex(lmcoordSkyFinal);
-    vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordSkyFinal, 0).rgb;
-    vec3 ambientSkyLight = RGBToLinear(lightmapColor);
+    // vec2 lmcoordSkyFinal = vec2(0.0, lmcoord.y);
+    // lmcoordSkyFinal = LightMapTex(lmcoordSkyFinal);
+    // vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordSkyFinal, 0).rgb;
+    // vec3 ambientSkyLight = RGBToLinear(lightmapColor) * _pow2(lmcoord.y);
+    vec3 ambientSkyLight = vec3(_pow3(lmcoord.y));
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetLPVPosition(localPos);
@@ -80,6 +81,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
+        lpvSkyLight = _pow2(lpvSkyLight);
 
         ambientSkyLight = mix(ambientSkyLight, vec3(lpvSkyLight), lpvFade);
     #endif
@@ -87,14 +89,14 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     #ifndef IRIS_FEATURE_SSBO
         vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
 
-        vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
-        vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
+        // vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
+        // vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
     #endif
 
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
     horizonF = pow(1.0 - horizonF, 8.0);
 
-    float ambientF = mix(Lighting_AmbientF, 1.5, pow(skyRainStrength, 0.75));
+    float ambientF = mix(Lighting_AmbientF, 1.0, pow(skyRainStrength, 0.75));
     ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
 
@@ -119,17 +121,20 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     vec2 uvSky = DirectionToUV(texNormal);
     vec3 ambientSkyLight_indirect = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+    ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
     //ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
     //ambientSkyLight_indirect *= Sky_BrightnessF;
 
 
     // ambientSkyLight *= (ambientSkyLight_indirect + 0.1*ambientSkyLight_direct) * Sky_BrightnessF * ambientF;
-    ambientSkyLight *= 3.0 * ambientSkyLight_indirect;
+    ambientSkyLight *= ambientSkyLight_indirect;
 
     // if (any(greaterThan(abs(texNormal), EPSILON3)))
     //     ambientSkyLight *= (texNormal.y * 0.3 + 0.7);
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
+        ambientSkyLight *= 0.5;
+
         vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);
 
         // lpvSkyLightColor *= lpvSkyLight / max(luminance(lpvSkyLightColor), EPSILON);
@@ -142,7 +147,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         // lpvSkyLightColor = HsvToRgb(lpvSkyLightColor);
 
-        ambientSkyLight += 0.2 * lpvSkyLightColor * lpvSkyLight * lpvFade;
+        ambientSkyLight += lpvSkyLightColor * lpvFade;// * lpvSkyLight
     #endif
 
     accumDiffuse += ambientSkyLight * (occlusion * ambientF);// * roughL;

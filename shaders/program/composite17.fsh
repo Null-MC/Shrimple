@@ -319,7 +319,7 @@ void main() {
     float viewDist = length(localPos);
     vec3 localViewDir = localPos / viewDist;
 
-    float farMax = 2000.0;// - 0.002;
+    float farMax = far;// - 0.002;
     #ifdef DISTANT_HORIZONS
         farMax = 0.5*dhFarPlane;// - 0.1;
     #endif
@@ -368,18 +368,8 @@ void main() {
         #endif
 
             #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                // #ifdef DISTANT_HORIZONS
-                //     float _far = max(SkyFar, dhFarPlane);
-                // #else
-                //     float _far = SkyFar;
-                // #endif
-                float _far = SkyFar;
-
-                if (depthTrans < 1.0)
-                    _far = min(_far, viewDist);
-
-                if (_far > farDist)
-                    TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, _far, 16);
+                // if (farMax > farDist)
+                //     TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, farMax, 16);
             #else
                 vec3 cloudNear, cloudFar;
                 GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);

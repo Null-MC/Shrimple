@@ -40,11 +40,11 @@
     #endif
 
         #ifdef RENDER_SHADOWS_ENABLED
-            #ifdef EFFECT_TAA_ENABLED
-                float dither = InterleavedGradientNoiseTime();
-            #else
-                float dither = InterleavedGradientNoise();
-            #endif
+            // #ifdef EFFECT_TAA_ENABLED
+            //     float dither = InterleavedGradientNoiseTime();
+            // #else
+            //     float dither = InterleavedGradientNoise();
+            // #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int cascadeIndex = GetShadowCascade(vIn.shadowPos, Shadow_MaxPcfSize);
@@ -58,7 +58,7 @@
             // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
-            float sssBias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / zRange;
+            float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
 
             //sssOffset = (sssOffset);
 

@@ -43,7 +43,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
 
     for (uint i = 0; i < stepCount; i++) {
         //float stepDither = dither * step(i, stepCount-1);
-        vec3 traceLocalPos = traceStep * (i + 0.5) + traceStart;
+        vec3 traceLocalPos = traceStep * i + traceStart;
 
         #if WORLD_CURVE_RADIUS > 0
             float traceAltitude = GetWorldAltitude(traceLocalPos);
@@ -61,6 +61,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         // else if (i == 0) traceStepLen *= dither;
 
         vec3 sampleLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
+        // vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
         ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight, airDensity, AirScatterColor, AirExtinctColor);
     }
 }

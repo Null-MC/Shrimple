@@ -105,15 +105,25 @@ in vec2 texcoord;
         #include "/lib/shadows/distorted/apply.glsl"
         #include "/lib/shadows/distorted/render.glsl"
     #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        #include "/lib/effects/taa_jitter.glsl"
+    #endif
 #endif
 
 
 /* RENDERTARGETS: 2 */
 layout(location = 0) out vec4 outShadow;
 
+uniform bool hideGUI;
+
 void main() {
     #ifdef RENDER_SHADOWS_ENABLED
-        ivec2 uv = ivec2(texcoord * viewSize);
+        vec2 coord = texcoord;
+
+        if (hideGUI)
+            coord -= getJitterOffset(frameCounter);
+
         float depth = textureLod(depthtex1, texcoord, 0).r;
         float depthHand = textureLod(depthtex2, texcoord, 0).r;
         bool isHand = depthHand > depth + EPSILON;
@@ -146,7 +156,7 @@ void main() {
                 float dither = InterleavedGradientNoise();
             #endif
 
-            vec3 clipPosStart = vec3(texcoord, depth);
+            vec3 clipPosStart = vec3(coord, depth);
 
             #ifdef DISTANT_HORIZONS
                 vec3 viewPos = unproject(projectionInv, clipPosStart * 2.0 - 1.0);
@@ -154,9 +164,13 @@ void main() {
                 vec3 viewPos = unproject(gbufferProjectionInverse, clipPosStart * 2.0 - 1.0);
             #endif
 
+            float sss = 0.0;
+            ivec2 uv = ivec2(texcoord * viewSize);
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, uv, 0);
             vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
-            float sss = unpackUnorm4x8(deferredData.r).w;
+            #if MATERIAL_SSS != 0
+                sss = unpackUnorm4x8(deferredData.r).w;
+            #endif
 
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
@@ -205,7 +219,10 @@ void main() {
             // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
-            float sssBias = sss * _pow3(dither) * MATERIAL_SSS_MAXDIST / zRange;
+            float sssBias = 0.0;
+            #if MATERIAL_SSS != 0
+                sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
+            #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowSample = vec3(1.0);
@@ -227,21 +244,24 @@ void main() {
                 #endif
             #endif
 
-            shadowFinal *= mix(shadowSample, vec3(1.0), shadowFade);
+            shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
+            shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                float cloudShadow = 1.0;
+
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     vec3 worldPos = cameraPosition + localPos;
-                    float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                    shadowFinal *= cloudShadow;
+                    cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 #else
                     vec2 cloudOffset = GetCloudOffset();
                     vec3 camOffset = GetCloudCameraOffset();
                     //vec3 worldPos = cameraPosition + localPos;
                     //float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                    float cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
-                    shadowFinal *= cloudShadow;
+                    cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
                 #endif
+
+                shadowFinal *= cloudShadow * 0.5 + 0.5;
             #endif
 
             #ifdef SHADOW_SCREEN

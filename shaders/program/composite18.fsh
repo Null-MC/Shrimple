@@ -772,7 +772,7 @@ layout(location = 0) out vec4 outFinal;
                     // vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
 
                     #if SKY_TYPE == SKY_TYPE_CUSTOM
-                        vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+                        vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);// * Sky_BrightnessF;
 
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
@@ -787,10 +787,9 @@ layout(location = 0) out vec4 outFinal;
                     fogColorFinal *= Sky_BrightnessF;
 
                     #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                        float skyTraceFar = far;
                         #ifdef DISTANT_HORIZONS
                             float skyTraceFar = max(far, dhFarPlane);
-                        #else
-                            float skyTraceFar = far;
                         #endif
 
                         vec3 skyScatter = vec3(0.0);

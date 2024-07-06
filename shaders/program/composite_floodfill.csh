@@ -451,7 +451,7 @@ void main() {
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                             float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
                         #else
-                            float skyLightRange = 12.0 * sunUpF;
+                            float skyLightRange = 10.0 * sunUpF;
                         #endif
 
                         skyLightRange *= 1.0 - 0.8 * skyRainStrength;
