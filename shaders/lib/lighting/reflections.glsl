@@ -95,7 +95,8 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 skyColor = textureLod(texSky, uvSky, 0).rgb;
         vec3 reflectColor = skyColor * pow5(skyLight);
     #else
-        vec3 reflectColor = RGBToLinear(fogColor) * Sky_BrightnessF;
+        vec3 skyColor = RGBToLinear(fogColor) * Sky_BrightnessF;
+        vec3 reflectColor = skyColor;
     #endif
     
     #ifndef IRIS_FEATURE_SSBO
@@ -180,7 +181,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
                                 float fogDist = GetShapedFogDistance(reflectLocalPos);
                                 fogF = GetCustomFogFactor(fogDist);
-                            #elif SKY_TYPE == SKY_TYPE_VANILLA
+                            #else
                                 //fogColorFinal = RGBToLinear(fogColor);
                                 fogF = GetVanillaFogFactor(reflectLocalPos);
                             #endif

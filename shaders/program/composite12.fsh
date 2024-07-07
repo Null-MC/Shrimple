@@ -625,28 +625,28 @@ layout(location = 0) out vec4 outFinal;
             // #endif
 
             #ifdef SKY_BORDER_FOG_ENABLED
-                vec2 uvSky = DirectionToUV(localViewDir);
-                vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
+                // vec2 uvSky = DirectionToUV(localViewDir);
+                // vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
 
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     // #ifndef IRIS_FEATURE_SSBO
                     //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
                     // #endif
 
-                    // vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
                 #else
                     vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                     
-                    // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    // fogColorFinal = RGBToLinear(fogColorFinal);
+                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    fogColorFinal = RGBToLinear(fogColorFinal);
 
                     float fogF = deferredFog.a;
                 #endif
 
-                // fogColorFinal *= Sky_BrightnessF;
+                fogColorFinal *= Sky_BrightnessF;
 
                 #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     #ifdef DISTANT_HORIZONS
