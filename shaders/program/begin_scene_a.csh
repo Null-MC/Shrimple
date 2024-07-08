@@ -173,6 +173,7 @@ void main() {
         #endif
 
         #ifdef DISTANT_HORIZONS
+            dhProjectionFullPrev = dhProjectionFull;
             dhProjectionFull = dhProjection;
 
             dhProjectionFull[2][2] = -((near + dhFarPlane) / (dhFarPlane - near));

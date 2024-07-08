@@ -789,7 +789,7 @@ layout(location = 0) out vec4 outFinal;
                     #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                         float skyTraceFar = far;
                         #ifdef DISTANT_HORIZONS
-                            float skyTraceFar = max(far, dhFarPlane);
+                            skyTraceFar = max(far, dhFarPlane);
                         #endif
 
                         vec3 skyScatter = vec3(0.0);

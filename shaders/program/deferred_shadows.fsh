@@ -121,8 +121,9 @@ void main() {
     #ifdef RENDER_SHADOWS_ENABLED
         vec2 coord = texcoord;
 
-        if (hideGUI)
+        #ifdef EFFECT_TAA_ENABLED
             coord -= getJitterOffset(frameCounter);
+        #endif
 
         float depth = textureLod(depthtex1, texcoord, 0).r;
         float depthHand = textureLod(depthtex2, texcoord, 0).r;

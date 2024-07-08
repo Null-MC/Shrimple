@@ -69,7 +69,8 @@ vec4 ApplyTAA(const in vec2 uv) {
     antialiased = mix(antialiased * antialiased, in0 * in0, mixRate);
     antialiased = sqrt(antialiased);
 
-    // vec2 pixelSize = rcp(vec2(viewWidth, viewHeight));
+    // vec2 viewSize = vec2(viewWidth, viewHeight);
+    // vec2 pixelSize = rcp(viewSize);
     
     vec3 in1 = textureLod(BUFFER_FINAL, uv + vec2(+pixelSize.x, 0.0), 0).rgb;
     vec3 in2 = textureLod(BUFFER_FINAL, uv + vec2(-pixelSize.x, 0.0), 0).rgb;

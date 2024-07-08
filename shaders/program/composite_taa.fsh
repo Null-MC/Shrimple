@@ -21,7 +21,9 @@ uniform sampler2D depthtex2;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousModelView;
+uniform mat4 gbufferPreviousProjection;
 
 uniform float viewWidth;
 uniform float viewHeight;
@@ -54,53 +56,60 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
 #endif
 {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
+    // return clipPos * 0.5 + 0.5;
 
     #ifdef DISTANT_HORIZONS
+        // vec3 viewPos = unproject(dhProjectionFullInv, clipPos);
+        // vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+
         vec3 localPos;
         if (isDepthDh) {
             vec3 viewPos = unproject(dhProjectionInverse, clipPos);
             localPos = mul3(gbufferModelViewInverse, viewPos);
         }
         else {
-            #ifdef IRIS_FEATURE_SSBO
-                localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
-            #else
+            // #ifdef IRIS_FEATURE_SSBO
+            //     localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
+            // #else
                 vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
                 localPos = mul3(gbufferModelViewInverse, viewPos);
-            #endif
+            // #endif
         }
     #else
-        #ifdef IRIS_FEATURE_SSBO
-            vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
-        #else
+        // #ifdef IRIS_FEATURE_SSBO
+        //     vec3 localPos = unproject(gbufferModelViewProjectionInverse, clipPos);
+        // #else
             vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
             vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-        #endif
+        // #endif
     #endif
 
     vec3 localPosPrev = localPos - velocity + (cameraPosition - previousCameraPosition);
 
     #ifdef DISTANT_HORIZONS
-        vec3 clipPosPrev;
-        if (isDepthDh) {
-            vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
-            clipPosPrev = unproject(dhPreviousProjection, viewPosPrev);
-        }
-        else {
-            #ifdef IRIS_FEATURE_SSBO
-                clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
-            #else
-                vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
-                clipPosPrev = unproject(gbufferPreviousProjection, viewPosPrev);
-            #endif
-        }
+        vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+        vec3 clipPosPrev = unproject(dhProjectionFullPrev, viewPosPrev);
+
+        // vec3 clipPosPrev;
+        // if (isDepthDh) {
+        //     vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+        //     clipPosPrev = unproject(dhPreviousProjection, viewPosPrev);
+        // }
+        // else {
+        //     #ifdef IRIS_FEATURE_SSBO
+        //         clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
+        //     #else
+        //         vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+        //         clipPosPrev = unproject(gbufferPreviousProjection, viewPosPrev);
+        //     #endif
+        // }
     #else
-        #ifdef IRIS_FEATURE_SSBO
-            vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
-        #else
+        // #ifdef IRIS_FEATURE_SSBO
+        //     vec3 clipPosPrev = unproject(gbufferPreviousModelViewProjection, localPosPrev);
+        // #else
             vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
             vec3 clipPosPrev = unproject(gbufferPreviousProjection, viewPosPrev);
-        #endif
+        // #endif
     #endif
 
     return clipPosPrev * 0.5 + 0.5;
