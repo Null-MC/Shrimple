@@ -53,7 +53,17 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 WorldSkyLightColor = GetSkyLightColor();
+        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+
+        // vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
+        // vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
     #endif
+
+    float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
+    horizonF = pow(1.0 - horizonF, 8.0);
+
+    float ambientF = mix(Lighting_AmbientF, 1.0, pow(skyRainStrength, 0.75));
+    ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
     vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
     // vec3 skyLightShadowColor = shadowColor * WorldSkyLightColor;
@@ -63,7 +73,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         geoNoL = dot(localNormal, localSkyLightDir);
 
     vec3 H = normalize(localSkyLightDir + localViewDir);
-    vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * skyLightShadowColor;
+    vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * (1.0 - ambientF) * skyLightShadowColor;
 
     // vec2 lmcoordSkyFinal = vec2(0.0, lmcoord.y);
     // lmcoordSkyFinal = LightMapTex(lmcoordSkyFinal);
@@ -85,19 +95,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         ambientSkyLight = mix(ambientSkyLight, vec3(lpvSkyLight), lpvFade);
     #endif
-
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-
-        // vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
-        // vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
-    #endif
-
-    float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
-    horizonF = pow(1.0 - horizonF, 8.0);
-
-    float ambientF = mix(Lighting_AmbientF, 1.0, pow(skyRainStrength, 0.75));
-    ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
 
 
