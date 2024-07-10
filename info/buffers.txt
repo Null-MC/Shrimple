@@ -34,6 +34,7 @@ colortex4		RGB16F		 *	 	block-light diffuse
 colortex11		RGBA16F		 *	 	block-light specular
 colortex5		RGBA16F		1.0		final previous [taa]
 colortex7		RGBA16F		1.0	 	velocity buffer [taa]
+colortex6		R16F		1.0 	SSAO
 colortex8		RGB16F		 *		volumetric scattering
 colortex10		RGB16F		 *		volumetric transmission
 colortex15		RGBA16F		1.0		bloom | deferred weather particles + clouds

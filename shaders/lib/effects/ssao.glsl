@@ -1,4 +1,4 @@
-float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 viewNormal) {
+float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     const float inv = rcp(EFFECT_SSAO_SAMPLES);
     const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
 
@@ -30,13 +30,13 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
         sampleCount++;
 
-        float sampleClipDepth = textureLod(depthtex1, sampleClipPos.xy, 0.0).r;
+        float sampleClipDepth = textureLod(depthtex0, sampleClipPos.xy, 0.0).r;
 
         #ifdef DISTANT_HORIZONS
             mat4 projectionInv = gbufferProjectionInverse;
 
             if (sampleClipDepth >= 1.0) {
-                sampleClipDepth = textureLod(dhDepthTex, sampleClipPos.xy, 0.0).r;
+                sampleClipDepth = textureLod(dhDepthTex0, sampleClipPos.xy, 0.0).r;
                 projectionInv = dhProjectionInverse;
             }
 
@@ -58,20 +58,14 @@ float GetSpiralOcclusion(const in vec2 uv, const in vec3 viewPos, const in vec3 
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) * (1.0 - EFFECT_SSAO_BIAS);
-        float aoF = 1.0 - saturate(sampleDist / (2*EFFECT_SSAO_RADIUS));
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) / (1.0 - EFFECT_SSAO_BIAS);
+        float aoF = 1.0 - saturate(sampleDist / (EFFECT_SSAO_RADIUS));
         ao += sampleNoLm * aoF;// * pow(aoF, 1.5);
     }
 
-    ao = saturate(ao / max(sampleCount, 1));
-    //ao = saturate(ao / EFFECT_SSAO_SAMPLES);
+    ao = saturate(ao / max(sampleCount, 1) * EFFECT_SSAO_STRENGTH);
 
-    //ao = smoothstep(0.0, rcp(EFFECT_SSAO_STRENGTH), ao);
-    ao = 1.0 - pow(1.0 - ao, EFFECT_SSAO_STRENGTH);
+    ao = pow(ao / (ao + 0.1), 4.0);
 
-    //ao *= EFFECT_SSAO_STRENGTH;
-    //ao /= ao + 0.5;
-    //ao = smoothstep(0.0, 0.2, ao);
-
-    return ao * (1.0 - EFFECT_SSAO_MIN);
+    return ao;
 }

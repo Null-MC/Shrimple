@@ -17,6 +17,7 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+uniform sampler2D BUFFER_SSAO;
 uniform sampler2D TEX_LIGHTMAP;
 
 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
@@ -400,6 +401,12 @@ layout(location = 0) out vec4 outFinal;
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
             vec3 localNormal = deferredNormal.rgb;
 
+            float occlusion = deferredLighting.z;
+
+            #ifdef EFFECT_SSAO_ENABLED
+                occlusion = min(occlusion, textureLod(BUFFER_SSAO, texcoord, 0).r);
+            #endif
+
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
 
@@ -433,6 +440,8 @@ layout(location = 0) out vec4 outFinal;
                     //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
                     deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
                 #endif
+
+                //occlusion = max(occlusion, luminance(deferredShadow));
             #endif
 
             vec3 worldPos = cameraPosition + localPos;
@@ -445,7 +454,8 @@ layout(location = 0) out vec4 outFinal;
             // #endif
 
             vec3 albedo = RGBToLinear(deferredColor);
-            float occlusion = deferredLighting.z;
+            //float occlusion = deferredLighting.z;
+            // occlusion = min(occlusion, deferredLighting.z);
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
 

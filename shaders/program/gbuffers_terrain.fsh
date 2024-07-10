@@ -628,9 +628,9 @@ void main() {
         occlusion *= texOcclusion;
     #endif
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
-        occlusion = max(occlusion, luminance(shadowColor));
-    #endif
+    // #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
+    //     occlusion = max(occlusion, luminance(shadowColor));
+    // #endif
 
     vec3 localTangent = normalize(vIn.localTangent.xyz);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);

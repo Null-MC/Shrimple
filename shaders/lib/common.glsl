@@ -9,6 +9,7 @@ const int colortex2Format  = RGBA8;
 const int colortex3Format  = RGBA32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
+const int colortex6Format  = R16F;
 const int colortex7Format  = RGBA16F;
 const int colortex8Format = RGB16F;
 const int colortex9Format = RGB8;
@@ -293,7 +294,7 @@ const bool colortex15Clear = true;
 #define EFFECT_BLOOM_ENABLED
 #define EFFECT_BLOOM_STRENGTH 80 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define EFFECT_BLOOM_HAND_STRENGTH 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define EFFECT_BLOOM_BRIGHT 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
+#define EFFECT_BLOOM_BRIGHT 50 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define EFFECT_BLOOM_POWER 3.0 // [1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 6.0 7.0 8.0 9.0]
 #define EFFECT_BLOOM_TILE_MAX 6
 
@@ -309,10 +310,10 @@ const bool colortex15Clear = true;
 
 #define EFFECT_SSAO_ENABLED
 #define EFFECT_SSAO_SAMPLES 12 // [2 4 6 8 10 12 14 16 24 32]
-#define EFFECT_SSAO_RADIUS 1.5 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0]
-#define EFFECT_SSAO_STRENGTH 9 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
+#define EFFECT_SSAO_RADIUS 0.8 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define EFFECT_SSAO_STRENGTH 6 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
 #define EFFECT_SSAO_MIN 0.0
-#define EFFECT_SSAO_BIAS 0.04
+#define EFFECT_SSAO_BIAS 0.05
 
 #define EFFECT_TAA_ENABLED
 #define EFFECT_TAA_MAX_ACCUM 8 // [4 6 8 10 12 16 20 24 28 32 48 64]
@@ -335,7 +336,7 @@ const bool colortex15Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
 //#define DEBUG_TRANSPARENT
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define DH_TRANSITION
