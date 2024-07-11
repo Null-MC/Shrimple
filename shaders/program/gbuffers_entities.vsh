@@ -206,6 +206,14 @@ void main() {
     vOut.color = gl_Color;
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
+
+    vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+
+    #if LIGHTING_MODE == LIGHTING_MODE_NONE
+        vec3 lightViewDir = normalize(shadowLightPosition);
+        float geoNoL = dot(viewNormal, lightViewDir);
+        vOut.lmcoord.y *= max(geoNoL, 0.0)*0.5 + 0.5;
+    #endif
     
     vec4 viewPos = BasicVertex();
     gl_Position = gl_ProjectionMatrix * viewPos;
@@ -219,7 +227,7 @@ void main() {
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
     #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
-        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+        // vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 

@@ -7,10 +7,10 @@
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex1;
+uniform sampler2D depthtex0;
 
 #ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex;
+    uniform sampler2D dhDepthTex0;
 #endif
 
 uniform mat4 gbufferModelView;
@@ -32,11 +32,11 @@ uniform int frameCounter;
 #include "/lib/sampling/depth.glsl"
 
 
-/* RENDERTARGETS: 12 */
-layout(location = 0) out vec4 outAO;
+/* RENDERTARGETS: 6 */
+layout(location = 0) out float outAO;
 
 void main() {
-    float depth = textureLod(depthtex1, texcoord, 0).r;
+    float depth = textureLod(depthtex0, texcoord, 0).r;
     vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
     vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
 
@@ -48,7 +48,7 @@ void main() {
     }
     #ifdef DISTANT_HORIZONS
         else {
-            depth = textureLod(dhDepthTex, texcoord, 0).r;
+            depth = textureLod(dhDepthTex0, texcoord, 0).r;
 
             if (depth < 1.0) {
                 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
@@ -61,8 +61,8 @@ void main() {
     vec3 texViewNormal = normalize(cross(dFdx(viewPos), dFdy(viewPos)));
 
     if (hasData) {
-        occlusion = GetSpiralOcclusion(texcoord, viewPos, texViewNormal);
+        occlusion = GetSpiralOcclusion(viewPos, texViewNormal);
     }
 
-    outAO = vec4(vec3(occlusion), 1.0);
+    outAO = 1.0 - occlusion;
 }

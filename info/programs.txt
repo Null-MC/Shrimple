@@ -16,8 +16,8 @@ prepare2		sky LUT
 prepare3		sky irradiance LUT
 
 deferred1		hi-z DDA
-deferred2		non-deferred SSAO
-deferred3		non-deferred SSAO apply
+--deferred2		non-deferred SSAO
+--deferred3		non-deferred SSAO apply
 deferred4		near-z [1]
 deferred5		near-z [2]
 deferred6		near-z [3]
@@ -26,6 +26,7 @@ deferred8		near-z [5]
 
 deferred10		ss-shadows
 deferred11		opaque SSAO
+deferred12		non-deferred SSAO apply
 
 composite1		propagate LPV
 composite2		build light bin lists

@@ -7,8 +7,8 @@
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex1;
-uniform sampler2D colortex12;
+uniform sampler2D depthtex0;
+uniform sampler2D BUFFER_SSAO;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -105,10 +105,10 @@ float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in float linea
             vec2 sampleTex = texcoord + vec2(ix, iy) * pixelSize;
 
             ivec2 iTexBlend = ivec2(sampleTex * viewSize);
-            float sampleValue = texelFetch(colortex12, iTexBlend, 0).r;
+            float sampleValue = texelFetch(BUFFER_SSAO, iTexBlend, 0).r;
 
             ivec2 iTexDepth = ivec2(sampleTex * viewSize);
-            float sampleDepth = texelFetch(depthtex1, iTexDepth, 0).r;
+            float sampleDepth = texelFetch(depthtex0, iTexDepth, 0).r;
             float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
@@ -139,7 +139,7 @@ layout(location = 0) out vec4 outAO;
 
 void main() {
     ivec2 iTexDepth = ivec2(texcoord * viewSize);
-    float depth = texelFetch(depthtex1, iTexDepth, 0).r;
+    float depth = texelFetch(depthtex0, iTexDepth, 0).r;
     float depthL = linearizeDepth(depth, near, farPlane);
     mat4 projectionInv = gbufferProjectionInverse;
 
@@ -154,13 +154,11 @@ void main() {
         }
     #endif
 
-    float occlusion = 0.0;
+    float occlusion = 1.0;
 
     if (depth < 1.0) {
-        //occlusion = textureLod(colortex12, texcoord, 0).r;
-
-        occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
-        // occlusion = textureLod(colortex12, texcoord, 0).r;
+        //occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
+        occlusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
@@ -185,14 +183,16 @@ void main() {
                     #ifdef WORLD_WATER_ENABLED
                         }
                     #endif
-
-                    occlusion *= 1.0 - fogF;
-                #elif SKY_TYPE == SKY_TYPE_VANILLA
-                    occlusion *= 1.0 - GetVanillaFogFactor(localPos);
+                #else
+                    float fogF = GetVanillaFogFactor(localPos);
                 #endif
+
+                occlusion = 1.0 - occlusion;
+                occlusion *= 1.0 - fogF;
+                occlusion = 1.0 - occlusion;
             #endif
         #endif
     }
 
-    outAO = vec4(1.0 - occlusion);
+    outAO = vec4(occlusion);
 }

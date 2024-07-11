@@ -45,8 +45,8 @@ const bool colortex4Clear = false;
 const vec4 colortex5ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex5Clear = false;
 
-// const vec4 colortex6ClearColor = vec4(1.0, 1.0, 1.0, 1.0);
-// const bool colortex6Clear = false;
+const vec4 colortex6ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex6Clear = true;
 
 const vec4 colortex7ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex7Clear = true;
@@ -173,7 +173,7 @@ const bool colortex15Clear = true;
 #define MATERIAL_HCM_ALBEDO_TINT
 
 #define MATERIAL_EMISSION 0 // [0 1 2]
-#define MATERIAL_EMISSION_BRIGHTNESS 500 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500 550 600 650 700 750 800 950 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000 4500 5000 5500 6000 6500 7000 7500 8000]
+#define MATERIAL_EMISSION_BRIGHTNESS 300 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500 550 600 650 700 750 800 950 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000 4500 5000 5500 6000 6500 7000 7500 8000]
 
 #define MATERIAL_POROSITY 1 // [0 1 2]
 #define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300]
@@ -310,8 +310,8 @@ const bool colortex15Clear = true;
 
 #define EFFECT_SSAO_ENABLED
 #define EFFECT_SSAO_SAMPLES 12 // [2 4 6 8 10 12 14 16 24 32]
-#define EFFECT_SSAO_RADIUS 0.8 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
-#define EFFECT_SSAO_STRENGTH 6 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
+#define EFFECT_SSAO_RADIUS 1.2 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define EFFECT_SSAO_STRENGTH 4 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 24 28 32]
 #define EFFECT_SSAO_MIN 0.0
 #define EFFECT_SSAO_BIAS 0.05
 
