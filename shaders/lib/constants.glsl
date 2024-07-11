@@ -11,6 +11,10 @@
 #define SKY_TYPE_VANILLA 0
 #define SKY_TYPE_CUSTOM 1
 
+#define STARS_NONE 0
+#define STARS_VANILLA 1
+#define STARS_FANCY 2
+
 #define FOG_MODE_NONE 0
 #define FOG_MODE_BORDER 1
 //#define FOG_MODE_FULL 0

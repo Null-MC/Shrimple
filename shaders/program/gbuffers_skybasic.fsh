@@ -5,7 +5,13 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec4 starData;
+#if SKY_STARS == STARS_VANILLA
+    in vec4 starData;
+#endif
+
+#if SKY_STARS == STARS_FANCY
+    uniform sampler2D noisetex;
+#endif
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -15,7 +21,7 @@ uniform vec3 sunPosition;
 uniform vec3 upPosition;
 uniform vec2 viewSize;
 // uniform float viewHeight;
-// uniform float viewWidth;
+uniform float viewWidth;
 uniform float far;
 
 uniform vec3 skyColor;
@@ -30,6 +36,11 @@ uniform float skyRainStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
 uniform int renderStage;
+
+#if SKY_STARS == STARS_FANCY
+    uniform int worldTime;
+    uniform float sunAngle;
+#endif
 
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
@@ -54,6 +65,7 @@ uniform int renderStage;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/utility/matrix.glsl"
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/blackbody.glsl"
@@ -79,6 +91,10 @@ uniform int renderStage;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
+#if SKY_STARS == STARS_FANCY
+    #include "/lib/sky/stars.glsl"
+#endif
+
 
 #ifdef EFFECT_TAA_ENABLED
     /* RENDERTARGETS: 0,7 */
@@ -99,41 +115,42 @@ void main() {
         vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
-    vec4 final;
-    if (renderStage == MC_RENDER_STAGE_STARS) {
-        final = starData;
+    vec3 viewDir = normalize(viewPos);
+    vec3 upDir = normalize(upPosition);
+    float viewUpF = dot(viewDir, upDir);
 
-        if (starData.a > 0.5) {
-            vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
+    vec4 final = vec4(1.0);
 
-            #if SKY_TYPE == SKY_TYPE_CUSTOM
-                float bright = hash13(localViewDir * 0.2);
-                float temp = _pow2(bright) * 8000.0 + 2000.0;
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        final.rgb = GetCustomSkyColor(localSunDirection.y, viewUpF);
+    #else
+        final.rgb = GetVanillaFogColor(fogColor, viewUpF);
+        final.rgb = RGBToLinear(final.rgb);
+    #endif
 
-                bright *= (_pow3(bright) * 4.0) * Sky_SunBrightnessF;
-                bright *= smoothstep(0.02, -0.16, localSunDirection.y);
+    final.rgb *= Sky_BrightnessF;
 
-                final.rgb = blackbody(temp) * bright;
-                final.a = min(bright, 1.0);
-            #endif
-        }
-    }
-    else {
-        final.a = 1.0;
+    #if SKY_STARS == STARS_FANCY
+        vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
-        vec3 viewDir = normalize(viewPos);
-        vec3 upDir = normalize(upPosition);
-        float viewUpF = dot(viewDir, upDir);
+        mat3 matAngleRot = rotateX(-radians(sunPathRotation));
+        mat3 matTimeRot = rotateZ(TAU * sunAngle * Sky_StarSpeed);
+        localViewDir = matTimeRot * (matAngleRot * localViewDir);
 
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            final.rgb = GetCustomSkyColor(localSunDirection.y, viewUpF);
-        #else
-            final.rgb = GetVanillaFogColor(fogColor, viewUpF);
-            final.rgb = RGBToLinear(final.rgb);
+        float moonUpF = smoothstep(-0.1, 0.2, -localSunDirection.y);
+        vec3 starLight = GetStarLight(localViewDir);
+
+        #if SKY_CLOUD_TYPE != CLOUDS_CUSTOM
+            starLight *= 1.0 - 0.8 * skyRainStrength;
         #endif
 
-        final.rgb *= Sky_BrightnessF;
-    }
+        final.rgb += starLight * (moonUpF * Sky_BrightnessF);
+    #elif SKY_STARS == STARS_VANILLA
+        if (renderStage == MC_RENDER_STAGE_STARS) {
+            final = starData;
+            final.rgb *= Sky_MoonBrightnessF;
+        }
+    #endif
 
     //final.rgb *= 1.0 - blindnessSmooth;
 

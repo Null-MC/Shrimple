@@ -18,6 +18,11 @@ option.SKY_WEATHER_OPACITY=Rain Opacity
 option.SKY_WEATHER_OPACITY.comment=Determines how transparent falling rain particles will be.
 suffix.SKY_WEATHER_OPACITY=%
 
+option.SKY_STARS=Stars
+value.SKY_STARS.0=None
+value.SKY_STARS.1=Vanilla
+value.SKY_STARS.2=Custom
+
 
 screen.SKY_BRIGHTNESS_OPTIONS=Sky Brightness
 
