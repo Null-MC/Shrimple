@@ -209,7 +209,7 @@ void main() {
 
     vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
 
-    #if LIGHTING_MODE == LIGHTING_MODE_NONE
+    #if LIGHTING_MODE == LIGHTING_MODE_NONE && defined WORLD_SKY_ENABLED
         vec3 lightViewDir = normalize(shadowLightPosition);
         float geoNoL = dot(viewNormal, lightViewDir);
         vOut.lmcoord.y *= max(geoNoL, 0.0)*0.5 + 0.5;
