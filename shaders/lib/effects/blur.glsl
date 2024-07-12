@@ -22,7 +22,7 @@ float GetBlurSize(const in float fragDepthL, const in float focusDepthL) {
 }
 
 #ifdef WORLD_WATER_ENABLED
-    const float WaterBlurDistF = 22.0;
+    const float WaterBlurDistF = 8.0;
     //const float WaterBlurPow = 1.5;
 
     float GetWaterBlurDistF(const in float viewDist) {
