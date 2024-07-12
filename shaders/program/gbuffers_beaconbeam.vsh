@@ -5,10 +5,14 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-out vec2 texcoord;
-out vec4 glcolor;
-out vec3 vLocalPos;
+out VertexData {
+	vec4 color;
+	vec3 localPos;
+	vec2 texcoord;
+} vOut;
 
+uniform vec2 pixelSize;
+uniform int frameCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
@@ -16,12 +20,24 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
 
 void main() {
 	gl_Position = ftransform();
-	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-	glcolor = gl_Color;
+	vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	vOut.color = gl_Color;
 
-    vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-    vLocalPos = (gbufferModelViewInverse * viewPos).xyz;
+	#if LIGHTING_MODE != LIGHTING_MODE_NONE //&& defined DEFERRED_BUFFER_ENABLED
+		vOut.color.rgb = normalize(vOut.color.rgb);
+	#endif
+
+    vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 }

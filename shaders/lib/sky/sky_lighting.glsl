@@ -25,7 +25,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 localViewDir = -localPos / viewDist;
 
     #ifndef RENDER_SHADOWS_ENABLED
-        // shadowColor *= _pow3(lmcoord.y);
         shadowColor *= pow(lmcoord.y, 9);
     #endif
     
@@ -54,9 +53,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     #ifndef IRIS_FEATURE_SSBO
         vec3 WorldSkyLightColor = GetSkyLightColor();
         vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-
-        // vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
-        // vec3 WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
     #endif
 
     float horizonF = min(abs(localSunDirection.y + 0.1), 1.0);
@@ -66,7 +62,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
     vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
-    // vec3 skyLightShadowColor = shadowColor * WorldSkyLightColor;
 
     float geoNoL = 1.0;
     if (!all(lessThan(abs(localNormal), EPSILON3)))
@@ -75,10 +70,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * (1.0 - ambientF) * skyLightShadowColor;
 
-    // vec2 lmcoordSkyFinal = vec2(0.0, lmcoord.y);
-    // lmcoordSkyFinal = LightMapTex(lmcoordSkyFinal);
-    // vec3 lightmapColor = textureLod(TEX_LIGHTMAP, lmcoordSkyFinal, 0).rgb;
-    // vec3 ambientSkyLight = RGBToLinear(lightmapColor) * _pow2(lmcoord.y);
     vec3 ambientSkyLight = vec3(_pow3(lmcoord.y));
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
@@ -89,65 +80,25 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
-
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
-        //lpvSkyLight = 2.0 * _pow2(lpvSkyLight);
 
         ambientSkyLight = mix(ambientSkyLight, vec3(lpvSkyLight), lpvFade);
     #endif
 
 
-
-    // float sun_NoL = dot(texNormal, localSunDirection);
-    // float moon_NoL = max(-sun_NoL, 0.0) * 0.8 + 0.2;
-    // sun_NoL = max(sun_NoL, 0.0) * 0.8 + 0.2;
-
-    // sun_NoL *= max(localSunDirection.y, 0.0);
-    // moon_NoL *= max(-localSunDirection.y, 0.0);
-
-    // vec3 ambientSkyLight_direct = sun_NoL * WorldSunLightColor * Sky_SunBrightnessF;
-    // ambientSkyLight_direct += moon_NoL * WorldMoonLightColor * Sky_MoonBrightnessF;
-
-
-    // #if SKY_TYPE == SKY_TYPE_CUSTOM
-    //     vec3 ambientSkyLight_indirect = GetCustomSkyColor(localSunDirection.y, texNormal.y);
-    // #else
-    //     vec3 ambientSkyLight_indirect = GetVanillaFogColor(fogColor, texNormal.y);
-    //     ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
-    // #endif
-
     vec2 uvSky = DirectionToUV(texNormal);
     vec3 ambientSkyLight_indirect = textureLod(texSkyIrradiance, uvSky, 0).rgb;
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
-    //ambientSkyLight_indirect = RGBToLinear(ambientSkyLight_indirect);
-    //ambientSkyLight_indirect *= Sky_BrightnessF;
 
-
-    // ambientSkyLight *= (ambientSkyLight_indirect + 0.1*ambientSkyLight_direct) * Sky_BrightnessF * ambientF;
     ambientSkyLight *= ambientSkyLight_indirect;
 
-    // if (any(greaterThan(abs(texNormal), EPSILON3)))
-    //     ambientSkyLight *= (texNormal.y * 0.3 + 0.7);
-
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
-        ambientSkyLight *= 0.5;
-
         vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);
 
-        // lpvSkyLightColor *= lpvSkyLight / max(luminance(lpvSkyLightColor), EPSILON);
-        // lpvSkyLightColor = RgbToHsv(lpvSkyLightColor);
-
-        // // ensure saturation < brightness
-        // lpvSkyLightColor.y = min(lpvSkyLightColor.y, lpvSkyLightColor.z * 6.0);
-
-        // lpvSkyLightColor.z = lpvSkyLight;
-
-        // lpvSkyLightColor = HsvToRgb(lpvSkyLightColor);
-
-        ambientSkyLight += lpvSkyLightColor * lpvFade;// * lpvSkyLight
+        ambientSkyLight += lpvSkyLightColor * lpvFade;
     #endif
 
-    accumDiffuse += ambientSkyLight * (occlusion * ambientF);// * roughL;
+    accumDiffuse += ambientSkyLight * (occlusion * ambientF);
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         #if MATERIAL_SPECULAR == SPECULAR_LABPBR

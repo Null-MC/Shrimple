@@ -53,7 +53,7 @@ out VertexData {
     // #endif
 } vOut;
 
-uniform sampler2D lightmap;
+// uniform sampler2D lightmap;
 
 #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     uniform sampler2D noisetex;

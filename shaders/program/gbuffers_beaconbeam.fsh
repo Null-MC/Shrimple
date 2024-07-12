@@ -5,9 +5,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 texcoord;
-in vec4 glcolor;
-in vec3 vLocalPos;
+in VertexData {
+    vec4 color;
+    vec3 localPos;
+    vec2 texcoord;
+} vIn;
 
 uniform sampler2D gtexture;
 
@@ -114,18 +116,21 @@ uniform int frameCounter;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, texcoord) * glcolor;
+	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
     #if (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0)
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
+        const vec2 lmCoord = vec2(1.0);
+        const float occlusion = 1.0;
+        const float emission = 1.0;
         const float roughness = 1.0;
         const float metal_f0 = 0.04;
         const float porosity = 0.0;
 
         float fogF = 0.0;
         #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vLocalPos);
+            fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
 
         outDeferredColor = color + dither;
@@ -133,15 +138,15 @@ void main() {
         outDeferredTexNormal = vec3(0.0);
 
         outDeferredData.r = packUnorm4x8(vec4(vec3(0.0), 0.0));
-        outDeferredData.g = packUnorm4x8(vec4(vec2(lmCoordMax), 1.0, 1.0));
+        outDeferredData.g = packUnorm4x8(vec4(vec2(lmCoord), occlusion, emission));
         outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         color.rgb = RGBToLinear(color.rgb);
 
         #ifdef SKY_BORDER_FOG_ENABLED
-            vec3 localViewDir = normalize(vLocalPos);
-            ApplyFog(color, vLocalPos, localViewDir);
+            vec3 localViewDir = normalize(vIn.localPos);
+            ApplyFog(color, vIn.localPos, localViewDir);
         #endif
         
 		outFinal = color;

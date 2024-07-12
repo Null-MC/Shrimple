@@ -61,18 +61,20 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
     #endif
 
+    #define LIGHTING_RAYCOUNT 2u
+
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
         vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
 
-        #define LIGHTING_RAYCOUNT 2u
-    #else
-        #define LIGHTING_RAYCOUNT 1u
+        #if LIGHTING_RAYCOUNT > 1
+            #define LIGHTING_MULTIRAY
+        #endif
     #endif
 
-    for (uint rayIndex = 0u; rayIndex < LIGHTING_RAYCOUNT; rayIndex++) {
-        #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
+    #ifdef LIGHTING_MULTIRAY
+        for (uint rayIndex = 0u; rayIndex < LIGHTING_RAYCOUNT; rayIndex++) {
             if (rayIndex > 0) offset = -offset;
-        #endif
+    #endif
     for (uint i = 0u; i < min(lightCount, MaxSampleCount); i++) {
         vec3 lightPos, lightColor, lightVec;
         float lightSize, lightRange, traceDist2;
@@ -233,7 +235,9 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             #endif
         }
     }
+    #ifdef LIGHTING_MULTIRAY
     }
+    #endif
 
     blockDiffuse += accumDiffuse/LIGHTING_RAYCOUNT * Lighting_Brightness;
     blockSpecular += accumSpecular/LIGHTING_RAYCOUNT * Lighting_Brightness;

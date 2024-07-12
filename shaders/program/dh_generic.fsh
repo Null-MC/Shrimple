@@ -1,11 +1,9 @@
-#define RENDER_TERRAIN_DH
+#define RENDER_GENERIC_DH
 #define RENDER_GBUFFER
 #define RENDER_FRAG
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
-
-// layout(early_fragment_tests) in;
 
 in VertexData {
     vec4 color;
@@ -14,19 +12,6 @@ in VertexData {
     vec3 localNormal;
 
     flat uint materialId;
-
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //         vec3 shadowPos[4];
-    //         flat int shadowTile;
-    //     #else
-    //         vec3 shadowPos;
-    //     #endif
-    // #endif
 } vIn;
 
 uniform sampler2D noisetex;

@@ -358,7 +358,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-        #include "/lib/lighting/sky_lighting.glsl"
+        #include "/lib/sky/sky_lighting.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -555,7 +555,7 @@ void main() {
             color.rgb = GetFinalLighting(albedo, blockDiffuse, blockSpecular, occlusion);
         #else
             vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, vIn.lmcoord);
+            GetVanillaLighting(diffuse, vIn.lmcoord, occlusion);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 const bool tir = false; // TODO: ?

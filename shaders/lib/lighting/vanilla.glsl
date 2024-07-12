@@ -1,4 +1,4 @@
-void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
+void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in float occlusion) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
         vec3 lightmapFinal = textureLod(TEX_LIGHTMAP, LightMapTex(lmcoord), 0).rgb;
         diffuse = RGBToLinear(lightmapFinal);// * blackbody(LIGHTING_TEMP);
@@ -6,6 +6,8 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in v
         vec3 lightmapBlock = _pow3(lmcoord.x) * blackbody(LIGHTING_TEMP);
         diffuse = lightmapBlock * Lighting_Brightness;
     #endif
+
+    diffuse *= occlusion;
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
@@ -26,7 +28,7 @@ vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, c
         vec3 final = albedo;
     #endif
 
-	final *= (Lighting_MinF + diffuse) * occlusion + emission * MaterialEmissionF;
+	final *= (Lighting_MinF * occlusion + diffuse) + emission * MaterialEmissionF;
 	final += specular;
 
 	return final;

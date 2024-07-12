@@ -313,7 +313,7 @@ uniform float dhFarPlane;
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            #include "/lib/lighting/sky_lighting.glsl"
+            #include "/lib/sky/sky_lighting.glsl"
         #endif
     #endif
 
@@ -550,7 +550,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, vIn.lmcoord);
+            GetVanillaLighting(diffuseFinal, vIn.lmcoord, occlusion);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);

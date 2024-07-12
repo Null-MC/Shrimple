@@ -281,7 +281,7 @@ uniform float skyRainStrength;
 #endif
 
 #if LIGHTING_MODE != LIGHTING_MODE_NONE
-    #include "/lib/lighting/sky_lighting.glsl"
+    #include "/lib/sky/sky_lighting.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -426,7 +426,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #else
         vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, vIn.lmcoord);
+        GetVanillaLighting(diffuse, vIn.lmcoord, occlusion);
 
         #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
             SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);

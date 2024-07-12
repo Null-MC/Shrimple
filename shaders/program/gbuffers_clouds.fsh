@@ -253,7 +253,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/scatter_transmit.glsl"
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-        #include "/lib/lighting/sky_lighting.glsl"
+        #include "/lib/sky/sky_lighting.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED

@@ -384,7 +384,7 @@ uniform int heldBlockLightValue2;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-        #include "/lib/lighting/sky_lighting.glsl"
+        #include "/lib/sky/sky_lighting.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -809,7 +809,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, lmFinal);
+            GetVanillaLighting(diffuseFinal, lmFinal, occlusion);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 const bool tir = false; // TODO: ?

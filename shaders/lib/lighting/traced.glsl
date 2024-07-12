@@ -25,9 +25,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 #endif
 
 void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
-    vec2 lmBlock = LightMapTex(vec2(lmcoord.x, 0.0));
-    vec3 blockLightDefault = textureLod(TEX_LIGHTMAP, lmBlock, 0).rgb;
-    blockLightDefault = RGBToLinear(blockLightDefault);
+    // vec3 blockLightDefault = (_pow3(lmcoord.x) * Lighting_Brightness) * blackbody(LIGHTING_TEMP);
 
     // #if defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
     //     vec3 blockDiffuse = vec3(0.0);
