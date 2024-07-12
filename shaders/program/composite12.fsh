@@ -17,9 +17,10 @@ uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
-uniform sampler2D BUFFER_SSAO;
 
-// uniform sampler2D TEX_LIGHTMAP;
+#ifdef EFFECT_SSAO_ENABLED
+    uniform sampler2D texSSAO;
+#endif
 
 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler2D texSkyIrradiance;
@@ -330,10 +331,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
-#ifdef EFFECT_SSAO_ENABLED
-    #include "/lib/effects/ssao_filter.glsl"
-#endif
-
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -409,8 +406,7 @@ layout(location = 0) out vec4 outFinal;
             float occlusion = deferredLighting.z;
 
             #ifdef EFFECT_SSAO_ENABLED
-                float deferredOcclusion = BilateralGaussianDepthBlur_5x(texcoord, depthOpaqueL);
-                // float deferredOcclusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
+                float deferredOcclusion = textureLod(texSSAO, texcoord, 0).r;
                 occlusion = min(occlusion, deferredOcclusion);
             #endif
 

@@ -212,7 +212,7 @@ void main() {
     #if LIGHTING_MODE == LIGHTING_MODE_NONE && defined WORLD_SKY_ENABLED
         vec3 lightViewDir = normalize(shadowLightPosition);
         float geoNoL = dot(viewNormal, lightViewDir);
-        vOut.lmcoord.y *= max(geoNoL, 0.0)*0.5 + 0.5;
+        vOut.color.rgb *= max(geoNoL, 0.0)*0.25 + 0.75;
     #endif
     
     vec4 viewPos = BasicVertex();

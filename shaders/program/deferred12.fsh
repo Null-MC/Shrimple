@@ -8,7 +8,7 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
-uniform sampler2D BUFFER_SSAO;
+uniform sampler2D texSSAO;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -85,8 +85,6 @@ uniform int fogShape;
     #endif
 #endif
 
-#include "/lib/effects/ssao_filter.glsl"
-
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outAO;
@@ -111,8 +109,7 @@ void main() {
     float occlusion = 1.0;
 
     if (depth < 1.0) {
-        occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
-        // occlusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
+        occlusion = textureLod(texSSAO, texcoord, 0).r;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;

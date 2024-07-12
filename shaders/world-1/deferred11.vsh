@@ -3,4 +3,4 @@
 #define RENDER_OPAQUE
 
 #include "nether.glsl"
-#include "/program/deferred11.vsh"
+#include "/program/deferred_ssao.vsh"
