@@ -3,12 +3,7 @@ void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord) {//, const in v
         vec3 lightmapFinal = textureLod(TEX_LIGHTMAP, LightMapTex(lmcoord), 0).rgb;
         diffuse = RGBToLinear(lightmapFinal);// * blackbody(LIGHTING_TEMP);
     #else
-        // vec3 lightmapBlock = textureLod(TEX_LIGHTMAP, vec2(lmFinal.x, lmCoordMin), 0).rgb;
-        // lightmapBlock = RGBToLinear(lightmapBlock) * blackbody(LIGHTING_TEMP);
-        // TODO: just ditch lightmap and use blackbody temp?
-
         vec3 lightmapBlock = _pow3(lmcoord.x) * blackbody(LIGHTING_TEMP);
-
         diffuse = lightmapBlock * Lighting_Brightness;
     #endif
 }
