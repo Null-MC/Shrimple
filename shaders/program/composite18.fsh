@@ -495,8 +495,8 @@ layout(location = 0) out vec4 outFinal;
                 #else
                     deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthTransL));
                 #endif
-            // #else
-            //     deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            #else
+                deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
