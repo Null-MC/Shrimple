@@ -486,6 +486,12 @@ void main() {
         occlusion = 0.0;
     }
 
+    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+        if (entityId == ENTITY_ALLAY) {
+            emission = 0.4;
+        }
+    #endif
+
     #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
