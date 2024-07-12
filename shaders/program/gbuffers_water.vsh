@@ -177,7 +177,7 @@ uniform float far;
     #endif
 #endif
 
-#include "/lib/lighting/common.glsl"
+#include "/lib/vertex_common.glsl"
 
 #if LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     #ifdef LIGHTING_FLICKER

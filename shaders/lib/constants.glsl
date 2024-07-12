@@ -167,25 +167,25 @@
 #define BUFFER_BLOOM_TILES colortex15
 #define BUFFER_OVERLAY colortex15
 
-#ifdef RENDER_GBUFFER
+// #ifdef RENDER_GBUFFER
 	#define TEX_LIGHTMAP lightmap
-#endif
+// #endif
 
 #ifdef IS_IRIS
-	#ifndef RENDER_GBUFFER
-		#define TEX_LIGHTMAP texLightmap
-	#endif
+	// #ifndef RENDER_GBUFFER
+	// 	#define TEX_LIGHTMAP texLightmap
+	// #endif
 	
 	#define TEX_RIPPLES texRipples
 	#define TEX_CLOUDS texClouds
 	#define TEX_CLOUDS_VANILLA texVanillaClouds
-#else
-	#ifndef RENDER_GBUFFER
-		#define TEX_LIGHTMAP colortex13
-	#endif
+// #else
+// 	#ifndef RENDER_GBUFFER
+// 		#define TEX_LIGHTMAP colortex13
+// 	#endif
 
-	#define TEX_RIPPLES colortex13
-	#define TEX_CLOUDS shadowcolor1
+// 	#define TEX_RIPPLES colortex13
+// 	#define TEX_CLOUDS shadowcolor1
 #endif
 
 #define TEX_LIGHT_NOISE noisetex

@@ -22,7 +22,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_OVERLAY;
-uniform sampler2D TEX_LIGHTMAP;
+// uniform sampler2D TEX_LIGHTMAP;
 
 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler2D texSkyIrradiance;

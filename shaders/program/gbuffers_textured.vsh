@@ -85,7 +85,7 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#include "/lib/lighting/common.glsl"
+#include "/lib/vertex_common.glsl"
 
 
 void main() {

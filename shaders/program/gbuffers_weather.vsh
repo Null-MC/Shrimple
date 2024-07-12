@@ -117,7 +117,7 @@ uniform ivec2 eyeBrightnessSmooth;
 	#include "/lib/clouds/cloud_custom_shadow.glsl"
 #endif
 
-#include "/lib/lighting/common.glsl"
+#include "/lib/vertex_common.glsl"
 
 
 void main() {

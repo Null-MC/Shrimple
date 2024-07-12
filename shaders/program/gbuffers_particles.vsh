@@ -112,7 +112,7 @@ uniform vec3 cameraPosition;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-#include "/lib/lighting/common.glsl"
+#include "/lib/vertex_common.glsl"
 
 #ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa_jitter.glsl"

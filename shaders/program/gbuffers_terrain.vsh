@@ -207,7 +207,7 @@ uniform float far;
 #endif
 
 #include "/lib/material/normalmap.glsl"
-#include "/lib/lighting/common.glsl"
+#include "/lib/vertex_common.glsl"
 
 #ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa_jitter.glsl"
