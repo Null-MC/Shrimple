@@ -329,6 +329,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
+#ifdef EFFECT_SSAO_ENABLED
+    #include "/lib/effects/ssao_filter.glsl"
+#endif
+
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -404,7 +408,9 @@ layout(location = 0) out vec4 outFinal;
             float occlusion = deferredLighting.z;
 
             #ifdef EFFECT_SSAO_ENABLED
-                occlusion = min(occlusion, textureLod(BUFFER_SSAO, texcoord, 0).r);
+                float deferredOcclusion = BilateralGaussianDepthBlur_5x(texcoord, depthOpaqueL);
+                // float deferredOcclusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
+                occlusion = min(occlusion, deferredOcclusion);
             #endif
 
             if (any(greaterThan(localNormal, EPSILON3)))
@@ -501,7 +507,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 if (hasWaterDepth) {
-                    #if defined WORLD_SKY_ENABLED
+                    #ifdef WORLD_SKY_ENABLED
                         puddleF = 1.0;
                     #endif
 

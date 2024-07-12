@@ -11,7 +11,7 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
-uniform sampler2D BUFFER_DEFERRED_SHADOW;
+uniform usampler2D BUFFER_DEFERRED_DATA;
 
 #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
     uniform sampler3D texCaustics;
@@ -336,8 +336,10 @@ void main() {
                     isWater = true;
                 #else
                     if (isEyeInWater == 0) {
-                        float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
-                        isWater = deferredShadowA > 0.5;
+                        // float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
+                        uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).b;
+                        float deferredWater = unpackUnorm4x8(deferredDataB).r;
+                        isWater = deferredWater > 0.5;
                     }
                 #endif
             #endif

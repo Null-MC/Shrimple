@@ -305,13 +305,16 @@ layout(location = 0) out vec4 outFinal;
         float distTranslucent = length(localPosTranslucent);
         float waterDist = 0.0;
 
+        #ifdef WORLD_WATER_ENABLED
+            bool isWater = false;
+        #endif
+
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
             uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
 
             float waterDepth[WATER_DEPTH_LAYERS+1];
             GetAllWaterDepths(waterPixelIndex, waterDepth);
-            bool isWater = false;
 
             float farDist = min(distOpaque, far);
 
@@ -401,8 +404,9 @@ layout(location = 0) out vec4 outFinal;
                 float waterDepthAirFinal = 0.0;
 
                 #if WATER_DEPTH_LAYERS == 1
-                    float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
-                    bool isWater = deferredShadowA > 0.5;
+                    //float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
+                    float deferredWater = unpackUnorm4x8(deferredData.b).r;
+                    isWater = deferredWater > 0.5;
 
                     // if (isWater && isEyeInWater != 1) {
                     //     waterDist = distOpaque - distTranslucent;

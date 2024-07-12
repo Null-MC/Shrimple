@@ -441,12 +441,13 @@ layout(location = 0) out vec4 outFinal;
             if (any(greaterThan(texNormal, EPSILON3)))
                 texNormal = normalize(texNormal * 2.0 - 1.0);
 
-            vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
+            // vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
 
             //#if WATER_DEPTH_LAYERS > 1
             //    isWater = WaterDepths[waterPixelIndex].IsWater;
             //#else
-                isWater = deferredShadow.a > 0.5;
+                float deferredWater = unpackUnorm4x8(deferredData.b).r;
+                isWater = deferredWater > 0.5;
             //#endif
 
             #ifdef MATERIAL_REFRACT_ENABLED
@@ -487,19 +488,20 @@ layout(location = 0) out vec4 outFinal;
                 const float metal_f0 = 0.04;
             #endif
 
+            vec3 deferredShadow = vec3(1.0);
             #if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
                 #ifdef SHADOW_COLORED
-                    deferredShadow.rgb = shadow_GaussianFilterRGB(texcoord, depthTransL);
+                    deferredShadow = shadow_GaussianFilterRGB(texcoord, depthTransL);
                 #else
-                    deferredShadow.rgb = vec3(shadow_GaussianFilter(texcoord, depthTransL));
+                    deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthTransL));
                 #endif
             // #else
-            //     deferredShadow.rgb = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+            //     deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
             #endif
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    deferredShadow.rgb *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    deferredShadow *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 // #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
                 #endif
@@ -571,10 +573,10 @@ layout(location = 0) out vec4 outFinal;
 
                     //blockDiffuse += emission * MaterialEmissionF;
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow.rgb, albedo, metal_f0, roughL, occlusion, sss, tir);
+                    GetFloodfillLighting(blockDiffuse, blockSpecular, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, tir);
 
                     #ifdef WORLD_SKY_ENABLED
-                        GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                        GetSkyLightingFinal(blockDiffuse, blockSpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                     #else
                         blockDiffuse += WorldAmbientF;
                     #endif
@@ -598,7 +600,7 @@ layout(location = 0) out vec4 outFinal;
 
                 #if LIGHTING_MODE != LIGHTING_MODE_FLOODFILL
                     #ifdef WORLD_SKY_ENABLED
-                        GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                        GetSkyLightingFinal(skyDiffuse, skySpecular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                     #else
                         blockDiffuse += WorldAmbientF;
                     #endif
@@ -611,7 +613,7 @@ layout(location = 0) out vec4 outFinal;
                     }
                 #endif
 
-                float shadowF = min(luminance(deferredShadow.rgb), 1.0);
+                float shadowF = min(luminance(deferredShadow), 1.0);
                 occlusion = max(occlusion, shadowF);
 
                 vec3 diffuseFinal = blockDiffuse + skyDiffuse;
@@ -623,7 +625,7 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuse, deferredLighting.xy);
 
                 #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                    GetSkyLightingFinal(diffuse, specular, deferredShadow.rgb, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                    GetSkyLightingFinal(diffuse, specular, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
                 #endif
 
                 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

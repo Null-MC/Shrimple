@@ -85,53 +85,7 @@ uniform int fogShape;
     #endif
 #endif
 
-
-float BilateralGaussianDepthBlur_5x(const in vec2 texcoord, const in float linearDepth) {
-    const float g_sigmaXY = 3.0;
-    const float g_sigmaV = 0.2;
-
-    const float c_halfSamplesX = 2.0;
-    const float c_halfSamplesY = 2.0;
-
-    float total = 0.0;
-    float accum = 0.0;
-    
-    for (float iy = -c_halfSamplesY; iy <= c_halfSamplesY; iy++) {
-        float fy = Gaussian(g_sigmaXY, iy);
-
-        for (float ix = -c_halfSamplesX; ix <= c_halfSamplesX; ix++) {
-            float fx = Gaussian(g_sigmaXY, ix);
-            
-            vec2 sampleTex = texcoord + vec2(ix, iy) * pixelSize;
-
-            ivec2 iTexBlend = ivec2(sampleTex * viewSize);
-            float sampleValue = texelFetch(BUFFER_SSAO, iTexBlend, 0).r;
-
-            ivec2 iTexDepth = ivec2(sampleTex * viewSize);
-            float sampleDepth = texelFetch(depthtex0, iTexDepth, 0).r;
-            float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
-
-            #ifdef DISTANT_HORIZONS
-                float dhDepth = texelFetch(dhDepthTex, iTexDepth, 0).r;
-                float dhDepthL = linearizeDepth(dhDepth, dhNearPlane, dhFarPlane);
-
-                if (sampleDepth >= 1.0 || (dhDepthL < sampleDepthL && dhDepth > 0.0)) {
-                    sampleDepthL = dhDepthL;
-                    //sampleDepth = dhDepth;
-                }
-            #endif
-            
-            float fv = Gaussian(g_sigmaV, abs(sampleDepthL - linearDepth));
-            
-            float weight = fx*fy*fv;
-            accum += weight * sampleValue;
-            total += weight;
-        }
-    }
-    
-    if (total <= EPSILON) return 0.0;
-    return accum / total;
-}
+#include "/lib/effects/ssao_filter.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -157,8 +111,8 @@ void main() {
     float occlusion = 1.0;
 
     if (depth < 1.0) {
-        //occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
-        occlusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
+        occlusion = BilateralGaussianDepthBlur_5x(texcoord, depthL);
+        // occlusion = textureLod(BUFFER_SSAO, texcoord, 0).r;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;

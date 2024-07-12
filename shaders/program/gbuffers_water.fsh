@@ -774,12 +774,13 @@ void main() {
         #endif
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, isWater ? 1.0 : 0.0);
+        outDeferredShadow = vec4(shadowColor + dither, 1.0);
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, 0.0, 0.0, 0.0));
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);

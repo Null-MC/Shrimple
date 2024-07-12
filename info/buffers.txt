@@ -22,11 +22,11 @@ CU			imgSkyIrradiance
 colortex0		RGB16F		1.0		final
 
 colortex1		RGBA8		1.0		deferred color
-colortex2		RGBA8		1.0		deferred shadow, water mask
+colortex2		RGBA8		1.0		deferred shadow, ?  (was water mask)
 colortex3		RGBA32UI	1.0		deferred data
 									 - R: geometry normal.xyzw (normal, sss)
 									 - G: lighting.xyzw (block, sky, ao, emission)
-									 - B: fog.rgba
+									 - B: water mask, ?, ?, ?  (was fog.rgba)
 									 - A: roughness, metal-f0, porosity
 colortex9		RGB16F		1.0		texture normal.xyz
 
