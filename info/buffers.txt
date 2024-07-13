@@ -8,7 +8,6 @@ SSBO-7		Water Depth Layers
 
 
 
-
 CU			imgSceneLPV_1
 CU			imgSceneLPV_2
 CU			imgLocalLightMask
@@ -16,6 +15,7 @@ CU			imgLocalBlockMask
 CU			imgDepthNear
 CU			imgSky
 CU			imgSkyIrradiance
+CU			imgSSAO
 
 
 

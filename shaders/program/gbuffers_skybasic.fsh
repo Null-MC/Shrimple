@@ -132,18 +132,14 @@ void main() {
 
     #if SKY_STARS == STARS_FANCY
         vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
-
-        mat3 matAngleRot = rotateX(-radians(sunPathRotation));
-        mat3 matTimeRot = rotateZ(TAU * sunAngle * Sky_StarSpeed);
-        localViewDir = matTimeRot * (matAngleRot * localViewDir);
-
-        float moonUpF = smoothstep(-0.1, 0.2, -localSunDirection.y);
-        vec3 starLight = GetStarLight(localViewDir);
+        vec3 starViewDir = getStarViewDir(localViewDir);
+        vec3 starLight = GetStarLight(starViewDir);
 
         #if SKY_CLOUD_TYPE != CLOUDS_CUSTOM
             starLight *= 1.0 - 0.8 * skyRainStrength;
         #endif
 
+        float moonUpF = smoothstep(-0.1, 0.2, -localSunDirection.y);
         final.rgb += starLight * (moonUpF * Sky_BrightnessF);
     #elif SKY_STARS == STARS_VANILLA
         if (renderStage == MC_RENDER_STAGE_STARS) {

@@ -18,6 +18,12 @@ float noise(const in vec2 v) {
     return textureLod(noisetex, (v + 0.5) / 256.0, 0.0).r; 
 }
 
+vec3 getStarViewDir(const in vec3 localViewDir) {
+    mat3 matAngleRot = rotateX(-radians(sunPathRotation));
+    mat3 matTimeRot = rotateZ(TAU * sunAngle * Sky_StarSpeed);
+    return matTimeRot * (matAngleRot * localViewDir);
+}
+
 vec3 GetStarLight(const in vec3 viewDir) {
     const float StarTempRange = Sky_StarTempMax - Sky_StarTempMin;
 

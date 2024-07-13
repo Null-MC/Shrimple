@@ -43,6 +43,13 @@ vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float rou
         vec2 uvSky = DirectionToUV(reflectDir);
         vec3 reflectColor = textureLod(texSky, uvSky, 0).rgb;
 
+        // #if SKY_STARS == STARS_FANCY
+        //     // WARN: this needs to be applied BEFORE vol fog!
+        //     vec3 starViewDir = getStarViewDir(reflectDir);
+        //     vec3 starLight = GetStarLight(starViewDir);
+        //     reflectColor += starLight * Sky_BrightnessF; // * moonUpF
+        // #endif
+
         #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
