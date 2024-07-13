@@ -5,6 +5,18 @@ const int pcf_sizes[4] = int[](4, 3, 2, 1);
 const int pcf_max = 4;
 
 
+float GetShadowDither() {
+    #ifdef RENDER_FRAG
+        #ifdef EFFECT_TAA_ENABLED
+            return InterleavedGradientNoiseTime();
+        #else
+            return InterleavedGradientNoise();
+        #endif
+    #else
+        return 0.0;
+    #endif
+}
+
 float SampleDepth(const in vec2 shadowPos, const in vec2 offset) {
     return textureLod(shadowtex1, shadowPos + offset, 0).r;
 }
@@ -50,7 +62,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 #if SHADOW_FILTER != 0
     #ifdef SHADOW_COLORED
         vec3 GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float dither = GetShadowDither();
             float angle = fract(dither) * TAU;
             float s = sin(angle), c = cos(angle);
             mat2 rotation = mat2(c, -s, s, c);
@@ -84,7 +96,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
         }
     #else
         float GetShadowing_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-            float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+            float dither = GetShadowDither();
             float angle = fract(dither) * TAU;
             float s = sin(angle), c = cos(angle);
             mat2 rotation = mat2(c, -s, s, c);
@@ -95,7 +107,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
             }
 
-            return shadow * rcp(SHADOW_PCF_SAMPLES);
+            return 1.0 - shadow * rcp(SHADOW_PCF_SAMPLES);
         }
     #endif
 #endif
@@ -103,13 +115,15 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
 #if SHADOW_FILTER == 2
     // PCF + PCSS
     float FindBlockerDistance(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
-        float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+        float dither = GetShadowDither();
+        float zRange = GetShadowRange();
+
         float angle = fract(dither) * TAU;
         float s = sin(angle), c = cos(angle);
         mat2 rotation = mat2(c, -s, s, c);
 
         float blockers = 0.0;
-        float avgBlockerDistance = 0.0;
+        float avgDist = 0.0;
         for (int i = 0; i < SHADOW_PCSS_SAMPLES; i++) {
             vec2 pixelOffset = (rotation * pcssDiskOffset[i]) * pixelRadius;
 
@@ -119,22 +133,22 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 float texDepth = texture(shadowtex0, shadowPos.xy + pixelOffset).r;
             #endif
 
-            float hitDist = max((shadowPos.z - bias) - texDepth, 0.0);
+            float hitDist = max((shadowPos.z - bias) - texDepth, 0.0) * zRange;
 
-            avgBlockerDistance += hitDist * (far * 3.0);
-            blockers += step(0.0, hitDist);
+            avgDist += hitDist;
+            blockers++;// += step(0.0, hitDist);
         }
 
-        return blockers > 0.0 ? avgBlockerDistance / blockers : -1.0;
+        // return blockers > 0.0 ? avgDist / blockers : -1.0;
+        return avgDist / blockers;
     }
 
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade, const in float bias) {
-            vec2 maxPixelRadius = GetPixelRadius(Shadow_MaxPcfSize, cascade);
             float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
-            // blocker search
-            float blockerDistance = FindBlockerDistance(shadowPos, maxPixelRadius, offsetBias);
+            vec2 maxPixelRadius = GetPixelRadius(Shadow_MaxPcfSize, cascade);
+            float blockerDistance = FindBlockerDistance(shadowPos, 0.5 * maxPixelRadius, offsetBias);
 
             if (blockerDistance <= 0.0) {
                 //float depthOpaque = textureLod(shadowtex1, shadowPos.xy, 0).r;
@@ -154,7 +168,8 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
                 return shadowColor.rgb;
             }
 
-            vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
+            float scale = saturate(blockerDistance / (SHADOW_PENUMBRA_SCALE * Shadow_MaxPcfSize));
+            vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * scale;
             return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #else
@@ -162,15 +177,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             vec2 maxPixelRadius = GetPixelRadius(Shadow_MaxPcfSize, cascade);
             float offsetBias = GetShadowOffsetBias(cascade) + bias;
 
-            float blockerDistance = FindBlockerDistance(shadowPos, maxPixelRadius, offsetBias);
+            float blockerDistance = FindBlockerDistance(shadowPos, 0.5 * maxPixelRadius, offsetBias);
             if (blockerDistance <= 0.0) return 1.0;
 
-            //bias *= 1.0 + 20.0 * blockerDistance;
-
-            vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * min(blockerDistance * SHADOW_PENUMBRA_SCALE, 1.0);
-            float shadow = GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
-            //return 1.0 - shadow;
-            return 1.0 - _smoothstep(shadow);
+            float scale = saturate(blockerDistance / (SHADOW_PENUMBRA_SCALE * Shadow_MaxPcfSize));
+            vec2 pixelRadius = minShadowPixelRadius + (maxPixelRadius - minShadowPixelRadius) * scale;
+            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #endif
 #elif SHADOW_FILTER == 1

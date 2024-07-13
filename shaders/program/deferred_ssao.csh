@@ -5,12 +5,16 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 8, local_size_y = 8) in;
+layout (local_size_x = 16, local_size_y = 16) in;
 
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-shared float sharedOcclusionBuffer[144];
-shared float sharedDepthBuffer[144];
+const int sharedBufferRes = 20;
+const int sharedBufferSize = _pow2(sharedBufferRes);
+
+shared float gaussianBuffer[5];
+shared float sharedOcclusionBuffer[sharedBufferSize];
+shared float sharedDepthBuffer[sharedBufferSize];
 
 layout(r16f) uniform image2D imgSSAO;
 
@@ -35,17 +39,27 @@ uniform float farPlane;
 #include "/lib/sampling/gaussian.glsl"
 
 
+const float g_sigmaXY = 9.0;
+const float g_sigmaV = 0.2;
+
 void populateSharedBuffer() {
-    uint i_base = uint(gl_LocalInvocationIndex) * 3u;
-    if (i_base >= 144u) return;
+    if (gl_LocalInvocationIndex < 5)
+        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
+    
+    uint i_base = uint(gl_LocalInvocationIndex) * 2u;
+    if (i_base >= sharedBufferSize) return;
 
     ivec2 uv_base = ivec2(gl_WorkGroupID.xy * gl_WorkGroupSize.xy) - 2;
 
-    for (uint i = 0u; i < 3u; i++) {
+    for (uint i = 0u; i < 2u; i++) {
 	    uint i_shared = i_base + i;
-	    if (i_shared >= 144u) break;
+	    if (i_shared >= sharedBufferSize) break;
 	    
-    	ivec2 uv_i = ivec2(i_shared % 12, i_shared / 12);
+    	ivec2 uv_i = ivec2(
+            i_shared % sharedBufferRes,
+            i_shared / sharedBufferRes
+        );
+
 	    ivec2 uv = uv_base + uv_i;
 
 	    float depthL = far;
@@ -56,7 +70,6 @@ void populateSharedBuffer() {
 	    	depthL = linearizeDepth(depth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
-		    	// TODO: support DH depth
                 float depthDH = texelFetch(dhDepthTex0, uv, 0).r;
                 float depthDHL = linearizeDepth(depthDH, dhNearPlane, dhFarPlane);
 
@@ -76,22 +89,19 @@ float sampleSharedBuffer(const in float depthL) {
 	// ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 	// return texelFetch(BUFFER_SSAO, uv, 0).r;
 
-    const float g_sigmaXY = 3.0;
-    const float g_sigmaV = 0.2;
-
     ivec2 uv_base = ivec2(gl_LocalInvocationID.xy) + 2;
 
     float total = 0.0;
     float accum = 0.0;
     
     for (int iy = -2; iy <= 2; iy++) {
-        float fy = Gaussian(g_sigmaXY, iy);
+        float fy = gaussianBuffer[iy+2];// Gaussian(g_sigmaXY, iy);
 
         for (int ix = -2; ix <= 2; ix++) {
-            float fx = Gaussian(g_sigmaXY, ix);
+            float fx = gaussianBuffer[ix+2];// Gaussian(g_sigmaXY, ix);
             
             ivec2 uv_shared = uv_base + ivec2(ix, iy);
-            int i_shared = uv_shared.y * 12 + uv_shared.x;
+            int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 
             float sampleValue = sharedOcclusionBuffer[i_shared];
             float sampleDepthL = sharedDepthBuffer[i_shared];
@@ -118,7 +128,7 @@ void main() {
 	if (any(greaterThanEqual(uv, ivec2(viewSize)))) return;
 
     ivec2 uv_shared = ivec2(gl_LocalInvocationID.xy) + 2;
-    int i_shared = uv_shared.y * 12 + uv_shared.x;
+    int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 	float depthL = sharedDepthBuffer[i_shared];
 
 	float occlusion = sampleSharedBuffer(depthL);

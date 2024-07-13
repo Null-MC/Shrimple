@@ -17,6 +17,15 @@ vec2 GetShadowTilePos(const in int tile) {
     return pos;
 }
 
+float GetShadowRange() {
+    float _far = far;
+    #ifdef DISTANT_HORIZONS
+        _far = 0.5 * dhFarPlane;
+    #endif
+
+    return _far * 3.0;
+}
+
 float GetShadowRange(const in int cascade) {
     return -2.0 / cascadeProjection[cascade][2][2];
 }
