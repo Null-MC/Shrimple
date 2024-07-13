@@ -567,6 +567,8 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
+            diffuseFinal *= deferredColor.a;
+
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;
                 specularFinal += sampleSpecular;

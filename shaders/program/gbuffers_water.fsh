@@ -760,18 +760,17 @@ void main() {
         #endif
 
         // TODO: should this also apply to forward?
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE
-            if (isWater) {
-                //vec3 f0 = GetMaterialF0(albedo, metal_f0);
-                float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
-                //color.a = min(color.a + skyF, 1.0);
-                color.a = clamp(color.a, skyF * MaterialReflectionStrength, 1.0);
+        // #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        //     if (isWater) {
+        //         //vec3 f0 = GetMaterialF0(albedo, metal_f0);
+        //         float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+        //         float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
+        //         color.a = clamp(color.a, skyF * MaterialReflectionStrength, 1.0);
 
-                //color.rgb = vec3(0.0);
-                color.rgb *= 1.0 - skyF;
-            }
-        #endif
+        //         //color.rgb = vec3(0.0);
+        //         color.rgb *= 1.0 - skyF;
+        //     }
+        // #endif
 
         outDeferredColor = color + dither;
         outDeferredShadow = vec4(shadowColor + dither, 1.0);

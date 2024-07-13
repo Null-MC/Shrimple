@@ -82,7 +82,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
-        lpvSkyLight = _pow3(lpvSkyLight);
+        // lpvSkyLight = 2.0*_pow3(lpvSkyLight);
+        lpvSkyLight = _smoothstep(lpvSkyLight);
 
         ambientSkyLight = mix(ambientSkyLight, vec3(lpvSkyLight), lpvFade);
     #endif
