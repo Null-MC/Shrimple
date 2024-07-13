@@ -393,7 +393,7 @@ void main() {
         SetWaterDepth(viewDist);
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
     #ifndef WATER_TEXTURED
         color = vec4(vec3(1.0), Water_OpacityF);

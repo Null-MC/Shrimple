@@ -434,7 +434,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 deferredShadow = vec3(1.0);
             #ifdef RENDER_SHADOWS_ENABLED
-                #if SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
+                #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
                     #ifdef SHADOW_COLORED
                         deferredShadow = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
                     #else

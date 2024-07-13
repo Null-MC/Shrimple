@@ -489,7 +489,9 @@ void main() {
         color.a *= mix(ditherOut, 1.0, ditherFadeF) * ditherFadeF;
         color.a *= alphaTestRef;
     #else
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+        // vec4 color = texture(gtexture, atlasCoord, 1.0);
+        // vec4 color = texture(gtexture, atlasCoord);
     #endif
 
     if (color.a < alphaTestRef) {

@@ -549,7 +549,7 @@ void main() {
         color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
         color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
     #else
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0] * MIP_BIAS, dFdXY[1] * MIP_BIAS);
+        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
     #endif
 
     float alphaThreshold = 0.1;//(1.5/255.0);

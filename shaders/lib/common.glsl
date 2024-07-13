@@ -341,7 +341,7 @@ const bool colortex15Clear = true;
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
 //#define DEBUG_TRANSPARENT
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-#define DH_TRANSITION
+// #define DH_TRANSITION
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
@@ -356,13 +356,11 @@ const bool colortex15Clear = true;
 
 // INTERNAL SETTINGS
 #define LIGHT_COLOR_MESSAGE 0 // [0]
-#define PHYSICS_OCEAN_SUPPORT
 #define SHADOW_CSM_FIT_FARSCALE 1.1
 #define SHADOW_CSM_FITSCALE 0.1
-#define CSM_PLAYER_ID 0
+#define CSM_PLAYER_ID 1
 #define ROUGH_MIN 0.06
 #define WATER_ROUGH 0.0
-#define MIP_BIAS 0.25 // [1.0 0.5 0.25]
 #define WHITEWORLD_VALUE 0.6
 //#define TRANSLUCENT_SSS_ENABLED
 #define DEFERRED_PARTICLES

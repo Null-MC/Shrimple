@@ -1,3 +1,5 @@
+#define LIGHTING_RAYCOUNT 1u
+
 #if LIGHTING_TRACE_SAMPLE_MAX > 0 && LIGHTING_MODE == LIGHTING_MODE_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
@@ -60,8 +62,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     #else
         const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
     #endif
-
-    #define LIGHTING_RAYCOUNT 2u
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
         vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
