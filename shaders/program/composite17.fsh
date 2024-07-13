@@ -359,6 +359,10 @@ void main() {
             if (isEyeInWater == 1) hasVl = true;
         #endif
 
+        #ifdef WORLD_WATER_ENABLED
+            if (isWater) farDist = min(farDist, far);
+        #endif
+
         if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
     #endif
 

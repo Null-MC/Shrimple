@@ -349,6 +349,10 @@ void main() {
             #ifdef DISTANT_HORIZONS
                 farMax = 0.5*dhFarPlane;
             #endif
+
+            // #ifdef WORLD_WATER_ENABLED
+            //     if (isWater) farMax = min(farMax, far);
+            // #endif
             
             farMax -= 0.002 * distOpaque;
 
@@ -361,6 +365,10 @@ void main() {
             #endif
             #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 if (isEyeInWater != 1 && isWater) hasVl = true;
+            #endif
+
+            #ifdef WORLD_WATER_ENABLED
+                if (isWater) distFar = min(distFar, distNear + far);
             #endif
 
             if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, distNear, distFar, distTranslucent, isWater);
