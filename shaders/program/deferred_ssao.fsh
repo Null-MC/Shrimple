@@ -33,20 +33,20 @@ uniform int frameCounter;
 
 #include "/lib/effects/ssao.glsl"
 
-// #ifdef EFFECT_TAA_ENABLED
-//     #include "/lib/effects/taa_jitter.glsl"
-// #endif
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
 
 
 /* RENDERTARGETS: 6 */
 layout(location = 0) out float outAO;
 
 void main() {
-    // vec2 coord = texcoord;
+    vec2 coord = texcoord;
 
-    // #ifdef EFFECT_TAA_ENABLED
-    //     coord -= getJitterOffset(frameCounter);
-    // #endif
+    #ifdef EFFECT_TAA_ENABLED
+        coord -= getJitterOffset(frameCounter);
+    #endif
 
     float depth = textureLod(depthtex0, texcoord, 0).r;
 
@@ -59,7 +59,7 @@ void main() {
         }
     #endif
 
-    vec3 clipPos = vec3(texcoord, depth) * 2.0 - 1.0;
+    vec3 clipPos = vec3(coord, depth) * 2.0 - 1.0;
 
     #ifdef DISTANT_HORIZONS
         vec3 viewPos = unproject(projectionInv, clipPos);
