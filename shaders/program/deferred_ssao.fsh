@@ -45,7 +45,7 @@ void main() {
     vec2 coord = texcoord;
 
     #ifdef EFFECT_TAA_ENABLED
-        coord -= getJitterOffset(frameCounter);
+        // coord -= getJitterOffset(frameCounter);
     #endif
 
     float depth = textureLod(depthtex0, texcoord, 0).r;

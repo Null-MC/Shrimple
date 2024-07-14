@@ -429,14 +429,17 @@ void main() {
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
+        const float isWater = 0.0;
+        const float parallaxShadow = 1.0;
+
         outDeferredColor = color + dither;
-        // outDeferredShadow = vec4(shadowColor + dither, 0.0);
         outDeferredTexNormal = texNormal;
+        // outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(0.0));
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         float roughL = _pow2(roughness);

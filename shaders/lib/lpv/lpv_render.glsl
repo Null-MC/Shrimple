@@ -150,6 +150,7 @@ vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float minBlockLight) {
     // hsv.z = max(hsv.z, minBlockLight*0.33);
     // hsv.z = _pow2(hsv.z);
     hsv.z = _pow2(minBlockLight)*0.33;
+    
     vec3 lpvBlockLight = HsvToRgb(hsv);
 
     return lpvBlockLight * ((LPV_BLOCKLIGHT_SCALE / 15.0) * Lighting_Brightness);

@@ -2,6 +2,8 @@
 #define RENDER_DEFERRED
 #define RENDER_COMPUTE
 
+<DO NOT RUN>
+
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 

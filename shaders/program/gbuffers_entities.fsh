@@ -554,11 +554,11 @@ void main() {
                         parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
-            }
-        #endif
 
-        #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
-            shadowColor *= parallaxShadow;
+                #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
+                    shadowColor *= parallaxShadow;
+                #endif
+            }
         #endif
 
         if (isValidNormal) {
@@ -615,10 +615,11 @@ void main() {
         #endif
 
         outDeferredColor = color + dither;
+        outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
+        
         #ifdef RENDER_TRANSLUCENT
             outDeferredShadow = vec4(shadowColor + dither, 0.0);
         #endif
-        outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);

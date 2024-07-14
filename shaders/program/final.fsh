@@ -20,9 +20,7 @@ uniform sampler2D colortex0;
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
 	uniform usampler2D BUFFER_DEFERRED_DATA;
-#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-	uniform sampler2D BUFFER_DEFERRED_SHADOW;
-#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
+#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
 	uniform usampler2D BUFFER_DEFERRED_DATA;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
 	uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
@@ -36,11 +34,13 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
+#elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
+	uniform sampler2D BUFFER_DEFERRED_SHADOW;
 #elif DEBUG_VIEW == DEBUG_VIEW_SSAO
 	uniform sampler2D texSSAO;
 #elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
 	uniform sampler2D BUFFER_VELOCITY;
-#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
+#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_MAP
 	uniform sampler2D shadowcolor0;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
 	uniform sampler2D BUFFER_BLOOM_TILES;
@@ -108,12 +108,9 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
 		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).g;
 		vec3 color = vec3(unpackUnorm4x8(deferredDataG).ba, 0.0);
-	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_SHADOW
-		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
-	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_FOG
+	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
 		uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).b;
-		vec4 fog = unpackUnorm4x8(deferredDataB);
-		vec3 color = fog.rgb * fog.a;
+		vec3 color = unpackUnorm4x8(deferredDataB).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
         vec3 color = textureLod(BUFFER_DEFERRED_NORMAL_TEX, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
@@ -127,12 +124,14 @@ void main() {
 		vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
+		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SSAO
 		vec3 color = textureLod(texSSAO, texcoord, 0).rrr;
 	#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
 		vec4 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0);
 		vec3 color = (velocity.xyz * 100.0 + 0.5) * (1.0 - velocity.w);
-	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_COLOR
+	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_MAP
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
 		vec3 color = textureLod(BUFFER_BLOOM_TILES, texcoord, 0).rgb;

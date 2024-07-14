@@ -678,6 +678,8 @@ void main() {
         }
     #endif
 
+    float parallaxShadow = 1.0;
+
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         if (!isWater)
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
@@ -695,16 +697,20 @@ void main() {
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
                         vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                        parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
+                #endif
+
+                #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
+                    shadowColor *= parallaxShadow;
                 #endif
             }
         #endif
     #endif
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
-        occlusion = max(occlusion, luminance(shadowColor));
-    #endif
+    // #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
+    //     occlusion = max(occlusion, luminance(shadowColor));
+    // #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
@@ -779,7 +785,7 @@ void main() {
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, 0.0, 0.0, 0.0));
+        outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);

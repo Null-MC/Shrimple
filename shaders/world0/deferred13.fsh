@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/deferred12.fsh"
+#include "/program/deferred_ssao_apply.fsh"

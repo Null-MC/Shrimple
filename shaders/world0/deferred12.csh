@@ -3,4 +3,4 @@
 #define RENDER_OPAQUE
 
 #include "overworld.glsl"
-#include "/program/deferred_ssao.csh"
+#include "/program/deferred_ssao_filter.csh"
