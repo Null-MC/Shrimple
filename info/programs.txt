@@ -22,7 +22,7 @@ deferred6		near-z [3]
 deferred7		near-z [4]
 deferred8		near-z [5]
 
-deferred10		ss-shadows
+deferred10		deferred+ss shadows
 deferred11		opaque SSAO
 deferred12		non-deferred SSAO apply
 

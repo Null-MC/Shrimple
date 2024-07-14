@@ -14,7 +14,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     vec2 offset;
 
     float ao = 0.0;
-    int sampleCount = 0;
+    float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
         vec2 offset = vec2(
             sin(rotatePhase),
@@ -28,7 +28,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos) * 0.5 + 0.5;
         //sampleClipPos = saturate(sampleClipPos);
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
-        sampleCount++;
+        //sampleCount++;
 
         float sampleClipDepth = textureLod(depthtex0, sampleClipPos.xy, 0.0).r;
 
@@ -60,12 +60,16 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
         float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) / (1.0 - EFFECT_SSAO_BIAS);
         float aoF = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
-        ao += sampleNoLm * (1.0 - _pow3(aoF));// * pow(aoF, 1.5);
+        //aoF = pow(aoF, 1.5);
+        aoF = 1.0 - aoF;
+
+        ao += sampleNoLm * aoF;// * pow(aoF, 1.5);
+        maxWeight += aoF;
     }
 
-    ao = saturate(ao / max(sampleCount, 1) * EFFECT_SSAO_STRENGTH);
+    ao = saturate(ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH);
 
-    ao = pow(ao / (ao + 0.1), 4.0);
+    //ao = pow(ao / (ao + 0.1), 4.0);
 
     return ao;
 }

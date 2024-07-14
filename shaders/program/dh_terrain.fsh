@@ -5,8 +5,6 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-// layout(early_fragment_tests) in;
-
 in VertexData {
     vec4 color;
     vec2 lmcoord;
@@ -14,60 +12,11 @@ in VertexData {
     vec3 localNormal;
 
     flat uint materialId;
-
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //         vec3 shadowPos[4];
-    //         flat int shadowTile;
-    //     #else
-    //         vec3 shadowPos;
-    //     #endif
-    // #endif
 } vIn;
 
 uniform sampler2D noisetex;
 
-// #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
-//     uniform sampler2D shadowcolor0;
-// #endif
-
-#ifdef WORLD_SKY_ENABLED
-    // #ifdef WORLD_WETNESS_ENABLED
-    //     uniform sampler3D TEX_RIPPLES;
-    // #endif
-
-    // #ifdef SHADOW_CLOUD_ENABLED
-    //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //         uniform sampler3D TEX_CLOUDS;
-    //     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-    //         uniform sampler2D TEX_CLOUDS_VANILLA;
-    //     #endif
-    // #endif
-#endif
-
 uniform sampler2D lightmap;
-
-// #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-//     uniform sampler3D texLPV_1;
-//     uniform sampler3D texLPV_2;
-// #endif
-
-// #ifdef RENDER_SHADOWS_ENABLED
-//     uniform sampler2D shadowtex0;
-//     uniform sampler2D shadowtex1;
-
-//     #ifdef SHADOW_ENABLE_HWCOMP
-//         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-//             uniform sampler2DShadow shadowtex1HW;
-//         #else
-//             uniform sampler2DShadow shadow;
-//         #endif
-//     #endif
-// #endif
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -93,11 +42,6 @@ uniform int frameCounter;
 #ifndef ANIM_WORLD_TIME
     uniform float frameTimeCounter;
 #endif
-
-// #ifdef IS_LPV_ENABLED
-//     uniform vec3 previousCameraPosition;
-//     uniform mat4 gbufferPreviousModelView;
-// #endif
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
@@ -297,15 +241,15 @@ uniform int frameCounter;
 
 #ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    // layout(location = 1) out vec4 outDeferredShadow;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        /* RENDERTARGETS: 1,3,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -486,12 +430,13 @@ void main() {
             texNormal = texNormal * 0.5 + 0.5;
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
+        // outDeferredShadow = vec4(shadowColor + dither, 0.0);
         outDeferredTexNormal = texNormal;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
+        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(0.0));
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         float roughL = _pow2(roughness);

@@ -23,7 +23,10 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     float lightRangeR = GetSceneItemLightRange(heldItemId, heldBlockLightValue);
     float geoNoL;
 
-    float invAO = saturate(1.0 - occlusion);
+    #ifdef LIGHTING_TRACE_AO_SHADOWS
+        float invAO = saturate(1.0 - occlusion);
+        invAO = _pow2(invAO);
+    #endif
 
     vec3 accumDiffuse = vec3(0.0);
     vec3 accumSpecular = vec3(0.0);
@@ -76,7 +79,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
-            //lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
+            #ifdef LIGHTING_TRACE_AO_SHADOWS
+                lightNoLm = max(lightNoLm - invAO, 0.0);
+            #endif
 
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
@@ -154,7 +159,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
             float lightNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
 
-            lightNoLm = max(lightNoLm - _pow2(invAO), 0.0);
+            #ifdef LIGHTING_TRACE_AO_SHADOWS
+                lightNoLm = max(lightNoLm - invAO, 0.0);
+            #endif
 
             if (lightNoLm > EPSILON) {
                 float lightAtt = GetLightAttenuation(lightVec, lightRangeL);

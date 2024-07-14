@@ -331,6 +331,10 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
 
 layout(location = 0) out vec4 outFinal;
 #ifdef DEFERRED_BUFFER_ENABLED
@@ -379,7 +383,12 @@ layout(location = 0) out vec4 outFinal;
         vec3 final;
 
         if (depthOpaque < 1.0) {
-            vec3 clipPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+            vec2 texJ = texcoord;
+            #ifdef EFFECT_TAA_ENABLED
+                texJ -= getJitterOffset(frameCounter);
+            #endif
+
+            vec3 clipPos = vec3(texJ, depthOpaque) * 2.0 - 1.0;
 
             #ifdef DISTANT_HORIZONS
                 vec3 viewPos = unproject(projectionInvOpaque, clipPos);
@@ -398,9 +407,10 @@ layout(location = 0) out vec4 outFinal;
             vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+            vec4 deferredWaterShadow = unpackUnorm4x8(deferredData.b);
+
             vec3 localNormal = deferredNormal.rgb;
 
             float occlusion = deferredLighting.z;
@@ -447,6 +457,9 @@ layout(location = 0) out vec4 outFinal;
 
                 //occlusion = max(occlusion, luminance(deferredShadow));
             #endif
+
+            // apply parallax shadows
+            deferredShadow *= deferredWaterShadow.g;
 
             vec3 worldPos = cameraPosition + localPos;
 

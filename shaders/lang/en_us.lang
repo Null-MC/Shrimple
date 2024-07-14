@@ -532,6 +532,9 @@ option.LIGHTING_TRACE_SAMPLE_MAX=Max Sample Count
 option.LIGHTING_TRACE_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
 value.LIGHTING_TRACE_SAMPLE_MAX.0=Infinite
 
+option.LIGHTING_TRACE_AO_SHADOWS=AO Shadows
+option.LIGHTING_TRACE_AO_SHADOWS.comment=Fakes micro-shadowing from occlusion using texture AO.
+
 option.LIGHTING_TRACE_FILTER=Filter
 option.LIGHTING_TRACE_FILTER.comment=Applies a gaussian filter to smooth RT light sampling.
 value.LIGHTING_TRACE_FILTER.0=OFF

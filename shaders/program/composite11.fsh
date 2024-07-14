@@ -119,6 +119,10 @@ uniform float blindnessSmooth;
 
 #include "/lib/utility/temporal_offset.glsl"
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
 
 layout(location = 0) out vec4 outDiffuse;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -143,6 +147,10 @@ void main() {
     #endif
 
     ivec2 iTex = ivec2(tex2 * viewSize);
+
+    #ifdef EFFECT_TAA_ENABLED
+        tex2 -= getJitterOffset(frameCounter);
+    #endif
 
     // float depth = textureLod(depthtex1, tex2, 0).r;
     float depth = texelFetch(depthtex1, iTex, 0).r;

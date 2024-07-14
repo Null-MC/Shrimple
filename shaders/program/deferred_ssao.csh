@@ -40,7 +40,7 @@ uniform float farPlane;
 
 
 const float g_sigmaXY = 9.0;
-const float g_sigmaV = 0.2;
+const float g_sigmaV = 2.0;
 
 void populateSharedBuffer() {
     if (gl_LocalInvocationIndex < 5)
@@ -86,19 +86,16 @@ void populateSharedBuffer() {
 }
 
 float sampleSharedBuffer(const in float depthL) {
-	// ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-	// return texelFetch(BUFFER_SSAO, uv, 0).r;
-
     ivec2 uv_base = ivec2(gl_LocalInvocationID.xy) + 2;
 
     float total = 0.0;
     float accum = 0.0;
     
     for (int iy = -2; iy <= 2; iy++) {
-        float fy = gaussianBuffer[iy+2];// Gaussian(g_sigmaXY, iy);
+        float fy = gaussianBuffer[iy+2];
 
         for (int ix = -2; ix <= 2; ix++) {
-            float fx = gaussianBuffer[ix+2];// Gaussian(g_sigmaXY, ix);
+            float fx = gaussianBuffer[ix+2];
             
             ivec2 uv_shared = uv_base + ivec2(ix, iy);
             int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;

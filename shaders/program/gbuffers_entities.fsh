@@ -356,15 +356,25 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec4 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec4 outDeferredTexNormal;
 
-    #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+    #ifdef RENDER_TRANSLUCENT
+        layout(location = 3) out vec4 outDeferredShadow;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 1,3,9,2,7 */
+            layout(location = 4) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 1,3,9,2 */
+        #endif
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 1,3,9,7 */
+            layout(location = 3) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 1,3,9 */
+        #endif
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -492,7 +502,7 @@ void main() {
         }
     #endif
 
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && (!defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT)
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
         #endif
@@ -519,6 +529,8 @@ void main() {
     #endif
 
     vec3 texNormal = localNormal;
+    float parallaxShadow = 1.0;
+
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         bool isValidNormal = false;
 
@@ -539,10 +551,14 @@ void main() {
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
                         vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                        parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
             }
+        #endif
+
+        #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
+            shadowColor *= parallaxShadow;
         #endif
 
         if (isValidNormal) {
@@ -599,12 +615,15 @@ void main() {
         #endif
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
+        #ifdef RENDER_TRANSLUCENT
+            outDeferredShadow = vec4(shadowColor + dither, 0.0);
+        #endif
         outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.b = packUnorm4x8(vec4(0.0, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
 
         #ifdef EFFECT_TAA_ENABLED

@@ -335,7 +335,7 @@ void main() {
                 #if WATER_DEPTH_LAYERS > 1
                     isWater = true;
                 #else
-                    if (isEyeInWater == 0) {
+                    if (isEyeInWater != 1) {
                         // float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
                         uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).b;
                         float deferredWater = unpackUnorm4x8(deferredDataB).r;
