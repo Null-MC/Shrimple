@@ -15,9 +15,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         lpvFade = GetLpvFade(lpvPos);
         lpvFade = _smoothstep(lpvFade);
 
-        vec4 lpvSampleN = SampleLpvNearest(ivec3(samplePos));
-        lpvSampleN.rgb = RGBToLinear(lpvSampleN.rgb);
-        lpvSample.rgb = max(lpvSample.rgb, 0.5 * lpvSampleN.rgb);
+        #ifdef LPV_AO_FIX
+            vec4 lpvSampleN = SampleLpvNearest(ivec3(samplePos));
+            lpvSampleN.rgb = RGBToLinear(lpvSampleN.rgb);
+            lpvSample.rgb = max(lpvSample.rgb, 0.5 * lpvSampleN.rgb);
+        #endif
 
         lpvLight = GetLpvBlockLight(lpvSample);
         // lpvLight = GetLpvBlockLight(lpvSample, lmcoord.x);

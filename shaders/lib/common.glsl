@@ -260,6 +260,7 @@ const bool colortex15Clear = true;
 //#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST
+//#define LPV_AO_FIX
 
 
 //#define DYN_LIGHT_OCTREE
