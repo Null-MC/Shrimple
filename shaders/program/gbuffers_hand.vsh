@@ -31,11 +31,7 @@ out VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     	#if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     		vec3 shadowPos[4];
     		flat int shadowTile;
@@ -108,7 +104,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 

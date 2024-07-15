@@ -1,5 +1,8 @@
-void GetVanillaLighting(out vec3 diffuse, const in vec2 lmcoord, const in float occlusion) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
+void GetVanillaLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 shadowColor, const in float occlusion) {//, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec3 shadowColor, in float sss) {
     #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+        float shadowF = luminance(shadowColor); // WARN: fix scaling!
+        lmcoord.y *= shadowF;
+
         vec3 lightmapFinal = textureLod(TEX_LIGHTMAP, LightMapTex(lmcoord), 0).rgb;
         diffuse = RGBToLinear(lightmapFinal);// * blackbody(LIGHTING_TEMP);
     #else

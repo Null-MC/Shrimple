@@ -24,7 +24,7 @@ in VertexData {
         #endif
     #endif
 
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -84,7 +84,7 @@ uniform sampler2D noisetex;
     uniform sampler2D shadowcolor0;
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -140,7 +140,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform vec3 shadowLightPosition;
 
     #ifdef SHADOW_ENABLED
@@ -257,7 +257,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -367,15 +367,14 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        /* RENDERTARGETS: 1,3,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -471,29 +470,6 @@ void main() {
     
     vec2 lmFinal = vIn.lmcoord;
 
-    vec3 shadowColor = vec3(1.0);
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-        #endif
-
-        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
-
-        if (skyGeoNoL < EPSILON && sss < EPSILON) {
-            shadowColor = vec3(0.0);
-        }
-        else {
-            float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
-            
-            #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-            #else
-                float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                shadowColor = vec3(shadowF);
-            #endif
-        }
-    #endif
-
     vec3 texNormal = localNormal;
     bool isValidNormal = false;
     float parallaxShadow = 1.0;
@@ -566,19 +542,44 @@ void main() {
             fogF = GetVanillaFogFactor(vIn.localPos);
         #endif
 
+        const float isWater = 0.0;
+
         outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
     #else
         float roughL = _pow2(roughness);
         
         vec3 localViewDir = normalize(vIn.localPos);
         
+        vec3 shadowColor = vec3(1.0);
+        #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            #endif
+
+            float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+
+            if (skyGeoNoL < EPSILON && sss < EPSILON) {
+                shadowColor = vec3(0.0);
+            }
+            else {
+                float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+                
+                #ifdef SHADOW_COLORED
+                    shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+                #else
+                    float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+                    shadowColor = vec3(shadowF);
+                #endif
+            }
+        #endif
+
         vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
@@ -605,7 +606,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, lmFinal, occlusion);
+            GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
                 SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);

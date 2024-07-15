@@ -91,15 +91,14 @@ uniform int frameCounter;
 
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        /* RENDERTARGETS: 1,3,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -123,22 +122,18 @@ void main() {
         const float emission = 0.0;
         const float porosity = 0.0;
         const float sss = 0.0;
+        const float isWater = 0.0;
+        const float parallaxShadow = 1.0;
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
-
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(0.0);
         outDeferredTexNormal = normal;
 
-        outDeferredData.r = packUnorm4x8(vec4(normal, sss));
-        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, occlusion, emission));
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0));
+        outDeferredData.r = packUnorm4x8(vec4(normal, sss + dither));
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
+        outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         color.rgb = RGBToLinear(color.rgb);
 

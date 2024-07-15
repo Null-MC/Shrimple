@@ -1,6 +1,7 @@
-#define RENDER_SCREEN_SHADOWS
-#define RENDER_DEFERRED
+#define RENDER_SHADOW_TRANSLUCENT
+#define RENDER_COMPOSITE
 #define RENDER_VERTEX
+#define RENDER_TRANSLUCENT
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"

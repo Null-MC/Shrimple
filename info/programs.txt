@@ -22,7 +22,7 @@ deferred6		near-z [3]
 deferred7		near-z [4]
 deferred8		near-z [5]
 
-deferred10		deferred+ss shadows
+deferred10		opaque deferred+ss shadows
 deferred11		opaque SSAO
 deferred12		non-deferred SSAO apply
 
@@ -33,8 +33,9 @@ composite3		populate light mask neighbors
 composite11		opaque deferred block-light tracing
 composite12		opaque deferred final
 composite13		opaque deferred VL tracing
+composite14		opaque apply reflections, VL, & water absorption
 
-composite15		opaque apply reflections, VL, & water absorption
+composite15		translucent deferred+ss shadows
 composite16		translucent deferred block-light tracing
 composite17		translucent deferred VL tracing
 composite18		translucent deferred final + pre distance blur

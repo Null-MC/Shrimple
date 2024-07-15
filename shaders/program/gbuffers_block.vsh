@@ -30,11 +30,7 @@ out VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -44,7 +40,9 @@ out VertexData {
     #endif
 } vOut;
 
-uniform sampler2D lightmap;
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
@@ -55,7 +53,7 @@ uniform ivec2 atlasSize;
     uniform vec3 shadowLightPosition;
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
     uniform float far;
@@ -105,7 +103,7 @@ uniform ivec2 atlasSize;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 

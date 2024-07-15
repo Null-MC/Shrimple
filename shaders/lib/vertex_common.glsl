@@ -110,7 +110,7 @@ vec4 BasicVertex() {
             vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
         #endif
 
-        #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+        #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vOut.shadowTile = -1;
             #endif

@@ -1,6 +1,7 @@
-#define RENDER_SCREEN_SHADOWS
+#define RENDER_SHADOW_OPAQUE
 #define RENDER_DEFERRED
 #define RENDER_FRAG
+#define RENDER_OPAQUE
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"

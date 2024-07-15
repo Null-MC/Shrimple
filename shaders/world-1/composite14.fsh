@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "nether.glsl"
-#include "/program/composite_shadow_translucent.vsh"
+#include "/program/composite14.fsh"

@@ -282,15 +282,14 @@ uniform int frameCounter;
 
 #ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        /* RENDERTARGETS: 1,3,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -366,89 +365,6 @@ void main() {
     if (vIn.materialId == DH_BLOCK_LAVA) emission = 1.0;
     if (vIn.materialId == DH_BLOCK_ILLUMINATED) emission = 1.0;
     
-    vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-        #endif
-
-        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
-
-        if (skyGeoNoL < EPSILON && sss < EPSILON) {
-            shadowColor = vec3(0.0);
-        }
-        else {
-            // #ifdef DISTANT_HORIZONS
-            //     float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
-            // #else
-            //     float shadowDistFar = min(shadowDistance, far);
-            // #endif
-
-            // vec3 shadowViewPos = mul3(shadowModelView, vIn.localPos);
-            // float shadowViewDist = length(shadowViewPos.xy);
-            // float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-
-            // #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
-            //     shadowFade *= step(-1.0, vIn.shadowPos.z);
-            //     shadowFade *= step(vIn.shadowPos.z, 1.0);
-            // #endif
-
-            // shadowFade = 1.0 - shadowFade;
-
-            // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            //     float shadowFade = 0.0;
-            //     float lmShadow = 1.0;
-            // #else
-            //     float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
-
-            //     float lmShadow = pow(lmFinal.y, 9);
-            //     if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
-            // #endif
-
-            // #ifdef SHADOW_COLORED
-            //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-            //     if (shadowFade < 1.0)
-            //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-
-            //     shadowColor = min(shadowColor, vec3(lmShadow));
-            // #else
-            //     float shadowF = 1.0;
-            //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
-            //     if (shadowFade < 1.0)
-            //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                
-            //     shadowF = min(shadowF, lmShadow);
-            //     shadowColor = vec3(shadowF);
-            // #endif
-
-            // lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
-
-            // if (viewDist < shadowDistance) {
-            //     #ifndef LIGHT_LEAK_FIX
-            //         float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
-            //         lmFinal.y = max(lmFinal.y, lightF);
-            //     #endif
-            // }
-
-            //shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
-
-            // #if defined WATER_CAUSTICS
-            //     float causticLight = SampleWaterCaustics(vLocalPos);
-            //     causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
-
-            //     float causticStrength = Water_CausticStrength;
-            //     //causticStrength *= min(waterDepth*0.5, 1.0);
-            //     //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
-                
-            //     // TODO: get shadow depth!
-            //     float texDepthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
-            //     float waterDepth = ;
-
-            //     shadowColor *= 1.0 + 1.0*causticLight * causticStrength;
-            // #endif
-        }
-    #endif
-
     vec3 texNormal = localNormal;
 
     vec3 localViewDir = normalize(vIn.localPos);
@@ -470,17 +386,103 @@ void main() {
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
+        const float isWater = 0.0;
+        const float parallaxShadow = 1.0;
+
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
         outDeferredTexNormal = texNormal;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
+        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         float roughL = _pow2(roughness);
         
+        vec3 shadowColor = vec3(1.0);
+        #ifdef RENDER_SHADOWS_ENABLED
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+            #endif
+
+            float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+
+            if (skyGeoNoL < EPSILON && sss < EPSILON) {
+                shadowColor = vec3(0.0);
+            }
+            else {
+                // #ifdef DISTANT_HORIZONS
+                //     float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+                // #else
+                //     float shadowDistFar = min(shadowDistance, far);
+                // #endif
+
+                // vec3 shadowViewPos = mul3(shadowModelView, vIn.localPos);
+                // float shadowViewDist = length(shadowViewPos.xy);
+                // float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+
+                // #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
+                //     shadowFade *= step(-1.0, vIn.shadowPos.z);
+                //     shadowFade *= step(vIn.shadowPos.z, 1.0);
+                // #endif
+
+                // shadowFade = 1.0 - shadowFade;
+
+                // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                //     float shadowFade = 0.0;
+                //     float lmShadow = 1.0;
+                // #else
+                //     float shadowFade = float(vIn.shadowPos != clamp(vIn.shadowPos, -1.0, 1.0));
+
+                //     float lmShadow = pow(lmFinal.y, 9);
+                //     if (vIn.shadowPos == clamp(vIn.shadowPos, -0.85, 0.85)) lmShadow = 1.0;
+                // #endif
+
+                // #ifdef SHADOW_COLORED
+                //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                //     if (shadowFade < 1.0)
+                //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+
+                //     shadowColor = min(shadowColor, vec3(lmShadow));
+                // #else
+                //     float shadowF = 1.0;
+                //     // if (vIn.shadowPos == clamp(vIn.shadowPos, -1.0, 1.0))
+                //     if (shadowFade < 1.0)
+                //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+                    
+                //     shadowF = min(shadowF, lmShadow);
+                //     shadowColor = vec3(shadowF);
+                // #endif
+
+                // lmFinal.y = mix(lmFinal.y, pow3(lmFinal.y), shadowFade);
+
+                // if (viewDist < shadowDistance) {
+                //     #ifndef LIGHT_LEAK_FIX
+                //         float lightF = min(luminance(shadowColor), 1.0) * (1.0 - shadowFade);
+                //         lmFinal.y = max(lmFinal.y, lightF);
+                //     #endif
+                // }
+
+                //shadowColor = 1.0 - (1.0 - shadowColor) * (1.0 - shadowFade);
+
+                // #if defined WATER_CAUSTICS
+                //     float causticLight = SampleWaterCaustics(vLocalPos);
+                //     causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength);
+
+                //     float causticStrength = Water_CausticStrength;
+                //     //causticStrength *= min(waterDepth*0.5, 1.0);
+                //     //causticStrength *= max(1.0 - waterDepth/waterDensitySmooth, 0.0);
+                    
+                //     // TODO: get shadow depth!
+                //     float texDepthTrans = textureLod(shadowtex0, shadowPos.xy, 0).r;
+                //     float waterDepth = ;
+
+                //     shadowColor *= 1.0 + 1.0*causticLight * causticStrength;
+                // #endif
+            }
+        #endif
+
         #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float cloudShadow = TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
             deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
@@ -516,7 +518,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, vIn.lmcoord, occlusion);
+            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);

@@ -7,6 +7,10 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+    #define IS_RENDER_DEFERRED
+#endif
+
 #ifdef MATERIAL_PARTICLES
     in vec4 at_tangent;
     in vec4 mc_midTexCoord;
@@ -26,11 +30,7 @@ out VertexData {
         flat mat2 atlasBounds;
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -46,7 +46,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
     uniform vec3 shadowLightPosition;
@@ -86,7 +86,7 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 

@@ -563,7 +563,7 @@ layout(location = 0) out vec4 outFinal;
 
                 diffuseFinal += emission * MaterialEmissionF;
             #else
-                GetVanillaLighting(diffuseFinal, deferredLighting.xy, occlusion);
+                GetVanillaLighting(diffuseFinal, deferredLighting.xy, shadowColor, occlusion);
             #endif
 
             #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

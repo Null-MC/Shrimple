@@ -408,7 +408,7 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #else
         vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, vIn.lmcoord, occlusion);
+        GetVanillaLighting(diffuse, vIn.lmcoord, shadowColor, occlusion);
 
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
             const bool tir = false; // TODO: ?

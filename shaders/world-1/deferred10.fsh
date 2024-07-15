@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "nether.glsl"
-#include "/program/deferred_shadows.fsh"
+#include "/program/deferred_shadow_opaque.fsh"

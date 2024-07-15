@@ -31,11 +31,7 @@ in VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -68,11 +64,7 @@ out VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -130,7 +122,7 @@ void main() {
     //     vOut.cloudPos = _interpolate(vIn[0].cloudPos, vIn[1].cloudPos, vIn[2].cloudPos);
     // #endif
 
-    #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vOut.shadowPos[0] = _interpolate(vIn[0].shadowPos[0], vIn[1].shadowPos[0], vIn[2].shadowPos[0]);
             vOut.shadowPos[1] = _interpolate(vIn[0].shadowPos[1], vIn[1].shadowPos[1], vIn[2].shadowPos[1]);

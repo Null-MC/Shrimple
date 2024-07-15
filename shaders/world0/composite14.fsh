@@ -3,4 +3,4 @@
 #define RENDER_TRANSLUCENT
 
 #include "overworld.glsl"
-#include "/program/composite_shadow_translucent.fsh"
+#include "/program/composite14.fsh"

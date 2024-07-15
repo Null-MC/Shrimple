@@ -28,7 +28,7 @@ out VertexData {
         vec3 lightPos_T;
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -38,7 +38,9 @@ out VertexData {
     #endif
 } vOut;
 
-uniform sampler2D lightmap;
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     uniform sampler2D noisetex;

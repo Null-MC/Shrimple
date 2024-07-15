@@ -407,17 +407,16 @@ uniform int heldBlockLightValue2;
 
 
 #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
-    #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
-    #else
-        /* RENDERTARGETS: 1,2,3,9 */
-    #endif
-
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
+
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
+    #else
+        /* RENDERTARGETS: 1,3,9 */
+    #endif
 #else
     layout(location = 0) out vec4 outFinal;
 
@@ -637,49 +636,6 @@ void main() {
         sss = max(sss, 1.0 - color.a);
     #endif
     
-    vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
-        #endif
-
-        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
-
-        if (skyGeoNoL < EPSILON && sss < EPSILON) {
-            shadowColor = vec3(0.0);
-        }
-        else {
-            #ifdef DISTANT_HORIZONS
-                float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
-            #else
-                float shadowDistFar = min(shadowDistance, far);
-            #endif
-
-            vec3 shadowViewPos = (shadowModelViewEx * vec4(vIn.localPos, 1.0)).xyz;
-            float shadowViewDist = length(shadowViewPos.xy);
-            float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            #else
-                shadowFade *= step(-1.0, vIn.shadowPos.z);
-                shadowFade *= step(vIn.shadowPos.z, 1.0);
-            #endif
-            
-            shadowFade = 1.0 - shadowFade;
-
-            #ifdef SHADOW_COLORED
-                shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-            #else
-                shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
-            #endif
-
-            #ifndef LIGHT_LEAK_FIX
-                float lightF = min(luminance(shadowColor), 1.0);
-                lmFinal.y = clamp(lmFinal.y, lightF, 1.0);
-            #endif
-        }
-    #endif
-
     float parallaxShadow = 1.0;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
@@ -703,9 +659,9 @@ void main() {
                     }
                 #endif
 
-                #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
-                    shadowColor *= parallaxShadow;
-                #endif
+                // #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
+                //     shadowColor *= parallaxShadow;
+                // #endif
             }
         #endif
     #endif
@@ -730,17 +686,17 @@ void main() {
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
     texNormal = matLocalTBN * texNormal;
 
-    #if MATERIAL_NORMALS != NORMALMAP_NONE
-        #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-            float skyTexNoL = max(dot(texNormal, localSkyLightDirection), 0.0);
+    // #if MATERIAL_NORMALS != NORMALMAP_NONE
+    //     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    //         float skyTexNoL = max(dot(texNormal, localSkyLightDirection), 0.0);
 
-            #if MATERIAL_SSS != SSS_NONE
-                skyTexNoL = mix(skyTexNoL, 1.0, sss);
-            #endif
+    //         #if MATERIAL_SSS != SSS_NONE
+    //             skyTexNoL = mix(skyTexNoL, 1.0, sss);
+    //         #endif
 
-            shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
-        #endif
-    #endif
+    //         shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
+    //     #endif
+    // #endif
 
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
@@ -781,7 +737,7 @@ void main() {
         // #endif
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 1.0);
+        // outDeferredShadow = vec4(shadowColor + dither, 1.0);
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
@@ -790,6 +746,49 @@ void main() {
         outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
+        vec3 shadowColor = vec3(1.0);
+        #ifdef RENDER_SHADOWS_ENABLED
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
+            #endif
+
+            float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+
+            if (skyGeoNoL < EPSILON && sss < EPSILON) {
+                shadowColor = vec3(0.0);
+            }
+            else {
+                #ifdef DISTANT_HORIZONS
+                    float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+                #else
+                    float shadowDistFar = min(shadowDistance, far);
+                #endif
+
+                vec3 shadowViewPos = (shadowModelViewEx * vec4(vIn.localPos, 1.0)).xyz;
+                float shadowViewDist = length(shadowViewPos.xy);
+                float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
+
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                #else
+                    shadowFade *= step(-1.0, vIn.shadowPos.z);
+                    shadowFade *= step(vIn.shadowPos.z, 1.0);
+                #endif
+                
+                shadowFade = 1.0 - shadowFade;
+
+                #ifdef SHADOW_COLORED
+                    shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+                #else
+                    shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
+                #endif
+
+                #ifndef LIGHT_LEAK_FIX
+                    float lightF = min(luminance(shadowColor), 1.0);
+                    lmFinal.y = clamp(lmFinal.y, lightF, 1.0);
+                #endif
+            }
+        #endif
+    
         vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
@@ -816,7 +815,7 @@ void main() {
 
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, lmFinal, occlusion);
+            GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 const bool tir = false; // TODO: ?

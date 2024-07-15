@@ -171,15 +171,14 @@ uniform int frameCounter;
 
 #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out vec4 outDeferredShadow;
-    layout(location = 2) out uvec4 outDeferredData;
-    layout(location = 3) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec4 outDeferredData;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,2,3,9,7 */
-        layout(location = 4) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,9,7 */
+        layout(location = 3) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,2,3,9 */
+        /* RENDERTARGETS: 1,3,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -198,56 +197,50 @@ void main() {
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
 
-    vec3 shadowColor = vec3(1.0);
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #ifndef IRIS_FEATURE_SSBO
-    //        vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-    //     #endif
-
-    //     float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
-
-    //     if (skyGeoNoL < EPSILON && sss < EPSILON) {
-    //         shadowColor = vec3(0.0);
-    //     }
-    //     else {
-    //         float viewDist = length(vIn.localPos);
-    //         float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
-
-    //         #ifdef SHADOW_COLORED
-    //             shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-    //         #else
-    //             float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-    //             shadowColor = vec3(shadowF);
-
-    //             // lmFinal.y = max(lmFinal.y, shadowF);
-    //         #endif
-    //     }
-    // #endif
-
     #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const float roughness = 1.0;
         const float metal_f0 = 0.04;
         const float porosity = 0.0;
-
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
-        //vec3 fogColorFinal = GetFogColor(normalize(vLocalPos).y);
-        //fogColorFinal = LinearToRGB(fogColorFinal);
+        const float isWater = 0.0;
+        const float parallaxShadow = 1.0;
 
         outDeferredColor = color + dither;
-        outDeferredShadow = vec4(shadowColor + dither, 0.0);
         outDeferredTexNormal = normal;
 
         outDeferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord + dither, 1.0, 0.0));
-        outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, 1.0, 0.0) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         color.rgb = RGBToLinear(color.rgb);
+
+        vec3 shadowColor = vec3(1.0);
+        // #ifdef RENDER_SHADOWS_ENABLED
+        //     #ifndef IRIS_FEATURE_SSBO
+        //        vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+        //     #endif
+
+        //     float skyGeoNoL = 1.0;//dot(localNormal, localSkyLightDirection);
+
+        //     if (skyGeoNoL < EPSILON && sss < EPSILON) {
+        //         shadowColor = vec3(0.0);
+        //     }
+        //     else {
+        //         float viewDist = length(vIn.localPos);
+        //         float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+
+        //         #ifdef SHADOW_COLORED
+        //             shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+        //         #else
+        //             float shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+        //             shadowColor = vec3(shadowF);
+
+        //             // lmFinal.y = max(lmFinal.y, shadowF);
+        //         #endif
+        //     }
+        // #endif
 
         vec2 lmFinal = LightMapTex(vIn.lmcoord);
 		color.rgb *= texture(lightmap, lmFinal).rgb * shadowColor;
