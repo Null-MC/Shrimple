@@ -58,7 +58,7 @@
             // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
             
-            float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
+            // float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
 
             //sssOffset = (sssOffset);
 
@@ -70,9 +70,9 @@
                     // _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
 
                     #ifdef SHADOW_COLORED
-                        shadow = GetShadowColor(vIn.shadowPos[cascadeIndex], cascadeIndex, sssBias);
+                        shadow = GetShadowColor(vIn.shadowPos[cascadeIndex], cascadeIndex);
                     #else
-                        shadow = GetShadowFactor(vIn.shadowPos[cascadeIndex], cascadeIndex, sssBias);
+                        shadow = GetShadowFactor(vIn.shadowPos[cascadeIndex], cascadeIndex);
                     #endif
                 }
             #else
@@ -82,9 +82,9 @@
                 float offsetBias = GetShadowOffsetBias(vIn.shadowPos, geoNoL);
 
                 #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(vIn.shadowPos, offsetBias, sssBias);
+                    shadow = GetShadowColor(vIn.shadowPos, offsetBias);
                 #else
-                    shadow = GetShadowFactor(vIn.shadowPos, offsetBias, sssBias);
+                    shadow = GetShadowFactor(vIn.shadowPos, offsetBias);
                 #endif
             #endif
         #endif

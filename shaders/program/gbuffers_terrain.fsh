@@ -378,11 +378,22 @@ uniform int frameCounter;
 #else
     layout(location = 0) out vec4 outFinal;
 
-    #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 0,7 */
-        layout(location = 1) out vec4 outVelocity;
+    #ifdef EFFECT_SSAO_ENABLED
+        layout(location = 1) out vec3 outDeferredTexNormal;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,9,7 */
+            layout(location = 2) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0,9 */
+        #endif
     #else
-        /* RENDERTARGETS: 0 */
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,7 */
+            layout(location = 1) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0 */
+        #endif
     #endif
 #endif
 
@@ -680,6 +691,13 @@ void main() {
         ApplyDirectionalLightmap(lmFinal.x, surfaceViewPos, geoViewNormal, texViewNormal);
     #endif
 
+    #if defined DEFERRED_BUFFER_ENABLED || defined EFFECT_SSAO_ENABLED
+        outDeferredTexNormal = texNormal;
+        
+        if (!all(lessThan(abs(outDeferredTexNormal), EPSILON3)))
+            outDeferredTexNormal = outDeferredTexNormal * 0.5 + 0.5;
+    #endif
+
     #ifdef DEFERRED_BUFFER_ENABLED
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
             ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
@@ -699,7 +717,7 @@ void main() {
 
         outDeferredColor = color + dither;
         // outDeferredShadow = vec4(shadowColor + dither, 0.0);
-        outDeferredTexNormal = texNormal;
+        // outDeferredTexNormal = texNormal;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);

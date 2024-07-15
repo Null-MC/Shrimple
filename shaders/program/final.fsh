@@ -36,6 +36,8 @@ uniform sampler2D colortex0;
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
 	uniform sampler2D BUFFER_DEFERRED_SHADOW;
+#elif DEBUG_VIEW == DEBUG_VIEW_SSS
+	uniform sampler2D BUFFER_DEFERRED_SHADOW;
 #elif DEBUG_VIEW == DEBUG_VIEW_SSAO
 	uniform sampler2D texSSAO;
 #elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
@@ -126,6 +128,8 @@ void main() {
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
 		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
+	#elif DEBUG_VIEW == DEBUG_VIEW_SSS
+		vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).aaa;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SSAO
 		vec3 color = textureLod(texSSAO, texcoord, 0).rrr;
 	#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY

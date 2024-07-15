@@ -199,6 +199,7 @@ const bool colortex15Clear = true;
 #define SHADOW_PCF_SIZE_MAX 2.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.5 4.0 4.5 5.0 6.0 7.0 8.0 9.0 10 12 14 16 18 20 24]
 #define SHADOW_PCF_SAMPLES 6 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 #define SHADOW_PCSS_SAMPLES 4 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+#define SHADOW_SSS_SAMPLES 4 // [1 2 2 4 5 6 8 10 12 14 16 18 20 22 24]
 #define SHADOW_BLUR_SIZE 1 // [0 1 2]
 #define SHADOW_ENABLE_HWCOMP
 #define SHADOW_SCREEN
@@ -340,7 +341,7 @@ const bool colortex15Clear = true;
 
 
 // Debug Options
-#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define DEBUG_TRANSPARENT
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 // #define DH_TRANSITION

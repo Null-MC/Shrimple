@@ -442,24 +442,29 @@ layout(location = 0) out vec4 outFinal;
                 const float porosity = 0.0;
             #endif
 
-            vec3 deferredShadow = vec3(1.0);
+            vec3 shadowColor = vec3(1.0);
+            float shadowSSS = 0.0;
+
             #ifdef RENDER_SHADOWS_ENABLED
                 #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
                     #ifdef SHADOW_COLORED
-                        deferredShadow = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
+                        shadowColor = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
                     #else
-                        deferredShadow = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
+                        shadowColor = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
                     #endif
+
+                    shadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).a;
                 #else
-                    //vec3 deferredShadow = unpackUnorm4x8(deferredData.b).rgb;
-                    deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).rgb;
+                    vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
+                    shadowColor = deferredShadow.rgb;
+                    shadowSSS = deferredShadow.a;
                 #endif
 
-                //occlusion = max(occlusion, luminance(deferredShadow));
+                //occlusion = max(occlusion, luminance(shadowColor));
             #endif
 
             // apply parallax shadows
-            deferredShadow *= deferredWaterShadow.g;
+            shadowColor *= deferredWaterShadow.g;
 
             vec3 worldPos = cameraPosition + localPos;
 
@@ -513,7 +518,7 @@ layout(location = 0) out vec4 outFinal;
                         const float shadowDepth = 8.0; // TODO
                         float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
 
-                        deferredShadow *= causticLight*0.7 + 0.3;
+                        shadowColor *= causticLight*0.7 + 0.3;
                     #endif
                 }
             #endif
@@ -551,7 +556,7 @@ layout(location = 0) out vec4 outFinal;
                         #endif
                     #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                    GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, deferredShadow, albedo, metal_f0, roughL, occlusion, sss, false);
+                    GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
                 #endif
 
                 diffuseFinal += emission * MaterialEmissionF;
@@ -565,9 +570,25 @@ layout(location = 0) out vec4 outFinal;
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 const bool tir = false; // TODO: ?
-                GetSkyLightingFinal(diffuseFinal, specularFinal, deferredShadow, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
             #else
                 diffuseFinal += WorldAmbientF * occlusion;
+            #endif
+
+            #if MATERIAL_SSS != 0
+                vec3 sssFinal = shadowSSS * WorldSkyLightColor;
+
+                vec2 uvSky = DirectionToUV(localViewDir);
+                float sssSkyLight = 0.5 * deferredLighting.y;
+                vec3 sssSkyColor = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+                sssFinal += sssSkyColor * (sss * sssSkyLight * Sky_BrightnessF);
+
+                // vec3 sssColor = vec3(1.0);
+                // if (any(greaterThan(albedo, EPSILON3)))
+                //     sssColor = normalize(albedo);
+                // sssFinal *= sssColor;
+
+                diffuseFinal += 0.5 * sssFinal * occlusion;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

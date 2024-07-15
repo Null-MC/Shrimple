@@ -106,6 +106,14 @@ in vec2 texcoord;
         #include "/lib/shadows/distorted/render.glsl"
     #endif
 
+    #if MATERIAL_SSS != 0
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/render_sss.glsl"
+        #else
+            #include "/lib/shadows/distorted/render_sss.glsl"
+        #endif
+    #endif
+
     #ifdef EFFECT_TAA_ENABLED
         #include "/lib/effects/taa_jitter.glsl"
     #endif
@@ -149,6 +157,7 @@ void main() {
         #endif
 
         vec3 shadowFinal = vec3(1.0);
+        float sssFinal = 0.0;
 
         if (depth < 1.0) {
             #ifdef EFFECT_TAA_ENABLED
@@ -219,33 +228,29 @@ void main() {
 
             // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
-            
-            float sssBias = 0.0;
-            #if MATERIAL_SSS != 0
-                sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
-            #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowSample = vec3(1.0);
 
                 if (cascadeIndex >= 0) {
                     #ifdef SHADOW_COLORED
-                        shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex, sssBias);
+                        shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex);
                     #else
-                        shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex, sssBias));
+                        shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex));
                     #endif
                 }
             #else
                 float offsetBias = GetShadowOffsetBias(shadowPos, geoNoL);
 
                 #ifdef SHADOW_COLORED
-                    vec3 shadowSample = GetShadowColor(shadowPos, offsetBias, sssBias);
+                    vec3 shadowSample = GetShadowColor(shadowPos, offsetBias);
                 #else
-                    vec3 shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias, sssBias));
+                    vec3 shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
                 #endif
             #endif
 
-            shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
+            // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
+            shadowFinal *= step(0.0, geoNoL);
             shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
@@ -263,6 +268,28 @@ void main() {
                 #endif
 
                 shadowFinal *= cloudShadow * 0.5 + 0.5;
+            #endif
+
+            #if MATERIAL_SSS != 0
+                // TODO: SSS
+                // sssFinal = sss;
+                
+                // float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
+
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    // vec3 shadowSample = vec3(1.0);
+
+                    if (cascadeIndex >= 0) {
+                        sssFinal = sss * GetSssFactor(shadowPos[cascadeIndex], cascadeIndex, sssBias);
+                    }
+                #else
+                    // float offsetBias = GetShadowOffsetBias(shadowPos, geoNoL);
+
+                    sssFinal = GetSssFactor(shadowPos, offsetBias, sss);
+                #endif
+
+                // sssFinal *= step(geoNoL, 0.0);
+                sssFinal *= 1.0 - max(geoNoL, 0.0);
             #endif
 
             #ifdef SHADOW_SCREEN
@@ -348,7 +375,7 @@ void main() {
             #endif
         }
 
-        outShadow = vec4(shadowFinal, 1.0);
+        outShadow = vec4(shadowFinal, sssFinal);
     #else
         outShadow = vec4(1.0);
     #endif

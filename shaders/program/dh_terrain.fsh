@@ -241,7 +241,6 @@ uniform int frameCounter;
 
 #ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
-    // layout(location = 1) out vec4 outDeferredShadow;
     layout(location = 1) out uvec4 outDeferredData;
     layout(location = 2) out vec3 outDeferredTexNormal;
 
@@ -254,11 +253,22 @@ uniform int frameCounter;
 #else
     layout(location = 0) out vec4 outFinal;
 
-    #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 0,7 */
-        layout(location = 1) out vec4 outVelocity;
+    #ifdef EFFECT_SSAO_ENABLED
+        layout(location = 1) out vec3 outDeferredTexNormal;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,9,7 */
+            layout(location = 2) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0,9 */
+        #endif
     #else
-        /* RENDERTARGETS: 0 */
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,7 */
+            layout(location = 1) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0 */
+        #endif
     #endif
 #endif
 
@@ -412,6 +422,13 @@ void main() {
 
     vec3 localViewDir = normalize(vIn.localPos);
 
+    #if defined DEFERRED_BUFFER_ENABLED || defined EFFECT_SSAO_ENABLED
+        outDeferredTexNormal = texNormal;
+        
+        if (!all(lessThan(abs(outDeferredTexNormal), EPSILON3)))
+            outDeferredTexNormal = outDeferredTexNormal * 0.5 + 0.5;
+    #endif
+
     #ifdef DEFERRED_BUFFER_ENABLED
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
             ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
@@ -433,7 +450,7 @@ void main() {
         const float parallaxShadow = 1.0;
 
         outDeferredColor = color + dither;
-        outDeferredTexNormal = texNormal;
+        // outDeferredTexNormal = texNormal;
         // outDeferredShadow = vec4(shadowColor + dither, 0.0);
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
