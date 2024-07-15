@@ -271,25 +271,16 @@ void main() {
             #endif
 
             #if MATERIAL_SSS != 0
-                // TODO: SSS
-                // sssFinal = sss;
-                
-                // float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
-
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                    // vec3 shadowSample = vec3(1.0);
-
                     if (cascadeIndex >= 0) {
-                        sssFinal = sss * GetSssFactor(shadowPos[cascadeIndex], cascadeIndex, sssBias);
+                        sssFinal = sss * GetSssFactor(shadowPos[cascadeIndex], cascadeIndex, sss);
                     }
                 #else
-                    // float offsetBias = GetShadowOffsetBias(shadowPos, geoNoL);
-
                     sssFinal = GetSssFactor(shadowPos, offsetBias, sss);
                 #endif
 
                 // sssFinal *= step(geoNoL, 0.0);
-                sssFinal *= 1.0 - max(geoNoL, 0.0);
+                sssFinal *= 1.0 - 0.5*(1.0 - max(geoNoL, 0.0));
             #endif
 
             #ifdef SHADOW_SCREEN

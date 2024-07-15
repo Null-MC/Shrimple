@@ -114,23 +114,23 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
             return 1.0 - shadow * rcp(SHADOW_PCF_SAMPLES);
         }
     #endif
-
-    vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
-        // #ifndef IRIS_FEATURE_SSBO
-        //     mat4 shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
-        //     shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
-        //     shadowProjectionEx[3][2] = 0.0;
-        // #endif
-
-        vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
-
-        //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
-        //float maxRes = shadowMapSize / Shadow_DistortF;
-
-        vec2 pixelPerBlockScale = shadowMapSize / shadowProjectionSize;
-        return 2.0 * blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
-    }
 #endif
+
+vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
+    // #ifndef IRIS_FEATURE_SSBO
+    //     mat4 shadowProjectionEx = shadowProjection;//BuildShadowProjectionMatrix();
+    //     shadowProjectionEx[2][2] = -2.0 / (3.0 * far);
+    //     shadowProjectionEx[3][2] = 0.0;
+    // #endif
+
+    vec2 shadowProjectionSize = 2.0 / vec2(shadowProjectionEx[0].x, shadowProjectionEx[1].y);
+
+    //float distortFactor = getDistortFactor(shadowPos.xy * 2.0 - 1.0);
+    //float maxRes = shadowMapSize / Shadow_DistortF;
+
+    vec2 pixelPerBlockScale = shadowMapSize / shadowProjectionSize;
+    return 2.0 * blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
+}
 
 #if SHADOW_FILTER == 2
     // PCF + PCSS
@@ -216,15 +216,15 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
     // PCF
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias) {
-            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
+            // vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
 
-            return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            return GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
         }
     #else
         float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias) {
-            vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
+            // vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
 
-            return 1.0 - GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
+            return 1.0 - GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
         }
     #endif
 #elif SHADOW_FILTER == 0

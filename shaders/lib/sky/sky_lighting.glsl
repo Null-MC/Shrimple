@@ -16,8 +16,7 @@ float GetSkyDiffuseLighting(const in vec3 localViewDir, const in vec3 localSkyLi
     float diffuseNoVm = max(dot(texNormal, localViewDir), 0.0);
     float diffuseLoHm = max(dot(localSkyLightDir, H), 0.0);
 
-    float D = SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
-    return D * mix(1.0, MaterialSssStrengthF, sss);
+    return SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
 }
 
 void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool tir) {
