@@ -16,3 +16,13 @@ vec3 GetMaterialF0(const in vec3 albedo, const in float metal_f0) {
         return mix(vec3(0.04), albedo, metal_f0);
     #endif
 }
+
+vec3 F0ToIor(const in vec3 f0, const in vec3 medium) {
+    vec3 sqrt_f0 = sqrt(max(f0, EPSILON));
+    return (medium + sqrt_f0) / max(medium - sqrt_f0, EPSILON);
+}
+
+vec3 IorToF0(const in vec3 ior, const in vec3 medium) {
+    vec3 t = (ior - medium) / (ior + medium);
+    return _pow2(t);
+}

@@ -561,7 +561,8 @@ layout(location = 0) out vec4 outFinal;
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
                 const bool tir = false; // TODO: ?
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                bool isUnderWater = isEyeInWater == 1;
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
             #else
                 diffuseFinal += WorldAmbientF * occlusion;
             #endif

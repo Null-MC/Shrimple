@@ -413,7 +413,6 @@ layout(location = 0) out vec4 outFinal;
             vec4 deferredWaterShadow = unpackUnorm4x8(deferredData.b);
 
             vec3 localNormal = deferredNormal.rgb;
-
             float occlusion = deferredLighting.z;
 
             #ifdef EFFECT_SSAO_ENABLED
@@ -571,8 +570,9 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false; // TODO: ?
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, tir);
+                const bool tir = false;
+                bool isUnderWater = hasWaterDepth;
+                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
             #else
                 diffuseFinal += WorldAmbientF * occlusion;
             #endif

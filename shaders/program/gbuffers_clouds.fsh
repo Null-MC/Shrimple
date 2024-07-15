@@ -377,7 +377,7 @@ void main() {
 
         //     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         //         GetFinalBlockLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss);
-        //         GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false);
+        //         GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo.rgb, lmcoord, roughL, metal_f0, occlusion, sss, false, false);
         //     #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
         //         GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, lmcoord, shadowColor, albedo.rgb, metal_f0, roughL, occlusion, sss, false);
         //     #endif

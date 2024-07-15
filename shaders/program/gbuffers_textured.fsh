@@ -374,7 +374,9 @@ void main() {
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, false);
+            const bool tir = false;
+            const bool isUnderWater = false;
+            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
         #endif
 
         vec3 diffuseFinal = blockDiffuse + skyDiffuse;
@@ -411,8 +413,9 @@ void main() {
         GetVanillaLighting(diffuse, vIn.lmcoord, shadowColor, occlusion);
 
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-            const bool tir = false; // TODO: ?
-            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, tir);
+            const bool tir = false;
+            const bool isUnderWater = false;
+            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
         #endif
 
         #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
