@@ -16,7 +16,13 @@ in VertexData {
 
 uniform sampler2D noisetex;
 
-uniform sampler2D lightmap;
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
+
+#ifdef WORLD_SKY_ENABLED
+    uniform sampler3D texClouds;
+#endif
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -48,7 +54,8 @@ uniform int frameCounter;
     uniform float rainStrength;
     uniform float wetness;
 
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS

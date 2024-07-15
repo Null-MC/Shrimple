@@ -29,10 +29,6 @@ in VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
@@ -44,10 +40,15 @@ in VertexData {
 } vIn;
 
 uniform sampler2D gtexture;
-uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
+    uniform sampler3D texClouds;
+
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         uniform sampler2D texSkyIrradiance;
     #endif
@@ -160,7 +161,8 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float wetness;
 
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS
@@ -718,7 +720,7 @@ void main() {
                 ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
 
             #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                if (skyRainStrength > EPSILON)
+                if (weatherStrength > EPSILON)
                     ApplyWetnessRipples(texNormal, rippleNormalStrength);
             #endif
         #endif

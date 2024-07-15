@@ -1,7 +1,8 @@
 float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 lmcoord) {
     float skyWetness = max(8.0 * lmcoord.y - 7.0, 0.0) * min(8.0 - 8.0 * lmcoord.x, 1.0);
 
-    skyWetness *= _smoothstep(skyWetnessSmooth);//max(rainStrength, wetness);
+    // skyWetness *= _smoothstep(skyWetnessSmooth);//max(rainStrength, wetness);
+    skyWetness *= weatherPuddleStrength;
 
     skyWetness *= sqrt(localNormal.y * 0.5 + 0.5);
 
@@ -10,30 +11,41 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 l
     #endif
 
     #if WORLD_WETNESS_PUDDLES != PUDDLES_FULL
-        vec2 texPos = worldPos.xz + worldPos.y * 0.12;
-        float wetnessNoise = textureLod(noisetex, texPos * 0.04, 0).r;
-        wetnessNoise *= 1.0 - 0.7*textureLod(noisetex, texPos * 0.01, 0).g;
+        vec3 texPos = 0.02 * worldPos.xzy;
+        float noise = 0.0;
+        for (int i = 0; i < 3; i++) {
+            float sampleNoise = 1.0 - textureLod(texClouds, texPos, 0).r;
+            noise += sampleNoise / (i+1);
+            texPos *= 3.0;
+        }
+        //noise /= 3.0;
+        //texPos.y += animTIme * 0.12;
 
-        float rf = min(wetness * 40.0, 1.0);
-        vec2 s2 = 1.0 - textureLod(noisetex, texPos * 0.3, 0).rg;
-        wetnessNoise = min(wetnessNoise, 1.0 - smoothstep(0.9 - 0.8 * rf, 1.0, s2.r * s2.g) * rf);
+        // float wetnessNoise = textureLod(noisetex, texPos * 0.04, 0).r;
+        // wetnessNoise *= 1.0 - 0.7*textureLod(noisetex, texPos * 0.01, 0).g;
 
-        return max(skyWetness - wetnessNoise, 0.0);
-    #else
-        return skyWetness;
+        // float rf = min(wetness * 40.0, 1.0);
+        // vec2 s2 = 1.0 - textureLod(noisetex, texPos * 0.3, 0).rg;
+        // wetnessNoise = min(wetnessNoise, 1.0 - smoothstep(0.9 - 0.8 * rf, 1.0, s2.r * s2.g) * rf);
+
+        // return max(skyWetness - wetnessNoise, 0.0);
+
+        skyWetness *= noise*0.88 + 0.12;
     #endif
+
+    return skyWetness;
 }
 
 float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
     #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-        return smoothstep(0.6, 0.8, skyWetness - 0.1*_pow2(porosity));
+        return smoothstep(0.82, 0.86, skyWetness - 0.1*_pow2(porosity));
     #else
         return 0.0;
     #endif
 }
 
 void ApplyWetness(inout vec3 albedo, const in float wetness) {
-    albedo *= 1.0 - 0.36*wetness;
+    albedo *= 1.0 - 0.26*wetness;
     albedo = pow(albedo, vec3(1.0 + wetness));
 }
 
@@ -44,6 +56,14 @@ void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float 
 
     surfaceWetness = saturate(MaterialPorosityDarkenF * surfaceWetness);
     ApplyWetness(albedo, surfaceWetness);
+}
+
+void ApplySkyWetness(inout float roughL, const in float porosity, const in float skyWetness, const in float puddleF) {
+    // float surfaceWetness = 2.0 * skyWetness - porosity;
+    // surfaceWetness = skyWetness;// * (1.0 - porosity);
+    float surfaceWetness = max(skyWetness, puddleF);
+
+    roughL = mix(roughL, WATER_ROUGH, _pow2(surfaceWetness));
 }
 
 #if defined RENDER_GBUFFER
@@ -67,18 +87,9 @@ void ApplySkyWetness(inout vec3 albedo, const in float porosity, const in float 
             }
         #endif
 
-        float mixF = smoothstep(0.0, 0.1, puddleF);
-        texNormal = mix(texNormal, puddleNormal, mixF);
+        //float mixF = smoothstep(0.0, 0.1, puddleF);
+        texNormal = mix(texNormal, puddleNormal, puddleF);
         texNormal = normalize(texNormal);
-    }
-
-    void ApplySkyWetness(inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {
-        float surfaceWetness = saturate(2.0 * skyWetness - porosity);
-        surfaceWetness = max(surfaceWetness, smoothstep(0.0, 0.2, puddleF));
-
-        float _roughL = _pow2(roughness);
-        _roughL = mix(_roughL, 0.0, surfaceWetness);
-        roughness = sqrt(_roughL);
     }
 
     void ApplySkyWetness(inout vec3 albedo, inout float roughness, const in float porosity, const in float skyWetness, const in float puddleF) {

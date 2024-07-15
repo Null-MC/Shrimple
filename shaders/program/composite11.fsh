@@ -51,7 +51,7 @@ uniform float blindnessSmooth;
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 sunPosition;
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     uniform vec3 skyColor;
 #endif
 

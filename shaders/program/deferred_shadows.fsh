@@ -68,7 +68,7 @@ in vec2 texcoord;
 
     #if defined WORLD_SKY_ENABLED //&& defined SHADOW_CLOUD_ENABLED
         uniform vec3 eyePosition;
-        uniform float skyRainStrength;
+        uniform float weatherStrength;
         uniform float cloudHeight;
         uniform float cloudTime;
     #endif

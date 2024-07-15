@@ -32,7 +32,7 @@ uniform int fogShape;
 
 uniform int isEyeInWater;
 uniform float rainStrength;
-uniform float skyRainStrength;
+uniform float weatherStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
 uniform int renderStage;
@@ -136,7 +136,7 @@ void main() {
         vec3 starLight = GetStarLight(starViewDir);
 
         #if SKY_CLOUD_TYPE != CLOUDS_CUSTOM
-            starLight *= 1.0 - 0.8 * skyRainStrength;
+            starLight *= 1.0 - 0.8 * weatherStrength;
         #endif
 
         float moonUpF = smoothstep(-0.1, 0.2, -localSunDirection.y);

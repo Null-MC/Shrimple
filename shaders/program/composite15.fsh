@@ -82,7 +82,7 @@ in vec2 texcoord;
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 skyColor;
         uniform float rainStrength;
-        uniform float skyRainStrength;
+        uniform float weatherStrength;
 
         #ifndef IRIS_FEATURE_SSBO
             uniform vec3 sunPosition;

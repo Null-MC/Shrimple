@@ -73,7 +73,7 @@ uniform float fogEnd;
 uniform int isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float rainStrength;
-uniform float skyRainStrength;
+uniform float weatherStrength;
 uniform float blindnessSmooth;
 
 uniform vec3 skyColor;
@@ -429,9 +429,9 @@ void main() {
 
         #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+                float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
             #else
-                float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
+                float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
             #endif
         
             vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;

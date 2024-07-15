@@ -34,7 +34,7 @@ uniform int fogShape;
     uniform vec3 skyColor;
 
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 

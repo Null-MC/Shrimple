@@ -21,7 +21,7 @@ vec4 GetWetnessRipples(in vec3 worldPos, const in float viewDist, const in float
     float rippleF = 1.0 - min(viewDist * 0.06, 1.0);
     //rippleNormal = normalize(rippleNormal);
 
-    rippleF *= _pow2(puddleF) * skyRainStrength;
+    rippleF *= _pow2(puddleF) * weatherStrength;
 
     return vec4(rippleNormal, rippleF);
 }

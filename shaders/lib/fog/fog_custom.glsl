@@ -26,12 +26,12 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
             fogColor = mix(fogColor, colorFogHorizon, horizonF);
 
             vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);
-            fogColor = mix(fogColor, rainFogColor, skyRainStrength);
+            fogColor = mix(fogColor, rainFogColor, weatherStrength);
         #endif
 
         #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             vec3 rainSkyColor = mix(vec3(0.1), colorRainSkyDay, dayF);
-            skyColor = mix(skyColor, rainSkyColor, skyRainStrength);
+            skyColor = mix(skyColor, rainSkyColor, weatherStrength);
         #endif
 
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_NONE || SKY_CLOUD_TYPE <= CLOUDS_VANILLA

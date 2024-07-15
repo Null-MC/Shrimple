@@ -22,11 +22,15 @@ uniform sampler2D BUFFER_BLOCK_DIFFUSE;
     uniform sampler2D texSSAO;
 #endif
 
-#if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-    uniform sampler2D texSkyIrradiance;
+#ifdef WORLD_SKY_ENABLED
+    uniform sampler3D texClouds;
 
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        uniform sampler2D texSky;
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        uniform sampler2D texSkyIrradiance;
+
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            uniform sampler2D texSky;
+        #endif
     #endif
 #endif
 
@@ -43,12 +47,8 @@ uniform sampler2D BUFFER_BLOCK_DIFFUSE;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED //&& ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        uniform sampler2D TEX_CLOUDS_VANILLA;
-    #endif
+#if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    uniform sampler2D TEX_CLOUDS_VANILLA;
 #endif
 
 #ifdef DISTANT_HORIZONS
@@ -109,7 +109,8 @@ uniform int heldBlockLightValue2;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
     uniform float wetness;
     
@@ -526,6 +527,7 @@ layout(location = 0) out vec4 outFinal;
             //#if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined WORLD_WATER_ENABLED
             #if defined WORLD_SKY_ENABLED && (defined WORLD_WETNESS_ENABLED || defined WORLD_WATER_ENABLED)
                 ApplySkyWetness(albedo, porosity, skyWetness, puddleF);
+                ApplySkyWetness(roughL, porosity, skyWetness, puddleF);
             #endif
 
             vec3 diffuseFinal = vec3(0.0);
@@ -576,7 +578,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if MATERIAL_SSS != 0
-                vec3 sssFinal = shadowSSS * MaterialSssStrengthF * WorldSkyLightColor;
+                vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                vec3 sssFinal = shadowSSS * MaterialSssStrengthF * skyLightColor;
 
                 vec2 uvSky = DirectionToUV(localViewDir);
                 float sssSkyLight = 0.33 * deferredLighting.y;

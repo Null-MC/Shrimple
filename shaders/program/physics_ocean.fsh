@@ -125,7 +125,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float wetness;
 
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS
@@ -464,7 +464,7 @@ void main() {
     //         //     ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
 
     //         #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-    //             if (skyRainStrength > EPSILON)
+    //             if (weatherStrength > EPSILON)
     //                 ApplyWetnessRipples(texNormal, rippleNormalStrength);
     //         #endif
     //     #endif

@@ -113,7 +113,7 @@ uniform int heldBlockLightValue2;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     //uniform float wetness;
 
     uniform float cloudHeight;
@@ -899,7 +899,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 vlLight = vec3(0.0);
 
                     #ifdef WORLD_SKY_ENABLED
-                        vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * skyRainStrength);
+                        vec3 skyLightColor = WorldSkyLightColor * (1.0 - 0.8 * weatherStrength);
 
                         float skyLightF = eyeBrightnessSmooth.y / 240.0;
                         skyLightF = _pow2(skyLightF);

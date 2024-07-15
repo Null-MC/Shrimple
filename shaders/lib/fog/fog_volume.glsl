@@ -77,9 +77,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+            float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
         #else
-            float weatherF = 1.0 - 0.8 * _pow2(skyRainStrength);
+            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
@@ -199,12 +199,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 sampleDensity = GetSkyDensity(traceAltitude);
 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    // if (skyRainStrength > EPSILON) {
+                    // if (weatherStrength > EPSILON) {
                     //     const vec3 worldUp = vec3(0.0, 1.0, 0.0);
                     //     //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
                     //     float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-                    //     // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(skyRainStrength);
-                    //     cloudUnder *= _pow2(skyRainStrength);
+                    //     // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(weatherStrength);
+                    //     cloudUnder *= _pow2(weatherStrength);
 
                     //     sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
                     //     sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);

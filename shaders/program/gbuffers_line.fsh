@@ -40,7 +40,7 @@ uniform int frameCounter;
 
 #ifdef WORLD_SKY_ENABLED
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     uniform vec3 sunPosition;
     uniform vec3 skyColor;
 #endif

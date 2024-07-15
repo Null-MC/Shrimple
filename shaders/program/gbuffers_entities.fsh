@@ -122,7 +122,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

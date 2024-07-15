@@ -27,7 +27,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         uniform vec4 lightningBoltPosition = vec4(0.0);
         uniform vec3 shadowLightPosition;
         uniform float rainStrength;
-        uniform float skyRainStrength;
+        uniform float weatherStrength;
         uniform vec3 sunPosition;
 
         #ifdef RENDER_SHADOWS_ENABLED

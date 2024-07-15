@@ -11,6 +11,10 @@
 #define SKY_TYPE_VANILLA 0
 #define SKY_TYPE_CUSTOM 1
 
+#define CLOUDS_NONE 0
+#define CLOUDS_VANILLA 1
+#define CLOUDS_CUSTOM 2
+
 #define STARS_NONE 0
 #define STARS_VANILLA 1
 #define STARS_FANCY 2
@@ -34,10 +38,6 @@
 #define WATER_WAVES_NONE 0
 // #define WATER_WAVES_BASIC 1
 // #define WATER_WAVES_FANCY 2
-
-#define CLOUDS_NONE 0
-#define CLOUDS_VANILLA 1
-#define CLOUDS_CUSTOM 2
 
 #define SHADOW_TYPE_NONE 0
 //#define SHADOW_TYPE_BASIC 1

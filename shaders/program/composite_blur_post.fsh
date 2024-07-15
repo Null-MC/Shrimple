@@ -31,7 +31,7 @@ uniform float farPlane;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
-uniform float skyRainStrength;
+uniform float weatherStrength;
 
 // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
 //     uniform float centerDepthSmooth;

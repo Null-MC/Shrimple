@@ -24,10 +24,6 @@ in VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
     #if defined RENDER_SHADOWS_ENABLED && defined RENDER_TRANSLUCENT
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
@@ -40,9 +36,14 @@ in VertexData {
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
-uniform sampler2D lightmap;
+
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform sampler3D texClouds;
+
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         uniform sampler2D texSkyIrradiance;
     #endif
@@ -127,7 +128,8 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     uniform float rainStrength;
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
     uniform float wetness;
 #endif

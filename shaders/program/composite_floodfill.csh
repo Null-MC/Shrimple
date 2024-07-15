@@ -47,7 +47,7 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
 
     #ifdef WORLD_SKY_ENABLED
         uniform float rainStrength;
-        uniform float skyRainStrength;
+        uniform float weatherStrength;
 
         #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowProjection;
@@ -445,7 +445,7 @@ void main() {
 
                         // float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
                         //float skyLightBrightF = mix(Sky_MoonBrightnessF, Sky_SunBrightnessF, sunUpF);
-                        //skyLightBrightF *= 1.0 - 0.8 * skyRainStrength;
+                        //skyLightBrightF *= 1.0 - 0.8 * weatherStrength;
                         // TODO: make darker at night
 
                         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
@@ -454,7 +454,7 @@ void main() {
                             float skyLightRange = 10.0 * sunUpF;
                         #endif
 
-                        skyLightRange *= 1.0 - 0.8 * skyRainStrength;
+                        skyLightRange *= 1.0 - 0.8 * weatherStrength;
 
                         vec3 skyLight = shadowColorF.rgb * WorldSkyLightColor;
 

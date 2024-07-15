@@ -32,19 +32,6 @@ in VertexData {
             vec3 lightPos_T;
         #endif
     #endif
-
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //         vec3 shadowPos[4];
-    //         flat int shadowTile;
-    //     #else
-    //         vec3 shadowPos;
-    //     #endif
-    // #endif
 } vIn;
 
 #if defined PARALLAX_ENABLED && defined MATERIAL_PARALLAX_DEPTH_WRITE
@@ -52,10 +39,15 @@ in VertexData {
 #endif
 
 uniform sampler2D gtexture;
-uniform sampler2D lightmap;
 uniform sampler2D noisetex;
 
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D lightmap;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
+    uniform sampler3D texClouds;
+
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         uniform sampler2D texSkyIrradiance;
     #endif
@@ -146,7 +138,8 @@ uniform int frameCounter;
     uniform float rainStrength;
     uniform float wetness;
 
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS

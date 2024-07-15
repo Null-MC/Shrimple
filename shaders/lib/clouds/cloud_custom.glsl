@@ -33,9 +33,9 @@ float SampleClouds(const in vec3 worldPos, const in vec2 cloudOffset) {
     // middle *= step(cloudPos.y, 7.0);
     // cloudF *= 1.0 - middle;
 
-    // float threshold = skyRainStrength * 0.6 + 0.2;
-    // float threshold = mix(CloudCoverMinF, CloudCoverMaxF, skyRainStrength);
-    float threshold = 1.0 - mix(0.28, 0.52, pow(skyRainStrength, 0.75));
+    // float threshold = weatherStrength * 0.6 + 0.2;
+    // float threshold = mix(CloudCoverMinF, CloudCoverMaxF, weatherStrength);
+    float threshold = 1.0 - mix(0.28, 0.52, pow(weatherStrength, 0.75));
     // return step(threshold, cloudF);
     return smoothstep(threshold, threshold + 0.02, cloudF);
     // return step(threshold, cloudF);

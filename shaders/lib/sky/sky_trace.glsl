@@ -18,7 +18,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
     #endif
 
-    float weatherF = 1.0 - 0.5 * _pow2(skyRainStrength);
+    float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
     vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
     float eyeBrightF = eyeBrightnessSmooth.y / 240.0;

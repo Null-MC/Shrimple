@@ -14,7 +14,7 @@ uniform sampler2D gtexture;
 
 uniform int renderStage;
 uniform float rainStrength;
-uniform float skyRainStrength;
+uniform float weatherStrength;
 uniform int frameCounter;
 
 #ifndef IRIS_FEATURE_SSBO

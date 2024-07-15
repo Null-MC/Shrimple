@@ -127,7 +127,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float wetness;
 
-    uniform float skyRainStrength;
+    uniform float weatherStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS
