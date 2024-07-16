@@ -494,16 +494,10 @@ void main() {
             float ditherOut = GetScreenBayerValue();
         #endif
 
-        float ditherFadeF = smoothstep(0.5 * far, far, viewDist);
-        ditherFadeF = pow2(1.0 - ditherFadeF);
-
-        color.a /= alphaTestRef;
-        color.a *= mix(ditherOut, 1.0, ditherFadeF) * ditherFadeF;
-        color.a *= alphaTestRef;
+        float ditherFadeF = smoothstep(dh_clipDistF * far, far, viewDist);
+        color.a *= step(ditherFadeF, ditherOut);
     #else
         vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-        // vec4 color = texture(gtexture, atlasCoord, 1.0);
-        // vec4 color = texture(gtexture, atlasCoord);
     #endif
 
     if (color.a < alphaTestRef) {
@@ -570,41 +564,23 @@ void main() {
         occlusion *= texOcclusion;
     #endif
 
-    // #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
-    //     occlusion = max(occlusion, luminance(shadowColor));
-    // #endif
-
     vec3 localTangent = normalize(vIn.localTangent.xyz);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-        // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            #if DISPLACE_MODE == DISPLACE_TESSELATION
-                ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
-            #else
-                ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
-            #endif
+        #if DISPLACE_MODE == DISPLACE_TESSELATION
+            ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
+        #else
+            ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+        #endif
 
-            #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                ApplyWetnessRipples(texNormal, rippleNormalStrength);
-            #endif
-        // }
+        #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+            ApplyWetnessRipples(texNormal, rippleNormalStrength);
+        #endif
     #endif
 
     vec3 localViewDir = normalize(vIn.localPos);
     texNormal = normalize(matLocalTBN * texNormal);
-
-    // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //     float skyNoL = dot(texNormal, localSkyLightDirection);
-
-    //     #if MATERIAL_SSS != SSS_NONE
-    //         skyNoL = mix(max(skyNoL, 0.0), abs(skyNoL), sss);
-    //     #else
-    //         skyNoL = max(skyNoL, 0.0);
-    //     #endif
-
-    //     shadowColor *= 1.2 * pow(skyNoL, 0.8);
-    // #endif
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE <= LIGHTING_MODE_BASIC) && defined DIRECTIONAL_LIGHTMAP
         #if DISPLACE_MODE == DISPLACE_TESSELATION
@@ -643,8 +619,6 @@ void main() {
             texNormal = texNormal * 0.5 + 0.5;
 
         outDeferredColor = color + dither;
-        // outDeferredShadow = vec4(shadowColor + dither, 0.0);
-        // outDeferredTexNormal = texNormal;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
@@ -665,25 +639,6 @@ void main() {
                 shadowColor = vec3(0.0);
             }
             else {
-                // #ifdef DISTANT_HORIZONS
-                //     float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
-                // #else
-                //     float shadowDistFar = min(shadowDistance, far);
-                // #endif
-
-                // vec3 shadowViewPos = (shadowModelView * vec4(vIn.localPos, 1.0)).xyz;
-                // float shadowViewDist = length(shadowViewPos.xy);
-                // float shadowFade = 1.0 - smoothstep(shadowDistFar - 20.0, shadowDistFar, shadowViewDist);
-
-                // #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                // #else
-                //     shadowFade *= step(-1.0, vIn.shadowPos.z);
-                //     shadowFade *= step(vIn.shadowPos.z, 1.0);
-                // #endif
-
-                // shadowFade = 1.0 - shadowFade;
-
-
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     float shadowFade = 0.0;
                     float lmShadow = 1.0;

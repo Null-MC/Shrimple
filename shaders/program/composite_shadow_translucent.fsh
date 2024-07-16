@@ -229,67 +229,8 @@ void main() {
                 // float lmShadow = pow(lmFinal.y, 9);
                 // if (shadowPos == clamp(shadowPos, -0.85, 0.85)) lmShadow = 1.0;
 
-                float zRange = GetShadowRange();
-            #endif
-
-            // #ifdef SHADOW_COLORED
-            //     if (shadowFade < 1.0)
-            //         shadowFinal = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-
-            //     // shadowFinal = min(shadowFinal, vec3(lmShadow));
-            // #else
-            //     float shadowF = 1.0;
-            //     if (shadowFade < 1.0)
-            //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                
-            //     //shadowF = min(shadowF, lmShadow);
-            //     shadowFinal = vec3(shadowF);
-            // #endif
-
-            // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
-            // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
-
-            vec3 shadowSample = vec3(1.0);
-            #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-                if (cascadeIndex >= 0) {
-                    #ifdef SHADOW_COLORED
-                        shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex);
-                    #else
-                        shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex));
-                    #endif
-                }
-            #else
                 float offsetBias = GetShadowOffsetBias(shadowPos, geoNoL);
-
-                #ifdef SHADOW_COLORED
-                    shadowSample = GetShadowColor(shadowPos, offsetBias);
-                #else
-                    shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
-                #endif
-            #endif
-
-            // shadowSample = vec3(1.0, 0.0, 0.0);
-
-            // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
-            shadowFinal *= step(0.0, geoNoL);
-            shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
-            // shadowFinal = shadowSample;
-
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
-                float cloudShadow = 1.0;
-
-                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    vec3 worldPos = cameraPosition + localPos;
-                    cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                #else
-                    vec2 cloudOffset = GetCloudOffset();
-                    vec3 camOffset = GetCloudCameraOffset();
-                    //vec3 worldPos = cameraPosition + localPos;
-                    //float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                    cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
-                #endif
-
-                shadowFinal *= cloudShadow * 0.5 + 0.5;
+                float zRange = GetShadowRange();
             #endif
 
             #if MATERIAL_SSS != 0
@@ -307,8 +248,66 @@ void main() {
                 sssFinal *= 1.0 - 0.5*(1.0 - max(geoNoL, 0.0));
             #endif
 
-            #ifdef SHADOW_SCREEN
-                if (geoNoL > 0.0) {
+            if (geoNoL > 0.0) {
+                // #ifdef SHADOW_COLORED
+                //     if (shadowFade < 1.0)
+                //         shadowFinal = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+
+                //     // shadowFinal = min(shadowFinal, vec3(lmShadow));
+                // #else
+                //     float shadowF = 1.0;
+                //     if (shadowFade < 1.0)
+                //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
+                    
+                //     //shadowF = min(shadowF, lmShadow);
+                //     shadowFinal = vec3(shadowF);
+                // #endif
+
+                // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
+                // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
+
+                vec3 shadowSample = vec3(1.0);
+                #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+                    if (cascadeIndex >= 0) {
+                        #ifdef SHADOW_COLORED
+                            shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex);
+                        #else
+                            shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex));
+                        #endif
+                    }
+                #else
+                    #ifdef SHADOW_COLORED
+                        shadowSample = GetShadowColor(shadowPos, offsetBias);
+                    #else
+                        shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
+                    #endif
+                #endif
+
+                // shadowSample = vec3(1.0, 0.0, 0.0);
+
+                // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
+                // shadowFinal *= step(0.0, geoNoL);
+                shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
+                // shadowFinal = shadowSample;
+
+                #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                    float cloudShadow = 1.0;
+
+                    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                        vec3 worldPos = cameraPosition + localPos;
+                        cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    #else
+                        vec2 cloudOffset = GetCloudOffset();
+                        vec3 camOffset = GetCloudCameraOffset();
+                        //vec3 worldPos = cameraPosition + localPos;
+                        //float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                        cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
+                    #endif
+
+                    shadowFinal *= cloudShadow * 0.5 + 0.5;
+                #endif
+
+                #ifdef SHADOW_SCREEN
                     float viewDist = length(viewPos);
                     vec3 lightViewDir = mat3(gbufferModelView) * localSkyLightDirection;
                     vec3 endViewPos = lightViewDir * viewDist * 0.1 + viewPos;
@@ -329,7 +328,8 @@ void main() {
 
                     vec3 traceScreenStep = traceScreenDir * pixelSize.y;
                     vec2 traceScreenDirAbs = abs(traceScreenDir.xy);
-                    traceScreenStep /= (traceScreenDirAbs.y > 0.5 * aspectRatio ? traceScreenDirAbs.y : traceScreenDirAbs.x);
+                    // traceScreenStep /= (traceScreenDirAbs.y > 0.5 * aspectRatio ? traceScreenDirAbs.y : traceScreenDirAbs.x);
+                    traceScreenStep /= mix(traceScreenDirAbs.x, traceScreenDirAbs.y, traceScreenDirAbs.y);
 
                     vec3 traceScreenPos = clipPosStart;
                     traceScreenStep *= 1.0 + dither;
@@ -390,8 +390,11 @@ void main() {
                         //float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
                         shadowFinal *= shadowTrace;// * (1.0 - sss_offset) + sss_offset;
                     }
-                }
-            #endif
+                #endif
+            }
+            else {
+                shadowFinal = vec3(0.0);
+            }
         }
 
         outShadow = vec4(shadowFinal, sssFinal);

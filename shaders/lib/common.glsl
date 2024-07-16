@@ -344,7 +344,7 @@ const bool colortex15Clear = true;
 #define DEBUG_VIEW 0 // [0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]
 //#define DEBUG_TRANSPARENT
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
-// #define DH_TRANSITION
+#define DH_TRANSITION
 //#define DYN_LIGHT_DEBUG_COUNTS
 //#define DYN_LIGHT_OREBLOCKS
 #define DEFER_TRANSLUCENT
@@ -787,3 +787,7 @@ vec3 mul3(const in mat4 matrix, const in vec3 vector) {
 // vec3 getCameraViewDir(const in mat4 matModelView) {
 //     return vec3(matModelView[0].z, matModelView[1].z, matModelView[2].z);
 // }
+
+float unmix(const in float value, const in float valueMin, const in float valueMax) {
+	return (value - valueMin) / (valueMax - valueMin);
+}

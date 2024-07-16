@@ -420,31 +420,55 @@ void main() {
 
         #endif
 
-        color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+        // color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-        #ifdef RENDER_TRANSLUCENT
-            float alphaThreshold = (1.5/255.0);
-        #elif defined ALPHATESTREF_ENABLED
-            float alphaThreshold = alphaTestRef;
+        #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+            float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
+            float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
+
+            float lodFadeF = smoothstep(0.6 * far, 0.9 * far, viewDist);
+            float lodFinal = max(lodGrad, 4.0 * lodFadeF);
+
+            color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
+            color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
         #else
-            const float alphaThreshold = 0.1;
+            color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+        #endif
+    }
+
+    #ifdef RENDER_TRANSLUCENT
+        float alphaThreshold = (1.5/255.0);
+    #elif defined ALPHATESTREF_ENABLED
+        float alphaThreshold = alphaTestRef;
+    #else
+        const float alphaThreshold = 0.1;
+    #endif
+
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+        #ifdef EFFECT_TAA_ENABLED
+            float ditherOut = InterleavedGradientNoiseTime();
+        #else
+            float ditherOut = GetScreenBayerValue();
         #endif
 
-        //if (entityId == ENTITY_BOAT) alphaThreshold = -1.0;
+        float ditherFadeF = smoothstep(dh_clipDistF * far, far, viewDist);
+        color.a *= step(ditherFadeF, ditherOut);
+    #endif
 
-        // if (entityId == ENTITY_BOAT) color = vec4(1.0, 0.0, 0.0, 1.0);
-        if (color.a <= alphaThreshold && entityId != ENTITY_BOAT) {
-            discard;
-            return;
-        }
+    //if (entityId == ENTITY_BOAT) alphaThreshold = -1.0;
 
-        // #ifndef RENDER_TRANSLUCENT
-        //     color.a = 1.0;
-        // #endif
-
-        color *= vIn.color;
-        color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
+    // if (entityId == ENTITY_BOAT) color = vec4(1.0, 0.0, 0.0, 1.0);
+    if (color.a <= alphaThreshold && entityId != ENTITY_BOAT) {
+        discard;
+        return;
     }
+
+    // #ifndef RENDER_TRANSLUCENT
+    //     color.a = 1.0;
+    // #endif
+
+    color *= vIn.color;
+    color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = vec3(WHITEWORLD_VALUE);
@@ -571,9 +595,9 @@ void main() {
     //     occlusion = max(occlusion, luminance(shadowColor));
     // #endif
 
-    #if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
+    //#if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
-    #endif
+    //#endif
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
