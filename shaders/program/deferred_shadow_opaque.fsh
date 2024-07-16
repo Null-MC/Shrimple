@@ -131,7 +131,8 @@ void main() {
         vec2 coord = texcoord;
 
         #ifdef EFFECT_TAA_ENABLED
-            coord -= getJitterOffset(frameCounter);
+            vec2 jitterOffset = getJitterOffset(frameCounter);
+            coord -= jitterOffset;
         #endif
 
         float depth = textureLod(depthtex1, texcoord, 0).r;
@@ -297,6 +298,10 @@ void main() {
                     #endif
 
                     vec3 traceScreenDir = normalize(clipPosEnd - clipPosStart);
+
+                    #ifdef EFFECT_TAA_ENABLED
+                        clipPosStart.xy += jitterOffset;
+                    #endif
 
                     vec3 traceScreenStep = traceScreenDir * pixelSize.y;
                     vec2 traceScreenDirAbs = abs(traceScreenDir.xy);
