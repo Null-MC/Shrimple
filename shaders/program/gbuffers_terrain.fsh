@@ -747,7 +747,7 @@ void main() {
             GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
         #endif
 
-        #ifdef WORLD_SKY_ENABLED
+        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
             const bool tir = false;
             const bool isUnderWater = false;
             GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
