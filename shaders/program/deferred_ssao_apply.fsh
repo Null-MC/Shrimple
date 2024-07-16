@@ -61,7 +61,6 @@ uniform int fogShape;
 #endif
 
 #include "/lib/sampling/depth.glsl"
-#include "/lib/sampling/gaussian.glsl"
 
 #ifdef SKY_BORDER_FOG_ENABLED
     #ifdef IRIS_FEATURE_SSBO
@@ -138,9 +137,11 @@ void main() {
                     float fogF = GetVanillaFogFactor(localPos);
                 #endif
 
-                occlusion = 1.0 - occlusion;
-                occlusion *= 1.0 - fogF;
-                occlusion = 1.0 - occlusion;
+                occlusion = mix(occlusion, 1.0, fogF);
+
+                // occlusion = 1.0 - occlusion;
+                // occlusion *= 1.0 - fogF;
+                // occlusion = 1.0 - occlusion;
             #endif
         #endif
     }
