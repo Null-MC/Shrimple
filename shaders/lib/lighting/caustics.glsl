@@ -22,6 +22,6 @@ float SampleWaterCaustics(const in vec3 localPos, const in float lightDist, cons
     #endif
 
     float causticDepthF = 1.0;//min(lightDist / 8.0, 1.0);
-    causticLight = 9.0 * pow(causticLight, 6.0 + 4.0 * Water_WaveStrength) + 0.8;
+    causticLight = 6.0 * pow(causticLight, 6.0 + 4.0 * Water_WaveStrength) + 0.9;
     return mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
 }

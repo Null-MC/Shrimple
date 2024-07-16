@@ -364,7 +364,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #else
     layout(location = 0) out vec4 outFinal;
 
-    #if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
+    #ifdef EFFECT_SSAO_ENABLED
         layout(location = 1) out vec3 outDeferredTexNormal;
 
         #ifdef EFFECT_TAA_ENABLED

@@ -386,6 +386,10 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
+                // if (isWater && isEyeInWater != 1) {
+                //     final.rgb *= exp(-3.0 * WaterDensityF * WaterAbsorbF);
+                // }
+
                 //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
 
@@ -421,34 +425,34 @@ layout(location = 0) out vec4 outFinal;
                         float farDist = min(distOpaque, farMax);
                         waterDist = max(farDist - distTranslucent, 0.0);
                     }
-                #endif
-            #endif
 
-            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
-                // float farDist = min(distOpaque, far);
+                    #if WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
+                        // float farDist = min(distOpaque, far);
 
-                // //float waterDist = 0.0;
-                // if (isWater && isEyeInWater != 1) {
-                //     waterDist = max(farDist - distTranslucent, 0.0);
-                // }
+                        // //float waterDist = 0.0;
+                        // if (isWater && isEyeInWater != 1) {
+                        //     waterDist = max(farDist - distTranslucent, 0.0);
+                        // }
 
-                if (waterDist > EPSILON) {
-                    #ifdef WORLD_SKY_ENABLED
-                        float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                        if (waterDist > EPSILON) {
+                            #ifdef WORLD_SKY_ENABLED
+                                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                        #ifdef WORLD_SKY_ENABLED
-                            eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                        #endif
-                        
-                        eyeSkyLightF += 0.02;
+                                #ifdef WORLD_SKY_ENABLED
+                                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                                #endif
+                                
+                                eyeSkyLightF += 0.02;
 
-                        vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal;
-                    #else
-                        vec3 vlLight = vec3(phaseIso + WaterAmbientF);
+                                vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal;
+                            #else
+                                vec3 vlLight = vec3(phaseIso + WaterAmbientF);
+                            #endif
+
+                            ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
+                        }
                     #endif
-
-                    ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
-                }
+                #endif
             #endif
 
             #ifdef SKY_BORDER_FOG_ENABLED
