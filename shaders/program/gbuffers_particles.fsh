@@ -510,71 +510,37 @@ void main() {
             #endif
         #endif
 
-        #if LIGHTING_MODE > LIGHTING_MODE_BASIC
-            vec3 blockDiffuse = vec3(0.0);
-            vec3 blockSpecular = vec3(0.0);
+        vec3 diffuseFinal = vec3(0.0);
+        vec3 specularFinal = vec3(0.0);
 
-            #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                GetFloodfillLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
-                
-                #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                    SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-                #endif
+        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+            GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
+        #endif
 
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    if (metal_f0 >= 0.5) {
-                        blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                        blockSpecular *= albedo;
-                    }
-                #endif
-            #else
-                GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss);
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+        #endif
 
-                #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                    SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-                #endif
-
-                vec3 skyDiffuse = vec3(0.0);
-                vec3 skySpecular = vec3(0.0);
-
-                #ifdef WORLD_SKY_ENABLED
-                    #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE == SHADOW_TYPE_NONE
-                        const vec3 shadowPos = vec3(0.0);
-                    #endif
-
-                    // float shadowFade = getShadowFade(shadowPos);
-                    const bool tir = false;
-                    const bool isUnderWater = false;
-                    GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-                #endif
-
-                blockDiffuse += skyDiffuse;
-                blockSpecular += skySpecular;
-
-                #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    if (metal_f0 >= 0.5) {
-                        blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                        blockSpecular *= albedo;
-                    }
-                #endif
-            #endif
-
-            color.rgb = GetFinalLighting(albedo, blockDiffuse, blockSpecular, occlusion);
+        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+            const bool tir = false;
+            const bool isUnderWater = false;
+            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
         #else
-            vec3 diffuse, specular = vec3(0.0);
-            GetVanillaLighting(diffuse, vIn.lmcoord, shadowColor, occlusion);
+            diffuseFinal += WorldAmbientF;
+        #endif
 
-            #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false;
-                const bool isUnderWater = false;
-                GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-            #endif
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
+        #endif
 
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuse, specular, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
-
-            color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        #else
+            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
         #endif
 
         //ApplyFog(color, vLocalPos, localViewDir);

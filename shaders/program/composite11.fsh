@@ -220,14 +220,7 @@ void main() {
         #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-                if (IsMetal(metal_f0))
-                    blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, rough);
-            #else
-                blockDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-            #endif
-
-            blockSpecular *= GetMetalTint(albedo, metal_f0);
+            ApplyMetalDarkening(blockDiffuse, blockSpecular, albedo, metal_f0, roughL);
         #endif
 
         outDiffuse = vec4(blockDiffuse, 1.0);

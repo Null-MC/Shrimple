@@ -102,14 +102,14 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     accumDiffuse += ambientSkyLight * (occlusion * ambientF);
 
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-            if (IsMetal(metal_f0))
-                accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-        #else
-            accumDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-        #endif
-    #endif
+    // #if MATERIAL_SPECULAR != SPECULAR_NONE
+    //     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+    //         if (IsMetal(metal_f0))
+    //             accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+    //     #else
+    //         accumDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
+    //     #endif
+    // #endif
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED

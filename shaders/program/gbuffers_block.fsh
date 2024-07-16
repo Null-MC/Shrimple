@@ -490,7 +490,7 @@ void main() {
             #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                 if (traceCoordDepth.z + EPSILON < 1.0) {
                     vec3 tanLightDir = normalize(vIn.lightPos_T);
-                    shadowColor *= GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                    parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                 }
             #endif
         #endif
@@ -580,45 +580,36 @@ void main() {
             }
         #endif
 
-        vec3 diffuseFinal = vec3(0.0), specularFinal = vec3(0.0);
+        vec3 diffuseFinal = vec3(0.0);
+        vec3 specularFinal = vec3(0.0);
+
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
 
-            #ifdef WORLD_SKY_ENABLED
-                const bool tir = false;
-                const bool isUnderWater = false;
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-            #else
-                diffuseFinal += WorldAmbientF;
-            #endif
-
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
-
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= albedo;
-                }
-            #endif
-
             diffuseFinal += emission * MaterialEmissionF;
-
-            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
+        #endif
 
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-                SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-            #endif
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+        #endif
 
-            #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-                const bool tir = false;
-                const bool isUnderWater = false;
-                GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-            #endif
+        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+            const bool tir = false;
+            const bool isUnderWater = false;
+            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
+        #else
+            diffuseFinal += WorldAmbientF;
+        #endif
+        
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
+        #endif
 
+        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
         #endif
 

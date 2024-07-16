@@ -252,11 +252,13 @@ void main() {
         // #endif
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            if (metal_f0 >= 0.5) {
-                //vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
-                blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                blockSpecular *= albedo;
-            }
+            ApplyMetalDarkening(blockDiffuse, blockSpecular, albedo, metal_f0, roughL);
+
+            // if (metal_f0 >= 0.5) {
+            //     //vec3 deferredAlbedo = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
+            //     blockDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
+            //     blockSpecular *= albedo;
+            // }
         #endif
 
         // if (!all(lessThan(abs(texNormal), EPSILON3)))
