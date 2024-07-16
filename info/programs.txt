@@ -38,6 +38,7 @@ composite13		opaque deferred VL tracing
 composite14		opaque apply reflections, VL, & water absorption
 
 composite15		translucent deferred+ss shadows
+++composite16		translucent shadow filter
 composite16		translucent deferred block-light tracing
 composite17		translucent deferred VL tracing
 composite18		translucent deferred final + pre distance blur
