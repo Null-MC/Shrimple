@@ -15,13 +15,13 @@ float SampleWaterCaustics(const in vec3 localPos, const in float lightDist, cons
 
     vec3 causticCoord = vec3(0.06/Water_WaveStrength * shadowViewPos.xy, causticTime);
     float causticLight = textureLod(texCaustics, causticCoord.xyz, 0).r;
-    causticLight = RGBToLinear(causticLight);
+    //causticLight = RGBToLinear(causticLight);
 
     #ifndef RENDER_SHADOWS_ENABLED
         causticLight *= skyLight;
     #endif
 
     float causticDepthF = 1.0;//min(lightDist / 8.0, 1.0);
-    causticLight = 6.0 * pow(causticLight, 1.0 + 1.0 * Water_WaveStrength) + 0.7;
+    causticLight = 9.0 * pow(causticLight, 6.0 + 4.0 * Water_WaveStrength) + 0.8;
     return mix(1.0, causticLight, causticDepthF * Water_CausticStrength);
 }

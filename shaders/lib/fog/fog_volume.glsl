@@ -328,19 +328,21 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        #ifdef WORLD_SKY_ENABLED
+        #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
+            float cloudShadow = 1.0;
+
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                float cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
                 // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
                 //sampleColor *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0);
-                sampleF *= cloudShadow;// * 0.7 + 0.3;
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
-                    float cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
+                    cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
                     //sampleF *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudShadow, 1.0);
-                    sampleF *= cloudShadow;
                 }
             #endif
+
+            sampleF *= cloudShadow * 0.5 + 0.5;
         #endif
 
         sampleLit += samplePhase * sampleF * sampleColor;

@@ -522,8 +522,7 @@ layout(location = 0) out vec4 outFinal;
                     #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                         const float shadowDepth = 8.0; // TODO
                         float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
-
-                        shadowColor *= causticLight*0.7 + 0.3;
+                        shadowColor *= causticLight;
                     #endif
                 }
             #endif

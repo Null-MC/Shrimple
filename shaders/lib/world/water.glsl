@@ -9,10 +9,10 @@ vec3 WaterAbsorbF = 2.0*_RGBToLinear(1.0 - WaterAbsorbColor);
 	const float Water_CausticStrength = 1.00;
 #elif WATER_WAVE_SIZE == 2
 	const float Water_WaveStrength = 0.50;
-	const float Water_CausticStrength = 0.50;
+	const float Water_CausticStrength = 0.80;
 #elif WATER_WAVE_SIZE == 1
 	const float Water_WaveStrength = 0.25;
-	const float Water_CausticStrength = 0.25;
+	const float Water_CausticStrength = 0.50;
 #else
 	const float Water_WaveStrength = 0.00;
 	const float Water_CausticStrength = 0.00;
