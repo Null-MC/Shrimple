@@ -70,7 +70,7 @@ uniform sampler2D noisetex;
     uniform sampler2D texDepthNear;
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -142,10 +142,8 @@ uniform vec3 WaterAbsorbColor;
 uniform vec3 WaterScatterColor;
 uniform float waterDensitySmooth;
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    #if SHADOW_TYPE != SHADOW_TYPE_NONE
-        uniform mat4 shadowProjection;
-    #endif
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+    uniform mat4 shadowProjection;
 #endif
 
 uniform int heldItemId;
@@ -237,7 +235,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -346,7 +344,6 @@ uniform int heldBlockLightValue2;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
-    bool isWater = true;
     float viewDist = length(vIn.localPos);
 
     vec3 worldPos = vIn.localPos + cameraPosition;
@@ -383,13 +380,11 @@ void main() {
 
     //#define WATER_EDGE_FOAM
     #ifdef WATER_EDGE_FOAM
-        if (isWater) {
-            // TODO: edge ocean foam
-            float edgeDepth1 = texture(depthtex1, texcoord).r;
-            float edgeDepth2 = texture(depthtex1, texcoord).r;
-            float edgeDepth3 = texture(depthtex1, texcoord).r;
-            float edgeDepth4 = texture(depthtex1, texcoord).r;
-        }
+        // TODO: edge ocean foam
+        float edgeDepth1 = texture(depthtex1, texcoord).r;
+        float edgeDepth2 = texture(depthtex1, texcoord).r;
+        float edgeDepth3 = texture(depthtex1, texcoord).r;
+        float edgeDepth4 = texture(depthtex1, texcoord).r;
     #endif
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
@@ -567,6 +562,8 @@ void main() {
             #ifndef IRIS_FEATURE_SSBO
                 vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
             #endif
+
+            const bool isWater = true;
 
             float farMax = min(viewDist - 0.05, far);
             vec4 vlScatterTransmit = GetVolumetricLighting(phaseF, localViewDir, localSunDirection, near, farMax, isWater);

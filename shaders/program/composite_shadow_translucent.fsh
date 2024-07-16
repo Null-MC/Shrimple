@@ -272,7 +272,7 @@ void main() {
             // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
             shadowFinal *= step(0.0, geoNoL);
             shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
-            shadowFinal = shadowSample;
+            // shadowFinal = shadowSample;
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 float cloudShadow = 1.0;
@@ -382,8 +382,8 @@ void main() {
                     }
 
                     if (traceDist > 0.0) {
-                        float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
-                        shadowFinal *= shadowTrace * (1.0 - sss_offset) + sss_offset;
+                        //float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
+                        shadowFinal *= shadowTrace;// * (1.0 - sss_offset) + sss_offset;
                     }
                 }
             #endif

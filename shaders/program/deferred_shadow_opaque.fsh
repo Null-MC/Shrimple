@@ -175,13 +175,9 @@ void main() {
                 vec3 viewPos = unproject(gbufferProjectionInverse, clipPosStart * 2.0 - 1.0);
             #endif
 
-            float sss = 0.0;
             ivec2 uv = ivec2(texcoord * viewSize);
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, uv, 0);
             vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
-            #if MATERIAL_SSS != 0
-                sss = unpackUnorm4x8(deferredData.r).w;
-            #endif
 
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
@@ -272,9 +268,11 @@ void main() {
             #endif
 
             #if MATERIAL_SSS != 0
+                float sss = unpackUnorm4x8(deferredData.r).w;
+
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     if (cascadeIndex >= 0) {
-                        sssFinal = sss * GetSssFactor(shadowPos[cascadeIndex], cascadeIndex, sss);
+                        sssFinal = GetSssFactor(shadowPos[cascadeIndex], cascadeIndex, sss);
                     }
                 #else
                     sssFinal = GetSssFactor(shadowPos, offsetBias, sss);
@@ -360,8 +358,8 @@ void main() {
                     }
 
                     if (traceDist > 0.0) {
-                        float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
-                        shadowFinal *= shadowTrace * (1.0 - sss_offset) + sss_offset;
+                        //float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
+                        shadowFinal *= shadowTrace;// * (1.0 - sss_offset) + sss_offset;
                     }
                 }
             #endif

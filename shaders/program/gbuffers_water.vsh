@@ -39,11 +39,7 @@ out VertexData {
         #endif
     #endif
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -82,9 +78,12 @@ uniform float far;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
+    uniform vec3 shadowLightPosition;
+#endif
+
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
-    uniform vec3 shadowLightPosition;
     // uniform float far;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -148,7 +147,7 @@ uniform float far;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 

@@ -66,9 +66,12 @@ uniform int isEyeInWater;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
+    uniform vec3 shadowLightPosition;
+#endif
+
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
-    uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         uniform mat4 gbufferProjection;
@@ -111,7 +114,7 @@ uniform int isEyeInWater;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
@@ -185,7 +188,7 @@ void main() {
     vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
     vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
 
-    #if defined RENDER_SHADOWS_ENABLED
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vOut.shadowTile = -1;
         #endif

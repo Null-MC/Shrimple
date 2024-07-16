@@ -45,7 +45,7 @@ float GetWetnessPuddleF(const in float skyWetness, const in float porosity) {
 }
 
 void ApplyWetness(inout vec3 albedo, const in float wetness) {
-    albedo *= 1.0 - 0.26*wetness;
+    albedo *= 1.0 - 0.16*wetness;
     albedo = pow(albedo, vec3(1.0 + wetness));
 }
 
