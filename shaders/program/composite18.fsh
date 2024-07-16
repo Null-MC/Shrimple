@@ -446,8 +446,9 @@ layout(location = 0) out vec4 outFinal;
             //#if WATER_DEPTH_LAYERS > 1
             //    isWater = WaterDepths[waterPixelIndex].IsWater;
             //#else
-                float deferredWater = unpackUnorm4x8(deferredData.b).r;
-                isWater = deferredWater > 0.5;
+            vec2 deferredWaterShadow = unpackUnorm4x8(deferredData.b).rg;
+            float parallaxShadow = deferredWaterShadow.g;
+            isWater = deferredWaterShadow.r > 0.5;
             //#endif
 
             #ifdef MATERIAL_REFRACT_ENABLED
@@ -575,6 +576,14 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             diffuseFinal *= deferredColor.a;
+
+            if (isWater) {
+                float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+                float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
+                deferredColor.a = clamp(deferredColor.a, skyF * MaterialReflectionStrength, 1.0);
+
+                albedo.rgb *= 1.0 - skyF;
+            }
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;

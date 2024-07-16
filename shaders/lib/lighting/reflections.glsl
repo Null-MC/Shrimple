@@ -89,7 +89,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 randomVec = normalize(hash33(seed) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = pow2(roughness);// * ReflectionRoughScatterF;// * (1.0 - distF);
+        float roughScatterF = pow(roughness, 4.0);// * ReflectionRoughScatterF;// * (1.0 - distF);
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif
