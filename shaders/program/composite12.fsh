@@ -586,16 +586,16 @@ layout(location = 0) out vec4 outFinal;
                 vec3 sssFinal = shadowSSS * MaterialSssStrengthF * skyLightColor;
 
                 vec2 uvSky = DirectionToUV(localViewDir);
-                float sssSkyLight = 0.33 * deferredLighting.y;
+                float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
                 vec3 sssSkyColor = textureLod(texSkyIrradiance, uvSky, 0).rgb;
-                sssFinal += sssSkyColor * (sss * sssSkyLight * Sky_BrightnessF);
+                sssFinal += sssSkyColor * (sss * occlusion * sssSkyLight * Sky_BrightnessF);
 
                 // vec3 sssColor = vec3(1.0);
                 // if (any(greaterThan(albedo, EPSILON3)))
                 //     sssColor = normalize(albedo);
                 // sssFinal *= sssColor;
 
-                diffuseFinal += sssFinal * occlusion;
+                diffuseFinal += sssFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
