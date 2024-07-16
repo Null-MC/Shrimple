@@ -600,10 +600,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                if (metal_f0 >= 0.5) {
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                    specularFinal *= albedo;
-                }
+                ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
             #endif
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED

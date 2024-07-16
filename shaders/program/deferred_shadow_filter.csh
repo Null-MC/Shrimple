@@ -129,6 +129,5 @@ void main() {
 	float depthL = sharedDepthBuffer[i_shared];
 
 	vec4 shadowSSS = sampleSharedBuffer(depthL);
-    // vec4 shadowSSS = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(gl_GlobalInvocationID.xy), 0);
 	imageStore(imgShadowSSS, uv, shadowSSS);
 }

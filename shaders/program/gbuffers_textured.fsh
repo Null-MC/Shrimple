@@ -347,7 +347,7 @@ void main() {
         roughL = _pow2(roughness);
     #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
         #endif

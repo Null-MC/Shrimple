@@ -185,3 +185,14 @@ vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
         return mix(vec3(1.0), albedo, metal_f0);
     #endif
 }
+
+void ApplyMetalDarkening(inout vec3 diffuse, inout vec3 specular, const in vec3 albedo, const in float metal_f0, const in float roughL) {
+    #if MATERIAL_SPECULAR == SPECULAR_LABPBR
+        float metalF = IsMetal(metal_f0) ? 1.0 : 0.0;
+    #else
+        float metalF = metal_f0;
+    #endif
+
+    diffuse *= mix(1.0, MaterialMetalBrightnessF, metalF * (1.0 - _pow2(roughL)));
+    specular *= GetMetalTint(albedo, metal_f0);
+}
