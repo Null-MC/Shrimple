@@ -19,7 +19,7 @@ float GetSkyDiffuseLighting(const in vec3 localViewDir, const in vec3 localSkyLi
     return SampleLightDiffuse(diffuseNoVm, diffuseNoLm, diffuseLoHm, roughL);
 }
 
-void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool isWater, const in bool tir) {
+void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 shadowColor, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss, const in bool isUnderWater, const in bool tir) {
     float viewDist = length(localPos);
     vec3 localViewDir = -localPos / viewDist;
 
@@ -124,13 +124,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
-        #define WATER_TEST
-        #ifdef WATER_TEST
-            if (isWater) {
-                vec3 ior = F0ToIor(f0, vec3(1.0));
-                f0 = IorToF0(ior, vec3(1.33));
-            }
-        #endif
+        if (isUnderWater) {
+            vec3 ior = F0ToIor(f0, vec3(1.0));
+            f0 = IorToF0(ior, vec3(1.33));
+        }
 
         float skyVoHm = max(dot(localViewDir, H), 0.0);
         vec3 skyF = F_schlickRough(skyVoHm, f0, roughL);

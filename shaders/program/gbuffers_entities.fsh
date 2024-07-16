@@ -353,7 +353,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out uvec4 outDeferredData;
-    layout(location = 2) out vec4 outDeferredTexNormal;
+    layout(location = 2) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
         /* RENDERTARGETS: 1,3,9,7 */
@@ -364,11 +364,22 @@ uniform ivec2 eyeBrightnessSmooth;
 #else
     layout(location = 0) out vec4 outFinal;
 
-    #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 0,7 */
-        layout(location = 1) out vec4 outVelocity;
+    #if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
+        layout(location = 1) out vec3 outDeferredTexNormal;
+
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,9,7 */
+            layout(location = 2) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0,9 */
+        #endif
     #else
-        /* RENDERTARGETS: 0 */
+        #ifdef EFFECT_TAA_ENABLED
+            /* RENDERTARGETS: 0,7 */
+            layout(location = 1) out vec4 outVelocity;
+        #else
+            /* RENDERTARGETS: 0 */
+        #endif
     #endif
 #endif
 
@@ -560,25 +571,25 @@ void main() {
     //     occlusion = max(occlusion, luminance(shadowColor));
     // #endif
 
+    #if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
+        outDeferredTexNormal = texNormal * 0.5 + 0.5;
+    #endif
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
-
         #ifndef RENDER_TRANSLUCENT
             color.a = 1.0;
         #endif
 
+        const float isWater = 0.0;
+
         outDeferredColor = color + dither;
-        outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
+        // outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
         
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        outDeferredData.b = packUnorm4x8(vec4(0.0, parallaxShadow, 0.0, 0.0) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
 
         #ifdef EFFECT_TAA_ENABLED

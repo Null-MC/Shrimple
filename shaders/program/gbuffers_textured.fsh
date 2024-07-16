@@ -13,11 +13,7 @@ in VertexData {
     vec3 localPos;
     vec3 localNormal;
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -53,7 +49,7 @@ uniform sampler2D lightmap;
     #endif
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
+#ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -110,7 +106,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     // uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -224,7 +220,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

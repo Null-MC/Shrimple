@@ -279,80 +279,78 @@ void main() {
         return;
     #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
+    //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
 
-        // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-        //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
-        //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
-        // #endif
+    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+    //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
+    //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
+    // #endif
 
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 originShadowViewPos = mul3(shadowModelViewEx, originPos);
+    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        vec3 originShadowViewPos = mul3(shadowModelViewEx, originPos);
 
-            int shadowTile = GetShadowRenderTile(originShadowViewPos);
-            if (shadowTile < 0) return;
+        int shadowTile = GetShadowRenderTile(originShadowViewPos);
+        if (shadowTile < 0) return;
 
-            #ifdef SHADOW_CSM_OVERLAP
-                int cascadeMin = max(shadowTile - 1, 0);
-                int cascadeMax = min(shadowTile + 1, 3);
-            #else
-                int cascadeMin = shadowTile;
-                int cascadeMax = shadowTile;
-            #endif
-
-            for (int c = cascadeMin; c <= cascadeMax; c++) {
-                if (c != shadowTile) {
-                    #ifdef SHADOW_CSM_OVERLAP
-                        // duplicate geometry if intersecting overlapping cascades
-                        if (!CascadeContainsPosition(originShadowViewPos, c, 9.0)) continue;
-                    #else
-                        continue;
-                    #endif
-                }
-
-                vec2 shadowTilePos = shadowProjectionPos[c];
-
-                for (int v = 0; v < 3; v++) {
-                    vOut.shadowTilePos = shadowTilePos;
-
-                    vOut.color = vIn[v].color;
-                    vOut.texcoord = vIn[v].texcoord;
-                    vOut.viewDist = vIn[v].viewDist;
-                    vOut.blockId = vIn[v].blockId;
-
-                    gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
-                    gl_Position.w = 1.0;
-
-                    gl_Position.xy = gl_Position.xy * 0.5 + 0.5;
-                    gl_Position.xy = gl_Position.xy * 0.5 + shadowTilePos;
-                    gl_Position.xy = gl_Position.xy * 2.0 - 1.0;
-
-                    EmitVertex();
-                }
-
-                EndPrimitive();
-            }
+        #ifdef SHADOW_CSM_OVERLAP
+            int cascadeMin = max(shadowTile - 1, 0);
+            int cascadeMax = min(shadowTile + 1, 3);
         #else
+            int cascadeMin = shadowTile;
+            int cascadeMax = shadowTile;
+        #endif
+
+        for (int c = cascadeMin; c <= cascadeMax; c++) {
+            if (c != shadowTile) {
+                #ifdef SHADOW_CSM_OVERLAP
+                    // duplicate geometry if intersecting overlapping cascades
+                    if (!CascadeContainsPosition(originShadowViewPos, c, 9.0)) continue;
+                #else
+                    continue;
+                #endif
+            }
+
+            vec2 shadowTilePos = shadowProjectionPos[c];
+
             for (int v = 0; v < 3; v++) {
+                vOut.shadowTilePos = shadowTilePos;
+
                 vOut.color = vIn[v].color;
                 vOut.texcoord = vIn[v].texcoord;
                 vOut.viewDist = vIn[v].viewDist;
                 vOut.blockId = vIn[v].blockId;
 
-                #ifdef IRIS_FEATURE_SSBO
-                    gl_Position.xyz = mul3(shadowProjectionEx, gl_in[v].gl_Position.xyz);
-                #else
-                    gl_Position.xyz = mul3(gl_ProjectionMatrix, gl_in[v].gl_Position.xyz);
-                #endif
-
-                gl_Position.xyz = distort(gl_Position.xyz);
+                gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
                 gl_Position.w = 1.0;
+
+                gl_Position.xy = gl_Position.xy * 0.5 + 0.5;
+                gl_Position.xy = gl_Position.xy * 0.5 + shadowTilePos;
+                gl_Position.xy = gl_Position.xy * 2.0 - 1.0;
 
                 EmitVertex();
             }
 
             EndPrimitive();
-        #endif
+        }
+    #else
+        for (int v = 0; v < 3; v++) {
+            vOut.color = vIn[v].color;
+            vOut.texcoord = vIn[v].texcoord;
+            vOut.viewDist = vIn[v].viewDist;
+            vOut.blockId = vIn[v].blockId;
+
+            #ifdef IRIS_FEATURE_SSBO
+                gl_Position.xyz = mul3(shadowProjectionEx, gl_in[v].gl_Position.xyz);
+            #else
+                gl_Position.xyz = mul3(gl_ProjectionMatrix, gl_in[v].gl_Position.xyz);
+            #endif
+
+            gl_Position.xyz = distort(gl_Position.xyz);
+            gl_Position.w = 1.0;
+
+            EmitVertex();
+        }
+
+        EndPrimitive();
     #endif
 }

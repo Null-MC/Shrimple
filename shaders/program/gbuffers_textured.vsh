@@ -17,7 +17,7 @@ out VertexData {
     //     vec3 cloudPos;
     // #endif
 
-    #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+    #ifdef RENDER_SHADOWS_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
             flat int shadowTile;
@@ -33,7 +33,7 @@ uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
-#ifdef WORLD_SHADOW_ENABLED
+#ifdef RENDER_SHADOWS_ENABLED
     uniform mat4 shadowModelView;
     uniform mat4 shadowProjection;
     uniform vec3 shadowLightPosition;
@@ -63,7 +63,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/utility/lightmap.glsl"
 
-#if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+#ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
@@ -75,6 +75,7 @@ uniform vec3 cameraPosition;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         #include "/lib/shadows/cascaded/common.glsl"
+        #include "/lib/shadows/cascaded/apply.glsl"
     #else
         #include "/lib/shadows/distorted/common.glsl"
         #include "/lib/shadows/distorted/apply.glsl"

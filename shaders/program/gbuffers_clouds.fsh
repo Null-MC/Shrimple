@@ -316,19 +316,19 @@ void main() {
     const float sss = 1.0;
 
     vec3 shadowColor = vec3(1.0);
-    #ifdef RENDER_SHADOWS_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-        #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #ifndef IRIS_FEATURE_SSBO
+    //         vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+    //     #endif
     
-        float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
+    //     float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
 
-        #ifdef SHADOW_COLORED
-            shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-        #else
-            shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
-        #endif
-    #endif
+    //     #ifdef SHADOW_COLORED
+    //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
+    //     #else
+    //         shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
+    //     #endif
+    // #endif
 
     float fogF = 0.0;
     #ifdef SKY_BORDER_FOG_ENABLED
