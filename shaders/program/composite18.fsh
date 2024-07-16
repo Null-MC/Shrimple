@@ -577,13 +577,13 @@ layout(location = 0) out vec4 outFinal;
 
             diffuseFinal *= deferredColor.a;
 
-            if (isWater) {
-                float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-                float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
-                deferredColor.a = clamp(deferredColor.a, skyF * MaterialReflectionStrength, 1.0);
+            vec3 f0 = GetMaterialF0(albedo, metal_f0);
+            if (isWater) f0 = vec3(0.02);
 
-                albedo.rgb *= 1.0 - skyF;
-            }
+            float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
+            vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
+            deferredColor.a = clamp(deferredColor.a, maxOf(skyF) * MaterialReflectionStrength, 1.0);
+            //albedo *= 1.0 - skyF;
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;

@@ -13,10 +13,14 @@ uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+
+#ifdef RENDER_SHADOWS_ENABLED
+    // uniform sampler2D BUFFER_DEFERRED_SHADOW;
+    uniform sampler2D texShadowSSS;
+#endif
 
 #ifdef EFFECT_SSAO_ENABLED
     uniform sampler2D texSSAO;
@@ -445,23 +449,24 @@ layout(location = 0) out vec4 outFinal;
             vec3 shadowColor = vec3(1.0);
             float shadowSSS = 0.0;
 
-            #ifdef RENDER_SHADOWS_ENABLED
-                #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
-                    #ifdef SHADOW_COLORED
-                        shadowColor = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
-                    #else
-                        shadowColor = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
-                    #endif
+            //#ifdef RENDER_SHADOWS_ENABLED
+                // #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
+                //     #ifdef SHADOW_COLORED
+                //         shadowColor = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
+                //     #else
+                //         shadowColor = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
+                //     #endif
 
-                    shadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).a;
-                #else
-                    vec4 deferredShadow = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
-                    shadowColor = deferredShadow.rgb;
-                    shadowSSS = deferredShadow.a;
-                #endif
+                //     shadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).a;
+                // #else
+                    // vec4 deferredShadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
+                    vec4 deferredShadowSSS = textureLod(texShadowSSS, texcoord, 0);
+                    shadowColor = deferredShadowSSS.rgb;
+                    shadowSSS = deferredShadowSSS.a;
+                // #endif
 
                 //occlusion = max(occlusion, luminance(shadowColor));
-            #endif
+            //#endif
 
             // apply parallax shadows
             shadowColor *= deferredWaterShadow.g;

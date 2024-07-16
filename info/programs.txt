@@ -23,8 +23,10 @@ deferred7		near-z [4]
 deferred8		near-z [5]
 
 deferred10		opaque deferred+ss shadows
-deferred11		opaque SSAO
-deferred12		non-deferred SSAO apply
+deferred11		opaque shadow filter
+deferred12		opaque SSAO
+deferred13		opaque SSAO filter
+deferred14		non-deferred SSAO apply
 
 composite1		propagate LPV
 composite2		build light bin lists
