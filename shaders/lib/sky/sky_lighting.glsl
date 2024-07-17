@@ -92,7 +92,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 ambientSkyLight_indirect = textureLod(texSkyIrradiance, uvSky, 0).rgb;
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    ambientSkyLight *= ambientSkyLight_indirect;
+    ambientSkyLight *= 3.0*ambientSkyLight_indirect;
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
         vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);

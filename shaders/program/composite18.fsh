@@ -779,11 +779,11 @@ layout(location = 0) out vec4 outFinal;
             vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
         #endif
 
-        #ifdef WORLD_WATER_ENABLED
-            vec3 ambientWaterTint = exp(-12.0 * WaterDensityF * WaterAbsorbF);
+        // #ifdef WORLD_WATER_ENABLED
+        //     vec3 ambientWaterTint = exp(-12.0 * WaterDensityF * WaterAbsorbF);
 
-            if (isWater && isEyeInWater != 1) opaqueFinal *= ambientWaterTint;
-        #endif
+        //     if (isWater && isEyeInWater != 1) opaqueFinal *= ambientWaterTint;
+        // #endif
 
         if (isWater) {
             if (tir) final.a = 1.0;
@@ -800,7 +800,9 @@ layout(location = 0) out vec4 outFinal;
         final.rgb += opaqueFinal * (1.0 - final.a);
 
         #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater == 1) final.rgb *= ambientWaterTint;
+            if (isEyeInWater == 1) {
+                final.rgb *= exp(-8.0 * WaterDensityF * WaterAbsorbF);
+            }
         #endif
 
         #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1

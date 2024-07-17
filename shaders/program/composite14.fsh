@@ -291,6 +291,8 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 albedo = RGBToLinear(deferredColor.rgb);
             vec3 f0 = GetMaterialF0(albedo, metal_f0);
+
+            // TODO: use underwater f0?
             
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
@@ -386,9 +388,16 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
-                // if (isWater && isEyeInWater != 1) {
-                //     final.rgb *= exp(-3.0 * WaterDensityF * WaterAbsorbF);
-                // }
+                #if WATER_DEPTH_LAYERS == 1
+                    // WARN: THIS DOESNT WORK!
+                    // deferred data is on opaque buffer for reflections
+                    float deferredWater = unpackUnorm4x8(deferredData.b).r;
+                    isWater = true;//deferredWater > 0.5;
+                #endif
+
+                if (isWater && isEyeInWater != 1) {
+                    final.rgb *= exp(-8.0 * WaterDensityF * WaterAbsorbF);
+                }
 
                 //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);
@@ -408,10 +417,6 @@ layout(location = 0) out vec4 outFinal;
                 float waterDepthAirFinal = 0.0;
 
                 #if WATER_DEPTH_LAYERS == 1
-                    //float deferredShadowA = texelFetch(BUFFER_DEFERRED_SHADOW, iTex, 0).a;
-                    float deferredWater = unpackUnorm4x8(deferredData.b).r;
-                    isWater = deferredWater > 0.5;
-
                     // if (isWater && isEyeInWater != 1) {
                     //     waterDist = distOpaque - distTranslucent;
                     // }
