@@ -69,7 +69,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 H = normalize(localSkyLightDir + localViewDir);
     vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * (1.0 - ambientF) * skyLightShadowColor;
 
-    vec3 ambientSkyLight = vec3(_pow3(lmcoord.y));
+    vec3 ambientSkyLight = vec3(_pow2(lmcoord.y));
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetLPVPosition(localPos);

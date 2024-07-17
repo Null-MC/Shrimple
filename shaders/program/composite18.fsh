@@ -302,10 +302,6 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0
-    #include "/lib/sampling/shadow_filter.glsl"
-#endif
-
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/sky/sky_lighting.glsl"
 #endif
