@@ -63,7 +63,7 @@ void ApplySkyWetness(inout float roughL, const in float porosity, const in float
     // surfaceWetness = skyWetness;// * (1.0 - porosity);
     float surfaceWetness = max(skyWetness, puddleF);
 
-    roughL = mix(roughL, WATER_ROUGH, _pow2(surfaceWetness));
+    roughL = mix(roughL, WATER_ROUGH, _pow3(surfaceWetness));
 }
 
 #if defined RENDER_GBUFFER
