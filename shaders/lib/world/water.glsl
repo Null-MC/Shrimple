@@ -3,7 +3,7 @@ float WaterDensityF = waterDensitySmooth * Water_DensityF;
 vec3 WaterScatterF = _RGBToLinear(WaterScatterColor);
 vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);
 
-const float WaterAmbientDepth = 8.0;
+const float WaterAmbientDepth = 2.0;
 
 
 #if WATER_WAVE_SIZE == 3
