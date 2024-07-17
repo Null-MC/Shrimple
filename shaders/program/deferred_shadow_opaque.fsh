@@ -223,11 +223,7 @@ void main() {
                     sssSample = GetSssFactor(shadowPos, offsetBias, sss);
                 #endif
 
-                sssSample = mix(sssSample, sss, shadowFade);
-
-                sssSample *= 1.0 - 0.5*(1.0 - max(geoNoL, 0.0));
-
-                sssFinal = sssSample;
+                sssFinal = mix(sssSample, sss, shadowFade);
             #endif
 
             // #ifdef SHADOW_COLORED
@@ -246,6 +242,93 @@ void main() {
 
             // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
             // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
+
+            #ifdef SHADOW_SCREEN
+                float viewDist = length(viewPos);
+                vec3 lightViewDir = mat3(gbufferModelView) * localSkyLightDirection;
+                vec3 endViewPos = lightViewDir * viewDist * 0.1 + viewPos;
+
+                #ifdef DISTANT_HORIZONS
+                    vec3 clipPosEnd = unproject(dhProjectionFull, endViewPos) * 0.5 + 0.5;
+
+                    clipPosStart = unproject(dhProjectionFull, viewPos) * 0.5 + 0.5;
+                #else
+                    vec3 clipPosEnd = unproject(gbufferProjection, endViewPos) * 0.5 + 0.5;
+                #endif
+
+                vec3 traceScreenDir = normalize(clipPosEnd - clipPosStart);
+
+                #ifdef EFFECT_TAA_ENABLED
+                    clipPosStart.xy += jitterOffset;
+                #endif
+
+                vec3 traceScreenStep = traceScreenDir * pixelSize.y;
+                vec2 traceScreenDirAbs = abs(traceScreenDir.xy);
+                // traceScreenStep /= (traceScreenDirAbs.y > 0.5 * aspectRatio ? traceScreenDirAbs.y : traceScreenDirAbs.x);
+                traceScreenStep /= mix(traceScreenDirAbs.x, traceScreenDirAbs.y, traceScreenDirAbs.y);
+
+                vec3 traceScreenPos = clipPosStart;
+                traceScreenStep *= 1.0 + dither;
+
+                float traceDist = 0.0;
+                float shadowTrace = 1.0;
+                for (uint i = 0; i < SHADOW_SCREEN_STEPS; i++) {
+                    if (shadowTrace < EPSILON) break;
+                    // if (all(lessThan(shadowTrace * shadowFinal, EPSILON3))) break;
+
+                    traceScreenPos += traceScreenStep;
+
+                    if (saturate(traceScreenPos) != traceScreenPos) break;
+
+                    ivec2 sampleUV = ivec2(traceScreenPos.xy * viewSize);
+                    float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
+                    float sampleDepthHand = texelFetch(depthtex2, sampleUV, 0).r;
+                    bool isSampleHand = sampleDepthHand > sampleDepth + EPSILON;
+
+                    if (isSampleHand && !isHand) continue;
+
+                    if (sampleDepthHand > sampleDepth + EPSILON) {
+                        sampleDepth = sampleDepth * 2.0 - 1.0;
+                        sampleDepth /= MC_HAND_DEPTH;
+                        sampleDepth = sampleDepth * 0.5 + 0.5;
+                    }
+
+                    float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
+
+                    #ifdef DISTANT_HORIZONS
+                        float dhSampleDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
+                        float dhSampleDepthL = linearizeDepth(dhSampleDepth, dhNearPlane, dhFarPlane);
+
+                        if (sampleDepth >= 1.0 || (dhSampleDepthL < sampleDepthL && dhSampleDepth > 0.0)) {
+                            sampleDepthL = dhSampleDepthL;
+                            sampleDepth = dhSampleDepth;
+                        }
+
+                        float traceDepthL = linearizeDepth(traceScreenPos.z, near, dhFarPlane);
+                    #else
+                        float traceDepthL = linearizeDepth(traceScreenPos.z, near, farPlane);
+                    #endif
+
+                    float sampleDiff = traceDepthL - sampleDepthL;
+                    if (sampleDiff > 0.001 * viewDist) {
+                        #ifdef DISTANT_HORIZONS
+                            vec3 traceViewPos = unproject(dhProjectionFullInv, traceScreenPos * 2.0 - 1.0);
+                        #else
+                            vec3 traceViewPos = unproject(gbufferProjectionInverse, traceScreenPos * 2.0 - 1.0);
+                        #endif
+
+                        traceDist = length(traceViewPos - viewPos);
+                        shadowTrace *= step(traceDist, sampleDiff * ShadowScreenSlope);
+                    }
+                }
+
+                #if MATERIAL_SSS != 0
+                    if (traceDist > 0.0) {
+                        //float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
+                        sssFinal *= 1.0 - saturate(traceDist / MATERIAL_SSS_MAXDIST);
+                    }
+                #endif
+            #endif
 
             if (geoNoL > 0.0) {
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -288,84 +371,6 @@ void main() {
                 #endif
 
                 #ifdef SHADOW_SCREEN
-                    float viewDist = length(viewPos);
-                    vec3 lightViewDir = mat3(gbufferModelView) * localSkyLightDirection;
-                    vec3 endViewPos = lightViewDir * viewDist * 0.1 + viewPos;
-
-                    #ifdef DISTANT_HORIZONS
-                        vec3 clipPosEnd = unproject(dhProjectionFull, endViewPos) * 0.5 + 0.5;
-
-                        clipPosStart = unproject(dhProjectionFull, viewPos) * 0.5 + 0.5;
-                    #else
-                        vec3 clipPosEnd = unproject(gbufferProjection, endViewPos) * 0.5 + 0.5;
-                    #endif
-
-                    vec3 traceScreenDir = normalize(clipPosEnd - clipPosStart);
-
-                    #ifdef EFFECT_TAA_ENABLED
-                        clipPosStart.xy += jitterOffset;
-                    #endif
-
-                    vec3 traceScreenStep = traceScreenDir * pixelSize.y;
-                    vec2 traceScreenDirAbs = abs(traceScreenDir.xy);
-                    // traceScreenStep /= (traceScreenDirAbs.y > 0.5 * aspectRatio ? traceScreenDirAbs.y : traceScreenDirAbs.x);
-                    traceScreenStep /= mix(traceScreenDirAbs.x, traceScreenDirAbs.y, traceScreenDirAbs.y);
-
-                    vec3 traceScreenPos = clipPosStart;
-                    traceScreenStep *= 1.0 + dither;
-
-                    float traceDist = 0.0;
-                    float shadowTrace = 1.0;
-                    for (uint i = 0; i < SHADOW_SCREEN_STEPS; i++) {
-                        if (shadowTrace < EPSILON) break;
-                        // if (all(lessThan(shadowTrace * shadowFinal, EPSILON3))) break;
-
-                        traceScreenPos += traceScreenStep;
-
-                        if (saturate(traceScreenPos) != traceScreenPos) break;
-
-                        ivec2 sampleUV = ivec2(traceScreenPos.xy * viewSize);
-                        float sampleDepth = texelFetch(depthtex1, sampleUV, 0).r;
-                        float sampleDepthHand = texelFetch(depthtex2, sampleUV, 0).r;
-                        bool isSampleHand = sampleDepthHand > sampleDepth + EPSILON;
-
-                        if (isSampleHand && !isHand) continue;
-
-                        if (sampleDepthHand > sampleDepth + EPSILON) {
-                            sampleDepth = sampleDepth * 2.0 - 1.0;
-                            sampleDepth /= MC_HAND_DEPTH;
-                            sampleDepth = sampleDepth * 0.5 + 0.5;
-                        }
-
-                        float sampleDepthL = linearizeDepth(sampleDepth, near, farPlane);
-
-                        #ifdef DISTANT_HORIZONS
-                            float dhSampleDepth = texelFetch(dhDepthTex, sampleUV, 0).r;
-                            float dhSampleDepthL = linearizeDepth(dhSampleDepth, dhNearPlane, dhFarPlane);
-
-                            if (sampleDepth >= 1.0 || (dhSampleDepthL < sampleDepthL && dhSampleDepth > 0.0)) {
-                                sampleDepthL = dhSampleDepthL;
-                                sampleDepth = dhSampleDepth;
-                            }
-
-                            float traceDepthL = linearizeDepth(traceScreenPos.z, near, dhFarPlane);
-                        #else
-                            float traceDepthL = linearizeDepth(traceScreenPos.z, near, farPlane);
-                        #endif
-
-                        float sampleDiff = traceDepthL - sampleDepthL;
-                        if (sampleDiff > 0.001 * viewDist) {
-                            #ifdef DISTANT_HORIZONS
-                                vec3 traceViewPos = unproject(dhProjectionFullInv, traceScreenPos * 2.0 - 1.0);
-                            #else
-                                vec3 traceViewPos = unproject(gbufferProjectionInverse, traceScreenPos * 2.0 - 1.0);
-                            #endif
-
-                            traceDist = length(traceViewPos - viewPos);
-                            shadowTrace *= step(traceDist, sampleDiff * ShadowScreenSlope);
-                        }
-                    }
-
                     if (traceDist > 0.0) {
                         //float sss_offset = 0.5 * dither * sss * saturate(1.0 - traceDist / MATERIAL_SSS_MAXDIST);
                         shadowFinal *= shadowTrace;// * (1.0 - sss_offset) + sss_offset;
@@ -375,6 +380,10 @@ void main() {
             else {
                 shadowFinal = vec3(0.0);
             }
+
+            #if MATERIAL_SSS != 0
+                sssFinal *= 1.0 - 0.5*(1.0 - max(geoNoL, 0.0));
+            #endif
         }
 
         outShadow = vec4(shadowFinal, sssFinal);
