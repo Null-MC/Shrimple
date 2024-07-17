@@ -68,11 +68,12 @@ void ApplyPostGrading(inout vec3 color) {
         #endif
     #endif
 
-    const float postTemp = POST_TEMP * 100.0 + 50.0;
-    // const float postTempStrength = 1.0;
+    vec3 colorOut = color;
 
-    // vec3 colorOut = mix(color, color * colorTemperatureToRGB(postTemp), postTempStrength);
-    vec3 colorOut = color * colorTemperatureToRGB(postTemp);
+    #if POST_TEMP != 58
+        const float postTemp = POST_TEMP * 100.0 + 50.0;
+        colorOut *= colorTemperatureToRGB(postTemp);
+    #endif
 
     float lum = luminance(color);
     float lumOut = luminance(colorOut);
