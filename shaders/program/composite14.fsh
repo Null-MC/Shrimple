@@ -395,9 +395,9 @@ layout(location = 0) out vec4 outFinal;
                     isWater = true;//deferredWater > 0.5;
                 #endif
 
-                if (isWater && isEyeInWater != 1) {
-                    final.rgb *= exp(-8.0 * WaterDensityF * WaterAbsorbF);
-                }
+                // if (isWater && isEyeInWater != 1) {
+                //     final.rgb *= exp(-8.0 * WaterDensityF * WaterAbsorbF);
+                // }
 
                 //uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
                 //vec4 deferredTexture = unpackUnorm4x8(deferredData.a);

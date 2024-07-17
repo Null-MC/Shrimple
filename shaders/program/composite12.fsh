@@ -609,6 +609,12 @@ layout(location = 0) out vec4 outFinal;
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
             #endif
 
+            #ifdef WORLD_WATER_ENABLED
+                if (hasWaterDepth && isEyeInWater != 1) {
+                    final *= exp(-WaterAmbientDepth * WaterDensityF * WaterAbsorbF);
+                }
+            #endif
+
 
             // #ifdef DISTANT_HORIZONS
             //     float fogDist = GetShapedFogDistance(localPos);

@@ -797,7 +797,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {
-                final.rgb *= exp(-8.0 * WaterDensityF * WaterAbsorbF);
+                final.rgb *= exp(-WaterAmbientDepth * WaterDensityF * WaterAbsorbF);
             }
         #endif
 
