@@ -454,19 +454,17 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     #ifdef WORLD_WATER_ENABLED
-        float oceanFoam = 0.0;
-
-        #if defined WATER_FOAM || defined WATER_FLOW
-            #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
-                vec3 waterWorldPos = vIn.surfacePos + cameraPosition;
-            #else
-                vec3 waterWorldPos = worldPos;
-            #endif
+        #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
+            vec3 waterLocalPos = vIn.surfacePos;
+        #else
+            vec3 waterLocalPos = vIn.localPos;
         #endif
 
+        vec3 waterWorldPos = waterLocalPos + cameraPosition;
+
+        float oceanFoam = 0.0;
         #ifdef WATER_FOAM
             oceanFoam = SampleWaterFoam(waterWorldPos, localNormal);
-            // oceanFoam = SampleWaterBump(waterWorldPos, localNormal);
         #endif
 
         #ifndef WATER_TEXTURED
@@ -480,7 +478,7 @@ void main() {
             #if WATER_WAVE_SIZE > 0
                 if (abs(vIn.localNormal.y) > 0.5) {
                     float time = GetAnimationFactor();
-                    waveOffset = GetWaveHeight(cameraPosition + vIn.surfacePos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
+                    waveOffset = GetWaveHeight(waterWorldPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
                 }
             #endif
         }
@@ -689,7 +687,7 @@ void main() {
             if (abs(vIn.localNormal.y) > 0.5) {
                 float waveDistF = 32.0 / (32.0 + viewDist);
 
-                vec3 wavePos = vIn.surfacePos;
+                vec3 wavePos = waterLocalPos;
                 wavePos.y += waveOffset.y * waveDistF;
 
                 vec3 dX = normalize(dFdx(wavePos));
@@ -709,7 +707,7 @@ void main() {
         #ifdef WATER_FLOW
             float bump = SampleWaterBump(waterWorldPos, localNormal);
 
-            vec3 bumpPos = vIn.surfacePos + 0.15*bump * localNormal;
+            vec3 bumpPos = waterLocalPos + 0.15*bump * localNormal;
             vec3 bumpDX = dFdx(bumpPos);
             vec3 bumpDY = dFdy(bumpPos);
             vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));

@@ -168,6 +168,9 @@ option.WATER_DEPTH_LAYERS.comment=Allows rendering of multiple overlapping water
 option.WATER_FLOW=Flowing
 option.WATER_FLOW.comment=Adds moving bumps to flowing water.
 
+option.WATER_FOAM=Surface Foam
+option.WATER_FOAM.comment=Adds foamy bubbles to the water surface.
+
 
 screen.WATER_WAVE_OPTIONS=Water Waves
 

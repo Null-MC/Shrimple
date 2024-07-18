@@ -8,7 +8,7 @@ layout (vertices=3) out;
 #include "/lib/common.glsl"
 
 const float MIN_DISTANCE = 4;
-const float MAX_DISTANCE = 28;
+const float MAX_DISTANCE = 40;
 // const int MAX_TESS_LEVEL = 16;
 
 in VertexData {

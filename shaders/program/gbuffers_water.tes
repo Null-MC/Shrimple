@@ -187,8 +187,8 @@ void main() {
 
             // reduce wave strength lower surface is
             // prevent waving if connected to above water
-            float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
-            float yF = vertexY * step(vertexY, (15.5/16.0));
+            // float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
+            // float yF = vertexY * step(vertexY, (15.5/16.0));
 
             #if WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
                 float time = GetAnimationFactor();
