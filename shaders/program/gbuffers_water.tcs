@@ -9,7 +9,7 @@ layout (vertices=3) out;
 
 const float MIN_DISTANCE = 4;
 const float MAX_DISTANCE = 28;
-const int MAX_TESS_LEVEL = 16;
+// const int MAX_TESS_LEVEL = 16;
 
 in VertexData {
     vec4 color;
@@ -149,7 +149,7 @@ void main() {
 
         #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
             if (vIn[0].blockId == BLOCK_WATER)
-                maxQuality = MAX_TESS_LEVEL;
+                maxQuality = WATER_TESSELLATION_QUALITY;
         #endif
 
         vec3 distances = GetPatchDistances(MIN_DISTANCE, MAX_DISTANCE);

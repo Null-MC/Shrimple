@@ -131,6 +131,7 @@ const bool colortex15Clear = true;
 #define WATER_DISPLACEMENT
 #define WATER_CAUSTICS
 // #define WATER_FOAM
+#define WATER_FLOW
 
 
 // Material Options

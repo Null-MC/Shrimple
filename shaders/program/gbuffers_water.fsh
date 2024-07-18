@@ -358,7 +358,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #ifdef WATER_FOAM
+    #if defined WATER_FOAM || defined WATER_FLOW
         #include "/lib/water/foam.glsl"
     #endif
 
@@ -456,13 +456,15 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
 
-        #ifdef WATER_FOAM
+        #if defined WATER_FOAM || defined WATER_FLOW
             #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
                 vec3 waterWorldPos = vIn.surfacePos + cameraPosition;
             #else
                 vec3 waterWorldPos = worldPos;
             #endif
+        #endif
 
+        #ifdef WATER_FOAM
             oceanFoam = SampleWaterFoam(waterWorldPos, localNormal);
             // oceanFoam = SampleWaterBump(waterWorldPos, localNormal);
         #endif
@@ -471,28 +473,14 @@ void main() {
             if (isWater) skipParallax = true;
         #endif
 
-        if (isWater && abs(vIn.localNormal.y) > 0.5) {
+        vec3 waveOffset = vec3(0.0);
+        if (isWater) {
             skipParallax = true;
 
             #if WATER_WAVE_SIZE > 0
-                float waveDistF = 32.0 / (32.0 + viewDist);
-
-                // texNormal = water_waveNormal(worldPos.xz, vIn.lmcoord.y, viewDist, waterUvOffset);
-                float time = GetAnimationFactor();
-                vec3 waveOffset = GetWaveHeight(cameraPosition + vIn.surfacePos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vec3 wavePos = vIn.surfacePos;
-                wavePos.y += waveOffset.y * waveDistF;
-
-                vec3 dX = normalize(dFdx(wavePos.xzy));
-                vec3 dY = normalize(dFdy(wavePos.xzy));
-                texNormal = normalize(cross(dY, dX));
-                waterUvOffset = waveOffset.xz * waveDistF;
-
-                if (localNormal.y < 0.0) texNormal = -texNormal;
-
-                if (localNormal.y >= 1.0 - EPSILON) {
-                    localCoord += waterUvOffset;
-                    atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+                if (abs(vIn.localNormal.y) > 0.5) {
+                    float time = GetAnimationFactor();
+                    waveOffset = GetWaveHeight(cameraPosition + vIn.surfacePos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
                 }
             #endif
         }
@@ -695,6 +683,41 @@ void main() {
     vec3 localTangent = normalize(vIn.localTangent.xyz);
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
     texNormal = matLocalTBN * texNormal;
+
+    if (isWater) {
+        #if WATER_WAVE_SIZE > 0
+            if (abs(vIn.localNormal.y) > 0.5) {
+                float waveDistF = 32.0 / (32.0 + viewDist);
+
+                vec3 wavePos = vIn.surfacePos;
+                wavePos.y += waveOffset.y * waveDistF;
+
+                vec3 dX = normalize(dFdx(wavePos));
+                vec3 dY = normalize(dFdy(wavePos));
+                texNormal = normalize(cross(dX, dY));
+                waterUvOffset = waveOffset.xz * waveDistF;
+
+                // if (localNormal.y < 0.0) texNormal = -texNormal;
+
+                if (localNormal.y >= 1.0 - EPSILON) {
+                    localCoord += waterUvOffset;
+                    atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+                }
+            }
+        #endif
+
+        #ifdef WATER_FLOW
+            float bump = SampleWaterBump(waterWorldPos, localNormal);
+
+            vec3 bumpPos = vIn.surfacePos + 0.15*bump * localNormal;
+            vec3 bumpDX = dFdx(bumpPos);
+            vec3 bumpDY = dFdy(bumpPos);
+            vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
+
+            // texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - max(localNormal.y, 0.0)));
+            texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
+        #endif
+    }
 
     // #if MATERIAL_NORMALS != NORMALMAP_NONE
     //     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

@@ -149,7 +149,7 @@ value.WATER_VOL_FOG_TYPE.2=Fancy
 option.WATER_TEXTURED=Texture
 
 option.WATER_OPACITY=Surface Opacity
-option.WATER_OPACITY.comment=How transparent the water surface will be.
+option.WATER_OPACITY.comment=How opaque/visible the water surface will be.
 suffix.WATER_OPACITY=%
 
 option.WATER_COLOR_TYPE=Color
@@ -163,6 +163,10 @@ option.WATER_FOG_DENSITY.comment=How dense/transparent water fog will be.
 suffix.WATER_FOG_DENSITY=%
 
 option.WATER_DEPTH_LAYERS=Depth Layers
+option.WATER_DEPTH_LAYERS.comment=Allows rendering of multiple overlapping water volumes.
+
+option.WATER_FLOW=Flowing
+option.WATER_FLOW.comment=Adds moving bumps to flowing water.
 
 
 screen.WATER_WAVE_OPTIONS=Water Waves

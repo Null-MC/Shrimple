@@ -2,7 +2,7 @@
 #define RENDER_GBUFFER
 #define RENDER_TESS_EVAL
 
-layout (triangles, fractional_odd_spacing, ccw) in;
+layout (triangles, fractional_even_spacing, ccw) in;
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
@@ -83,6 +83,10 @@ out VertexData {
     uniform sampler2D normals;
 #endif
 
+#if defined WORLD_WATER_ENABLED && defined WATER_FLOW
+    uniform sampler3D texClouds;
+#endif
+
 uniform mat4 gbufferModelView;
 
 #ifdef WORLD_WATER_ENABLED
@@ -112,6 +116,10 @@ uniform mat4 gbufferModelView;
 
     #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
+    #endif
+
+    #ifdef WATER_FLOW
+        #include "/lib/water/foam.glsl"
     #endif
 
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED && defined WATER_TESSELLATION_ENABLED
@@ -170,11 +178,6 @@ void main() {
 
             float distF = 1.0 - smoothstep(0.2, 2.8, length(vOut.surfacePos));
             distF = 1.0 - _pow2(distF);
-
-            // reduce wave strength lower surface is
-            // prevent waving if connected to above water
-            float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
-            distF *= vertexY * step(vertexY, (15.5/16.0));
             
             #ifdef DISTANT_HORIZONS
                 float viewDist = length(vOut.localPos.xyz);
@@ -182,14 +185,20 @@ void main() {
                 distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
             #endif
 
+            // reduce wave strength lower surface is
+            // prevent waving if connected to above water
+            float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
+            float yF = vertexY * step(vertexY, (15.5/16.0));
+
             #if WATER_WAVE_SIZE > 0 && defined WATER_DISPLACEMENT
                 float time = GetAnimationFactor();
-                //vOut.localPos = (gbufferModelViewInverse * gl_Position).xyz;
-
-                // vec2 uvOffset;
-                // float waveHeight = water_waveHeight(vOut.localPos.xz + cameraPosition.xz, vOut.lmcoord.y, time, uvOffset);
                 vec3 waveOffset = GetWaveHeight(cameraPosition + vOut.localPos, vOut.lmcoord.y, time, WATER_WAVE_DETAIL);
-                vOut.localPos.y += distF * waveOffset.y;
+                vOut.localPos.y += distF * waveOffset.y;// * yF;// * abs(vOut.localNormal.y);
+
+                // #ifdef WATER_FLOW
+                //     float bump = SampleWaterBump(vOut.surfacePos + cameraPosition, vOut.localNormal);
+                //     vOut.localPos += 0.25 * distF * bump * vOut.localNormal;
+                // #endif
             #endif
 
             gl_Position.xyz = mul3(gbufferModelView, vOut.localPos);
