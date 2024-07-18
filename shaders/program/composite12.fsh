@@ -445,7 +445,7 @@ layout(location = 0) out vec4 outFinal;
             vec3 shadowColor = vec3(1.0);
             float shadowSSS = 0.0;
 
-            //#ifdef RENDER_SHADOWS_ENABLED
+            #ifdef RENDER_SHADOWS_ENABLED
                 // #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
                 //     #ifdef SHADOW_COLORED
                 //         shadowColor = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
@@ -462,7 +462,7 @@ layout(location = 0) out vec4 outFinal;
                 // #endif
 
                 //occlusion = max(occlusion, luminance(shadowColor));
-            //#endif
+            #endif
 
             // apply parallax shadows
             shadowColor *= deferredWaterShadow.g;
@@ -577,7 +577,7 @@ layout(location = 0) out vec4 outFinal;
                 diffuseFinal += WorldAmbientF * occlusion;
             #endif
 
-            #if MATERIAL_SSS != 0
+            #if MATERIAL_SSS != 0 && defined RENDER_SHADOWS_ENABLED
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                 vec3 sssFinal = shadowSSS * MaterialSssStrengthF * skyLightColor;
 

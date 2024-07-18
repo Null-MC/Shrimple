@@ -358,6 +358,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
+    #ifdef WATER_FOAM
+        #include "/lib/water/foam.glsl"
+    #endif
+
     #if WATER_WAVE_SIZE > 0
         #include "/lib/world/water_waves.glsl"
     #endif
@@ -451,6 +455,17 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         float oceanFoam = 0.0;
+
+        #ifdef WATER_FOAM
+            #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
+                vec3 waterWorldPos = vIn.surfacePos + cameraPosition;
+            #else
+                vec3 waterWorldPos = worldPos;
+            #endif
+
+            oceanFoam = SampleWaterFoam(waterWorldPos, localNormal);
+            // oceanFoam = SampleWaterBump(waterWorldPos, localNormal);
+        #endif
 
         #ifndef WATER_TEXTURED
             if (isWater) skipParallax = true;
@@ -571,21 +586,6 @@ void main() {
         return;
     }
 
-    #ifdef WORLD_WATER_ENABLED
-        if (isWater) {
-            // #ifndef WATER_TEXTURED
-            //     // color = vec4(vec3(1.0), Water_OpacityF);
-            // #elif defined DISTANT_HORIZONS
-            //     float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
-            //     color = mix(color, vec4(1.0), distF);
-            // #endif
-
-            color.a = max(color.a, 0.02);
-
-            color = mix(color, vec4(1.0), oceanFoam);
-        }
-    #endif
-
     vec3 albedo = RGBToLinear(color.rgb * vIn.color.rgb);
     // albedo = vec3(0.3, 0.6, 0.9);
 
@@ -611,11 +611,23 @@ void main() {
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
             //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
-            float distF = 16.0 / (viewDist + 16.0);
+            //float distF = 16.0 / (viewDist + 16.0);
             //float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
 
+            albedo = mix(albedo, vec3(1.0), oceanFoam);
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
+            sss = oceanFoam;
+
+            // #ifndef WATER_TEXTURED
+            //     // color = vec4(vec3(1.0), Water_OpacityF);
+            // #elif defined DISTANT_HORIZONS
+            //     float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
+            //     color = mix(color, vec4(1.0), distF);
+            // #endif
+
+            color.a = max(color.a, 0.02);
+            color.a = mix(color.a, 1.0, oceanFoam);
         }
     #endif
 
