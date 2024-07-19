@@ -338,7 +338,7 @@ void main() {
             bool isWater = false;
             #if defined WORLD_WATER_ENABLED
                 #if WATER_DEPTH_LAYERS > 1
-                    isWater = true;
+                    // isWater = true;
                 #else
                     if (isEyeInWater != 1)
                         isWater = GetWaterMask(iTex);
@@ -365,6 +365,10 @@ void main() {
             #endif
             #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
                 if (isEyeInWater != 1 && isWater) hasVl = true;
+
+                #if WATER_DEPTH_LAYERS > 1
+                    hasVl = true;
+                #endif
             #endif
 
             #ifdef WORLD_WATER_ENABLED

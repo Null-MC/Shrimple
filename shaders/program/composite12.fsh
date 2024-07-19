@@ -488,6 +488,8 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
+                bool isWater = GetWaterMask(ivec2(gl_FragCoord.xy));
+
                 #if WATER_DEPTH_LAYERS > 1
                     uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
                     uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
@@ -512,7 +514,7 @@ layout(location = 0) out vec4 outFinal;
                 #else
                     bool hasWaterDepth = isEyeInWater == 1
                         ? depthOpaqueL <= depthTransL
-                        : (depthTransL < depthOpaqueL && GetWaterMask(ivec2(gl_FragCoord.xy)));
+                        : (depthTransL < depthOpaqueL && isWater);
                 #endif
 
                 if (hasWaterDepth) {
@@ -615,7 +617,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #ifdef WORLD_WATER_ENABLED
-                if (hasWaterDepth && isEyeInWater != 1) {
+                if (isWater && isEyeInWater != 1) {
                     final *= exp(-WaterAmbientDepth * WaterDensityF * WaterAbsorbF);
                 }
             #endif

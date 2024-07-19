@@ -155,6 +155,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #ifdef WORLD_SKY_ENABLED
             #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
+                isWater = false;
+                
                 if (waterDepth[0] < farDist) {
                     isWater = traceDist > waterDepth[0] && traceDist < waterDepth[1];
                     // waterDepthEye += max(traceDist - waterDepth[0], 0.0);
