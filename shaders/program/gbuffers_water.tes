@@ -165,17 +165,8 @@ void main() {
         vOut.surfacePos = _interpolate(vIn[0].surfacePos, vIn[1].surfacePos, vIn[2].surfacePos);
     #endif
 
-    // #if WATER_TESSELLATION_QUALITY > 0 || WATER_WAVE_SIZE > 0
-    //     vOut.vertexY = _interpolate(vIn[0].surfacePos, vIn[1].surfacePos, vIn[2].surfacePos);
-    // #endif
-
     if (vIn[0].blockId == BLOCK_WATER) {
         #if defined WORLD_WATER_ENABLED && defined WATER_TESSELLATION_ENABLED
-            // if (abs(vLocalNormal.y) > 0.999 && (gl_Vertex.y + at_midBlock.y/64.0) < 0.0) {
-            //     gl_Position = vec4(-1.0);
-            //     return;
-            // }
-
             float distF = 1.0 - smoothstep(0.2, 2.8, length(vOut.surfacePos));
             distF = 1.0 - _pow2(distF);
             
@@ -205,7 +196,7 @@ void main() {
             gl_Position.w = 1.0;
 
             // TODO: is this really worth it?
-            // #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
+            // #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
             //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             //         vOut.shadowTile = -1;
             //     #endif
@@ -238,7 +229,6 @@ void main() {
         #if DISPLACE_MODE == DISPLACE_TESSELATION
             vOut.localPos += GetSampleOffset();
 
-            // gl_Position = gbufferModelView * vec4(vOut.localPos, 1.0);
             gl_Position.xyz = mul3(gbufferModelView, vOut.localPos);
             gl_Position.w = 1.0;
 
@@ -253,10 +243,6 @@ void main() {
             vOut.lightPos_T = _interpolate(vIn[0].lightPos_T, vIn[1].lightPos_T, vIn[2].lightPos_T);
         #endif
     #endif
-
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vOut.cloudPos = _interpolate(vIn[0].cloudPos, vIn[1].cloudPos, vIn[2].cloudPos);
-    // #endif
 
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

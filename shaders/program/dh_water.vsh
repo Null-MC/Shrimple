@@ -168,9 +168,5 @@ void main() {
         #else
             vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
         #endif
-
-        // #if defined RENDER_CLOUD_SHADOWS_ENABLED
-        //     vOut.cloudPos = ApplyCloudShadows(vOut.localPos);
-        // #endif
     #endif
 }

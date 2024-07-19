@@ -502,13 +502,13 @@ layout(location = 0) out vec4 outFinal;
                 deferredSSS = deferredShadowSss.a;
             #endif
 
-            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
-                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    shadowColor *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                // #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
-                #endif
-            #endif
+            // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+            //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            //         shadowColor *= TraceCloudShadow(cameraPosition + localPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+            //     // #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            //     //     shadow *= SampleCloudShadow(localSkyLightDirection, cloudPos);
+            //     #endif
+            // #endif
 
             float occlusion = deferredLighting.z;
             float emission = deferredLighting.a;
@@ -564,13 +564,25 @@ layout(location = 0) out vec4 outFinal;
                 diffuseFinal += WorldAmbientF * occlusion;
             #endif
 
+            #if MATERIAL_SSS != 0 && defined RENDER_SHADOWS_ENABLED
+                vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+                vec3 sssFinal = deferredSSS * MaterialSssStrengthF * skyLightColor;
+
+                vec2 uvSky = DirectionToUV(localViewDir);
+                float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
+                vec3 sssSkyColor = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+                sssFinal += sssSkyColor * (sss * occlusion * sssSkyLight * Sky_BrightnessF);
+
+                // vec3 sssColor = vec3(1.0);
+                // if (any(greaterThan(albedo, EPSILON3)))
+                //     sssColor = normalize(albedo);
+                // sssFinal *= sssColor;
+
+                diffuseFinal += sssFinal;
+            #endif
+
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
-
-                // if (metal_f0 >= 0.5) {
-                //     diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-                //     specularFinal *= albedo;
-                // }
             #endif
 
             diffuseFinal *= deferredColor.a;

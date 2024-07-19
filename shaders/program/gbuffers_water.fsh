@@ -461,18 +461,15 @@ void main() {
         #endif
 
         vec3 waterWorldPos = waterLocalPos + cameraPosition;
-
-        float oceanFoam = 0.0;
-        #ifdef WATER_FOAM
-            oceanFoam = SampleWaterFoam(waterWorldPos, localNormal);
-        #endif
-
-        #ifndef WATER_TEXTURED
-            if (isWater) skipParallax = true;
-        #endif
-
         vec3 waveOffset = vec3(0.0);
+        float oceanFoam = 0.0;
+
+
         if (isWater) {
+            // TODO: enable textured water parallax for non-flowing only
+            // #ifndef WATER_TEXTURED
+            //     skipParallax = true;
+            // #endif
             skipParallax = true;
 
             #if WATER_WAVE_SIZE > 0
@@ -482,10 +479,13 @@ void main() {
                 }
             #endif
         }
+
+        #ifdef WATER_FOAM
+            oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localNormal);
+        #endif
     #endif
 
     #ifdef DISTANT_HORIZONS
-        //float viewDistXZ = length(vIn.localPos.xz);
         if (viewDist > dh_clipDistF * far) {
             discard;
             return;
@@ -493,11 +493,7 @@ void main() {
     #endif
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
-            SetWaterDepth(viewDist);
-            // discard;
-            // return;
-        }
+        if (isWater) SetWaterDepth(viewDist);
     #endif
 
     float porosity = 0.0;
@@ -523,18 +519,12 @@ void main() {
     #endif
 
     #ifdef PARALLAX_ENABLED
-        //bool isMissingNormal = all(lessThan(normalMap.xy, EPSILON2));
-        //bool isMissingTangent = any(isnan(vLocalTangent));
-
-        //if (vBlockId == BLOCK_LAVA) skipParallax = true;
-
         float texDepth = 1.0;
         vec3 traceCoordDepth = vec3(1.0);
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
-        if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
+        if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST)
             atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
-        }
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -573,7 +563,6 @@ void main() {
     }
 
     vec3 albedo = RGBToLinear(color.rgb * vIn.color.rgb);
-    // albedo = vec3(0.3, 0.6, 0.9);
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
@@ -596,21 +585,10 @@ void main() {
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            //float waterRough = 0.06 + 0.3 * min(viewDist / 96.0, 1.0);
-            //float distF = 16.0 / (viewDist + 16.0);
-            //float waterRough = 0.0;//mix(0.3 * lmcoord.y, 0.06, distF);
-
             albedo = mix(albedo, vec3(1.0), oceanFoam);
             metal_f0  = mix(0.02, 0.04, oceanFoam);
             roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
             sss = oceanFoam;
-
-            // #ifndef WATER_TEXTURED
-            //     // color = vec4(vec3(1.0), Water_OpacityF);
-            // #elif defined DISTANT_HORIZONS
-            //     float distF = smoothstep(0.8 * dh_clipDistF * far, dh_clipDistF * far, viewDist);
-            //     color = mix(color, vec4(1.0), distF);
-            // #endif
 
             color.a = max(color.a, 0.02);
             color.a = mix(color.a, 1.0, oceanFoam);
@@ -654,17 +632,9 @@ void main() {
                         parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
                     }
                 #endif
-
-                // #if !defined DEFERRED_BUFFER_ENABLED || defined RENDER_TRANSLUCENT
-                //     shadowColor *= parallaxShadow;
-                // #endif
             }
         #endif
     #endif
-
-    // #if LIGHTING_MODE != LIGHTING_MODE_NONE && defined RENDER_SHADOWS_ENABLED
-    //     occlusion = max(occlusion, luminance(shadowColor));
-    // #endif
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
@@ -712,28 +682,14 @@ void main() {
             vec3 bumpDY = dFdy(bumpPos);
             vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
 
-            // texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - max(localNormal.y, 0.0)));
             texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
         #endif
     }
-
-    // #if MATERIAL_NORMALS != NORMALMAP_NONE
-    //     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
-    //         float skyTexNoL = max(dot(texNormal, localSkyLightDirection), 0.0);
-
-    //         #if MATERIAL_SSS != SSS_NONE
-    //             skyTexNoL = mix(skyTexNoL, 1.0, sss);
-    //         #endif
-
-    //         shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
-    //     #endif
-    // #endif
 
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE && (!defined IRIS_FEATURE_SSBO || LIGHTING_MODE == LIGHTING_MODE_NONE) && defined DIRECTIONAL_LIGHTMAP
         vec3 geoViewNormal = mat3(gbufferModelView) * localNormal;
-        //vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
         vec3 viewPos = (gbufferModelView * vec4(vIn.localPos, 1.0)).xyz;
         ApplyDirectionalLightmap(lmFinal.x, viewPos, geoViewNormal, texViewNormal);
     #endif
@@ -749,31 +705,11 @@ void main() {
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         color.rgb = LinearToRGB(albedo);
 
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
-
-        // TODO: should this also apply to forward?
-        // #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        //     if (isWater) {
-        //         //vec3 f0 = GetMaterialF0(albedo, metal_f0);
-        //         float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-        //         float skyF = F_schlickRough(skyNoVm, 0.02, roughL);
-        //         color.a = clamp(color.a, skyF * MaterialReflectionStrength, 1.0);
-
-        //         //color.rgb = vec3(0.0);
-        //         color.rgb *= 1.0 - skyF;
-        //     }
-        // #endif
-
         outDeferredColor = color + dither;
-        // outDeferredShadow = vec4(shadowColor + dither, 1.0);
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else

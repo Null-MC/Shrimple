@@ -328,7 +328,7 @@ uniform int heldBlockLightValue2;
     #include "/lib/lighting/vanilla.glsl"
 #endif
 
-#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE != LIGHTING_MODE_TRACED
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
@@ -565,7 +565,7 @@ layout(location = 0) out vec4 outFinal;
                 GetVanillaLighting(diffuseFinal, deferredLighting.xy, shadowColor, occlusion);
             #endif
 
-            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+            #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE != LIGHTING_MODE_TRACED
                 SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
             #endif
 

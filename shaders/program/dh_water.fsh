@@ -157,10 +157,6 @@ uniform int heldBlockLightValue2;
     uniform vec3 eyePosition;
 #endif
 
-// #ifdef VL_BUFFER_ENABLED
-//     uniform mat4 shadowModelView;
-// #endif
-
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 
@@ -205,11 +201,6 @@ uniform float dhFarPlane;
     #include "/lib/world/sky.glsl"
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
-    
-    // #ifdef WORLD_WETNESS_ENABLED
-    //     // #include "/lib/material/porosity.glsl"
-    //     #include "/lib/world/wetness.glsl"
-    // #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -283,7 +274,6 @@ uniform float dhFarPlane;
 
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
-// #include "/lib/material/specular.glsl"
 
 #ifdef WORLD_WATER_ENABLED
     #ifdef PHYSICS_OCEAN

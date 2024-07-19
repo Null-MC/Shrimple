@@ -9,7 +9,6 @@ layout (vertices=3) out;
 
 const float MIN_DISTANCE = 4;
 const float MAX_DISTANCE = 40;
-// const int MAX_TESS_LEVEL = 16;
 
 in VertexData {
     vec4 color;
@@ -123,10 +122,6 @@ void main() {
             vOut[gl_InvocationID].lightPos_T = vIn[gl_InvocationID].lightPos_T;
         #endif
     #endif
-
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vOut[gl_InvocationID].cloudPos = vIn[gl_InvocationID].cloudPos;
-    // #endif
 
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

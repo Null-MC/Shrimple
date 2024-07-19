@@ -267,30 +267,12 @@ void main() {
     #endif
 
 
-    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
         vec3 originPos = at_midBlock/64.0 + vOut.localPos;
         bool intersects = true;
-
-        // #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
-        //     vec3 lightViewPos = (gbufferModelView * vec4(originPos, 1.0)).xyz;
-
-        //     const float maxLightRange = 16.0 * Lighting_RangeF + 1.0;
-        //     //float maxRange = maxLightRange > EPSILON ? maxLightRange : 16.0;
-        //     if (lightViewPos.z > maxLightRange) intersects = false;
-        //     else if (lightViewPos.z < -(far + maxLightRange)) intersects = false;
-        //     else {
-        //         if (dot(sceneViewUp,   lightViewPos) > maxLightRange) intersects = false;
-        //         if (dot(sceneViewDown, lightViewPos) > maxLightRange) intersects = false;
-        //         if (dot(sceneViewLeft,  lightViewPos) > maxLightRange) intersects = false;
-        //         if (dot(sceneViewRight, lightViewPos) > maxLightRange) intersects = false;
-        //     }
-        // #endif
-
-        // uint lightType = StaticBlockMap[blockId].lightType;
 
         ivec3 gridCell, blockCell;
         vec3 gridPos = GetVoxelBlockPosition(originPos);
@@ -315,44 +297,5 @@ void main() {
                 }
             #endif
         }
-
-        // #if LPV_SIZE > 0
-        //     vec3 playerOffset = originPos - (eyePosition - cameraPosition);
-        //     playerOffset.y += 1.0;
-
-        //     vec3 lightColor = vec3(0.0);
-        //     float lightRange = 0.0;
-
-        //     if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-        //         StaticLightData lightInfo = StaticLightMap[lightType];
-        //         lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-        //         vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-        //         lightRange = lightRangeSize.x * 255.0;
-
-        //         lightColor = RGBToLinear(lightColor);
-
-        //         #ifdef LIGHTING_FLICKER
-        //            vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
-        //            ApplyLightFlicker(lightColor, lightType, lightNoise);
-        //         #endif
-
-        //         // lightColor = _pow2(lightColor);
-        //         // lightValue = lightColor * (exp2(lightRange * Lighting_RangeF) - 1.0)*2.0;
-        //     }
-
-        //     if (lightRange > EPSILON) {
-        //         vec3 viewDir = getCameraViewDir(gbufferModelView);
-        //         vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
-        //         ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
-
-        //         // if (clamp(imgCoordPrev, ivec3(0), ivec3(SceneLPVSize-1)) == imgCoordPrev) {
-        //             AddLpvLight(imgCoordPrev, lightColor, lightRange);
-        //             // if (frameCounter % 2 == 0)
-        //             //     imageStore(imgSceneLPV_2, imgCoordPrev, vec4(lightValue, 1.0));
-        //             // else
-        //             //     imageStore(imgSceneLPV_1, imgCoordPrev, vec4(lightValue, 1.0));
-        //         // }
-        //     }
-        // #endif
     #endif
 }
