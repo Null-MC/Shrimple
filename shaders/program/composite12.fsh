@@ -185,6 +185,11 @@ uniform int heldBlockLightValue2;
         #include "/lib/buffers/block_voxel.glsl"
     #endif
     
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/buffers/water_mask.glsl"
+        #include "/lib/water/water_mask_read.glsl"
+    #endif
+
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         #include "/lib/buffers/water_depths.glsl"
         #include "/lib/water/water_depths_read.glsl"
@@ -507,7 +512,7 @@ layout(location = 0) out vec4 outFinal;
                 #else
                     bool hasWaterDepth = isEyeInWater == 1
                         ? depthOpaqueL <= depthTransL
-                        : depthTransL < depthOpaqueL; // TODO: needs water mask!
+                        : (depthTransL < depthOpaqueL && GetWaterMask(ivec2(gl_FragCoord.xy)));
                 #endif
 
                 if (hasWaterDepth) {
