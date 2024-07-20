@@ -41,7 +41,7 @@ void main() {
         }
     }
 
-    barrier();
+    memoryBarrier();
     // memoryBarrierShared();
 
     if (gl_LocalInvocationIndex < 2) {
