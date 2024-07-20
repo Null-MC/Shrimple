@@ -17,10 +17,13 @@ float SampleWaterBump(const in vec3 worldPos, const vec3 localNormal) {
 	vec2 animOffset = Water_AnimSpeed * frameTimeCounter;
 
 	vec3 texPos0 = worldPos;
-	texPos0.y *= 3.0;
+	// texPos0.y *= 3.0;
 
 	vec3 texPos1 = GetWaterBumpTexcoord(texPos0, localNormal, animOffset.x);
 	vec3 texPos2 = GetWaterBumpTexcoord(texPos0, localNormal, animOffset.y);
+
+	texPos1.y *= 0.4;
+	texPos2.y *= 0.4;
 
 	float minF = 0.7*textureLod(texClouds, 0.02*texPos0.xzy, 0).r;
 	minF += 0.3*textureLod(texClouds, 0.09*texPos0.xzy, 0).r;
@@ -42,8 +45,8 @@ float SampleWaterFoam(const in vec3 worldPos, const vec3 localNormal) {
 	vec3 texPos1 = GetWaterBumpTexcoord(worldPos, localNormal, animOffset.x);
 	vec3 texPos2 = GetWaterBumpTexcoord(worldPos, localNormal, animOffset.y);
 
-	texPos1.y *= 0.2;
-	texPos2.y *= 0.2;
+	texPos1.y *= 0.4;
+	texPos2.y *= 0.4;
 
 	float minF = textureLod(texClouds, 0.02*texPos1.xzy, 0).r;
 	minF *= textureLod(texClouds, 0.09*texPos2.xzy, 0).r;
