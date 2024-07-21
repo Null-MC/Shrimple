@@ -92,7 +92,7 @@ uniform int frameCounter;
 #endif
 
 
-#if (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0)
+#ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out uvec4 outDeferredData;
     layout(location = 2) out vec3 outDeferredTexNormal;
@@ -117,7 +117,7 @@ uniform int frameCounter;
 void main() {
 	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
-    #if (defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0)
+    #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const vec2 lmCoord = vec2(1.0);

@@ -451,22 +451,9 @@ layout(location = 0) out vec4 outFinal;
             float shadowSSS = 0.0;
 
             #ifdef RENDER_SHADOWS_ENABLED
-                // #if SHADOW_BLUR_SIZE > 0 //&& !defined EFFECT_TAA_ENABLED
-                //     #ifdef SHADOW_COLORED
-                //         shadowColor = shadow_GaussianFilterRGB(texcoord, depthOpaqueL);
-                //     #else
-                //         shadowColor = vec3(shadow_GaussianFilter(texcoord, depthOpaqueL));
-                //     #endif
-
-                //     shadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).a;
-                // #else
-                    // vec4 deferredShadowSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
-                    vec4 deferredShadowSSS = textureLod(texShadowSSS, texcoord, 0);
-                    shadowColor = deferredShadowSSS.rgb;
-                    shadowSSS = deferredShadowSSS.a;
-                // #endif
-
-                //occlusion = max(occlusion, luminance(shadowColor));
+                vec4 deferredShadowSSS = textureLod(texShadowSSS, texcoord, 0);
+                shadowColor = deferredShadowSSS.rgb;
+                shadowSSS = deferredShadowSSS.a;
             #endif
 
             // apply parallax shadows

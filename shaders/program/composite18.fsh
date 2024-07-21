@@ -488,15 +488,7 @@ layout(location = 0) out vec4 outFinal;
             vec3 shadowColor = vec3(1.0);
             float deferredSSS = 0.0;
 
-            #if defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0 && !defined EFFECT_TAA_ENABLED
-                #ifdef SHADOW_COLORED
-                    shadowColor = shadow_GaussianFilterRGB(texcoord, depthTransL);
-                #else
-                    shadowColor = vec3(shadow_GaussianFilter(texcoord, depthTransL));
-                #endif
-
-                deferredSSS = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0).a;
-            #else
+            #ifdef RENDER_SHADOWS_ENABLED
                 vec4 deferredShadowSss = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
                 shadowColor = deferredShadowSss.rgb;
                 deferredSSS = deferredShadowSss.a;

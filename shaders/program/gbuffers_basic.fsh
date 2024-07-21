@@ -11,10 +11,6 @@ in VertexData {
     vec2 texcoord;
     vec3 localPos;
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
     // #ifdef RENDER_SHADOWS_ENABLED
     //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     //         vec3 shadowPos[4];
@@ -169,7 +165,7 @@ uniform int frameCounter;
 // #endif
 
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
+#ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out uvec4 outDeferredData;
     layout(location = 2) out vec3 outDeferredTexNormal;
@@ -197,7 +193,7 @@ void main() {
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
 
-    #if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
+    #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const float roughness = 1.0;

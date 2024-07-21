@@ -153,7 +153,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float near;
 #endif
 
-#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#ifndef DEFERRED_BUFFER_ENABLED
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 sunPosition;
 
@@ -285,9 +285,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/blackbody.glsl"
 #endif
 
-#if !defined RENDER_TRANSLUCENT && ((defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED) || (defined RENDER_SHADOWS_ENABLED && SHADOW_BLUR_SIZE > 0))
-    //
-#elif defined IRIS_FEATURE_SSBO
+#if !defined DEFERRED_BUFFER_ENABLED && defined IRIS_FEATURE_SSBO
     #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
         #include "/lib/lighting/voxel/block_mask.glsl"
@@ -302,7 +300,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/voxel/lights_render.glsl"
 
-#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#ifndef DEFERRED_BUFFER_ENABLED
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
@@ -323,7 +321,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
@@ -365,7 +363,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 
-#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+#ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out uvec4 outDeferredData;
     layout(location = 2) out vec3 outDeferredTexNormal;
@@ -534,13 +532,8 @@ void main() {
         //}
     #endif
 
-    #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+    #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
 
         const float isWater = 0.0;
 
@@ -549,7 +542,6 @@ void main() {
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
         outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
     #else

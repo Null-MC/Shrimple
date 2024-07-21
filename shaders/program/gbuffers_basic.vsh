@@ -11,10 +11,6 @@ out VertexData {
     vec2 texcoord;
     vec3 localPos;
 
-    // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-    //     vec3 cloudPos;
-    // #endif
-
     // #ifdef RENDER_SHADOWS_ENABLED
     //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
     //         vec3 shadowPos[4];
