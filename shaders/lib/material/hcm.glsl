@@ -179,7 +179,6 @@ vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
             if (!IsMetal(metal_f0)) return vec3(1.0);
         #endif
 
-        //return IsMetal(metal_f0) ? albedo : vec3(1.0);
         return albedo;
     #else
         return mix(vec3(1.0), albedo, metal_f0);

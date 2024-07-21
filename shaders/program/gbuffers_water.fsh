@@ -454,7 +454,7 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     #ifdef WORLD_WATER_ENABLED
-        #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
+        #if defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0
             vec3 waterLocalPos = vIn.surfacePos;
         #else
             vec3 waterLocalPos = vIn.localPos;
@@ -652,39 +652,41 @@ void main() {
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
     texNormal = matLocalTBN * texNormal;
 
-    if (isWater) {
-        #if WATER_WAVE_SIZE > 0
-            if (abs(vIn.localNormal.y) > 0.5) {
-                float waveDistF = 32.0 / (32.0 + viewDist);
+    #ifdef WORLD_WATER_ENABLED
+        if (isWater) {
+            #if WATER_WAVE_SIZE > 0
+                if (abs(vIn.localNormal.y) > 0.5) {
+                    float waveDistF = 32.0 / (32.0 + viewDist);
 
-                vec3 wavePos = waterLocalPos;
-                wavePos.y += waveOffset.y * waveDistF;
+                    vec3 wavePos = waterLocalPos;
+                    wavePos.y += waveOffset.y * waveDistF;
 
-                vec3 dX = normalize(dFdx(wavePos));
-                vec3 dY = normalize(dFdy(wavePos));
-                texNormal = normalize(cross(dX, dY));
-                waterUvOffset = waveOffset.xz * waveDistF;
+                    vec3 dX = normalize(dFdx(wavePos));
+                    vec3 dY = normalize(dFdy(wavePos));
+                    texNormal = normalize(cross(dX, dY));
+                    waterUvOffset = waveOffset.xz * waveDistF;
 
-                // if (localNormal.y < 0.0) texNormal = -texNormal;
+                    // if (localNormal.y < 0.0) texNormal = -texNormal;
 
-                if (localNormal.y >= 1.0 - EPSILON) {
-                    localCoord += waterUvOffset;
-                    atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+                    if (localNormal.y >= 1.0 - EPSILON) {
+                        localCoord += waterUvOffset;
+                        atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+                    }
                 }
-            }
-        #endif
+            #endif
 
-        #ifdef WATER_FLOW
-            float bump = SampleWaterBump(waterWorldPos, localNormal);
+            #ifdef WATER_FLOW
+                float bump = SampleWaterBump(waterWorldPos, localNormal);
 
-            vec3 bumpPos = waterLocalPos + 0.15*bump * localNormal;
-            vec3 bumpDX = dFdx(bumpPos);
-            vec3 bumpDY = dFdy(bumpPos);
-            vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
+                vec3 bumpPos = waterLocalPos + 0.15*bump * localNormal;
+                vec3 bumpDX = dFdx(bumpPos);
+                vec3 bumpDY = dFdy(bumpPos);
+                vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
 
-            texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
-        #endif
-    }
+                texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
+            #endif
+        }
+    #endif
 
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
 

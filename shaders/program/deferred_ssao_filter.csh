@@ -39,12 +39,12 @@ uniform float farPlane;
 #include "/lib/sampling/gaussian.glsl"
 
 
-const float g_sigmaXY = 9.0;
-const float g_sigmaV = 2.0;
+const float g_sigmaXY = 7.0;
+const float g_sigmaV = 0.1;
 
 void populateSharedBuffer() {
     if (gl_LocalInvocationIndex < 5)
-        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
+        gaussianBuffer[gl_LocalInvocationIndex] = 1.0;//Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
     
     uint i_base = uint(gl_LocalInvocationIndex) * 2u;
     if (i_base >= sharedBufferSize) return;
@@ -91,19 +91,20 @@ float sampleSharedBuffer(const in float depthL) {
     float total = 0.0;
     float accum = 0.0;
     
-    for (int iy = -2; iy <= 2; iy++) {
-        float fy = gaussianBuffer[iy+2];
+    for (int iy = 0; iy < 5; iy++) {
+        float fy = gaussianBuffer[iy];
 
-        for (int ix = -2; ix <= 2; ix++) {
-            float fx = gaussianBuffer[ix+2];
+        for (int ix = 0; ix < 5; ix++) {
+            float fx = gaussianBuffer[ix];
             
-            ivec2 uv_shared = uv_base + ivec2(ix, iy);
+            ivec2 uv_shared = uv_base + ivec2(ix, iy) - 2;
             int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 
             float sampleValue = sharedOcclusionBuffer[i_shared];
             float sampleDepthL = sharedDepthBuffer[i_shared];
             
-            float fv = Gaussian(g_sigmaV, abs(sampleDepthL - depthL));
+            float depthDiff = abs(sampleDepthL - depthL);
+            float fv = Gaussian(g_sigmaV, depthDiff);
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;
