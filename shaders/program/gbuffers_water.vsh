@@ -172,7 +172,7 @@ uniform float far;
 
 #ifdef WORLD_WATER_ENABLED
     #if WATER_WAVE_SIZE > 0
-        #include "/lib/world/water_waves.glsl"
+        #include "/lib/water/water_waves.glsl"
     #endif
 #endif
 

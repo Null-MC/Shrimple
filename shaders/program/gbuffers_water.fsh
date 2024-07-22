@@ -363,7 +363,7 @@ uniform int heldBlockLightValue2;
     #endif
 
     #if WATER_WAVE_SIZE > 0
-        #include "/lib/world/water_waves.glsl"
+        #include "/lib/water/water_waves.glsl"
     #endif
 #endif
 
@@ -462,6 +462,7 @@ void main() {
 
         vec3 waterWorldPos = waterLocalPos + cameraPosition;
         vec3 waveOffset = vec3(0.0);
+        // vec3 waveNormal = vec3(0.0);
         float oceanFoam = 0.0;
 
 
@@ -486,7 +487,7 @@ void main() {
     #endif
 
     #ifdef DISTANT_HORIZONS
-        if (viewDist > dh_clipDistF * far) {
+        if (isWater && viewDist > dh_clipDistF * far) {
             discard;
             return;
         }
@@ -527,19 +528,19 @@ void main() {
             atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
     #endif
 
+    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+
     #ifdef DISTANT_HORIZONS
-        float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
-        float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
+        if (!isWater) {
+            #ifdef EFFECT_TAA_ENABLED
+                float ditherOut = InterleavedGradientNoiseTime();
+            #else
+                float ditherOut = GetScreenBayerValue();
+            #endif
 
-        float farTrans = dh_clipDistF * far;
-        float lodMinF = smoothstep(0.5 * farTrans, farTrans, viewDist);
-        float lodFinal = max(lodGrad, 4.0 * lodMinF);
-
-        vec4 color;
-        color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
-        color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
-    #else
-        vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+            float ditherFadeF = smoothstep(dh_clipDistF * far, far, viewDist);
+            color.a *= step(ditherFadeF, ditherOut);
+        }
     #endif
 
     float alphaThreshold = 0.1;//(1.5/255.0);

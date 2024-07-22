@@ -28,6 +28,7 @@ uniform float fogEnd;
 uniform int fogShape;
 uniform int fogMode;
 
+uniform int renderStage;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int frameCounter;
 
@@ -112,14 +113,34 @@ uniform int frameCounter;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
+	vec4 color = vIn.color;
+    float emission = 0.0;
+
+    if (renderStage == MC_RENDER_STAGE_OUTLINE) {
+        #if BLOCK_OUTLINE == BLOCK_OUTLINE_WHITE
+            color.rgb = vec3(0.8);
+            color.a = 1.0;
+            emission = 0.1;
+        #elif BLOCK_OUTLINE == BLOCK_OUTLINE_FANCY
+            const float interval = 20.0;
+            vec3 worldPos = vIn.localPos + cameraPosition;
+            float offset = sumOf(worldPos) * interval;
+            color.rgb = step(1.0, mod(offset, 2.0)) * vec3(1.0, 1.0, 0.0);
+            color.a = 1.0;
+            emission = 0.1;
+        #endif
+    }
+    else {
+        color *= texture(gtexture, vIn.texcoord);
+    }
+
+    // color = vec4(1.0, 0.5, 0.0, 1.0);
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         const vec3 normal = vec3(0.0);
         const float occlusion = 0.0;
         const float roughness = 1.0;
         const float metal_f0 = 0.0;
-        const float emission = 0.0;
         const float porosity = 0.0;
         const float sss = 0.0;
         const float isWater = 0.0;
@@ -137,15 +158,19 @@ void main() {
     #else
         color.rgb = RGBToLinear(color.rgb);
 
+        vec4 final = color;
+
         vec2 lmFinal = LightMapTex(vIn.lmcoord);
-		color.rgb *= texture(lightmap, lmFinal).rgb;
+		final.rgb *= texture(lightmap, lmFinal).rgb;
+
+        final.rgb += color * emission * MaterialEmissionF;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localViewDir = normalize(vIn.localPos);
-            ApplyFog(color, vIn.localPos, localViewDir);
+            ApplyFog(final, vIn.localPos, localViewDir);
         #endif
 
-		outFinal = color;
+		outFinal = final;
 	#endif
 
     #ifdef EFFECT_TAA_ENABLED

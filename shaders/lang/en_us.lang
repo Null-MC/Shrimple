@@ -129,6 +129,11 @@ suffix.WORLD_NETHER_AMBIENT=%
 option.WORLD_END_AMBIENT=End Ambient
 suffix.WORLD_END_AMBIENT=%
 
+option.BLOCK_OUTLINE=Block Outline
+value.BLOCK_OUTLINE.0=Default/Black
+value.BLOCK_OUTLINE.1=White
+value.BLOCK_OUTLINE.2=Construction
+
 option.WORLD_CURVE_RADIUS=Overworld Radius (meters)
 suffix.WORLD_CURVE_RADIUS=,000
 value.WORLD_CURVE_RADIUS.3200=3,200

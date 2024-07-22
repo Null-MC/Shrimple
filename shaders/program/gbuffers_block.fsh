@@ -376,12 +376,13 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
+    layout(location = 1) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 0,7 */
-        layout(location = 1) out vec4 outVelocity;
+        /* RENDERTARGETS: 0,9,7 */
+        layout(location = 2) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 0 */
+        /* RENDERTARGETS: 0,9 */
     #endif
 #endif
 
@@ -531,6 +532,8 @@ void main() {
             ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
         //}
     #endif
+    
+    outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
@@ -538,7 +541,6 @@ void main() {
         const float isWater = 0.0;
 
         outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
-        outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);

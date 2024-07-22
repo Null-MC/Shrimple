@@ -115,7 +115,7 @@ uniform mat4 gbufferModelView;
     #include "/lib/utility/anim.glsl"
 
     #if WATER_WAVE_SIZE > 0
-        #include "/lib/world/water_waves.glsl"
+        #include "/lib/water/water_waves.glsl"
     #endif
 
     #ifdef WATER_FLOW
