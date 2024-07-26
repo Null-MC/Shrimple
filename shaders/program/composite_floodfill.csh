@@ -305,31 +305,35 @@ vec4 sampleShared(ivec3 pos) {
     return lpvSharedData[getSharedCoord(pos + 1)];
 }
 
-vec4 sampleShared(ivec3 pos, int mask_index) {
+vec4 sampleShared(ivec3 pos, int mask_index, out float weight) {
     int shared_index = getSharedCoord(pos + 1);
 
-    float mixWeight = 1.0;
+    //float mixWeight = 1.0;
     uint mixMask = 0xFFFF;
     uint blockId = voxelSharedData[shared_index];
+    weight = blockId == BLOCK_EMPTY ? 1.0 : 0.0;
     
     if (blockId > 0 && blockId != BLOCK_EMPTY)
-        ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
+        ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
 
-    return lpvSharedData[shared_index] * ((mixMask >> mask_index) & 1u);// * mixWeight;
+    float wMask = (mixMask >> mask_index) & 1u;
+    return lpvSharedData[shared_index] * wMask;// * mixWeight;
 }
 
 vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     uvec3 m1 = (uvec3(mask) >> uvec3(0, 2, 4)) & uvec3(1u);
     uvec3 m2 = (uvec3(mask) >> uvec3(1, 3, 5)) & uvec3(1u);
 
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1) * m1.x;
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0) * m2.x;
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3) * m1.y;
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2) * m2.y;
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5) * m1.z;
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4) * m2.z;
+    vec3 w1, w2;
+    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x) * m1.x;
+    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x) * m2.x;
+    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y) * m1.y;
+    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y) * m2.y;
+    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
+    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
-    const vec4 avgFalloff = (1.0/6.0) * (1.0 - LpvBlockSkyFalloff.xxxy);
+    float wMax = max(sumOf(w1 + w2), 1.0);
+    vec4 avgFalloff = rcp(wMax) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
 
