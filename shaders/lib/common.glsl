@@ -357,7 +357,7 @@ const bool colortex15Clear = true;
 //#define MAGNIFICENT_COLORS
 //#define WATER_MULTIDEPTH_DEBUG
 //#define ALPHATESTREF_ENABLED
-#define BLOCK_OUTLINE 2 // [0 1 2]
+#define BLOCK_OUTLINE 0 // [0 1 2]
 #define BLOCK_OUTLINE_WIDTH 5 // [1 2 3 4 5]
 
 

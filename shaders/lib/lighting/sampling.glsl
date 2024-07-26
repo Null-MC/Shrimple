@@ -100,6 +100,6 @@ vec3 SampleLightSpecular(const in float NoVm, const in float NoLm, float NoHm, c
     float denominator = max(4.0 * NoLm * NoVm, EPSILON);
     vec3 brdf = (D * F * V) / denominator;
 
-    float pdf = ggx_smith_pdf(NoHm, alpha) / max(4.0 * VoHm, EPSILON);
-    return NoLm * brdf / max(pdf, EPSILON);
+    //float pdf = ggx_smith_pdf(NoHm, alpha) / max(4.0 * VoHm, EPSILON);
+    return NoLm * brdf;// / max(pdf, EPSILON);
 }

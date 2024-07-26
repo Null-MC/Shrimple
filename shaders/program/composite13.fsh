@@ -11,10 +11,12 @@ uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
 
-// uniform usampler2D BUFFER_DEFERRED_DATA;
+#ifdef WORLD_SKY_ENABLED
+    uniform sampler2D texSkyIrradiance;
 
-#if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
-    uniform sampler3D texCaustics;
+    #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined IS_IRIS
+        uniform sampler3D texCaustics;
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
@@ -257,7 +259,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
-    #if defined IS_WORLD_SMOKE_ENABLED && !defined WORLD_SKY_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sampling/erp.glsl"
+        #include "/lib/sky/irradiance.glsl"
+    #elif defined IS_WORLD_SMOKE_ENABLED
         #include "/lib/fog/fog_smoke.glsl"
     #endif
 

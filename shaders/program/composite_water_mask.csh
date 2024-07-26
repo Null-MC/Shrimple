@@ -24,7 +24,9 @@ void main() {
         sharedMask[gl_LocalInvocationIndex] = 0u;
     }
 
-    memoryBarrierShared();
+    barrier();
+    // memoryBarrier();
+    // memoryBarrierShared();
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     if (all(lessThan(uv, viewSize))) {
@@ -41,7 +43,8 @@ void main() {
         }
     }
 
-    memoryBarrier();
+    barrier();
+    // memoryBarrier();
     // memoryBarrierShared();
 
     if (gl_LocalInvocationIndex < 2) {

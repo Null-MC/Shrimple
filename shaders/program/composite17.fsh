@@ -10,13 +10,14 @@ in vec2 texcoord;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 uniform sampler2D noisetex;
-//uniform sampler2D BUFFER_VL_SCATTER;
-//uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform usampler2D BUFFER_DEFERRED_DATA;
-//uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
+// uniform usampler2D BUFFER_DEFERRED_DATA;
 
-#if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
-    uniform sampler3D texCaustics;
+#ifdef WORLD_SKY_ENABLED
+    uniform sampler2D texSkyIrradiance;
+    
+    #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined IS_IRIS
+        uniform sampler3D texCaustics;
+    #endif
 #endif
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
@@ -264,7 +265,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef VL_BUFFER_ENABLED
-    #if defined IS_WORLD_SMOKE_ENABLED && !defined WORLD_SKY_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sampling/erp.glsl"
+        #include "/lib/sky/irradiance.glsl"
+    #elif defined IS_WORLD_SMOKE_ENABLED
         #include "/lib/fog/fog_smoke.glsl"
     #endif
 
@@ -333,13 +337,13 @@ void main() {
         const bool isWater = false;
     #endif
 
-    ivec2 iTex = ivec2(texcoord * viewSize);
-    uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
-    vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-    vec3 localNormal = deferredNormal.rgb;
+    // ivec2 iTex = ivec2(texcoord * viewSize);
+    // uvec3 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0).rgb;
+    // vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+    // vec3 localNormal = deferredNormal.rgb;
 
-    if (any(greaterThan(localNormal, EPSILON3)))
-        localNormal = normalize(localNormal * 2.0 - 1.0);
+    // if (any(greaterThan(localNormal, EPSILON3)))
+    //     localNormal = normalize(localNormal * 2.0 - 1.0);
 
 
     float farDist = clamp(viewDist, near, farMax);

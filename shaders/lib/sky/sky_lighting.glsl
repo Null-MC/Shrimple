@@ -88,8 +88,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     #endif
 
 
-    vec2 uvSky = DirectionToUV(texNormal);
-    vec3 ambientSkyLight_indirect = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+    vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
     ambientSkyLight *= 3.0*ambientSkyLight_indirect;

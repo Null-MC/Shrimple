@@ -303,6 +303,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    #include "/lib/sky/irradiance.glsl"
     #include "/lib/sky/sky_lighting.glsl"
 #endif
 
@@ -560,9 +561,8 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                 vec3 sssFinal = deferredSSS * MaterialSssStrengthF * skyLightColor;
 
-                vec2 uvSky = DirectionToUV(localViewDir);
                 float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
-                vec3 sssSkyColor = textureLod(texSkyIrradiance, uvSky, 0).rgb;
+                vec3 sssSkyColor = SampleSkyIrradiance(localViewDir);
                 sssFinal += sssSkyColor * (sss * occlusion * sssSkyLight * Sky_BrightnessF);
 
                 // vec3 sssColor = vec3(1.0);
