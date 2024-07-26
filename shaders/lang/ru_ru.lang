@@ -1,7 +1,7 @@
 [---------------------------------]
 |                                 |
 | Provided by: ShrikerChestTree(s)|
-|      Version: Release 15.3      |
+|      Version: Release 15.4      |
 |                                 |
 [---------------------------------]
 
@@ -471,10 +471,10 @@ option.MATERIAL_PARALLAX_SAMPLES=Образцы СОП (POM)
 option.MATERIAL_PARALLAX_SHADOW_SAMPLES=Теневые Образцы СОП (POM)
 value.MATERIAL_PARALLAX_SHADOW_SAMPLES.0=Выкл
 
-         {=====Displace Offset=====}
+         {=====Parallax Surface Offset=====}
 
-option.MATERIAL_DISPLACE_OFFSET=Смещение Поверхности
-suffix.MATERIAL_DISPLACE_OFFSET=%
+option.MATERIAL_PARALLAX_OFFSET=Смещение Поверхности
+suffix.MATERIAL_PARALLAX_OFFSET=%
 
                                     {=====Parallax Sharp Threshold=====}
 
@@ -1454,4 +1454,16 @@ option.SKY_LIGHT_COLOR_NIGHT_R=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_R
 option.SKY_LIGHT_COLOR_NIGHT_G=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_G
 option.SKY_LIGHT_COLOR_NIGHT_B=ЦВЕТ_СВЕТА_НЕБА_НОЧЬЮ_B
 
-[---------------------------------------------------------]
+---------------------------------------------|-------------
+
+          |/////TAA OPTIONS/////|
+
+option.EFFECT_TAA_ACCUM=ЭФФЕКТ_ВС_НАКОП/КОМБИ
+
+---------------------------------------------|--
+
+      |/////SHADOW_ADCANCED_OPTIONS/////|
+
+option.SHADOW_PENUMBRA_SCALE=ШКАЛА_ТЕНИ_ПЕНУМБРЫ
+
+[-----------------------------------------------|---------]
