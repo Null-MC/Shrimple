@@ -84,30 +84,30 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             #endif
 
             if (lightNoLm > EPSILON) {
-                float lightAtt = GetLightAttenuation(lightVec, lightRangeR);
+                vec2 lightAtt = GetLightAttenuation(lightVec, lightRangeR);
 
                 vec3 lightH = normalize(lightDir + localViewDir);
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
                 vec3 F = vec3(0.0);
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
+                    // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
                     //float invCosTheta = 1.0 - lightVoHm;
                     //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    F = F_schlickRough(lightVoHm, f0, roughL);
+                    F = F_schlickRough(lightLoHm, f0, roughL);
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
                 float D = SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL);
-                accumDiffuse += D * lightAtt * lightColor * (1.0 - F);
+                accumDiffuse += D * lightAtt.x * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    float lightNoHm = max(dot(texNormal, lightH), 0.0);
                     //float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
+                    float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
                     float invGeoNoL = 1.0;// - saturate(-geoNoL*40.0);
-                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, lightVoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL) * lightAtt.y * lightColor;
                 #endif
             }
         }
@@ -164,28 +164,28 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             #endif
 
             if (lightNoLm > EPSILON) {
-                float lightAtt = GetLightAttenuation(lightVec, lightRangeL);
+                vec2 lightAtt = GetLightAttenuation(lightVec, lightRangeL);
 
                 vec3 lightH = normalize(lightDir + localViewDir);
                 float lightLoHm = max(dot(lightDir, lightH), 0.0);
 
                 vec3 F = vec3(0.0);
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
+                    // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
                     //float invCosTheta = 1.0 - lightVoHm;
                     //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    F = F_schlickRough(lightVoHm, f0, roughL);
+                    F = F_schlickRough(lightLoHm, f0, roughL);
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
-                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt * lightColor * (1.0 - F);
+                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt.x * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    float lightNoHm = max(dot(texNormal, lightH), 0.0);
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
+                    float lightNoHm = max(dot(texNormal, lightH), 0.0);
 
-                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoVm, lightNoLm, lightNoHm, lightVoHm, F, roughL) * lightAtt * lightColor;
+                    accumSpecular += invGeoNoL * SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL) * lightAtt.y * lightColor;
                 #endif
             }
         }

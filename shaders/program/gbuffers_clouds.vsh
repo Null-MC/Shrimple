@@ -101,6 +101,9 @@ void main() {
             vOut.viewPosZ = -viewPos.z;
         #endif
 
+        vec3 viewNormal = gl_NormalMatrix * gl_Normal;
+        vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
+
         gl_Position = gl_ProjectionMatrix * viewPos;
 
         #ifdef EFFECT_TAA_ENABLED

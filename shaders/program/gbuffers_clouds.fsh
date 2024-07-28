@@ -444,6 +444,7 @@ void main() {
             ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
         
+        //final = vec4(normal, 1.0);
         outFinal = final;
     //#endif
 

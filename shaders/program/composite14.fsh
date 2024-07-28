@@ -34,6 +34,11 @@ in vec2 texcoord;
         uniform sampler2D BUFFER_VL_TRANSMIT;
     #endif
 
+    #ifdef IS_LPV_SKYLIGHT_ENABLED
+        uniform sampler3D texLPV_1;
+        uniform sampler3D texLPV_2;
+    #endif
+
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             uniform sampler3D TEX_CLOUDS;
@@ -71,7 +76,7 @@ in vec2 texcoord;
     uniform ivec2 eyeBrightnessSmooth;
 
     #ifndef IRIS_FEATURE_SSBO
-        uniform mat4 gbufferPreviousModelView;
+        // uniform mat4 gbufferPreviousModelView;
         uniform mat4 gbufferPreviousProjection;
     #endif
 
@@ -102,6 +107,11 @@ in vec2 texcoord;
         uniform float waterDensitySmooth;
     #endif
 
+    #ifdef IS_LPV_SKYLIGHT_ENABLED
+        uniform mat4 gbufferPreviousModelView;
+        uniform vec3 previousCameraPosition;
+    #endif
+
     #ifdef DISTANT_HORIZONS
         uniform mat4 dhProjection;
         uniform mat4 dhProjectionInverse;
@@ -127,6 +137,8 @@ in vec2 texcoord;
     #include "/lib/sampling/bayer.glsl"
     #include "/lib/sampling/ign.glsl"
     #include "/lib/sampling/erp.glsl"
+
+    #include "/lib/utility/hsv.glsl"
 
     #include "/lib/lighting/hg.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
@@ -165,6 +177,20 @@ in vec2 texcoord;
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
+    #endif
+
+    #ifdef IS_LPV_SKYLIGHT_ENABLED
+        #include "/lib/buffers/volume.glsl"
+        #include "/lib/buffers/block_voxel.glsl"
+
+        #include "/lib/blocks.glsl"
+        
+        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/lighting/voxel/block_mask.glsl"
+        #include "/lib/lighting/voxel/blocks.glsl"
+
+        #include "/lib/lpv/lpv.glsl"
+        #include "/lib/lpv/lpv_render.glsl"
     #endif
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
@@ -276,12 +302,17 @@ layout(location = 0) out vec4 outFinal;
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
             vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
+            vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
             vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
 
             float roughness = deferredRoughMetalF0Porosity.r;
             float metal_f0 = deferredRoughMetalF0Porosity.g;
             float roughL = _pow2(roughness);
+
+            vec3 localNormal = deferredNormal.rgb;
+            if (any(greaterThan(localNormal, EPSILON3)))
+                localNormal = normalize(localNormal * 2.0 - 1.0);
 
             float skyNoVm = 1.0;
             if (any(greaterThan(texNormal, EPSILON3))) {
@@ -294,9 +325,24 @@ layout(location = 0) out vec4 outFinal;
 
             // TODO: use underwater f0?
             
+            float skyLightF = _pow2(deferredLighting.y);
+
+            #ifdef IS_LPV_SKYLIGHT_ENABLED
+                vec3 lpvPos = GetLPVPosition(localPosOpaque);
+
+                float lpvFade = GetLpvFade(lpvPos);
+                lpvFade = smootherstep(lpvFade);
+                lpvFade *= 1.0 - Lpv_LightmapMixF;
+
+                vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
+                float lpvSkyLight = GetLpvSkyLight(lpvSample);
+
+                skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
+            #endif
+
             vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-            vec3 specular = ApplyReflections(localPosOpaque, viewPosOpaque, texViewNormal, deferredLighting.y, roughness) * skyReflectF;
+            vec3 specular = ApplyReflections(localPosOpaque, viewPosOpaque, texViewNormal, skyLightF, roughness) * skyReflectF;
 
             specular *= GetMetalTint(albedo, metal_f0);
 

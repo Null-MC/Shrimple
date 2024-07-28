@@ -1,4 +1,4 @@
-const float WaterAmbientF = 0.2;
+const float WaterAmbientF = 0.05;
 float WaterDensityF = waterDensitySmooth * Water_DensityF;
 vec3 WaterScatterF = _RGBToLinear(WaterScatterColor);
 vec3 WaterAbsorbF = _RGBToLinear(1.0 - WaterAbsorbColor);

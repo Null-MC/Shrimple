@@ -333,7 +333,7 @@ vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
     float wMax = max(sumOf(w1 + w2), 1.0);
-    vec4 avgFalloff = rcp(wMax) * (1.0 - LpvBlockSkyFalloff.xxxy);
+    vec4 avgFalloff = rcp(vec4(vec3(wMax), 6.0)) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
 
@@ -424,17 +424,18 @@ void main() {
                 float shadowDist;
                 vec4 shadowColorF = SampleShadow(blockLocalPos, shadowDist);
 
-                #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-                    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                        vec3 worldPos = cameraPosition + blockLocalPos;
-                        float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                    #else
-                        vec2 cloudOffset = GetCloudOffset();
-                        vec3 camOffset = GetCloudCameraOffset();
-                        float cloudShadow = SampleCloudShadow(blockLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
-                    #endif
-                    shadowColorF.a *= cloudShadow;
-                #endif
+                // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+                //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                //         vec3 worldPos = cameraPosition + blockLocalPos;
+                //         float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                //     #else
+                //         vec2 cloudOffset = GetCloudOffset();
+                //         vec3 camOffset = GetCloudCameraOffset();
+                //         float cloudShadow = SampleCloudShadow(blockLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
+                //     #endif
+
+                //     shadowColorF.a *= cloudShadow;
+                // #endif
 
                 float sunUpF = smoothstep(-0.2, 0.1, localSunDirection.y);
 

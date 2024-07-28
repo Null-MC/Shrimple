@@ -486,17 +486,6 @@ void main() {
         #endif
     #endif
 
-    #ifdef DISTANT_HORIZONS
-        if (isWater && viewDist > dh_clipDistF * far) {
-            discard;
-            return;
-        }
-    #endif
-
-    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-        if (isWater) SetWaterDepth(viewDist);
-    #endif
-
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float surface_roughness, surface_metal_f0;
@@ -662,8 +651,8 @@ void main() {
                     vec3 wavePos = waterLocalPos;
                     wavePos.y += waveOffset.y * waveDistF;
 
-                    vec3 dX = normalize(dFdx(wavePos));
-                    vec3 dY = normalize(dFdy(wavePos));
+                    vec3 dX = dFdx(wavePos);
+                    vec3 dY = dFdy(wavePos);
                     texNormal = normalize(cross(dX, dY));
                     waterUvOffset = waveOffset.xz * waveDistF;
 
@@ -687,6 +676,18 @@ void main() {
                 texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
             #endif
         }
+    #endif
+
+
+    #ifdef DISTANT_HORIZONS
+        if (isWater && viewDist > dh_clipDistF * far) {
+            discard;
+            return;
+        }
+    #endif
+
+    #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
+        if (isWater) SetWaterDepth(viewDist);
     #endif
 
     vec3 texViewNormal = mat3(gbufferModelView) * texNormal;

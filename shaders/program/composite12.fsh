@@ -576,7 +576,23 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                 vec3 sssFinal = shadowSSS * MaterialSssStrengthF * skyLightColor;
 
-                float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
+                float skyLightF = _pow2(deferredLighting.y);
+
+                #ifdef IS_LPV_SKYLIGHT_ENABLED
+                    vec3 lpvPos = GetLPVPosition(localPos);
+
+                    float lpvFade = GetLpvFade(lpvPos);
+                    lpvFade = smootherstep(lpvFade);
+                    lpvFade *= 1.0 - Lpv_LightmapMixF;
+
+                    vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
+                    float lpvSkyLight = GetLpvSkyLight(lpvSample);
+
+                    skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
+                #endif
+
+                // float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
+                float sssSkyLight = 0.1 * skyLightF;
                 vec3 sssSkyColor = SampleSkyIrradiance(localViewDir);
                 sssFinal += sssSkyColor * (sss * occlusion * sssSkyLight * Sky_BrightnessF);
 
