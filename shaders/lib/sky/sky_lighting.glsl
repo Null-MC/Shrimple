@@ -134,7 +134,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         //float invGeoNoL = saturate(geoNoL*40.0);
         // skySpecular += invGeoNoL * SampleLightSpecular(NoVm, NoLm, NoHm, VoHm, F, roughL) * skyLightShadowColor;
-        skySpecular += step(0.0, geoNoL) * SampleLightSpecular(NoLm, NoHm, LoHm, F, roughL) * skyLightShadowColor;
+        skySpecular += max(geoNoL, 0.0) * SampleLightSpecular(NoLm, NoHm, LoHm, F, roughL) * skyLightShadowColor;
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             vec3 viewPos = mul3(gbufferModelView, localPos);

@@ -237,7 +237,8 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);
 
             float depthTrans = texture(shadowtex0, shadowPos.xy).r;
-            if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
+            // if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
+            if (depthOpaque <= depthTrans) return vec3(1.0);
 
             vec4 shadowColor = texture(shadowcolor0, shadowPos.xy);
             shadowColor.rgb = RGBToLinear(shadowColor.rgb);
