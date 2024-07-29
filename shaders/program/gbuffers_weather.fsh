@@ -347,7 +347,7 @@ void main() {
     const float roughness = 0.4;
     const float metal_f0 = 0.04;
     const float emission = 0.0;
-    const float sss = 0.4;
+    const float sss = 0.0;
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 localSkyLightDirection = mat3(gbufferModelViewInverse) * normalize(shadowLightPosition);
@@ -375,77 +375,47 @@ void main() {
     vec3 albedo = RGBToLinear(color.rgb);
     float roughL = _pow2(roughness);
 
+    vec3 diffuseFinal = vec3(0.0);
+    vec3 specularFinal = vec3(0.0);
+
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        vec3 blockDiffuse = vec3(0.0);
-        vec3 blockSpecular = vec3(0.0);
-        vec3 skyDiffuse = vec3(0.0);
-        vec3 skySpecular = vec3(0.0);
+        GetFinalBlockLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss);
+    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+    #else
+        GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
+    #endif
 
-        GetFinalBlockLighting(blockDiffuse, blockSpecular, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss);
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+        SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
+    #endif
 
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(blockDiffuse, blockSpecular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
+    // #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+    //     const bool tir = false;
+    //     const bool isUnderWater = false;
+    //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
+    // #endif
 
-        #ifdef WORLD_SKY_ENABLED
-            // #if !defined WORLD_SHADOW_ENABLED || SHADOW_TYPE != SHADOW_TYPE_DISTORTED
-            //     const vec3 shadowPos = vec3(0.0);
-            // #endif
+    float VoL = dot(localSkyLightDirection, localViewDir);
+    float phase = DHG(VoL, -0.35, 0.65, 0.3);
 
-            // float shadowFade = getShadowFade(shadowPos);
-            const bool tir = false;
-            const bool isUnderWater = false;
-            GetSkyLightingFinal(skyDiffuse, skySpecular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-        #endif
+    // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     phase *= cloudShadow;
+    // #endif
 
-        vec3 diffuseFinal = blockDiffuse + skyDiffuse;
-        vec3 specularFinal = blockSpecular + skySpecular;
+    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+    vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-                if (IsMetal(metal_f0))
-                    diffuseFinal *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-            #else
-                diffuseFinal *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-            #endif
+    vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeBrightF;
+    vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
+    diffuseFinal += skyLight;
 
-            specularFinal *= GetMetalTint(albedo, metal_f0);
-        #endif
-
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, vIn.color.a);
     #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        vec3 diffuseFinal = vec3(0.0);
-        vec3 specularFinal = vec3(0.0);
-
-        GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, normal, normal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
-
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
-
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
     #else
-        vec3 diffuse, specular = vec3(0.0);
-        GetVanillaLighting(diffuse, vIn.lmcoord, shadowColor, occlusion);
-
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-            SampleHandLight(diffuse, specular, vIn.localPos, normal, normal, albedo, roughL, metal_f0, occlusion, sss);
-        #endif
-
-        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-            const bool tir = false;
-            const bool isUnderWater = false;
-            GetSkyLightingFinal(diffuse, specular, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-        #endif
-
-        float VoL = dot(localSkyLightDirection, localViewDir);
-        float phase = DHG(VoL, -0.19, 0.824, 0.051);
-
-        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            phase *= cloudShadow;
-        #endif
-
-        color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
+        color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
     #endif
 
     #ifdef SKY_BORDER_FOG_ENABLED

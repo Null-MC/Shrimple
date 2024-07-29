@@ -384,10 +384,10 @@ void main() {
     float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     if (depthL < depthDhL && depth < 1.0) {discard; return;}
 
-    if (viewDist < dh_clipDistF * far) {
-        discard;
-        return;
-    }
+    // if (viewDist < dh_clipDistF * far) {
+    //     discard;
+    //     return;
+    // }
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
