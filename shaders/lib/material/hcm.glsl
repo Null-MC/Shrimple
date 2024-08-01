@@ -101,7 +101,7 @@
     //const vec3 ior_k_silver = vec3(4.0728, 3.1900, 2.1997);
 
 
-    #define IOR_to_f0(ior) (pow(((ior) - 1.0) / ((ior) + 1.0), vec3(2)))
+    #define IOR_to_f0(ior) (pow(abs(((ior) - 1.0) / ((ior) + 1.0)), vec3(2.0)))
 
     const vec3 hcm_f0[8] = vec3[](
         IOR_to_f0(ior_n_iron),
