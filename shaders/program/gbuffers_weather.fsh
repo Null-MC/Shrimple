@@ -396,19 +396,21 @@ void main() {
     //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
     // #endif
 
-    float VoL = dot(localSkyLightDirection, localViewDir);
-    float phase = DHG(VoL, -0.35, 0.65, 0.3);
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        float VoL = dot(localSkyLightDirection, localViewDir);
+        float phase = DHG(VoL, -0.35, 0.65, 0.3);
 
-    // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //     phase *= cloudShadow;
-    // #endif
+        // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     phase *= cloudShadow;
+        // #endif
 
-    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-    vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
+        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-    vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeBrightF;
-    vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
-    diffuseFinal += skyLight;
+        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeBrightF;
+        vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
+        diffuseFinal += skyLight;
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, vIn.color.a);

@@ -405,6 +405,10 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/fog/fog_volume.glsl"
     #endif
+    
+    #ifdef DEBUG_LIGHT_LEVELS
+        #include "/lib/lighting/debug_levels.glsl"
+    #endif
 #endif
 
 
@@ -553,6 +557,12 @@ void main() {
     }
 
     vec3 albedo = RGBToLinear(color.rgb * vIn.color.rgb);
+
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        albedo = vec3(WHITEWORLD_VALUE);
+    #elif defined DEBUG_LIGHT_LEVELS
+        if (!isWater) albedo = GetLightLevelColor(vIn.lmcoord.x);
+    #endif
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED

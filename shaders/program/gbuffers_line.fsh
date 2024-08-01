@@ -134,8 +134,6 @@ void main() {
         color *= texture(gtexture, vIn.texcoord);
     }
 
-    // color = vec4(1.0, 0.5, 0.0, 1.0);
-
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         const vec3 normal = vec3(0.0);
         const float occlusion = 0.0;

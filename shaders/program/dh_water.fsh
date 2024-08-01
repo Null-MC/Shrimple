@@ -319,6 +319,10 @@ uniform float dhFarPlane;
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/fog/fog_volume.glsl"
     #endif
+
+    #ifdef DEBUG_LIGHT_LEVELS
+        #include "/lib/lighting/debug_levels.glsl"
+    #endif
 #endif
 
 
@@ -418,8 +422,14 @@ void main() {
 
     vec3 localViewDir = normalize(vIn.localPos);
     vec3 albedo = RGBToLinear(color.rgb);
-    float occlusion = 1.0;
 
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        albedo = vec3(WHITEWORLD_VALUE);
+    #elif defined DEBUG_LIGHT_LEVELS
+        if (!isWater) albedo = GetLightLevelColor(vIn.lmcoord.x);
+    #endif
+    
+    float occlusion = 1.0;
     float roughness = 0.1;
     float metal_f0 = 0.04;
     const float sss = 0.0;

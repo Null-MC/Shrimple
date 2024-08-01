@@ -362,6 +362,10 @@ uniform int frameCounter;
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
+
+    #ifdef DEBUG_LIGHT_LEVELS
+        #include "/lib/lighting/debug_levels.glsl"
+    #endif
 #endif
 
 
@@ -498,6 +502,12 @@ void main() {
     color.rgb *= vIn.color.rgb;
     vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
+
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        albedo = vec3(WHITEWORLD_VALUE);
+    #elif defined DEBUG_LIGHT_LEVELS
+        albedo = GetLightLevelColor(vIn.lmcoord.x);
+    #endif
 
     float occlusion = 1.0;
     float roughness, metal_f0;

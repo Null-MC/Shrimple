@@ -1820,6 +1820,18 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             break;
     }
 
+    if (blockId == BLOCK_MI_FORGE_HAMMER) {
+        shapeCount = 4u;
+        boundsMin[0] = modelPart( 1,  0,  1);
+        boundsMax[0] = modelPart(15,  4, 15);
+        boundsMin[1] = modelPart( 3,  4,  3);
+        boundsMax[1] = modelPart(13,  5, 13);
+        boundsMin[2] = modelPart( 4,  5,  4);
+        boundsMax[2] = modelPart(12, 10, 12);
+        boundsMin[3] = modelPart( 1, 10,  1);
+        boundsMax[3] = modelPart(15, 15, 15);
+    }
+
     switch (blockId) {
         case BLOCK_CRANK_UP:
             shapeCount = 1u;

@@ -225,6 +225,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#ifdef DEBUG_LIGHT_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
+#endif
+
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/flicker.glsl"
@@ -257,6 +261,8 @@ uniform int heldBlockLightValue2;
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
+
+#include "/lib/material/mat_deferred.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
@@ -416,7 +422,7 @@ layout(location = 0) out vec4 outFinal;
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
             vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-            vec4 deferredWaterShadow = unpackUnorm4x8(deferredData.b);
+            vec4 deferredMaterialShadow = unpackUnorm4x8(deferredData.b);
 
             vec3 localNormal = deferredNormal.rgb;
             float occlusion = deferredLighting.z;
@@ -458,13 +464,20 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             // apply parallax shadows
-            shadowColor *= deferredWaterShadow.g;
+            shadowColor *= deferredMaterialShadow.g;
 
             vec3 worldPos = cameraPosition + localPos;
 
             vec3 albedo = RGBToLinear(deferredColor);
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
+
+            #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+                albedo = vec3(WHITEWORLD_VALUE);
+            #elif defined DEBUG_LIGHT_LEVELS
+                uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
+                if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
+            #endif
 
             float skyWetness = 0.0, puddleF = 0.0;
             #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

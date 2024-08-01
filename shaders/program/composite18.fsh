@@ -205,6 +205,10 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#ifdef DEBUG_LIGHT_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
+#endif
+
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
@@ -230,6 +234,8 @@ uniform int heldBlockLightValue2;
 #ifdef LIGHTING_FLICKER
     #include "/lib/lighting/flicker.glsl"
 #endif
+
+#include "/lib/material/mat_deferred.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
@@ -404,9 +410,18 @@ layout(location = 0) out vec4 outFinal;
 
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
         uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+        // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+        vec2 deferredMaterialShadow = unpackUnorm4x8(deferredData.b).rg;
 
         vec3 albedo = RGBToLinear(deferredColor.rgb);
+        uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
+
+        #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+            albedo = vec3(WHITEWORLD_VALUE);
+        #elif defined DEBUG_LIGHT_LEVELS
+            if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
+        #endif
 
         // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         // fogColorFinal = RGBToLinear(fogColorFinal);
@@ -422,7 +437,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         if (deferredColor.a > (0.5/255.0) && depthTrans < 1.0) {
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+            // vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
             vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
             vec3 localNormal = deferredNormal.rgb;
@@ -440,13 +455,8 @@ layout(location = 0) out vec4 outFinal;
 
             // vec4 shadowColor = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
 
-            //#if WATER_DEPTH_LAYERS > 1
-            //    isWater = WaterDepths[waterPixelIndex].IsWater;
-            //#else
-            vec2 deferredWaterShadow = unpackUnorm4x8(deferredData.b).rg;
-            float parallaxShadow = deferredWaterShadow.g;
-            isWater = deferredWaterShadow.r > 0.5;
-            //#endif
+            float parallaxShadow = deferredMaterialShadow.g;
+            isWater = matId == deferredMat_water;
 
             #ifdef MATERIAL_REFRACT_ENABLED
                 vec3 texViewNormal = mat3(gbufferModelView) * (texNormal - localNormal);
