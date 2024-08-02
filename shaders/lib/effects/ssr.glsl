@@ -47,7 +47,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         float stepScale = exp2(level);
         tracePos = screenRay*stepScale + lastTracePos;
 
-        vec3 clipMax = vec3(1.0) - vec3(pixelSize * stepScale, 0.0);
+        vec3 clipMax = vec3(1.0) - vec3(pixelSize * stepScale, EPSILON);
 
         vec3 t = clamp(tracePos, clipMin, clipMax);
         if (t != tracePos) {
@@ -57,7 +57,10 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             }
 
             lastVisPos = t;
+
+            // allow sky reflection
             if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
+
             break;
         }
 
@@ -89,6 +92,8 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         alpha = 1.0;
         break;
     }
+
+    // if (lastVisPos.z >= 0.999) alpha = 0.0;
 
     #ifdef SSR_DEBUG
         alpha *= level + 0.1;
