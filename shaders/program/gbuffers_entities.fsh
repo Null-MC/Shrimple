@@ -308,8 +308,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/material/normalmap.glsl"
 #endif
 
-// #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
-#ifndef DEFERRED_BUFFER_ENABLED
+#ifdef DEFERRED_BUFFER_ENABLED
+    #include "/lib/material/mat_deferred.glsl"
+#else
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 
@@ -606,14 +607,14 @@ void main() {
             color.a = 1.0;
         #endif
 
-        const float isWater = 0.0;
+        const float matId = (deferredMat_entity+0.5)/255.0;
 
         outDeferredColor = color + dither;
         // outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
         
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(matId, parallaxShadow + dither, 0.0, 0.0));
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
 
         #ifdef EFFECT_TAA_ENABLED

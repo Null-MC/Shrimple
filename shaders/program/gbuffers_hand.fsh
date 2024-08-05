@@ -305,7 +305,9 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/subsurface.glsl"
 #include "/lib/material/specular.glsl"
 
-#if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
+#ifdef DEFERRED_BUFFER_ENABLED
+    #include "/lib/material/mat_deferred.glsl"
+#else
     #include "/lib/lighting/scatter_transmit.glsl"
 
     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -467,18 +469,14 @@ void main() {
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
-
+        const float matId = (deferredMat_entity+0.5)/255.0;
+        
         outDeferredColor = color + dither;
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
         
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither);
-        // outDeferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-        outDeferredData.b = packUnorm4x8(vec4(0.0, parallaxShadow, 0.0, 0.0) + dither);
+        outDeferredData.b = packUnorm4x8(vec4(matId, parallaxShadow + dither, 0.0, 0.0));
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
     #else
         vec3 albedo = RGBToLinear(color.rgb);

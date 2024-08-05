@@ -33,7 +33,7 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
                 vec4 sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, srcCoord, 0);
 
                 // TODO: WTF is this?!
-                sampleSpecular.rgb *= 1.0 - min(4.0 * abs(sampleSpecular.a - roughL), 1.0);
+                //sampleSpecular.rgb *= 1.0 - min(4.0 * abs(sampleSpecular.a - roughL), 1.0);
             #endif
 
             // #if LIGHTING_TRACE_RES == 2
@@ -89,7 +89,8 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
                 }
             }
             
-            float fv = Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
+            // float fv = 1.0;//Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
+            float fv = Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth));
             
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;

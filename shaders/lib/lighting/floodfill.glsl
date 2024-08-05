@@ -29,11 +29,5 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
-    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-        vec3 final = vec3(WHITEWORLD_VALUE);
-    #else
-        vec3 final = albedo;
-    #endif
-
-    return final * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
+    return albedo * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
 }

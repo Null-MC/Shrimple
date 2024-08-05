@@ -72,7 +72,7 @@ void main() {
         #endif
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            color.rgb *= 10.0 * WorldSunLightColor * Sky_SunBrightnessF;
+            color.rgb *= 20.0 * WorldSunLightColor * Sky_SunBrightnessF;
         #elif SKY_TYPE == SKY_TYPE_VANILLA
             color.rgb *= 2.0 * Sky_BrightnessF;
         #endif
