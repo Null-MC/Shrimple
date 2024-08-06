@@ -467,8 +467,7 @@ void main() {
     float emission = GetMaterialEmission(blockEntityId, atlasCoord, dFdXY);
     GetMaterialSpecular(blockEntityId, atlasCoord, dFdXY, roughness, metal_f0);
     
-    vec2 lmFinal = vIn.lmcoord;
-
+    vec3 albedo = RGBToLinear(color.rgb);
     vec3 texNormal = localNormal;
     bool isValidNormal = false;
     float parallaxShadow = 1.0;
@@ -495,6 +494,20 @@ void main() {
         #endif
 
         if (isValidNormal) {
+            #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+                //if (blockEntityId == BLOCK_CREATE_TRACK) {
+                    #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
+                        ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
+
+                        #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+                            ApplyWetnessRipples(texNormal, rippleNormalStrength);
+                        #endif
+                    #endif
+
+                    ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
+                //}
+            #endif
+
             vec3 localTangent = normalize(vIn.localTangent.xyz);
             mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
             texNormal = matLocalTBN * texNormal;
@@ -516,22 +529,6 @@ void main() {
 
     //     shadowColor *= 1.2 * pow(skyTexNoL, 0.8);
     // #endif
-
-    vec3 albedo = RGBToLinear(color.rgb);
-
-    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        //if (blockEntityId == BLOCK_CREATE_TRACK) {
-            #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
-                ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
-
-                #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                    ApplyWetnessRipples(texNormal, rippleNormalStrength);
-                #endif
-            #endif
-
-            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
-        //}
-    #endif
     
     outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
@@ -543,7 +540,7 @@ void main() {
         outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
-        outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither);
         outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness + dither, metal_f0 + dither, 0.0, 1.0));
     #else
@@ -578,11 +575,11 @@ void main() {
         vec3 specularFinal = vec3(0.0);
 
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+            GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, vIn.lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
 
             diffuseFinal += emission * MaterialEmissionF;
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
+            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
         #endif
 
         #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
@@ -592,7 +589,7 @@ void main() {
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
             const bool tir = false;
             const bool isUnderWater = false;
-            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, lmFinal, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
+            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
         #else
             diffuseFinal += WorldAmbientF;
         #endif
