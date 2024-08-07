@@ -117,18 +117,17 @@ void main() {
     float emission = 0.0;
 
     if (renderStage == MC_RENDER_STAGE_OUTLINE) {
-        #if BLOCK_OUTLINE == BLOCK_OUTLINE_WHITE
-            color.rgb = vec3(0.8);
-            color.a = 1.0;
-            emission = 0.1;
-        #elif BLOCK_OUTLINE == BLOCK_OUTLINE_FANCY
+        #if BLOCK_OUTLINE_TYPE == BLOCK_OUTLINE_CONSTRUCTION
             const float interval = 20.0;
             vec3 worldPos = vIn.localPos + cameraPosition;
             float offset = sumOf(worldPos) * interval;
             color.rgb = step(1.0, mod(offset, 2.0)) * vec3(1.0, 1.0, 0.0);
-            color.a = 1.0;
-            emission = 0.1;
+        #else
+            color.rgb = vec3(BLOCK_OUTLINE_COLOR_R, BLOCK_OUTLINE_COLOR_G, BLOCK_OUTLINE_COLOR_B) / 255.0;
         #endif
+
+        color.a = 1.0;
+        emission = BLOCK_OUTLINE_EMISSION / 100.0;
     }
     else {
         color *= texture(gtexture, vIn.texcoord);
