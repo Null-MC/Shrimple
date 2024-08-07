@@ -120,12 +120,17 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
             f0 = IorToF0(ior, vec3(1.33));
         }
 
-        NoLm = 1.0;
-        float NoHm = 1.0;
-        if (!all(lessThan(abs(texNormal), EPSILON3))) {
-            NoLm = max(dot(texNormal, localSkyLightDir), 0.0);
-            NoHm = max(dot(texNormal, H), 0.0);
-            NoVm = max(dot(texNormal, localViewDir), 0.0);
+        NoLm = 0.0;
+        NoVm = 0.0;
+        LoHm = 0.0;
+        float NoHm = 0.0;
+
+        vec3 N = all(lessThan(abs(texNormal), EPSILON3)) ? localNormal : texNormal;
+
+        if (!all(lessThan(abs(N), EPSILON3))) {
+            NoLm = max(dot(N, localSkyLightDir), 0.0);
+            NoHm = max(dot(N, H), 0.0);
+            NoVm = max(dot(N, localViewDir), 0.0);
             LoHm = max(dot(localSkyLightDir, H), 0.0);
         }
 
@@ -138,7 +143,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             vec3 viewPos = mul3(gbufferModelView, localPos);
-            vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
+            vec3 texViewNormal = mat3(gbufferModelView) * N;
 
             vec3 skyReflectF = GetReflectiveness(NoVm, f0, roughL);
 
