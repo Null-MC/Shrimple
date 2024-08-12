@@ -46,9 +46,11 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
-#ifdef WORLD_SKY_ENABLED
+#if defined WORLD_SKY_ENABLED || defined WORLD_WATER_ENABLED
     uniform sampler3D texClouds;
+#endif
 
+#ifdef WORLD_SKY_ENABLED
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         uniform sampler2D texSkyIrradiance;
     #endif

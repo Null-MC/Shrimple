@@ -1,4 +1,4 @@
-const float tile_dist[4] = float[](5, 12, 30, 80);
+const float tile_dist[4] = float[](8, 20, 35, 75);
 
 const float cascadeNormalBias[] = float[]
     (0.1, 0.2, 0.4, 0.8);

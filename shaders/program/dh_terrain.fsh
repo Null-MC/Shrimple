@@ -178,6 +178,8 @@ uniform int frameCounter;
     // #include "/lib/shadows/render.glsl"
 #endif
 
+#include "/lib/material/dh_tex_noise.glsl"
+
 #ifdef LIGHTING_FLICKER
     #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
@@ -293,6 +295,7 @@ void main() {
     vec2 lmFinal = vIn.lmcoord;
     
     vec3 localNormal = normalize(vIn.localNormal);
+    vec3 worldPos = vIn.localPos + cameraPosition;
 
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
@@ -303,7 +306,7 @@ void main() {
             // #if DISPLACE_MODE == DISPLACE_TESSELATION
             //     vec3 worldPos = vIn.surfacePos + cameraPosition;
             // #else
-                vec3 worldPos = vIn.localPos + cameraPosition;
+                // vec3 worldPos = vIn.localPos + cameraPosition;
             // #endif
 
             float surface_roughness, surface_metal_f0;
@@ -330,6 +333,8 @@ void main() {
 
     vec3 albedo = RGBToLinear(color.rgb);
     color.a = 1.0;
+
+    applyNoise(albedo, 1.0, worldPos, viewDist);
     
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
