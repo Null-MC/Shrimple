@@ -12,8 +12,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
     if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
         vec3 samplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal);
         vec4 lpvSample = SampleLpv(samplePos);
+
         lpvFade = GetLpvFade(lpvPos);
         lpvFade = _smoothstep(lpvFade);
+
+        // TODO: use min of LPV fade and shadow fade
 
         #ifdef LPV_AO_FIX
             vec4 lpvSampleN = SampleLpvNearest(ivec3(samplePos));

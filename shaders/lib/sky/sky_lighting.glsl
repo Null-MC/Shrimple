@@ -69,12 +69,13 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetLPVPosition(localPos);
+        vec3 lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal);
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
         lpvFade *= 1.0 - Lpv_LightmapMixF;
 
-        vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
+        vec4 lpvSample = SampleLpv(lpvSamplePos);
         float lpvSkyLight = GetLpvSkyLight(lpvSample);
 
         skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
@@ -83,12 +84,13 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
-
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
-        vec3 lpvSkyLightColor = GetLpvBlockLight(lpvSample);
+        vec3 lpvIndirectSample = SampleLpvIndirect(lpvSamplePos);
 
-        ambientSkyLight += lpvSkyLightColor * lpvFade;
+        vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
+        ambientSkyLight += 0.5 * lpvIndirectSample * (WorldSkyLightColor * lpvFade);
+    #else
+        vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
     #endif
 
     accumDiffuse += ambientSkyLight * (occlusion * ambientF);

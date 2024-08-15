@@ -34,6 +34,7 @@ composite3		populate light mask neighbors
 composite4		water mask
 composite5		translucent deferred+ss shadows
 ++composite6		translucent shadow filter
+--composite7		propagate indirect LPV
 
 composite11		opaque deferred block-light tracing
 composite12		opaque deferred final

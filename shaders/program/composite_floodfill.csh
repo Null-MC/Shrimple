@@ -16,6 +16,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
+const float LpvIndirectFalloff = 0.04;
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
@@ -88,6 +89,10 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
     #include "/lib/buffers/light_static.glsl"
     #include "/lib/buffers/volume.glsl"
 
+    #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        #include "/lib/buffers/lpv_indirect.glsl"
+    #endif
+
     #include "/lib/utility/hsv.glsl"
 
     #ifdef LPV_BLEND_ALT
@@ -141,8 +146,9 @@ const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
 
 
 // const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
+const float IndirectLpvRange = 2.0;
 
-ivec3 GetLPVVoxelOffset() {
+ivec3 GetLpvVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
     ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
 
@@ -152,7 +158,7 @@ ivec3 GetLPVVoxelOffset() {
     return voxelOrigin - lpvOrigin;
 }
 
-vec4 GetLpvValue(in ivec3 texCoord) {
+vec4 GetLpvDirectValue(in ivec3 texCoord) {
     if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec4(0.0);
 
     vec4 lpvSample = (frameCounter % 2) == 0
@@ -167,6 +173,24 @@ vec4 GetLpvValue(in ivec3 texCoord) {
 
     return lpvSample;
 }
+
+#if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+    vec3 GetLpvIndirectValue(in ivec3 texCoord) {
+        if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec3(0.0);
+
+        vec3 lpvSample = (frameCounter % 2) == 0
+            ? imageLoad(imgIndirectLpv_2, texCoord).rgb
+            : imageLoad(imgIndirectLpv_1, texCoord).rgb;
+
+        lpvSample = RGBToLinear(lpvSample);
+
+        vec3 hsv = RgbToHsv(lpvSample);
+        hsv.z = exp2(hsv.z * IndirectLpvRange) - 1.0;
+        lpvSample = HsvToRgb(hsv);
+
+        return lpvSample;
+    }
+#endif
 
 float GetBlockBounceF(const in uint blockId) {
     // TODO: make this better
@@ -192,10 +216,10 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             int cascade = GetShadowCascade(shadowPos, -1.5);
 
             float shadowDistMax = GetShadowRange(cascade);
-            float shadowBias = 1.5 * rcp(shadowDistMax);//GetShadowOffsetBias(cascade);
+            // float shadowBias = 1.5 * rcp(shadowDistMax);//GetShadowOffsetBias(cascade);
         #else
             float shadowDistMax = GetShadowRange();
-            float shadowBias = 1.5 * rcp(shadowDistMax);// * GetShadowOffsetBias();
+            // float shadowBias = 1.5 * rcp(shadowDistMax);// * GetShadowOffsetBias();
         #endif
 
         float viewDist = length(blockLocalPos);
@@ -233,7 +257,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
             float texDepth = texture(shadowtex1, shadowPos.xy).r;
             float sampleDist = texDepth - shadowPos.z;
-            float sampleF = step(shadowBias, sampleDist);
+            float sampleF = step(0.0, sampleDist);
             //sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * giScale, 0.0);
 
             shadowDist += max(sampleDist, 0);
@@ -294,18 +318,22 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
 const ivec3 lpvFlatten = ivec3(1, 10, 100);
 
-shared vec4 lpvSharedData[10*10*10];
 shared uint voxelSharedData[10*10*10];
+shared vec4 lpvDirectBuffer[10*10*10];
+
+#if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+    shared vec3 lpvIndirectBuffer[10*10*10];
+#endif
 
 int getSharedCoord(ivec3 pos) {
     return sumOf(pos * lpvFlatten);
 }
 
-vec4 sampleShared(ivec3 pos) {
-    return lpvSharedData[getSharedCoord(pos + 1)];
-}
+// vec4 sampleShared(ivec3 pos) {
+//     return lpvDirectBuffer[getSharedCoord(pos + 1)];
+// }
 
-vec4 sampleShared(ivec3 pos, int mask_index, out float weight) {
+vec4 sampleDirectShared(ivec3 pos, int mask_index, out float weight) {
     int shared_index = getSharedCoord(pos + 1);
 
     //float mixWeight = 1.0;
@@ -317,32 +345,69 @@ vec4 sampleShared(ivec3 pos, int mask_index, out float weight) {
         ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
 
     float wMask = (mixMask >> mask_index) & 1u;
-    return lpvSharedData[shared_index] * wMask;// * mixWeight;
+    return lpvDirectBuffer[shared_index] * wMask;// * mixWeight;
 }
 
-vec4 mixNeighbours(const in ivec3 fragCoord, const in uint mask) {
+#if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+    vec3 sampleIndirectShared(ivec3 pos, int mask_index, out float weight) {
+        int shared_index = getSharedCoord(pos + 1);
+
+        //float mixWeight = 1.0;
+        uint mixMask = 0xFFFF;
+        uint blockId = voxelSharedData[shared_index];
+        weight = blockId == BLOCK_EMPTY ? 1.0 : 0.0;
+        
+        if (blockId > 0 && blockId != BLOCK_EMPTY)
+            ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
+
+        float wMask = (mixMask >> mask_index) & 1u;
+        return lpvIndirectBuffer[shared_index] * wMask;// * mixWeight;
+    }
+#endif
+
+vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
     uvec3 m1 = (uvec3(mask) >> uvec3(0, 2, 4)) & uvec3(1u);
     uvec3 m2 = (uvec3(mask) >> uvec3(1, 3, 5)) & uvec3(1u);
 
     vec3 w1, w2;
-    vec4 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x) * m1.x;
-    vec4 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x) * m2.x;
-    vec4 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y) * m1.y;
-    vec4 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y) * m2.y;
-    vec4 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
-    vec4 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
+    vec4 nX1 = sampleDirectShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x) * m1.x;
+    vec4 nX2 = sampleDirectShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x) * m2.x;
+    vec4 nY1 = sampleDirectShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y) * m1.y;
+    vec4 nY2 = sampleDirectShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y) * m2.y;
+    vec4 nZ1 = sampleDirectShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
+    vec4 nZ2 = sampleDirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
     float wMax = max(sumOf(w1 + w2), 1.0);
-    vec4 avgFalloff = rcp(vec4(vec3(wMax), 6.0)) * (1.0 - LpvBlockSkyFalloff.xxxy);
+    vec4 avgFalloff = rcp(wMax) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
+
+#if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+    vec3 mixNeighboursIndirect(const in ivec3 fragCoord, const in uint mask) {
+        uvec3 m1 = (uvec3(mask) >> uvec3(0, 2, 4)) & uvec3(1u);
+        uvec3 m2 = (uvec3(mask) >> uvec3(1, 3, 5)) & uvec3(1u);
+
+        vec3 w1, w2;
+        vec3 nX1 = sampleIndirectShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x) * m1.x;
+        vec3 nX2 = sampleIndirectShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x) * m2.x;
+        vec3 nY1 = sampleIndirectShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y) * m1.y;
+        vec3 nY2 = sampleIndirectShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y) * m2.y;
+        vec3 nZ1 = sampleIndirectShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
+        vec3 nZ2 = sampleIndirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
+
+        float wMax = max(sumOf(w1 + w2), 1.0);
+        // float avgFalloff = (1.0/6.0) * (1.0 - LpvIndirectFalloff);
+        float avgFalloff = rcp(wMax) * (1.0 - LpvIndirectFalloff);
+        return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
+    }
+#endif
 
 void PopulateShared() {
     uint i1 = uint(gl_LocalInvocationIndex) * 2u;
     if (i1 >= 1000u) return;
 
     uint i2 = i1 + 1u;
-    ivec3 voxelOffset = GetLPVVoxelOffset();
+    ivec3 voxelOffset = GetLpvVoxelOffset();
     ivec3 imgCoordOffset = GetLPVFrameOffset();
     ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
 
@@ -352,8 +417,13 @@ void PopulateShared() {
     ivec3 lpvPos1 = imgCoordOffset + pos1;
     ivec3 lpvPos2 = imgCoordOffset + pos2;
 
-    lpvSharedData[i1] = GetLpvValue(lpvPos1);
-    lpvSharedData[i2] = GetLpvValue(lpvPos2);
+    lpvDirectBuffer[i1] = GetLpvDirectValue(lpvPos1);
+    lpvDirectBuffer[i2] = GetLpvDirectValue(lpvPos2);
+
+    #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        lpvIndirectBuffer[i1] = GetLpvIndirectValue(lpvPos1);
+        lpvIndirectBuffer[i2] = GetLpvIndirectValue(lpvPos2);
+    #endif
 
 
     uint blockId1 = BLOCK_EMPTY;
@@ -400,7 +470,11 @@ void main() {
 
         uint blockId = voxelSharedData[getSharedCoord(ivec3(gl_LocalInvocationID) + 1)];
 
-        vec4 lightValue = vec4(0.0);
+        vec4 directLightValue = vec4(0.0);
+        #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+            vec3 indirectLightValue = vec3(0.0);
+        #endif
+
         float mixWeight = blockId == BLOCK_EMPTY ? 1.0 : 0.0;
         uint mixMask = 0xFFFF;
         vec3 tint = vec3(1.0);
@@ -416,11 +490,17 @@ void main() {
         #endif
         
         if (mixWeight > EPSILON) {
-            vec4 lightMixed = mixNeighbours(ivec3(gl_LocalInvocationID), mixMask);
+            vec4 lightMixed = mixNeighboursDirect(ivec3(gl_LocalInvocationID), mixMask);
             lightMixed.rgb *= mixWeight * tint;
-            lightValue += lightMixed;
+            directLightValue += lightMixed;
 
             #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED && defined IS_LPV_SKYLIGHT_ENABLED
+                #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+                    lightMixed.rgb = mixNeighboursIndirect(ivec3(gl_LocalInvocationID), mixMask);
+                    lightMixed.rgb *= mixWeight * tint;
+                    indirectLightValue += lightMixed.rgb;
+                #endif
+
                 float shadowDist;
                 vec4 shadowColorF = SampleShadow(blockLocalPos, shadowDist);
 
@@ -453,28 +533,28 @@ void main() {
                         //skyLightBrightF *= 1.0 - 0.8 * weatherStrength;
                         // TODO: make darker at night
 
-                        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                            float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
-                        #else
-                            float skyLightRange = 10.0 * sunUpF;
-                        #endif
+                        // #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+                        //     float skyLightRange = 6.0 * sunUpF * Lighting_AmbientF;
+                        // #else
+                        //     float skyLightRange = 10.0 * sunUpF;
+                        // #endif
 
-                        skyLightRange *= 1.0 - 0.8 * weatherStrength;
+                        // skyLightRange *= 1.0 - 0.8 * weatherStrength;
 
-                        vec3 skyLight = shadowColorF.rgb * WorldSkyLightColor;
+                        vec3 skyLight = shadowColorF.rgb;// * WorldSkyLightColor;
 
                         vec3 hsv = RgbToHsv(skyLight);
                         // hsv.y *= 0.65;
-                        hsv.z = exp2(skyLightRange * shadowColorF.a) - 1.0;
+                        hsv.z = exp2(IndirectLpvRange * shadowColorF.a) - 1.0;
                         skyLight = HsvToRgb(hsv);
 
-                        lightValue.rgb += skyLight;// / max(shadowDist, 1.0);
+                        indirectLightValue += skyLight;// / max(shadowDist, 1.0);
                     }
                 #endif
 
                 float skyLightDistF = sunUpF * 0.8 + 0.2;
-                float skyLightFinal = exp2(LPV_SKYLIGHT_RANGE * skyLightDistF * shadowColorF.a) - 1.0;
-                lightValue.a = max(lightValue.a, skyLightFinal);
+                float skyLightFinal = exp2(LpvBlockSkyRange.y * skyLightDistF * shadowColorF.a) - 1.0;
+                directLightValue.a = max(directLightValue.a, skyLightFinal);
             #endif
         }
 
@@ -498,23 +578,42 @@ void main() {
                     vec3 hsv = RgbToHsv(lightColor);
                     hsv.z = exp2(lightRange) - 1.0;
                     // hsv.z = lightRange / 15.0;
-                    lightValue.rgb += HsvToRgb(hsv);
+                    directLightValue.rgb += HsvToRgb(hsv);
                 }
             }
         #endif
 
-        vec4 hsv_sky = vec4(RgbToHsv(lightValue.rgb), lightValue.a);
+        vec4 hsv_sky = vec4(RgbToHsv(directLightValue.rgb), directLightValue.a);
         hsv_sky.zw = log2(hsv_sky.zw + 1.0) / LpvBlockSkyRange;
-        lightValue = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
+        directLightValue = vec4(HsvToRgb(hsv_sky.xyz), hsv_sky.w);
 
-        lightValue.rgb = LinearToRGB(lightValue.rgb);
+        directLightValue.rgb = LinearToRGB(directLightValue.rgb);
 
-        if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000))
-            lightValue = vec4(0.0);
+        #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+            // indirectLightValue = vec3(0.0, 100.0, 0.0);
+
+            vec3 hsv = RgbToHsv(indirectLightValue);
+            hsv.z = log2(hsv.z + 1.0) / IndirectLpvRange;
+            indirectLightValue = HsvToRgb(hsv);
+
+            indirectLightValue = LinearToRGB(indirectLightValue);
+        #endif
+
+        // if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000)) {
+        //     directLightValue = vec4(0.0);
+        //     indirectLightValue = vec3(0.0);
+        // }
 
         if (frameCounter % 2 == 0)
-            imageStore(imgSceneLPV_1, imgCoord, lightValue);
+            imageStore(imgSceneLPV_1, imgCoord, directLightValue);
         else
-            imageStore(imgSceneLPV_2, imgCoord, lightValue);
+            imageStore(imgSceneLPV_2, imgCoord, directLightValue);
+
+        #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+            if (frameCounter % 2 == 0)
+                imageStore(imgIndirectLpv_1, imgCoord, vec4(indirectLightValue, 1.0));
+            else
+                imageStore(imgIndirectLpv_2, imgCoord, vec4(indirectLightValue, 1.0));
+        #endif
     #endif
 }

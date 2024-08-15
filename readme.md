@@ -12,12 +12,16 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 
 
 ## Mod Support
+ - Applied Energistics 2
  - BigGlobe
- - Create
- - Create Deco
+ - Create (+Deco, +Steam 'N Rails)
  - Distant Horizons
+ - Loot Urns
  - Maccaws Lights
+ - Modern Industrialization
  - PhysicsMod
+ - Redstone Lamps Plus
+ - Saro´s Road Blocks
  - Supplementaries
 
 

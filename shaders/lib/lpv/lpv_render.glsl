@@ -108,11 +108,16 @@ vec4 SampleLpvCubic(in vec3 lpvPos) {
 
 vec3 GetLpvSamplePos(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texNormal) {
     #if MATERIAL_NORMALS != 0
-        // vec3 samplePos = lpvPos - 0.5 * geoNormal + texNormal;
-        return lpvPos + 0.75 * texNormal;
+        vec3 minPos = floor(lpvPos + 0.5 * geoNormal);
+
+        vec3 offsetPos = lpvPos + 0.5 * texNormal;
+
+        offsetPos = clamp(offsetPos, minPos, minPos + 1.0);
+
+        return offsetPos;
     #else
         // vec3 samplePos = lpvPos + 0.5 * geoNormal;
-        return lpvPos + 0.75 * geoNormal;
+        return lpvPos + 0.5 * geoNormal;
     #endif
 }
 
