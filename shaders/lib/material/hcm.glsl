@@ -143,7 +143,7 @@
             // albedo-only conductor
             //n = albedo;
             //k = 0.0;//albedo;
-            return albedo;
+            return sqrt(albedo);
         }
     }
 #endif
