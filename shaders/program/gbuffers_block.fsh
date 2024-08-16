@@ -406,7 +406,7 @@ void main() {
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
-        vec4 rippleNormalStrength;
+        // vec4 rippleNormalStrength;
 
         if (!skipParallax) {
         //if (blockEntityId == BLOCK_CREATE_TRACK) {
@@ -419,13 +419,13 @@ void main() {
             skyWetness = GetSkyWetness(worldPos, localNormal, vIn.lmcoord);//, blockEntityId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
-            #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
-                rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+            // #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+            //     rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
 
-                localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
-                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-            #endif
+            //     localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
+            //     //if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord);
+            //     atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+            // #endif
         //}
         }
     #endif
@@ -454,7 +454,10 @@ void main() {
     }
 
     color.rgb *= vIn.color.rgb;
-    color.a = 1.0;
+
+    #ifndef RENDER_TRANSLUCENT
+        color.a = 1.0;
+    #endif
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
@@ -499,9 +502,9 @@ void main() {
                     #if WORLD_WETNESS_PUDDLES != PUDDLES_NONE
                         ApplyWetnessPuddles(texNormal, vIn.localPos, skyWetness, porosity, puddleF);
 
-                        #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
-                            ApplyWetnessRipples(texNormal, rippleNormalStrength);
-                        #endif
+                        // #if WORLD_WETNESS_PUDDLES != PUDDLES_BASIC
+                        //     ApplyWetnessRipples(texNormal, rippleNormalStrength);
+                        // #endif
                     #endif
 
                     ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
@@ -532,12 +535,15 @@ void main() {
     
     outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
+    // albedo.rgb = vec3(1.0, 0.0, 0.0);
+
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
         const float isWater = 0.0;
 
-        outDeferredColor = vec4(LinearToRGB(albedo), color.a) + dither;
+        color.rgb = LinearToRGB(albedo);
+        outDeferredColor = color + dither;
 
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, occlusion, emission) + dither);
