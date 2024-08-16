@@ -396,7 +396,13 @@ void main() {
     if (!gl_FrontFacing) localNormal = -localNormal;
 
     float porosity = 0.0;
-    bool skipParallax = false;
+
+    #ifdef PARALLAX_ENABLED
+        // bool skipParallax = any(lessThan(vIn.atlasBounds[1], vec2(1.0)));
+        bool skipParallax = any(isnan(vIn.atlasBounds[1]));
+    #else
+        const bool skipParallax = true;
+    #endif
     // #if (defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED) || defined PARALLAX_ENABLED
     //     vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
     //     if (all(lessThan(atlasBounds[1], vec2(1.0/atlasSize)))) skipParallax = true;
