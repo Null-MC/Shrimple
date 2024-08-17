@@ -564,9 +564,6 @@ void main() {
         occlusion *= texOcclusion;
     #endif
 
-    vec3 localTangent = normalize(vIn.localTangent.xyz);
-    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
-
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED && WORLD_WETNESS_PUDDLES != PUDDLES_NONE
         #if DISPLACE_MODE == DISPLACE_TESSELATION
             ApplyWetnessPuddles(texNormal, vIn.surfacePos, skyWetness, porosity, puddleF);
@@ -578,6 +575,9 @@ void main() {
             ApplyWetnessRipples(texNormal, rippleNormalStrength);
         #endif
     #endif
+
+    vec3 localTangent = normalize(vIn.localTangent.xyz);
+    mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
 
     vec3 localViewDir = normalize(vIn.localPos);
     texNormal = normalize(matLocalTBN * texNormal);

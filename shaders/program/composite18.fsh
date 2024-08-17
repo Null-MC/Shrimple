@@ -44,6 +44,11 @@ uniform sampler2D BUFFER_OVERLAY;
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
+
+    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        uniform sampler3D texIndirectLpv_1;
+        uniform sampler3D texIndirectLpv_2;
+    #endif
 #endif
 
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
@@ -284,6 +289,10 @@ uniform int heldBlockLightValue2;
     
     #include "/lib/lpv/lpv.glsl"
     #include "/lib/lpv/lpv_render.glsl"
+    
+    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        #include "/lib/lpv/lpv_render_indirect.glsl"
+    #endif
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
@@ -620,11 +629,13 @@ layout(location = 0) out vec4 outFinal;
 
             #ifdef MATERIAL_REFRACT_ENABLED
                 float refractDist = maxOf(abs(refraction * viewSize));
+
                 if (refractDist >= 1.0) {
+                    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+                    
                     int refractSteps = clamp(int(ceil(refractDist)), 2, 16);
                     vec2 step = refraction / refractSteps;
                     //refraction = step * refractSteps;
-                    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
 
                     //refraction = vec2(0.0);
                     for (int i = 1; i <= refractSteps; i++) {

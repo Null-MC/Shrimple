@@ -8,8 +8,11 @@ void GetLpvBlockMask(const in uint blockId, out float mixWeight, out uint mixMas
 
     if (IsTraceOpenBlock(blockId)) mixWeight = 1.0;
 
+    if (blockId == BLOCK_LEAVES || blockId == BLOCK_LEAVES_CHERRY) {
+        mixWeight = 0.6;
+    }
     // DOOR
-    if (blockId == BLOCK_DOOR_N) {
+    else if (blockId == BLOCK_DOOR_N) {
         mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 1u, 1u);
         mixWeight = 1.0;
     }

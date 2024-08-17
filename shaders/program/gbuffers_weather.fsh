@@ -39,6 +39,11 @@ uniform sampler2D noisetex;
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
+
+    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        uniform sampler3D texIndirectLpv_1;
+        uniform sampler3D texIndirectLpv_2;
+    #endif
 #endif
 
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
@@ -267,6 +272,10 @@ uniform float weatherStrength;
     
     #include "/lib/lpv/lpv.glsl"
     #include "/lib/lpv/lpv_render.glsl"
+    
+    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
+        #include "/lib/lpv/lpv_render_indirect.glsl"
+    #endif
 #endif
 
 #ifdef WORLD_SKY_ENABLED

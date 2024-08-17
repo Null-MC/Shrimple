@@ -88,6 +88,7 @@ out VertexData {
 #endif
 
 uniform mat4 gbufferModelView;
+uniform float far;
 
 #ifdef WORLD_WATER_ENABLED
     uniform float frameTimeCounter;
@@ -100,7 +101,7 @@ uniform mat4 gbufferModelView;
     #if defined WORLD_SHADOW_ENABLED && WATER_TESSELLATION_QUALITY > 0
         uniform mat4 shadowProjection;
         uniform vec3 shadowLightPosition;
-        uniform float far;
+        // uniform float far;
     #endif
 #endif
 

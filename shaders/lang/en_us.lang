@@ -143,6 +143,24 @@ value.WORLD_CURVE_RADIUS.1200=1,200
 value.WORLD_CURVE_RADIUS.0=FLAT
 
 
+screen.WORLD_OUTLINE_OPTIONS=Block Selection
+screen.WORLD_OUTLINE_OPTIONS.comment=Change the color/style/brightness of the block selection outline.
+
+option.BLOCK_OUTLINE_TYPE=Type
+value.BLOCK_OUTLINE_TYPE.0=Colored
+value.BLOCK_OUTLINE_TYPE.1=Construction
+
+option.BLOCK_OUTLINE_WIDTH=Width
+suffix.BLOCK_OUTLINE_WIDTH=px
+
+option.BLOCK_OUTLINE_COLOR_R=Red
+option.BLOCK_OUTLINE_COLOR_G=Green
+option.BLOCK_OUTLINE_COLOR_B=Blue
+
+option.BLOCK_OUTLINE_EMISSION=Emission
+suffix.BLOCK_OUTLINE_EMISSION=%
+
+
 screen.WATER_OPTIONS=Water
 screen.WATER_OPTIONS.comment=Options for water blocks.
 
