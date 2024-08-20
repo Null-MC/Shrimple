@@ -600,6 +600,8 @@ void main() {
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
     //#endif
 
+    // color.rgb = vec3(1.0, 0.0, 0.0);
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         

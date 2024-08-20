@@ -399,7 +399,7 @@ void main() {
 
     #ifdef PARALLAX_ENABLED
         // bool skipParallax = any(lessThan(vIn.atlasBounds[1], vec2(1.0)));
-        bool skipParallax = any(isnan(vIn.atlasBounds[1]));
+        bool skipParallax = any(isnan(vIn.atlasBounds[1]) || isinf(vIn.atlasBounds[1]));
     #else
         const bool skipParallax = true;
     #endif
