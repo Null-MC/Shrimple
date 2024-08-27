@@ -407,10 +407,10 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/fog/fog_volume.glsl"
     #endif
-    
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#endif
+
+#ifdef DEBUG_LIGHT_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 

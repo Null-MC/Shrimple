@@ -192,7 +192,8 @@ void ApplyMetalDarkening(inout vec3 diffuse, inout vec3 specular, const in vec3 
         float metalF = metal_f0;
     #endif
 
-    float smoothness = 1.0 - roughL;
+    float smoothness = pow2(1.0 - roughL);
+
     diffuse *= mix(1.0, MaterialMetalBrightnessF, metalF * smoothness);
-    specular *= GetMetalTint(albedo, metal_f0);
+    specular *= GetMetalTint(albedo, metal_f0) * mix(1.0, smoothness, metalF);
 }

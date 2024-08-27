@@ -362,10 +362,10 @@ uniform int frameCounter;
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
+#endif
 
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#ifdef DEBUG_LIGHT_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 

@@ -319,10 +319,10 @@ uniform float dhFarPlane;
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/fog/fog_volume.glsl"
     #endif
+#endif
 
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#ifdef DEBUG_LIGHT_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 

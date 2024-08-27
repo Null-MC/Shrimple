@@ -481,12 +481,12 @@ layout(location = 0) out vec4 outFinal;
             float emission = deferredLighting.a;
             float sss = deferredNormal.a;
 
-            #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-                albedo = vec3(WHITEWORLD_VALUE);
-            #elif defined DEBUG_LIGHT_LEVELS
-                uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
-                if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
-            #endif
+            // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+            //     albedo = vec3(WHITEWORLD_VALUE);
+            // #elif defined DEBUG_LIGHT_LEVELS
+            //     uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
+            //     if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
+            // #endif
 
             float skyWetness = 0.0, puddleF = 0.0;
             #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

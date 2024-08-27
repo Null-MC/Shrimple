@@ -426,11 +426,11 @@ layout(location = 0) out vec4 outFinal;
         vec3 albedo = RGBToLinear(deferredColor.rgb);
         uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
 
-        #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-            albedo = vec3(WHITEWORLD_VALUE);
-        #elif defined DEBUG_LIGHT_LEVELS
-            if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
-        #endif
+        // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        //     albedo = vec3(WHITEWORLD_VALUE);
+        // #elif defined DEBUG_LIGHT_LEVELS
+        //     if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
+        // #endif
 
         // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         // fogColorFinal = RGBToLinear(fogColorFinal);
