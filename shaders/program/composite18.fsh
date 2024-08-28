@@ -210,7 +210,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#ifdef DEBUG_LIGHT_LEVELS
+#ifdef LIGHTING_DEBUG_LEVELS
     #include "/lib/lighting/debug_levels.glsl"
 #endif
 
@@ -428,7 +428,7 @@ layout(location = 0) out vec4 outFinal;
 
         // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         //     albedo = vec3(WHITEWORLD_VALUE);
-        // #elif defined DEBUG_LIGHT_LEVELS
+        // #elif defined LIGHTING_DEBUG_LEVELS
         //     if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
         // #endif
 

@@ -364,7 +364,7 @@ uniform int frameCounter;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
-#ifdef DEBUG_LIGHT_LEVELS
+#ifdef LIGHTING_DEBUG_LEVELS
     #include "/lib/lighting/debug_levels.glsl"
 #endif
 
@@ -505,7 +505,7 @@ void main() {
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
-    #elif defined DEBUG_LIGHT_LEVELS
+    #elif defined LIGHTING_DEBUG_LEVELS
         albedo = GetLightLevelColor(vIn.lmcoord.x);
     #endif
 
