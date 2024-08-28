@@ -37,6 +37,29 @@ void GetLpvBlockMask(const in uint blockId, out float mixWeight, out uint mixMas
         mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 1u, 0u);
         mixWeight = 0.5;
     }
+    // COPYCAT PANEL
+    else if (blockId >= BLOCK_CREATE_COPYCAT_PANEL_N && blockId <= BLOCK_CREATE_COPYCAT_PANEL_DOWN) {
+        mixWeight = 0.85;
+
+        if (blockId == BLOCK_CREATE_COPYCAT_PANEL_N) {
+            mixMask = BuildLpvMask(0u, 1u, 1u, 1u, 1u, 1u);
+        }
+        else if (blockId == BLOCK_CREATE_COPYCAT_PANEL_E) {
+            mixMask = BuildLpvMask(1u, 0u, 1u, 1u, 1u, 1u);
+        }
+        else if (blockId == BLOCK_CREATE_COPYCAT_PANEL_S) {
+            mixMask = BuildLpvMask(1u, 1u, 0u, 1u, 1u, 1u);
+        }
+        else if (blockId == BLOCK_CREATE_COPYCAT_PANEL_W) {
+            mixMask = BuildLpvMask(1u, 1u, 1u, 0u, 1u, 1u);
+        }
+        else if (blockId == BLOCK_CREATE_COPYCAT_PANEL_UP) {
+            mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 1u, 0u);
+        }
+        else if (blockId == BLOCK_CREATE_COPYCAT_PANEL_DOWN) {
+            mixMask = BuildLpvMask(1u, 1u, 1u, 1u, 0u, 1u);
+        }
+    }
     // STAIRS
     else if (blockId >= BLOCK_STAIRS_MIN && blockId <= BLOCK_STAIRS_MAX) {
         mixWeight = 0.25;
