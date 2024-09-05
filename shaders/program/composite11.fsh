@@ -130,6 +130,8 @@ uniform float blindnessSmooth;
     #include "/lib/effects/taa_jitter.glsl"
 #endif
 
+//#define RT_CHECKERBOARD
+
 
 layout(location = 0) out vec4 outDiffuse;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -145,12 +147,14 @@ void main() {
     vec2 tex2 = texcoord;
     tex2 += 0.5 * pixelSize;
 
-    #if LIGHTING_TRACE_RES == 2
-        tex2 += GetTemporalOffset() * pixelSize * 0.25;
-        tex2 -= 2.0*pixelSize;
-    #elif LIGHTING_TRACE_RES == 1
-        tex2 += GetTemporalOffset() * pixelSize * 0.5;
-        tex2 -= pixelSize;
+    #ifdef RT_CHECKERBOARD
+        #if LIGHTING_TRACE_RES == 2
+            tex2 += GetTemporalOffset() * pixelSize * 0.25;
+            tex2 -= 2.0*pixelSize;
+        #elif LIGHTING_TRACE_RES == 1
+            tex2 += GetTemporalOffset() * pixelSize * 0.5;
+            tex2 -= pixelSize;
+        #endif
     #endif
 
     ivec2 iTex = ivec2(tex2 * viewSize);

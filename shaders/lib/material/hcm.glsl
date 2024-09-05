@@ -3,6 +3,9 @@
 //     return (1.0 + sqrt_f0) / max(1.0 - sqrt_f0, EPSILON3);
 // }
 
+const float HCM_AlbedoGammaInv = rcp(HCM_ALBEDO_GAMMA);
+const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
+
 
 #ifdef HCM_LAZANYI
     const vec3 iron_f0  = vec3(0.78, 0.77, 0.74);
@@ -143,7 +146,7 @@
             // albedo-only conductor
             //n = albedo;
             //k = 0.0;//albedo;
-            return sqrt(albedo);
+            return pow(albedo, vec3(HCM_AlbedoGammaInv));
         }
     }
 #endif
@@ -179,7 +182,7 @@ vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
             if (!IsMetal(metal_f0)) return vec3(1.0);
         #endif
 
-        return albedo;
+        return pow(albedo, vec3(HCM_TintGammaInv));
     #else
         return mix(vec3(1.0), albedo, metal_f0);
     #endif

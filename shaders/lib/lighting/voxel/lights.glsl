@@ -317,7 +317,7 @@
 
         switch (lightType) {
             case LIGHT_CREATE_XP:
-                lightColor = vec3(0.635, 0.89, 0.278);
+                lightColor = vec3(0.408, 0.89, 0.176);
                 break;
             case LIGHT_ROSE_QUARTZ_LAMP:
                 lightColor = vec3(0.898, 0.369, 0.459);
@@ -329,7 +329,7 @@
                 lightColor = vec3(0.197, 0.596, 0.048);
                 break;
             case LIGHT_DECO_LAMP_RED:
-                lightColor = vec3(0.682, 0.064, 0.064);
+                lightColor = vec3(0.761, 0.125, 0.082);
                 break;
             case LIGHT_DECO_LAMP_YELLOW:
                 lightColor = vec3(0.818, 0.727, 0.066);

@@ -1,4 +1,4 @@
-const vec2 lightSigma = vec2(1.6, 0.2);
+const vec2 lightSigma = vec2(0.8, 0.2);
 
 
 void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL) {
@@ -90,7 +90,8 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
             }
             
             // float fv = 1.0;//Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth) + 2.0*normalWeight);
-            float fv = Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth));
+            float fv = Gaussian(lightSigma.y, abs(sampleDepthL - linearDepth))
+                     * Gaussian(lightSigma.y, normalWeight);
             
             float weight = fx*fy*fv;
             accumDiffuse += weight * sampleDiffuse;
