@@ -364,10 +364,11 @@ void main() {
 
         if (isWater && abs(localNormal.y) > 0.5) {
             #ifdef PHYSICS_OCEAN
-                float waviness = max(vIn.physics_localWaviness, 0.02);
+                float waviness = 1.0;//max(vIn.physics_localWaviness, 0.02);
                 WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
+                discard; return;
             #elif WATER_WAVE_SIZE > 0
                 float waveDistF = 32.0 / (32.0 + viewDist);
 

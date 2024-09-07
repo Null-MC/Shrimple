@@ -403,7 +403,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         float lightVoL = dot(normalize(-lightVec), localViewDir);
                         //float lightPhase = DHG(lightVoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
 
-                        float lightAtt = GetLightAttenuation(lightVec, lightRange);
+                        float lightAtt = GetLightAttenuation(lightVec, lightRange).x;
                         blockLightAccum += lightAtt * lightColor * samplePhase;
                     }
 

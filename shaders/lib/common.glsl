@@ -380,6 +380,7 @@ const bool colortex15Clear = true;
 #define DEFERRED_PARTICLES
 #define RIPPLE_STRENGTH 0.03
 //#define HCM_LAZANYI
+//#define RT_CHECKERBOARD
 
 #define UINT32_MAX 4294967295u
 #define PI 3.1415926538

@@ -51,7 +51,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float ambientF = mix(Lighting_AmbientF, 1.0, pow(weatherStrength, 0.75));
     ambientF = mix(ambientF, max(1.0, ambientF), horizonF);
 
-    vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
+    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+    vec3 skyLightShadowColor = shadowColor * skyLightColor;
 
     float geoNoL = 1.0;
     if (!all(lessThan(abs(localNormal), EPSILON3)))
@@ -90,7 +91,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 lpvIndirectSample = SampleLpvIndirect(lpvSamplePos);
 
         vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
-        ambientSkyLight += 0.5 * lpvIndirectSample * (WorldSkyLightColor * lpvFade);
+        ambientSkyLight += 0.5 * lpvIndirectSample * (skyLightColor * lpvFade);
     #else
         vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
     #endif

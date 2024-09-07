@@ -130,8 +130,6 @@ uniform float blindnessSmooth;
     #include "/lib/effects/taa_jitter.glsl"
 #endif
 
-//#define RT_CHECKERBOARD
-
 
 layout(location = 0) out vec4 outDiffuse;
 #if MATERIAL_SPECULAR != SPECULAR_NONE

@@ -332,7 +332,7 @@
                 lightColor = vec3(0.761, 0.125, 0.082);
                 break;
             case LIGHT_DECO_LAMP_YELLOW:
-                lightColor = vec3(0.818, 0.727, 0.066);
+                lightColor = vec3(0.749, 0.565, 0.075);
                 break;
         }
 

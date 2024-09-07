@@ -1,4 +1,4 @@
-const vec2 lightSigma = vec2(0.8, 0.2);
+const vec2 lightSigma = vec2(0.6, 0.2);
 
 
 void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const in vec2 texcoord, const in float linearDepth, const in vec3 normal, const in float roughL) {
@@ -28,6 +28,7 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
             ivec2 iOffset = ivec2(ix, iy);
             ivec2 srcCoord = centerCoord + iOffset;
             vec3 sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, srcCoord, 0).rgb;
+            // vec3 sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, srcCoord, 0).rgb;
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 vec4 sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, srcCoord, 0);
@@ -44,7 +45,7 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
             //     ivec2 depthCoord = ivec2(gl_FragCoord.xy + iOffset);
             // #endif
 
-            #if LIGHTING_TRACE_RES > 0
+            #if LIGHTING_TRACE_RES > 0 && defined RT_CHECKERBOARD
                 ivec2 depthCoord = _GetTemporalSampleCoord(srcCoord) + iOffset*int(lightBufferScale);
             #else
                 ivec2 depthCoord = ivec2(gl_FragCoord.xy) + iOffset;
