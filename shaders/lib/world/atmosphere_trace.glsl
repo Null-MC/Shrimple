@@ -44,13 +44,15 @@ float GetSkyDensity(const in vec3 worldPos) {
         float distF = smoothstep(0.0, 80.0, length(worldPos - cameraPosition));
         // float noise = mix(noiseNear, noiseFar, distF);
         // float noise = noiseFar * mix(noiseNear, 1.0, distF);
-        float noise = noiseNear*(1.0 - distF) + noiseFar * (1.0 - 0.5*distF);
+        // float noise = noiseNear*(1.0 - distF) + noiseFar * (1.0 - 0.5*distF);
+        float noise = noiseFar * mix(noiseNear + 0.5, 1.0, distF);// * (1.0 - 0.5*distF);
 
         // densityFinal *= _pow3(noise) * 0.8 + 0.2;// * 0.5 + 0.5;
         float fogF = _smoothstep(noise);
-        fogF = pow(fogF, 2.0 - weatherStrength) + 0.18;// * 0.5 + 0.5;
+        fogF = pow(fogF, 3.0 - weatherStrength) + 0.12;// * 0.5 + 0.5;
 
-        densityFinal *= fogF;
+        // TODO: this is an arbitrary multiply to match uniform density fog
+        densityFinal *= fogF * 4.0;
     #endif
 
     return densityFinal;
