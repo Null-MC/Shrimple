@@ -88,6 +88,9 @@ value.SKY_FOG_SHAPE.0=Default
 value.SKY_FOG_SHAPE.1=Sphere
 value.SKY_FOG_SHAPE.2=Cylinder
 
+option.VOLUMETRIC_NOISE_ENABLED=Chunky Fog
+option.VOLUMETRIC_NOISE_ENABLED.comment=Gives volumetric (fancy) fog variable density.
+
 
 screen.WORLD_OPTIONS=World
 screen.WORLD_OPTIONS.comment=Options for everything else.

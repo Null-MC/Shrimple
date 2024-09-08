@@ -39,14 +39,16 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
-#elif defined IS_WORLD_SMOKE_ENABLED && defined VL_BUFFER_ENABLED
-    uniform sampler3D TEX_CLOUDS;
+// #elif defined IS_WORLD_SMOKE_ENABLED && defined VL_BUFFER_ENABLED
+//     uniform sampler3D TEX_CLOUDS;
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -154,6 +156,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"

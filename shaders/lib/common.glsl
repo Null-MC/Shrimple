@@ -294,6 +294,7 @@ const bool colortex15Clear = true;
 //#define VOLUMETRIC_BLOCK_RT
 //#define VOLUMETRIC_HANDLIGHT
 #define VOLUMETRIC_SKY_DAY_DENSITY 30 // [0 10 20 30 40 50 60 70 80 90 100]
+#define VOLUMETRIC_NOISE_ENABLED
 
 
 // Effects

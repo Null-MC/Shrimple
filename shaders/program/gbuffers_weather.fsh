@@ -47,12 +47,14 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
     uniform sampler2D shadowcolor0;
@@ -180,6 +182,7 @@ uniform float weatherStrength;
 #include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
 

@@ -11,6 +11,10 @@ const ivec3 workGroups = ivec3(8, 4, 1);
 
 layout(rgba16f) uniform writeonly image2D imgSky;
 
+#ifdef VOLUMETRIC_NOISE_ENABLED
+    uniform sampler3D TEX_CLOUDS;
+#endif
+
 uniform float far;
 uniform vec3 cameraPosition;
 uniform float rainStrength;
@@ -42,6 +46,7 @@ uniform int fogShape;
 #include "/lib/lighting/hg.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/sky.glsl"
 
 #include "/lib/fog/fog_common.glsl"

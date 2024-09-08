@@ -227,6 +227,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/sampling.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 

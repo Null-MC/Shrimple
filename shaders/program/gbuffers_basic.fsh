@@ -111,36 +111,43 @@ uniform int frameCounter;
 
 #include "/lib/utility/lightmap.glsl"
 
-#include "/lib/lighting/hg.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/lighting/hg.glsl"
 
-#include "/lib/world/atmosphere.glsl"
+    #include "/lib/world/atmosphere.glsl"
+#endif
+
 #include "/lib/world/common.glsl"
 
-#include "/lib/fog/fog_common.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/fog/fog_common.glsl"
+#endif
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #include "/lib/world/sky.glsl"
-#endif
-
-#ifdef WORLD_WATER_ENABLED
-    #include "/lib/world/water.glsl"
-#endif
-
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-    
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/fog/fog_water_custom.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/world/sky.glsl"
     #endif
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
 
-#include "/lib/fog/fog_render.glsl"
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+    #endif
+
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+        
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 // #ifdef WORLD_SKY_ENABLED
 //     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA

@@ -48,6 +48,10 @@ uniform sampler2D noisetex;
 //     uniform sampler2D TEX_CLOUDS_VANILLA;
 // #endif
 
+#ifdef VOLUMETRIC_NOISE_ENABLED
+    uniform sampler3D TEX_CLOUDS;
+#endif
+
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
 #endif
@@ -157,6 +161,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 
 #include "/lib/clouds/cloud_common.glsl"

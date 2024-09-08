@@ -42,12 +42,14 @@ uniform sampler2D lightmap;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #ifdef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowtex0;
@@ -185,6 +187,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 

@@ -57,12 +57,14 @@ uniform sampler2D BUFFER_OVERLAY;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -207,6 +209,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/fog/fog_common.glsl"
 
