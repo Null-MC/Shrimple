@@ -234,7 +234,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                 float lightNoHm = max(dot(texNormal, lightH), EPSILON);
                 //float invGeoNoL = saturate(geoNoL*40.0);
 
-                accumSpecular += step(0.0, geoNoL) * invPI * SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL) * lightAtt.y * lightColor;
+                accumSpecular += step(0.0, geoNoL) * SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL) * lightAtt.y * lightColor;
             #endif
         }
     }
@@ -243,5 +243,5 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     #endif
 
     blockDiffuse += accumDiffuse/LIGHTING_RAYCOUNT * Lighting_Brightness;
-    blockSpecular += accumSpecular/LIGHTING_RAYCOUNT * Lighting_Brightness;
+    blockSpecular += accumSpecular/LIGHTING_RAYCOUNT * Lighting_Brightness * invPI;
 }

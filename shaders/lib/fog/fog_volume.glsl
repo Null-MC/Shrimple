@@ -413,7 +413,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 uint lightCount = GetVoxelLights(traceLocalPos, gridIndex);
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                    for (uint l = 0; l < min(lightCount, 8); l++) {
+                    #if LIGHTING_TRACE_SAMPLE_MAX > 0
+                        const int maxSampleCount = min(LIGHTING_TRACE_SAMPLE_MAX, 128);
+                    #else
+                        const int maxSampleCount = 128;
+                    #endif
+
+                    for (uint l = 0; l < min(lightCount, maxSampleCount); l++) {
                         uvec4 lightData = GetVoxelLight(gridIndex, l);
 
                         vec3 lightPos, lightColor;
@@ -441,13 +447,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         #endif
 
                         float lightVoL = dot(normalize(-lightVec), localViewDir);
-                        //float lightPhase = DHG(lightVoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
+                        float lightPhase = phaseIso;// DHG(lightVoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
 
-                        float lightAtt = GetLightAttenuation(lightVec, lightRange).x;
-                        blockLightAccum += lightAtt * lightColor * samplePhase;
+                        float lightAtt = GetLightAttenuation(lightVec, lightRange).y;
+                        blockLightAccum += lightAtt * lightColor * lightPhase;
                     }
 
-                    blockLightAccum *= 32.0 * Lighting_Brightness;
+                    blockLightAccum *= 15.0 * Lighting_Brightness;
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
                 vec3 lpvLight = GetLpvBlockLight(lpvSample);
