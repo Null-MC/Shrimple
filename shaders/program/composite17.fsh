@@ -156,7 +156,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #include "/lib/world/atmosphere.glsl"
-#include "/lib/world/atmosphere_trace.glsl"
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
@@ -167,6 +166,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
+    #include "/lib/world/atmosphere_trace.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED

@@ -4,30 +4,6 @@ const float WorldAtmosphereMin =  82.0;
 const float WorldAtmosphereMax = 400.0;
 
 
-#ifdef WORLD_SKY_ENABLED
-    #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-        // float AirDensityF = mix(SkyDensityF, max(SkyDensityF, 0.16), weatherStrength);
-        float AirDensityF = mix(SkyDensityF, min(SkyDensityF * 6.0, 1.0), weatherStrength);
-    #else
-        const float AirDensityF = 0.0;
-    #endif
-
-    const float AirDensityRainF = 0.08;
-    const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.1));
-    const vec3 AirExtinctColor_rain = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));
-
-    const float AirAmbientF = 0.02;//mix(0.02, 0.0, weatherStrength);
-    const vec3 AirScatterColor = _RGBToLinear(vec3(0.5));
-    const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));//mix(0.02, 0.006, weatherStrength);
-#else
-    const float AirDensityF = SkyDensityF;
-    vec3 AirAmbientF = RGBToLinear(fogColor);
-
-    const vec3 AirScatterColor = vec3(0.07);
-    const vec3 AirExtinctColor = vec3(0.02);
-#endif
-
-
 float GetSkyDensity(const in vec3 worldPos) {
     // float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
     // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
@@ -35,6 +11,8 @@ float GetSkyDensity(const in vec3 worldPos) {
     float densityFinal = AirDensityF;
 
     #ifdef VOLUMETRIC_NOISE_ENABLED
+        const float MinFogDensity = 0.06;
+
         vec3 texPosNear = worldPos * 0.12;
         float noiseNear = 1.0 - textureLod(TEX_CLOUDS, texPosNear.xzy, 0).r;
 
@@ -49,13 +27,18 @@ float GetSkyDensity(const in vec3 worldPos) {
 
         // densityFinal *= _pow3(noise) * 0.8 + 0.2;// * 0.5 + 0.5;
         float fogF = _smoothstep(noise);
-        fogF = pow(fogF, 3.0 - weatherStrength) + 0.12;// * 0.5 + 0.5;
+        fogF = pow(fogF, 3.0 - weatherStrength) + MinFogDensity;// * 0.5 + 0.5;
 
         // TODO: this is an arbitrary multiply to match uniform density fog
         densityFinal *= fogF * 4.0;
     #endif
 
     return densityFinal;
+}
+
+float GetSkyAltitudeDensity(const in float altitude) {
+    float heightF = 1.0 - saturate((altitude - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
+    return pow(heightF, 8);
 }
 
 // altitude: world-pos.y
@@ -69,8 +52,7 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
         densityFinal = mix(densityFinal, CaveFogDensityF, caveFogF);
     #endif
 
-    float heightF = 1.0 - saturate((altitude - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
-    densityFinal *= pow(heightF, 8);
+    densityFinal *= GetSkyAltitudeDensity(altitude);
 
     return densityFinal;
 }

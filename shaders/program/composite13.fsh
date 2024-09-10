@@ -140,7 +140,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/lighting/scatter_transmit.glsl"
 
 #include "/lib/world/atmosphere.glsl"
-#include "/lib/world/atmosphere_trace.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/world/atmosphere_trace.glsl"
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

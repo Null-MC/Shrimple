@@ -226,9 +226,8 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/sampling.glsl"
 
-#include "/lib/world/atmosphere.glsl"
-#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/fog/fog_common.glsl"
 
 #ifdef LIGHTING_DEBUG_LEVELS
@@ -244,6 +243,7 @@ uniform int heldBlockLightValue2;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
     #include "/lib/world/wetness.glsl"
+    #include "/lib/world/atmosphere_trace.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
