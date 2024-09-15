@@ -445,8 +445,10 @@ void main() {
             // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
             // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
 
+            float skyLightF = eyeBrightnessSmooth.y / 240.0;
+            float airDensityF = GetAirDensity(skyLightF);
             vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
-            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
         
         //final = vec4(normal, 1.0);

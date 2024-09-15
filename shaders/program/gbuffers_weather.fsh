@@ -416,10 +416,10 @@ void main() {
         //     phase *= cloudShadow;
         // #endif
 
-        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        float skyLightF = eyeBrightnessSmooth.y / 240.0;
         vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeBrightF;
+        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * skyLightF;
         vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
         diffuseFinal += skyLight;
     #endif
@@ -447,8 +447,9 @@ void main() {
         float maxDist = min(viewDist, far);
         // TODO: limit to < cloudNear
 
+        float airDensityF = GetAirDensity(skyLightF);
         vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
     #endif
 
     // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

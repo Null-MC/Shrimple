@@ -206,7 +206,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float samplePhase = phaseIso;
         #endif
 
-        float sampleDensity = AirDensityF;
+        float sampleDensity = 0.0;
         vec3 sampleScattering = AirScatterColor;
         vec3 sampleExtinction = AirExtinctColor;
         vec3 sampleAmbient = vec3(AirAmbientF);
@@ -457,7 +457,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
                 vec3 lpvLight = GetLpvBlockLight(lpvSample);
-                blockLightAccum += phaseIso * lpvLight * lpvFade;
+                blockLightAccum += 3.0 * phaseIso * lpvFade * lpvLight;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * Lighting_Brightness;

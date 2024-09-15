@@ -10,42 +10,16 @@ out VertexData {
     vec2 lmcoord;
     vec2 texcoord;
     vec3 localPos;
-
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //         vec3 shadowPos[4];
-    //         flat int shadowTile;
-    //     #else
-    //         vec3 shadowPos;
-    //     #endif
-    // #endif
 } vOut;
 
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 gbufferProjection;
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     uniform mat4 shadowModelView;
-//     uniform mat4 shadowProjection;
-//     uniform vec3 shadowLightPosition;
-//     uniform vec3 cameraPosition;
-//     uniform float far;
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         uniform mat4 gbufferProjection;
-//         uniform float near;
-//     #endif
-
-//     #if defined SHADOW_ENABLED && defined IS_IRIS
-//         uniform float cloudTime;
-//         uniform float cloudHeight;
-//         uniform vec3 eyePosition;
-//     #endif
-
-//     #ifdef DISTANT_HORIZONS
-//         uniform float dhFarPlane;
-//     #endif
-// #endif
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 pixelSize;
+    uniform int frameCounter;
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
@@ -53,28 +27,21 @@ uniform mat4 gbufferModelViewInverse;
 
 #include "/lib/utility/lightmap.glsl"
 
-// #ifdef RENDER_SHADOWS_ENABLED
-//     #include "/lib/utility/matrix.glsl"
-//     #include "/lib/buffers/shadow.glsl"
-
-//     #ifdef SHADOW_CLOUD_ENABLED
-//         #include "/lib/clouds/cloud_vanilla.glsl"
-//     #endif
-    
-//     #include "/lib/shadows/common.glsl"
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         #include "/lib/shadows/cascaded/common.glsl"
-//         #include "/lib/shadows/cascaded/apply.glsl"
-//     #else
-//         #include "/lib/shadows/distorted/common.glsl"
-//         #include "/lib/shadows/distorted/apply.glsl"
-//     #endif
-// #endif
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
 
 
 void main() {
-	gl_Position = ftransform();
+	// gl_Position = ftransform();
+
+    vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+    gl_Position = gbufferProjection * vec4(viewPos, 1.0);
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
     vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
@@ -82,8 +49,8 @@ void main() {
 
     vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
-    vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
-    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+    // vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
+    // vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
     // #ifdef RENDER_SHADOWS_ENABLED
     //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

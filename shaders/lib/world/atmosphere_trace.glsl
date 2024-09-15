@@ -8,7 +8,8 @@ float GetSkyDensity(const in vec3 worldPos) {
     // float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
     // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
 
-    float densityFinal = AirDensityF;
+    float skyLightF = eyeBrightnessSmooth.y / 240.0;
+    float densityFinal = GetAirDensity(skyLightF);
 
     #ifdef VOLUMETRIC_NOISE_ENABLED
         const float MinFogDensity = 0.06;

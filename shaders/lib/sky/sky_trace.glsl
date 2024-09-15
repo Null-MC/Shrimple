@@ -45,6 +45,9 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
     //     float caveFogF = GetCaveFogF();
     // #endif
 
+    float skyLightF = eyeBrightnessSmooth.y / 240.0;
+    float airDensityBase = GetAirDensity(skyLightF);
+
     for (uint i = 0; i < stepCount; i++) {
         //float stepDither = dither * step(i, stepCount-1);
         vec3 traceLocalPos = traceStep * i + traceStart;
@@ -61,7 +64,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         #endif
 
         // float airDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
-        float airDensity = AirDensityF * GetSkyAltitudeDensity(traceAltitude);
+        float airDensity = airDensityBase * GetSkyAltitudeDensity(traceAltitude);
 
         // float traceStepLen = stepLength;
         // if (i == stepCount) traceStepLen *= (1.0 - dither);

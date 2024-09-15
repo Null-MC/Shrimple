@@ -577,8 +577,10 @@ void main() {
 
                 // TODO: apply water VL when in water
 
+                float skyLightF = eyeBrightnessSmooth.y / 240.0;
+                float airDensityF = GetAirDensity(skyLightF);
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
 
                 // TODO: removed this during refactor but might want to keep
                 //color.a *= scatterTransmit.a;
