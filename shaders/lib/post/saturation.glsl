@@ -70,7 +70,7 @@ void ApplyPostGrading(inout vec3 color) {
 
     vec3 colorOut = color;
 
-    #if POST_TEMP != 58
+    #if POST_TEMP != 65
         const float postTemp = POST_TEMP * 100.0 + 50.0;
         colorOut *= colorTemperatureToRGB(postTemp);
     #endif

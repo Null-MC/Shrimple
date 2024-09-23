@@ -1,4 +1,5 @@
 const float SkyDensityF = SKY_FOG_DENSITY * 0.01;
+const float Sky_FogDensity_Night = SKY_FOG_DENSITY_NIGHT * 0.01;
 const float SkyRainDensityF = SkyDensityF * 6.0;
 const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
 
@@ -30,11 +31,22 @@ const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
     const vec3 AirExtinctColor = vec3(0.02);
 #endif
 
+uniform float weatherHumidity;
+
 float GetAirDensity(const in float skyLightF) {
     #ifdef WORLD_SKY_ENABLED
         #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+            // base
+            float density = SkyDensityF * weatherHumidity;
+
+            // night
+            float nightF = cos(sunAngle*2.0*PI + 1.2);
+            nightF = nightF * max(nightF, 0.0);
+            density *= mix(1.0, Sky_FogDensity_Night, nightF);
+
+            // weather
             float localWeatherStrength = weatherStrength * skyLightF;
-            return mix(SkyDensityF, min(SkyRainDensityF, 1.0), localWeatherStrength);
+            return mix(density, min(SkyRainDensityF, 1.0), localWeatherStrength);
         #else
             return 0.0;
         #endif

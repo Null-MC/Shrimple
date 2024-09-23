@@ -1,7 +1,8 @@
 const float phaseAir = phaseIso;
 
-const float WorldAtmosphereMin =  82.0;
-const float WorldAtmosphereMax = 400.0;
+const float WorldAtmosphereMin =  68.0;
+const float WorldAtmosphereMax = 360.0;
+const float WorldAtmosphereCurve = 12.0;
 
 
 float GetSkyDensity(const in vec3 worldPos) {
@@ -31,15 +32,15 @@ float GetSkyDensity(const in vec3 worldPos) {
         fogF = pow(fogF, 3.0 - weatherStrength) + MinFogDensity;// * 0.5 + 0.5;
 
         // TODO: this is an arbitrary multiply to match uniform density fog
-        densityFinal *= fogF * 4.0;
+        densityFinal *= fogF * 2.0;
     #endif
 
-    return densityFinal;
+    return max(densityFinal, 0.0);
 }
 
 float GetSkyAltitudeDensity(const in float altitude) {
     float heightF = 1.0 - saturate((altitude - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
-    return pow(heightF, 8);
+    return pow(heightF, WorldAtmosphereCurve);
 }
 
 // altitude: world-pos.y

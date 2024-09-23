@@ -21,6 +21,7 @@ uniform float rainStrength;
 uniform float weatherStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
+uniform float sunAngle;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;

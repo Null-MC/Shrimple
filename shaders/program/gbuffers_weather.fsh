@@ -102,6 +102,7 @@ uniform int heldBlockLightValue2;
 
 uniform float blindnessSmooth;
 
+uniform float sunAngle;
 uniform vec3 sunPosition;
 uniform vec3 shadowLightPosition;
 uniform float rainStrength;
@@ -408,6 +409,8 @@ void main() {
     //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
     // #endif
 
+    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phase = DHG(VoL, -0.35, 0.65, 0.3);
@@ -416,10 +419,9 @@ void main() {
         //     phase *= cloudShadow;
         // #endif
 
-        float skyLightF = eyeBrightnessSmooth.y / 240.0;
         vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * skyLightF;
+        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeSkyLightF;
         vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
         diffuseFinal += skyLight;
     #endif
@@ -447,7 +449,7 @@ void main() {
         float maxDist = min(viewDist, far);
         // TODO: limit to < cloudNear
 
-        float airDensityF = GetAirDensity(skyLightF);
+        float airDensityF = GetAirDensity(eyeSkyLightF);
         vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
         ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
     #endif

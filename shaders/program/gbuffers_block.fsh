@@ -127,6 +127,7 @@ uniform int blockEntityId;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;
     uniform float weatherPuddleStrength;
@@ -399,7 +400,18 @@ void main() {
 
     #ifdef PARALLAX_ENABLED
         // bool skipParallax = any(lessThan(vIn.atlasBounds[1], vec2(1.0)));
-        bool skipParallax = any(isnan(vIn.atlasBounds[1]) || isinf(vIn.atlasBounds[1]));
+
+        bool a = any(
+            isnan(vIn.atlasBounds[0]) || isinf(vIn.atlasBounds[0]) ||
+            isnan(vIn.atlasBounds[1]) || isinf(vIn.atlasBounds[1])
+        );
+        
+        bool b = any(lessThan(vIn.atlasBounds[1], vec2(1.0e-8)))
+            || any(greaterThan(vIn.atlasBounds[1], vec2(1.0)));
+
+        bool skipParallax = a || b;
+
+        // bool skipParallax = any(greaterThan(vIn.atlasBounds[1], vec2(1.0)));
     #else
         const bool skipParallax = true;
     #endif
@@ -542,6 +554,11 @@ void main() {
     outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
     // albedo.rgb = vec3(1.0, 0.0, 0.0);
+
+    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+        if (vIn.lmcoord.x > 0.999)
+            emission = 0.04;
+    #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

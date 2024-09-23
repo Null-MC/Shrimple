@@ -143,6 +143,7 @@ uniform int frameCounter;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;

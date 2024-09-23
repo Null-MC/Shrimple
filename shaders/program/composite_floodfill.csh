@@ -377,7 +377,7 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ1 = sampleDirectShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
     vec4 nZ2 = sampleDirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
-    float wMax = max(sumOf(w1 + w2), 1.0);
+    float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
     vec4 avgFalloff = rcp(wMax) * (1.0 - LpvBlockSkyFalloff.xxxy);
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
@@ -395,7 +395,7 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
         vec3 nZ1 = sampleIndirectShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
         vec3 nZ2 = sampleIndirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
-        float wMax = max(sumOf(w1 + w2), 1.0);
+        float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
         // float avgFalloff = (1.0/6.0) * (1.0 - LpvIndirectFalloff);
         float avgFalloff = rcp(wMax) * (1.0 - LpvIndirectFalloff);
         return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;

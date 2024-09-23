@@ -105,6 +105,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     uniform float weatherStrength;
+    uniform float sunAngle;
     
     #ifdef IS_IRIS
         uniform float lightningStrength;

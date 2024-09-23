@@ -117,6 +117,7 @@ uniform ivec2 atlasSize;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;
 #endif

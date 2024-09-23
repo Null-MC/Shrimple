@@ -80,6 +80,7 @@ uniform float rainStrength;
 uniform float weatherStrength;
 uniform float blindnessSmooth;
 
+uniform float sunAngle;
 uniform vec3 skyColor;
 
 #ifdef WORLD_WATER_ENABLED

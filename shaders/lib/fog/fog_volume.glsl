@@ -138,7 +138,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float caveFogF = GetCaveFogF();
     #endif
 
-    #define VL_STEP_POWER 160
+    #define VL_STEP_POWER 200
     float stepDistLastF = 0.0;
 
     for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
@@ -334,12 +334,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 if (shadowFade < 1.0) {
                     const float geoNoL = 1.0; // WARN: useless without geoNoL?
-                    float shadowSampleBias = GetShadowOffsetBias(shadowNdcPos, geoNoL);
+                    float shadowSampleBias = 0.0;//GetShadowOffsetBias(shadowNdcPos, geoNoL);
                     // float shadowSampleBias = 0.2 / -shadowDepthRange;
                     //sampleF = CompareDepth(shadowNdcPos, vec2(0.0), shadowSampleBias);
 
                     float texDepth = texture(shadowtex1, shadowPos.xy).r;
-                    sampleF = step(shadowPos.z - shadowSampleBias, texDepth);
+                    sampleF = step(shadowPos.z + shadowSampleBias, texDepth);
 
                     texDepth = texture(shadowtex0, shadowPos.xy).r;
                     sampleDepth = max(shadowPos.z - texDepth, 0.0) * shadowDepthRange;

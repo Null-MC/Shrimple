@@ -90,6 +90,7 @@ in vec2 texcoord;
         uniform vec3 skyColor;
         uniform float rainStrength;
         uniform float weatherStrength;
+        uniform float sunAngle;
 
         #ifndef IRIS_FEATURE_SSBO
             uniform vec3 sunPosition;
@@ -430,10 +431,10 @@ layout(location = 0) out vec4 outFinal;
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * skyLightF;
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeSkyLightF;
                 #else
                     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-                    skyColorFinal = RGBToLinear(skyColorFinal) * skyLightF;
+                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeSkyLightF;
                 #endif
             #endif
 
@@ -441,7 +442,7 @@ layout(location = 0) out vec4 outFinal;
                 #if WATER_DEPTH_LAYERS == 1
                     // WARN: THIS DOESNT WORK!
                     // deferred data is on opaque buffer for reflections
-                    float deferredWater = unpackUnorm4x8(deferredData.b).r;
+                    //float deferredWater = unpackUnorm4x8(deferredData.b).r;
                     isWater = true;//deferredWater > 0.5;
                 #endif
 
