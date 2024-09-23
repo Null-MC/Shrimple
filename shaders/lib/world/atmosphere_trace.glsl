@@ -20,6 +20,7 @@ float GetSkyDensity(const in vec3 worldPos) {
 
         vec3 texPosFar = worldPos * 0.004;
         float noiseFar = textureLod(TEX_CLOUDS, texPosFar.xzy, 0).r;
+        noiseFar      *= textureLod(TEX_CLOUDS, texPosFar.xzy * 0.06, 0).r;
 
         float distF = smoothstep(0.0, 80.0, length(worldPos - cameraPosition));
         // float noise = mix(noiseNear, noiseFar, distF);
@@ -60,5 +61,5 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
 }
 
 float GetSkyPhase(const in float VoL) {
-    return DHG(VoL, -0.12, 0.84, 0.26);
+    return DHG(VoL, -0.12, 0.84, 0.09);
 }

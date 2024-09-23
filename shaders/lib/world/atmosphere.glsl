@@ -21,7 +21,7 @@ const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
     const vec3 AirExtinctColor_rain = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));
 
     const float AirAmbientF = 0.02;//mix(0.02, 0.0, weatherStrength);
-    const vec3 AirScatterColor = _RGBToLinear(vec3(0.5));
+    const vec3 AirScatterColor = _RGBToLinear(vec3(0.44));
     const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));//mix(0.02, 0.006, weatherStrength);
 #else
     // const float AirDensityF = SkyDensityF;
