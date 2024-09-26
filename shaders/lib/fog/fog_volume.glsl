@@ -278,7 +278,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
-            float sampleF = 1.0;
+            float sampleF = eyeBrightF;
 
             #if VL_STEP_POWER != 100
                 vec3 shadowViewPos = mul3(shadowModelViewEx, traceLocalPos);

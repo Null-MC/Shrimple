@@ -431,6 +431,9 @@ suffix.LIGHTING_AMBIENT=%
 option.LIGHTING_COLORED_CANDLES=Colored Candles
 option.LIGHTING_COLORED_CANDLES.comment=Makes colored candles emit colored light. Only for floodfill or ray-traced lighting.
 
+option.LIGHTING_FULLBRIGHT_FIX=Full-Bright Fix
+option.LIGHTING_FULLBRIGHT_FIX.comment=Attempts to fix fully-bright block overlays when floodfill/RT lighting is enabled.
+
 option.LIGHTING_DEBUG_LEVELS=Debug Light Levels
 option.LIGHTING_DEBUG_LEVELS.comment=§2Green: safe. §6Yellow: unsafe. §4Red: dangerous.
 

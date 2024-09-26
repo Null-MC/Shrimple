@@ -555,7 +555,7 @@ void main() {
 
     // albedo.rgb = vec3(1.0, 0.0, 0.0);
 
-    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+    #if defined LIGHTING_FULLBRIGHT_FIX && LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
         if (vIn.lmcoord.x > 0.999)
             emission = 0.04;
     #endif
