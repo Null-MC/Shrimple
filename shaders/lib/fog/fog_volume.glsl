@@ -220,7 +220,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             }
         #endif
 
-        vec3 sampleLit = vec3(0.0);
+        // vec3 sampleLit = vec3(0.0);
 
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (!isWater) {
@@ -269,7 +269,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #endif
         #endif
 
-        float sampleF = 1.0;
         float sampleDepth = 0.0;
 
         #ifdef WORLD_SKY_ENABLED
@@ -278,7 +277,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec3 sampleColor = vec3(1.0);
         #endif
 
-        #ifdef RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
+        #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
+            float sampleF = 1.0;
+
             #if VL_STEP_POWER != 100
                 vec3 shadowViewPos = mul3(shadowModelViewEx, traceLocalPos);
             #else
@@ -362,6 +363,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleColor *= shadowColor;
                 }
             #endif
+        #else
+            float sampleF = 0.0;
         #endif
 
         #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
@@ -394,7 +397,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             sampleF *= cloudShadow * 0.5 + 0.5;
         #endif
 
-        sampleLit += samplePhase * sampleF * sampleColor;
+        vec3 sampleLit = samplePhase * sampleF * sampleColor;
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
             if (lightningStrength > EPSILON) {
