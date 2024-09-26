@@ -9,16 +9,16 @@ const float WorldAtmosphereCurve = 12.0;
     float GetSkyDensityNoise(const in vec3 worldPos) {
         const float MinFogDensity = 0.06;
 
-        vec3 texPosNear = worldPos * 0.25;
-        float n1 = textureLod(TEX_CLOUDS, texPosNear.xzy, 0).r;
-        float n2 = textureLod(TEX_CLOUDS, texPosNear.xzy * 0.33, 0).r;
-        float noiseNear = 2.0 * sqrt((1.0 - n1) * (1.0 - n2));
+        vec3 texPos = worldPos.xzy * vec3(1.0, 1.0, 4.0);
+
+        float n1 = textureLod(TEX_CLOUDS, texPos * 0.125, 0).r;
+        float n2 = textureLod(TEX_CLOUDS, texPos * 0.030, 0).r;
+        float noiseNear = 2.0 * sqrt((1.0 - n1) * n2);
         // float noiseNear = 2.0 * n1 * n2;
 
-        vec3 texPosFar = worldPos * 0.004;
-        float n3 = textureLod(TEX_CLOUDS, texPosFar.xzy, 0).r;
-        float n4 = textureLod(TEX_CLOUDS, texPosFar.xzy * 0.06, 0).r;
-        float noiseFar = sqrt(n3 * n4);
+        float n3 = textureLod(TEX_CLOUDS, texPos * 0.0040, 0).r;
+        float n4 = textureLod(TEX_CLOUDS, texPos * 0.0024, 0).r;
+        float noiseFar = sqrt((1.0 - n3) * n4);
 
         float distF = smoothstep(0.0, 80.0, length(worldPos - cameraPosition));
         // float noise = mix(noiseNear, noiseFar, distF);
@@ -26,7 +26,7 @@ const float WorldAtmosphereCurve = 12.0;
         // float noise = noiseNear*(1.0 - distF) + noiseFar * (1.0 - 0.5*distF);
         float noise = noiseFar * mix(noiseNear + 0.2, 1.0, distF);// * (1.0 - 0.5*distF);
 
-        float fogF = _smoothstep(noise);
+        float fogF = smootherstep(noise);
         fogF = pow(fogF, 3.0 - weatherStrength) + MinFogDensity;// * 0.5 + 0.5;
 
         // TODO: this is an arbitrary multiply to match uniform density fog

@@ -40,7 +40,7 @@ float GetAirDensity(const in float skyLightF) {
             float density = SkyDensityF * weatherHumidity;
 
             // night
-            float nightF = cos(sunAngle*2.0*PI + 1.2);
+            float nightF = -sin((sunAngle - 0.1) * 2.0*PI);
             nightF = nightF * max(nightF, 0.0);
             density *= mix(1.0, Sky_FogDensity_Night, nightF);
 
