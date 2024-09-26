@@ -75,6 +75,7 @@ in vec2 texcoord;
 
     uniform int worldTime;
     uniform int frameCounter;
+    uniform float frameTimeCounter;
     uniform ivec2 eyeBrightnessSmooth;
 
     #ifndef IRIS_FEATURE_SSBO

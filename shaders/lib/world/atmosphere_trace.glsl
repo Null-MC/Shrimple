@@ -11,13 +11,16 @@ const float WorldAtmosphereCurve = 12.0;
 
         vec3 texPos = worldPos.xzy * vec3(1.0, 1.0, 4.0);
 
-        float n1 = textureLod(TEX_CLOUDS, texPos * 0.125, 0).r;
-        float n2 = textureLod(TEX_CLOUDS, texPos * 0.030, 0).r;
+        float t = frameTimeCounter / 3600.0;
+        vec3 o = 600.0 * vec3(t, t, 0.0);
+
+        float n1 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.125, 0).r;
+        float n2 = textureLod(TEX_CLOUDS, (texPos - o) * 0.030, 0).r;
         float noiseNear = 2.0 * sqrt((1.0 - n1) * n2);
         // float noiseNear = 2.0 * n1 * n2;
 
-        float n3 = textureLod(TEX_CLOUDS, texPos * 0.0040, 0).r;
-        float n4 = textureLod(TEX_CLOUDS, texPos * 0.0024, 0).r;
+        float n3 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.0040, 0).r;
+        float n4 = textureLod(TEX_CLOUDS, (texPos - o) * 0.0024, 0).r;
         float noiseFar = sqrt((1.0 - n3) * n4);
 
         float distF = smoothstep(0.0, 80.0, length(worldPos - cameraPosition));
