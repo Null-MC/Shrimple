@@ -78,13 +78,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         //     skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
         // #endif
 
-        vec3 skyColorFinal = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
-        //skyColorFinal += vlSkyMinLight;
+        vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
+        //skyColorAmbient += vlSkyMinLight;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
         #else
-            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
+            float weatherF = 1.0;// - 0.8 * _pow2(weatherStrength);
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
@@ -108,16 +108,22 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
         #endif
+
+        float phaseSky = GetSkyPhase(VoL);
     #else
         float time = GetAnimationFactor();
     #endif
 
-    #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-        uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
-        uint uvIndex = uint(uv.y * viewWidth + uv.x);
+    #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        float phaseWater = GetWaterPhase(VoL);
 
-        float waterDepth[WATER_DEPTH_LAYERS+1];
-        GetAllWaterDepths(uvIndex, waterDepth);
+        #if WATER_DEPTH_LAYERS > 1
+            uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
+            uint uvIndex = uint(uv.y * viewWidth + uv.x);
+
+            float waterDepth[WATER_DEPTH_LAYERS+1];
+            GetAllWaterDepths(uvIndex, waterDepth);
+        #endif
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
@@ -179,8 +185,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float lpvFade = GetLpvFade(lpvPos);
         #endif
 
+        float samplePhase = phaseIso;
+
         #ifdef WORLD_SKY_ENABLED
-            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
+            samplePhase = phaseSky;
+        #endif
+
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            #if WATER_DEPTH_LAYERS > 1
                 isWater = false;
                 
                 if (waterDepth[0] < farDist) {
@@ -201,9 +213,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #endif
             #endif
 
-            float samplePhase = isWater ? GetWaterPhase(VoL) : GetSkyPhase(VoL);
-        #else
-            float samplePhase = phaseIso;
+            // if (isWater) samplePhase = GetWaterPhase(VoL);
         #endif
 
         float sampleDensity = 0.0;
@@ -217,6 +227,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 sampleExtinction = WaterAbsorbF;
                 sampleScattering = WaterScatterF;
                 sampleAmbient = vec3(WaterAmbientF);
+                samplePhase = phaseWater;
             }
         #endif
 
@@ -400,9 +411,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         vec3 sampleLit = samplePhase * sampleF * sampleColor;
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
+            #if VOLUMETRIC_FAKE_SHADOW > 0
+                // if (gl_FragCoord.x > 0.5*(viewWidth/exp2(VOLUMETRIC_RES)))
+                    sampleLit *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
+            #endif
+
             if (lightningStrength > EPSILON) {
                 vec4 lightningDirectionStrength = GetLightningDirectionStrength(traceLocalPos);
-                sampleLit += 0.4 * phaseIso * lightningDirectionStrength.w;
+                sampleLit += 0.4 * samplePhase * lightningDirectionStrength.w;
 
                 // TODO: use phase function?
             }
@@ -460,6 +476,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
                 vec3 lpvLight = GetLpvBlockLight(lpvSample);
+
+                #if VOLUMETRIC_FAKE_SHADOW > 0
+                    // if (gl_FragCoord.x > 0.5*(viewWidth/exp2(VOLUMETRIC_RES)))
+                        lpvLight *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
+                #endif
+
                 blockLightAccum += 3.0 * phaseIso * lpvFade * lpvLight;
             #endif
 
@@ -467,7 +489,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyColorFinal;
+            sampleAmbient *= skyColorAmbient;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;

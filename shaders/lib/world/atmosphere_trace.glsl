@@ -1,6 +1,6 @@
 const float phaseAir = phaseIso;
 
-const float WorldAtmosphereMin =  68.0;
+// const float WorldAtmosphereMin =  68.0;
 const float WorldAtmosphereMax = 360.0;
 const float WorldAtmosphereCurve = 12.0;
 
@@ -38,8 +38,8 @@ const float WorldAtmosphereCurve = 12.0;
 #endif
 
 float GetSkyDensity() {
-    // float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
-    // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
+    // float heightF = 1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY);
+    // return AirDensityF * (1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY));
 
     float skyLightF = eyeBrightnessSmooth.y / 240.0;
     float densityFinal = GetAirDensity(skyLightF);
@@ -52,14 +52,14 @@ float GetSkyDensity() {
 }
 
 float GetSkyAltitudeDensity(const in float altitude) {
-    float heightF = 1.0 - saturate((altitude - WorldAtmosphereMin) / (WorldAtmosphereMax - WorldAtmosphereMin));
+    float heightF = 1.0 - saturate((altitude - WORLD_SEA_LEVEL) / (WorldAtmosphereMax - WORLD_SEA_LEVEL));
     return pow(heightF, WorldAtmosphereCurve);
 }
 
 // altitude: world-pos.y
 float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const in float caveFogF) {
-    // float heightF = 1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY);
-    // return AirDensityF * (1.0 - smoothstep(WorldAtmosphereMin, WorldAtmosphereMax, worldY));
+    // float heightF = 1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY);
+    // return AirDensityF * (1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY));
 
     float densityFinal = GetSkyDensity();
 
@@ -77,5 +77,5 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
 }
 
 float GetSkyPhase(const in float VoL) {
-    return DHG(VoL, -0.12, 0.84, 0.09);
+    return DHG(VoL, -0.09, 0.91, 0.16);
 }
