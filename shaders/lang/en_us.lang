@@ -815,6 +815,20 @@ option.POST_WHITE_POINT=White-Point
 suffix.POST_WHITE_POINT=%
 
 
+screen.DISTANT_HORIZONS_OPTIONS=Distant Horizons
+screen.DISTANT_HORIZONS_OPTIONS.comment=Options for supporting the Distant Horizons mod.
+
+option.DH_TRANSITION=Transition Terrain
+option.DH_TRANSITION.comment=Allows a smooth/faded transition between vanilla and DH terrain.
+
+option.DH_TRANSITION_ENTITIES=Transition Entities
+option.DH_TRANSITION.comment=Allows entities to smoothly fade away when transitioning to DH.
+
+option.DH_CLIP_DIST=Transition Distance
+option.DH_CLIP_DIST.comment=The distance from the camera that Distant Horizons terrain will start fading/clipping, as a percentage of the [vanilla] render distance.
+suffix.DH_CLIP_DIST=%
+
+
 screen.DEBUG_OPTIONS=Shrimple
 
 option.DEBUG_VIEW=Debug View
@@ -848,10 +862,6 @@ option.DYN_LIGHT_DEBUG_COUNTS=Show Light Counts
 
 option.DYN_LIGHT_OREBLOCKS=Ore-Block Lights
 option.DYN_LIGHT_OREBLOCKS.comment=When enabled, solid ore blocks will emit colored light.
-
-option.DH_CLIP_DIST=DH Clipping Distance
-option.DH_CLIP_DIST.comment=The distance from the camera that Distant Horizons terrain will start clipping.
-suffix.DH_CLIP_DIST=%
 
 option.ANIM_WORLD_TIME=World-Time Animations
 option.ANIM_WORLD_TIME.comment=Uses the worlds time counter for animations rather than a constant increment. Useful for recording mods that replay using scaled world-time.

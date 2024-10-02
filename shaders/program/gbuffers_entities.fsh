@@ -424,7 +424,7 @@ void main() {
 
         // color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-        #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+        #if defined DISTANT_HORIZONS && defined DH_TRANSITION_ENTITIES
             float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
             float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
 
@@ -446,7 +446,7 @@ void main() {
         const float alphaThreshold = 0.1;
     #endif
 
-    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION_ENTITIES
         #ifdef EFFECT_TAA_ENABLED
             float ditherOut = InterleavedGradientNoiseTime();
         #else
