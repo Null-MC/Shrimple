@@ -475,7 +475,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     blockLightAccum *= 15.0 * Lighting_Brightness;
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-                vec3 lpvLight = GetLpvBlockLight(lpvSample);
+                vec3 lpvLight = GetLpvFogBlockLight(lpvSample);
 
                 #if VOLUMETRIC_FAKE_SHADOW > 0
                     // if (gl_FragCoord.x > 0.5*(viewWidth/exp2(VOLUMETRIC_RES)))
