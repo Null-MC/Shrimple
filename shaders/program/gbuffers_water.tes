@@ -94,6 +94,10 @@ uniform float far;
     uniform float frameTimeCounter;
     uniform vec3 cameraPosition;
 
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
+
     #ifdef ANIM_WORLD_TIME
         uniform int worldTime;
     #endif
@@ -114,6 +118,7 @@ uniform float far;
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/utility/anim.glsl"
+    #include "/lib/world/water.glsl"
 
     #if WATER_WAVE_SIZE > 0
         #include "/lib/water/water_waves.glsl"

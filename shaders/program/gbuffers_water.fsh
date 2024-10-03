@@ -361,12 +361,12 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #if defined WATER_FOAM || defined WATER_FLOW
-        #include "/lib/water/foam.glsl"
-    #endif
-
     #if WATER_WAVE_SIZE > 0
         #include "/lib/water/water_waves.glsl"
+    #endif
+
+    #if defined WATER_FOAM || defined WATER_FLOW
+        #include "/lib/water/foam.glsl"
     #endif
 #endif
 
