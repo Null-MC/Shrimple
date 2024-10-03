@@ -16,7 +16,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
-const float LpvIndirectFalloff = 0.04;
+const float LpvIndirectFalloff = 0.002;
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
@@ -146,7 +146,7 @@ const float LpvIndirectFalloff = 0.04;
 
 
 // const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
-const float IndirectLpvRange = 2.0;
+const float IndirectLpvRange = 4.0;
 
 ivec3 GetLpvVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;

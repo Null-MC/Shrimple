@@ -658,6 +658,10 @@ value.SHADOW_FILTER.2=Soft-Dynamic
 option.LIGHT_LEAK_FIX=Light-Leak Fix
 option.LIGHT_LEAK_FIX.comment=Prevents light-leaking into caves and other dark areas by forcing areas with zero sky-light to be fully shadowed.
 
+option.SHADOW_PIXELATE=Pixelate
+suffix.SHADOW_PIXELATE=x
+value.SHADOW_PIXELATE.0=OFF
+
 
 screen.SHADOW_ADVANCED_OPTIONS=Advanced Shadow Options
 

@@ -33,7 +33,7 @@ const float WorldAtmosphereCurve = 12.0;
         fogF = pow(fogF, 3.0 - weatherStrength) + MinFogDensity;// * 0.5 + 0.5;
 
         // TODO: this is an arbitrary multiply to match uniform density fog
-        return fogF * 2.0;
+        return saturate(fogF * 2.0);
     }
 #endif
 
