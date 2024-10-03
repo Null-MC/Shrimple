@@ -61,6 +61,11 @@ uniform int fogShape;
 
 #if SKY_VOL_FOG_TYPE > 0
     #include "/lib/lighting/scatter_transmit.glsl"
+
+    #if WORLD_CURVE_RADIUS > 0
+        #include "/lib/world/curvature.glsl"
+    #endif
+
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
