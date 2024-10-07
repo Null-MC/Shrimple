@@ -218,83 +218,83 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         float farMax = far;
     #endif
 
-    vec3 worldPos = cameraPosition + localPos;
+    // vec3 worldPos = cameraPosition + localPos;
 
-    #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
-        //float farMax = min(viewDist, far);
-        bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
+    // #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+    //     //float farMax = min(viewDist, far);
+    //     bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
 
-        #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-            const float cloudDistNear = 0.0;
-            float cloudDistFar = !isSkyFrag ? reflectDist : SkyFar;
-        #else
-            vec3 cloudNear, cloudFar;
-            GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
+    //     #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+    //         const float cloudDistNear = 0.0;
+    //         float cloudDistFar = !isSkyFrag ? reflectDist : SkyFar;
+    //     #else
+    //         vec3 cloudNear, cloudFar;
+    //         GetCloudNearFar(worldPos, reflectLocalDir, cloudNear, cloudFar);
             
-            float cloudDistNear = length(cloudNear);
-            float cloudDistFar = min(length(cloudFar), SkyFar);
+    //         float cloudDistNear = length(cloudNear);
+    //         float cloudDistFar = min(length(cloudFar), SkyFar);
 
-            if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
-                cloudDistFar = !isSkyFrag ? min(cloudDistFar, reflectDist) : SkyFar;
-        #endif
+    //         if (cloudDistNear > 0.0 || cloudDistFar > 0.0)
+    //             cloudDistFar = !isSkyFrag ? min(cloudDistFar, reflectDist) : SkyFar;
+    //     #endif
 
-        if (cloudDistFar > cloudDistNear) {
-            vec3 cloudScatter = vec3(0.0);
-            vec3 cloudTransmit = vec3(1.0);
-            _TraceClouds(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
-            reflectColor = reflectColor * cloudTransmit + cloudScatter;
-        }
-    #else
-        #ifdef WORLD_SKY_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                // vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                vec3 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
-            #endif
+    //     if (cloudDistFar > cloudDistNear) {
+    //         vec3 cloudScatter = vec3(0.0);
+    //         vec3 cloudTransmit = vec3(1.0);
+    //         _TraceClouds(cloudScatter, cloudTransmit, worldPos, reflectLocalDir, cloudDistNear, cloudDistFar, CLOUD_REFLECT_STEPS, CLOUD_REFLECT_SHADOW_STEPS);
+    //         reflectColor = reflectColor * cloudTransmit + cloudScatter;
+    //     }
+    // #else
+    //     #ifdef WORLD_SKY_ENABLED
+    //         #ifndef IRIS_FEATURE_SSBO
+    //             // vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+    //             vec3 WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
+    //         #endif
 
-            vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        #endif
+    //         vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+    //     #endif
 
-        #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater == 1) {
-                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+    //     #ifdef WORLD_WATER_ENABLED
+    //         if (isEyeInWater == 1) {
+    //             float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                #ifdef WORLD_SKY_ENABLED
-                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                #endif
+    //             #ifdef WORLD_SKY_ENABLED
+    //                 eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+    //             #endif
                 
-                eyeSkyLightF += 0.02;
+    //             eyeSkyLightF += 0.02;
 
-                vec3 vlLight = vec3(phaseIso + WaterAmbientF);
+    //             vec3 vlLight = vec3(phaseIso + WaterAmbientF);
 
-                #ifdef WORLD_SKY_ENABLED
-                    vlLight *= skyLightColor * eyeSkyLightF;
-                #endif
-                // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
+    //             #ifdef WORLD_SKY_ENABLED
+    //                 vlLight *= skyLightColor * eyeSkyLightF;
+    //             #endif
+    //             // ApplyScatteringTransmission(reflectColor, reflectDist, vlLight, 1.0, WaterScatterF, WaterAbsorbF);
 
-                // float waterFogFar = min(16.0 / WaterDensityF, reflectDist);
-                float waterFogFar = min(24.0, reflectDist);
+    //             // float waterFogFar = min(16.0 / WaterDensityF, reflectDist);
+    //             float waterFogFar = min(24.0, reflectDist);
 
-                ApplyScatteringTransmission(reflectColor, waterFogFar, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbColor, 8);
-            }
-            else {
-        #endif
+    //             ApplyScatteringTransmission(reflectColor, waterFogFar, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbColor, 8);
+    //         }
+    //         else {
+    //     #endif
 
-            #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
-                if (reflectDist > 0.0) {
-                    bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
-                    float _skyFar = !isSkyFrag ? reflectDist : farMax;
+    //         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+    //             if (reflectDist > 0.0) {
+    //                 bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
+    //                 float _skyFar = !isSkyFrag ? reflectDist : farMax;
 
-                    vec3 scatterFinal = vec3(0.0);
-                    vec3 transmitFinal = vec3(1.0);
-                    TraceSky(scatterFinal, transmitFinal, worldPos, reflectLocalDir, 0.0, _skyFar, 12);
-                    reflectColor = reflectColor * transmitFinal + scatterFinal * pow5(skyLight);
-                }
-            #endif
+    //                 vec3 scatterFinal = vec3(0.0);
+    //                 vec3 transmitFinal = vec3(1.0);
+    //                 TraceSky(scatterFinal, transmitFinal, worldPos, reflectLocalDir, 0.0, _skyFar, 12);
+    //                 reflectColor = reflectColor * transmitFinal + scatterFinal * pow5(skyLight);
+    //             }
+    //         #endif
 
-        #ifdef WORLD_WATER_ENABLED
-            }
-        #endif
-    #endif
+    //     #ifdef WORLD_WATER_ENABLED
+    //         }
+    //     #endif
+    // #endif
 
     return reflectColor;
 }

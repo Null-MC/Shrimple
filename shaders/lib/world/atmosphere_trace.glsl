@@ -3,6 +3,7 @@ const float phaseAir = phaseIso;
 // const float WorldAtmosphereMin =  68.0;
 const float WorldAtmosphereMax = 360.0;
 const float WorldAtmosphereCurve = 12.0;
+const float WorldAtmosphereCurveRain = 4.0;
 
 
 #ifdef VOLUMETRIC_NOISE_ENABLED
@@ -53,7 +54,9 @@ float GetSkyDensity() {
 
 float GetSkyAltitudeDensity(const in float altitude) {
     float heightF = 1.0 - saturate((altitude - WORLD_SEA_LEVEL) / (WorldAtmosphereMax - WORLD_SEA_LEVEL));
-    return pow(heightF, WorldAtmosphereCurve);
+
+    float curve = mix(WorldAtmosphereCurve, WorldAtmosphereCurveRain, weatherStrength);
+    return pow(heightF, curve);
 }
 
 // altitude: world-pos.y

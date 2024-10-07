@@ -223,7 +223,7 @@ void main() {
             }
 
             #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
-                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && entityId != ENTITY_PLAYER) {
+                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME) {
                     uint lightType = GetSceneItemLightType(currentRenderedItemId);
 
                     vec3 lightColor = vec3(0.0);

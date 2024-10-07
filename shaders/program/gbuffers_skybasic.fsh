@@ -150,19 +150,19 @@ void main() {
 
     //final.rgb *= 1.0 - blindnessSmooth;
 
-    #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-        #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater == 0) {
-        #endif
+    // #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    //     #ifdef WORLD_WATER_ENABLED
+    //         if (isEyeInWater == 0) {
+    //     #endif
 
-            vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-            vec4 scatterTransmit = ApplyScatteringTransmission(far, vlLight, AirScatterColor, AirExtinctColor);
-            final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
+    //         vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+    //         vec4 scatterTransmit = ApplyScatteringTransmission(far, vlLight, AirScatterColor, AirExtinctColor);
+    //         final.rgb = final.rgb * scatterTransmit.a + scatterTransmit.rgb;
 
-        #ifdef WORLD_WATER_ENABLED
-            }
-        #endif
-    #endif
+    //     #ifdef WORLD_WATER_ENABLED
+    //         }
+    //     #endif
+    // #endif
     
     outFinal = final;
 
