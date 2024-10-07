@@ -106,19 +106,19 @@ vec3 SampleSkyColor(const in vec3 localDir) {
 
     skyColor *= Sky_BrightnessF;
 
-    #if SKY_VOL_FOG_TYPE > 0
-        float _far = far;
-        #ifdef DISTANT_HORIZONS
-            _far = dhFarPlane;
-        #endif
+    // #if SKY_VOL_FOG_TYPE > 0
+    //     float _far = far;
+    //     #ifdef DISTANT_HORIZONS
+    //         _far = dhFarPlane;
+    //     #endif
         
-        // ApplyVL(skyColor, localDir, _far, SkyFar);
+    //     // ApplyVL(skyColor, localDir, _far, SkyFar);
 
-        vec3 scatterFinal = vec3(0.0);
-        vec3 transmitFinal = vec3(1.0);
-        TraceSky(scatterFinal, transmitFinal, cameraPosition, localDir, _far, SkyFar, 16);
-        skyColor = skyColor * transmitFinal + scatterFinal;
-    #endif
+    //     vec3 scatterFinal = vec3(0.0);
+    //     vec3 transmitFinal = vec3(1.0);
+    //     TraceSky(scatterFinal, transmitFinal, cameraPosition, localDir, _far, SkyFar, 16);
+    //     skyColor = skyColor * transmitFinal + scatterFinal;
+    // #endif
 
     return skyColor;
 }
