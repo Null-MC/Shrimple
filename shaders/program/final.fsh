@@ -15,17 +15,17 @@ uniform sampler2D colortex0;
 #if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 	uniform sampler2D BUFFER_DEFERRED_COLOR;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_GEO
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform usampler2D BUFFER_DEFERRED_DATA_A;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform usampler2D BUFFER_DEFERRED_DATA_B;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform usampler2D BUFFER_DEFERRED_DATA_B;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform usampler2D BUFFER_DEFERRED_DATA_B;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
 	uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
-	uniform usampler2D BUFFER_DEFERRED_DATA;
+	uniform usampler2D BUFFER_DEFERRED_DATA_A;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 	uniform sampler2D BUFFER_VL_SCATTER;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
@@ -110,22 +110,22 @@ void main() {
 	#if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
 		vec3 color = texelFetch(BUFFER_DEFERRED_COLOR, ivec2(texcoord * viewSize), 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_GEO
-		uint deferredDataR = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).r;
-		vec3 color = unpackUnorm4x8(deferredDataR).rgb;
+		uint deferredDataA_R = texelFetch(BUFFER_DEFERRED_DATA_A, ivec2(texcoord * viewSize), 0).r;
+		vec3 color = unpackUnorm4x8(deferredDataA_R).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
-		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).g;
-		vec3 color = vec3(unpackUnorm4x8(deferredDataG).rg, 0.0);
+		uint deferredDataB_R = texelFetch(BUFFER_DEFERRED_DATA_B, ivec2(texcoord * viewSize), 0).r;
+		vec3 color = vec3(unpackUnorm4x8(deferredDataB_R).rg, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
-		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).g;
-		vec3 color = vec3(unpackUnorm4x8(deferredDataG).ba, 0.0);
+		uint deferredDataB_R = texelFetch(BUFFER_DEFERRED_DATA_B, ivec2(texcoord * viewSize), 0).r;
+		vec3 color = vec3(unpackUnorm4x8(deferredDataB_R).ba, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
-		uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).b;
-		vec3 color = unpackUnorm4x8(deferredDataB).rgb;
+		uint deferredDataB_G = texelFetch(BUFFER_DEFERRED_DATA_B, ivec2(texcoord * viewSize), 0).g;
+		vec3 color = unpackUnorm4x8(deferredDataB_G).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
         vec3 color = textureLod(BUFFER_DEFERRED_NORMAL_TEX, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
-		uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).a;
-		vec3 color = unpackUnorm4x8(deferredDataA).rgb;
+		uint deferredDataA_G = texelFetch(BUFFER_DEFERRED_DATA_A, ivec2(texcoord * viewSize), 0).g;
+		vec3 color = unpackUnorm4x8(deferredDataA_G).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 		vec3 color = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT

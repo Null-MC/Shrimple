@@ -20,7 +20,8 @@ in vec2 texcoord;
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
         uniform sampler2D BUFFER_DEFERRED_COLOR;
-        uniform usampler2D BUFFER_DEFERRED_DATA;
+        uniform usampler2D BUFFER_DEFERRED_DATA_A;
+        uniform usampler2D BUFFER_DEFERRED_DATA_B;
         uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
         uniform sampler2D texDepthNear;
     #endif
@@ -306,10 +307,13 @@ layout(location = 0) out vec4 outFinal;
         #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && MATERIAL_SPECULAR != SPECULAR_NONE
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
             vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-            vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+
+            uvec2 deferredDataA = texelFetch(BUFFER_DEFERRED_DATA_A, iTex, 0).rg;
+            vec4 deferredNormal = unpackUnorm4x8(deferredDataA.r);
+            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredDataA.g).rgb;
+
+            uvec2 deferredDataB = texelFetch(BUFFER_DEFERRED_DATA_B, iTex, 0).rg;
+            vec4 deferredLighting = unpackUnorm4x8(deferredDataB.r);
 
             float roughness = deferredRoughMetalF0Porosity.r;
             float metal_f0 = deferredRoughMetalF0Porosity.g;

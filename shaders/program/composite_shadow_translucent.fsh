@@ -18,7 +18,7 @@ in vec2 texcoord;
         uniform sampler2D dhDepthTex1;
     #endif
 
-    uniform usampler2D BUFFER_DEFERRED_DATA;
+    uniform usampler2D BUFFER_DEFERRED_DATA_A;
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -196,8 +196,8 @@ void main() {
 
             // float sss = 0.0;
             ivec2 uv = ivec2(texcoord * viewSize);
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, uv, 0);
-            vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
+            uvec2 deferredDataA = texelFetch(BUFFER_DEFERRED_DATA_A, uv, 0).rg;
+            vec3 localNormal = unpackUnorm4x8(deferredDataA.r).rgb;
             // #if MATERIAL_SSS != 0
             //     sss = unpackUnorm4x8(deferredData.r).w;
             // #endif
@@ -240,7 +240,7 @@ void main() {
             #endif
 
             #if MATERIAL_SSS != 0
-                float sss = unpackUnorm4x8(deferredData.r).w;
+                float sss = unpackUnorm4x8(deferredDataA.r).w;
 
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     if (cascadeIndex >= 0) {

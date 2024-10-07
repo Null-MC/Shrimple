@@ -163,7 +163,11 @@
 #define BUFFER_FINAL colortex0
 #define BUFFER_DEFERRED_COLOR colortex1
 #define BUFFER_DEFERRED_SHADOW colortex2
-#define BUFFER_DEFERRED_DATA colortex3
+
+// #define BUFFER_DEFERRED_DATA colortex3
+#define BUFFER_DEFERRED_DATA_A colortex3
+#define BUFFER_DEFERRED_DATA_B colortex12
+
 #define BUFFER_BLOCK_DIFFUSE colortex4
 #define BUFFER_FINAL_PREV colortex5
 #define BUFFER_SSAO colortex6

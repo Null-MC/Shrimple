@@ -417,14 +417,15 @@ uniform int heldBlockLightValue2;
 
 #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
-    layout(location = 1) out uvec4 outDeferredData;
-    layout(location = 2) out vec3 outDeferredTexNormal;
+    layout(location = 1) out uvec2 outDeferredDataA;
+    layout(location = 2) out uvec2 outDeferredDataB;
+    layout(location = 3) out vec3 outDeferredTexNormal;
 
     #ifdef EFFECT_TAA_ENABLED
-        /* RENDERTARGETS: 1,3,9,7 */
-        layout(location = 3) out vec4 outVelocity;
+        /* RENDERTARGETS: 1,3,12,9,7 */
+        layout(location = 4) out vec4 outVelocity;
     #else
-        /* RENDERTARGETS: 1,3,9 */
+        /* RENDERTARGETS: 1,3,12,9 */
     #endif
 #else
     layout(location = 0) out vec4 outFinal;
@@ -725,10 +726,11 @@ void main() {
         outDeferredColor = color + dither;
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
-        outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
-        outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
-        outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
-        outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
+        outDeferredDataA.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
+        outDeferredDataA.g = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
+
+        outDeferredDataB.r = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
+        outDeferredDataB.g = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
     #else
         vec3 shadowColor = vec3(1.0);
         #ifdef RENDER_SHADOWS_ENABLED

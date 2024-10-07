@@ -13,7 +13,8 @@ uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform usampler2D BUFFER_DEFERRED_DATA_A;
+uniform usampler2D BUFFER_DEFERRED_DATA_B;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 
@@ -430,12 +431,14 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
 
-            uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-            vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-            vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
-            vec4 deferredMaterialShadow = unpackUnorm4x8(deferredData.b);
+            uvec2 deferredDataA = texelFetch(BUFFER_DEFERRED_DATA_A, iTex, 0).rg;
+            vec4 deferred_normal_sss = unpackUnorm4x8(deferredDataA.r);
 
-            vec3 localNormal = deferredNormal.rgb;
+            uvec2 deferredDataB = texelFetch(BUFFER_DEFERRED_DATA_B, iTex, 0).rg;
+            vec4 deferredLighting = unpackUnorm4x8(deferredDataB.r);
+            vec4 deferredMaterialShadow = unpackUnorm4x8(deferredDataB.g);
+
+            vec3 localNormal = deferred_normal_sss.xyz;
             float occlusion = deferredLighting.z;
 
             #ifdef EFFECT_SSAO_ENABLED
@@ -455,7 +458,7 @@ layout(location = 0) out vec4 outFinal;
             float viewDist = length(localPos);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+                vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredDataA.g).rgb;
                 float roughL = _pow2(deferredRoughMetalF0Porosity.r);
                 float metal_f0 = deferredRoughMetalF0Porosity.g;
                 float porosity = deferredRoughMetalF0Porosity.b;
@@ -481,7 +484,7 @@ layout(location = 0) out vec4 outFinal;
 
             vec3 albedo = RGBToLinear(deferredColor);
             float emission = deferredLighting.a;
-            float sss = deferredNormal.a;
+            float sss = deferred_normal_sss.w;
 
             // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
             //     albedo = vec3(WHITEWORLD_VALUE);
@@ -656,11 +659,11 @@ layout(location = 0) out vec4 outFinal;
             //     final = mix(final, skyFinal, fogF);
             // #endif
 
-            #ifdef SKY_BORDER_FOG_ENABLED
+            #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_CUSTOM
                 // vec2 uvSky = DirectionToUV(localViewDir);
                 // vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
 
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
+                // #if SKY_TYPE == SKY_TYPE_CUSTOM
                     // #ifndef IRIS_FEATURE_SSBO
                     //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
                     // #endif
@@ -669,14 +672,15 @@ layout(location = 0) out vec4 outFinal;
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
-                #else
-                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                // #else
+                    // TODO: this won't work anymore
+                    // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                     
-                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    fogColorFinal = RGBToLinear(fogColorFinal);
+                    // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    // fogColorFinal = RGBToLinear(fogColorFinal);
 
-                    float fogF = deferredFog.a;
-                #endif
+                    // float fogF = deferredFog.a;
+                // #endif
 
                 fogColorFinal *= Sky_BrightnessF;
 

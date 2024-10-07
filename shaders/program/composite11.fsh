@@ -11,7 +11,8 @@ uniform sampler2D depthtex1;
 uniform sampler2D depthtex2;
 uniform sampler2D noisetex;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
-uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform usampler2D BUFFER_DEFERRED_DATA_A;
+uniform usampler2D BUFFER_DEFERRED_DATA_B;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
 
@@ -176,9 +177,11 @@ void main() {
         vec3 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0).rgb;
         vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
 
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
-        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+        uvec2 deferredDataA = texelFetch(BUFFER_DEFERRED_DATA_A, iTex, 0).rg;
+        vec4 deferredNormal = unpackUnorm4x8(deferredDataA.r);
+
+        uvec2 deferredDataB = texelFetch(BUFFER_DEFERRED_DATA_B, iTex, 0).rg;
+        vec4 deferredLighting = unpackUnorm4x8(deferredDataB.r);
 
         vec3 albedo = RGBToLinear(deferredColor);
 
@@ -195,7 +198,7 @@ void main() {
         float sss = deferredNormal.w;
 
         #if MATERIAL_SPECULAR != SPECULAR_NONE
-            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+            vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredDataA.g).rgb;
             float rough = deferredRoughMetalF0Porosity.r;
             metal_f0 = deferredRoughMetalF0Porosity.g;
 
@@ -229,7 +232,7 @@ void main() {
         #endif
 
         #if SKY_TYPE == SKY_VANILLA
-            vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+            vec4 deferredFog = unpackUnorm4x8(deferredDataB.g);
             diffuseFinal *= 1.0 - deferredFog.a;
         #endif
 

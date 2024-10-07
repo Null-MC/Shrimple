@@ -6,7 +6,7 @@ const int shadowcolor0Format = RGBA8;
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
 const int colortex2Format  = RGBA8;
-const int colortex3Format  = RGBA32UI;
+const int colortex3Format  = RG32UI;
 const int colortex4Format  = RGB16F;
 const int colortex5Format  = RGBA16F;
 const int colortex6Format  = R16F;
@@ -15,6 +15,7 @@ const int colortex8Format = RGB16F;
 const int colortex9Format = RGB8;
 const int colortex10Format = RGB16F;
 const int colortex11Format = RGBA16F;
+const int colortex12Format  = RG32UI;
 const int colortex15Format = RGBA16F;
 */
 
@@ -63,8 +64,8 @@ const bool colortex10Clear = true;
 const vec4 colortex11ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
 const bool colortex11Clear = false;
 
-// const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 1.0);
-// const bool colortex12Clear = false;
+const vec4 colortex12ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
+const bool colortex12Clear = true;
 
 const vec4 colortex15ClearColor = vec4(0.0, 0.0, 0.0, 0.0);
 const bool colortex15Clear = true;

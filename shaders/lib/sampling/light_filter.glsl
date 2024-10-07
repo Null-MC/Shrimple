@@ -79,7 +79,7 @@ void light_GaussianFilter(out vec3 blockDiffuse, out vec3 blockSpecular, const i
             float normalWeight = 0.0;
             if (hasNormal) {
                 //vec3 sampleNormal = textureLod(BUFFER_LIGHT_NORMAL, srcCoord, 0).rgb;
-                uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA, depthCoord, 0).r;
+                uint sampleDeferredDataR = texelFetch(BUFFER_DEFERRED_DATA_A, depthCoord, 0).r;
                 vec3 sampleNormal = unpackUnorm4x8(sampleDeferredDataR).xyz;
 
                 if (any(greaterThan(sampleNormal, EPSILON3))) {

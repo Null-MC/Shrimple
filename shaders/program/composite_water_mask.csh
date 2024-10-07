@@ -12,7 +12,7 @@ const vec2 workGroupsRender = vec2(1.0, 1.0);
 shared uint sharedMask[2];
 
 
-uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform usampler2D BUFFER_DEFERRED_DATA_B;
 
 uniform vec2 viewSize;
 
@@ -30,10 +30,10 @@ void main() {
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     if (all(lessThan(uv, viewSize))) {
-        uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).b;
-        float deferredWater = unpackUnorm4x8(deferredDataB).r;
+        uint deferredDataB_G = texelFetch(BUFFER_DEFERRED_DATA_B, uv, 0).g;
+        float deferredMaterial = unpackUnorm4x8(deferredDataB_G).r;
 
-        if (deferredWater > 0.5) {
+        if (deferredMaterial > 0.5) {
             ivec2 localPos = ivec2(gl_LocalInvocationID.xy);
             int localIndex = localPos.y*8 + localPos.x;
 

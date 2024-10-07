@@ -18,7 +18,8 @@ uniform sampler2D noisetex;
 uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
-uniform usampler2D BUFFER_DEFERRED_DATA;
+uniform usampler2D BUFFER_DEFERRED_DATA_A;
+uniform usampler2D BUFFER_DEFERRED_DATA_B;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_OVERLAY;
@@ -422,10 +423,10 @@ layout(location = 0) out vec4 outFinal;
         float viewDist = length(localPos);
 
         vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
-        uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);
-        vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
+        uvec2 deferredDataB = texelFetch(BUFFER_DEFERRED_DATA_B, iTex, 0).rg;
+        vec4 deferredLighting = unpackUnorm4x8(deferredDataB.r);
         // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-        vec2 deferredMaterialShadow = unpackUnorm4x8(deferredData.b).rg;
+        vec2 deferredMaterialShadow = unpackUnorm4x8(deferredDataB.g).rg;
 
         vec3 albedo = RGBToLinear(deferredColor.rgb);
         uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
@@ -452,7 +453,8 @@ layout(location = 0) out vec4 outFinal;
         if (deferredColor.a > (0.5/255.0) && depthTrans < 1.0) {
             // vec4 deferredLighting = unpackUnorm4x8(deferredData.g);
 
-            vec4 deferredNormal = unpackUnorm4x8(deferredData.r);
+            uvec2 deferredDataA = texelFetch(BUFFER_DEFERRED_DATA_A, iTex, 0).rg;
+            vec4 deferredNormal = unpackUnorm4x8(deferredDataA.r);
             vec3 localNormal = deferredNormal.rgb;
 
             if (any(greaterThan(localNormal, EPSILON3)))
@@ -500,7 +502,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredData.a).rgb;
+                vec3 deferredRoughMetalF0Porosity = unpackUnorm4x8(deferredDataA.g).rgb;
                 roughness = deferredRoughMetalF0Porosity.r;
                 float metal_f0 = deferredRoughMetalF0Porosity.g;
 
