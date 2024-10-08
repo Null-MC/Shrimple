@@ -124,15 +124,12 @@ uniform int heldBlockLightValue2;
     uniform float skyWetnessSmooth;
     uniform float wetness;
     
+    uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
 
     #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
         // uniform float cloudTime;
-    #endif
-
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
     #endif
 #endif
 
@@ -155,11 +152,11 @@ uniform int heldBlockLightValue2;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 #ifdef DISTANT_HORIZONS
     uniform mat4 dhModelViewInverse;

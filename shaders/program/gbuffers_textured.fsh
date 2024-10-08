@@ -107,11 +107,9 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float weatherStrength;
     uniform float sunAngle;
     
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
-        uniform float cloudHeight;
-        uniform float cloudTime;
-    #endif
+    uniform float lightningStrength;
+    uniform float cloudHeight;
+    uniform float cloudTime;
 #endif
 
 #ifdef RENDER_SHADOWS_ENABLED
@@ -129,11 +127,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || (defined IRIS_FEATURE_SSBO && LIGHTING_MODE > LIGHTING_MODE_BASIC)
     uniform sampler2D shadowcolor0;

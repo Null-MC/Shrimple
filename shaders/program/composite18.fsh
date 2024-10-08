@@ -146,11 +146,11 @@ uniform int heldBlockLightValue2;
 //     uniform int worldTime;
 // #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
 //     uniform float centerDepthSmooth;

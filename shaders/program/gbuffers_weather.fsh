@@ -128,11 +128,11 @@ uniform float weatherStrength;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;

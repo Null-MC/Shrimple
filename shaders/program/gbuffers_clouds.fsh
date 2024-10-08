@@ -109,14 +109,15 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform float lightningStrength;
-    uniform vec3 eyePosition;
-    uniform float cloudHeight;
-    uniform float cloudTime;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
+
+uniform float lightningStrength;
+uniform float cloudHeight;
+uniform float cloudTime;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;

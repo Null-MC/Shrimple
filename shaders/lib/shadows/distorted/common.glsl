@@ -26,8 +26,11 @@ float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
 
 vec3 distort(const in vec3 pos) {
     #if SHADOW_DISTORT_FACTOR > 0
-        float factor = length(pos.xy) + Shadow_DistortF;
-        // return vec3((pos.xy / factor) * (1.0 + Shadow_DistortF), pos.z);
+        // float factor = length(pos.xy) + Shadow_DistortF;
+        // // return vec3((pos.xy / factor) * (1.0 + Shadow_DistortF), pos.z);
+
+        vec2 factor = abs(pos.xy) * 0.9 + 0.1;
+
         return vec3(pos.xy / factor, pos.z);
     #else
         return pos;

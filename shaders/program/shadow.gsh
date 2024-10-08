@@ -224,8 +224,12 @@ void main() {
             }
 
             #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
-                float dist = length(originPos + relativeEyePosition);
-                bool isThisPlayer = entityId == ENTITY_PLAYER && dist < 3.0;
+                #if defined IRIS_VERSION && IRIS_VERSION >= 10800
+                    bool isThisPlayer = entityId == ENTITY_PLAYER_CURRENT;
+                #else
+                    float dist = length(originPos + relativeEyePosition);
+                    bool isThisPlayer = entityId == ENTITY_PLAYER && dist < 3.0;
+                #endif
 
                 if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && !isThisPlayer) {
                     uint lightType = GetSceneItemLightType(currentRenderedItemId);

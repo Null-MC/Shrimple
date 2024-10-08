@@ -352,6 +352,7 @@ const bool colortex15Clear = true;
 // Distant Horizons
 #define DH_TRANSITION
 #define DH_TRANSITION_ENTITIES
+#define DH_TRANSITION_SHADOWS
 #define DH_CLIP_DIST 70 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 
 
@@ -586,8 +587,8 @@ const bool colortex15Clear = true;
 #endif
 
 
-const vec3 HandLight_OffsetL = vec3(-0.16, -0.24, -0.08);
-const vec3 HandLight_OffsetR = vec3( 0.16, -0.24, -0.08);
+const vec3 HandLight_OffsetL = vec3(-0.36, -0.22, 0.4);
+const vec3 HandLight_OffsetR = vec3( 0.36, -0.22, 0.4);
 
 const float Sky_SunBrightnessF = SKY_SUN_BRIGHTNESS * 0.01;
 const float Sky_MoonBrightnessF = SKY_MOON_BRIGHTNESS * 0.01;
