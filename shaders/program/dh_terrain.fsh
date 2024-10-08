@@ -14,6 +14,7 @@ in VertexData {
     flat uint materialId;
 } vIn;
 
+uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
@@ -31,8 +32,11 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 
-uniform float dhFarPlane;
+uniform float near;
 uniform float far;
+uniform float farPlane;
+uniform float dhNearPlane;
+uniform float dhFarPlane;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -292,6 +296,11 @@ void main() {
         discard;
         return;
     }
+
+    // float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    // float depthL = linearizeDepthFast(depth, near, farPlane);
+    // float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+    // if (depthL < depthDhL && depth < 1.0) {discard; return;}
     
     vec2 lmFinal = vIn.lmcoord;
     
