@@ -38,6 +38,10 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
     uniform sampler2D lightmap;
 #endif
@@ -171,6 +175,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform float farPlane;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -423,6 +429,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    float viewDist = length(vIn.localPos);
 
     vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
@@ -432,12 +439,18 @@ void main() {
         float alphaThreshold = alphaTestRef;
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        float dhDepth = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        float depthL = linearizeDepthFast(gl_FragCoord.z, near, farPlane);
+        if (depthL > dhDepthL && dhDepth < 1.0) {discard; return;}
+    #endif
+
     if (color.a < alphaThreshold) {
         discard;
         return;
     }
     
-    float viewDist = length(vIn.localPos);
     vec3 localViewDir = vIn.localPos / viewDist;
     
     #ifdef MATERIAL_PARTICLES

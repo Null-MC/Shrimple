@@ -292,16 +292,49 @@ uniform int frameCounter;
 
 void main() {
     float viewDist = length(vIn.localPos);
-    if (viewDist < dh_clipDistF * far) {
-        discard;
-        return;
-    }
+
+    // #ifndef DH_TRANSITION
+        if (viewDist < dh_clipDistF * far) {
+            discard;
+            return;
+        }
+    // #endif
 
     // float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
     // float depthL = linearizeDepthFast(depth, near, farPlane);
     // float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     // if (depthL < depthDhL && depth < 1.0) {discard; return;}
     
+    // #ifndef DH_TRANSITION
+    //     float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    //     if (depth < 1.0) {discard; return;}
+    // #endif
+
+    // #ifdef DH_TRANSITION
+    //     #ifdef EFFECT_TAA_ENABLED
+    //         float ditherOut = InterleavedGradientNoiseTime();
+    //     #else
+    //         float ditherOut = GetScreenBayerValue();
+    //     #endif
+
+
+    //     float dh_fadeStartF = 1.0 - 2.0 * (1.0 - dh_clipDistF);
+    //     float ditherFadeF = smoothstep(dh_fadeStartF * far, dh_clipDistF * far, viewDist);
+    //     // float opacity = step(ditherFadeF, ditherOut);
+
+
+
+    //     // float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    //     // float depthL = linearizeDepthFast(depth, near, farPlane);
+    //     // float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+    //     // if (depthDhL < depthL || depth == 1.0) {
+    //         if (ditherOut > ditherFadeF) {
+    //             discard;
+    //             return;
+    //         }
+    //     // }
+    // #endif
+
     vec2 lmFinal = vIn.lmcoord;
     
     vec3 localNormal = normalize(vIn.localNormal);
