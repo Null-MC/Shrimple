@@ -106,7 +106,7 @@ vec4 SampleLpvCubic(in vec3 lpvPos) {
     return mix(sample_z1, sample_z2, mixF.z);
 }
 
-vec3 GetLpvSamplePos(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texNormal) {
+vec3 GetLpvSamplePos(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texNormal, const in float offset) {
     #if MATERIAL_NORMALS != 0
         vec3 minPos = floor(lpvPos + 0.5 * geoNormal);
 
@@ -119,6 +119,10 @@ vec3 GetLpvSamplePos(const in vec3 lpvPos, const in vec3 geoNormal, const in vec
         // vec3 samplePos = lpvPos + 0.5 * geoNormal;
         return lpvPos + 0.5 * geoNormal;
     #endif
+}
+
+vec3 GetLpvSamplePos(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texNormal) {
+    return GetLpvSamplePos(lpvPos, geoNormal, texNormal, 0.5);
 }
 
 vec4 SampleLpv(const in vec3 samplePos) {

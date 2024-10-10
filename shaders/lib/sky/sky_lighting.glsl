@@ -87,13 +87,14 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal) * Sky_BrightnessF;
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
-        vec3 lpvIndirectSample = saturate(SampleLpvIndirect(lpvSamplePos));
+    vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
 
-        vec3 ambientSkyLight = 1.0 * skyLightF * ambientSkyLight_indirect;
-        ambientSkyLight += lpvIndirectSample * (ambientSkyLight_indirect * lpvFade);
-    #else
-        vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
+    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
+        lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal, 1.0);
+        vec3 lpvIndirectSample = SampleLpvIndirect(lpvSamplePos);
+
+        // TODO: reduce lpvFade by horizonF ?
+        ambientSkyLight += skyLightColor * lpvIndirectSample * lpvFade;
     #endif
 
     accumDiffuse += ambientSkyLight * (occlusion * ambientF);
