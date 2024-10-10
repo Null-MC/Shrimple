@@ -17,7 +17,8 @@ float GetSss_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in fl
             vec2 pixelOffset = (rotation * pcfDiskOffset) * pixelRadius;
         #endif
 
-        float sampleBias = offsetBias + sssBias * InterleavedGradientNoiseTime(i);
+        float n = InterleavedGradientNoiseTime(i);
+        float sampleBias = offsetBias + sssBias * _pow2(n);
 
         shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, sampleBias);
     }
@@ -31,6 +32,6 @@ float GetSssFactor(const in vec3 shadowPos, const in float offsetBias, const in 
 
     float sssRadius = sss * MATERIAL_SSS_SCATTER;
     vec2 pixelRadius = GetShadowPixelRadius(shadowPos, sssRadius);
-    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, offsetBias, sssBias);
-    return sss * shadow_sss;
+    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, 0.5*offsetBias, sssBias);
+    return shadow_sss;
 }

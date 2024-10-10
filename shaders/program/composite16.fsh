@@ -41,7 +41,6 @@ uniform int heldItemId;
 uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
-uniform bool firstPersonCamera;
 uniform vec3 eyePosition;
 uniform vec3 upPosition;
 uniform vec3 fogColor;
@@ -69,9 +68,10 @@ uniform float blindnessSmooth;
     uniform int isEyeInWater;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

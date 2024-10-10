@@ -57,7 +57,7 @@ vec4 ApplyTAA(const in vec2 uv) {
 
     vec3 antialiased = lastColor.rgb;
     // float mixRate = min(lastColor.a, 0.5);
-    float mixRate = clamp(lastColor.a, EPSILON, 0.5);
+    float mixRate = clamp(lastColor.a, EPSILON, 1.0);
     // #ifdef EFFECT_TAA_ACCUM
     //     mixRate = 0.0;
     // #endif

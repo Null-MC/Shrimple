@@ -35,10 +35,14 @@ uniform int heldItemId;
 uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
-uniform bool firstPersonCamera;
 uniform vec3 eyePosition;
 uniform vec3 upPosition;
 uniform vec3 fogColor;
+
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
 
 uniform float blindnessSmooth;
 
@@ -61,10 +65,6 @@ uniform float blindnessSmooth;
 
 #ifdef WORLD_WATER_ENABLED
     uniform int isEyeInWater;
-#endif
-
-#ifdef IS_IRIS
-    uniform bool isSpectator;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
