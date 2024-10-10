@@ -595,7 +595,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if MATERIAL_SSS != 0 && defined RENDER_SHADOWS_ENABLED
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-                vec3 sssFinal = 2.0 * sss * shadowSSS * MaterialSssStrengthF * skyLightColor;
+                vec3 sssFinal = 1.0 * sss * shadowSSS * MaterialSssStrengthF * skyLightColor;
 
                 vec3 sss_albedo = vec3(1.0);
                 if (any(greaterThan(albedo, vec3(0.0))))
@@ -623,7 +623,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 sssSkyAmbientColor = sss_albedo * SampleSkyIrradiance(localViewDir) * Sky_BrightnessF;
 
                 // SSS ambient sky lighting
-                sssFinal += 0.3 * sssSkyAmbientColor * (sss * occlusion * skyLightF);
+                sssFinal += 0.5 * sssSkyAmbientColor * (sss * occlusion * skyLightF);
 
                 // vec3 sssColor = vec3(1.0);
                 // if (any(greaterThan(albedo, EPSILON3)))
