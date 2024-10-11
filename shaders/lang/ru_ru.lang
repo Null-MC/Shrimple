@@ -1,7 +1,7 @@
 [---------------------------------]
 |                                 |
 | Provided by: ShrikerChestTree(s)|
-|     Version: Release 16.0       |
+|     Version: Release 16.1       |
 |                                 |
 [---------------------------------]
 
@@ -188,6 +188,11 @@ option.SKY_FOG_SHAPE=Форма Границы Тумана
 value.SKY_FOG_SHAPE.0=Обычный
 value.SKY_FOG_SHAPE.1=Сферический
 value.SKY_FOG_SHAPE.2=Цилиндрический
+
+                              {=====Chunky Fog=====}
+
+option.VOLUMETRIC_NOISE_ENABLED=Чанковый Туман
+option.VOLUMETRIC_NOISE_ENABLED.comment=Даёт объёмный (детально) туман переменной плотности.
 
 [---------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------]
 
@@ -742,6 +747,16 @@ suffix.LIGHTING_AMBIENT=%
 option.LIGHTING_COLORED_CANDLES=Цветные Свечи
 option.LIGHTING_COLORED_CANDLES.comment=Цветные свечи излучают цветной свет. Только для освещения наливногозаполнения(floodfill) или трассировки лучей.
 
+                                                     {=====Full-Bright Fix=====}
+
+option.LIGHTING_FULLBRIGHT_FIX=Полно-Яркое Исправление
+option.LIGHTING_FULLBRIGHT_FIX.comment=Попытка исправить полно-яркого наложения блоков при включении освещения наливногозаполнения(floodfill)/ТЛ(RT).
+
+                                {=====Debug Light Levels=====}
+
+option.LIGHTING_DEBUG_LEVELS=Отладка Уровня Света
+option.LIGHTING_DEBUG_LEVELS.comment=§2Зелёный: безопасно. §6Жёлтый: небезопасно. §4Красный: опасно.
+
          {=====Lighting Temp=====}
 
 option.LIGHTING_TEMP=Температура Факела/Огня
@@ -1090,6 +1105,12 @@ value.SHADOW_FILTER.2=Мягко-Динамический
 option.LIGHT_LEAK_FIX=Исправление Световой-Дыры(Light-Leak)
 option.LIGHT_LEAK_FIX.comment=Предотвращает световую-дыру в пещерах и в других тёмных местах, заставляя участки с нулевым небесным-освещением полностью затенять.
 
+{Pixelate}
+
+option.SHADOW_PIXELATE=Пиксельный
+suffix.SHADOW_PIXELATE=x
+value.SHADOW_PIXELATE.0=Выкл
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------|-------
 
           |/////SHADOW ADVANCED OPTIONS/////|
@@ -1356,7 +1377,30 @@ suffix.POST_TEMP=00°k
 option.POST_WHITE_POINT=Белая-Точка
 suffix.POST_WHITE_POINT=%
 
-[-------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------]
+[-------------------------------------------------------------------------------------------------------|--------------------------------------------------------]
+
+                         [#####_Distant Horizons_#####]
+
+screen.DISTANT_HORIZONS_OPTIONS=Distant Horizons
+screen.DISTANT_HORIZONS_OPTIONS.comment=Настройки поддержки мода Distant Horizons.
+
+                                  {=====Transition Terrain=====}
+
+option.DH_TRANSITION=Переход Ландшафта
+option.DH_TRANSITION.comment=Позволяет гладкий/плавный переход между ванильным ландшафтом и ландшафтом DH.
+
+                      {=====Transition Entities=====}
+
+option.DH_TRANSITION_ENTITIES=Переход Сущностей
+option.DH_TRANSITION.comment=Позволяет сущностям плавно исчезать при переходе в DH.
+
+                                                         {=====Transition Distance=====}
+
+option.DH_CLIP_DIST=Переход Дистанции
+option.DH_CLIP_DIST.comment=Дистанция от камеры, на котором ландшафт Distant Horizons начнёт исчезать/затухать, в процентах от [ванильного] расстояния рендеринга.
+suffix.DH_CLIP_DIST=%
+
+[----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------]
 
                 [#####_DEBUG OPTIONS_#####]
 
@@ -1401,12 +1445,6 @@ option.DYN_LIGHT_DEBUG_COUNTS=Количество Показываемого С
 
 option.DYN_LIGHT_OREBLOCKS=Свет Блок-Руды
 option.DYN_LIGHT_OREBLOCKS.comment=При включении этой функции твёрдые блоки руды будут излучать цветной свет.
-
-                         {=====Distant Horizons Clipping Distance=====}
-
-option.DH_CLIP_DIST=Вырезание Дистанции DH
-option.DH_CLIP_DIST.comment=Дистанция от камеры, на котором ландшафт Distant Horizons начнёт вырезаться.
-suffix.DH_CLIP_DIST=%
 
                                                                           {=====Animation World Time=====}
 
