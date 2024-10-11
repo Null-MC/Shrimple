@@ -48,6 +48,10 @@ uniform sampler2D noisetex;
 //     uniform sampler2D TEX_CLOUDS_VANILLA;
 // #endif
 
+#ifdef VOLUMETRIC_NOISE_ENABLED
+    uniform sampler3D TEX_CLOUDS;
+#endif
+
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
 #endif
@@ -76,6 +80,7 @@ uniform float rainStrength;
 uniform float weatherStrength;
 uniform float blindnessSmooth;
 
+uniform float sunAngle;
 uniform vec3 skyColor;
 
 #ifdef WORLD_WATER_ENABLED
@@ -104,14 +109,15 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform float lightningStrength;
-    uniform vec3 eyePosition;
-    uniform float cloudHeight;
-    uniform float cloudTime;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
+
+uniform float lightningStrength;
+uniform float cloudHeight;
+uniform float cloudTime;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -157,6 +163,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 
 #include "/lib/clouds/cloud_common.glsl"
@@ -440,8 +447,10 @@ void main() {
             // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
             // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
 
+            float skyLightF = eyeBrightnessSmooth.y / 240.0;
+            float airDensityF = GetAirDensity(skyLightF);
             vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
-            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
         #endif
         
         //final = vec4(normal, 1.0);

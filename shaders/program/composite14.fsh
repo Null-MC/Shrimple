@@ -40,12 +40,14 @@ in vec2 texcoord;
     #endif
 
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     uniform sampler3D TEX_CLOUDS;
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
+
+    uniform sampler3D TEX_CLOUDS;
 
     #ifdef DISTANT_HORIZONS
         uniform sampler2D dhDepthTex;
@@ -73,6 +75,7 @@ in vec2 texcoord;
 
     uniform int worldTime;
     uniform int frameCounter;
+    uniform float frameTimeCounter;
     uniform ivec2 eyeBrightnessSmooth;
 
     #ifndef IRIS_FEATURE_SSBO
@@ -88,6 +91,7 @@ in vec2 texcoord;
         uniform vec3 skyColor;
         uniform float rainStrength;
         uniform float weatherStrength;
+        uniform float sunAngle;
 
         #ifndef IRIS_FEATURE_SSBO
             uniform vec3 sunPosition;
@@ -143,8 +147,8 @@ in vec2 texcoord;
     #include "/lib/lighting/hg.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 
-    #include "/lib/world/atmosphere.glsl"
     #include "/lib/world/common.glsl"
+    #include "/lib/world/atmosphere.glsl"
     #include "/lib/fog/fog_common.glsl"
 
     #if WORLD_CURVE_RADIUS > 0
@@ -153,6 +157,7 @@ in vec2 texcoord;
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
+        #include "/lib/world/atmosphere_trace.glsl"
     #endif
 
     #ifdef WORLD_WATER_ENABLED
@@ -357,6 +362,8 @@ layout(location = 0) out vec4 outFinal;
             bool isWater = false;
         #endif
 
+        float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
             uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
             uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
@@ -390,15 +397,15 @@ layout(location = 0) out vec4 outFinal;
                     vec3 vlLight = phaseIso + WaterAmbientF;
 
                     #ifdef WORLD_SKY_ENABLED
-                        float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                        float weatherSkyLightF = eyeSkyLightF;
 
                         #ifdef WORLD_SKY_ENABLED
-                            eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                            weatherSkyLightF *= 1.0 - 0.8 * rainStrength;
                         #endif
                         
-                        eyeSkyLightF += 0.02;
+                        weatherSkyLightF += 0.02;
                     
-                        vlLight *= WorldSkyLightColor * eyeSkyLightF;
+                        vlLight *= WorldSkyLightColor * weatherSkyLightF;
                     #endif
 
                     vec3 scatterFinal = vec3(0.0);
@@ -424,12 +431,11 @@ layout(location = 0) out vec4 outFinal;
 
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
-                float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeSkyLightF;
                 #else
                     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeSkyLightF;
                 #endif
             #endif
 
@@ -437,7 +443,7 @@ layout(location = 0) out vec4 outFinal;
                 #if WATER_DEPTH_LAYERS == 1
                     // WARN: THIS DOESNT WORK!
                     // deferred data is on opaque buffer for reflections
-                    float deferredWater = unpackUnorm4x8(deferredData.b).r;
+                    //float deferredWater = unpackUnorm4x8(deferredData.b).r;
                     isWater = true;//deferredWater > 0.5;
                 #endif
 
@@ -550,8 +556,9 @@ layout(location = 0) out vec4 outFinal;
                     // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                     // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
 
+                    float airDensityF = GetAirDensity(eyeSkyLightF);
                     vec3 vlLight = phaseAir * WorldSkyLightColor + AirAmbientF * skyColorFinal;
-                    ApplyScatteringTransmission(final.rgb, viewDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                    ApplyScatteringTransmission(final.rgb, viewDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif
         }

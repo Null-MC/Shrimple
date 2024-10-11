@@ -1,3 +1,23 @@
+void OffsetPlayerHandLight(inout vec3 lightLocalPos) {
+    if (firstPersonCamera) {
+        lightLocalPos = mul3(gbufferModelViewInverse, lightLocalPos);
+    }
+    else {
+        const vec3 world_up = vec3(0.0, 1.0, 0.0);
+        vec3 player_right = normalize(cross(playerBodyVector, world_up));
+        vec3 player_forward = normalize(cross(world_up, player_right));
+
+        // vec3 up = cross(playerBodyVector, right);
+
+        mat3 rotation = mat3(player_right, world_up, player_forward);
+
+        // mat3 rotation = rotateY(?);
+
+        lightLocalPos = rotation * lightLocalPos;
+        lightLocalPos -= relativeEyePosition;
+    }
+}
+
 void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 fragLocalPos, const in vec3 fragLocalNormal, const in vec3 texNormal, const in vec3 albedo, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
     vec3 result = vec3(0.0);
     vec2 noiseSample = vec2(0.0);
@@ -32,12 +52,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     vec3 accumSpecular = vec3(0.0);
 
     if (lightRangeR > 0.0) {
-        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLight_OffsetR, 1.0)).xyz;
-
-        #ifdef IS_IRIS
-            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
-            //if (!firstPersonCamera) lightLocalPos = HandLightPos1;
-        #endif
+        vec3 lightLocalPos = HandLight_OffsetR;
+        OffsetPlayerHandLight(lightLocalPos);
 
         vec3 lightVec = lightLocalPos - surfacePos;
         float traceDist2 = length2(lightVec);
@@ -116,11 +132,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     float lightRangeL = GetSceneItemLightRange(heldItemId2, heldBlockLightValue2);
 
     if (lightRangeL > 0.0) {
-        vec3 lightLocalPos = (gbufferModelViewInverse * vec4(HandLight_OffsetL, 1.0)).xyz;
-
-        #ifdef IS_IRIS
-            if (!firstPersonCamera) lightLocalPos += eyePosition - cameraPosition;
-        #endif
+        vec3 lightLocalPos = HandLight_OffsetL;
+        OffsetPlayerHandLight(lightLocalPos);
 
         vec3 lightVec = lightLocalPos - fragLocalPos;
         if (length2(lightVec) < _pow2(lightRangeL)) {

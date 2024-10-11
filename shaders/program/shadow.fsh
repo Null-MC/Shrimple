@@ -51,14 +51,14 @@ void main() {
     float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
         ? (1.5/255.0) : alphaTestRef;
 
-    #ifdef DISTANT_HORIZONS
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION_SHADOWS
         #ifdef EFFECT_TAA_ENABLED
             float ditherOut = InterleavedGradientNoiseTime();
         #else
             float ditherOut = GetScreenBayerValue();
         #endif
 
-        float transitionF = smoothstep(0.5 * far, far, vIn.viewDist);
+        float transitionF = smoothstep(dh_clipDistF * far, far, vIn.viewDist);
         transitionF = pow2(1.0 - transitionF);
 
         color.a /= alphaThreshold;

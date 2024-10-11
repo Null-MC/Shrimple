@@ -38,6 +38,12 @@ uniform int fogShape;
     uniform ivec2 eyeBrightnessSmooth;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
+    uniform float dhFarPlane;
+#endif
+
 #ifdef SKY_BORDER_FOG_ENABLED
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;
@@ -47,12 +53,6 @@ uniform int fogShape;
 
     #ifdef WORLD_WATER_ENABLED
         uniform int isEyeInWater;
-    #endif
-
-    #ifdef DISTANT_HORIZONS
-        uniform mat4 dhProjectionInverse;
-        uniform float dhNearPlane;
-        uniform float dhFarPlane;
     #endif
 
     #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED

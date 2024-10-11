@@ -57,12 +57,14 @@ uniform sampler2D BUFFER_OVERLAY;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -115,6 +117,7 @@ uniform int heldBlockLightValue2;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
@@ -143,11 +146,11 @@ uniform int heldBlockLightValue2;
 //     uniform int worldTime;
 // #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
 //     uniform float centerDepthSmooth;
@@ -206,11 +209,11 @@ uniform int heldBlockLightValue2;
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
 
-#include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
+#include "/lib/world/atmosphere.glsl"
 #include "/lib/fog/fog_common.glsl"
 
-#ifdef DEBUG_LIGHT_LEVELS
+#ifdef LIGHTING_DEBUG_LEVELS
     #include "/lib/lighting/debug_levels.glsl"
 #endif
 
@@ -220,6 +223,7 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+    #include "/lib/world/atmosphere_trace.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -426,11 +430,11 @@ layout(location = 0) out vec4 outFinal;
         vec3 albedo = RGBToLinear(deferredColor.rgb);
         uint matId = uint(deferredMaterialShadow.x*255.0+0.5);
 
-        #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-            albedo = vec3(WHITEWORLD_VALUE);
-        #elif defined DEBUG_LIGHT_LEVELS
-            if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
-        #endif
+        // #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        //     albedo = vec3(WHITEWORLD_VALUE);
+        // #elif defined LIGHTING_DEBUG_LEVELS
+        //     if (matId == 0u) albedo = GetLightLevelColor(deferredLighting.x);
+        // #endif
 
         // vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
         // fogColorFinal = RGBToLinear(fogColorFinal);
@@ -770,23 +774,23 @@ layout(location = 0) out vec4 outFinal;
 
                     fogColorFinal *= Sky_BrightnessF;
 
-                    #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                        float skyTraceFar = far;
-                        #ifdef DISTANT_HORIZONS
-                            skyTraceFar = max(far, dhFarPlane);
-                        #endif
+                    // #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                    //     float skyTraceFar = far;
+                    //     #ifdef DISTANT_HORIZONS
+                    //         skyTraceFar = max(far, dhFarPlane);
+                    //     #endif
 
-                        vec3 skyScatter = vec3(0.0);
-                        vec3 skyTransmit = vec3(1.0);
+                    //     vec3 skyScatter = vec3(0.0);
+                    //     vec3 skyTransmit = vec3(1.0);
 
-                        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                            TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8);
-                        #else
-                            TraceCloudSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8, CLOUD_SHADOW_STEPS);
-                        #endif
+                    //     #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+                    //         TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8);
+                    //     #else
+                    //         TraceCloudSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8, CLOUD_SHADOW_STEPS);
+                    //     #endif
 
-                        fogColorFinal = fogColorFinal * skyTransmit + skyScatter;
-                    #endif
+                    //     fogColorFinal = fogColorFinal * skyTransmit + skyScatter;
+                    // #endif
 
                     final.rgb = mix(final.rgb, fogColorFinal, fogF);
                     if (final.a > (1.5/255.0)) final.a = min(final.a + fogF, 1.0);

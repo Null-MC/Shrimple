@@ -69,12 +69,15 @@ void main() {
         gl_Position.w = 1.0;
         #if SHADOW_TYPE == SHADOW_TYPE_DISTORTED
 
-            #ifdef IRIS_FEATURE_SSBO
-                gl_Position.xyz = mul3(shadowModelViewProjection, localPos);
-            #else
-                gl_Position.xyz = mul3(gl_ModelViewMatrix, localPos);
-                gl_Position.xyz = mul3(gl_ProjectionMatrix, gl_Position.xyz);
-            #endif
+            // #ifdef IRIS_FEATURE_SSBO
+            //     gl_Position.xyz = mul3(shadowModelViewProjection, localPos);
+            // #else
+                gl_Position.xyz = mul3(shadowModelViewEx, localPos);
+
+                // gl_Position.z -= 0.25 * vOut.cameraViewDist;
+
+                gl_Position.xyz = mul3(shadowProjectionEx, gl_Position.xyz);
+            // #endif
 
             gl_Position.xyz = distort(gl_Position.xyz);
         #else

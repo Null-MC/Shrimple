@@ -158,6 +158,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
@@ -360,12 +361,12 @@ uniform int heldBlockLightValue2;
 #include "/lib/material/subsurface.glsl"
 
 #ifdef WORLD_WATER_ENABLED
-    #if defined WATER_FOAM || defined WATER_FLOW
-        #include "/lib/water/foam.glsl"
-    #endif
-
     #if WATER_WAVE_SIZE > 0
         #include "/lib/water/water_waves.glsl"
+    #endif
+
+    #if defined WATER_FOAM || defined WATER_FLOW
+        #include "/lib/water/foam.glsl"
     #endif
 #endif
 
@@ -407,10 +408,10 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/hg.glsl"
         #include "/lib/fog/fog_volume.glsl"
     #endif
-    
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#endif
+
+#ifdef LIGHTING_DEBUG_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 
@@ -562,7 +563,7 @@ void main() {
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
-    #elif defined DEBUG_LIGHT_LEVELS
+    #elif defined LIGHTING_DEBUG_LEVELS
         if (!isWater) albedo = GetLightLevelColor(vIn.lmcoord.x);
     #endif
 

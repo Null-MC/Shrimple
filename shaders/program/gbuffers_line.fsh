@@ -133,6 +133,8 @@ void main() {
         color *= texture(gtexture, vIn.texcoord);
     }
 
+    if (color.a < alphaTestRef) {discard; return;}
+
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         const vec3 normal = vec3(0.0);
         const float occlusion = 0.0;

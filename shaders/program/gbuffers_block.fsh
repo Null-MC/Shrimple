@@ -41,6 +41,10 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform sampler3D texClouds;
 
@@ -127,6 +131,7 @@ uniform int blockEntityId;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;
     uniform float weatherPuddleStrength;
@@ -179,6 +184,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform float farPlane;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -395,11 +402,29 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
+    #ifdef DISTANT_HORIZONS
+        float dhDepth = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        float depthL = linearizeDepthFast(gl_FragCoord.z, near, farPlane);
+        if (depthL > dhDepthL && dhDepth < 1.0) {discard; return;}
+    #endif
+
     float porosity = 0.0;
 
     #ifdef PARALLAX_ENABLED
         // bool skipParallax = any(lessThan(vIn.atlasBounds[1], vec2(1.0)));
-        bool skipParallax = any(isnan(vIn.atlasBounds[1]));
+
+        bool a = any(
+            isnan(vIn.atlasBounds[0]) || isinf(vIn.atlasBounds[0]) ||
+            isnan(vIn.atlasBounds[1]) || isinf(vIn.atlasBounds[1])
+        );
+        
+        bool b = any(lessThan(vIn.atlasBounds[1], vec2(1.0e-8)))
+            || any(greaterThan(vIn.atlasBounds[1], vec2(1.0)));
+
+        bool skipParallax = a || b;
+
+        // bool skipParallax = any(greaterThan(vIn.atlasBounds[1], vec2(1.0)));
     #else
         const bool skipParallax = true;
     #endif
@@ -542,6 +567,11 @@ void main() {
     outDeferredTexNormal = texNormal * 0.5 + 0.5;
 
     // albedo.rgb = vec3(1.0, 0.0, 0.0);
+
+    #if defined LIGHTING_FULLBRIGHT_FIX && LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+        if (vIn.lmcoord.x > 0.999)
+            emission = 0.04;
+    #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

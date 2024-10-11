@@ -1,6 +1,6 @@
 // based on: https://www.shadertoy.com/view/MdXyzX
 
-#define DRAG_MULT 0.18 // [0.28]
+#define DRAG_MULT 0.09 // [0.28]
 
 const float WaterWaveSurfaceOffset = 0.8;
 

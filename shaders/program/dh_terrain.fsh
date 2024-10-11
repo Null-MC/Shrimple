@@ -14,6 +14,7 @@ in VertexData {
     flat uint materialId;
 } vIn;
 
+uniform sampler2D depthtex0;
 uniform sampler2D noisetex;
 
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
@@ -31,8 +32,11 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform vec3 upPosition;
 
-uniform float dhFarPlane;
+uniform float near;
 uniform float far;
+uniform float farPlane;
+uniform float dhNearPlane;
+uniform float dhFarPlane;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -50,6 +54,7 @@ uniform int frameCounter;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
@@ -244,11 +249,11 @@ uniform int frameCounter;
         #include "/lib/lighting/vanilla.glsl"
     #endif
 
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
-
     // #include "/lib/lighting/basic_hand.glsl"
+#endif
+
+#ifdef LIGHTING_DEBUG_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 
@@ -287,11 +292,49 @@ uniform int frameCounter;
 
 void main() {
     float viewDist = length(vIn.localPos);
-    if (viewDist < dh_clipDistF * far) {
-        discard;
-        return;
-    }
+
+    // #ifndef DH_TRANSITION
+        if (viewDist < dh_clipDistF * far) {
+            discard;
+            return;
+        }
+    // #endif
+
+    // float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    // float depthL = linearizeDepthFast(depth, near, farPlane);
+    // float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+    // if (depthL < depthDhL && depth < 1.0) {discard; return;}
     
+    // #ifndef DH_TRANSITION
+    //     float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    //     if (depth < 1.0) {discard; return;}
+    // #endif
+
+    // #ifdef DH_TRANSITION
+    //     #ifdef EFFECT_TAA_ENABLED
+    //         float ditherOut = InterleavedGradientNoiseTime();
+    //     #else
+    //         float ditherOut = GetScreenBayerValue();
+    //     #endif
+
+
+    //     float dh_fadeStartF = 1.0 - 2.0 * (1.0 - dh_clipDistF);
+    //     float ditherFadeF = smoothstep(dh_fadeStartF * far, dh_clipDistF * far, viewDist);
+    //     // float opacity = step(ditherFadeF, ditherOut);
+
+
+
+    //     // float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+    //     // float depthL = linearizeDepthFast(depth, near, farPlane);
+    //     // float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
+    //     // if (depthDhL < depthL || depth == 1.0) {
+    //         if (ditherOut > ditherFadeF) {
+    //             discard;
+    //             return;
+    //         }
+    //     // }
+    // #endif
+
     vec2 lmFinal = vIn.lmcoord;
     
     vec3 localNormal = normalize(vIn.localNormal);
@@ -338,7 +381,7 @@ void main() {
     
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
-    #elif defined DEBUG_LIGHT_LEVELS
+    #elif defined LIGHTING_DEBUG_LEVELS
         albedo = GetLightLevelColor(vIn.lmcoord.x);
     #endif
 

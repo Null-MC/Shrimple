@@ -31,7 +31,7 @@
 
 #define LIGHT_COLOR_GLOWSTONE vec3(0.747, 0.594, 0.326) // [0]
 
-#define LIGHT_COLOR_GLOW_LICHEN vec3(0.092, 0.217, 0.126) // [0]
+#define LIGHT_COLOR_GLOW_LICHEN vec3(0.569, 0.871, 0.722) // [0]
 
 #define LIGHT_COLOR_JACK_O_LANTERN vec3(0.768, 0.701, 0.325) // [0]
 

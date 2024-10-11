@@ -11,12 +11,18 @@ const ivec3 workGroups = ivec3(8, 4, 1);
 
 layout(rgba16f) uniform writeonly image2D imgSky;
 
+#ifdef VOLUMETRIC_NOISE_ENABLED
+    uniform sampler3D TEX_CLOUDS;
+#endif
+
 uniform float far;
 uniform vec3 cameraPosition;
+uniform float frameTimeCounter;
 uniform float rainStrength;
 uniform float weatherStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
+uniform float sunAngle;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -42,6 +48,7 @@ uniform int fogShape;
 #include "/lib/lighting/hg.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/sky.glsl"
 
 #include "/lib/fog/fog_common.glsl"
@@ -54,6 +61,11 @@ uniform int fogShape;
 
 #if SKY_VOL_FOG_TYPE > 0
     #include "/lib/lighting/scatter_transmit.glsl"
+
+    #if WORLD_CURVE_RADIUS > 0
+        #include "/lib/world/curvature.glsl"
+    #endif
+
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
@@ -94,19 +106,19 @@ vec3 SampleSkyColor(const in vec3 localDir) {
 
     skyColor *= Sky_BrightnessF;
 
-    #if SKY_VOL_FOG_TYPE > 0
-        float _far = far;
-        #ifdef DISTANT_HORIZONS
-            _far = dhFarPlane;
-        #endif
+    // #if SKY_VOL_FOG_TYPE > 0
+    //     float _far = far;
+    //     #ifdef DISTANT_HORIZONS
+    //         _far = dhFarPlane;
+    //     #endif
         
-        // ApplyVL(skyColor, localDir, _far, SkyFar);
+    //     // ApplyVL(skyColor, localDir, _far, SkyFar);
 
-        vec3 scatterFinal = vec3(0.0);
-        vec3 transmitFinal = vec3(1.0);
-        TraceSky(scatterFinal, transmitFinal, cameraPosition, localDir, _far, SkyFar, 16);
-        skyColor = skyColor * transmitFinal + scatterFinal;
-    #endif
+    //     vec3 scatterFinal = vec3(0.0);
+    //     vec3 transmitFinal = vec3(1.0);
+    //     TraceSky(scatterFinal, transmitFinal, cameraPosition, localDir, _far, SkyFar, 16);
+    //     skyColor = skyColor * transmitFinal + scatterFinal;
+    // #endif
 
     return skyColor;
 }

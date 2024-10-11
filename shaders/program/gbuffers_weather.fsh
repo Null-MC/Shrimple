@@ -47,12 +47,14 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
     uniform sampler2D shadowcolor0;
@@ -100,6 +102,7 @@ uniform int heldBlockLightValue2;
 
 uniform float blindnessSmooth;
 
+uniform float sunAngle;
 uniform vec3 sunPosition;
 uniform vec3 shadowLightPosition;
 uniform float rainStrength;
@@ -125,11 +128,11 @@ uniform float weatherStrength;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
+uniform vec3 playerBodyVector;
+uniform vec3 eyePosition;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -180,6 +183,7 @@ uniform float weatherStrength;
 #include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
+#include "/lib/world/atmosphere_trace.glsl"
 #include "/lib/world/common.glsl"
 #include "/lib/world/sky.glsl"
 
@@ -405,6 +409,8 @@ void main() {
     //     GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, normal, normal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
     // #endif
 
+    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phase = DHG(VoL, -0.35, 0.65, 0.3);
@@ -413,10 +419,9 @@ void main() {
         //     phase *= cloudShadow;
         // #endif
 
-        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
         vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeBrightF;
+        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeSkyLightF;
         vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
         diffuseFinal += skyLight;
     #endif
@@ -444,8 +449,9 @@ void main() {
         float maxDist = min(viewDist, far);
         // TODO: limit to < cloudNear
 
+        float airDensityF = GetAirDensity(eyeSkyLightF);
         vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
     #endif
 
     // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED

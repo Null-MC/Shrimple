@@ -39,14 +39,16 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && (VOLUMETRIC_BRIGHT_SKY > 0 || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
-#elif defined IS_WORLD_SMOKE_ENABLED && defined VL_BUFFER_ENABLED
-    uniform sampler3D TEX_CLOUDS;
+// #elif defined IS_WORLD_SMOKE_ENABLED && defined VL_BUFFER_ENABLED
+//     uniform sampler3D TEX_CLOUDS;
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;
@@ -80,6 +82,7 @@ uniform vec3 shadowLightPosition;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float weatherStrength;
@@ -164,6 +167,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/fog/fog_common.glsl"
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
+    #include "/lib/world/atmosphere_trace.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED

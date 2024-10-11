@@ -42,6 +42,10 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
         vec2 cloudOffset = GetCloudOffset();
         //vec3 camOffset = GetCloudCameraOffset();
 
+        #ifdef SKY_CAVE_FOG_ENABLED
+            float caveFogF = GetCaveFogF();
+        #endif
+
         for (uint i = 0; i <= stepCount; i++) {
             float stepDither = dither;// * step(i, stepCount-1);
             vec3 traceLocalPos = traceStep * (i + stepDither) + traceStart;
@@ -70,7 +74,8 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
             // float fogDist = GetShapedFogDistance(traceLocalPos);
             // sampleCloudF *= 1.0 - GetFogFactor(fogDist, 0.5 * SkyFar, SkyFar, 1.0);
 
-            float airDensity = GetSkyDensity(traceAltitude);
+            // float airDensity = GetSkyDensity(traceAltitude);
+            float airDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
             float stepDensity = mix(airDensity, CloudDensityF, sampleCloudF);
             float stepAmbientF = mix(AirAmbientF, CloudAmbientF, sampleCloudF);
@@ -111,6 +116,10 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
         vec3 traceStep = localViewDir * stepLength;
         vec3 traceStart = localViewDir * distMin;
 
+        #ifdef SKY_CAVE_FOG_ENABLED
+            float caveFogF = GetCaveFogF();
+        #endif
+
         for (uint i = 0; i < stepCount; i++) {
             float stepDither = dither;// * step(i, stepCount-1);
             vec3 traceLocalPos = traceStep * (i + stepDither) + traceStart;
@@ -126,7 +135,8 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
 
             float sampleCloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, shadowStepCount);
 
-            float airDensity = GetSkyDensity(traceAltitude);
+            // float airDensity = GetSkyDensity(traceAltitude);
+            float airDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
             float traceStepLen = stepLength;
             // if (i == stepCount) traceStepLen *= (1.0 - dither);

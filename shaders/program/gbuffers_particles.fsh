@@ -38,6 +38,10 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
     uniform sampler2D lightmap;
 #endif
@@ -67,9 +71,9 @@ uniform sampler2D noisetex;
 
 #ifdef WORLD_SKY_ENABLED
     //#ifdef SHADOW_CLOUD_ENABLED
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     uniform sampler3D TEX_CLOUDS;
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     //#endif
@@ -77,9 +81,11 @@ uniform sampler2D noisetex;
     #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined IS_IRIS
         uniform sampler3D texCaustics;
     #endif
-#elif defined VL_BUFFER_ENABLED
-    uniform sampler3D TEX_CLOUDS;
+// #elif defined VL_BUFFER_ENABLED
+//     uniform sampler3D TEX_CLOUDS;
 #endif
+
+uniform sampler3D TEX_CLOUDS;
 
 #if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
     uniform sampler2D shadowtex0;
@@ -131,6 +137,7 @@ uniform int fogMode;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 skyColor;
     uniform float rainStrength;
     uniform float weatherStrength;
@@ -168,6 +175,8 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform float farPlane;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -244,6 +253,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
+    #include "/lib/world/atmosphere_trace.glsl"
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -419,6 +429,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 void main() {
     mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+    float viewDist = length(vIn.localPos);
 
     vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
 
@@ -428,12 +439,18 @@ void main() {
         float alphaThreshold = alphaTestRef;
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        float dhDepth = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        float depthL = linearizeDepthFast(gl_FragCoord.z, near, farPlane);
+        if (depthL > dhDepthL && dhDepth < 1.0) {discard; return;}
+    #endif
+
     if (color.a < alphaThreshold) {
         discard;
         return;
     }
     
-    float viewDist = length(vIn.localPos);
     vec3 localViewDir = vIn.localPos / viewDist;
     
     #ifdef MATERIAL_PARTICLES
@@ -577,8 +594,10 @@ void main() {
 
                 // TODO: apply water VL when in water
 
+                float skyLightF = eyeBrightnessSmooth.y / 240.0;
+                float airDensityF = GetAirDensity(skyLightF);
                 vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-                ApplyScatteringTransmission(color.rgb, maxDist, vlLight, AirDensityF, AirScatterColor, AirExtinctColor, 8);
+                ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
 
                 // TODO: removed this during refactor but might want to keep
                 //color.a *= scatterTransmit.a;

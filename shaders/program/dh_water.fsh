@@ -51,12 +51,16 @@ uniform sampler2D noisetex;
     // #endif
 
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     uniform sampler3D TEX_CLOUDS;
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
+#endif
+
+#ifndef DEFERRED_BUFFER_ENABLED
+    uniform sampler3D TEX_CLOUDS;
 #endif
 
 #if (defined WORLD_SHADOW_ENABLED && defined SHADOW_COLORED) || LIGHTING_MODE > LIGHTING_MODE_BASIC
@@ -98,26 +102,30 @@ uniform float near;
 uniform float far;
 uniform float farPlane;
 
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform int fogShape;
-uniform int fogMode;
+#ifndef DEFERRED_BUFFER_ENABLED
+    uniform vec3 fogColor;
+    uniform float fogDensity;
+    uniform float fogStart;
+    uniform float fogEnd;
+    uniform int fogShape;
+    uniform int fogMode;
+#endif
 
 uniform float blindnessSmooth;
 uniform ivec2 eyeBrightnessSmooth;
 
-#ifdef IS_LPV_ENABLED
-    // uniform vec3 previousCameraPosition;
-    uniform mat4 gbufferPreviousModelView;
-#endif
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef IS_LPV_ENABLED
+        // uniform vec3 previousCameraPosition;
+        uniform mat4 gbufferPreviousModelView;
+    #endif
 
-#if MATERIAL_REFLECTIONS == REFLECT_SCREEN
-    uniform mat4 gbufferProjection;
-    uniform mat4 gbufferProjectionInverse;
-    uniform float aspectRatio;
-    uniform vec2 pixelSize;
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+        uniform mat4 gbufferProjection;
+        uniform mat4 gbufferProjectionInverse;
+        uniform float aspectRatio;
+        uniform vec2 pixelSize;
+    #endif
 #endif
 
 #ifdef WORLD_SKY_ENABLED
@@ -186,12 +194,18 @@ uniform float dhFarPlane;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
-#include "/lib/lighting/scatter_transmit.glsl"
-#include "/lib/lighting/hg.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/lighting/scatter_transmit.glsl"
+    #include "/lib/lighting/hg.glsl"
 
-#include "/lib/world/atmosphere.glsl"
+    #include "/lib/world/atmosphere.glsl"
+#endif
+
 #include "/lib/world/common.glsl"
-#include "/lib/fog/fog_common.glsl"
+
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/fog/fog_common.glsl"
+#endif
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
@@ -207,45 +221,48 @@ uniform float dhFarPlane;
     #include "/lib/world/water.glsl"
 #endif
 
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-    
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/fog/fog_water_custom.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+        
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
     #endif
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
 
-#include "/lib/fog/fog_render.glsl"
+    #include "/lib/fog/fog_render.glsl"
 
-#ifdef WORLD_SKY_ENABLED
-    #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_vanilla.glsl"
+    #ifdef WORLD_SKY_ENABLED
+        #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_custom.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
         #endif
     #endif
-#endif
 
-#ifdef WORLD_SHADOW_ENABLED
-    #include "/lib/buffers/shadow.glsl"
-#endif
-
-#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
+    #ifdef WORLD_SHADOW_ENABLED
+        #include "/lib/buffers/shadow.glsl"
     #endif
-    
-    #include "/lib/shadows/render.glsl"
+
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
+        #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
+        #endif
+        
+        #include "/lib/shadows/render.glsl"
+    #endif
+
+    #include "/lib/lights.glsl"
 #endif
 
-#include "/lib/lights.glsl"
 #include "/lib/lighting/fresnel.glsl"
 
 #if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
@@ -319,10 +336,10 @@ uniform float dhFarPlane;
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/fog/fog_volume.glsl"
     #endif
+#endif
 
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#ifdef LIGHTING_DEBUG_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 
@@ -364,10 +381,11 @@ void main() {
 
         if (isWater && abs(localNormal.y) > 0.5) {
             #ifdef PHYSICS_OCEAN
-                float waviness = max(vIn.physics_localWaviness, 0.02);
+                float waviness = 1.0;//max(vIn.physics_localWaviness, 0.02);
                 WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;
+                discard; return;
             #elif WATER_WAVE_SIZE > 0
                 float waveDistF = 32.0 / (32.0 + viewDist);
 
@@ -388,10 +406,10 @@ void main() {
     float depthDhL = linearizeDepthFast(gl_FragCoord.z, dhNearPlane, dhFarPlane);
     if (depthL < depthDhL && depth < 1.0) {discard; return;}
 
-    // if (viewDist < dh_clipDistF * far) {
-    //     discard;
-    //     return;
-    // }
+    if (viewDist < dh_clipDistF * far) {
+        discard;
+        return;
+    }
 
     #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
         if (isWater) {//&& (isEyeInWater != 1 || !gl_FrontFacing))
@@ -425,7 +443,7 @@ void main() {
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
-    #elif defined DEBUG_LIGHT_LEVELS
+    #elif defined LIGHTING_DEBUG_LEVELS
         if (!isWater) albedo = GetLightLevelColor(vIn.lmcoord.x);
     #endif
     

@@ -28,7 +28,9 @@ void main() {
         if (clamp(p, vec2(0.0), vec2(0.5)) != p) {discard; return;}
     #endif
 
-    if (vIn.cameraViewDist < dh_clipDistF * far) {discard; return;}
+    // #ifdef DH_TRANSITION_SHADOWS
+        if (vIn.cameraViewDist < dh_clipDistF * far) {discard; return;}
+    // #endif
 
     vec4 color = vIn.color;
     

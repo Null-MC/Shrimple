@@ -1,5 +1,5 @@
 const vec3 colorSkyDay     = _RGBToLinear(vec3(0.176, 0.369, 0.612)) * 0.7;
-const vec3 colorFogDay     = _RGBToLinear(vec3(0.541, 0.600, 0.651)) * 0.7;
+const vec3 colorFogDay     = _RGBToLinear(vec3(0.439, 0.529, 0.612)) * 0.7;
 
 const vec3 colorSkyNight   = _RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;
 const vec3 colorFogNight   = _RGBToLinear(vec3(0.276, 0.278, 0.288)) * 0.3;
@@ -29,10 +29,10 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
             fogColor = mix(fogColor, rainFogColor, weatherStrength);
         #endif
 
-        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-            vec3 rainSkyColor = mix(vec3(0.1), colorRainSkyDay, dayF);
-            skyColor = mix(skyColor, rainSkyColor, weatherStrength);
-        #endif
+        // #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+        //     vec3 rainSkyColor = mix(vec3(0.1), colorRainSkyDay, dayF);
+        //     skyColor = mix(skyColor, rainSkyColor, weatherStrength);
+        // #endif
 
         #if SKY_VOL_FOG_TYPE == VOL_TYPE_NONE || SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             return GetSkyFogColor(skyColor, fogColor, viewUpF);
@@ -72,7 +72,13 @@ float GetCustomFogFactor(const in float fogDist) {
     #endif
 
     #ifdef WORLD_SKY_ENABLED
-        return GetFogFactor(fogDist, 0.85 * fogFar, fogFar, 1.0);
+        #ifdef DISTANT_HORIZONS
+            const float startF = 0.60;
+        #else
+            const float startF = 0.85;
+        #endif
+
+        return GetFogFactor(fogDist, startF * fogFar, fogFar, 1.0);
     #else
         return GetFogFactor(fogDist, 0.0, fogFar, 1.0);
     #endif

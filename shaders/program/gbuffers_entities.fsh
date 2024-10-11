@@ -117,6 +117,7 @@ uniform ivec2 atlasSize;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;
 #endif
@@ -423,7 +424,7 @@ void main() {
 
         // color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
-        #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+        #if defined DISTANT_HORIZONS && defined DH_TRANSITION_ENTITIES
             float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
             float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
 
@@ -445,7 +446,7 @@ void main() {
         const float alphaThreshold = 0.1;
     #endif
 
-    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION_ENTITIES
         #ifdef EFFECT_TAA_ENABLED
             float ditherOut = InterleavedGradientNoiseTime();
         #else
@@ -599,6 +600,8 @@ void main() {
     //#if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
     //#endif
+
+    // color.rgb = vec3(1.0, 0.0, 0.0);
 
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;

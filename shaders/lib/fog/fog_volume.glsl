@@ -6,6 +6,7 @@ float GetWaterPhase(const in float VoL) {return DHG(VoL, -0.12, 0.68, 0.24);}
 void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
+    vec3 localRay = localEnd - localStart;
 
     float localRayLength = max(farDist - nearDist, 0.0);
     if (localRayLength < EPSILON) return;
@@ -77,13 +78,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         //     skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
         // #endif
 
-        vec3 skyColorFinal = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
-        //skyColorFinal += vlSkyMinLight;
+        vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
+        //skyColorAmbient += vlSkyMinLight;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
         #else
-            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
+            float weatherF = 1.0;// - 0.8 * _pow2(weatherStrength);
         #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
@@ -107,16 +108,22 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
         #endif
+
+        float phaseSky = GetSkyPhase(VoL);
     #else
         float time = GetAnimationFactor();
     #endif
 
-    #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
-        uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
-        uint uvIndex = uint(uv.y * viewWidth + uv.x);
+    #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        float phaseWater = GetWaterPhase(VoL);
 
-        float waterDepth[WATER_DEPTH_LAYERS+1];
-        GetAllWaterDepths(uvIndex, waterDepth);
+        #if WATER_DEPTH_LAYERS > 1
+            uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
+            uint uvIndex = uint(uv.y * viewWidth + uv.x);
+
+            float waterDepth[WATER_DEPTH_LAYERS+1];
+            GetAllWaterDepths(uvIndex, waterDepth);
+        #endif
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
@@ -133,11 +140,32 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float shadowDistFar = min(shadowDistance, far);
     #endif
 
-    for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
-        float stepDither = dither;// * step(i, VOLUMETRIC_SAMPLES-1);
+    #ifdef SKY_CAVE_FOG_ENABLED
+        float caveFogF = GetCaveFogF();
+    #endif
 
-        float iStep = i + stepDither;// * step(1, i);
-        vec3 traceLocalPos = localStep * iStep + localStart;
+    #define VL_STEP_POWER 200
+    float stepDistLastF = 0.0;
+
+    for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
+        //float stepDither = dither;// * step(i, VOLUMETRIC_SAMPLES-1);
+
+        #if VL_STEP_POWER != 100
+            const float VL_StepPower = VL_STEP_POWER * 0.01;
+            float stepDistF = (i+1.0) / VOLUMETRIC_SAMPLES;
+            stepDistF = pow(stepDistF, VL_StepPower);
+
+            float stepDistDiff = stepDistF - stepDistLastF;
+            float stepDistDither = stepDistDiff * dither + stepDistLastF;
+            stepDistLastF = stepDistF;
+
+            vec3 traceLocalPos = stepDistDither * localRay + localStart;
+            float stepLength = stepDistDiff * localRayLength;
+        #else
+            float iStep = i + dither;// * step(1, i);
+            vec3 traceLocalPos = localStep * iStep + localStart;
+        #endif
+
         vec3 traceWorldPos = traceLocalPos + cameraPosition;
         float traceDist = length(traceLocalPos);
 
@@ -157,8 +185,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float lpvFade = GetLpvFade(lpvPos);
         #endif
 
+        float samplePhase = phaseIso;
+
         #ifdef WORLD_SKY_ENABLED
-            #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && WATER_DEPTH_LAYERS > 1
+            samplePhase = phaseSky;
+        #endif
+
+        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            #if WATER_DEPTH_LAYERS > 1
                 isWater = false;
                 
                 if (waterDepth[0] < farDist) {
@@ -179,12 +213,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #endif
             #endif
 
-            float samplePhase = isWater ? GetWaterPhase(VoL) : GetSkyPhase(VoL);
-        #else
-            float samplePhase = phaseIso;
+            // if (isWater) samplePhase = GetWaterPhase(VoL);
         #endif
 
-        float sampleDensity = AirDensityF;
+        float sampleDensity = 0.0;
         vec3 sampleScattering = AirScatterColor;
         vec3 sampleExtinction = AirExtinctColor;
         vec3 sampleAmbient = vec3(AirAmbientF);
@@ -195,14 +227,15 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 sampleExtinction = WaterAbsorbF;
                 sampleScattering = WaterScatterF;
                 sampleAmbient = vec3(WaterAmbientF);
+                samplePhase = phaseWater;
             }
         #endif
 
-        vec3 sampleLit = vec3(0.0);
+        // vec3 sampleLit = vec3(0.0);
 
         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
             if (!isWater) {
-                sampleDensity = GetSkyDensity(traceAltitude);
+                sampleDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     // if (weatherStrength > EPSILON) {
@@ -247,7 +280,6 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #endif
         #endif
 
-        float sampleF = 1.0;
         float sampleDepth = 0.0;
 
         #ifdef WORLD_SKY_ENABLED
@@ -256,8 +288,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             vec3 sampleColor = vec3(1.0);
         #endif
 
-        #ifdef RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
-            vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+        #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED //&& SHADOW_TYPE != SHADOW_TYPE_NONE //&& VOLUMETRIC_BRIGHT_SKY > 0
+            float sampleF = eyeBrightF;
+
+            #if VL_STEP_POWER != 100
+                vec3 shadowViewPos = mul3(shadowModelViewEx, traceLocalPos);
+            #else
+                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+            #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 vec3 shadowPos = vec3(-1.0);
@@ -269,7 +307,16 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 if (cascade >= 0) {
                     float shadowSampleBias = GetShadowOffsetBias(cascade);
 
-                    shadowPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
+                    #if VL_STEP_POWER != 100
+                        // shadowPos = (shadowViewPos * shadowClipStart[cascade]).xyz;
+
+
+                        shadowPos = mul3(cascadeProjection[cascade], shadowViewPos) * 0.5 + 0.5;
+                        shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
+                    #else
+                        shadowPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
+                    #endif
+
                     //sampleF = CompareDepth(shadowPos, vec2(0.0), shadowSampleBias);
                     float texDepth = texture(shadowtex1, shadowPos.xy).r;
                     sampleF = step(shadowPos.z - shadowSampleBias, texDepth);
@@ -280,7 +327,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     shadowFade = 0.0;
                 }
             #else
-                vec3 shadowNdcPos = shadowClipStep * iStep + shadowClipStart;
+                #if VL_STEP_POWER != 100
+                    vec3 shadowNdcPos = mul3(shadowProjectionEx, shadowViewPos);
+                #else
+                    vec3 shadowNdcPos = shadowClipStep * iStep + shadowClipStart;
+                #endif
+
                 shadowNdcPos = distort(shadowNdcPos);
 
                 float shadowViewDist = length(shadowViewPos.xy);
@@ -294,12 +346,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 if (shadowFade < 1.0) {
                     const float geoNoL = 1.0; // WARN: useless without geoNoL?
-                    float shadowSampleBias = GetShadowOffsetBias(shadowNdcPos, geoNoL);
+                    float shadowSampleBias = 0.0;//GetShadowOffsetBias(shadowNdcPos, geoNoL);
                     // float shadowSampleBias = 0.2 / -shadowDepthRange;
                     //sampleF = CompareDepth(shadowNdcPos, vec2(0.0), shadowSampleBias);
 
                     float texDepth = texture(shadowtex1, shadowPos.xy).r;
-                    sampleF = step(shadowPos.z - shadowSampleBias, texDepth);
+                    sampleF = step(shadowPos.z + shadowSampleBias, texDepth);
 
                     texDepth = texture(shadowtex0, shadowPos.xy).r;
                     sampleDepth = max(shadowPos.z - texDepth, 0.0) * shadowDepthRange;
@@ -322,6 +374,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleColor *= shadowColor;
                 }
             #endif
+        #else
+            float sampleF = 0.0;
         #endif
 
         #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY && !defined RENDER_WEATHER
@@ -354,12 +408,17 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             sampleF *= cloudShadow * 0.5 + 0.5;
         #endif
 
-        sampleLit += samplePhase * sampleF * sampleColor;
+        vec3 sampleLit = samplePhase * sampleF * sampleColor;
 
         #if defined WORLD_SKY_ENABLED && defined RENDER_COMPOSITE //&& VOLUMETRIC_BRIGHT_SKY > 0
+            #if VOLUMETRIC_FAKE_SHADOW > 0
+                // if (gl_FragCoord.x > 0.5*(viewWidth/exp2(VOLUMETRIC_RES)))
+                    sampleLit *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
+            #endif
+
             if (lightningStrength > EPSILON) {
                 vec4 lightningDirectionStrength = GetLightningDirectionStrength(traceLocalPos);
-                sampleLit += 0.4 * phaseIso * lightningDirectionStrength.w;
+                sampleLit += 0.4 * samplePhase * lightningDirectionStrength.w;
 
                 // TODO: use phase function?
             }
@@ -373,7 +432,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 uint lightCount = GetVoxelLights(traceLocalPos, gridIndex);
 
                 if (gridIndex != DYN_LIGHT_GRID_MAX) {
-                    for (uint l = 0; l < min(lightCount, 8); l++) {
+                    #if LIGHTING_TRACE_SAMPLE_MAX > 0
+                        const int maxSampleCount = min(LIGHTING_TRACE_SAMPLE_MAX, 128);
+                    #else
+                        const int maxSampleCount = 128;
+                    #endif
+
+                    for (uint l = 0; l < min(lightCount, maxSampleCount); l++) {
                         uvec4 lightData = GetVoxelLight(gridIndex, l);
 
                         vec3 lightPos, lightColor;
@@ -401,24 +466,30 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         #endif
 
                         float lightVoL = dot(normalize(-lightVec), localViewDir);
-                        //float lightPhase = DHG(lightVoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
+                        float lightPhase = phaseIso;// DHG(lightVoL, phaseF.Back, phaseF.Forward, phaseF.Direction);
 
-                        float lightAtt = GetLightAttenuation(lightVec, lightRange);
-                        blockLightAccum += lightAtt * lightColor * samplePhase;
+                        float lightAtt = GetLightAttenuation(lightVec, lightRange).y;
+                        blockLightAccum += lightAtt * lightColor * lightPhase;
                     }
 
-                    blockLightAccum *= 32.0 * Lighting_Brightness;
+                    blockLightAccum *= 15.0 * Lighting_Brightness;
                 }
             #elif defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-                vec3 lpvLight = GetLpvBlockLight(lpvSample);
-                blockLightAccum += phaseIso * lpvLight * lpvFade;
+                vec3 lpvLight = GetLpvFogBlockLight(lpvSample);
+
+                #if VOLUMETRIC_FAKE_SHADOW > 0
+                    // if (gl_FragCoord.x > 0.5*(viewWidth/exp2(VOLUMETRIC_RES)))
+                        lpvLight *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
+                #endif
+
+                blockLightAccum += 3.0 * phaseIso * lpvFade * lpvLight;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * Lighting_Brightness;
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyColorFinal;
+            sampleAmbient *= skyColorAmbient;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;

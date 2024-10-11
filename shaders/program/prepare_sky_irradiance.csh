@@ -26,18 +26,30 @@ vec3 CalculateIrradiance(const in vec3 normal) {
     float nrSamples = 0.0;
     vec3 irradiance = vec3(0.0);  
     for (float phi = 0.0; phi < TAU; phi += sampleDelta) {
+        float cos_phi = cos(phi);
+        float sin_phi = sin(phi);
+
         for (float theta = 0.0; theta < 0.5*PI; theta += sampleDelta) {
             // spherical to cartesian (in tangent space)
-            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+            float cos_theta = cos(theta);
+            float sin_theta = sin(theta);
+
+            vec3 tangentSample = vec3(
+                sin_theta * cos_phi,
+                sin_theta * sin_phi,
+                cos_theta);
 
             // tangent space to world
-            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal; 
-            sampleVec = normalize(sampleVec);
+            vec3 sampleVec =
+                tangentSample.x * right +
+                tangentSample.y * up +
+                tangentSample.z * normal;
 
+            sampleVec = normalize(sampleVec);
             vec2 uv = DirectionToUV(sampleVec);
             vec3 skyColor = textureLod(texSky, uv, 0).rgb;
 
-            irradiance += skyColor * cos(theta) * sin(theta);
+            irradiance += skyColor * (cos_theta * sin_theta);
             nrSamples++;
         }
     }

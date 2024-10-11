@@ -26,8 +26,15 @@ float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
 
 vec3 distort(const in vec3 pos) {
     #if SHADOW_DISTORT_FACTOR > 0
-        float factor = length(pos.xy) + Shadow_DistortF;
-        // return vec3((pos.xy / factor) * (1.0 + Shadow_DistortF), pos.z);
+        #ifdef DISTANT_HORIZONS
+            // TODO: use cubic distortion when DH
+            // TODO: any way to test for sun angle zero?
+            vec2 factor = abs(pos.xy) * (1.0 - Shadow_DistortF) + Shadow_DistortF;
+        #else
+            float factor = length(pos.xy) + Shadow_DistortF;
+            // return vec3((pos.xy / factor) * (1.0 + Shadow_DistortF), pos.z);
+        #endif
+
         return vec3(pos.xy / factor, pos.z);
     #else
         return pos;

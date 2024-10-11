@@ -54,6 +54,10 @@ uniform sampler2D noisetex;
     uniform sampler2D lightmap;
 #endif
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex;
+#endif
+
 #ifdef WORLD_SKY_ENABLED
     uniform sampler3D texClouds;
 
@@ -143,6 +147,7 @@ uniform int frameCounter;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
@@ -195,6 +200,9 @@ uniform int frameCounter;
 // #endif
 
 #ifdef DISTANT_HORIZONS
+    uniform float near;
+    uniform float farPlane;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -362,10 +370,10 @@ uniform int frameCounter;
     #endif
 
     #include "/lib/lighting/basic_hand.glsl"
+#endif
 
-    #ifdef DEBUG_LIGHT_LEVELS
-        #include "/lib/lighting/debug_levels.glsl"
-    #endif
+#ifdef LIGHTING_DEBUG_LEVELS
+    #include "/lib/lighting/debug_levels.glsl"
 #endif
 
 
@@ -411,6 +419,13 @@ void main() {
     
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
+
+    #ifdef DISTANT_HORIZONS
+        float dhDepth = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
+        float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
+        float depthL = linearizeDepthFast(gl_FragCoord.z, near, farPlane);
+        if (depthL > dhDepthL && dhDepth < 1.0) {discard; return;}
+    #endif
 
     bool skipParallax = false;
     if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
@@ -505,7 +520,7 @@ void main() {
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
-    #elif defined DEBUG_LIGHT_LEVELS
+    #elif defined LIGHTING_DEBUG_LEVELS
         albedo = GetLightLevelColor(vIn.lmcoord.x);
     #endif
 

@@ -2,7 +2,7 @@
 vec2 GetLightAttenuation(const in vec3 lightVec, const in float lightRange) {
     float lightDist = length(lightVec);
     float lightAtt = 1.0 - saturate(lightDist / lightRange);
-    return vec2(pow5(lightAtt), sqrt(lightAtt));
+    return vec2(pow5(lightAtt), _pow2(lightAtt));
 }
 
 // TODO: remove SSS

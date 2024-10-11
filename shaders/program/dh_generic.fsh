@@ -27,7 +27,7 @@ uniform sampler2D noisetex;
 
     // #ifdef SHADOW_CLOUD_ENABLED
     //     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //         uniform sampler3D TEX_CLOUDS;
+            uniform sampler3D TEX_CLOUDS;
     //     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
     //         uniform sampler2D TEX_CLOUDS_VANILLA;
     //     #endif
@@ -85,11 +85,13 @@ uniform int frameCounter;
 // #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform float sunAngle;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
 
     uniform float weatherStrength;
+    uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS

@@ -161,9 +161,9 @@ void main() {
 		if (texcoord.x < 0.5 && texcoord.y < 0.75)
 			color = texelFetch(texDepthNear, ivec2(gl_FragCoord.xy), 0).rrr;
 	#elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
-		vec3 color = 0.1*textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
+		vec3 color = textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
 		// color = color / (color + 1.0);
-		// color = LinearToRGB(color);
+		color = LinearToRGB(color);
 	#else
 		#ifdef EFFECT_FXAA_ENABLED
 			vec3 color = FXAA(texcoord);
