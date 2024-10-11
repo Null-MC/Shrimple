@@ -208,6 +208,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -273,8 +274,6 @@ uniform ivec2 eyeBrightnessSmooth;
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif
-
-    #include "/lib/lighting/fresnel.glsl"
 
     #ifdef IS_LPV_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"

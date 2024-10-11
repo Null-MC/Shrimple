@@ -161,6 +161,7 @@ uniform float cloudTime;
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/atmosphere_trace.glsl"
@@ -238,7 +239,6 @@ uniform float cloudTime;
         #include "/lib/lighting/voxel/items.glsl"
     #endif
 
-    #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
 
     // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED

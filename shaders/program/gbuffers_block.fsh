@@ -225,6 +225,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -329,7 +330,6 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/material/specular.glsl"
 
 #ifndef DEFERRED_BUFFER_ENABLED
-    #include "/lib/lighting/fresnel.glsl"
     #include "/lib/lighting/sampling.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
 

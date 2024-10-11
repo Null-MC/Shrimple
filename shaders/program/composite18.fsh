@@ -208,6 +208,7 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/atmosphere.glsl"
@@ -262,7 +263,6 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #ifdef WORLD_SKY_ENABLED
@@ -602,12 +602,16 @@ layout(location = 0) out vec4 outFinal;
 
             diffuseFinal *= deferredColor.a;
 
-            vec3 f0 = GetMaterialF0(albedo, metal_f0);
-            if (isWater) f0 = vec3(0.02);
+            if (isWater) metal_f0 = 0.02;
+            // vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
             float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
-            vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
-            deferredColor.a = clamp(deferredColor.a, maxOf(skyF) * MaterialReflectionStrength, 1.0);
+
+            // vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
+            vec3 skyF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
+            skyF *= MaterialReflectionStrength;// * (1.0 - roughL);
+
+            deferredColor.a = clamp(deferredColor.a, maxOf(skyF), 1.0);
             //albedo *= 1.0 - skyF;
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED

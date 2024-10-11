@@ -33,9 +33,9 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
     bool hasGeoNormal = !all(lessThan(abs(fragLocalNormal), EPSILON3));
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
-    #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-        vec3 f0 = GetMaterialF0(albedo, metal_f0);
-    #endif
+    // #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
+    //     vec3 f0 = GetMaterialF0(albedo, metal_f0);
+    // #endif
 
     float lightNoVm = 1.0;
     if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), 0.0);
@@ -109,9 +109,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                    //float invCosTheta = 1.0 - lightVoHm;
-                    //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    F = F_schlickRough(lightLoHm, f0, roughL);
+                    // F = F_schlickRough(lightLoHm, f0, roughL);
+                    F = GetMaterialFresnel(albedo, metal_f0, roughL, lightLoHm, false);
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
@@ -186,9 +185,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                    //float invCosTheta = 1.0 - lightVoHm;
-                    //F = f0 + (max(1.0 - roughL, f0) - f0) * pow5(invCosTheta);
-                    F = F_schlickRough(lightLoHm, f0, roughL);
+                    // F = F_schlickRough(lightLoHm, f0, roughL);
+                    F = GetMaterialFresnel(albedo, metal_f0, roughL, lightLoHm, false);
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;

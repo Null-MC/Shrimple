@@ -146,6 +146,7 @@ in vec2 texcoord;
 
     #include "/lib/lighting/hg.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"
+    #include "/lib/lighting/fresnel.glsl"
 
     #include "/lib/world/common.glsl"
     #include "/lib/world/atmosphere.glsl"
@@ -216,7 +217,6 @@ in vec2 texcoord;
 
         #include "/lib/utility/depth_tiles.glsl"
         #include "/lib/effects/ssr.glsl"
-        #include "/lib/lighting/fresnel.glsl"
         #include "/lib/lighting/reflections.glsl"
     #endif
 
@@ -326,7 +326,7 @@ layout(location = 0) out vec4 outFinal;
             }
 
             vec3 albedo = RGBToLinear(deferredColor.rgb);
-            vec3 f0 = GetMaterialF0(albedo, metal_f0);
+            // vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
             // TODO: use underwater f0?
             
@@ -345,7 +345,10 @@ layout(location = 0) out vec4 outFinal;
                 skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
             #endif
 
-            vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+            // vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
+            vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
+            skyReflectF *= MaterialReflectionStrength * (1.0 - roughL);
+
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
             vec3 specular = ApplyReflections(localPosOpaque, viewPosOpaque, texViewNormal, skyLightF, roughness) * skyReflectF;
 

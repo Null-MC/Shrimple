@@ -238,6 +238,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/scatter_transmit.glsl"
 #include "/lib/lighting/hg.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -325,7 +326,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/lighting/voxel/items.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #ifndef IS_RENDER_DEFERRED

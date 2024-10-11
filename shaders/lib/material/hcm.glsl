@@ -80,41 +80,61 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
     }
 #else
     const vec3 ior_n_iron = vec3(2.9114, 2.9497, 2.5845);
-    //const vec3 ior_k_iron = vec3(3.4040, 3.1710, 2.8060);
+    const vec3 ior_k_iron = vec3(3.4040, 3.1710, 2.8060);
 
     const vec3 ior_n_gold = vec3(0.18299, 0.42108, 1.3734);
-    //const vec3 ior_k_gold = vec3(3.6123, 2.3459, 1.8135);
+    const vec3 ior_k_gold = vec3(3.6123, 2.3459, 1.8135);
 
     const vec3 ior_n_aluminum = vec3(1.3456, 0.96521, 0.61722);
-    //const vec3 ior_k_aluminum = vec3(7.6635, 6.4581, 5.0699);
+    const vec3 ior_k_aluminum = vec3(7.6635, 6.4581, 5.0699);
 
     const vec3 ior_n_chrome = vec3(3.1071, 3.1812, 2.3230);
-    //const vec3 ior_k_chrome = vec3(4.3511, 4.2311, 3.7505);
+    const vec3 ior_k_chrome = vec3(4.3511, 4.2311, 3.7505);
 
     const vec3 ior_n_copper = vec3(0.27105, 0.67693, 1.3164);
-    //const vec3 ior_k_copper = vec3(3.8090, 2.6248, 2.2981);
+    const vec3 ior_k_copper = vec3(3.8090, 2.6248, 2.2981);
 
     const vec3 ior_n_lead = vec3(1.9100, 1.8300, 1.4400);
-    //const vec3 ior_k_lead = vec3(4.1709, 4.1823, 4.1552);
+    const vec3 ior_k_lead = vec3(4.1709, 4.1823, 4.1552);
 
     const vec3 ior_n_platinum = vec3(2.3757, 2.0847, 1.8453);
-    //const vec3 ior_k_platinum = vec3(4.3677, 3.7153, 3.0211);
+    const vec3 ior_k_platinum = vec3(4.3677, 3.7153, 3.0211);
 
     const vec3 ior_n_silver = vec3(0.15943, 0.14512, 0.13547);
-    //const vec3 ior_k_silver = vec3(4.0728, 3.1900, 2.1997);
+    const vec3 ior_k_silver = vec3(4.0728, 3.1900, 2.1997);
 
 
     #define IOR_to_f0(ior) (pow(abs(((ior) - 1.0) / ((ior) + 1.0)), vec3(2.0)))
 
-    const vec3 hcm_f0[8] = vec3[](
-        IOR_to_f0(ior_n_iron),
-        IOR_to_f0(ior_n_gold),
-        IOR_to_f0(ior_n_aluminum),
-        IOR_to_f0(ior_n_chrome),
-        IOR_to_f0(ior_n_copper),
-        IOR_to_f0(ior_n_lead),
-        IOR_to_f0(ior_n_platinum),
-        IOR_to_f0(ior_n_silver));
+    const vec3 hcm_n[8] = vec3[](
+        ior_n_iron,
+        ior_n_gold,
+        ior_n_aluminum,
+        ior_n_chrome,
+        ior_n_copper,
+        ior_n_lead,
+        ior_n_platinum,
+        ior_n_silver);
+
+    const vec3 hcm_k[8] = vec3[](
+        ior_k_iron,
+        ior_k_gold,
+        ior_k_aluminum,
+        ior_k_chrome,
+        ior_k_copper,
+        ior_k_lead,
+        ior_k_platinum,
+        ior_k_silver);
+
+    // const vec3 hcm_f0[8] = vec3[](
+    //     IOR_to_f0(ior_n_iron),
+    //     IOR_to_f0(ior_n_gold),
+    //     IOR_to_f0(ior_n_aluminum),
+    //     IOR_to_f0(ior_n_chrome),
+    //     IOR_to_f0(ior_n_copper),
+    //     IOR_to_f0(ior_n_lead),
+    //     IOR_to_f0(ior_n_platinum),
+    //     IOR_to_f0(ior_n_silver));
 
 
     // void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
@@ -135,18 +155,20 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
     // }
 
     //vec3 GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
-    vec3 GetHCM_f0(const in vec3 albedo, const in int hcm) {
+    void GetHcmFresnel(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
+        //return vec3(1.0);
+
         if (hcm < 8) {
             // HCM conductor
-            //n = IOR_to_f0(ior_n[hcm]);
-            //k = IOR_to_f0(ior_k[hcm]);
-            return hcm_f0[hcm];
+            n = hcm_n[hcm];
+            k = hcm_k[hcm];
+            // return hcm_f0[hcm];
         }
         else {
             // albedo-only conductor
-            //n = albedo;
-            //k = 0.0;//albedo;
-            return pow(albedo, vec3(HCM_AlbedoGammaInv));
+            n = pow(albedo, vec3(HCM_AlbedoGammaInv));
+            k = vec3(0.0);//albedo;
+            // return pow(albedo, vec3(HCM_AlbedoGammaInv));
         }
     }
 #endif
@@ -172,6 +194,8 @@ bool IsMetal(const in float metal_f0) {
 // }
 
 vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
+    // return vec3(1.0);
+
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
 
         #ifndef MATERIAL_HCM_ALBEDO_TINT

@@ -184,6 +184,7 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/blackbody.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"
+#include "/lib/lighting/fresnel.glsl"
 
 #include "/lib/world/common.glsl"
 #include "/lib/world/atmosphere.glsl"
@@ -276,7 +277,6 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/voxel/items.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
