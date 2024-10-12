@@ -24,7 +24,7 @@ vec3 GetMaterialFresnel(const in vec3 albedo, const in float metal_f0, const in 
 
         return F_schlickRough(theta, f0, roughL);
     #else
-        float f0 = mix(vec3(0.04), albedo, metal_f0);
+        vec3 f0 = mix(vec3(0.04), albedo, metal_f0);
         return vec3(F_schlickRough(theta, f0, roughL));
     #endif
 }
