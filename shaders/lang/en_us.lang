@@ -822,6 +822,9 @@ suffix.POST_WHITE_POINT=%
 screen.DISTANT_HORIZONS_OPTIONS=Distant Horizons
 screen.DISTANT_HORIZONS_OPTIONS.comment=Options for supporting the Distant Horizons mod.
 
+option.DH_SHADOW_ENABLED=Shadows
+option.DH_SHADOW_ENABLED.comment=Enable DH terrain to cast shadow from the sun/moon.
+
 option.DH_TRANSITION=Transition Terrain
 option.DH_TRANSITION.comment=Allows a smooth/faded transition between vanilla and DH terrain.
 

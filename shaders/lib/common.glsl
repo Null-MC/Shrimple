@@ -1,4 +1,4 @@
-const float sunPathRotation = 0; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 5 10 15 20 25 30 35 40 45 50 55 60]
+const float sunPathRotation = 5; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 1 2 5 10 15 20 25 30 35 40 45 50 55 60]
 
 /*
 const int shadowcolor0Format = RGBA8;
@@ -351,6 +351,7 @@ const bool colortex15Clear = true;
 
 
 // Distant Horizons
+#define DH_SHADOW_ENABLED
 #define DH_TRANSITION
 #define DH_TRANSITION_ENTITIES
 #define DH_TRANSITION_SHADOWS
@@ -579,6 +580,8 @@ const bool colortex15Clear = true;
 #ifdef WATER_MULTIDEPTH_DEBUG
 #endif
 #ifdef ALPHATESTREF_ENABLED
+#endif
+#ifdef DH_SHADOW_ENABLED
 #endif
 #ifdef DH_TRANSITION
 #endif
