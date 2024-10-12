@@ -84,7 +84,10 @@ uniform float blindnessSmooth;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
+
 #include "/lib/world/common.glsl"
+
+#include "/lib/lighting/fresnel.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
@@ -106,7 +109,6 @@ uniform float blindnessSmooth;
 #include "/lib/lighting/voxel/tinting.glsl"
 #include "/lib/lighting/voxel/tracing.glsl"
 
-#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE

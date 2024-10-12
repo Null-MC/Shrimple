@@ -94,6 +94,8 @@ uniform vec3 playerBodyVector;
 
 #include "/lib/world/common.glsl"
 
+#include "/lib/lighting/fresnel.glsl"
+
 #if MATERIAL_SPECULAR != SPECULAR_NONE
     #include "/lib/material/hcm.glsl"
     #include "/lib/material/fresnel.glsl"
@@ -125,7 +127,6 @@ uniform vec3 playerBodyVector;
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
 
-#include "/lib/lighting/fresnel.glsl"
 #include "/lib/lighting/sampling.glsl"
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
