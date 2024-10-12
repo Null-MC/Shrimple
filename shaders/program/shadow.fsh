@@ -51,7 +51,7 @@ void main() {
     float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
         ? (1.5/255.0) : alphaTestRef;
 
-    #if defined DISTANT_HORIZONS && defined DH_TRANSITION_SHADOWS
+    #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
         #ifdef EFFECT_TAA_ENABLED
             float ditherOut = InterleavedGradientNoiseTime();
         #else

@@ -178,6 +178,7 @@ void main() {
 
             ivec2 uv = ivec2(texcoord * viewSize);
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, uv, 0);
+            vec2 lmcoord = unpackUnorm4x8(deferredData.g).xy;
             vec3 localNormal = unpackUnorm4x8(deferredData.r).rgb;
 
             if (any(greaterThan(localNormal, EPSILON3)))
@@ -357,7 +358,8 @@ void main() {
 
                 // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
                 // shadowFinal *= step(0.0, geoNoL);
-                shadowFinal *= mix(shadowSample, vec3(step(0.0, geoNoL)), shadowFade);
+                vec3 shadowFallback = vec3(_pow2(lmcoord.y));
+                shadowFinal *= mix(shadowSample, shadowFallback, shadowFade);
 
                 #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                     float cloudShadow = 1.0;
