@@ -108,16 +108,16 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
 
 
     void GetHcmFresnel(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
-        if (hcm >= 0 && hcm < 8) {
+        if (hcm >= 230 && hcm <= 237) {
             // HCM conductor
-            n = hcm_n[hcm];
-            k = hcm_k[hcm];
+            int hcm_i = hcm - 230;
+            n = hcm_n[hcm_i];
+            k = hcm_k[hcm_i];
         }
         else {
             // albedo-only conductor
-            // n = pow(albedo, vec3(HCM_AlbedoGammaInv));
             n = vec3(0.0);
-            k = vec3(0.0);//albedo;
+            k = vec3(0.0);
         }
     }
 #endif
@@ -134,8 +134,7 @@ vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
 
         #ifndef MATERIAL_HCM_ALBEDO_TINT
-            int hcm = int(metal_f0 * 255.0 + 0.5);// - 230;
-            //if (hcm < 0) return vec3(1.0);
+            int hcm = int(metal_f0 * 255.0 + 0.5);
             if (hcm < 255) return vec3(1.0);
         #else
             if (!IsMetal(metal_f0)) return vec3(1.0);
@@ -154,7 +153,6 @@ void ApplyMetalDarkening(inout vec3 diffuse, inout vec3 specular, const in vec3 
         float metalF = metal_f0;
     #endif
 
-    // float smoothness = pow2(1.0 - roughL);
     float smoothness = 1.0 - roughL;
 
     diffuse *= mix(1.0, MaterialMetalBrightnessF, metalF * smoothness);
