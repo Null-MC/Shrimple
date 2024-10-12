@@ -30,10 +30,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     bool hasGeoNormal = !all(lessThan(abs(localNormal), EPSILON3));
     bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
 
-    // #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-    //     vec3 f0 = GetMaterialF0(albedo, metal_f0);
-    // #endif
-
     float lightNoVm = 1.0;
     if (hasTexNormal) lightNoVm = max(dot(texNormal, localViewDir), EPSILON);
 
@@ -211,7 +207,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
                 // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
 
-                // F = F_schlickRough(lightLoHm, f0, roughL);
                 F = GetMaterialFresnel(albedo, metal_f0, roughL, lightLoHm, false);
             #endif
 

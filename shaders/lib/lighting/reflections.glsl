@@ -1,6 +1,6 @@
-vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-    return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
-}
+// vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
+//     return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
+// }
 
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyReflectionColor(const in vec3 localPos, const in vec3 reflectDir, const in float skyLight, const in float roughness) {

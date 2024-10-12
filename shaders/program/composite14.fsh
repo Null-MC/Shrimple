@@ -326,7 +326,6 @@ layout(location = 0) out vec4 outFinal;
             }
 
             vec3 albedo = RGBToLinear(deferredColor.rgb);
-            // vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
             // TODO: use underwater f0?
             
@@ -345,7 +344,6 @@ layout(location = 0) out vec4 outFinal;
                 skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
             #endif
 
-            // vec3 skyReflectF = GetReflectiveness(skyNoVm, f0, roughL);
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
             skyReflectF *= MaterialReflectionStrength * (1.0 - roughL);
 

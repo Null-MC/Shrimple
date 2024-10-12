@@ -1,8 +1,3 @@
-// vec3 f0_to_IOR(const in vec3 f0) {
-//     vec3 sqrt_f0 = sqrt(max(f0, vec3(0.02)));
-//     return (1.0 + sqrt_f0) / max(1.0 - sqrt_f0, EPSILON3);
-// }
-
 const float HCM_AlbedoGammaInv = rcp(HCM_ALBEDO_GAMMA);
 const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
 
@@ -53,19 +48,6 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
         silver_f82);
 
 
-    // void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 f0, out vec3 f82) {
-    //     if (hcm < 8) {
-    //         // HCM conductor
-    //         f0  = RGBToLinear(lazanyi_f0[hcm]);
-    //         f82 = RGBToLinear(lazanyi_f82[hcm]);
-    //     }
-    //     else {
-    //         // albedo-only conductor
-    //         f0 = albedo;
-    //         f82 = vec3(1.0); //albedo;
-    //     }
-    // }
-
     void GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 f0, out vec3 f82) {
         if (hcm < 8) {
             // HCM conductor
@@ -104,8 +86,6 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
     const vec3 ior_k_silver = vec3(4.0728, 3.1900, 2.1997);
 
 
-    #define IOR_to_f0(ior) (pow(abs(((ior) - 1.0) / ((ior) + 1.0)), vec3(2.0)))
-
     const vec3 hcm_n[8] = vec3[](
         ior_n_iron,
         ior_n_gold,
@@ -126,49 +106,18 @@ const float HCM_TintGammaInv = rcp(HCM_TINT_GAMMA);
         ior_k_platinum,
         ior_k_silver);
 
-    // const vec3 hcm_f0[8] = vec3[](
-    //     IOR_to_f0(ior_n_iron),
-    //     IOR_to_f0(ior_n_gold),
-    //     IOR_to_f0(ior_n_aluminum),
-    //     IOR_to_f0(ior_n_chrome),
-    //     IOR_to_f0(ior_n_copper),
-    //     IOR_to_f0(ior_n_lead),
-    //     IOR_to_f0(ior_n_platinum),
-    //     IOR_to_f0(ior_n_silver));
 
-
-    // void GetHCM_IOR(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
-    //     if (hcm < 8) {
-    //         // HCM conductor
-    //         n = ior_n[hcm];
-    //         k = ior_k[hcm];
-    //     }
-    //     else {
-    //         // albedo-only conductor
-    //         n = vec3(f0_to_IOR(albedo));
-    //         k = albedo;
-    //     }
-    // }
-
-    // vec3 IOR_to_f0(const in vec3 ior) {
-    //     return pow2((ior - 1.0) / (ior + 1.0));
-    // }
-
-    //vec3 GetHCM_f0(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
     void GetHcmFresnel(const in vec3 albedo, const in int hcm, out vec3 n, out vec3 k) {
-        //return vec3(1.0);
-
-        if (hcm < 8) {
+        if (hcm >= 0 && hcm < 8) {
             // HCM conductor
             n = hcm_n[hcm];
             k = hcm_k[hcm];
-            // return hcm_f0[hcm];
         }
         else {
             // albedo-only conductor
-            n = pow(albedo, vec3(HCM_AlbedoGammaInv));
+            // n = pow(albedo, vec3(HCM_AlbedoGammaInv));
+            n = vec3(0.0);
             k = vec3(0.0);//albedo;
-            // return pow(albedo, vec3(HCM_AlbedoGammaInv));
         }
     }
 #endif
@@ -177,31 +126,17 @@ bool IsMetal(const in float metal_f0) {
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
         return metal_f0 >= (229.5/255.0);
     #else
-        //return mix(vec3(1.0), albedo, metal_f0);
         return metal_f0 >= 0.5;
     #endif
 }
 
-// vec3 GetHCM_Tint(const in vec3 albedo, const in int hcm) {
-//     if (hcm < 0) return vec3(1.0);
-//     //else if (hcm < 8) return IORToF0(ior_n[hcm]);
-
-//     #ifndef MATERIAL_HCM_ALBEDO_TINT
-//         if (hcm < 8) return vec3(1.0);
-//     #endif
-
-//     return albedo;
-// }
-
 vec3 GetMetalTint(const in vec3 albedo, const in float metal_f0) {
-    // return vec3(1.0);
-
     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
 
         #ifndef MATERIAL_HCM_ALBEDO_TINT
-            int hcm = int(metal_f0 * 255.0 + 0.5) - 230;
+            int hcm = int(metal_f0 * 255.0 + 0.5);// - 230;
             //if (hcm < 0) return vec3(1.0);
-            if (hcm < 8) return vec3(1.0);
+            if (hcm < 255) return vec3(1.0);
         #else
             if (!IsMetal(metal_f0)) return vec3(1.0);
         #endif
@@ -219,7 +154,8 @@ void ApplyMetalDarkening(inout vec3 diffuse, inout vec3 specular, const in vec3 
         float metalF = metal_f0;
     #endif
 
-    float smoothness = pow2(1.0 - roughL);
+    // float smoothness = pow2(1.0 - roughL);
+    float smoothness = 1.0 - roughL;
 
     diffuse *= mix(1.0, MaterialMetalBrightnessF, metalF * smoothness);
     specular *= GetMetalTint(albedo, metal_f0) * mix(1.0, smoothness, metalF);

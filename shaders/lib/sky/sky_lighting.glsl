@@ -119,8 +119,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
                 geoNoL = dot(localNormal, localSkyLightDir);
         #endif
 
-        // vec3 f0 = GetMaterialF0(albedo, metal_f0);
-
         NoLm = 0.0;
         NoVm = 0.0;
         LoHm = 0.0;
@@ -136,7 +134,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         }
 
         // float VoHm = max(dot(localViewDir, H), 0.0);
-        // vec3 F = F_schlickRough(LoHm, f0, roughL);
         vec3 F = GetMaterialFresnel(albedo, metal_f0, roughL, LoHm, isUnderWater);
 
         //float invGeoNoL = saturate(geoNoL*40.0);
@@ -147,7 +144,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
             vec3 viewPos = mul3(gbufferModelView, localPos);
             vec3 texViewNormal = mat3(gbufferModelView) * N;
 
-            // vec3 skyReflectF = GetReflectiveness(NoVm, f0, roughL);
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
 
             if (tir) skyReflectF = vec3(1.0);

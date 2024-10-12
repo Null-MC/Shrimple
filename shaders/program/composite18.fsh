@@ -603,11 +603,9 @@ layout(location = 0) out vec4 outFinal;
             diffuseFinal *= deferredColor.a;
 
             if (isWater) metal_f0 = 0.02;
-            // vec3 f0 = GetMaterialF0(albedo, metal_f0);
 
             float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
 
-            // vec3 skyF = F_schlickRough(skyNoVm, f0, roughL);
             vec3 skyF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
             skyF *= MaterialReflectionStrength;// * (1.0 - roughL);
 
