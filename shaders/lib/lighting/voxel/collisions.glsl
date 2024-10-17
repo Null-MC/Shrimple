@@ -2362,6 +2362,26 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
     }
 
     switch (blockId) {
+        case BLOCK_WALL_LOW_N:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5,  0,  0);
+            boundsMax[0] = modelPart(11, 14,  8);
+            break;
+        case BLOCK_WALL_LOW_E:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 8,  0,  5);
+            boundsMax[0] = modelPart(16, 14, 11);
+            break;
+        case BLOCK_WALL_LOW_S:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5,  0,  8);
+            boundsMax[0] = modelPart(11, 14, 16);
+            break;
+        case BLOCK_WALL_LOW_W:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 0,  0,  5);
+            boundsMax[0] = modelPart( 8, 14, 11);
+            break;
         case BLOCK_WALL_LOW_N_S:
             shapeCount = 1u;
             boundsMin[0] = modelPart( 5,  0,  0);
