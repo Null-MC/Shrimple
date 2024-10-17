@@ -24,6 +24,8 @@ uniform float playerMood;
 
 #include "/lib/sampling/bayer.glsl"
 
+#include "/lib/utility/matrix.glsl"
+
 #include "/lib/post/saturation.glsl"
 #include "/lib/post/tonemap.glsl"
 #include "/lib/post/exposure.glsl"

@@ -11,6 +11,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/utility/matrix.glsl"
     #include "/lib/post/saturation.glsl"
 #endif
 
@@ -21,11 +22,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 void main() {
     #ifdef IRIS_FEATURE_SSBO
-        mat4 matContrast = GetContrastMatrix(Post_ContrastF);
-        mat4 matBrightness = GetBrightnessMatrix(Post_BrightnessF);
-        mat4 matSaturation = GetSaturationMatrix(Post_SaturationF);
-
-        matColorPost = matSaturation * (matContrast * matBrightness);
+        matColorPost = GetPostMatrix();
         
         #if defined WORLD_SHADOW_ENABLED && (defined SHADOW_ENABLED || defined SHADOW_CLOUD_ENABLED) && SHADOW_FILTER != 0
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {

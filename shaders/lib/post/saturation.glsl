@@ -12,13 +12,13 @@ mat4 GetBrightnessMatrix(const in float brightness) {
 }
 
 mat4 GetContrastMatrix(const in float contrast) {
-    float t = (1.0 - contrast) / 2.0;
+    float t = 0.5;//(1.0 - contrast) / 2.0;
     
-    return mat4(
-        contrast, 0.0, 0.0, 0.0,
-        0.0, contrast, 0.0, 0.0,
-        0.0, 0.0, contrast, 0.0,
-          t,      t,     t, 1.0);
+    mat4 offset_up = BuildTranslationMatrix(vec3(t));
+    mat4 offset_down = BuildTranslationMatrix(vec3(-t));
+    mat4 scaling = BuildScalingMatrix(vec3(contrast));
+
+    return offset_up * (scaling * offset_down);
 }
 
 mat4 GetSaturationMatrix(const in float saturation) {
@@ -54,18 +54,36 @@ vec3 colorTemperatureToRGB(const in float temperature) {
     return mix(saturate(s), vec3(1.0), f);
 }
 
+mat4 GetPostMatrix() {
+    mat4 matFinal = mat4(1.0);
+
+    #if POST_BRIGHTNESS != 100
+        mat4 matBrightness = GetBrightnessMatrix(Post_BrightnessF);
+        matFinal = matBrightness * matFinal;
+    #endif
+
+    #if POST_CONTRAST != 100
+        mat4 matContrast = GetContrastMatrix(Post_ContrastF);
+        matFinal = matContrast * matFinal;
+    #endif
+
+    #if POST_SATURATION != 100
+        mat4 matSaturation = GetSaturationMatrix(Post_SaturationF);
+        matFinal = matSaturation * matFinal;
+    #endif
+
+    return matFinal;
+}
+
 void ApplyPostGrading(inout vec3 color) {
     #if POST_BRIGHTNESS != 0 || POST_CONTRAST != 100 || POST_SATURATION != 100
-        #ifdef IRIS_FEATURE_SSBO
-            color = (matColorPost * vec4(color, 1.0)).rgb;
-        #else
-            mat4 matContrast = GetContrastMatrix(Post_ContrastF);
-            mat4 matSaturation = GetSaturationMatrix(Post_SaturationF);
-
-            color *= Post_BrightnessF;
-            color = (matContrast * vec4(color, 1.0)).rgb;
-            color = (matSaturation * vec4(color, 1.0)).rgb;
+        #ifndef IRIS_FEATURE_SSBO
+            mat4 matColorPost = GetPostMatrix();
         #endif
+
+        color = (matColorPost * vec4(color, 1.0)).rgb;
+
+        color = max(color, vec3(0.0));
     #endif
 
     vec3 colorOut = color;
