@@ -193,7 +193,7 @@ void main() {
 
             #if SHADOW_PIXELATE > 0
                 vec3 worldPos = localPos + cameraPosition;
-                vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE - 0.5) + 0.5;
+                vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON);
                 localPos = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
             #endif
 

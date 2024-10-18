@@ -354,6 +354,9 @@ screen.MATERIAL_EMISSION_OPTIONS.comment=Describes how much light is emitted fro
 option.MATERIAL_EMISSION_BRIGHTNESS=Brightness
 suffix.MATERIAL_EMISSION_BRIGHTNESS=%
 
+option.MATERIAL_EMISSION_POWER=Curve Power
+suffix.MATERIAL_EMISSION_POWER=%
+
 
 screen.MATERIAL_SSS_OPTIONS=SSS Options
 

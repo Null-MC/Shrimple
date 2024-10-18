@@ -191,6 +191,7 @@ const bool colortex15Clear = true;
 
 #define MATERIAL_EMISSION 0 // [0 1 2]
 #define MATERIAL_EMISSION_BRIGHTNESS 400 // [20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 350 400 450 500 550 600 650 700 750 800 950 1000 1100 1200 1300 1400 1500 1600 1700 1800 1900 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000 4500 5000 5500 6000 6500 7000 7500 8000]
+#define MATERIAL_EMISSION_POWER 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400]
 
 #define MATERIAL_POROSITY 1 // [0 1 2]
 #define MATERIAL_POROSITY_DARKEN 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 220 240 260 280 300]
@@ -613,6 +614,8 @@ const float MaterialParallaxOffset = MATERIAL_PARALLAX_OFFSET * 0.01;
 const float MaterialTessellationOffset = MATERIAL_TESSELLATION_OFFSET * 0.01;
 const float MaterialPorosityDarkenF = MATERIAL_POROSITY_DARKEN * 0.01;
 const float MaterialSssStrengthF = MATERIAL_SSS_STRENGTH * 0.01;
+const float Material_EmissionBrightness = MATERIAL_EMISSION_BRIGHTNESS * 0.01;
+const float Material_EmissionPower = MATERIAL_EMISSION_POWER * 0.01;
 const float ParallaxDepthF = MATERIAL_DISPLACE_DEPTH * 0.01;
 const float ParallaxSharpThreshold = (MATERIAL_PARALLAX_SHARP_THRESHOLD+0.5) / 255.0;
 const float VolumetricBlockRangeF = VOLUMETRIC_BLOCK_RANGE * 0.01;
@@ -641,7 +644,7 @@ const float Post_ContrastF = POST_CONTRAST * 0.01;
 const float PostWhitePoint = POST_WHITE_POINT * 0.01;
 const float dh_clipDistF = DH_CLIP_DIST * 0.01;
 
-const float MaterialEmissionF = (MATERIAL_EMISSION_BRIGHTNESS * 0.01) * Lighting_Brightness;
+const float MaterialEmissionF = Material_EmissionBrightness * Lighting_Brightness;
 
 const float ShadowScreenSlope = 0.85;
 

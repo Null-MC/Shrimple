@@ -82,18 +82,17 @@ void ApplyPostGrading(inout vec3 color) {
         #endif
 
         color = (matColorPost * vec4(color, 1.0)).rgb;
-
         color = max(color, vec3(0.0));
     #endif
 
-    vec3 colorOut = color;
-
     #if POST_TEMP != 65
+        vec3 colorOut = color;
+
         const float postTemp = POST_TEMP * 100.0 + 50.0;
         colorOut *= colorTemperatureToRGB(postTemp);
-    #endif
 
-    float lum = luminance(color);
-    float lumOut = luminance(colorOut);
-    color = colorOut * (lum / max(lumOut, EPSILON));
+        float lum = luminance(color);
+        float lumOut = luminance(colorOut);
+        color = colorOut * (lum / max(lumOut, EPSILON));
+    #endif
 }

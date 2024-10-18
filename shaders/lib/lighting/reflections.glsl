@@ -133,7 +133,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 clipRay = reflectClipPos - clipPos;
 
         float maxLod = log2(minOf(viewSize));
-        float roughMip = sqrt(roughness) * maxLod;
+        float roughMip = min(sqrt(roughness) * 6.0, maxLod);
 
         vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);
         vec3 col = GetRelectColor(reflection.xy, reflection.a, roughMip);

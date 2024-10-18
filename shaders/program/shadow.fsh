@@ -48,28 +48,30 @@ void main() {
 
     vec4 color = texture(gtexture, vIn.texcoord);
 
-    float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
-        ? (1.5/255.0) : alphaTestRef;
+    #if !defined SHADOW_SOLID || defined DISTANT_HORIZONS
+        float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+            ? (1.5/255.0) : alphaTestRef;
 
-    #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
-        #ifdef EFFECT_TAA_ENABLED
-            float ditherOut = InterleavedGradientNoiseTime();
-        #else
-            float ditherOut = GetScreenBayerValue();
+        #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
+            #ifdef EFFECT_TAA_ENABLED
+                float ditherOut = InterleavedGradientNoiseTime();
+            #else
+                float ditherOut = GetScreenBayerValue();
+            #endif
+
+            float transitionF = smoothstep(dh_clipDistF * far, far, vIn.viewDist);
+            transitionF = pow2(1.0 - transitionF);
+
+            color.a /= alphaThreshold;
+            color.a *= mix(ditherOut, 1.0, transitionF) * transitionF;
+            color.a *= alphaThreshold;
         #endif
 
-        float transitionF = smoothstep(dh_clipDistF * far, far, vIn.viewDist);
-        transitionF = pow2(1.0 - transitionF);
-
-        color.a /= alphaThreshold;
-        color.a *= mix(ditherOut, 1.0, transitionF) * transitionF;
-        color.a *= alphaThreshold;
+        if (color.a < alphaThreshold) {
+            discard;
+            return;
+        }
     #endif
-
-    if (color.a < alphaThreshold) {
-        discard;
-        return;
-    }
 
     color.rgb *= vIn.color.rgb;
 

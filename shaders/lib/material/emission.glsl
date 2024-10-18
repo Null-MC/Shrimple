@@ -17,9 +17,17 @@ float GetSceneLightEmission(const in uint lightType) {
 
         #if MATERIAL_EMISSION == EMISSION_OLDPBR
             emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).b;
+
+            #if MATERIAL_EMISSION_POWER != 100
+                emission = pow(emission, Material_EmissionPower);
+            #endif
         #elif MATERIAL_EMISSION == EMISSION_LABPBR
             emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).a;
             emission *= step(emission, (254.5/255.0));
+
+            #if MATERIAL_EMISSION_POWER != 100
+                emission = pow(emission, Material_EmissionPower);
+            #endif
         #else //if LIGHTING_MODE != LIGHTING_MODE_NONE
             int materialId = id;
             //if (currentRenderedItemId > 0)
