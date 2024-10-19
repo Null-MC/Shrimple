@@ -84,10 +84,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     skyLightF = _pow2(skyLightF);
 
-    vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal) * Sky_BrightnessF;
+    vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    vec3 ambientSkyLight = 3.0 * skyLightF * ambientSkyLight_indirect;
+    vec3 ambientSkyLight = PI * skyLightF * ambientSkyLight_indirect;
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
         lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal, 1.0);

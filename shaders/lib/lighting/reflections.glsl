@@ -89,7 +89,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 randomVec = normalize(hash33(seed) * 2.0 - 1.0);
         if (dot(randomVec, texViewNormal) <= 0.0) randomVec = -randomVec;
 
-        float roughScatterF = pow(roughness, 4.0);// * ReflectionRoughScatterF;// * (1.0 - distF);
+        float roughScatterF = 0.25 * _pow2(roughness);//pow(roughness, 4.0);// * ReflectionRoughScatterF;// * (1.0 - distF);
         reflectViewDir = mix(reflectViewDir, randomVec, roughScatterF);
         reflectViewDir = normalize(reflectViewDir);
     #endif
@@ -132,7 +132,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
 
         vec3 clipRay = reflectClipPos - clipPos;
 
-        float maxLod = log2(minOf(viewSize));
+        float maxLod = max(log2(minOf(viewSize)) - 2.0, 0.0);
         float roughMip = min(sqrt(roughness) * 6.0, maxLod);
 
         vec4 reflection = GetReflectionPosition(depthtex0, clipPos, clipRay);

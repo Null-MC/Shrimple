@@ -29,6 +29,8 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
     #endif
 
+    // vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * eyeBrightF;
+
     #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phaseSky = GetSkyPhase(VoL);
@@ -41,12 +43,12 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
     vec3 traceStep = localViewDir * stepLength;
     vec3 traceStart = localViewDir * distMin;
 
-    // #ifdef SKY_CAVE_FOG_ENABLED
-    //     float caveFogF = GetCaveFogF();
-    // #endif
+    #ifdef SKY_CAVE_FOG_ENABLED
+        float caveFogF = GetCaveFogF();
+    #endif
 
-    float skyLightF = eyeBrightnessSmooth.y / 240.0;
-    float airDensityBase = GetAirDensity(skyLightF);
+    // float skyLightF = eyeBrightnessSmooth.y / 240.0;
+    // float airDensityBase = GetAirDensity(skyLightF);
 
     for (uint i = 0; i < stepCount; i++) {
         //float stepDither = dither * step(i, stepCount-1);
@@ -64,7 +66,9 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
         #endif
 
         // float airDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
-        float airDensity = airDensityBase * GetSkyAltitudeDensity(traceAltitude);
+        // float airDensity = airDensityBase * GetSkyAltitudeDensity(traceAltitude);
+
+        float sampleDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
         // float traceStepLen = stepLength;
         // if (i == stepCount) traceStepLen *= (1.0 - dither);
@@ -72,6 +76,6 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
 
         vec3 sampleLight = phaseSky * skyLightColor + AirAmbientF * skyColorFinal;
         // vec3 sampleLight = (phaseSky + AirAmbientF) * skyLightColor;
-        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight, airDensity, AirScatterColor, AirExtinctColor);
+        ApplyScatteringTransmission(scatterFinal, transmitFinal, stepLength, sampleLight, sampleDensity, AirScatterColor, AirExtinctColor);
     }
 }
