@@ -31,7 +31,7 @@ const float WorldAtmosphereCurveRain = 4.0;
         float noise = noiseFar * mix(noiseNear + 0.2, 1.0, distF);// * (1.0 - 0.5*distF);
 
         float fogF = smootherstep(noise);
-        fogF = pow(fogF, 3.0) + MinFogDensity;// * 0.5 + 0.5;
+        fogF = pow(fogF, 4.0) + MinFogDensity;// * 0.5 + 0.5;
 
         // TODO: this is an arbitrary multiply to match uniform density fog
         return saturate(fogF * 2.0);

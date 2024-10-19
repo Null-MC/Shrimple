@@ -36,7 +36,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
     vec3 lastTracePos = screenRay * (1.0 + dither) + clipPos;
     vec3 lastVisPos = lastTracePos;
 
-    const vec3 clipMin = vec3(0.0);
+    const vec3 clipMin = vec3(0.0, 0.0, EPSILON);
 
     float alpha = 0.0;
     int level = SSR_LodMin;
@@ -93,10 +93,16 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
         break;
     }
 
-    // if (lastVisPos.z >= 0.999) alpha = 0.0;
-
     #ifdef SSR_DEBUG
         alpha *= level + 0.1;
+    #else
+        float traceDepthL = linearizeDepth(lastVisPos.z, near, _far);
+        const float bias = 0.002;
+
+        for (int i = level - 1; i > 0 && alpha > EPSILON; i--) {
+            float sampleDepthL = SampleDepthTiles(depthtex, lastVisPos.xy, i) * _far;
+            if (traceDepthL < sampleDepthL + bias) alpha = 0.0;
+        }
     #endif
 
     return vec4(lastVisPos, alpha);
