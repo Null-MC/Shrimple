@@ -141,6 +141,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 skyColor;
     uniform float rainStrength;
     uniform float weatherStrength;
+    uniform float cloudHeight;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

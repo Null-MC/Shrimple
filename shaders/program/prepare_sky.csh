@@ -19,6 +19,7 @@ uniform float far;
 uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
 uniform float rainStrength;
+uniform float cloudHeight;
 uniform float weatherStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;

@@ -100,10 +100,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            float cloudAlt = GetCloudAltitude();
-            // vec3 cloudOffset = cameraPosition - vec3(0.0, cloudAlt, 0.0);
-            vec2 cloudOffset = GetCloudOffset();
-            float phaseCloud = GetCloudPhase(VoL);
+            // float cloudAlt = GetCloudAltitude();
+            // vec2 cloudOffset = GetCloudOffset();
+            // float phaseCloud = GetCloudPhase(VoL);
         #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
@@ -144,7 +143,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float caveFogF = GetCaveFogF();
     #endif
 
-    #define VL_STEP_POWER 200
+    #define VL_STEP_POWER 160
     float stepDistLastF = 0.0;
 
     for (int i = 0; i < VOLUMETRIC_SAMPLES; i++) {
@@ -237,31 +236,31 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             if (!isWater) {
                 sampleDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
-                #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    // if (weatherStrength > EPSILON) {
-                    //     const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-                    //     //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
-                    //     float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-                    //     // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(weatherStrength);
-                    //     cloudUnder *= _pow2(weatherStrength);
+                // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                //     // if (weatherStrength > EPSILON) {
+                //     //     const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+                //     //     //float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_SHADOW_STEPS);
+                //     //     float cloudUnder = TraceCloudDensity(traceWorldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+                //     //     // cloudUnder = smoothstep(0.0, 0.5, cloudUnder) * _pow2(weatherStrength);
+                //     //     cloudUnder *= _pow2(weatherStrength);
 
-                    //     sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
-                    //     sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);
-                    //     sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
-                    // }
+                //     //     sampleDensity = mix(sampleDensity, AirDensityRainF, cloudUnder);
+                //     //     sampleScattering = mix(sampleScattering, AirScatterColor_rain, cloudUnder);
+                //     //     sampleExtinction = mix(sampleExtinction, AirExtinctColor_rain, cloudUnder);
+                //     // }
 
-                    // #if WORLD_CURVE_RADIUS > 0
-                    //     float sampleCloudF = SampleClouds(curvedWorldPos, traceAltitude, CloudTraceOctaves);
-                    // #else
-                        float sampleCloudF = SampleClouds(traceWorldPos, cloudOffset);
-                    // #endif
+                //     // #if WORLD_CURVE_RADIUS > 0
+                //     //     float sampleCloudF = SampleClouds(curvedWorldPos, traceAltitude, CloudTraceOctaves);
+                //     // #else
+                //         float sampleCloudF = SampleClouds(traceWorldPos, cloudOffset);
+                //     // #endif
 
-                    sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
-                    sampleScattering = mix(sampleScattering, CloudScatterColor, sampleCloudF);
-                    sampleExtinction = mix(sampleExtinction, CloudAbsorbColor, sampleCloudF);
-                    sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleCloudF);
-                    samplePhase = mix(samplePhase, phaseCloud, sampleCloudF);
-                #endif
+                //     sampleDensity = mix(sampleDensity, CloudDensityF, sampleCloudF);
+                //     sampleScattering = mix(sampleScattering, CloudScatterColor, sampleCloudF);
+                //     sampleExtinction = mix(sampleExtinction, CloudAbsorbColor, sampleCloudF);
+                //     sampleAmbient = mix(sampleAmbient, vec3(CloudAmbientF), sampleCloudF);
+                //     samplePhase = mix(samplePhase, phaseCloud, sampleCloudF);
+                // #endif
             }
         #endif
 
@@ -395,9 +394,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float cloudShadow = 1.0;
 
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-                // float cloudShadow = _TraceCloudShadow(traceWorldPos, dither, CLOUD_SHADOW_STEPS);
-                //sampleColor *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudF, 1.0);
+                // cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
                     cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);

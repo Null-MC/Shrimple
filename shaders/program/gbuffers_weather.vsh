@@ -106,15 +106,15 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/clouds/cloud_common.glsl"
 
-#if defined SKY_WEATHER_CLOUD_ONLY && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-	#include "/lib/lighting/hg.glsl"
-	#include "/lib/lighting/scatter_transmit.glsl"
+// #if defined SKY_WEATHER_CLOUD_ONLY && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+// 	#include "/lib/lighting/hg.glsl"
+// 	#include "/lib/lighting/scatter_transmit.glsl"
 
-	#include "/lib/world/atmosphere.glsl"
-	#include "/lib/fog/fog_common.glsl"
-	#include "/lib/clouds/cloud_custom.glsl"
-	#include "/lib/clouds/cloud_custom_shadow.glsl"
-#endif
+// 	#include "/lib/world/atmosphere.glsl"
+// 	#include "/lib/fog/fog_common.glsl"
+// 	#include "/lib/clouds/cloud_custom.glsl"
+// 	#include "/lib/clouds/cloud_custom_shadow.glsl"
+// #endif
 
 #include "/lib/vertex_common.glsl"
 
@@ -146,10 +146,10 @@ void main() {
         float cloudY = smoothstep(0.0, CloudHeight * 0.5, worldPos.y - cloudAlt);
         vOut.color.a *= 1.0 - cloudY;
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
-            const vec3 worldUp = vec3(0.0, 1.0, 0.0);
-            float cloudDensity = TraceCloudDensity(worldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
-            vOut.color.a *= smoothstep(0.0, 0.5, cloudDensity);
-        #endif
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY
+        //     const vec3 worldUp = vec3(0.0, 1.0, 0.0);
+        //     float cloudDensity = TraceCloudDensity(worldPos, worldUp, CLOUD_GROUND_SHADOW_STEPS);
+        //     vOut.color.a *= smoothstep(0.0, 0.5, cloudDensity);
+        // #endif
     #endif
 }
