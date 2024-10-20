@@ -59,5 +59,5 @@ float SampleWaterFoam(const in vec3 worldPos, const vec3 localNormal) {
 	float sampleF = textureLod(texClouds, 0.2*texPos1.xzy, 0).r;
 	sampleF *= 1.0 - textureLod(texClouds, 0.5*texPos2.xzy, 0).r;
 
-	return minF * sampleF * (2.0 * Water_WaveStrength);
+	return minF * sampleF * Water_WaveStrength;
 }

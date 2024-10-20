@@ -374,84 +374,84 @@ void main() {
         if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
     #endif
 
-    #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
-        #ifdef WORLD_WATER_ENABLED
-            if (isEyeInWater != 1) {
-        #endif
+    // #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    //     #ifdef WORLD_WATER_ENABLED
+    //         if (isEyeInWater != 1) {
+    //     #endif
 
-            #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                // if (farMax > farDist)
-                //     TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, farMax, 16);
-            #else
-                vec3 cloudNear, cloudFar;
-                GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
+    //         #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    //             // if (farMax > farDist)
+    //             //     TraceSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farDist, farMax, 16);
+    //         #else
+    //             vec3 cloudNear, cloudFar;
+    //             GetCloudNearFar(cameraPosition, localViewDir, cloudNear, cloudFar);
                 
-                float cloudDistNear = length(cloudNear);
-                float cloudDistFar = min(length(cloudFar), 2000.0);
-                int cloudSampleCount = int(mix(CLOUD_STEPS_MAX, CLOUD_STEPS_MIN, abs(localViewDir.y)));
+    //             float cloudDistNear = length(cloudNear);
+    //             float cloudDistFar = min(length(cloudFar), 2000.0);
+    //             int cloudSampleCount = int(mix(CLOUD_STEPS_MAX, CLOUD_STEPS_MIN, abs(localViewDir.y)));
 
-                #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
-                    // float vlDistFar = farMax;
-                    float skyDistFar = SkyFar;
-                    if (depthTrans < 1.0) {
-                        cloudDistNear = min(cloudDistNear, viewDist);
-                        cloudDistFar  = min(cloudDistFar,  viewDist);
-                        skyDistFar = min(skyDistFar, viewDist);
-                    }
+    //             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+    //                 // float vlDistFar = farMax;
+    //                 float skyDistFar = SkyFar;
+    //                 if (depthTrans < 1.0) {
+    //                     cloudDistNear = min(cloudDistNear, viewDist);
+    //                     cloudDistFar  = min(cloudDistFar,  viewDist);
+    //                     skyDistFar = min(skyDistFar, viewDist);
+    //                 }
 
-                    cloudDistNear = max(cloudDistNear, farMax);
-                    cloudDistFar  = max(cloudDistFar,  farMax);
+    //                 cloudDistNear = max(cloudDistNear, farMax);
+    //                 cloudDistFar  = max(cloudDistFar,  farMax);
 
-                    // if (cloudDistNear - farMax > EPSILON)
-                    //     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farMax, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+    //                 // if (cloudDistNear - farMax > EPSILON)
+    //                 //     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, farMax, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
 
-                    // if (cloudDistFar - cloudDistNear > EPSILON)
-                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+    //                 // if (cloudDistFar - cloudDistNear > EPSILON)
+    //                 //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
 
-                    if (skyDistFar - cloudDistFar > EPSILON)
-                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
-                #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
-                    float skyDistFar = SkyFar;
-                    if (depthTrans < 1.0) {
-                        cloudDistNear = min(cloudDistNear, viewDist);
-                        cloudDistFar  = min(cloudDistFar,  viewDist);
-                        skyDistFar = min(skyDistFar, viewDist);
-                    }
+    //                 if (skyDistFar - cloudDistFar > EPSILON)
+    //                     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+    //             #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+    //                 float skyDistFar = SkyFar;
+    //                 if (depthTrans < 1.0) {
+    //                     cloudDistNear = min(cloudDistNear, viewDist);
+    //                     cloudDistFar  = min(cloudDistFar,  viewDist);
+    //                     skyDistFar = min(skyDistFar, viewDist);
+    //                 }
 
-                    if (cloudDistNear - near > EPSILON)
-                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+    //                 if (cloudDistNear - near > EPSILON)
+    //                     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
 
-                    if (cloudDistFar - cloudDistNear > EPSILON)
-                        _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+    //                 if (cloudDistFar - cloudDistNear > EPSILON)
+    //                     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
 
-                    if (skyDistFar - cloudDistFar > EPSILON)
-                        TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
-                #else
-                    //float skyDistFar = SkyFar;
-                    if (depthTrans < 1.0) {
-                        cloudDistNear = min(cloudDistNear, viewDist);
-                        cloudDistFar  = min(cloudDistFar,  viewDist);
-                        //skyDistFar = min(skyDistFar, viewDist);
-                    }
+    //                 if (skyDistFar - cloudDistFar > EPSILON)
+    //                     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
+    //             #else
+    //                 //float skyDistFar = SkyFar;
+    //                 if (depthTrans < 1.0) {
+    //                     cloudDistNear = min(cloudDistNear, viewDist);
+    //                     cloudDistFar  = min(cloudDistFar,  viewDist);
+    //                     //skyDistFar = min(skyDistFar, viewDist);
+    //                 }
 
-                    // if (cloudDistNear - near > EPSILON)
-                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, 16, CLOUD_SHADOW_STEPS);
+    //                 // if (cloudDistNear - near > EPSILON)
+    //                 //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, near, cloudDistNear, 16, CLOUD_SHADOW_STEPS);
 
-                    if (cloudDistFar - cloudDistNear > EPSILON)
-                        _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
+    //                 if (cloudDistFar - cloudDistNear > EPSILON)
+    //                     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, cloudSampleCount, CLOUD_SHADOW_STEPS);
 
-                    // if (skyDistFar - cloudDistFar > EPSILON)
-                    //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, 16, CLOUD_SHADOW_STEPS);
-                #endif
+    //                 // if (skyDistFar - cloudDistFar > EPSILON)
+    //                 //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, 16, CLOUD_SHADOW_STEPS);
+    //             #endif
 
-                // if (cloudDistFar > cloudDistNear)
-                //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
-            #endif
+    //             // if (cloudDistFar > cloudDistNear)
+    //             //     _TraceClouds(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistNear, cloudDistFar, 64, CLOUD_SHADOW_STEPS);
+    //         #endif
 
-        #ifdef WORLD_WATER_ENABLED
-            }
-        #endif
-    #endif
+    //     #ifdef WORLD_WATER_ENABLED
+    //         }
+    //     #endif
+    // #endif
 
     outScatter = scatterFinal;
     outTransmit = transmitFinal;

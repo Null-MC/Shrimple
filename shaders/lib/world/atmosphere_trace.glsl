@@ -12,7 +12,7 @@ float GetSkyAltitudeFactor(const in float altitude) {
 
 #ifdef VOLUMETRIC_NOISE_ENABLED
     float GetSkyDensityNoise(const in vec3 worldPos, const in float altitude) {
-        const float MinFogDensity = 0.02;
+        const float MinFogDensity = 0.0;
 
         vec3 texPos = worldPos.xzy * vec3(1.0, 1.0, 4.0);
 
@@ -21,7 +21,7 @@ float GetSkyAltitudeFactor(const in float altitude) {
 
         float n1 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.125, 0).r;
         float n2 = textureLod(TEX_CLOUDS, (texPos - o) * 0.030, 0).r;
-        float noiseNear = 2.0 * sqrt((1.0 - n1) * n2);
+        float noiseNear = sqrt((1.0 - n1) * n2);
         // float noiseNear = 2.0 * n1 * n2;
 
         float n3 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.0040, 0).r;
@@ -29,21 +29,23 @@ float GetSkyAltitudeFactor(const in float altitude) {
         float noiseFar = sqrt((1.0 - n4) * n3);
 
         float sampleDist = length(worldPos - cameraPosition);
-        float distF = smoothstep(0.0, 80.0, sampleDist);
-        float noise = noiseFar * mix(noiseNear + 0.2, 1.0, distF);
+        float distF = smoothstep(120.0, 0.0, sampleDist);
+        float noise = 0.2 * noiseNear * distF + noiseFar;
 
         float heightF = GetSkyAltitudeFactor(altitude);
-        float thresholdMin = 0.5 * heightF;
+        float thresholdMin = 0.65;// * heightF;
 
-        float fogF = smoothstep(thresholdMin, 1.0, noise);
-        fogF = pow(fogF, 3.0) + MinFogDensity;// * 0.5 + 0.5;
+        // float fogF = smoothstep(thresholdMin, 1.0, noise);
+        // fogF = pow(fogF, 3.0) + MinFogDensity;// * 0.5 + 0.5;
+
+        float fogF = step(thresholdMin, noise);
 
         // float _far = 0.25 * dhFarPlane;
         // fogF *= smoothstep(SkyFar, _far, sampleDist);
-        fogF *= exp(-0.001 * sampleDist);
+        fogF *= exp(-0.002 * sampleDist);
 
         // TODO: this is an arbitrary multiply to match uniform density fog
-        return saturate(fogF * 4.0);
+        return saturate(fogF);
     }
 #endif
 
@@ -69,7 +71,7 @@ float GetSkyAltitudeDensity(const in float altitude) {
 
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         float z = altitude - cloudHeight;
-        if (z > 0.0 && z < 64.0) density = 3.0;
+        if (z > 0.0 && z < 20.0) density = 12.0;
     #endif
 
     return density;
