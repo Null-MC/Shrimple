@@ -120,7 +120,7 @@ vec4 ApplyTAA(const in vec2 uv) {
     const float weightMax = rcp(EFFECT_TAA_MAX_ACCUM);
 
     mixRate += clampAmount * 4.0;
-    mixRate = clamp(mixRate, weightMax, 0.5);
+    mixRate = clamp(mixRate, weightMax, 1.0);
     
     antialiased = decodePalYuv(antialiased);
 

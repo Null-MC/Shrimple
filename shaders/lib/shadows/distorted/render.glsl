@@ -182,8 +182,9 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             if (blockerDistance <= 0.0) {
                 vec3 _shadowPos = distort(shadowPos) * 0.5 + 0.5;
 
+                float depthOpaque = textureLod(shadowtex1, _shadowPos.xy, 0).r;
                 float depthTrans = textureLod(shadowtex0, _shadowPos.xy, 0).r;
-                if (_shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
+                if (depthTrans + EPSILON >= depthOpaque) return vec3(1.0);
 
                 vec4 shadowColor = textureLod(shadowcolor0, _shadowPos.xy, 0);
                 shadowColor.rgb = RGBToLinear(shadowColor.rgb);
@@ -237,8 +238,8 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);
 
             float depthTrans = texture(shadowtex0, shadowPos.xy).r;
-            // if (shadowPos.z - offsetBias < depthTrans) return vec3(1.0);
-            if (depthOpaque <= depthTrans) return vec3(1.0);
+            // if (shadowPos.z - offsetBias < depthTrans || depthTrans >= depthOpaque || depthTrans >= 1.0 || depthOpaque >= 1.0) return vec3(1.0);
+            if (shadowPos.z - offsetBias < depthTrans || depthTrans >= depthOpaque || depthTrans >= 1.0 || depthOpaque >= 1.0) return vec3(1.0);
 
             vec4 shadowColor = texture(shadowcolor0, shadowPos.xy);
             shadowColor.rgb = RGBToLinear(shadowColor.rgb);

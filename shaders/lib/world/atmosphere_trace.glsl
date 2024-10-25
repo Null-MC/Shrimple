@@ -1,7 +1,7 @@
 const float phaseAir = phaseIso;
 
 // const float WorldAtmosphereMin =  68.0;
-const float WorldAtmosphereMax = 360.0;
+const float WorldAtmosphereMax = 480.0;
 const float WorldAtmosphereCurve = 12.0;
 const float WorldAtmosphereCurveRain = 4.0;
 
@@ -26,26 +26,26 @@ float GetSkyAltitudeFactor(const in float altitude) {
 
         float n3 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.0040, 0).r;
         float n4 = textureLod(TEX_CLOUDS, (texPos - o) * 0.0024, 0).r;
-        float noiseFar = sqrt((1.0 - n4) * n3);
+        float n5 = textureLod(TEX_CLOUDS, (texPos - o) * 0.0003, 0).r;
+        float noiseFar = sqrt((1.0 - n4) * n3 * n5);
 
         float sampleDist = length(worldPos - cameraPosition);
         float distF = smoothstep(120.0, 0.0, sampleDist);
         float noise = 0.2 * noiseNear * distF + noiseFar;
 
         float heightF = GetSkyAltitudeFactor(altitude);
-        float thresholdMin = 0.65;// * heightF;
 
-        // float fogF = smoothstep(thresholdMin, 1.0, noise);
-        // fogF = pow(fogF, 3.0) + MinFogDensity;// * 0.5 + 0.5;
+        float fogF = smoothstep(0.5 * heightF, 1.0, noise);
+        //fogF = pow(fogF, 3.0);// + MinFogDensity;// * 0.5 + 0.5;
+        fogF = 4.0 * _pow3(fogF);
 
-        float fogF = step(thresholdMin, noise);
+        // float fogF = step(0.65, noise);
 
         // float _far = 0.25 * dhFarPlane;
         // fogF *= smoothstep(SkyFar, _far, sampleDist);
         fogF *= exp(-0.002 * sampleDist);
 
-        // TODO: this is an arbitrary multiply to match uniform density fog
-        return saturate(fogF);
+        return fogF;
     }
 #endif
 
