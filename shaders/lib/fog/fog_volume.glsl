@@ -113,10 +113,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         float time = GetAnimationFactor();
     #endif
 
-    #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
-        float phaseWater = GetWaterPhase(VoL);
+    #if defined WORLD_WATER_ENABLED
+        #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            float phaseWater = GetWaterPhase(VoL);
+        #else
+            float phaseWater = phaseIso;
+        #endif
 
-        #if WATER_DEPTH_LAYERS > 1
+        #if WATER_DEPTH_LAYERS > 1 && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
             uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
             uint uvIndex = uint(uv.y * viewWidth + uv.x);
 
