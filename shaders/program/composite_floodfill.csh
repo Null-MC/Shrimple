@@ -146,7 +146,7 @@ const float LpvIndirectFalloff = 0.002;
 
 
 // const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
-const float IndirectLpvRange = 4.0;
+const float IndirectLpvRange = 16.0;
 
 ivec3 GetLpvVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
@@ -182,7 +182,7 @@ vec4 GetLpvDirectValue(in ivec3 texCoord) {
             ? imageLoad(imgIndirectLpv_2, texCoord).rgb
             : imageLoad(imgIndirectLpv_1, texCoord).rgb;
 
-        lpvSample = RGBToLinear(lpvSample);
+        // lpvSample = RGBToLinear(lpvSample);
 
         vec3 hsv = RgbToHsv(lpvSample);
         hsv.z = exp2(hsv.z * IndirectLpvRange) - 1.0;
@@ -209,7 +209,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
 
 #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
     vec4 SampleShadow(const in vec3 blockLocalPos, out float shadowDist) {
-        const float giScale = 0.24;
+        const float giScale = rcp(2.0);
 
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos = mul3(shadowModelView, blockLocalPos);
@@ -260,7 +260,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
             float sampleF = step(0.0, sampleDist);
             //sampleF *= max(1.0 - abs(shadowDist * shadowDistMax) * giScale, 0.0);
 
-            shadowDist += max(sampleDist, 0);
+            shadowDist += max(sampleDist, 0.0);
 
             // TODO: temp fix for preventing underwater LPV-GI
             float texDepthTrans = texture(shadowtex0, shadowPos.xy).r;
@@ -278,6 +278,7 @@ float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
                 float colorF = min(abs(sampleDist * shadowDistMax) * giScale, 1.0);
                 // sampleColor = mix(sampleColor, vec3(1.0), colorF);
                 sampleColor *= 1.0 - colorF;
+                sampleF *= 1.0 - colorF;
             #endif
             
             //sampleF *= step(shadowPos.z - texDepthTrans, -0.003);
@@ -596,7 +597,7 @@ void main() {
             hsv.z = log2(hsv.z + 1.0) / IndirectLpvRange;
             indirectLightValue = HsvToRgb(hsv);
 
-            indirectLightValue = LinearToRGB(indirectLightValue);
+            // indirectLightValue = LinearToRGB(indirectLightValue);
         #endif
 
         // if (worldTimeCurrent - worldTimePrevious > 1000 || (worldTimeCurrent + 12000 < worldTimePrevious && worldTimeCurrent + 24000 - worldTimePrevious > 1000)) {

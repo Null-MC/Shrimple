@@ -30,20 +30,20 @@
         vec2 texcoordY1 = GetAtlasCoord(texcoordSnapped - vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
         vec2 texcoordY2 = GetAtlasCoord(texcoordSnapped + vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
 
-        vec3 texColorX1 = textureGrad(gtexture, texcoordX1, dFdXY[0], dFdXY[1]).rgb;
-        vec3 texColorX2 = textureGrad(gtexture, texcoordX2, dFdXY[0], dFdXY[1]).rgb;
-        vec3 texColorY1 = textureGrad(gtexture, texcoordY1, dFdXY[0], dFdXY[1]).rgb;
-        vec3 texColorY2 = textureGrad(gtexture, texcoordY2, dFdXY[0], dFdXY[1]).rgb;
+        vec4 texColorX1 = textureGrad(gtexture, texcoordX1, dFdXY[0], dFdXY[1]);
+        vec4 texColorX2 = textureGrad(gtexture, texcoordX2, dFdXY[0], dFdXY[1]);
+        vec4 texColorY1 = textureGrad(gtexture, texcoordY1, dFdXY[0], dFdXY[1]);
+        vec4 texColorY2 = textureGrad(gtexture, texcoordY2, dFdXY[0], dFdXY[1]);
 
-        float texHeightX1 = luminance(texColorX1);
-        float texHeightX2 = luminance(texColorX2);
-        float texHeightY1 = luminance(texColorY1);
-        float texHeightY2 = luminance(texColorY2);
+        float texHeightX1 = luminance(RGBToLinear(texColorX1.rgb) * texColorX1.a);
+        float texHeightX2 = luminance(RGBToLinear(texColorX2.rgb) * texColorX2.a);
+        float texHeightY1 = luminance(RGBToLinear(texColorY1.rgb) * texColorY1.a);
+        float texHeightY2 = luminance(RGBToLinear(texColorY2.rgb) * texColorY2.a);
 
         #if MATERIAL_NORMAL_EDGE != 0
             vec2 texcoordC = GetAtlasCoord(texcoordSnapped, vIn.atlasBounds);
-            vec3 texColorC = textureGrad(gtexture, texcoordC, dFdXY[0], dFdXY[1]).rgb;
-            float texHeightC = luminance(RGBToLinear(texColorC));
+            vec4 texColorC = textureGrad(gtexture, texcoordC, dFdXY[0], dFdXY[1]).rgb;
+            float texHeightC = luminance(RGBToLinear(texColorC.rgb) * texColorC.a);
 
             #if MATERIAL_NORMAL_EDGE == 1
                 texHeightX1 = max(texHeightC, texHeightX1);
