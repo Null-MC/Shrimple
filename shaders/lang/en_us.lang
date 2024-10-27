@@ -486,6 +486,10 @@ option.LPV_FRUSTUM_OFFSET=Camera Offset
 option.LPV_FRUSTUM_OFFSET.comment=Offsets the light volume in the direction of the camera to cover more of the visible scene.
 suffix.LPV_FRUSTUM_OFFSET=%
 
+option.LPV_GI_RANGE=GI Range
+option.LPV_GI_RANGE.comment=The range in blocks of floodfill-based global illumination. Requires FloodFill Sky Light set to Fancy.
+
+
 option.LPV_VOXEL_TEST=Voxel Test
 option.LPV_VOXEL_TEST.comment=Improves linear & cubic sampling by performing extra visibility checks using voxel data.
 

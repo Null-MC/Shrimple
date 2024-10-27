@@ -146,7 +146,6 @@ const float LpvIndirectFalloff = 0.002;
 
 
 // const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
-const float IndirectLpvRange = 16.0;
 
 ivec3 GetLpvVoxelOffset() {
     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
@@ -185,7 +184,7 @@ vec4 GetLpvDirectValue(in ivec3 texCoord) {
         // lpvSample = RGBToLinear(lpvSample);
 
         vec3 hsv = RgbToHsv(lpvSample);
-        hsv.z = exp2(hsv.z * IndirectLpvRange) - 1.0;
+        hsv.z = exp2(hsv.z * LPV_GI_RANGE) - 1.0;
         lpvSample = HsvToRgb(hsv);
 
         return lpvSample;
@@ -546,7 +545,7 @@ void main() {
 
                         vec3 hsv = RgbToHsv(skyLight);
                         // hsv.y *= 0.65;
-                        hsv.z = exp2(IndirectLpvRange * shadowColorF.a) - 1.0;
+                        hsv.z = exp2(LPV_GI_RANGE * shadowColorF.a) - 1.0;
                         skyLight = HsvToRgb(hsv);
 
                         indirectLightValue += skyLight;// / max(shadowDist, 1.0);
@@ -594,7 +593,7 @@ void main() {
             // indirectLightValue = vec3(0.0, 100.0, 0.0);
 
             vec3 hsv = RgbToHsv(indirectLightValue);
-            hsv.z = log2(hsv.z + 1.0) / IndirectLpvRange;
+            hsv.z = log2(hsv.z + 1.0) / LPV_GI_RANGE;
             indirectLightValue = HsvToRgb(hsv);
 
             // indirectLightValue = LinearToRGB(indirectLightValue);

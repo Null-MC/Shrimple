@@ -278,6 +278,7 @@ const bool colortex15Clear = true;
 #define LPV_SKYLIGHT_RANGE 24 // [12 16 20 24 28 32]
 #define LPV_BLOCKLIGHT_SCALE 12 // [8 12 16 24 32 48 64 96 128]
 #define LPV_FRUSTUM_OFFSET 30 // [0 5 10 15 20 25 30 35 40 45 50]
+#define LPV_GI_RANGE 20 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26 28 30 32]
 //#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST
