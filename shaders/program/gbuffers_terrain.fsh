@@ -187,10 +187,10 @@ uniform int frameCounter;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
     
-    #ifdef IS_IRIS
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+    uniform bool firstPersonCamera;
+    uniform vec3 playerBodyVector;
+    uniform vec3 relativeEyePosition;
+    uniform vec3 eyePosition;
 #endif
 
 // #if AF_SAMPLES > 1
@@ -629,6 +629,10 @@ void main() {
         #endif
 
         color.rgb = LinearToRGB(albedo);
+
+        // color.r = (vIn.blockId % 4) / 4.0;
+        // color.g = (vIn.blockId % 8) / 8.0;
+        // color.b = (vIn.blockId % 16) / 16.0;
 
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;

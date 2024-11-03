@@ -307,7 +307,7 @@ uniform vec3 eyePosition;
 
 #include "/lib/lighting/scatter_transmit.glsl"
 
-#if defined WORLD_SKY_ENABLED && defined IS_IRIS
+#if defined WORLD_SKY_ENABLED
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 

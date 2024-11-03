@@ -174,11 +174,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform int heldBlockLightValue;
     uniform int heldBlockLightValue2;
 
-    #ifdef IS_IRIS
-        uniform bool isSpectator;
-        uniform bool firstPersonCamera;
-        uniform vec3 eyePosition;
-    #endif
+    uniform bool isSpectator;
+    uniform bool firstPersonCamera;
+    uniform vec3 playerBodyVector;
+    uniform vec3 relativeEyePosition;
+    uniform vec3 eyePosition;
 
     uniform float blindnessSmooth;
 #endif

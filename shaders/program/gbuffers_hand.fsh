@@ -141,11 +141,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 shadowProjection;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 playerBodyVector;
+uniform vec3 relativeEyePosition;
+uniform vec3 eyePosition;
 
 #ifdef DISTANT_HORIZONS
     uniform float dhFarPlane;

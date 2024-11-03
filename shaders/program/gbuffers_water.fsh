@@ -168,11 +168,9 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
-        uniform float cloudHeight;
-        uniform float cloudTime;
-    #endif
+    uniform float lightningStrength;
+    uniform float cloudHeight;
+    uniform float cloudTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -192,15 +190,15 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 playerBodyVector;
+uniform vec3 relativeEyePosition;
+uniform vec3 eyePosition;
 
-    // #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
-    //     uniform float cloudTime;
-    // #endif
-#endif
+// #if defined RENDER_CLOUD_SHADOWS_ENABLED || (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE)
+//     uniform float cloudTime;
+// #endif
 
 // #ifdef VL_BUFFER_ENABLED
 //     uniform mat4 shadowModelView;

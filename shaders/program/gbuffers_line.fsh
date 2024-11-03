@@ -117,17 +117,21 @@ void main() {
     float emission = 0.0;
 
     if (renderStage == MC_RENDER_STAGE_OUTLINE) {
+        const vec3 outlineColor = vec3(BLOCK_OUTLINE_COLOR_R, BLOCK_OUTLINE_COLOR_G, BLOCK_OUTLINE_COLOR_B) / 255.0;
+
         #if BLOCK_OUTLINE_TYPE == BLOCK_OUTLINE_CONSTRUCTION
-            const float interval = 20.0;
+            const float interval = 16.0;
             vec3 worldPos = vIn.localPos + cameraPosition;
             float offset = sumOf(worldPos) * interval;
-            color.rgb = step(1.0, mod(offset, 2.0)) * vec3(1.0, 1.0, 0.0);
+            color.rgb = step(1.0, mod(offset, 2.0)) * outlineColor;
         #else
-            color.rgb = vec3(BLOCK_OUTLINE_COLOR_R, BLOCK_OUTLINE_COLOR_G, BLOCK_OUTLINE_COLOR_B) / 255.0;
+            color.rgb = outlineColor;
         #endif
 
         color.a = 1.0;
         emission = BLOCK_OUTLINE_EMISSION / 100.0;
+
+        // color = vec4(1.0);
     }
     else {
         color *= texture(gtexture, vIn.texcoord);
@@ -160,9 +164,8 @@ void main() {
         vec4 final = color;
 
         vec2 lmFinal = LightMapTex(vIn.lmcoord);
-		final.rgb *= texture(lightmap, lmFinal).rgb;
-
-        final.rgb += color * emission * MaterialEmissionF;
+        vec3 lightmap = RGBToLinear(texture(lightmap, lmFinal).rgb);
+		final.rgb *= lightmap + emission * MaterialEmissionF;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             vec3 localViewDir = normalize(vIn.localPos);

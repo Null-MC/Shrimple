@@ -155,11 +155,11 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform ivec2 atlasSize;
 #endif
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 playerBodyVector;
+uniform vec3 relativeEyePosition;
+uniform vec3 eyePosition;
 
 #if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
     uniform mat4 shadowProjection;
@@ -195,7 +195,7 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform vec3 sunPosition;
         uniform vec3 shadowLightPosition;
         
-        uniform float cloudHeight;
+        // uniform float cloudHeight;
 
         #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
             uniform float cloudTime;

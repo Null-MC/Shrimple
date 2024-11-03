@@ -35,10 +35,14 @@ vec3 distort(const in vec3 pos) {
             // return vec3((pos.xy / factor) * (1.0 + Shadow_DistortF), pos.z);
         #endif
 
-        return vec3(pos.xy / factor, pos.z);
+        vec3 outPos = vec3(pos.xy / factor, pos.z);
     #else
-        return pos;
+        vec3 outPos = pos;
     #endif
+
+    outPos.z /= 8.0;
+
+    return outPos;
 }
 
 // float computeBias(vec3 pos) {

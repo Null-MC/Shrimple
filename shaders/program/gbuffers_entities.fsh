@@ -137,13 +137,13 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 shadowProjection;
 #endif
 
-#ifdef IS_IRIS
-    uniform int currentRenderedItemId;
-    
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform int currentRenderedItemId;
+
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 playerBodyVector;
+uniform vec3 relativeEyePosition;
+uniform vec3 eyePosition;
 
 #ifdef DISTANT_HORIZONS
     uniform float dhFarPlane;
@@ -169,11 +169,9 @@ uniform ivec2 eyeBrightnessSmooth;
         uniform vec3 sunPosition;
         uniform vec3 shadowLightPosition;
 
-        #ifdef IS_IRIS
-            uniform float cloudTime;
-            uniform float cloudHeight;
-            uniform float lightningStrength;
-        #endif
+        uniform float cloudTime;
+        uniform float cloudHeight;
+        uniform float lightningStrength;
     #endif
 
     #ifdef VL_BUFFER_ENABLED
@@ -597,7 +595,7 @@ void main() {
     // #endif
 
     //#if defined EFFECT_SSAO_ENABLED && !defined RENDER_TRANSLUCENT
-        outDeferredTexNormal = texNormal * 0.5 + 0.5;
+        // outDeferredTexNormal = texNormal * 0.5 + 0.5;
     //#endif
 
     // color.rgb = vec3(1.0, 0.0, 0.0);
@@ -613,6 +611,7 @@ void main() {
 
         outDeferredColor = color + dither;
         // outDeferredTexNormal = vec4(texNormal * 0.5 + 0.5, 1.0);
+        outDeferredTexNormal = texNormal * 0.5 + 0.5;
         
         outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
@@ -701,6 +700,10 @@ void main() {
         // #endif
 
         outFinal = color;
+
+        #ifdef EFFECT_SSAO_ENABLED
+            outDeferredTexNormal = texNormal * 0.5 + 0.5;
+        #endif
 
         #ifdef EFFECT_TAA_ENABLED
             outVelocity = vec4(vec3(0.0), 1.0);
