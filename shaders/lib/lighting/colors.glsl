@@ -16,9 +16,6 @@
 
 // END_STONE_LAMP
 
-// CAMPFIRE
-
-// FIRE
 #define LIGHT_COLOR_FIRE vec3(0.864, 0.598, 0.348) // [0]
 
 #define LIGHT_COLOR_FROGLIGHT_OCHRE vec3(0.768, 0.648, 0.108) // [0]
@@ -27,7 +24,7 @@
 
 #define LIGHT_COLOR_FROGLIGHT_VERDANT vec3(0.463, 0.763, 0.409) // [0]
 
-// FURNACE
+#define LIGHT_COLOR_FURNACE vec3(0.798, 0.519, 0.289) // [0]
 
 #define LIGHT_COLOR_GLOWSTONE vec3(0.747, 0.594, 0.326) // [0]
 
@@ -35,7 +32,7 @@
 
 #define LIGHT_COLOR_JACK_O_LANTERN vec3(0.768, 0.701, 0.325) // [0]
 
-// LANTERN
+#define LIGHT_COLOR_LANTERN vec3(0.906, 0.737, 0.451) // [0]
 
 // LIGHTING_ROD
 
@@ -59,8 +56,8 @@
 
 #define LIGHT_COLOR_SHROOMLIGHT vec3(0.848, 0.469, 0.205) // [0]
 
-// SMOKER
+#define LIGHT_COLOR_SMOKER vec3(0.798, 0.519, 0.289) // [0]
 
-// SOUL_TORCH
+#define LIGHT_SOUL_TORCH vec3(0.097, 0.721, 0.899) // [0]
 
-// TORCH
+#define LIGHT_TORCH vec3(0.960, 0.570, 0.277) // [0]

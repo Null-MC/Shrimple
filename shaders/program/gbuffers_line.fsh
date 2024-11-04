@@ -130,8 +130,6 @@ void main() {
 
         color.a = 1.0;
         emission = BLOCK_OUTLINE_EMISSION / 100.0;
-
-        // color = vec4(1.0);
     }
     else {
         color *= texture(gtexture, vIn.texcoord);
