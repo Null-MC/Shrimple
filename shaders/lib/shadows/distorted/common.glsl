@@ -19,7 +19,7 @@ float GetShadowOffsetBias(const in vec3 pos, const in float geoNoL) {
     vec3 shadowSize = GetShadowSize();
 
     float bias_xy = 0.00001 * (maxOf(shadowSize.xy) / shadowMapResolution);// / factor;
-    float bias_z = 0.0000001 * shadowSize.z;
+    float bias_z = 0.0000001;// * shadowSize.z;
 
     return mix(bias_xy, bias_z, abs(geoNoL)) * Shadow_BiasScale;
 }

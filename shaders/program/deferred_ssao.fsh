@@ -44,10 +44,10 @@ layout(location = 0) out float outAO;
 void main() {
     vec2 coord = texcoord;
 
-    #ifdef EFFECT_TAA_ENABLED
-        vec2 jitterOffset = getJitterOffset(frameCounter);
-        // coord -= jitterOffset;
-    #endif
+    // #ifdef EFFECT_TAA_ENABLED
+    //     vec2 jitterOffset = getJitterOffset(frameCounter);
+    //     coord -= jitterOffset;
+    // #endif
 
     float depth = textureLod(depthtex0, texcoord, 0).r;
 
