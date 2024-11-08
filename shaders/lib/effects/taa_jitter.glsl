@@ -47,5 +47,5 @@ vec2 getJitterOffset(const in int frameOffset) {
 
 void jitter(inout vec4 ndcPos) {
 	vec2 offset = getJitterOffset(frameCounter);
-	ndcPos.xy += offset * ndcPos.w;
+	ndcPos.xy += 2.0 * offset * ndcPos.w;
 }

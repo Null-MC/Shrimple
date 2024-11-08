@@ -339,8 +339,8 @@ const bool colortex15Clear = true;
 #define EFFECT_SSAO_SAMPLES 8 // [2 4 6 8 10 12 14 16 20 24 28 32]
 #define EFFECT_SSAO_RADIUS 1.2 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
 #define EFFECT_SSAO_STRENGTH 5.0 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7 8 9 10 12 14 16 18 20 24 28 32]
+#define EFFECT_SSAO_BIAS 12 // [2 3 4 6 8 12 16 24 32 48]
 #define EFFECT_SSAO_MIN 0.0
-#define EFFECT_SSAO_BIAS 0.12
 
 #define EFFECT_TAA_ENABLED
 #define EFFECT_TAA_MAX_ACCUM 8 // [4 6 8 10 12 16 20 24 28 32 48 64]
@@ -673,10 +673,10 @@ const float drynessHalflife = 20.0;
 
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 450 500 600 700 800 900 1000 1200 1400 1600 1800 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000]
 const float shadowIntervalSize = 2.0;
-const float shadowDistanceRenderMul = -1.0;
+const float shadowDistanceRenderMul = 1.0;
 const int shadowMapResolution = 1024; // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
 
-// const float shadowNearPlane = -1.0;
+const float shadowNearPlane = -1.0;
 //const float shadowFarPlane = -1.0;
 
 #ifdef MC_SHADOW_QUALITY

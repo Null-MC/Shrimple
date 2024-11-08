@@ -132,7 +132,7 @@ void main() {
         vec2 coord = texcoord;
 
         #ifdef EFFECT_TAA_ENABLED
-            vec2 jitterOffset = 0.5*getJitterOffset(frameCounter);
+            vec2 jitterOffset = getJitterOffset(frameCounter);
             coord -= jitterOffset;
         #endif
 

@@ -1,3 +1,5 @@
+const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
+
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     const float inv = rcp(EFFECT_SSAO_SAMPLES);
     const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
@@ -57,7 +59,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - EFFECT_SSAO_BIAS, 0.0) / (1.0 - EFFECT_SSAO_BIAS);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
 
         float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
 

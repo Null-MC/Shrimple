@@ -40,7 +40,7 @@ vec3 distort(const in vec3 pos) {
         vec3 outPos = pos;
     #endif
 
-    outPos.z /= 8.0;
+    // outPos.z /= 8.0;
 
     return outPos;
 }
