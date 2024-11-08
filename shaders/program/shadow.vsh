@@ -130,7 +130,13 @@ void main() {
     #endif
 
     #if defined WORLD_WATER_ENABLED && defined WATER_DISPLACEMENT && WATER_WAVE_SIZE > 0
-        if ((renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER) || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD)) {
+        bool applyWaterWaves = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId == BLOCK_WATER;
+
+        #ifdef WATER_WAVE_LILY
+            applyWaterWaves = applyWaterWaves || (isRenderTerrain && vOut.blockId == BLOCK_LILY_PAD);
+        #endif
+
+        if (applyWaterWaves) {
             //float viewDist = length(localPos);
             float distF = 1.0 - smoothstep(0.2, 2.8, vOut.viewDist);
             distF = 1.0 - _pow2(distF);
@@ -154,12 +160,14 @@ void main() {
                 float time = GetAnimationFactor();
                 float skyLight = 1.0;//LightMapNorm(lmcoord).y;
 
-                if (vOut.blockId == BLOCK_LILY_PAD) {
-                    vec3 originPos = localPos + at_midBlock/64.0;
-                    vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
-                    localPos.xz += distF * waveOffset.xz;
-                    localPos.y -= (1.0/16.0);
-                }
+                #ifdef WATER_WAVE_LILY
+                    if (vOut.blockId == BLOCK_LILY_PAD) {
+                        vec3 originPos = localPos + at_midBlock/64.0;
+                        vec3 waveOffset = GetWaveHeight(cameraPosition + originPos, lmcoord.y, time, WATER_WAVE_DETAIL_VERTEX);
+                        localPos.xz += distF * waveOffset.xz;
+                        localPos.y -= (1.0/16.0);
+                    }
+                #endif
 
                 vec3 waveOffset = GetWaveHeight(cameraPosition + localPos, skyLight, time, WATER_WAVE_DETAIL_VERTEX);
                 localPos.y += distF * waveOffset.y;

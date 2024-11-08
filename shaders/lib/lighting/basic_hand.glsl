@@ -110,7 +110,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
                 float D = SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL);
-                accumDiffuse += D * lightAtt.x * lightColor * (1.0 - F);
+                accumDiffuse += D * lightNoLm * lightAtt.x * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     //float invGeoNoL = saturate(geoNoL*40.0 + 1.0);
@@ -184,7 +184,8 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 #endif
 
                 //accumDiffuse += SampleLightDiffuse(lightNoLm, F) * lightAtt * lightColor;
-                accumDiffuse += SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL) * lightAtt.x * lightColor * (1.0 - F);
+                float D = SampleLightDiffuse(lightNoVm, lightNoLm, lightLoHm, roughL);
+                accumDiffuse += D * lightNoLm * lightAtt.x * lightColor * (1.0 - F);
 
                 #if MATERIAL_SPECULAR != SPECULAR_NONE
                     float invGeoNoL = saturate(geoNoL*40.0 + 1.0);

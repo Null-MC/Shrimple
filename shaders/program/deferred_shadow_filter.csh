@@ -40,11 +40,11 @@ uniform float farPlane;
 
 
 const float g_sigmaXY = 9.0;
-const float g_sigmaV = 2.0;
+const float g_sigmaV = 0.1;
 
 void populateSharedBuffer() {
     if (gl_LocalInvocationIndex < 5)
-        gaussianBuffer[gl_LocalInvocationIndex] = 1.0;//Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
+        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
     
     uint i_base = uint(gl_LocalInvocationIndex) * 2u;
     if (i_base >= sharedBufferSize) return;
@@ -103,7 +103,7 @@ vec4 sampleSharedBuffer(const in float depthL) {
             vec4 sampleValue = sharedShadowBuffer[i_shared];
             float sampleDepthL = sharedDepthBuffer[i_shared];
             
-            float fv = Gaussian(g_sigmaV, abs(sampleDepthL - depthL));
+            float fv = Gaussian(g_sigmaV, sampleDepthL - depthL);
             
             float weight = fx*fy*fv;
             accum += weight * sampleValue;

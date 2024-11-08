@@ -17,6 +17,7 @@ in vec2 texcoord;
     #endif
 
     uniform usampler2D BUFFER_DEFERRED_DATA;
+    uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
     uniform sampler2D shadowtex0;
     uniform sampler2D shadowtex1;
 
@@ -131,7 +132,7 @@ void main() {
         vec2 coord = texcoord;
 
         #ifdef EFFECT_TAA_ENABLED
-            vec2 jitterOffset = getJitterOffset(frameCounter);
+            vec2 jitterOffset = 0.5*getJitterOffset(frameCounter);
             coord -= jitterOffset;
         #endif
 
@@ -184,12 +185,22 @@ void main() {
             if (any(greaterThan(localNormal, EPSILON3)))
                 localNormal = normalize(localNormal * 2.0 - 1.0);
 
+            vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, uv, 0).rgb;
+
+            if (any(greaterThan(texNormal, EPSILON3)))
+                texNormal = normalize(texNormal * 2.0 - 1.0);
+
             #ifndef IRIS_FEATURE_SSBO
                 vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
             #endif
 
             vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
             float geoNoL = dot(localNormal, localSkyLightDirection);
+            float geoNoLm = max(geoNoL, 0.0);
+
+            // shadowFinal *= geoNoLm;
+            float texNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
+            shadowFinal *= step(0.0, geoNoL) * texNoLm;
 
             #if SHADOW_PIXELATE > 0
                 vec3 worldPos = localPos + cameraPosition;
@@ -390,7 +401,7 @@ void main() {
             }
 
             #if MATERIAL_SSS != 0
-                sssFinal *= 1.0 - 0.5*(1.0 - max(geoNoL, 0.0));
+                sssFinal *= 1.0 - 0.5*(1.0 - geoNoLm);
             #endif
         }
 

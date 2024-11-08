@@ -43,6 +43,19 @@ uniform sampler3D physics_foam;
 // ERROR: MISSING!
 const float physics_globalTime = 0.0;
 
+// #define WATER_WAVE_SHORE
+
+
+#ifdef WATER_WAVE_SHORE
+    float getShoreWave(const in float shoreDist, const in float time) {
+        float shoreWave = sin(mod(shoreDist*8.0 + 1.4*time, PI));
+        shoreWave = max(2.0 * shoreWave - 1.0, 0.0);
+
+        return shoreWave
+            * max(1.0 - 2.0*shoreDist, 0.0)
+            * min(shoreDist*20.0, 1.0);
+    }
+#endif
 
 float physics_waveHeight(vec2 position, int iterations, float factor, float time) {
     position = (position - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
@@ -69,14 +82,22 @@ float physics_waveHeight(vec2 position, int iterations, float factor, float time
         frequency *= PHYSICS_FREQUENCY_MULT;
         speed *= PHYSICS_SPEED_MULT;
     }
+
+    height = height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
     
-    return height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
+    #ifdef WATER_WAVE_SHORE
+        height += getShoreWave(factor, time);
+    #endif
+
+    return height;
 }
 
 vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const in float factor, const in float time) {
     float oceanHeightFactor = physics_oceanHeight / 13.0;
     float totalFactor = oceanHeightFactor * factor;
     vec3 waveNormal = normalize(vec3(direction * totalFactor, PHYSICS_NORMAL_STRENGTH));
+
+    // TODO: dFdx/y normals
     
     vec2 eyePosition = position + physics_modelOffset.xz;
     vec2 rippleFetch = (eyePosition + vec2(physics_rippleRange)) / (physics_rippleRange * 2.0);
@@ -137,26 +158,41 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
         data.worldPos = wavePos / physics_oceanWaveHorizontalScale / PHYSICS_XZ_SCALE;
         data.height = height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
         
-        data.normal = physics_waveNormal(position, data.direction, factor, time);
+        // data.normal = physics_waveNormal(position, data.direction, factor, time);
 
         float waveAmplitude = max(data.normal.z, 0.0);
         waveAmplitude = data.height * pow4(waveAmplitude);
         vec2 waterUV = mix(position - physics_waveOffset, data.worldPos, clamp(factor * 2.0, 0.2, 1.0));
         
-        vec2 s1 = textureLod(physics_foam, vec3(waterUV * 0.26, physics_globalTime / 360.0), 0).rg;
-        vec2 s2 = textureLod(physics_foam, vec3(waterUV * 0.02, physics_globalTime / 360.0 + 0.5), 0).rg;
-        vec2 s3 = textureLod(physics_foam, vec3(waterUV * 0.1, physics_globalTime / 360.0 + 1.0), 0).rg;
+        vec2 s1 = textureLod(physics_foam, vec3(waterUV * 0.26, modifiedTime / 360.0), 0).rg;
+        vec2 s2 = textureLod(physics_foam, vec3(waterUV * 0.02, modifiedTime / 360.0 + 0.5), 0).rg;
+        vec2 s3 = textureLod(physics_foam, vec3(waterUV * 0.1, modifiedTime / 360.0 + 1.0), 0).rg;
         
         float waterSurfaceNoise = s1.r * s2.r * s3.r * 2.8 * physics_foamAmount;
         waveAmplitude = saturate(waveAmplitude * 1.2);
         waterSurfaceNoise = (1.0 - waveAmplitude) * waterSurfaceNoise + waveAmplitude * physics_foamAmount;
         
-        float worleyNoise = 0.2 + 0.8 * s1.g * (1.0 - s2.g);
+        float worleyNoise = 0.2 + 0.8 * s1.g;// * (1.0 - s2.g);
         float waterFoamMinSmooth = 0.45;
         float waterFoamMaxSmooth = 2.0;
-        waterSurfaceNoise = smoothstep(waterFoamMinSmooth, 1.0, waterSurfaceNoise) * worleyNoise;
+        waterSurfaceNoise = smoothstep(waterFoamMinSmooth, 1.0, waterSurfaceNoise);
         
-        data.foam = saturate(waterFoamMaxSmooth * waterSurfaceNoise * physics_foamOpacity);
+        data.foam = saturate(waterFoamMaxSmooth * waterSurfaceNoise);
+
+        #ifdef WATER_WAVE_SHORE
+            float shoreWaveF = getShoreWave(vIn.physics_localWaviness, time);
+
+            data.worldPos.y += shoreWaveF;
+            data.height += shoreWaveF;
+            data.foam += shoreWaveF;
+        #endif
+
+        data.normal = physics_waveNormal(position, data.direction, factor, time);
+
+        // float detailNoise = smoothstep(0.0, 0.8, s1.g);
+        float detailNoise = saturate(1.0 - 2.0 * s1.g * s3.r);
+
+        data.foam = saturate(data.foam * physics_foamOpacity);
         
         return data;
     }

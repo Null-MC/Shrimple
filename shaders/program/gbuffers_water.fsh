@@ -714,6 +714,8 @@ void main() {
             ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
     #endif
 
+    // if (isWater) albedo = vec3(1,0,0);
+
     float roughL = _pow2(roughness);
 
     #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED

@@ -141,6 +141,7 @@ const bool colortex15Clear = true;
 #define WATER_WAVE_MIN 0.1
 #define WATER_REFLECTIONS
 #define WATER_DISPLACEMENT
+//#define WATER_WAVE_LILY
 #define WATER_CAUSTICS
 #define WATER_FLOW
 #define WATER_FOAM

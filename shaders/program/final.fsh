@@ -121,6 +121,7 @@ void main() {
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
 		uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).b;
 		vec3 color = unpackUnorm4x8(deferredDataB).rgb;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
         vec3 color = textureLod(BUFFER_DEFERRED_NORMAL_TEX, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
@@ -128,38 +129,48 @@ void main() {
 		vec3 color = unpackUnorm4x8(deferredDataA).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 		vec3 color = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
 		vec3 color = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
 		vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
 		#ifdef DEBUG_TRANSPARENT
 			vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).rgb;
 		#else
 			vec3 color = texelFetch(texShadowSSS, ivec2(texcoord * viewSize), 0).rgb;
 		#endif
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SSS
 		#ifdef DEBUG_TRANSPARENT
 			vec3 color = texelFetch(BUFFER_DEFERRED_SHADOW, ivec2(texcoord * viewSize), 0).aaa;
 		#else
 			vec3 color = texelFetch(texShadowSSS, ivec2(texcoord * viewSize), 0).aaa;
 		#endif
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SSAO
 		vec3 color = textureLod(texSSAO, texcoord, 0).rrr;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_VELOCITY
 		vec4 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0);
 		vec3 color = (velocity.xyz * 100.0 + 0.5) * (1.0 - velocity.w);
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW_MAP
 		vec3 color = textureLod(shadowcolor0, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM_TILES
 		vec3 color = textureLod(BUFFER_BLOOM_TILES, texcoord, 0).rgb;
 		color /= color + 1.0;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEPTH_TILES
 		vec3 color = vec3(0.0);
 		if (texcoord.x < 0.5 && texcoord.y < 0.75)
 			color = texelFetch(texDepthNear, ivec2(gl_FragCoord.xy), 0).rrr;
+		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_SKY_IRRADIANCE
 		vec3 color = textureLod(texSkyIrradiance, texcoord * vec2(1.0, -1.0) + vec2(0.0, 1.0), 0).rgb;
 		// color = color / (color + 1.0);

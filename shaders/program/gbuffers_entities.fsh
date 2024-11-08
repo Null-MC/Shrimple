@@ -470,7 +470,7 @@ void main() {
     color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
-        color.rgb = vec3(WHITEWORLD_VALUE);
+        color.rgb = LinearToRGB(vec3(WHITEWORLD_VALUE));
     #endif
 
     vec3 localNormal = normalize(vIn.localNormal);

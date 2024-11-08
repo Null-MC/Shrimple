@@ -64,9 +64,12 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float NoVm = max(dot(texNormal, localViewDir), 0.0);
     float LoHm = max(dot(localSkyLightDir, H), 0.0);
 
-    vec3 accumDiffuse = SampleLightDiffuse(NoVm, NoLm, LoHm, roughL) * skyLightShadowColor;// * (1.0 - ambientF);
+    float D = SampleLightDiffuse(NoVm, NoLm, LoHm, roughL);
+    vec3 accumDiffuse = D * skyLightShadowColor;// * (1.0 - ambientF);
 
     float skyLightF = lmcoord.y;
+    // float skyLightF = _pow2(lmcoord.y);
+    // float skyLightF = _smoothstep(lmcoord.y);
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetLPVPosition(localPos);
@@ -85,12 +88,12 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
     #endif
 
-    skyLightF = _pow2(skyLightF);
+    // skyLightF = _pow2(skyLightF);
 
     vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    vec3 ambientSkyLight = skyLightF * ambientSkyLight_indirect;
+    vec3 ambientSkyLight = PI * skyLightF * ambientSkyLight_indirect;
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
         lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal, 1.0);
@@ -100,7 +103,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         ambientSkyLight += skyLightColor * lpvIndirectSample * lpvFade;
     #endif
 
-    accumDiffuse += PI * ambientSkyLight * (occlusion * ambientF);
+    accumDiffuse += ambientSkyLight * (occlusion * ambientF);
 
     // #if MATERIAL_SPECULAR != SPECULAR_NONE
     //     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
