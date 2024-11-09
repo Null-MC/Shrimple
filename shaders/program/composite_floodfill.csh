@@ -15,8 +15,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
     const ivec3 workGroups = ivec3(8, 8, 8);
 #endif
 
-const vec2 LpvBlockSkyFalloff = vec2(0.04, 0.04);
-const float LpvIndirectFalloff = 0.002;
+const float LpvFalloff = 0.998;
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
@@ -378,7 +377,7 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ2 = sampleDirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
     float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
-    vec4 avgFalloff = rcp(wMax) * (1.0 - LpvBlockSkyFalloff.xxxy);
+    float avgFalloff = rcp(wMax) * LpvFalloff;
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
 
@@ -397,7 +396,7 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
 
         float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
         // float avgFalloff = (1.0/6.0) * (1.0 - LpvIndirectFalloff);
-        float avgFalloff = rcp(wMax) * (1.0 - LpvIndirectFalloff);
+        float avgFalloff = rcp(wMax) * LpvFalloff;
         return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
     }
 #endif

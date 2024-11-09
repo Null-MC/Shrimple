@@ -458,9 +458,9 @@ screen.LIGHTING_LPV_OPTIONS=FloodFill Options
 
 option.LPV_SIZE=Size
 value.LPV_SIZE.0=OFF
-value.LPV_SIZE.1=Small
-value.LPV_SIZE.2=Medium
-value.LPV_SIZE.3=Large
+value.LPV_SIZE.1=Small [64]
+value.LPV_SIZE.2=Medium [128]
+value.LPV_SIZE.3=Large [256]
 
 option.LPV_SKYLIGHT=Sky Light
 value.LPV_SKYLIGHT.0=None

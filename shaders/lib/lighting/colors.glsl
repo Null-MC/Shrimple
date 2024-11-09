@@ -6,9 +6,9 @@
 
 #define LIGHT_COLOR_BREWING_STAND vec3(0.636, 0.509, 0.179) // [0]
 
-// CANDLES
+#define LIGHT_COLOR_CANDLE vec3(0.902, 0.565, 0.298) // [0]
 
-#define LIGHT_COLOR_CAVEVINE_BERRIES vec3(0.717, 0.541, 0.188) // [0]
+#define LIGHT_COLOR_CAVEVINE_BERRIES vec3(0.902, 0.471, 0.118) // [0]
 
 #define LIGHT_COLOR_CRYING_OBSIDIAN vec3(0.390, 0.065, 0.646) // [0]
 
@@ -28,7 +28,7 @@
 
 #define LIGHT_COLOR_GLOWSTONE vec3(0.747, 0.594, 0.326) // [0]
 
-#define LIGHT_COLOR_GLOW_LICHEN vec3(0.569, 0.871, 0.722) // [0]
+#define LIGHT_COLOR_GLOW_LICHEN vec3(0.341, 0.722, 0.431) // [0]
 
 #define LIGHT_COLOR_JACK_O_LANTERN vec3(0.768, 0.701, 0.325) // [0]
 
@@ -36,7 +36,7 @@
 
 // LIGHTING_ROD
 
-#define LIGHT_COLOR_LAVA vec3(0.804, 0.424, 0.149) // [0]
+#define LIGHT_COLOR_LAVA vec3(0.910, 0.420, 0.153) // [0]
 
 #define LIGHT_COLOR_MAGMA vec3(0.747, 0.323, 0.110) // [0]
 
@@ -60,4 +60,4 @@
 
 #define LIGHT_SOUL_TORCH vec3(0.097, 0.721, 0.899) // [0]
 
-#define LIGHT_TORCH vec3(0.960, 0.570, 0.277) // [0]
+#define LIGHT_TORCH vec3(0.902, 0.553, 0.204) // [0]

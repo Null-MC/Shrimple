@@ -38,7 +38,7 @@
                 lightColor = LIGHT_COLOR_BREWING_STAND;
                 break;
             case LIGHT_CANDLE_CAKE:
-                lightColor = vec3(0.758, 0.553, 0.239);
+                lightColor = LIGHT_COLOR_CANDLE;
                 break;
             case LIGHT_CAVEVINE_BERRIES:
                 lightColor = LIGHT_COLOR_CAVEVINE_BERRIES;
@@ -288,7 +288,7 @@
                 case LIGHT_CANDLES_2:
                 case LIGHT_CANDLES_3:
                 case LIGHT_CANDLES_4:
-                    lightColor = vec3(0.758, 0.553, 0.239);
+                    lightColor = LIGHT_COLOR_CANDLE;
                     break;
             }
         #endif
