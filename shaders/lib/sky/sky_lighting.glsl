@@ -79,8 +79,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         lpvFade = smootherstep(lpvFade);
         lpvFade *= 1.0 - Lpv_LightmapMixF;
 
-        float dayF = sqrt(abs(localSkyLightDirection.y));
-        lpvFade *= dayF;
+        float dayF = abs(localSkyLightDirection.y);
+        lpvFade *= pow(dayF, 0.2);
 
         vec4 lpvSample = SampleLpv(lpvSamplePos);
         float lpvSkyLight = GetLpvSkyLight(lpvSample);

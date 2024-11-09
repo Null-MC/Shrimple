@@ -16,6 +16,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 const float LpvFalloff = 0.998;
+const float LpvIndirectFalloff = 0.98;
 
 
 #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
@@ -396,7 +397,7 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
 
         float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
         // float avgFalloff = (1.0/6.0) * (1.0 - LpvIndirectFalloff);
-        float avgFalloff = rcp(wMax) * LpvFalloff;
+        float avgFalloff = rcp(wMax) * LpvIndirectFalloff;
         return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
     }
 #endif
@@ -551,7 +552,7 @@ void main() {
                     }
                 #endif
 
-                float skyLightDistF = sunUpF * 0.8 + 0.2;
+                float skyLightDistF = 1.0;//sunUpF * 0.8 + 0.2;
                 float skyLightFinal = exp2(LpvBlockSkyRange.y * skyLightDistF * shadowColorF.a) - 1.0;
                 directLightValue.a = max(directLightValue.a, skyLightFinal);
             #endif

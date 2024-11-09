@@ -1,5 +1,8 @@
 const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
 
+#define EFFECT_SSAO_RT
+
+
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     const float inv = rcp(EFFECT_SSAO_SAMPLES);
     const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
@@ -18,15 +21,22 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     float ao = 0.0;
     float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
-        vec2 offset = vec2(
-            sin(rotatePhase),
-            cos(rotatePhase)
-        ) * radius;
+        #ifdef EFFECT_SSAO_RT
+            vec3 offset = hash33(vec3(gl_FragCoord.xy, i + frameCounter)) - 0.5;
+            offset = normalize(offset) * EFFECT_SSAO_RADIUS * dither;
+            offset *= sign(dot(offset, viewNormal));
+        #else
+            vec3 offset = vec3(
+                sin(rotatePhase),
+                cos(rotatePhase),
+                0.0) * radius;
 
-        radius += rStep;
-        rotatePhase += GOLDEN_ANGLE;
+            radius += rStep;
+            rotatePhase += GOLDEN_ANGLE;
+        #endif
 
-        vec3 sampleViewPos = viewPos + vec3(offset, 0.0);
+        vec3 sampleViewPos = viewPos + offset;
+        // sampleViewPos.z += 0.5;
         vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos) * 0.5 + 0.5;
 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
@@ -59,20 +69,25 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
+        // float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
 
         float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
 
         // sampleWeight = pow(sampleWeight, 4.0);
-        sampleWeight = 1.0 - sampleWeight;
+        sampleWeight = 1.0;// - sampleWeight;
 
         ao += sampleNoLm * sampleWeight;
         maxWeight += sampleWeight;
     }
 
-    // ao = saturate(ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH);
-    ao = ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH;
-    ao = ao / (ao + rcp(EFFECT_SSAO_STRENGTH));
+    #ifdef EFFECT_SSAO_RT
+        ao = ao / max(maxWeight, 1.0);
+        ao = pow(ao, rcp(EFFECT_SSAO_STRENGTH));
+    #else
+        ao = ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH;
+        ao = ao / (ao + rcp(EFFECT_SSAO_STRENGTH));
+    #endif
 
     return ao;
 }
