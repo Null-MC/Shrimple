@@ -269,6 +269,7 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_FRUSTUM_TEST
 //#define DYN_LIGHT_BLOCK_ENTITIES
 //#define DYN_LIGHT_WEATHER
+#define LIGHTING_TRACE_LPV_AMBIENT 0.0 // [0.0 0.2 0.4 0.6 0.8 1.0]
 
 // Dynamic LPV
 #define LPV_SIZE 0 // [0 1 2 3]
@@ -337,7 +338,7 @@ const bool colortex15Clear = true;
 
 #define EFFECT_SSAO_ENABLED
 #define EFFECT_SSAO_SAMPLES 8 // [2 4 6 8 10 12 14 16 20 24 28 32]
-#define EFFECT_SSAO_RADIUS 1.2 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define EFFECT_SSAO_RADIUS 1.2 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.2 2.4 2.6 2.8 3.0 4.0 5.0 6.0]
 #define EFFECT_SSAO_STRENGTH 5.0 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7 8 9 10 12 14 16 18 20 24 28 32]
 #define EFFECT_SSAO_BIAS 12 // [2 3 4 6 8 12 16 24 32 48]
 #define EFFECT_SSAO_MIN 0.0

@@ -20,7 +20,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
         vec3 lpvLight = GetLpvBlockLight(lpvSample);
 
-        return 0.1 * lpvLight * lpvFade;// * Lighting_AmbientF;
+        return LIGHTING_TRACE_LPV_AMBIENT * lpvLight * lpvFade;// * Lighting_AmbientF;
     }
 #endif
 

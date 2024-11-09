@@ -4,27 +4,33 @@ const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
 
 
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
-    const float inv = rcp(EFFECT_SSAO_SAMPLES);
-    const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
-
     #ifdef EFFECT_TAA_ENABLED
         float dither = InterleavedGradientNoiseTime();
     #else
         float dither = InterleavedGradientNoise();
     #endif
 
-    float rotatePhase = dither * TAU;
+    #ifdef EFFECT_SSAO_RT
+        float viewDist = length(viewPos);
+        float viewDistF = saturate(viewDist / 100.0);
+        float radius = mix(0.2, 6.0, viewDistF);
+    #else
+        // const float inv = rcp(EFFECT_SSAO_SAMPLES);
+        const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
 
-    float radius = rStep;
-    vec2 offset;
+        float rotatePhase = dither * TAU;
+        float radius = rStep;
+    #endif
 
     float ao = 0.0;
     float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
         #ifdef EFFECT_SSAO_RT
             vec3 offset = hash33(vec3(gl_FragCoord.xy, i + frameCounter)) - 0.5;
-            offset = normalize(offset) * EFFECT_SSAO_RADIUS * dither;
+            offset = normalize(offset) * radius * dither;
             offset *= sign(dot(offset, viewNormal));
+
+            offset.z += viewDistF;
         #else
             vec3 offset = vec3(
                 sin(rotatePhase),
@@ -36,7 +42,6 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         #endif
 
         vec3 sampleViewPos = viewPos + offset;
-        // sampleViewPos.z += 0.5;
         vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos) * 0.5 + 0.5;
 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
@@ -72,10 +77,14 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         // float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
         float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
 
-        float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
+        #ifdef EFFECT_SSAO_RT
+            float sampleWeight = saturate(sampleDist / radius);
+        #else
+            float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
+        #endif
 
         // sampleWeight = pow(sampleWeight, 4.0);
-        sampleWeight = 1.0;// - sampleWeight;
+        sampleWeight = 1.0 - sampleWeight;
 
         ao += sampleNoLm * sampleWeight;
         maxWeight += sampleWeight;

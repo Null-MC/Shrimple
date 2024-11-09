@@ -81,8 +81,8 @@ void main() {
         occlusion = GetSpiralOcclusion(viewPos, texViewNormal);
 
         // fade away from nearby surfaces
-        float viewDist = length(viewPos);
-        occlusion *= smoothstep(0.0, 3.0, viewDist);
+        // float viewDist = length(viewPos);
+        // occlusion *= smoothstep(0.0, 3.0, viewDist);
     }
 
     outAO = 1.0 - occlusion;
