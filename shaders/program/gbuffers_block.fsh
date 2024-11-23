@@ -118,6 +118,8 @@ uniform vec3 previousCameraPosition;
 uniform int isEyeInWater;
 uniform vec3 upPosition;
 uniform vec3 skyColor;
+
+uniform float near;
 uniform float far;
 
 uniform vec3 fogColor;
@@ -155,7 +157,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
-    uniform float near;
+    // uniform float near;
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED

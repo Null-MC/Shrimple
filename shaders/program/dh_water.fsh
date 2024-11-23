@@ -331,7 +331,7 @@ uniform float dhFarPlane;
         #include "/lib/lighting/vanilla.glsl"
     #endif
 
-    #include "/lib/lighting/basic_hand.glsl"
+    // #include "/lib/lighting/basic_hand.glsl"
 
     #ifdef VL_BUFFER_ENABLED
         #include "/lib/fog/fog_volume.glsl"
