@@ -1,7 +1,10 @@
 const float vlSkyMinLight = 0.08;
 
 
-float GetWaterPhase(const in float VoL) {return DHG(VoL, -0.12, 0.68, 0.24);}
+float GetWaterPhase(const in float VoL) {
+    // return DHG(VoL, -0.12, 0.68, 0.24);
+    return HG(VoL, 0.36);
+}
 
 void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
     vec3 localStart = localViewDir * nearDist;
@@ -110,6 +113,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float phaseSky = GetSkyPhase(VoL);
     #else
+        float VoL = 1.0;
         float time = GetAnimationFactor();
     #endif
 

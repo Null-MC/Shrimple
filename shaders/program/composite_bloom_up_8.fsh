@@ -15,6 +15,7 @@ uniform int frameCounter;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/effects/bloom.glsl"
+#include "/lib/post/exposure.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -40,6 +41,9 @@ void main() {
     #endif
 
     color *= EffectBloomStrengthF;
+
+    float exposure = GetPostExposure();
+    color /= exposure;
 
     #if POST_TONEMAP == 0
         // apply a reinhard like curve to prevent blowout when tonemap is disabled

@@ -37,7 +37,7 @@ float GetSkyAltitudeFactor(const in float altitude) {
 
         float fogF = smoothstep(0.5 * heightF, 1.0, noise);
         //fogF = pow(fogF, 3.0);// + MinFogDensity;// * 0.5 + 0.5;
-        fogF = 4.0 * _pow3(fogF);
+        fogF = 4.0 * _pow3(fogF) + 0.5;
 
         // float fogF = step(0.65, noise);
 
@@ -98,5 +98,6 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
 }
 
 float GetSkyPhase(const in float VoL) {
-    return DHG(VoL, -0.09, 0.91, 0.16);
+    return HG(VoL, 0.24);
+    // return DHG(VoL, -0.03, 0.86, 0.16);
 }

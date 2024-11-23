@@ -1,6 +1,6 @@
 const float SkyDensityF = SKY_FOG_DENSITY * 0.01;
 const float Sky_FogDensity_Night = SKY_FOG_DENSITY_NIGHT * 0.01;
-const float SkyRainDensityF = 0.55;
+const float SkyRainDensityF = 0.32;
 const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
 
 #ifdef DISTANT_HORIZONS
@@ -23,7 +23,7 @@ const float CaveFogDensityF = SKY_CAVE_FOG_DENSITY * 0.01;
     const float AirAmbientF = 0.02;//mix(0.02, 0.0, weatherStrength);
     const vec3 AirScatterColor = _RGBToLinear(vec3(0.44));
     // const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.6));//mix(0.02, 0.006, weatherStrength);
-    vec3 AirExtinctColor = _RGBToLinear(vec3(mix(0.2, 0.3, weatherStrength)));//mix(0.02, 0.006, weatherStrength);
+    vec3 AirExtinctColor = _RGBToLinear(vec3(mix(0.2, 0.4, weatherStrength)));//mix(0.02, 0.006, weatherStrength);
 #else
     // const float AirDensityF = SkyDensityF;
     vec3 AirAmbientF = RGBToLinear(fogColor);

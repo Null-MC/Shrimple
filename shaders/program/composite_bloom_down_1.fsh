@@ -46,7 +46,9 @@ void main() {
 
     vec3 color = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
         
-    ApplyPostExposure(color);
+    // ApplyPostExposure(color);
+    float exposure = GetPostExposure();
+    color *= exposure;
 
     float brightness = luminance(color);
     float brightness_new = pow(brightness * EffectBloomBrightnessF, EFFECT_BLOOM_POWER);

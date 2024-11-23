@@ -551,7 +551,7 @@ layout(location = 0) out vec4 outFinal;
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
                     #if LPV_SIZE > 0
-                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal) * occlusion;
+                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
                     #endif
 
                     vec3 sampleDiffuse = vec3(0.0);
@@ -620,12 +620,11 @@ layout(location = 0) out vec4 outFinal;
                     skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
                 #endif
 
-                // float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
-                // float sssSkyLight = skyLightF;
-                vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF;
+                #if MATERIAL_SSS_AMBIENT > 0
+                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF;
 
-                // SSS ambient sky lighting
-                sssFinal += sss_albedo * sssSkyAmbientColor * (0.3 * occlusion * skyLightF);
+                    sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * occlusion * skyLightF);
+                #endif
 
                 // vec3 sssColor = vec3(1.0);
                 // if (any(greaterThan(albedo, EPSILON3)))

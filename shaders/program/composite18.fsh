@@ -538,7 +538,7 @@ layout(location = 0) out vec4 outFinal;
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
                     #if LPV_SIZE > 0
-                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal) * occlusion;
+                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
                     #endif
 
                     vec3 sampleDiffuse = vec3(0.0);
@@ -584,14 +584,34 @@ layout(location = 0) out vec4 outFinal;
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
                 vec3 sssFinal = deferredSSS * MaterialSssStrengthF * skyLightColor;
 
-                float sssSkyLight = 0.1 * _pow3(deferredLighting.y);
-                vec3 sssSkyColor = SampleSkyIrradiance(localViewDir);
-                sssFinal += sssSkyColor * (sss * occlusion * sssSkyLight * Sky_BrightnessF);
+                vec3 sss_albedo = vec3(1.0);
+                #ifdef MATERIAL_SSS_TINT
+                    if (any(greaterThan(albedo, vec3(0.0))))
+                        sss_albedo = 1.7 * normalize(albedo);
 
-                // vec3 sssColor = vec3(1.0);
-                // if (any(greaterThan(albedo, EPSILON3)))
-                //     sssColor = normalize(albedo);
-                // sssFinal *= sssColor;
+                    sssFinal *= mix(vec3(1.0), sss_albedo, shadowSSS);
+                #endif
+
+                float skyLightF = _pow2(deferredLighting.y);
+
+                #ifdef IS_LPV_SKYLIGHT_ENABLED
+                    vec3 lpvPos = GetLPVPosition(localPos);
+
+                    float lpvFade = GetLpvFade(lpvPos);
+                    lpvFade = smootherstep(lpvFade);
+                    lpvFade *= 1.0 - Lpv_LightmapMixF;
+
+                    vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
+                    float lpvSkyLight = GetLpvSkyLight(lpvSample);
+
+                    skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
+                #endif
+
+                #if MATERIAL_SSS_AMBIENT > 0
+                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF;
+
+                    sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * occlusion * skyLightF);
+                #endif
 
                 diffuseFinal += sssFinal;
             #endif

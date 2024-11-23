@@ -13,7 +13,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     #ifdef EFFECT_SSAO_RT
         float viewDist = length(viewPos);
         float viewDistF = saturate(viewDist / 100.0);
-        float radius = mix(0.2, 6.0, viewDistF);
+        float radius = mix(0.8, 4.0, viewDistF);
     #else
         // const float inv = rcp(EFFECT_SSAO_SAMPLES);
         const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
@@ -26,7 +26,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
         #ifdef EFFECT_SSAO_RT
-            vec3 offset = hash33(vec3(gl_FragCoord.xy, i + frameCounter)) - 0.5;
+            vec3 offset = hash33(vec3(gl_FragCoord.xy, frameCounter + i)) - 0.5;
             offset = normalize(offset) * radius * dither;
             offset *= sign(dot(offset, viewNormal));
 
@@ -47,6 +47,8 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
 
         float sampleClipDepth = textureLod(depthtex0, sampleClipPos.xy, 0.0).r;
+
+        // TODO: RT step check
 
         #ifdef DISTANT_HORIZONS
             mat4 projectionInv = gbufferProjectionInverse;

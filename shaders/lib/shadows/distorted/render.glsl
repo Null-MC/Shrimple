@@ -76,7 +76,10 @@ float CompareDepth(in vec3 shadowPos, const in vec2 offset, const in float bias)
                         sampleColor.rgb = RGBToLinear(sampleColor.rgb);
                         
                         float lum = luminance(sampleColor.rgb);
-                        if (lum > 0.0) sampleColor.rgb /= lum;
+                        if (lum > 0.0) {
+                            float lum2 = sqrt(lum);
+                            shadowColor.rgb *= lum2 / lum;
+                        }
                         
                         sampleColor.rgb = mix(sampleColor.rgb, vec3(0.0), _pow2(sampleColor.a));
                     }
@@ -190,7 +193,10 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
                 shadowColor.rgb = RGBToLinear(shadowColor.rgb);
 
                 float lum = luminance(shadowColor.rgb);
-                if (lum > 0.0) shadowColor.rgb /= lum;
+                if (lum > 0.0) {
+                    float lum2 = sqrt(lum);
+                    shadowColor.rgb *= lum2 / lum;
+                }
 
                 shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
                 
@@ -245,7 +251,10 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             shadowColor.rgb = RGBToLinear(shadowColor.rgb);
 
             float lum = luminance(shadowColor.rgb);
-            if (lum > 0.0) shadowColor.rgb /= lum;
+            if (lum > 0.0) {
+                float lum2 = sqrt(lum);
+                shadowColor.rgb *= lum2 / lum;
+            }
 
             shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
             

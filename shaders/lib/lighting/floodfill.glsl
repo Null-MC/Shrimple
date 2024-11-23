@@ -24,8 +24,11 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
             lpvSample.rgb = max(lpvSample.rgb, 0.5 * lpvSampleN.rgb);
         #endif
 
-        lpvLight = GetLpvBlockLight(lpvSample);
-        // lpvLight = GetLpvBlockLight(lpvSample, lmcoord.x);
+        #ifdef LPV_VANILLA_BRIGHTNESS
+            lpvLight = GetLpvBlockLight(lpvSample, lmcoord.x);
+        #else
+            lpvLight = GetLpvBlockLight(lpvSample);
+        #endif
     }
 
     blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade) * occlusion;

@@ -83,6 +83,12 @@ vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, cons
     return clipPosPrev * 0.5 + 0.5;
 }
 
+vec4 sampleHistoryBuffer(const in vec2 texcoord) {
+    vec4 _sample = textureLod(BUFFER_FINAL_PREV, texcoord, 0);
+    // _sample.rgb = RGBToLinear(_sample.rgb);
+    return _sample;
+}
+
 vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     vec2 samplePos = uv * viewSize;// - 0.5;
     vec2 texPos1 = floor(samplePos);
@@ -115,17 +121,17 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
 
     vec4 result = vec4(0.0);
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos0.y), 0) * w0.x * w0.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos0.y), 0) * w12.x * w0.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos0.y), 0) * w3.x * w0.y;
+    result += sampleHistoryBuffer(vec2(texPos0.x,  texPos0.y)) * w0.x * w0.y;
+    result += sampleHistoryBuffer(vec2(texPos12.x, texPos0.y)) * w12.x * w0.y;
+    result += sampleHistoryBuffer(vec2(texPos3.x,  texPos0.y)) * w3.x * w0.y;
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos12.y), 0) * w0.x * w12.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos12.y), 0) * w12.x * w12.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos12.y), 0) * w3.x * w12.y;
+    result += sampleHistoryBuffer(vec2(texPos0.x,  texPos12.y)) * w0.x * w12.y;
+    result += sampleHistoryBuffer(vec2(texPos12.x, texPos12.y)) * w12.x * w12.y;
+    result += sampleHistoryBuffer(vec2(texPos3.x,  texPos12.y)) * w3.x * w12.y;
 
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos0.x,  texPos3.y), 0) * w0.x * w3.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos12.x, texPos3.y), 0) * w12.x * w3.y;
-    result += textureLod(BUFFER_FINAL_PREV, vec2(texPos3.x,  texPos3.y), 0) * w3.x * w3.y;
+    result += sampleHistoryBuffer(vec2(texPos0.x,  texPos3.y)) * w0.x * w3.y;
+    result += sampleHistoryBuffer(vec2(texPos12.x, texPos3.y)) * w12.x * w3.y;
+    result += sampleHistoryBuffer(vec2(texPos3.x,  texPos3.y)) * w3.x * w3.y;
 
     return clamp(result, 0.0, 65000.0);
 }
@@ -141,5 +147,8 @@ void main() {
     vec4 colorFinal = ApplyTAA(texcoord);
 
     outFinal = colorFinal.rgb;
+
+    // colorFinal.rgb = RGBToL
+
     outFinalPrev = colorFinal;
 }

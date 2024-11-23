@@ -46,7 +46,7 @@ composite16		translucent deferred block-light tracing
 composite17		translucent deferred VL tracing
 composite18		translucent deferred final + pre distance blur
 composite19		post distance blur
-composite20		taa resolve
+--composite20		taa resolve
 
 composite21		bloom downscale 1/2
 composite22		bloom downscale 1/4
@@ -68,5 +68,8 @@ composite38		bloom upscale final
 
 composite40		post-processing
 composite41		[debug] bloom tile merge
+composite42		debug views
 
-final			final / debug output
+++composite50		taa resolve
+
+final			final --/ debug output

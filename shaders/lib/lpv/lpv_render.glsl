@@ -150,9 +150,21 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texN
     return SampleLpv(samplePos);
 }
 
-vec3 GetLpvBlockLight(const in vec4 lpvSample) {
-    return lpvSample.rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
-}
+
+#ifdef LPV_VANILLA_BRIGHTNESS
+    vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float lmBlock) {
+        vec3 rgb = lpvSample.rgb;// * (LPV_BLOCKLIGHT_SCALE/15.0);
+
+        vec3 hsv = RgbToHsv(rgb);
+        hsv.z = _pow2(lmBlock);
+
+        return HsvToRgb(hsv) * Lighting_Brightness;
+    }
+#else
+    vec3 GetLpvBlockLight(const in vec4 lpvSample) {
+        return lpvSample.rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
+    }
+#endif
 
 vec3 GetLpvFogBlockLight(const in vec4 lpvSample) {
     vec3 hsv = RgbToHsv(lpvSample.rgb);
@@ -164,16 +176,16 @@ vec3 GetLpvFogBlockLight(const in vec4 lpvSample) {
     return rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
 }
 
-vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float minBlockLight) {
-    vec3 hsv = RgbToHsv(lpvSample.rgb);
-    // hsv.z = max(hsv.z, minBlockLight*0.33);
-    // hsv.z = _pow2(hsv.z);
-    hsv.z = _pow2(minBlockLight)*0.33;
+// vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float minBlockLight) {
+//     vec3 hsv = RgbToHsv(lpvSample.rgb);
+//     // hsv.z = max(hsv.z, minBlockLight*0.33);
+//     // hsv.z = _pow2(hsv.z);
+//     hsv.z = _pow2(minBlockLight)*0.33;
     
-    vec3 lpvBlockLight = HsvToRgb(hsv);
+//     vec3 lpvBlockLight = HsvToRgb(hsv);
 
-    return lpvBlockLight * ((LPV_BLOCKLIGHT_SCALE / 15.0) * Lighting_Brightness);
-}
+//     return lpvBlockLight * ((LPV_BLOCKLIGHT_SCALE / 15.0) * Lighting_Brightness);
+// }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {
     float skyLight = saturate(lpvSample.a);

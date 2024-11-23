@@ -75,11 +75,16 @@ void main() {
 
     color.rgb *= vIn.color.rgb;
 
-    // #if defined SHADOW_COLORED && defined SHADOW_COLOR_BLEND
-    //     color.rgb = RGBToLinear(color.rgb);
-    //     color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
-    //     color.rgb = LinearToRGB(color.rgb);
-    // #endif
+    #if defined SHADOW_COLORED && defined SHADOW_COLOR_BLEND
+        if (renderStage != MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)
+            color.a = 1.0;
+
+        color.rgb = RGBToLinear(color.rgb);
+        color.rgb = mix(color.rgb, vec3(1.0), _pow2(color.a));
+        // color.rgb = sqrt(color.rgb);
+        // color.a = sqrt(color.a);
+        color.rgb = LinearToRGB(color.rgb);
+    #endif
 
     if (vIn.blockId == BLOCK_WATER)
         color = vec4(0.90, 0.94, 0.96, 0.0);

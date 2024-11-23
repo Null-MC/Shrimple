@@ -9,7 +9,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 }
 
 #if LPV_SIZE > 0
-    vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal) {
+    vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmBlock) {
         vec3 lpvPos = GetLPVPosition(localPos);
         if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) != lpvPos) return vec3(0.0);
 
@@ -18,7 +18,13 @@ float GetVoxelFade(const in vec3 voxelPos) {
         lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
-        vec3 lpvLight = GetLpvBlockLight(lpvSample);
+
+        // vec3 lpvLight = GetLpvBlockLight(lpvSample);
+        #ifdef LPV_VANILLA_BRIGHTNESS
+            vec3 lpvLight = GetLpvBlockLight(lpvSample, lmBlock);
+        #else
+            vec3 lpvLight = GetLpvBlockLight(lpvSample);
+        #endif
 
         return LIGHTING_TRACE_LPV_AMBIENT * lpvLight * lpvFade;// * Lighting_AmbientF;
     }
@@ -40,7 +46,7 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     // #endif
 
     #if LPV_SIZE > 0 //&& LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal, texNormal) * occlusion;
+        sampleDiffuse += GetLpvAmbientLighting(localPos, localNormal, texNormal, lmcoord.x) * occlusion;
     #endif
 }
 

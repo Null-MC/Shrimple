@@ -23,9 +23,6 @@ value.SKY_STARS.0=None
 value.SKY_STARS.1=Vanilla
 value.SKY_STARS.2=Custom
 
-
-screen.SKY_BRIGHTNESS_OPTIONS=Sky Brightness
-
 option.SKY_SUN_BRIGHTNESS=Sun Light
 suffix.SKY_SUN_BRIGHTNESS=%
 
@@ -37,6 +34,18 @@ suffix.SKY_BRIGHTNESS=%
 
 
 screen.SKY_COLOR_OPTIONS=Sky Light Colors
+
+option.SKY_LIGHT_COLOR_DAY_R=Daylight:Red
+option.SKY_LIGHT_COLOR_DAY_G=Daylight:Green
+option.SKY_LIGHT_COLOR_DAY_B=Daylight:Blue
+
+option.SKY_LIGHT_COLOR_HORIZON_R=Horizon:Red
+option.SKY_LIGHT_COLOR_HORIZON_G=Horizon:Green
+option.SKY_LIGHT_COLOR_HORIZON_B=Horizon:Blue
+
+option.SKY_LIGHT_COLOR_NIGHT_R=Night:Red
+option.SKY_LIGHT_COLOR_NIGHT_G=Night:Green
+option.SKY_LIGHT_COLOR_NIGHT_B=Night:Blue
 
 
 screen.SKY_CLOUD_OPTIONS=Clouds
@@ -65,7 +74,7 @@ option.SKY_CLOUD_HEIGHT=Height
 option.SKY_CLOUD_HEIGHT.comment=The vertical height range of the cloud volume (in blocks). For fancy/cubed clouds only.
 
 
-screen.SKY_FOG_OPTIONS=Fog
+screen.FOG_OPTIONS=Fog
 
 option.SKY_VOL_FOG_TYPE=Volumetric Fog
 value.SKY_VOL_FOG_TYPE.0=None
@@ -90,6 +99,9 @@ value.SKY_FOG_SHAPE.2=Cylinder
 
 option.VOLUMETRIC_NOISE_ENABLED=Chunky Fog
 option.VOLUMETRIC_NOISE_ENABLED.comment=Gives volumetric (fancy) fog variable density.
+
+option.WORLD_SEA_LEVEL=Sea Level
+suffix.WORLD_SEA_LEVEL=m
 
 
 screen.WORLD_OPTIONS=World
