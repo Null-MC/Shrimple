@@ -12,6 +12,7 @@ uniform sampler2D BUFFER_BLOOM_TILES;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int frameCounter;
+uniform float nightVision;
 
 #include "/lib/sampling/ign.glsl"
 #include "/lib/effects/bloom.glsl"

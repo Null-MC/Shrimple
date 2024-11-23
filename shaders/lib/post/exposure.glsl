@@ -1,7 +1,7 @@
 float GetPostExposure() {
     float exposure = POST_EXPOSURE;
 
-    //exposure += nightVision;
+    exposure += 2.0*nightVision;
 
     return exp2(exposure);
 }
