@@ -600,7 +600,7 @@ layout(location = 0) out vec4 outFinal;
                 vec3 sss_albedo = vec3(1.0);
                 #ifdef MATERIAL_SSS_TINT
                     if (any(greaterThan(albedo, vec3(0.0))))
-                        sss_albedo = 1.7 * normalize(albedo);
+                        sss_albedo = normalize(albedo);
 
                     sssFinal *= mix(vec3(1.0), sss_albedo, shadowSSS);
                 #endif
@@ -631,7 +631,7 @@ layout(location = 0) out vec4 outFinal;
                 //     sssColor = normalize(albedo);
                 // sssFinal *= sssColor;
 
-                diffuseFinal += sss * MaterialSssStrengthF * sssFinal;
+                diffuseFinal += (3.0*phaseIso) * sss * MaterialSssStrengthF * sssFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

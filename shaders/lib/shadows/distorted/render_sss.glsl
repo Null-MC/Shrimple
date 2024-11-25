@@ -28,10 +28,10 @@ float GetSss_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in fl
 
 float GetSssFactor(const in vec3 shadowPos, const in float offsetBias, const in float sss) {
     float zRange = GetShadowRange();
-    float sssBias = sss * MATERIAL_SSS_MAXDIST / zRange;
+    float sssBias = sss * (MATERIAL_SSS_MAXDIST / zRange);
 
     float sssRadius = sss * MATERIAL_SSS_SCATTER;
     vec2 pixelRadius = GetShadowPixelRadius(shadowPos, sssRadius);
-    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, 0.5*offsetBias, 0.0);
+    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, 0.5*offsetBias, sssBias);
     return shadow_sss;
 }

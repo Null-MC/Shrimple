@@ -50,7 +50,7 @@ void main() {
 
     #if !defined SHADOW_SOLID || defined DISTANT_HORIZONS
         float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
-            ? (1.5/255.0) : alphaTestRef;
+            ? (1.5/255.0) : 0.5;
 
         #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
             #ifdef EFFECT_TAA_ENABLED

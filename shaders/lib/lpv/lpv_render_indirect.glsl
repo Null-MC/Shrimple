@@ -9,7 +9,7 @@ vec3 SampleLpvIndirect(const in vec3 lpvPos) {
 
     vec3 hsv = RgbToHsv(lpvSample);
     hsv.z = saturate(hsv.z);
-    hsv.z = _pow3(hsv.z);
+    hsv.z = _pow2(hsv.z);
     lpvSample = HsvToRgb(hsv);
 
     return lpvSample;
