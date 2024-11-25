@@ -85,7 +85,7 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
     float densityFinal = GetSkyDensity();
 
     #ifdef SKY_CAVE_FOG_ENABLED
-        densityFinal = mix(densityFinal, CaveFogDensityF, caveFogF);
+        densityFinal = mix(densityFinal, FogDensity_Cave, caveFogF);
     #endif
 
     #ifdef VOLUMETRIC_NOISE_ENABLED
