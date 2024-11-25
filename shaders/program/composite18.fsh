@@ -510,12 +510,12 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             vec3 shadowColor = vec3(1.0);
-            float deferredSSS = 0.0;
+            float shadowSSS = 0.0;
 
             #ifdef RENDER_SHADOWS_ENABLED
                 vec4 deferredShadowSss = textureLod(BUFFER_DEFERRED_SHADOW, texcoord, 0);
                 shadowColor = deferredShadowSss.rgb;
-                deferredSSS = deferredShadowSss.a;
+                shadowSSS = deferredShadowSss.a;
             #endif
 
             // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
@@ -582,7 +582,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if MATERIAL_SSS != 0 && defined RENDER_SHADOWS_ENABLED
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-                vec3 sssFinal = deferredSSS * MaterialSssStrengthF * skyLightColor;
+                vec3 sssFinal = shadowSSS * MaterialSssStrengthF * skyLightColor;
 
                 vec3 sss_albedo = vec3(1.0);
                 #ifdef MATERIAL_SSS_TINT

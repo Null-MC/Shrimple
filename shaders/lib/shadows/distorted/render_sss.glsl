@@ -20,10 +20,10 @@ float GetSss_PCF(const in vec3 shadowPos, const in vec2 pixelRadius, const in fl
         float n = InterleavedGradientNoiseTime(i);
         float sampleBias = offsetBias + sssBias * _pow2(n);
 
-        shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, sampleBias);
+        shadow += CompareDepth(shadowPos, pixelOffset, sampleBias);
     }
 
-    return 1.0 - shadow * rcp(SHADOW_SSS_SAMPLES);
+    return shadow * rcp(SHADOW_SSS_SAMPLES);
 }
 
 float GetSssFactor(const in vec3 shadowPos, const in float offsetBias, const in float sss) {
@@ -32,6 +32,6 @@ float GetSssFactor(const in vec3 shadowPos, const in float offsetBias, const in 
 
     float sssRadius = sss * MATERIAL_SSS_SCATTER;
     vec2 pixelRadius = GetShadowPixelRadius(shadowPos, sssRadius);
-    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, 0.5*offsetBias, sssBias);
+    float shadow_sss = GetSss_PCF(shadowPos, pixelRadius, 0.5*offsetBias, 0.0);
     return shadow_sss;
 }

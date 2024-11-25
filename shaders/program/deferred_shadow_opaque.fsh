@@ -401,7 +401,8 @@ void main() {
             }
 
             #if MATERIAL_SSS != 0
-                sssFinal *= 1.0 - 0.5*(1.0 - geoNoLm);
+                // sssFinal *= 1.0 - 0.5*(1.0 - geoNoLm);
+                sssFinal *= 1.0 - geoNoLm;
             #endif
         }
 
