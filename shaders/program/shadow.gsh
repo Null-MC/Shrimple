@@ -231,7 +231,7 @@ void main() {
                     bool isThisPlayer = entityId == ENTITY_PLAYER && dist < 3.0;
                 #endif
 
-                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME && !isThisPlayer) {
+                if (renderStage == MC_RENDER_STAGE_ENTITIES && entityId != ENTITY_ITEM_FRAME) {
                     uint lightType = GetSceneItemLightType(currentRenderedItemId);
 
                     vec3 lightColor = vec3(0.0);
@@ -264,6 +264,10 @@ void main() {
                     if (entityLightColorRange.a > EPSILON) {
                         lightColor = entityLightColorRange.rgb;
                         lightRange = entityLightColorRange.a;
+                    }
+
+                    if (isThisPlayer) {
+                        lightRange *= 0.4;
                     }
 
                     if (lightRange > EPSILON) {
