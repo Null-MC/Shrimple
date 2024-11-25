@@ -1,7 +1,10 @@
+#define POST_EXPOSURE_NIGHTVISION 3.0
+
+
 float GetPostExposure() {
     float exposure = POST_EXPOSURE;
 
-    exposure += 2.0*nightVision;
+    exposure = mix(exposure, POST_EXPOSURE_NIGHTVISION, _smoothstep(nightVision));
 
     return exp2(exposure);
 }
