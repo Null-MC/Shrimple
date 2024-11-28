@@ -836,6 +836,7 @@ value.POST_TONEMAP.1=Reinhard
 value.POST_TONEMAP.2=ACES
 value.POST_TONEMAP.3=Heijl
 value.POST_TONEMAP.4=Lottes
+value.POST_TONEMAP.5=AgX
 
 option.POST_TEMP=Temperature
 suffix.POST_TEMP=00°k

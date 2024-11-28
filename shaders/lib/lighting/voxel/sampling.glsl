@@ -1,5 +1,3 @@
-#define LIGHTING_RAYCOUNT 1u
-
 #if LIGHTING_TRACE_SAMPLE_MAX > 0 && LIGHTING_MODE == LIGHTING_MODE_TRACED && !(defined RENDER_TRANSLUCENT || defined RENDER_VERTEX)
     #define DYN_LIGHT_INTERLEAVE_ENABLED
 #endif
@@ -61,16 +59,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
         vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
-
-        #if LIGHTING_RAYCOUNT > 1
-            #define LIGHTING_MULTIRAY
-        #endif
     #endif
 
-    #ifdef LIGHTING_MULTIRAY
-        for (uint rayIndex = 0u; rayIndex < LIGHTING_RAYCOUNT; rayIndex++) {
-            if (rayIndex > 0) offset = -offset;
-    #endif
     for (uint i = 0u; i < min(lightCount, MaxSampleCount); i++) {
         vec3 lightPos, lightColor, lightVec;
         float lightSize, lightRange, traceDist2;
@@ -112,7 +102,6 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 diffuseLightPos = lightPos;
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
-            //vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
             diffuseLightPos += lightSize * offset;
         #endif
 
@@ -122,17 +111,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         #endif
 
         lightVec = diffuseLightPos - lightSurfacePos;
-        // if (abs(lightVec.x) < EPSILON) lightVec.x = EPSILON;
-        // if (abs(lightVec.y) < EPSILON) lightVec.y = EPSILON;
-        // if (abs(lightVec.z) < EPSILON) lightVec.z = EPSILON;
 
         vec3 lightDir = normalize(lightVec);
-        // vec3 nextDist = (sign(lightDir) * 0.5 + 0.5 - surfacePosF) / lightDir;
-        // lightVec -= lightDir * minOf(nextDist);
-
-        //lightSurfacePos += fragLocalNormal * 0.0002;
-
-        //lightColor = RGBToLinear(lightColor);
 
         uint traceFace = 1u << GetLightMaskFace(-lightVec);
         if ((lightData.z & traceFace) == traceFace) continue;
@@ -179,17 +159,16 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                     }
                 #endif
 
-                bool traceSelf = ((lightData.z >> 1u) & 1u) == 1u;
+                // bool traceSelf = ((lightData.z >> 1u) & 1u) == 1u;
+                bool traceSelf = bitfieldExtract(lightData.z, 1, 1) == 1u;
 
                 lightColor *= TraceDDA(traceOrigin, traceEnd, lightRange, traceSelf);
             }
         // #endif
 
-        //vec3 lightDir = normalize(-lightVec);
         float geoNoL = 1.0;
         if (hasGeoNormal) geoNoL = dot(localNormal, lightDir);
 
-        // float diffuseNoLm = GetLightNoL(geoNoL, texNormal, lightDir, sss);
         float diffuseNoLm = max(dot(texNormal, lightDir), 0.0);
 
         #ifdef LIGHTING_TRACE_AO_SHADOWS
@@ -205,38 +184,24 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             vec3 F = vec3(0.0);
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                // float lightVoHm = max(dot(localViewDir, lightH), EPSILON);
-
                 F = GetMaterialFresnel(albedo, metal_f0, roughL, lightLoHm, false);
             #endif
 
-            //accumDiffuse += SampleLightDiffuse(diffuseNoLm, F) * lightAtt * lightColor;
+            float geoShadow = step(0.0, geoNoL);
+
             float D = SampleLightDiffuse(lightNoVm, diffuseNoLm, lightLoHm, roughL);
-            accumDiffuse += D * step(0.0, geoNoL) * diffuseNoLm * lightAtt.x * lightColor * (1.0 - F);
+            accumDiffuse += D * geoShadow * diffuseNoLm * lightAtt.x * lightColor * (1.0 - F);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE && defined RENDER_FRAG
-                // #if DYN_LIGHT_TYPE == LIGHT_TYPE_AREA
-                //     vec3 r = reflect(-localViewDir, texNormal);
-                //     vec3 L = lightPos - surfacePos;
-                //     vec3 centerToRay = dot(L, r) * r - L;
-                //     vec3 closestPoint = L + centerToRay * saturate((lightSize * 0.5) / length(centerToRay));
-                //     lightDir = normalize(closestPoint);
-                // #endif
-
-                //lightH = normalize(lightDir + localViewDir);
-
                 float lightNoLm = max(dot(texNormal, lightDir), 0.0);
                 float lightNoHm = max(dot(texNormal, lightH), EPSILON);
-                //float invGeoNoL = saturate(geoNoL*40.0);
 
-                accumSpecular += step(0.0, geoNoL) * SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL) * lightAtt.y * lightColor;
+                vec3 S = SampleLightSpecular(lightNoLm, lightNoHm, lightLoHm, F, roughL);
+                accumSpecular += geoShadow * lightAtt.y * S * lightColor;
             #endif
         }
     }
-    #ifdef LIGHTING_MULTIRAY
-    }
-    #endif
 
-    blockDiffuse += accumDiffuse/LIGHTING_RAYCOUNT * Lighting_Brightness;
-    blockSpecular += accumSpecular/LIGHTING_RAYCOUNT * Lighting_Brightness * invPI;
+    blockDiffuse += accumDiffuse * Lighting_Brightness;
+    blockSpecular += accumSpecular * Lighting_Brightness * invPI;
 }

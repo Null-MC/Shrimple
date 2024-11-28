@@ -17,6 +17,8 @@ CU			imgDepthNear
 CU			imgSky
 CU			imgSkyIrradiance
 CU			imgSSAO
+CU 			imgShadowSSS
+CU			imgDiffuseRT
 
 
 

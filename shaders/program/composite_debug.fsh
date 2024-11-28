@@ -31,7 +31,8 @@ in vec2 texcoord;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
 	uniform sampler2D BUFFER_VL_TRANSMIT;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
-	uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+	// uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+    uniform sampler2D texDiffuseRT;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
@@ -127,7 +128,8 @@ void main() {
 		vec3 color = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
 		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
-		vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+		// vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+		vec3 color = texelFetch(texDiffuseRT, ivec2(texcoord * viewSize), 0).rgb;
 		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;

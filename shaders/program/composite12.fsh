@@ -15,7 +15,19 @@ uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
-uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+
+#if LIGHTING_MODE == LIGHTING_MODE_TRACED
+    #if LIGHTING_TRACE_PENUMBRA > 0
+        uniform sampler2D texDiffuseRT;
+        uniform sampler2D texDiffuseRT_alt;
+    #else
+        uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+    #endif
+
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        uniform sampler2D BUFFER_BLOCK_SPECULAR;
+    #endif
+#endif
 
 #ifdef RENDER_SHADOWS_ENABLED
     // uniform sampler2D BUFFER_DEFERRED_SHADOW;
@@ -40,10 +52,6 @@ uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 
 #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
     uniform sampler3D texCaustics;
-#endif
-
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #endif
 
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
@@ -337,9 +345,9 @@ uniform vec3 eyePosition;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    #if LIGHTING_TRACE_FILTER > 0
-        #include "/lib/sampling/light_filter.glsl"
-    #endif
+    // #if LIGHTING_TRACE_FILTER > 0
+    //     #include "/lib/sampling/light_filter.glsl"
+    // #endif
     
     #include "/lib/lighting/traced.glsl"
 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
@@ -457,7 +465,7 @@ layout(location = 0) out vec4 outFinal;
                 float metal_f0 = deferredRoughMetalF0Porosity.g;
                 float porosity = deferredRoughMetalF0Porosity.b;
             #else
-                const float roughL = 1.0;
+                float roughL = 1.0;
                 const float metal_f0 = 0.04;
                 const float porosity = 0.0;
             #endif
@@ -557,20 +565,25 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);
 
-                    #if LIGHTING_TRACE_FILTER > 0
-                        light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
-                    #elif LIGHTING_TRACE_RES == 0
-                        sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
+                    #if LIGHTING_TRACE_PENUMBRA > 0
+                        bool altFrame = (frameCounter % 2) == 0;
 
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
-                        #endif
-                    #else
-                        sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+                        // sampleDiffuse = textureLod(imgDiffuseRT, texcoord, 0).rgb;
+                        sampleDiffuse = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, iTex, 0).rgb;
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
                         #endif
+                    #else
+                        // #if LIGHTING_TRACE_FILTER > 0
+                        //     light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
+                        // #elif LIGHTING_TRACE_RES == 0
+                            sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+
+                            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                                sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                            #endif
+                        // #endif
                     #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);

@@ -3,4 +3,4 @@
 #define RENDER_OPAQUE
 
 #include "nether.glsl"
-#include "/program/composite11.vsh"
+#include "/program/composite10.fsh"
