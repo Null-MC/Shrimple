@@ -60,14 +60,14 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && defined RENDER_FRAG //&& (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if LIGHTING_TRACE_PENUMBRA > 0 //&& !defined RENDER_TRANSLUCENT
-                    float lightSize = GetSceneItemLightSize(heldItemId);
-                    //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
-                    vec3 offset = GetLightPenumbraOffset();
-                    //lightColor *= 1.0 - length(offset);
+                // #if LIGHTING_TRACE_PENUMBRA > 0 //&& !defined RENDER_TRANSLUCENT
+                //     float lightSize = GetSceneItemLightSize(heldItemId);
+                //     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                //     vec3 offset = GetLightPenumbraOffset();
+                //     //lightColor *= 1.0 - length(offset);
 
-                    lightLocalPos += offset * lightSize * 0.5;
-                #endif
+                //     lightLocalPos += offset * lightSize * 0.5;
+                // #endif
 
                 vec3 lightDir = normalize(lightVec);
 
@@ -136,13 +136,13 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
             //lightColor = RGBToLinear(lightColor);
 
             #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE_HAND == HAND_LIGHT_TRACED && defined RENDER_FRAG //&& (defined RENDER_DEFERRED || defined RENDER_COMPOSITE)
-                #if LIGHTING_TRACE_PENUMBRA > 0 //&& !defined RENDER_TRANSLUCENT
-                    float lightSize = GetSceneItemLightSize(heldItemId2);
-                    //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
-                    vec3 offset = GetLightPenumbraOffset();
-                    //lightColor *= 1.0 - length(offset);
-                    lightLocalPos += offset * lightSize * 0.5;
-                #endif
+                // #if LIGHTING_TRACE_PENUMBRA > 0 //&& !defined RENDER_TRANSLUCENT
+                //     float lightSize = GetSceneItemLightSize(heldItemId2);
+                //     //ApplyLightPenumbraOffset(traceOrigin, lightSize * 0.5);
+                //     vec3 offset = GetLightPenumbraOffset();
+                //     //lightColor *= 1.0 - length(offset);
+                //     lightLocalPos += offset * lightSize * 0.5;
+                // #endif
 
                 vec3 lightDir = normalize(lightVec);
 

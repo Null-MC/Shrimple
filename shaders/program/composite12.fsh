@@ -356,7 +356,7 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/vanilla.glsl"
 #endif
 
-#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE != LIGHTING_MODE_TRACED
+#if LIGHTING_MODE_HAND != HAND_LIGHT_NONE //&& LIGHTING_MODE != LIGHTING_MODE_TRACED
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
@@ -560,6 +560,10 @@ layout(location = 0) out vec4 outFinal;
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
                     #if LPV_SIZE > 0
                         diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
+                    #endif
+
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_TRACE_PENUMBRA > 0
+                        SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 
                     vec3 sampleDiffuse = vec3(0.0);

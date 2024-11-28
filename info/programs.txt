@@ -36,8 +36,8 @@ composite5		translucent deferred+ss shadows
 ++composite6		translucent shadow filter
 --composite7		propagate indirect LPV
 
-??composite10		opaque deferred block-light tracing
-++composite11		opaque deferred block-light filter
+composite10		opaque deferred block-light tracing
+composite11		opaque deferred block-light filter
 composite12		opaque deferred final
 composite13		opaque deferred VL tracing
 composite14		opaque apply reflections, VL, --& water absorption
@@ -47,7 +47,6 @@ composite16		translucent deferred block-light tracing
 composite17		translucent deferred VL tracing
 composite18		translucent deferred final + pre distance blur
 composite19		post distance blur
---composite20		taa resolve
 
 composite21		bloom downscale 1/2
 composite22		bloom downscale 1/4
@@ -71,6 +70,6 @@ composite40		post-processing
 composite41		[debug] bloom tile merge
 composite42		debug views
 
-++composite50		taa resolve
+composite50		taa resolve
 
 final			final --/ debug output
