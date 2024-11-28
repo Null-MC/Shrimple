@@ -268,7 +268,7 @@ const bool colortex15Clear = true;
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
 #define LIGHT_SIZE_Y 16 // [4 8 16 32]
-#define LIGHTING_TRACE_AO_SHADOWS
+// #define LIGHTING_TRACE_AO_SHADOWS
 //#define LIGHT_HAND_SOFT_SHADOW
 //#define DYN_LIGHT_FRUSTUM_TEST
 //#define DYN_LIGHT_BLOCK_ENTITIES
