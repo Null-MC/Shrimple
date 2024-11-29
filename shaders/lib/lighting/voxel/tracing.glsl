@@ -205,6 +205,10 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
 
 #ifndef RENDER_COMPUTE
     vec3 GetLightPenumbraOffset() {
-        return hash32(gl_FragCoord.xy + 0.33 * frameCounter) - 0.5;
+        vec3 offset = hash32(gl_FragCoord.xy + 0.33 * frameCounter);
+        return offset - 0.5;
+
+        // offset = offset*2.0 - 1.0;
+        // return sqrt(abs(offset)) * sign(offset) * 0.5;
     }
 #endif

@@ -1053,7 +1053,7 @@
                 lightOffset = vec3(0.0, -0.2, 0.0);
                 break;
             case LIGHT_LAVA_CAULDRON:
-                #if LIGHTING_TRACE_PENUMBRA > 0
+                #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
                     lightOffset = vec3(0.0, 0.4, 0.0);
                 #else
                     lightOffset = vec3(0.0, 0.2, 0.0);

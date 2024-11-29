@@ -202,6 +202,12 @@ void main() {
 
     diffuseNew = mix(diffuseOld.rgb, diffuseNew, rcp(counter));
 
-	imageStore(altFrame ? imgDiffuseRT_alt : imgDiffuseRT, uv, vec4(diffuseNew, counter));
-    imageStore(altFrame ? imgLocalPosLast_alt : imgLocalPosLast, uv, vec4(localPos, 0.0));
+    if (altFrame) {
+        imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, counter));
+        imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 0.0));
+    }
+    else {
+        imageStore(imgDiffuseRT, uv, vec4(diffuseNew, counter));
+        imageStore(imgLocalPosLast, uv, vec4(localPos, 0.0));
+    }
 }

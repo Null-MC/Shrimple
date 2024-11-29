@@ -268,6 +268,7 @@ const bool colortex15Clear = true;
 #define LIGHT_BIN_SIZE 8 // [4 8 16]
 #define LIGHT_SIZE_XZ 32 // [4 8 16 32 64]
 #define LIGHT_SIZE_Y 16 // [4 8 16 32]
+#define LIGHTING_TRACED_SOFTSHADOWS
 // #define LIGHTING_TRACE_AO_SHADOWS
 //#define LIGHT_HAND_SOFT_SHADOW
 //#define DYN_LIGHT_FRUSTUM_TEST
@@ -531,6 +532,10 @@ const bool colortex15Clear = true;
 	#define IS_WORLD_SMOKE_ENABLED
 #endif
 
+#if LIGHTING_TRACE_PENUMBRA > 0 && defined LIGHTING_TRACED_SOFTSHADOWS
+	#define HAS_LIGHTING_TRACED_SOFTSHADOWS
+#endif
+
 
 #ifdef ANIM_WORLD_TIME
 #endif
@@ -573,6 +578,8 @@ const bool colortex15Clear = true;
 #ifdef DYN_LIGHT_WEATHER
 #endif
 #ifdef DYN_LIGHT_OREBLOCKS
+#endif
+#ifdef LIGHTING_TRACED_SOFTSHADOWS
 #endif
 #ifdef LIGHTING_FULLBRIGHT_FIX
 #endif

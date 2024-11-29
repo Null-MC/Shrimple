@@ -78,11 +78,13 @@ void ParseLightPosition(const in uvec4 data, out vec3 position) {
 }
 
 void ParseLightSize(const in uvec4 data, out float size) {
-    size = ((data.y >> 16u) & 255u) / 255.0;
+    // size = ((data.y >> 16u) & 255u) / 255.0;
+    size = bitfieldExtract(data.y, 16, 8) / 255.0;
 }
 
 void ParseLightRange(const in uvec4 data, out float range) {
-    range = ((data.y >> 24u) & 255u) / 4.0;
+    // range = ((data.y >> 24u) & 255u) / 4.0;
+    range = bitfieldExtract(data.y, 24, 8) / 4.0;
 }
 
 void ParseLightColor(const in uvec4 data, out vec3 color) {

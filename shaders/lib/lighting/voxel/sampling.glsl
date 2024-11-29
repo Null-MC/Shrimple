@@ -57,7 +57,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
     #endif
 
-    #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined HAS_LIGHTING_TRACED_SOFTSHADOWS && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
         vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
     #endif
 
@@ -101,7 +101,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         vec3 diffuseLightPos = lightPos;
 
-        #if LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_PENUMBRA > 0 && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
+        #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined HAS_LIGHTING_TRACED_SOFTSHADOWS && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
             diffuseLightPos += lightSize * offset;
         #endif
 
@@ -118,7 +118,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         if ((lightData.z & traceFace) == traceFace) continue;
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined RENDER_FRAG
-            if ((lightData.z & 1u) == 1u) {
+            if (bitfieldExtract(lightData.z, 0, 1) == 1u) {
                 vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
                 vec3 traceEnd = traceOrigin - lightVec;
 

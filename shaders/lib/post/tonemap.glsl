@@ -49,7 +49,7 @@ vec3 agxEotf(vec3 val) {
     
     // I enabled this line to do linear to srgb in line 180 for all tonemappings.
     // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display   
-    val = pow(val, vec3(2.2));
+    // val = pow(val, vec3(2.2));
     
     return val;
 }
@@ -62,7 +62,7 @@ vec3 agxLook(vec3 val) {
     vec3 offset = vec3(0.0);
     vec3 slope = vec3(1.0);
     vec3 power = vec3(1.0, 1.0, 1.0);
-    float sat = 1.0;
+    float sat = 1.2;
     
     // ASC CDL
     val = pow(val * slope + offset, power);
@@ -73,6 +73,7 @@ vec3 tonemap_AgX(vec3 color) {
     color = agx(color);
     color = agxLook(color);
     color = agxEotf(color);
+    color = pow(color, vec3(2.2));
     return color;
 }
 
@@ -123,8 +124,8 @@ vec3 tonemap_FilmicHejl2015(const in vec3 color) {
 vec3 tonemap_Lottes(const in vec3 color) {
     const vec3 a = vec3(1.6);
     const vec3 d = vec3(0.977);
-    const vec3 hdrMax = vec3(8.0);
-    const vec3 midIn = vec3(0.18);
+    const vec3 hdrMax = vec3(2.0);
+    const vec3 midIn = vec3(0.28);
     const vec3 midOut = vec3(0.267);
 
     const vec3 b =
@@ -143,11 +144,11 @@ void ApplyPostTonemap(inout vec3 color) {
         color = tonemap_AgX(color);
     #elif POST_TONEMAP == 4
         //color = tonemap_Tech(color, 0.2);
-        color = tonemap_Lottes(0.6 * color);
+        color = tonemap_Lottes(color);
     #elif POST_TONEMAP == 3
-        color = tonemap_FilmicHejl2015(0.7 * color);
+        color = tonemap_FilmicHejl2015(color);
     #elif POST_TONEMAP == 2
-        color = tonemap_ACESFit2(color + 0.002);
+        color = tonemap_ACESFit2(color);
     #elif POST_TONEMAP == 1
         color = tonemap_ReinhardExtendedLuminance(color, PostWhitePoint);
     #endif

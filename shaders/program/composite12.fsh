@@ -17,7 +17,7 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    #if LIGHTING_TRACE_PENUMBRA > 0
+    #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
         uniform sampler2D texDiffuseRT;
         uniform sampler2D texDiffuseRT_alt;
     #else
@@ -562,14 +562,14 @@ layout(location = 0) out vec4 outFinal;
                         diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
                     #endif
 
-                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_TRACE_PENUMBRA > 0
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && defined HAS_LIGHTING_TRACED_SOFTSHADOWS
                         SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);
 
-                    #if LIGHTING_TRACE_PENUMBRA > 0
+                    #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
                         bool altFrame = (frameCounter % 2) == 0;
 
                         // sampleDiffuse = textureLod(imgDiffuseRT, texcoord, 0).rgb;
