@@ -31,8 +31,11 @@ in vec2 texcoord;
 #elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_TRANSMIT
 	uniform sampler2D BUFFER_VL_TRANSMIT;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
-	// uniform sampler2D BUFFER_BLOCK_DIFFUSE;
     uniform sampler2D texDiffuseRT;
+
+    #ifdef LIGHTING_TRACED_ACCUMULATE
+	    uniform sampler2D texDiffuseRT_alt;
+	#endif
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 	uniform sampler2D BUFFER_BLOCK_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SHADOWS
@@ -101,25 +104,27 @@ uniform float far;
 void main() {
 	//vec2 viewSize = vec2(viewWidth, viewHeight);
 
+	ivec2 uv = ivec2(texcoord * viewSize);
+
 	#if DEBUG_VIEW == DEBUG_VIEW_DEFERRED_COLOR
-		vec3 color = texelFetch(BUFFER_DEFERRED_COLOR, ivec2(texcoord * viewSize), 0).rgb;
+		vec3 color = texelFetch(BUFFER_DEFERRED_COLOR, uv, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_GEO
-		uint deferredDataR = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).r;
+		uint deferredDataR = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).r;
 		vec3 color = unpackUnorm4x8(deferredDataR).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING
-		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).g;
+		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).g;
 		vec3 color = vec3(unpackUnorm4x8(deferredDataG).rg, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_LIGHTING2
-		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).g;
+		uint deferredDataG = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).g;
 		vec3 color = vec3(unpackUnorm4x8(deferredDataG).ba, 0.0);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_WATER_SHADOW
-		uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).b;
+		uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).b;
 		vec3 color = unpackUnorm4x8(deferredDataB).rgb;
 		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_NORMAL_TEX
         vec3 color = textureLod(BUFFER_DEFERRED_NORMAL_TEX, texcoord, 0).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_ROUGH_METAL
-		uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, ivec2(texcoord * viewSize), 0).a;
+		uint deferredDataA = texelFetch(BUFFER_DEFERRED_DATA, uv, 0).a;
 		vec3 color = unpackUnorm4x8(deferredDataA).rgb;
 	#elif DEBUG_VIEW == DEBUG_VIEW_DEFERRED_VL_SCATTER
 		vec3 color = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
@@ -128,9 +133,12 @@ void main() {
 		vec3 color = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
 		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
-		// vec3 color = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
-		vec3 color = texelFetch(texDiffuseRT, ivec2(texcoord * viewSize), 0).rgb;
-		color = LinearToRGB(color);
+        #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
+            bool altFrame = (frameCounter % 2) == 0;
+            vec3 color = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, uv, 0).rgb;
+        #else
+			vec3 color = texelFetch(texDiffuseRT, uv, 0).rgb;
+        #endif
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_SPECULAR
 		vec3 color = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
 		color = LinearToRGB(color);

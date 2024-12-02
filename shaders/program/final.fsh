@@ -8,6 +8,10 @@ in vec2 texcoord;
 
 uniform sampler2D colortex0;
 
+#ifdef EFFECT_FXAA_ENABLED
+	uniform vec2 pixelSize;
+#endif
+
 #ifdef DISTANT_HORIZONS
 	uniform float dhFarPlane;
 #endif

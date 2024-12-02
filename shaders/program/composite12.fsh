@@ -17,12 +17,12 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
+    // #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
         uniform sampler2D texDiffuseRT;
         uniform sampler2D texDiffuseRT_alt;
-    #else
-        uniform sampler2D BUFFER_BLOCK_DIFFUSE;
-    #endif
+    // #else
+    //     uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+    // #endif
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE
         uniform sampler2D BUFFER_BLOCK_SPECULAR;
@@ -562,7 +562,7 @@ layout(location = 0) out vec4 outFinal;
                         diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
                     #endif
 
-                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && defined HAS_LIGHTING_TRACED_SOFTSHADOWS
+                    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && defined LIGHTING_TRACED_ACCUMULATE
                         SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
                     #endif
 
@@ -571,24 +571,25 @@ layout(location = 0) out vec4 outFinal;
 
                     #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
                         bool altFrame = (frameCounter % 2) == 0;
-
-                        // sampleDiffuse = textureLod(imgDiffuseRT, texcoord, 0).rgb;
                         sampleDiffuse = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, iTex, 0).rgb;
+                    #else
+                        sampleDiffuse = texelFetch(texDiffuseRT, iTex, 0).rgb;
+                    #endif
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
                             sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
                         #endif
-                    #else
-                        // #if LIGHTING_TRACE_FILTER > 0
-                        //     light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
-                        // #elif LIGHTING_TRACE_RES == 0
-                            sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+                    // #else
+                    //     // #if LIGHTING_TRACE_FILTER > 0
+                    //     //     light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
+                    //     // #elif LIGHTING_TRACE_RES == 0
+                    //         sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 
-                            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                                sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                            #endif
-                        // #endif
-                    #endif
+                    //         #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    //             sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                    //         #endif
+                    //     // #endif
+                    // #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
                 #endif

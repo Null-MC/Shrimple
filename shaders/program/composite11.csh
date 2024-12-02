@@ -155,59 +155,65 @@ void main() {
     int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 	float depthL = sharedDepthBuffer[i_shared];
 
-    vec2 texcoord = (uv + 0.5) / viewSize;
-    bool altFrame = (frameCounter % 2) == 0;
 
-    vec3 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz;
+    #ifdef LIGHTING_TRACED_ACCUMULATE
+        vec2 texcoord = (uv + 0.5) / viewSize;
+        bool altFrame = (frameCounter % 2) == 0;
 
-    #ifdef DISTANT_HORIZONS
-        float depth = delinearizeDepth(depthL, near, dhFarPlane);
+        vec3 velocity = textureLod(BUFFER_VELOCITY, texcoord, 0).xyz;
+
+        #ifdef DISTANT_HORIZONS
+            float depth = delinearizeDepth(depthL, near, dhFarPlane);
+        #else
+            float depth = delinearizeDepth(depthL, near, farPlane);
+        #endif
+
+        vec3 ndcPos = vec3(texcoord, depth) * 2.0 - 1.0;
+
+        #ifdef DISTANT_HORIZONS
+            vec3 viewPos = unproject(dhProjectionFullInv, ndcPos);
+        #else
+            vec3 viewPos = unproject(gbufferProjectionInverse, ndcPos);
+        #endif
+
+        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+
+        vec3 localPos_re = localPos + (cameraPosition - previousCameraPosition) - velocity;
+
+        vec3 viewPos_re = mul3(gbufferPreviousModelView, localPos_re);
+
+        #ifdef DISTANT_HORIZONS
+            vec3 ndcPos_re = unproject(dhProjectionFullPrev, viewPos_re);
+        #else
+            vec3 ndcPos_re = unproject(gbufferPreviousProjection, viewPos_re);
+        #endif
+
+        vec2 texcoord_re = ndcPos_re.xy * 0.5 + 0.5;
+
+
+        vec4 diffuseOld = textureLod(altFrame ? texDiffuseRT : texDiffuseRT_alt, texcoord_re, 0);
+        float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
+
+        vec3 localPosLast = textureLod(altFrame ? texLocalPosLast : texLocalPosLast_alt, texcoord_re, 0).rgb;
+
+        float offsetThreshold = clamp(depthL * 0.04, 0.0, 1.0);
+        if (distance(localPos_re, localPosLast) > offsetThreshold) counter = 1.0;
+        if (saturate(texcoord_re) != texcoord_re) counter = 1.0;
+
+    	vec3 diffuseNew = sampleSharedBuffer(depthL);
+
+        diffuseNew = mix(diffuseOld.rgb, diffuseNew, rcp(counter));
+
+        if (altFrame) {
+            imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, counter));
+            imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 0.0));
+        }
+        else {
+            imageStore(imgDiffuseRT, uv, vec4(diffuseNew, counter));
+            imageStore(imgLocalPosLast, uv, vec4(localPos, 0.0));
+        }
     #else
-        float depth = delinearizeDepth(depthL, near, farPlane);
+        vec3 diffuse = sampleSharedBuffer(depthL);
+        imageStore(imgDiffuseRT, uv, vec4(diffuse, 0.0));
     #endif
-
-    vec3 ndcPos = vec3(texcoord, depth) * 2.0 - 1.0;
-
-    #ifdef DISTANT_HORIZONS
-        vec3 viewPos = unproject(dhProjectionFullInv, ndcPos);
-    #else
-        vec3 viewPos = unproject(gbufferProjectionInverse, ndcPos);
-    #endif
-
-    vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-
-    vec3 localPos_re = localPos + (cameraPosition - previousCameraPosition) - velocity;
-
-    vec3 viewPos_re = mul3(gbufferPreviousModelView, localPos_re);
-
-    #ifdef DISTANT_HORIZONS
-        vec3 ndcPos_re = unproject(dhProjectionFullPrev, viewPos_re);
-    #else
-        vec3 ndcPos_re = unproject(gbufferPreviousProjection, viewPos_re);
-    #endif
-
-    vec2 texcoord_re = ndcPos_re.xy * 0.5 + 0.5;
-
-
-    vec4 diffuseOld = textureLod(altFrame ? texDiffuseRT : texDiffuseRT_alt, texcoord_re, 0);
-    float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
-
-    vec3 localPosLast = textureLod(altFrame ? texLocalPosLast : texLocalPosLast_alt, texcoord_re, 0).rgb;
-
-    float offsetThreshold = clamp(depthL * 0.04, 0.0, 1.0);
-    if (distance(localPos_re, localPosLast) > offsetThreshold) counter = 1.0;
-    if (saturate(texcoord_re) != texcoord_re) counter = 1.0;
-
-	vec3 diffuseNew = sampleSharedBuffer(depthL);
-
-    diffuseNew = mix(diffuseOld.rgb, diffuseNew, rcp(counter));
-
-    if (altFrame) {
-        imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, counter));
-        imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 0.0));
-    }
-    else {
-        imageStore(imgDiffuseRT, uv, vec4(diffuseNew, counter));
-        imageStore(imgLocalPosLast, uv, vec4(localPos, 0.0));
-    }
 }

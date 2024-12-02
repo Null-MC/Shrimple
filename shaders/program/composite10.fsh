@@ -226,7 +226,7 @@ void main() {
         //     SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         // #endif
 
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && !defined HAS_LIGHTING_TRACED_SOFTSHADOWS
+        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && !defined LIGHTING_TRACED_ACCUMULATE
             SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 

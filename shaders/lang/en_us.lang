@@ -515,9 +515,20 @@ option.LPV_VOXEL_TEST.comment=Improves linear & cubic sampling by performing ext
 screen.LIGHTING_TRACE_OPTIONS=Trace Options
 
 option.LIGHTING_TRACE_RES=Resolution
+option.LIGHTING_TRACE_RES.comment=The image resolution for block-light tracing relative to the screen size.
 value.LIGHTING_TRACE_RES.0=Full
 value.LIGHTING_TRACE_RES.1=Half
 value.LIGHTING_TRACE_RES.2=Quarter
+
+option.LIGHTING_TRACE_SAMPLE_MAX=Max Sample Count
+option.LIGHTING_TRACE_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Lower values will increase performance, but also noise!
+value.LIGHTING_TRACE_SAMPLE_MAX.0=Infinite
+
+option.LIGHTING_TRACED_JITTER=Soft-Shadows
+option.LIGHTING_TRACED_JITTER.comment=Enables a soft penumbra shadow for block-lights. Requires Accumulation to prevent noise!
+
+option.LIGHTING_TRACED_ACCUMULATE=Accumulate
+option.LIGHTING_TRACED_ACCUMULATE.comment=Enables blending of previous-frame data to create a smoother & more stable image.
 
 option.LIGHTING_TRACE_PENUMBRA=Penumbra Size
 option.LIGHTING_TRACE_PENUMBRA.comment=The size of the penumbra for DDA-traced soft-shadows.
@@ -592,18 +603,8 @@ option.LIGHTING_RANGE=Range
 option.LIGHTING_RANGE.comment=Adjusts the scale of the range blocks cast light. Warning, increasing can dramatically reduce performance!
 suffix.LIGHTING_RANGE=%
 
-option.LIGHTING_TRACE_SAMPLE_MAX=Max Sample Count
-option.LIGHTING_TRACE_SAMPLE_MAX.comment=The maximum number of lights that can be sampled per-pixel for each rendered frame. Setting a lower value will increase performance, but also increase temporal blurring.
-value.LIGHTING_TRACE_SAMPLE_MAX.0=Infinite
-
 option.LIGHTING_TRACE_AO_SHADOWS=AO Shadows
 option.LIGHTING_TRACE_AO_SHADOWS.comment=Fakes micro-shadowing from occlusion using texture AO.
-
-option.LIGHTING_TRACE_FILTER=Filter
-option.LIGHTING_TRACE_FILTER.comment=Applies a gaussian filter to smooth RT light sampling.
-value.LIGHTING_TRACE_FILTER.0=OFF
-value.LIGHTING_TRACE_FILTER.1=3x3
-value.LIGHTING_TRACE_FILTER.2=5x5
 
 option.DYN_LIGHT_WEATHER=Weather Particles
 option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!

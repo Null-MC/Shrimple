@@ -327,9 +327,9 @@ uniform vec3 eyePosition;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    #if LIGHTING_TRACE_FILTER > 0
+    // #if LIGHTING_TRACE_FILTER > 0
         #include "/lib/sampling/light_filter.glsl"
-    #endif
+    // #endif
 
     #include "/lib/lighting/traced.glsl"
 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
@@ -544,21 +544,21 @@ layout(location = 0) out vec4 outFinal;
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);
 
-                    #if LIGHTING_TRACE_FILTER > 0
+                    // #if LIGHTING_TRACE_FILTER > 0
                         light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthTransL, texNormal, roughL);
-                    #elif LIGHTING_TRACE_RES == 0
-                        sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
+                    // #elif LIGHTING_TRACE_RES == 0
+                    //     sampleDiffuse = texelFetch(BUFFER_BLOCK_DIFFUSE, iTex, 0).rgb;
 
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
-                        #endif
-                    #else
-                        sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
+                    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    //         sampleSpecular = texelFetch(BUFFER_BLOCK_SPECULAR, iTex, 0).rgb;
+                    //     #endif
+                    // #else
+                    //     sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
 
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                        #endif
-                    #endif
+                    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    //         sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                    //     #endif
+                    // #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, tir);
                 #endif
