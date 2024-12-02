@@ -252,7 +252,9 @@ uniform float dhFarPlane;
     #include "/lib/fog/fog_render.glsl"
 
     #ifdef WORLD_SKY_ENABLED
-        #include "/lib/sky/irradiance.glsl"
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            #include "/lib/sky/irradiance.glsl"
+        #endif
     
         #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

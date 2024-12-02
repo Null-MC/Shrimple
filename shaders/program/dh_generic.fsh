@@ -240,7 +240,10 @@ uniform int frameCounter;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
-        #include "/lib/sky/irradiance.glsl"
+        
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            #include "/lib/sky/irradiance.glsl"
+        #endif
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"
