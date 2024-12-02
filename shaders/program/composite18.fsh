@@ -537,9 +537,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
-                    #if LPV_SIZE > 0
-                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
-                    #endif
+                    GetFinalBlockLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
 
                     vec3 sampleDiffuse = vec3(0.0);
                     vec3 sampleSpecular = vec3(0.0);

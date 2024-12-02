@@ -31,7 +31,12 @@ float GetVoxelFade(const in vec3 voxelPos) {
 #endif
 
 void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
-    // vec3 blockLightDefault = (_pow3(lmcoord.x) * Lighting_Brightness) * blackbody(LIGHTING_TEMP);
+    vec3 lpvPos = GetLPVPosition(localPos);
+    float lpvFade = GetLpvFade(lpvPos);
+    lpvFade = 1.0 - _smoothstep(lpvFade);
+
+    vec3 lmBlockLight = (_pow3(lmcoord.x) * Lighting_Brightness) * blackbody(LIGHTING_TEMP);
+    sampleDiffuse += lmBlockLight * lpvFade * occlusion;
 
     // #if defined IRIS_FEATURE_SSBO && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined DYN_LIGHT_WEATHER)
     //     vec3 blockDiffuse = vec3(0.0);

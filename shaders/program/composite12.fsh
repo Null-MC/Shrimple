@@ -558,9 +558,7 @@ layout(location = 0) out vec4 outFinal;
 
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
-                    #if LPV_SIZE > 0
-                        diffuseFinal += GetLpvAmbientLighting(localPos, localNormal, texNormal, deferredLighting.x) * occlusion;
-                    #endif
+                    GetFinalBlockLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, deferredLighting.xy, roughL, metal_f0, occlusion, sss);
 
                     #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && defined LIGHTING_TRACED_ACCUMULATE
                         SampleHandLight(diffuseFinal, specularFinal, localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
@@ -576,20 +574,9 @@ layout(location = 0) out vec4 outFinal;
                         sampleDiffuse = texelFetch(texDiffuseRT, iTex, 0).rgb;
                     #endif
 
-                        #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                        #endif
-                    // #else
-                    //     // #if LIGHTING_TRACE_FILTER > 0
-                    //     //     light_GaussianFilter(sampleDiffuse, sampleSpecular, texcoord, depthOpaqueL, texNormal, roughL);
-                    //     // #elif LIGHTING_TRACE_RES == 0
-                    //         sampleDiffuse = textureLod(BUFFER_BLOCK_DIFFUSE, texcoord, 0).rgb;
-
-                    //         #if MATERIAL_SPECULAR != SPECULAR_NONE
-                    //             sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
-                    //         #endif
-                    //     // #endif
-                    // #endif
+                    #if MATERIAL_SPECULAR != SPECULAR_NONE
+                        sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                    #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
                 #endif

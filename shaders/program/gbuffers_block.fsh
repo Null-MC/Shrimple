@@ -228,6 +228,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -292,7 +293,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef LIGHTING_FLICKER
     #include "/lib/lighting/flicker.glsl"
-    #include "/lib/lighting/blackbody.glsl"
+    // #include "/lib/lighting/blackbody.glsl"
 #endif
 
 #if !defined DEFERRED_BUFFER_ENABLED && defined IRIS_FEATURE_SSBO
@@ -315,6 +316,10 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
         
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            #include "/lib/sky/irradiance.glsl"
+        #endif
+
         // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     #include "/lib/clouds/cloud_custom.glsl"
         // #endif
