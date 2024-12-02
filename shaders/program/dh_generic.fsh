@@ -36,6 +36,20 @@ uniform sampler2D noisetex;
 
 uniform sampler2D lightmap;
 
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        // uniform sampler3D texClouds;
+
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            uniform sampler2D texSkyIrradiance;
+        #endif
+
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined DEFERRED_BUFFER_ENABLED
+            uniform sampler2D texSky;
+        #endif
+    #endif
+#endif
+
 // #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
 //     uniform sampler3D texLPV_1;
 //     uniform sampler3D texLPV_2;
@@ -170,6 +184,7 @@ uniform int frameCounter;
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -215,14 +230,17 @@ uniform int frameCounter;
 #endif
 
 #ifdef LIGHTING_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
+    // #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/sampling/erp.glsl"
+
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
+        #include "/lib/sky/irradiance.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"

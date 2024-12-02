@@ -506,7 +506,7 @@ layout(location = 0) out vec4 outFinal;
 
                 roughL = _pow2(roughness);
             #else
-                const float metal_f0 = 0.04;
+                float metal_f0 = 0.04;
             #endif
 
             vec3 shadowColor = vec3(1.0);
@@ -626,11 +626,13 @@ layout(location = 0) out vec4 outFinal;
 
             float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
 
-            vec3 skyF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
-            skyF *= MaterialReflectionStrength;// * (1.0 - roughL);
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                vec3 skyF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
+                skyF *= MaterialReflectionStrength;// * (1.0 - roughL);
 
-            deferredColor.a = clamp(deferredColor.a, maxOf(skyF), 1.0);
-            //albedo *= 1.0 - skyF;
+                deferredColor.a = clamp(deferredColor.a, maxOf(skyF), 1.0);
+                //albedo *= 1.0 - skyF;
+            #endif
 
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;

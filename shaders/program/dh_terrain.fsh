@@ -25,6 +25,20 @@ uniform sampler2D noisetex;
     uniform sampler3D texClouds;
 #endif
 
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        // uniform sampler3D texClouds;
+
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            uniform sampler2D texSkyIrradiance;
+        #endif
+
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined DEFERRED_BUFFER_ENABLED
+            uniform sampler2D texSky;
+        #endif
+    #endif
+#endif
+
 uniform int worldTime;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferProjection;
@@ -63,16 +77,12 @@ uniform int frameCounter;
     uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight;
-        uniform float lightningStrength;
-    #endif
+    uniform float cloudTime;
+    uniform float cloudHeight;
+    uniform float lightningStrength;
 #endif
 
-#ifdef IS_IRIS
-    uniform vec3 eyePosition;
-#endif
+uniform vec3 eyePosition;
 
 // #ifdef WORLD_SHADOW_ENABLED
 //     uniform mat4 shadowModelView;
@@ -139,6 +149,7 @@ uniform int frameCounter;
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
@@ -186,14 +197,17 @@ uniform int frameCounter;
 #include "/lib/material/dh_tex_noise.glsl"
 
 #ifdef LIGHTING_FLICKER
-    #include "/lib/lighting/blackbody.glsl"
+    // #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/sampling/erp.glsl"
+
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
+        #include "/lib/sky/irradiance.glsl"
 
         #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
             #include "/lib/clouds/cloud_custom.glsl"

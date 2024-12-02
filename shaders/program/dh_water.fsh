@@ -30,6 +30,7 @@ in VertexData {
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+uniform sampler2D depthtex0;
 
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
     uniform sampler2D lightmap;
@@ -84,7 +85,19 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-uniform sampler2D depthtex0;
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef WORLD_SKY_ENABLED
+        // uniform sampler3D texClouds;
+
+        #if LIGHTING_MODE != LIGHTING_MODE_NONE
+            uniform sampler2D texSkyIrradiance;
+        #endif
+
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined DEFERRED_BUFFER_ENABLED
+            uniform sampler2D texSky;
+        #endif
+    #endif
+#endif
 
 uniform int worldTime;
 uniform int frameCounter;
@@ -194,6 +207,8 @@ uniform float dhFarPlane;
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
+#include "/lib/lighting/blackbody.glsl"
+
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/scatter_transmit.glsl"
     #include "/lib/lighting/hg.glsl"
@@ -222,6 +237,8 @@ uniform float dhFarPlane;
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/sampling/erp.glsl"
+
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
         
@@ -235,6 +252,8 @@ uniform float dhFarPlane;
     #include "/lib/fog/fog_render.glsl"
 
     #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sky/irradiance.glsl"
+    
         #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
             #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_custom.glsl"
@@ -265,9 +284,9 @@ uniform float dhFarPlane;
 
 #include "/lib/lighting/fresnel.glsl"
 
-#if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
+#ifndef DEFERRED_BUFFER_ENABLED
     #ifdef LIGHTING_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
+        // #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
 
