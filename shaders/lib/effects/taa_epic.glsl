@@ -25,7 +25,7 @@ vec3 decodePalYuv(vec3 yuv) {
 vec4 ApplyTAA(const in vec2 uv) {
     vec2 uv2 = uv;
 
-    uv2 += getJitterOffset(frameCounter);
+    // uv2 += getJitterOffset(frameCounter);
 
     float depth = textureLod(depthtex1, uv, 0).r;
     bool isDhDepth = false;
@@ -44,7 +44,9 @@ vec4 ApplyTAA(const in vec2 uv) {
     #endif
 
     vec3 velocity = textureLod(BUFFER_VELOCITY, uv, 0).xyz;
-    vec2 uvLast = getReprojectedClipPos(uv, depth, velocity, isDhDepth).xy;
+    vec2 uvLast = getReprojectedClipPos(uv2, depth, velocity, isDhDepth).xy;
+
+    // uvLast += getJitterOffset(frameCounter-1);
 
     // const float exposureF = exp2(POST_EXPOSURE);
 
@@ -98,11 +100,15 @@ vec4 ApplyTAA(const in vec2 uv) {
     vec3 minColor = min(min(min(in0, in1), min(in2, in3)), in4);
     vec3 maxColor = max(max(max(in0, in1), max(in2, in3)), in4);
 
-    minColor = mix(minColor,
-       min(min(min(in5, in6), min(in7, in8)), minColor), 0.5);
+    // minColor = mix(minColor,
+    //    min(min(min(in5, in6), min(in7, in8)), minColor), 0.5);
 
-    maxColor = mix(maxColor,
-       max(max(max(in5, in6), max(in7, in8)), maxColor), 0.5);
+    // maxColor = mix(maxColor,
+    //    max(max(max(in5, in6), max(in7, in8)), maxColor), 0.5);
+
+    minColor = min(min(min(in5, in6), min(in7, in8)), minColor);
+
+    maxColor = max(max(max(in5, in6), max(in7, in8)), maxColor);
     
    	vec3 preclamping = antialiased;
     vec3 clamped = clamp(antialiased, minColor, maxColor);

@@ -314,9 +314,11 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/directional.glsl"
 // #include "/lib/lighting/voxel/block_light_map.glsl"
 
-#if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/lighting/blackbody.glsl"
+
     #ifdef LIGHTING_FLICKER
-        #include "/lib/lighting/blackbody.glsl"
+        // #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
 
@@ -368,7 +370,7 @@ uniform vec3 eyePosition;
     #endif
 #endif
 
-#if !((defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED)
+#ifndef DEFERRED_BUFFER_ENABLED
     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
@@ -389,6 +391,7 @@ uniform vec3 eyePosition;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/sky/irradiance.glsl"
         #include "/lib/sky/sky_lighting.glsl"
     #endif
 

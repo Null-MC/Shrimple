@@ -681,12 +681,12 @@ layout(location = 0) out vec4 outFinal;
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);
                 #else
-                    vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                    // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
                     
-                    vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    fogColorFinal = RGBToLinear(fogColorFinal);
+                    vec3 fogColorFinal = vec3(0.0);//GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+                    // fogColorFinal = RGBToLinear(fogColorFinal);
 
-                    float fogF = deferredFog.a;
+                    float fogF = 0.0;//deferredFog.a;
                 #endif
 
                 fogColorFinal *= Sky_BrightnessF;

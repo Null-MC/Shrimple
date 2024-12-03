@@ -360,6 +360,7 @@ uniform int frameCounter;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/sky/irradiance.glsl"
         #include "/lib/sky/sky_lighting.glsl"
     #endif
 

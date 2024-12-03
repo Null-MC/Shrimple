@@ -645,13 +645,13 @@ layout(location = 0) out vec4 outFinal;
 
             final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
-            #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA
-                vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                fogColorFinal = RGBToLinear(fogColorFinal);
+            // #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA
+            //     vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
+            //     fogColorFinal = RGBToLinear(fogColorFinal);
 
-                final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
-                if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
-            #endif
+            //     final.rgb = mix(final.rgb, fogColorFinal, deferredFog.a);
+            //     if (final.a > (1.5/255.0)) final.a = min(final.a + deferredFog.a, 1.0);
+            // #endif
 
             #ifdef MATERIAL_REFRACT_ENABLED
                 float refractDist = maxOf(abs(refraction * viewSize));
@@ -787,11 +787,11 @@ layout(location = 0) out vec4 outFinal;
                         float fogDist = GetShapedFogDistance(localPos);
                         float fogF = GetCustomFogFactor(fogDist);
                     #elif SKY_TYPE == SKY_TYPE_VANILLA
-                        vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                        vec3 fogColorFinal = RGBToLinear(deferredFog.rgb);
-                        fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
+                        // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
+                        vec3 fogColorFinal = vec3(0.0);//RGBToLinear(deferredFog.rgb);
+                        // fogColorFinal = GetVanillaFogColor(fogColorFinal, localViewDir.y);
 
-                        float fogF = deferredFog.a;
+                        float fogF = 0.0;//deferredFog.a;
                     #endif
 
                     fogColorFinal *= Sky_BrightnessF;

@@ -315,10 +315,6 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
-        
-        #if LIGHTING_MODE != LIGHTING_MODE_NONE
-            #include "/lib/sky/irradiance.glsl"
-        #endif
 
         // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     #include "/lib/clouds/cloud_custom.glsl"
@@ -357,6 +353,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/sky/irradiance.glsl"
         #include "/lib/sky/sky_lighting.glsl"
     #endif
 

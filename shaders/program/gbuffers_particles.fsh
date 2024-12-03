@@ -274,23 +274,27 @@ uniform vec3 eyePosition;
 
 #include "/lib/fog/fog_render.glsl"
 
-#if defined RENDER_SHADOWS_ENABLED && !defined IS_RENDER_DEFERRED
-    #include "/lib/buffers/shadow.glsl"
-
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
-    
-    #include "/lib/shadows/render.glsl"
-#endif
-
-#ifdef LIGHTING_FLICKER
+#ifndef IS_RENDER_DEFERRED
     #include "/lib/lighting/blackbody.glsl"
-    #include "/lib/lighting/flicker.glsl"
+
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/buffers/shadow.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
+        #endif
+        
+        #include "/lib/shadows/render.glsl"
+    #endif
+
+    #ifdef LIGHTING_FLICKER
+        // #include "/lib/lighting/blackbody.glsl"
+        #include "/lib/lighting/flicker.glsl"
+    #endif
 #endif
 
 #ifdef MATERIAL_PARTICLES
@@ -372,6 +376,7 @@ uniform vec3 eyePosition;
     #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/sky/irradiance.glsl"
         #include "/lib/sky/sky_lighting.glsl"
     #endif
 
