@@ -49,6 +49,10 @@
             case LIGHT_COPPER_BULB_WEATHERED:
                 lightColor = vec3(0.9, 0.8, 0.5);
                 break;
+            case LIGHT_CREAKING_HEART:
+            case LIGHT_EYEBLOSSOM:
+                lightColor = vec3(0.902, 0.502, 0.184);
+                break;
             case LIGHT_CRYING_OBSIDIAN:
                 lightColor = LIGHT_COLOR_CRYING_OBSIDIAN;
                 break;
@@ -495,11 +499,17 @@
             case LIGHT_COPPER_BULB_WEATHERED:
                 lightRange = 8.0;
                 break;
+            case LIGHT_CREAKING_HEART:
+                lightRange = 8.0;
+                break;
             case LIGHT_CRYING_OBSIDIAN:
                 lightRange = 10.0;
                 break;
             case LIGHT_END_ROD:
                 lightRange = 14.0;
+                break;
+            case LIGHT_EYEBLOSSOM:
+                lightRange = 2.0;
                 break;
             case LIGHT_END_STONE_LAMP:
             case LIGHT_CAMPFIRE:
@@ -976,6 +986,7 @@
             case LIGHT_YELLOW_CANDLES_2:
                 size = (4.0/16.0);
                 break;
+            case LIGHT_EYEBLOSSOM:
             case LIGHT_CANDLES_1:
             case LIGHT_BLACK_CANDLES_1:
             case LIGHT_BLUE_CANDLES_1:

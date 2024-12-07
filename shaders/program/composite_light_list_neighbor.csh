@@ -10,6 +10,7 @@ layout (local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 const ivec3 workGroups = ivec3(16, 8, 16);
 
 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
+    uniform float frameTimeCounter;
     uniform mat4 gbufferModelView;
     uniform vec3 cameraPosition;
     uniform float far;
@@ -18,6 +19,9 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     #include "/lib/lights.glsl"
 
     #include "/lib/buffers/light_voxel.glsl"
+
+    #include "/lib/sampling/noise.glsl"
+    
     #include "/lib/lighting/voxel/mask.glsl"
     #include "/lib/lighting/voxel/light_mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"

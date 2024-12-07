@@ -60,12 +60,10 @@ uniform float far;
     uniform int currentRenderedItemId;
     uniform vec4 entityColor;
 
-    #ifdef LIGHTING_FLICKER
-        #ifdef ANIM_WORLD_TIME
-            uniform int worldTime;
-        #else
-            uniform float frameTimeCounter;
-        #endif
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #else
+        uniform float frameTimeCounter;
     #endif
 #endif
 
@@ -94,6 +92,8 @@ uniform float far;
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
+
+        #include "/lib/sampling/noise.glsl"
 
         #ifdef LIGHTING_FLICKER
             #include "/lib/utility/anim.glsl"
@@ -253,8 +253,11 @@ void main() {
 
                         lightColor = RGBToLinear(lightColor);
 
+                        vec3 worldPos = cameraPosition + originPos;
+                        ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+
                         #ifdef LIGHTING_FLICKER
-                           vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                           vec2 lightNoise = GetDynLightNoise(worldPos);
                            ApplyLightFlicker(lightColor, lightType, lightNoise);
                         #endif
                     }

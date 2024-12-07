@@ -5,7 +5,7 @@ void GetVanillaLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 shadowC
             lmcoord.y *= shadowF; // WARN: fix scaling!
         #endif
 
-        vec3 lightmapFinal = textureLod(TEX_LIGHTMAP, LightMapTex(lmcoord), 0).rgb;
+        vec3 lightmapFinal = vec3(1.0);//textureLod(TEX_LIGHTMAP, LightMapTex(lmcoord), 0).rgb;
         diffuse = RGBToLinear(lightmapFinal);
     #else
         vec3 lightmapBlock = _pow3(lmcoord.x) * blackbody(LIGHTING_TEMP);

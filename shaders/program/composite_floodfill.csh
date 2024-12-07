@@ -105,18 +105,19 @@ const float LpvIndirectFalloff = 0.98;
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 
+    #include "/lib/sampling/noise.glsl"
+
     #ifdef LIGHTING_FLICKER
         #include "/lib/utility/anim.glsl"
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
     #endif
     
-        #include "/lib/lighting/voxel/lights_render.glsl"
+    #include "/lib/lighting/voxel/lights_render.glsl"
 
     #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
         #include "/lib/buffers/shadow.glsl"
 
-        #include "/lib/sampling/noise.glsl"
         #include "/lib/sampling/ign.glsl"
 
         #include "/lib/world/sky.glsl"
@@ -570,8 +571,11 @@ void main() {
 
                     lightColor = RGBToLinear(lightColor);
 
+                    vec3 worldPos = cameraPosition + blockLocalPos;
+                    ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+
                     #ifdef LIGHTING_FLICKER
-                       vec2 lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                       vec2 lightNoise = GetDynLightNoise(worldPos);
                        ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 

@@ -24,6 +24,9 @@ uint GetSceneItemLightType(const in int itemId) {
                 lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
                 lightColor = RGBToLinear(lightColor);
 
+                float lightRange; // WARN: unseparate this
+                ApplyLightAnimation(lightColor, lightRange, lightType, vec3(0.0));
+
                 #ifdef LIGHTING_FLICKER
                     ApplyLightFlicker(lightColor, lightType, noiseSample);
                 #endif

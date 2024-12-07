@@ -19,14 +19,10 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform vec3 previousCameraPosition;
     uniform float far;
 
-    #ifdef LIGHTING_FLICKER
-        //uniform float frameTimeCounter;
-
-        #ifdef ANIM_WORLD_TIME
-            uniform int worldTime;
-        #else
-            uniform float frameTimeCounter;
-        #endif
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #else
+        uniform float frameTimeCounter;
     #endif
     
     #if LPV_SIZE > 0
@@ -38,6 +34,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     
     #include "/lib/buffers/light_static.glsl"
     #include "/lib/buffers/light_voxel.glsl"
+
+    #include "/lib/sampling/noise.glsl"
 
     #ifdef LIGHTING_FLICKER
         #include "/lib/utility/anim.glsl"
@@ -135,9 +133,12 @@ void main() {
 
                     lightColor = RGBToLinear(lightColor);
 
+                    vec3 worldPos = cameraPosition + blockLocalPos;
+                    ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+
                     vec2 lightNoise = vec2(0.0);
                     #ifdef LIGHTING_FLICKER
-                        lightNoise = GetDynLightNoise(cameraPosition + blockLocalPos);
+                        lightNoise = GetDynLightNoise(worldPos);
                         ApplyLightFlicker(lightColor, lightType, lightNoise);
                     #endif
 

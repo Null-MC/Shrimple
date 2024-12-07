@@ -387,6 +387,13 @@ option.MATERIAL_SSS_SCATTER.comment=The maximum distance [in blocks] that SSS ca
 option.MATERIAL_SSS_MAXDIST=Max Distance
 option.MATERIAL_SSS_MAXDIST.comment=The maximum distance [in blocks] that SSS can penetrate through blocks.
 
+option.MATERIAL_SSS_AMBIENT=Ambient
+option.MATERIAL_SSS_AMBIENT.comment=How much ambient lighting should contribute to scattered lighting.
+suffix.MATERIAL_SSS_AMBIENT=%
+
+option.MATERIAL_SSS_TINT=Tinting
+option.MATERIAL_SSS_TINT.comment=Enables tinting of the scattered lighting by the surface color.
+
 
 screen.MATERIAL_REFLECT_OPTIONS=Reflections
 

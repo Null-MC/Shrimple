@@ -51,6 +51,8 @@ float GetSceneLightEmission(const in uint lightType) {
                 else
                     emission = GetSceneEntityLightColor(id).a / 15.0;
             #endif
+
+            emission = _pow3(emission);
         #endif
 
         return emission * Lighting_Brightness;

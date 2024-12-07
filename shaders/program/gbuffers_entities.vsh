@@ -289,8 +289,11 @@ void main() {
                 vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                 lightRange = lightRangeSize.x * 255.0;
 
+                vec3 worldPos = cameraPosition + originPos;
+                ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+
                 #ifdef LIGHTING_FLICKER
-                   vec2 lightNoise = GetDynLightNoise(cameraPosition + originPos);
+                   vec2 lightNoise = GetDynLightNoise(worldPos);
                    ApplyLightFlicker(lightColor, lightType, lightNoise);
                 #endif
             }

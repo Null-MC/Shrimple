@@ -107,7 +107,6 @@ vec4 ApplyTAA(const in vec2 uv) {
     //    max(max(max(in5, in6), max(in7, in8)), maxColor), 0.5);
 
     minColor = min(min(min(in5, in6), min(in7, in8)), minColor);
-
     maxColor = max(max(max(in5, in6), max(in7, in8)), maxColor);
     
    	vec3 preclamping = antialiased;

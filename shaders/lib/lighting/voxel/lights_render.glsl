@@ -1,7 +1,20 @@
+void ApplyLightAnimation(inout vec3 lightColor, inout float lightRange, const in uint lightType, const in vec3 worldPos) {
+    if (lightType == LIGHT_CREAKING_HEART) {
+        float offset = hash13(worldPos);
+        float pulse = sin(frameTimeCounter + offset * TAU) * 0.5 + 0.5;
+        lightRange *= pulse * 0.5 + 0.5;
+    }
+}
+
+
 #if defined LIGHTING_FLICKER && !defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS //&& !((defined RENDER_SHADOW && defined RENDER_VERTEX) || defined RENDER_SHADOWCOMP_LIGHT_NEIGHBORS || defined RENDER_SETUP)
     void ApplyLightFlicker(inout vec3 lightColor, const in uint lightType, const in vec2 noiseSample) {
         float flickerNoise = GetDynLightFlickerNoise(noiseSample);
         float blackbodyTemp = 0.0;
+
+        // if (lightType == LIGHT_CREAKING_HEART) {
+        //     lightColor *= 0.0;//sin(frameTimeCounter) * 0.7 + 0.3;
+        // }
 
         bool isBigFireSource = (lightType >= LIGHT_TORCH_FLOOR && lightType <= LIGHT_TORCH_WALL_W)
             || lightType == LIGHT_FIRE || lightType == LIGHT_CAMPFIRE

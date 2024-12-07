@@ -178,7 +178,10 @@ uniform float far;
 
 #include "/lib/vertex_common.glsl"
 
-#if LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#if !defined DEFERRED_BUFFER_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#endif
+
+#if !defined DEFERRED_BUFFER_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
