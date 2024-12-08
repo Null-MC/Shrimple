@@ -13,6 +13,8 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform float nightVision;
 uniform float playerMood;
 
+uniform bool hideGUI;
+
 #if MC_VERSION >= 11900
     uniform float darknessFactor;
     uniform float darknessLightFactor;
@@ -30,6 +32,10 @@ uniform float playerMood;
 #include "/lib/post/tonemap.glsl"
 #include "/lib/post/exposure.glsl"
 
+#if PERKINJE_STRENGTH > 0
+    #include "/lib/post/purkinje.glsl"
+#endif
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
@@ -39,14 +45,18 @@ void main() {
 
     ApplyPostExposure(color);
 
+    #if PERKINJE_STRENGTH > 0
+        color = PurkinjeShift(color, PurkinjeStrength);
+    #endif
+
     ApplyPostGrading(color);
 
     ApplyPostTonemap(color);
 
     color = LinearToRGB(color, GAMMA_OUT);
 
-    //color += (Bayer16(gl_FragCoord.xy) - 0.5) / 255.0;
-    color += (GetScreenBayerValue(ivec2(2,1)) - 0.5) / 255.0;
+    float dither = GetScreenBayerValue(ivec2(2,1));
+    color += (dither - 0.5) / 255.0;
 
     outFinal = color;
 }

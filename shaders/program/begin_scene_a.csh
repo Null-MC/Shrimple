@@ -10,6 +10,10 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
 #ifdef IRIS_FEATURE_SSBO
+    #ifdef WORLD_SKY_ENABLED
+        uniform sampler2D texSkyIrradiance;
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelViewInverse;
@@ -52,6 +56,8 @@ const ivec3 workGroups = ivec3(1, 1, 1);
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 
+    #include "/lib/sampling/erp.glsl"
+
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/light_static.glsl"
 
@@ -68,6 +74,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
+        #include "/lib/sky/irradiance.glsl"
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
@@ -108,6 +115,9 @@ void main() {
             WorldMoonLightColor = GetSkyMoonColor(-localSunDirection.y);
             WorldSkyLightColor = CalculateSkyLightColor(localSunDirection.y);
             //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
+
+            // TODO: currently using previous-frame data, needs to be moved
+            WorldSkyAmbientColor = SampleSkyIrradiance(vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF;
 
             if (lightningBoltPosition.w > 0.5)
                 lightningPosition = lightningBoltPosition.xyz + cameraPosition;

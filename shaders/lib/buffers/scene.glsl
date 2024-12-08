@@ -24,6 +24,7 @@
     vec3 WorldMoonLightColor;                // 12
     vec3 WorldSkyLightColor;                 // 12
     //vec3 WeatherSkyLightColor;             // 12
+    vec3 WorldSkyAmbientColor;               // 12
 
     //mat4 gbufferModelViewProjection;         // 64
     mat4 gbufferModelViewProjectionInverse;  // 64
