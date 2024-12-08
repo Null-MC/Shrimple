@@ -303,11 +303,10 @@ option.LIGHTING_TRACE_SAMPLE_MAX=Maximale Probenanzahl
 option.LIGHTING_TRACE_SAMPLE_MAX.comment=Die maximale Anzahl an Lichtern, die pro Pixel für jedes gerenderte Bild abgetastet werden können. Wenn Sie einen niedrigeren Wert festlegen, wird die Leistung erhöht, aber auch die zeitliche Unschärfe erhöht.
 value.LIGHTING_TRACE_SAMPLE_MAX.0=Unendlich
 
-option.LPV_SIZE=LPV Größe
-value.LPV_SIZE.0=Aus
-value.LPV_SIZE.1=Klein
-value.LPV_SIZE.2=Mittel
-value.LPV_SIZE.3=Groß
+option.VOXEL_SIZE=LPV Größe
+value.VOXEL_SIZE.64=Klein [64]
+value.VOXEL_SIZE.128=Mittel [128]
+value.VOXEL_SIZE.256=Groß [256]
 
 
 screen.VOLUMETRIC_LIGHT_OPTIONS=Volumetrische Beleuchtung

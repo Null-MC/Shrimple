@@ -26,7 +26,12 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
         #ifdef EFFECT_SSAO_RT
-            vec3 offset = hash33(vec3(gl_FragCoord.xy, frameCounter + i)) - 0.5;
+            #ifdef EFFECT_TAA_ENABLED
+                vec3 offset = hash33(vec3(gl_FragCoord.xy, frameCounter + i)) - 0.5;
+            #else
+                vec3 offset = hash33(vec3(gl_FragCoord.xy, i)) - 0.5;
+            #endif
+
             offset = normalize(offset) * radius * dither;
             offset *= sign(dot(offset, viewNormal));
 

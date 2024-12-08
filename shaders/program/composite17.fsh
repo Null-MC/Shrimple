@@ -20,7 +20,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+#ifdef IS_LPV_ENABLED
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -114,7 +114,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#if LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferPreviousModelView;
 #endif
@@ -209,7 +209,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/water/water_depths_read.glsl"
     #endif
 
-    // #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
     #if LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED || defined VOLUMETRIC_BLOCK_RT
         #include "/lib/blocks.glsl"
 

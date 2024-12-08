@@ -21,7 +21,7 @@ void main() {
 
     uint waterUV = uint(gl_GlobalInvocationID.y * iViewSize.x + gl_GlobalInvocationID.x);
 
-    WaterDepths[waterUV].IsWater = false;
+    // WaterDepths[waterUV].IsWater = false;
     for (int i = 0; i < WATER_DEPTH_LAYERS; i++)
         WaterDepths[waterUV].Depth[i] = UINT32_MAX;
 }

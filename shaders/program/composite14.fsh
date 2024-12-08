@@ -190,11 +190,11 @@ in vec2 texcoord;
         #include "/lib/buffers/block_voxel.glsl"
 
         #include "/lib/blocks.glsl"
-        
-        #include "/lib/voxel/lights/mask.glsl"
-        // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/voxel/blocks.glsl"
 
+        #include "/lib/voxel/voxel_common.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
+        #include "/lib/voxel/blocks.glsl"
+        
         #include "/lib/voxel/lpv/lpv.glsl"
         #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif

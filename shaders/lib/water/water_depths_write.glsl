@@ -6,7 +6,6 @@ void SetWaterDepth(const in float viewDist) {
     
     uvec2 uv = uvec2(gl_FragCoord.xy);
     uint uvIndex = uint(uv.y * viewWidth + uv.x);
-    WaterDepths[uvIndex].IsWater = true;
 
     uint depthIs = uint(saturate(viewDist / farMax) * UINT32_MAX + 0.5);
     for (int i = 0; i < WATER_DEPTH_LAYERS; i++) {

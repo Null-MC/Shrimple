@@ -221,9 +221,9 @@ void main() {
 		ivec2 center = ivec2(viewSize * 0.5);
         uint waterUV = uint(center.y * viewSize.x + center.x);
 
-		printString((_I, _s, _space, _W, _a, _t, _e, _r, _colon, _space));
-		printBool(WaterDepths[waterUV].IsWater);
-		printLine();
+		// printString((_C, _o, _u, _n, _t, _colon, _space));
+		// printUnsignedInt(WaterDepths[waterUV].Count);
+		// printLine();
 
 		const uint charIndices[7] = uint[](_0, _1, _2, _3, _4, _5, _6);
 

@@ -41,7 +41,7 @@ uniform sampler2D BUFFER_OVERLAY;
     uniform sampler2D BUFFER_VL_TRANSMIT;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
+#ifdef IS_LPV_ENABLED
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 
@@ -138,7 +138,7 @@ uniform int heldBlockLightValue2;
     uniform float waterDensitySmooth;
 #endif
 
-#if LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     uniform mat4 gbufferPreviousModelView;
 #endif
 
@@ -289,7 +289,7 @@ uniform vec3 eyePosition;
 //     #include "/lib/lighting/voxel/sampling.glsl"
 // #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
+#ifdef IS_LPV_ENABLED
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     

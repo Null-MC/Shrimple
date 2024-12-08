@@ -243,6 +243,7 @@ const bool colortex15Clear = true;
 // Lighting
 #define LIGHTING_MODE 1 // [0 1 2 3]
 #define LIGHTING_MODE_HAND 1 // [0 1 2]
+#define VOXEL_SIZE 128 // [64 128 256]
 #define LIGHTING_BRIGHTNESS 640 // [1 2 4 6 8 10 12 14 16 18 20 40 60 80 100 120 140 160 180 200 220 240 260 280 300 320 340 360 380 400 420 440 460 480 500 520 540 560 580 600 620 640 660 680 700 720 740 760 780 800 820 840 860 880 900 920 940 960 980 1000]
 #define LIGHTING_AMBIENT 30 // [0 2 4 6 8 10 12 14 16 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define LIGHTING_MIN 0.6 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0]
@@ -278,7 +279,7 @@ const bool colortex15Clear = true;
 #define LIGHTING_TRACE_LPV_AMBIENT 0.1 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
 
 // Dynamic LPV
-#define LPV_SIZE 0 // [0 1 2 3]
+// #define LPV_ENABLED
 #define LPV_SKYLIGHT 0 // [0 1 2]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
 #define LPV_SHADOW_SAMPLES 6 // [1 2 3 4 5 6 7 8 9 12 15 18 21 25]
@@ -392,8 +393,6 @@ const bool colortex15Clear = true;
 //#define ALPHATESTREF_ENABLED
 //#define LIGHTING_DEBUG_LEVELS
 
-#define VOXEL_SIZE 128 // [64 128 256]
-
 
 // INTERNAL SETTINGS
 #define LIGHT_COLOR_MESSAGE 0 // [0]
@@ -470,13 +469,13 @@ const bool colortex15Clear = true;
     #define DYN_LIGHT_BLOCK_IMG_SIZE 16384u
 #endif
 
-#if   LPV_SIZE == 3
+#if   VOXEL_SIZE == 256
     #define LPV_BLOCK_SIZE 256
     #define LPV_PADDING 32
-#elif LPV_SIZE == 2
+#elif VOXEL_SIZE == 128
     #define LPV_BLOCK_SIZE 128
     #define LPV_PADDING 16
-#else
+#elif VOXEL_SIZE == 64
     #define LPV_BLOCK_SIZE 64
     #define LPV_PADDING 8
 #endif
@@ -519,7 +518,7 @@ const bool colortex15Clear = true;
     #define RENDER_CLOUD_SHADOWS_ENABLED
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
+#if defined LPV_ENABLED && LIGHTING_MODE > LIGHTING_MODE_NONE
     #define IS_LPV_ENABLED
 #endif
 
@@ -587,6 +586,8 @@ const bool colortex15Clear = true;
 #ifdef LIGHTING_TRACED_ACCUMULATE
 #endif
 #ifdef LIGHTING_FULLBRIGHT_FIX
+#endif
+#ifdef LPV_ENABLED
 #endif
 #ifdef VOLUMETRIC_BLOCK_RT
 #endif
@@ -715,11 +716,11 @@ const bool shadowcolor0Nearest = false;
 
 //const float entityShadowDistanceMul = 0.25;
 
-#if LPV_SIZE == 3
+#if VOXEL_SIZE == 256
 	const float voxelDistance = 64.0;
-#elif LPV_SIZE == 2
+#elif VOXEL_SIZE == 128
 	const float voxelDistance = 32.0;
-#elif LPV_SIZE == 1
+#elif VOXEL_SIZE == 64
 	const float voxelDistance = 16.0;
 #else
 	const float voxelDistance = 0.0;

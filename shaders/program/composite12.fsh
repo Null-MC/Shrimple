@@ -141,7 +141,7 @@ uniform int heldBlockLightValue2;
     #endif
 #endif
 
-#if LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     uniform mat4 gbufferPreviousModelView;
 #endif
 

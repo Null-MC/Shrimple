@@ -481,11 +481,11 @@ option.LIGHTING_OLD.comment=Enables vanilla directional sky-light.
 
 screen.LIGHTING_LPV_OPTIONS=FloodFill Options
 
-option.LPV_SIZE=Size
-value.LPV_SIZE.0=OFF
-value.LPV_SIZE.1=Small [64]
-value.LPV_SIZE.2=Medium [128]
-value.LPV_SIZE.3=Large [256]
+option.VOXEL_SIZE=Voxel Size
+option.VOXEL_SIZE.comment=The size in blocks of the buffer that stores voxel data.
+value.VOXEL_SIZE.64=Small [64]
+value.VOXEL_SIZE.128=Medium [128]
+value.VOXEL_SIZE.256=Large [256]
 
 option.LPV_SKYLIGHT=Sky Light
 value.LPV_SKYLIGHT.0=None

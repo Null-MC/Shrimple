@@ -1,5 +1,5 @@
 struct WaterDepthPixelData {
-    bool IsWater;                   // 4
+    // uint Count;                  // 4
     uint Depth[WATER_DEPTH_LAYERS]; // 16
 };
 

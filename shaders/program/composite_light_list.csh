@@ -25,7 +25,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         uniform float frameTimeCounter;
     #endif
     
-    #if LPV_SIZE > 0
+    #ifdef IS_LPV_ENABLED
         uniform int frameCounter;
     #endif
 
@@ -74,7 +74,7 @@ void main() {
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
 
-        #if LPV_SIZE > 0
+        #ifdef IS_LPV_ENABLED
             int frameIndex = frameCounter % 2;
         #endif
 

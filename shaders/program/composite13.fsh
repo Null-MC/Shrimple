@@ -19,7 +19,7 @@ uniform sampler2D noisetex;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& VOLUMETRIC_BRIGHT_BLOCK > 0 //&& !defined VOLUMETRIC_BLOCK_RT
+#ifdef IS_LPV_ENABLED
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
@@ -82,6 +82,7 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 shadowLightPosition;
 uniform ivec2 eyeBrightnessSmooth;
+uniform vec3 eyePosition;
 
 #ifdef WORLD_SKY_ENABLED
     uniform float sunAngle;
@@ -112,13 +113,9 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform bool firstPersonCamera;
 #endif
 
-#if LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferPreviousModelView;
-#endif
-
-#ifdef IS_IRIS
-    uniform vec3 eyePosition;
 #endif
 
 #ifdef DISTANT_HORIZONS
@@ -154,7 +151,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/water/water_mask_read.glsl"
     #endif
 
-    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
+    #ifdef IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
@@ -167,7 +164,7 @@ uniform ivec2 eyeBrightnessSmooth;
     //     #include "/lib/buffers/water_depths.glsl"
     // #endif
 
-    #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
+    #ifdef IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
         #include "/lib/blocks.glsl"
 
         #include "/lib/voxel/voxel_common.glsl"
@@ -204,7 +201,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/sampling.glsl"
     #endif
 
-    #if LPV_SIZE > 0
+    #ifdef IS_LPV_ENABLED
         #include "/lib/utility/hsv.glsl"
         
         #include "/lib/voxel/lpv/lpv.glsl"

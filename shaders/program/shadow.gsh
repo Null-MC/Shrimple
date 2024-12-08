@@ -72,7 +72,6 @@ uniform float far;
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    // #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
     #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/block_voxel.glsl"
@@ -83,11 +82,10 @@ uniform float far;
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 
-    #if LPV_SIZE > 0 //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
+    #ifdef IS_LPV_ENABLED
         #include "/lib/buffers/volume.glsl"
     #endif
 
-    // #if LIGHTING_MODE != LIGHTING_MODE_NONE || (LPV_SIZE > 0 && LPV_SHADOW_SAMPLES > 0)
     #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/entities.glsl"
         #include "/lib/items.glsl"

@@ -7,11 +7,11 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
-#if LPV_SIZE == 3
+#if VOXEL_SIZE == 256
     const ivec3 workGroups = ivec3(32, 32, 32);
-#elif LPV_SIZE == 2
+#elif VOXEL_SIZE == 128
     const ivec3 workGroups = ivec3(16, 16, 16);
-#else
+#elif VOXEL_SIZE == 64
     const ivec3 workGroups = ivec3(8, 8, 8);
 #endif
 
@@ -19,7 +19,7 @@ const float LpvFalloff = 0.998;
 const float LpvIndirectFalloff = 0.98;
 
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     #ifdef LIGHTING_FLICKER
         uniform sampler2D noisetex;
     #endif
@@ -458,7 +458,7 @@ void PopulateShared() {
 }
 
 void main() {
-    #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
+    #ifdef IS_LPV_ENABLED
         uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
         if (any(greaterThanEqual(chunkPos, VoxelBufferSize))) return;
 

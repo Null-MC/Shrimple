@@ -60,7 +60,7 @@ uniform sampler2D noisetex;
     uniform sampler2D specular;
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
+#ifdef IS_LPV_ENABLED
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif

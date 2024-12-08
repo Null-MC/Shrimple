@@ -60,7 +60,7 @@ uniform sampler3D TEX_CLOUDS;
     #endif
 #endif
 
-#if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0
+#ifdef IS_LPV_ENABLED
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
     

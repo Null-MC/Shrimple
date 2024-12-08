@@ -143,11 +143,10 @@ uniform vec4 entityColor;
         #include "/lib/shadows/distorted/common.glsl"
         #include "/lib/shadows/distorted/apply.glsl"
     #endif
-//#elif LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0
 #elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/buffers/block_static.glsl"
 
-    #if LPV_SIZE > 0
+    #ifdef IS_LPV_ENABLED
         #include "/lib/buffers/volume.glsl"
         #include "/lib/utility/hsv.glsl"
     #endif
@@ -241,7 +240,6 @@ void main() {
     #endif
 
 
-    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && LPV_SIZE > 0 && !defined RENDER_SHADOWS_ENABLED
     #if defined IS_LPV_ENABLED && !defined RENDER_SHADOWS_ENABLED
         if (entityId > 0 || currentRenderedItemId > 0) {
             vec3 originPos = vOut.localPos; // TODO: offset by normal?

@@ -567,11 +567,10 @@ screen.LIGHTING_LPV_OPTIONS=Настройки НаливногоЗаполне�
 
 =====LPV Size=====
 
-option.LPV_SIZE=Дистанция
-value.LPV_SIZE.0=Выкл
-value.LPV_SIZE.1=Маленькая
-value.LPV_SIZE.2=Средняя
-value.LPV_SIZE.3=Большая
+option.VOXEL_SIZE=Дистанция
+value.VOXEL_SIZE.64=Маленькая [64]
+value.VOXEL_SIZE.128=Средняя [128]
+value.VOXEL_SIZE.256=Большая [256]
 
 =====LPV Sample Mode=====
 
