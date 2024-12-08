@@ -191,12 +191,12 @@ in vec2 texcoord;
 
         #include "/lib/blocks.glsl"
         
-        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/voxel/blocks.glsl"
 
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_render.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif
 
     #if MATERIAL_REFLECTIONS == REFLECT_SCREEN

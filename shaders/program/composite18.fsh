@@ -255,9 +255,9 @@ uniform vec3 eyePosition;
 #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
     #include "/lib/voxel/voxel_common.glsl"
 
-    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/voxel/lights/mask.glsl"
     // #include "/lib/lighting/voxel/block_mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
+    #include "/lib/voxel/blocks.glsl"
 #endif
 
 #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
@@ -293,11 +293,11 @@ uniform vec3 eyePosition;
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
     
-    #include "/lib/lpv/lpv.glsl"
-    #include "/lib/lpv/lpv_render.glsl"
+    #include "/lib/voxel/lpv/lpv.glsl"
+    #include "/lib/voxel/lpv/lpv_render.glsl"
     
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
-        #include "/lib/lpv/lpv_render_indirect.glsl"
+        #include "/lib/voxel/lpv/lpv_render_indirect.glsl"
     #endif
 #endif
 

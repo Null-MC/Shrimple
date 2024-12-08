@@ -110,6 +110,7 @@ uniform vec4 entityColor;
 #include "/lib/items.glsl"
 
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/sampling/noise.glsl"
 
 #include "/lib/utility/lightmap.glsl"
 
@@ -119,6 +120,10 @@ uniform vec4 entityColor;
 
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
+#endif
+
+#if !defined DEFERRED_BUFFER_ENABLED || (defined IS_LPV_ENABLED && !defined RENDER_SHADOWS_ENABLED)
+    #include "/lib/voxel/voxel_common.glsl"
 #endif
 
 #ifdef RENDER_SHADOWS_ENABLED
@@ -156,13 +161,13 @@ uniform vec4 entityColor;
     #include "/lib/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
 
-    //#include "/lib/lighting/voxel/mask.glsl"
+    //#include "/lib/voxel/lights/mask.glsl"
     //#include "/lib/lighting/voxel/block_mask.glsl"
-    //#include "/lib/lighting/voxel/blocks.glsl"
+    //#include "/lib/voxel/blocks.glsl"
 
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_write.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_write.glsl"
     #endif
 
     #include "/lib/lighting/voxel/entities.glsl"
@@ -171,7 +176,7 @@ uniform vec4 entityColor;
 
     // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
     //     #include "/lib/lighting/voxel/lights.glsl"
-    //     #include "/lib/lighting/voxel/light_mask.glsl"
+    //     #include "/lib/voxel/lights/light_mask.glsl"
     // #endif
 #endif
 

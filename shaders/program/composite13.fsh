@@ -172,9 +172,9 @@ uniform ivec2 eyeBrightnessSmooth;
 
         #include "/lib/voxel/voxel_common.glsl"
 
-        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/voxel/blocks.glsl"
     #endif
 
     #if VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE
@@ -187,7 +187,7 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/lighting/fresnel.glsl"
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined VOLUMETRIC_BLOCK_RT
-            #include "/lib/lighting/voxel/light_mask.glsl"
+            #include "/lib/voxel/lights/light_mask.glsl"
 
             #include "/lib/lighting/voxel/tinting.glsl"
             #include "/lib/lighting/voxel/tracing.glsl"
@@ -207,8 +207,8 @@ uniform ivec2 eyeBrightnessSmooth;
     #if LPV_SIZE > 0
         #include "/lib/utility/hsv.glsl"
         
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_render.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif
 #endif
 

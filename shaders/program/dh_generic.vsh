@@ -23,6 +23,7 @@ uniform sampler2D lightmap;
 uniform int frameCounter;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
+uniform mat4 dhProjection;
 uniform vec3 cameraPosition;
 
 #ifdef IS_IRIS
@@ -114,7 +115,7 @@ void main() {
         #endif
     #endif
 
-    gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);
+    gl_Position = dhProjection * vec4(viewPos, 1.0);
 
     #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);

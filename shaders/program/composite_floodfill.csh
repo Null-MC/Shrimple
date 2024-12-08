@@ -101,10 +101,10 @@ const float LpvIndirectFalloff = 0.98;
 
     #include "/lib/voxel/voxel_common.glsl"
 
-    #include "/lib/lpv/lpv.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/voxel/lpv/lpv.glsl"
+    #include "/lib/voxel/lights/mask.glsl"
     // #include "/lib/lighting/voxel/block_mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
+    #include "/lib/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 
     #include "/lib/sampling/noise.glsl"

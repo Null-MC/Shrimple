@@ -178,7 +178,14 @@ uniform float far;
 
 #include "/lib/vertex_common.glsl"
 
-#if !defined DEFERRED_BUFFER_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
+#if (LIGHTING_MODE != LIGHTING_MODE_NONE && !defined DEFERRED_BUFFER_ENABLED) || (defined IS_LPV_ENABLED && !defined RENDER_SHADOWS_ENABLED)
+    #include "/lib/voxel/voxel_common.glsl"
+    #include "/lib/voxel/lights/mask.glsl"
+    #include "/lib/voxel/blocks.glsl"
+
+    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+        #include "/lib/voxel/lights/light_mask.glsl"
+    #endif
 #endif
 
 #if !defined DEFERRED_BUFFER_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE //&& !defined RENDER_SHADOWS_ENABLED
@@ -187,11 +194,8 @@ uniform float far;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #include "/lib/lighting/voxel/mask.glsl"
-    // #include "/lib/lighting/voxel/block_mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
-
-    #include "/lib/voxel/voxel_common.glsl"
+    // #include "/lib/voxel/lights/mask.glsl"
+    // #include "/lib/voxel/blocks.glsl"
 
     #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
         #include "/lib/buffers/volume.glsl"
@@ -199,14 +203,13 @@ uniform float far;
     #endif
 
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_write.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_write.glsl"
         // #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/lighting/voxel/lights.glsl"
-        #include "/lib/lighting/voxel/light_mask.glsl"
     #endif
 
     #include "/lib/lighting/voxel/lights_render.glsl"
@@ -286,7 +289,7 @@ void main() {
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED
             ivec3 gridCell, blockCell;
-            vec3 gridPos = GetVoxelBlockPosition(originPos);
+            vec3 gridPos = GetVoxelLightPosition(originPos);
             if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
                 uint lightType = StaticBlockMap[blockId].lightType;
 

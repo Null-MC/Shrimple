@@ -104,11 +104,11 @@ uniform float far;
         // #include "/lib/buffers/collisions.glsl"
         // #include "/lib/buffers/lighting.glsl"
 
-        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/lights_render.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/voxel/blocks.glsl"
 
         #include "/lib/voxel/voxel_common.glsl"
 
@@ -119,13 +119,13 @@ uniform float far;
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/utility/hsv.glsl"
         //#include "/lib/buffers/volume.glsl"
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_write.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_write.glsl"
         #include "/lib/lighting/voxel/entities.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/lighting/voxel/light_mask.glsl"
+        #include "/lib/voxel/lights/light_mask.glsl"
         //#include "/lib/lighting/voxel/lights.glsl"
     #endif
 #endif
@@ -208,7 +208,7 @@ void main() {
                 vec3 lightGridOrigin = floor(originPos + cameraOffset) - cameraOffset + 0.5;
 
                 ivec3 gridCell, blockCell;
-                vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+                vec3 gridPos = GetVoxelLightPosition(lightGridOrigin);
                 if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
                     uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
 

@@ -3,17 +3,10 @@ const ivec3 VoxelLightBlockSize = VoxelLightBufferSize * LIGHT_BIN_SIZE;
 const ivec3 VoxelLightBlockCenter = VoxelLightBlockSize / 2;
 
 
-vec3 GetVoxelBlockPosition(const in vec3 position) {
+vec3 GetVoxelLightPosition(const in vec3 position) {
     vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
     return position + VoxelLightBlockCenter + cameraOffset;
 }
-
-// #if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_BEGIN_LPV
-//     vec3 GetPreviousVoxelBlockPosition(const in vec3 position) {
-//         vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-//         return position + VoxelLightBlockCenter + cameraOffset;
-//     }
-// #endif
 
 ivec3 GetVoxelGridCell(const in vec3 gridPos) {
     return ivec3(floor(gridPos / LIGHT_BIN_SIZE + EPSILON));

@@ -25,8 +25,8 @@ const ivec3 workGroups = ivec3(4, 5, 1);
     #endif
 
     #ifdef IS_LPV_ENABLED
-        #include "/lib/lighting/voxel/blocks.glsl"
-        #include "/lib/lpv/lpv_mask_map.glsl"
+        #include "/lib/voxel/blocks.glsl"
+        #include "/lib/voxel/lpv/lpv_mask_map.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED

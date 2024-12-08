@@ -323,12 +323,12 @@ uniform vec3 eyePosition;
     #endif
 
     #ifdef IS_LPV_ENABLED
-        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/voxel/blocks.glsl"
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        //     #include "/lib/lighting/voxel/light_mask.glsl"
+        //     #include "/lib/voxel/lights/light_mask.glsl"
         // #endif
     #endif
 
@@ -378,8 +378,8 @@ uniform vec3 eyePosition;
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/buffers/volume.glsl"
         
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_render.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE

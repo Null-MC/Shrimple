@@ -101,12 +101,12 @@ uniform float blindnessSmooth;
 
 #include "/lib/voxel/voxel_common.glsl"
 
-#include "/lib/lighting/voxel/mask.glsl"
+#include "/lib/voxel/lights/mask.glsl"
 // #include "/lib/lighting/voxel/block_mask.glsl"
-#include "/lib/lighting/voxel/light_mask.glsl"
+#include "/lib/voxel/lights/light_mask.glsl"
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
-#include "/lib/lighting/voxel/blocks.glsl"
+#include "/lib/voxel/blocks.glsl"
 
 #include "/lib/lighting/voxel/tinting.glsl"
 #include "/lib/lighting/voxel/tracing.glsl"

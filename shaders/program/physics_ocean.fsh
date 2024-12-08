@@ -260,9 +260,9 @@ uniform int heldBlockLightValue2;
     #endif
 
     #ifdef IS_LPV_ENABLED
-        #include "/lib/lighting/voxel/mask.glsl"
+        #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/lighting/voxel/blocks.glsl"
+        #include "/lib/voxel/blocks.glsl"
     #endif
 
     #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
@@ -291,8 +291,8 @@ uniform int heldBlockLightValue2;
         #include "/lib/buffers/volume.glsl"
         #include "/lib/utility/hsv.glsl"
         
-        #include "/lib/lpv/lpv.glsl"
-        #include "/lib/lpv/lpv_render.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE

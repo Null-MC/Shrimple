@@ -43,9 +43,9 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         #include "/lib/lighting/flicker.glsl"
     #endif
     
-    #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/light_mask.glsl"
-    #include "/lib/lighting/voxel/blocks.glsl"
+    #include "/lib/voxel/lights/mask.glsl"
+    #include "/lib/voxel/lights/light_mask.glsl"
+    #include "/lib/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
 #endif

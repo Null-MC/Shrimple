@@ -14,7 +14,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
     uniform vec3 previousCameraPosition;
 
     #include "/lib/buffers/light_voxel.glsl"
-    #include "/lib/lighting/voxel/mask.glsl"
+    #include "/lib/voxel/lights/mask.glsl"
 #endif
 
 
