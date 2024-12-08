@@ -81,7 +81,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         //     skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
         // #endif
 
-        vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
+        // vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF * eyeBrightF;
+        vec3 skyColorAmbient = SampleSkyIrradiance(vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeBrightF;
         //skyColorAmbient += vlSkyMinLight;
 
         #if SKY_CLOUD_TYPE > CLOUDS_VANILLA

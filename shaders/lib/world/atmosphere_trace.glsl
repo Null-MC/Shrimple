@@ -45,7 +45,7 @@ float GetSkyAltitudeFactor(const in float altitude) {
         // fogF *= smoothstep(SkyFar, _far, sampleDist);
         fogF *= exp(-0.002 * sampleDist);
 
-        return 0.6 + fogF;
+        return 0.2 + fogF;
     }
 #endif
 
