@@ -1,19 +1,19 @@
-const ivec3 VoxelGridSize = ivec3(LIGHT_SIZE_XZ, LIGHT_SIZE_Y, LIGHT_SIZE_XZ);
-const ivec3 VoxelBlockSize = VoxelGridSize * LIGHT_BIN_SIZE;
-const ivec3 VoxelBlockCenter = VoxelBlockSize / 2;
+const ivec3 VoxelLightBufferSize = ivec3(LIGHT_SIZE_XZ, LIGHT_SIZE_Y, LIGHT_SIZE_XZ);
+const ivec3 VoxelLightBlockSize = VoxelLightBufferSize * LIGHT_BIN_SIZE;
+const ivec3 VoxelLightBlockCenter = VoxelLightBlockSize / 2;
 
 
 vec3 GetVoxelBlockPosition(const in vec3 position) {
     vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-    return position + VoxelBlockCenter + cameraOffset;
+    return position + VoxelLightBlockCenter + cameraOffset;
 }
 
-#if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_BEGIN_LPV
-    vec3 GetPreviousVoxelBlockPosition(const in vec3 position) {
-        vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-        return position + VoxelBlockCenter + cameraOffset;
-    }
-#endif
+// #if defined RENDER_GBUFFERS || defined RENDER_DEFERRED || defined RENDER_COMPOSITE || defined RENDER_BEGIN_LPV
+//     vec3 GetPreviousVoxelBlockPosition(const in vec3 position) {
+//         vec3 cameraOffset = fract(previousCameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+//         return position + VoxelLightBlockCenter + cameraOffset;
+//     }
+// #endif
 
 ivec3 GetVoxelGridCell(const in vec3 gridPos) {
     return ivec3(floor(gridPos / LIGHT_BIN_SIZE + EPSILON));
@@ -21,7 +21,7 @@ ivec3 GetVoxelGridCell(const in vec3 gridPos) {
 
 bool GetVoxelGridCell(const in vec3 gridPos, out ivec3 gridCell, out ivec3 blockCell) {
     gridCell = GetVoxelGridCell(gridPos);
-    if (any(lessThan(gridCell, ivec3(0.0))) || any(greaterThanEqual(gridCell, VoxelGridSize))) return false;
+    if (any(lessThan(gridCell, ivec3(0.0))) || any(greaterThanEqual(gridCell, VoxelLightBufferSize))) return false;
 
     blockCell = ivec3(floor(gridPos - gridCell * LIGHT_BIN_SIZE));
     return true;

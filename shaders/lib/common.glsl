@@ -392,6 +392,8 @@ const bool colortex15Clear = true;
 //#define ALPHATESTREF_ENABLED
 //#define LIGHTING_DEBUG_LEVELS
 
+#define VOXEL_SIZE 128 // [64 128 256]
+
 
 // INTERNAL SETTINGS
 #define LIGHT_COLOR_MESSAGE 0 // [0]

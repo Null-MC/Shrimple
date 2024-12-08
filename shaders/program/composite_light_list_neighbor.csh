@@ -33,7 +33,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
         if (lightLocalIndex >= LIGHT_BIN_MAX_COUNT) return 0u;
 
         const int gridSize = int(16.0 * Lighting_RangeF) / LIGHT_BIN_SIZE + 1;
-        vec3 binPos = gridCell * LIGHT_BIN_SIZE - VoxelBlockCenter - cameraOffset;
+        vec3 binPos = gridCell * LIGHT_BIN_SIZE - VoxelLightBlockCenter - cameraOffset;
 
         binPos += 1.0;// * LIGHT_BIN_SIZE;
 
@@ -46,7 +46,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
                     if (neighborOffset == ivec3(0)) continue;
 
                     ivec3 neighborGridCell = gridCell + neighborOffset;
-                    if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, VoxelGridSize))) continue;
+                    if (any(lessThan(neighborGridCell, ivec3(0))) || any(greaterThanEqual(neighborGridCell, VoxelLightBufferSize))) continue;
 
                     uint neighborGridIndex = GetVoxelGridCellIndex(neighborGridCell);
                     uint neighborLightCount = SceneLightMaps[neighborGridIndex].LightCount;
@@ -82,7 +82,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
+        if (any(greaterThanEqual(gridCell, VoxelLightBufferSize))) return;
 
         vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
         

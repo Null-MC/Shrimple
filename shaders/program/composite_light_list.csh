@@ -54,7 +54,7 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         ivec3 gridCell = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(gridCell, VoxelGridSize))) return;
+        if (any(greaterThanEqual(gridCell, VoxelLightBufferSize))) return;
         
         uint gridIndex = GetVoxelGridCellIndex(gridCell);
         
@@ -129,7 +129,7 @@ void main() {
                     vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
                     float lightRange = lightRangeSize.x * 255.0;
 
-                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelBlockCenter - cameraOffset;
+                    vec3 blockLocalPos = gridCell * LIGHT_BIN_SIZE + blockCell + 0.5 - VoxelLightBlockCenter - cameraOffset;
 
                     lightColor = RGBToLinear(lightColor);
 

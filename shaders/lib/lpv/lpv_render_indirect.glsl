@@ -1,5 +1,5 @@
 vec3 SampleLpvIndirect(const in vec3 lpvPos) {
-    vec3 texcoord = lpvPos / SceneLPVSize;
+    vec3 texcoord = lpvPos / VoxelBufferSize;
 
     vec3 lpvSample = (frameCounter % 2) == 0
         ? textureLod(texIndirectLpv_1, texcoord, 0).rgb

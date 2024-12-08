@@ -254,7 +254,7 @@ uniform int frameCounter;
 
     #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
     

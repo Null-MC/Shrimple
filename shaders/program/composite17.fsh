@@ -215,8 +215,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
         // #include "/lib/buffers/lighting.glsl"
 
+        #include "/lib/voxel/voxel_common.glsl"
+
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 

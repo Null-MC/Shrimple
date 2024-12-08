@@ -1,17 +1,17 @@
 float GetVoxelFade(const in vec3 voxelPos) {
     const float padding = 8.0;
-    const vec3 sizeInner = VoxelBlockCenter - padding;
+    const vec3 sizeInner = VoxelBufferCenter - padding;
 
     //vec3 cameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-    vec3 dist = abs(voxelPos - VoxelBlockCenter);// - cameraOffset);
+    vec3 dist = abs(voxelPos - VoxelBufferCenter);// - cameraOffset);
     vec3 distF = max(dist - sizeInner, vec3(0.0));
     return saturate(1.0 - maxOf((distF / padding)));
 }
 
 #if LPV_SIZE > 0
     vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmBlock) {
-        vec3 lpvPos = GetLPVPosition(localPos);
-        if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) != lpvPos) return vec3(0.0);
+        vec3 lpvPos = GetVoxelPosition(localPos);
+        if (!IsInVoxelBounds(ivec3(lpvPos))) return vec3(0.0);
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
@@ -32,8 +32,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 
 void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in vec3 albedo, const in vec2 lmcoord, const in float roughL, const in float metal_f0, const in float occlusion, const in float sss) {
     #if LPV_SIZE > 0
-        // WARN: This should be voxel map size, not LPV!
-        vec3 lpvPos = GetLPVPosition(localPos);
+        vec3 lpvPos = GetVoxelPosition(localPos);
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = 1.0 - _smoothstep(lpvFade);
 

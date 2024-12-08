@@ -170,8 +170,10 @@ uniform ivec2 eyeBrightnessSmooth;
     #if LPV_SIZE > 0 || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
         #include "/lib/blocks.glsl"
 
+        #include "/lib/voxel/voxel_common.glsl"
+
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 

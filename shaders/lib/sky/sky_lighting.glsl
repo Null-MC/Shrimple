@@ -73,7 +73,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     // float skyLightF = _smoothstep(lmcoord.y);
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
-        vec3 lpvPos = GetLPVPosition(localPos);
+        vec3 lpvPos = GetVoxelPosition(localPos);
         vec3 lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal);
 
         float lpvFade = GetLpvFade(lpvPos);

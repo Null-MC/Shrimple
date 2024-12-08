@@ -187,7 +187,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-            vec3 lpvPos = GetLPVPosition(traceLocalPos);
+            vec3 lpvPos = GetVoxelPosition(traceLocalPos);
             vec4 lpvSample = SampleLpv(lpvPos);
             float lpvFade = GetLpvFade(lpvPos);
         #endif
@@ -461,7 +461,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                             if ((lightData.z & traceFace) == traceFace) continue;
 
                             if ((lightData.z & 1u) == 1u) {
-                                vec3 traceOrigin = GetVoxelBlockPosition(lightPos);
+                                vec3 traceOrigin = GetVoxelPosition(lightPos);
                                 vec3 traceEnd = traceOrigin + 0.999*lightVec;
 
                                 bool traceSelf = ((lightData.z >> 1u) & 1u) == 1u;

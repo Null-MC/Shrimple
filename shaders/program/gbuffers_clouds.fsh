@@ -216,8 +216,10 @@ uniform float cloudTime;
     #endif
 
     #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/voxel/voxel_common.glsl"
+
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED

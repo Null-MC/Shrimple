@@ -119,7 +119,8 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined RENDER_FRAG
             if (bitfieldExtract(lightData.z, 0, 1) == 1u) {
-                vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
+                // vec3 traceOrigin = GetVoxelBlockPosition(diffuseLightPos);
+                vec3 traceOrigin = GetVoxelPosition(diffuseLightPos);
                 vec3 traceEnd = traceOrigin - lightVec;
 
                 //vec3 traceOrigin = traceEnd - lightVec;
@@ -136,7 +137,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
                             if (!firstPersonCamera) playerPos += eyePosition - cameraPosition;
                         #endif
 
-                        playerPos = GetVoxelBlockPosition(playerPos);
+                        // playerPos = GetVoxelBlockPosition(playerPos);
 
                         vec3 playerOffset = traceOrigin - playerPos;
                         if (length2(playerOffset) < traceDist2) {

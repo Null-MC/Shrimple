@@ -299,9 +299,8 @@ void main() {
             }
 
             if (lightRange > EPSILON) {
-                vec3 viewDir = gbufferModelViewInverse[2].xyz;
-                vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
-                ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
+                vec3 lpvPos = GetVoxelPosition(originPos);
+                ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
 
                 AddLpvLight(imgCoordPrev, lightColor, lightRange);
             }

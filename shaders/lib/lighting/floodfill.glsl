@@ -1,15 +1,15 @@
 void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, in vec2 lmcoord, const in vec3 shadowColor, const in vec3 albedo, const in float metal_f0, const in float roughL, const in float occlusion, const in float sss, const in bool tir) {
     vec3 lmBlockLight = (_pow3(lmcoord.x) * Lighting_Brightness) * blackbody(LIGHTING_TEMP);
 
-    vec3 lpvPos = GetLPVPosition(localPos);
+    vec3 lpvPos = GetVoxelPosition(localPos);
 
     #ifdef RENDER_GBUFFER
-        lpvPos += GetLPVFrameOffset();
+        lpvPos += GetVoxelFrameOffset();
     #endif
 
     float lpvFade = 0.0;
     vec3 lpvLight = vec3(0.0);
-    if (clamp(lpvPos, ivec3(0), SceneLPVSize - 1) == lpvPos) {
+    if (IsInVoxelBounds(ivec3(lpvPos))) {
         vec3 samplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal);
         vec4 lpvSample = SampleLpv(samplePos);
 

@@ -21,7 +21,8 @@ const ivec3 workGroups = ivec3(16, 8, 16);
 void main() {
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         ivec3 pos = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(pos, VoxelGridSize))) return;
+        if (any(greaterThanEqual(pos, VoxelLightBufferSize))) return;
+        
         uint gridIndex = GetVoxelGridCellIndex(pos);
 
         SceneLightMaps[gridIndex].LightPreviousCount = SceneLightMaps[gridIndex].LightCount + SceneLightMaps[gridIndex].LightNeighborCount;

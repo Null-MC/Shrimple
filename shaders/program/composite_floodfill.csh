@@ -99,9 +99,11 @@ const float LpvIndirectFalloff = 0.98;
         #include "/lib/utility/jzazbz.glsl"
     #endif
 
+    #include "/lib/voxel/voxel_common.glsl"
+
     #include "/lib/lpv/lpv.glsl"
     #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/block_mask.glsl"
+    // #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
 
@@ -148,18 +150,18 @@ const float LpvIndirectFalloff = 0.98;
 
 // const vec2 LpvBlockSkyRange = vec2(LPV_BLOCKLIGHT_SCALE, LPV_SKYLIGHT_RANGE);
 
-ivec3 GetLpvVoxelOffset() {
-    vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-    ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelBlockCenter + 0.5);
+// ivec3 GetLpvVoxelOffset() {
+//     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+//     ivec3 voxelOrigin = ivec3(voxelCameraOffset + VoxelLightBlockCenter + 0.5);
 
-    vec3 viewDir = gbufferModelViewInverse[2].xyz;
-    ivec3 lpvOrigin = ivec3(GetLpvCenter(cameraPosition, viewDir) + 0.5);
+//     vec3 viewDir = gbufferModelViewInverse[2].xyz;
+//     ivec3 lpvOrigin = ivec3(GetVoxelCenter(cameraPosition, viewDir) + 0.5);
 
-    return voxelOrigin - lpvOrigin;
-}
+//     return voxelOrigin - lpvOrigin;
+// }
 
 vec4 GetLpvDirectValue(in ivec3 texCoord) {
-    if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec4(0.0);
+    if (!IsInVoxelBounds(texCoord)) return vec4(0.0);
 
     vec4 lpvSample = (frameCounter % 2) == 0
         ? imageLoad(imgSceneLPV_2, texCoord)
@@ -176,7 +178,7 @@ vec4 GetLpvDirectValue(in ivec3 texCoord) {
 
 #if LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
     vec3 GetLpvIndirectValue(in ivec3 texCoord) {
-        if (clamp(texCoord, ivec3(0), SceneLPVSize - 1) != texCoord) return vec3(0.0);
+        if (!IsInVoxelBounds(texCoord)) return vec3(0.0);
 
         vec3 lpvSample = (frameCounter % 2) == 0
             ? imageLoad(imgIndirectLpv_2, texCoord).rgb
@@ -192,20 +194,20 @@ vec4 GetLpvDirectValue(in ivec3 texCoord) {
     }
 #endif
 
-float GetBlockBounceF(const in uint blockId) {
-    // TODO: make this better
-    return step(blockId + 1, BLOCK_WATER);
-}
+// float GetBlockBounceF(const in uint blockId) {
+//     // TODO: make this better
+//     return step(blockId + 1, BLOCK_WATER);
+// }
 
-float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
-    ivec3 gridCell = ivec3(floor((gridBlockCell + blockOffset) / LIGHT_BIN_SIZE));
-    uint gridIndex = GetVoxelGridCellIndex(gridCell);
-    ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
+// float GetLpvBounceF(const in ivec3 gridBlockCell, const in ivec3 blockOffset) {
+//     ivec3 gridCell = ivec3(floor((gridBlockCell + blockOffset) / LIGHT_BIN_SIZE));
+//     uint gridIndex = GetVoxelGridCellIndex(gridCell);
+//     ivec3 blockCell = gridBlockCell + blockOffset - gridCell * LIGHT_BIN_SIZE;
 
-    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-    //float bounceF = max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
-    return GetBlockBounceF(blockId);// * bounceF * 0.98 + 0.02;
-}
+//     uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+//     //float bounceF = max(dot(-normalize(blockOffset), localSkyLightDirection), 0.0);
+//     return GetBlockBounceF(blockId);// * bounceF * 0.98 + 0.02;
+// }
 
 #if defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED
     vec4 SampleShadow(const in vec3 blockLocalPos, out float shadowDist) {
@@ -408,8 +410,8 @@ void PopulateShared() {
     if (i1 >= 1000u) return;
 
     uint i2 = i1 + 1u;
-    ivec3 voxelOffset = GetLpvVoxelOffset();
-    ivec3 imgCoordOffset = GetLPVFrameOffset();
+    // ivec3 voxelOffset = GetLpvVoxelOffset();
+    ivec3 imgCoordOffset = GetVoxelFrameOffset();
     ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
 
     ivec3 pos1 = workGroupOffset + ivec3(i1 / lpvFlatten) % 10;
@@ -430,23 +432,25 @@ void PopulateShared() {
     uint blockId1 = BLOCK_EMPTY;
     uint blockId2 = BLOCK_EMPTY;
 
-    ivec3 voxelPos1 = voxelOffset + pos1;
-    ivec3 voxelPos2 = voxelOffset + pos2;
+    // ivec3 voxelPos1 = voxelOffset + pos1;
+    // ivec3 voxelPos2 = voxelOffset + pos2;
 
-    if (clamp(voxelPos1, ivec3(0), VoxelBlockSize - 1) == voxelPos1) {
-        ivec3 gridCell = ivec3(floor(voxelPos1 / LIGHT_BIN_SIZE));
-        uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        ivec3 blockCell = voxelPos1 - gridCell * LIGHT_BIN_SIZE;
+    if (IsInVoxelBounds(pos1)) {
+        // ivec3 gridCell = ivec3(floor(voxelPos1 / LIGHT_BIN_SIZE));
+        // uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        // ivec3 blockCell = voxelPos1 - gridCell * LIGHT_BIN_SIZE;
 
-        blockId1 = GetVoxelBlockMask(blockCell, gridIndex);
+        // blockId1 = GetVoxelBlockMask(blockCell, gridIndex);
+        blockId1 = imageLoad(imgVoxels, pos1).r;
     }
 
-    if (clamp(voxelPos2, ivec3(0), VoxelBlockSize - 1) == voxelPos2) {
-        ivec3 gridCell = ivec3(floor(voxelPos2 / LIGHT_BIN_SIZE));
-        uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        ivec3 blockCell = voxelPos2 - gridCell * LIGHT_BIN_SIZE;
+    if (IsInVoxelBounds(pos2)) {
+        // ivec3 gridCell = ivec3(floor(voxelPos2 / LIGHT_BIN_SIZE));
+        // uint gridIndex = GetVoxelGridCellIndex(gridCell);
+        // ivec3 blockCell = voxelPos2 - gridCell * LIGHT_BIN_SIZE;
 
-        blockId2 = GetVoxelBlockMask(blockCell, gridIndex);
+        // blockId2 = GetVoxelBlockMask(blockCell, gridIndex);
+        blockId2 = imageLoad(imgVoxels, pos2).r;
     }
 
     voxelSharedData[i1] = blockId1;
@@ -456,17 +460,17 @@ void PopulateShared() {
 void main() {
     #if defined IRIS_FEATURE_SSBO && LPV_SIZE > 0 //&& LIGHTING_MODE != LIGHTING_MODE_NONE
         uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
-        if (any(greaterThanEqual(chunkPos, SceneLPVSize))) return;
+        if (any(greaterThanEqual(chunkPos, VoxelBufferSize))) return;
 
         PopulateShared();
 
         barrier();
 
         ivec3 imgCoord = ivec3(gl_GlobalInvocationID);
-        if (any(greaterThanEqual(imgCoord, SceneLPVSize))) return;
+        if (any(greaterThanEqual(imgCoord, VoxelBufferSize))) return;
 
         vec3 viewDir = gbufferModelViewInverse[2].xyz;
-        vec3 lpvCenter = GetLpvCenter(cameraPosition, viewDir);
+        vec3 lpvCenter = GetVoxelCenter(cameraPosition, viewDir);
         vec3 blockLocalPos = imgCoord - lpvCenter + 0.5;
 
         uint blockId = voxelSharedData[getSharedCoord(ivec3(gl_LocalInvocationID) + 1)];

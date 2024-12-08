@@ -105,10 +105,12 @@ uniform float far;
         // #include "/lib/buffers/lighting.glsl"
 
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/lights.glsl"
         #include "/lib/lighting/voxel/lights_render.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
+
+        #include "/lib/voxel/voxel_common.glsl"
 
         #include "/lib/lighting/voxel/item_light_map.glsl"
         #include "/lib/lighting/voxel/items.glsl"
@@ -179,7 +181,8 @@ void main() {
             //     }
             // #endif
 
-            bool intersects = true;
+            ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
+            bool intersects = IsInVoxelBounds(voxelPos);
 
             #ifdef DYN_LIGHT_FRUSTUM_TEST //&& LIGHTING_MODE != LIGHTING_MODE_NONE
                 vec3 lightViewPos = mul3(gbufferModelView, originPos);
@@ -196,22 +199,23 @@ void main() {
                 }
             #endif
 
-            vec3 cameraOffset = fract(cameraPosition);
-            vec3 lightGridOrigin = floor(originPos + cameraOffset) - cameraOffset + 0.5;
+            if (intersects && !IsTraceEmptyBlock(vIn[0].blockId)) {
+                imageStore(imgVoxels, voxelPos, uvec4(vIn[0].blockId));
+            }
 
-            ivec3 gridCell, blockCell;
-            vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
-            if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
-                uint gridIndex = GetVoxelGridCellIndex(gridCell);
+            #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+                vec3 cameraOffset = fract(cameraPosition);
+                vec3 lightGridOrigin = floor(originPos + cameraOffset) - cameraOffset + 0.5;
 
-                if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
-                    SetVoxelBlockMask(blockCell, gridIndex, vIn[0].blockId);
-
-                #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+                ivec3 gridCell, blockCell;
+                vec3 gridPos = GetVoxelBlockPosition(lightGridOrigin);
+                if (GetVoxelGridCell(gridPos, gridCell, blockCell)) {
                     uint lightType = StaticBlockMap[vIn[0].blockId].lightType;
 
                     if (lightType > 0) {
                         if (!intersects) lightType = LIGHT_IGNORED;
+
+                        uint gridIndex = GetVoxelGridCellIndex(gridCell);
 
                         if (SetVoxelLightMask(blockCell, gridIndex, lightType)) {
                             if (intersects) atomicAdd(SceneLightMaps[gridIndex].LightCount, 1u);
@@ -220,8 +224,8 @@ void main() {
                             #endif
                         }
                     }
-                #endif
-            }
+                }
+            #endif
 
             #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
                 #if defined IRIS_VERSION && IRIS_VERSION >= 10800
@@ -274,9 +278,8 @@ void main() {
                     }
 
                     if (lightRange > EPSILON) {
-                        vec3 viewDir = gbufferModelViewInverse[2].xyz;
-                        vec3 lpvPos = GetLpvCenter(cameraPosition, viewDir) + originPos;
-                        ivec3 imgCoordPrev = GetLPVImgCoord(lpvPos) + GetLPVFrameOffset();
+                        vec3 lpvPos = GetVoxelPosition(originPos);
+                        ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
 
                         AddLpvLight(imgCoordPrev, lightColor, lightRange);
                     }

@@ -299,7 +299,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #if !defined DEFERRED_BUFFER_ENABLED && defined IRIS_FEATURE_SSBO
     #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
     #endif
 

@@ -192,7 +192,7 @@ in vec2 texcoord;
         #include "/lib/blocks.glsl"
         
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
         #include "/lib/lpv/lpv.glsl"
@@ -332,7 +332,7 @@ layout(location = 0) out vec4 outFinal;
             float skyLightF = _pow2(deferredLighting.y);
 
             #ifdef IS_LPV_SKYLIGHT_ENABLED
-                vec3 lpvPos = GetLPVPosition(localPosOpaque);
+                vec3 lpvPos = GetVoxelPosition(localPosOpaque);
 
                 float lpvFade = GetLpvFade(lpvPos);
                 lpvFade = smootherstep(lpvFade);

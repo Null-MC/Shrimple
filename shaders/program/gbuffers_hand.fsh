@@ -279,7 +279,7 @@ uniform vec3 eyePosition;
 
     #ifdef IS_LPV_ENABLED
         #include "/lib/lighting/voxel/mask.glsl"
-        #include "/lib/lighting/voxel/block_mask.glsl"
+        // #include "/lib/lighting/voxel/block_mask.glsl"
         #include "/lib/lighting/voxel/blocks.glsl"
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED

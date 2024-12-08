@@ -9,11 +9,12 @@ vec4 cubic(const in float v) {
 }
 
 float LpvVoxelTest(const in ivec3 voxelCoord) {
-    ivec3 gridCell = ivec3(floor(voxelCoord / LIGHT_BIN_SIZE));
-    uint gridIndex = GetVoxelGridCellIndex(gridCell);
-    ivec3 blockCell = voxelCoord - gridCell * LIGHT_BIN_SIZE;
+    // ivec3 gridCell = ivec3(floor(voxelCoord / LIGHT_BIN_SIZE));
+    // uint gridIndex = GetVoxelGridCellIndex(gridCell);
+    // ivec3 blockCell = voxelCoord - gridCell * LIGHT_BIN_SIZE;
 
-    uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+    // uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
+    uint blockId = imageLoad(imgVoxels, voxelCoord).r;
     return IsTraceOpenBlock(blockId) ? 1.0 : 0.0;
 }
 
@@ -31,7 +32,7 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
 }
 
 vec4 SampleLpvLinear(const in vec3 lpvPos) {
-    vec3 texcoord = lpvPos / SceneLPVSize;
+    vec3 texcoord = lpvPos / VoxelBufferSize;
 
     return (frameCounter % 2) == 0
         ? textureLod(texLPV_1, texcoord, 0)
@@ -66,31 +67,31 @@ vec4 SampleLpvCubic(in vec3 lpvPos) {
     vec4 sample_x1y2z2 = SampleLpvLinear(vec3(offset_max.x, offset_min.y, offset_min.z));
     vec4 sample_x2y2z2 = SampleLpvLinear(vec3(offset_min.x, offset_min.y, offset_min.z));
 
-    #ifdef LPV_VOXEL_TEST
-        vec3 lpvCameraOffset = fract(cameraPosition);
-        vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
-        ivec3 voxelPos = ivec3(lpvPos - SceneLPVCenter + VoxelBlockCenter + voxelCameraOffset - lpvCameraOffset + 0.5);
+    // #ifdef LPV_VOXEL_TEST
+    //     vec3 lpvCameraOffset = fract(cameraPosition);
+    //     vec3 voxelCameraOffset = fract(cameraPosition / LIGHT_BIN_SIZE) * LIGHT_BIN_SIZE;
+    //     ivec3 voxelPos = ivec3(lpvPos + voxelCameraOffset - lpvCameraOffset + 0.5);
 
-        float voxel_x1y1z1 = LpvVoxelTest(voxelPos + ivec3(1, 1, 1));
-        float voxel_x2y1z1 = LpvVoxelTest(voxelPos + ivec3(0, 1, 1));
-        float voxel_x1y2z1 = LpvVoxelTest(voxelPos + ivec3(1, 0, 1));
-        float voxel_x2y2z1 = LpvVoxelTest(voxelPos + ivec3(0, 0, 1));
+    //     float voxel_x1y1z1 = LpvVoxelTest(voxelPos + ivec3(1, 1, 1));
+    //     float voxel_x2y1z1 = LpvVoxelTest(voxelPos + ivec3(0, 1, 1));
+    //     float voxel_x1y2z1 = LpvVoxelTest(voxelPos + ivec3(1, 0, 1));
+    //     float voxel_x2y2z1 = LpvVoxelTest(voxelPos + ivec3(0, 0, 1));
 
-        float voxel_x1y1z2 = LpvVoxelTest(voxelPos + ivec3(1, 1, 0));
-        float voxel_x2y1z2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
-        float voxel_x1y2z2 = LpvVoxelTest(voxelPos + ivec3(1, 0, 0));
-        float voxel_x2y2z2 = LpvVoxelTest(voxelPos + ivec3(0, 0, 0));
+    //     float voxel_x1y1z2 = LpvVoxelTest(voxelPos + ivec3(1, 1, 0));
+    //     float voxel_x2y1z2 = LpvVoxelTest(voxelPos + ivec3(0, 1, 0));
+    //     float voxel_x1y2z2 = LpvVoxelTest(voxelPos + ivec3(1, 0, 0));
+    //     float voxel_x2y2z2 = LpvVoxelTest(voxelPos + ivec3(0, 0, 0));
 
-        sample_x1y1z1 *= voxel_x1y1z1;
-        sample_x2y1z1 *= voxel_x2y1z1;
-        sample_x1y2z1 *= voxel_x1y2z1;
-        sample_x2y2z1 *= voxel_x2y2z1;
+    //     sample_x1y1z1 *= voxel_x1y1z1;
+    //     sample_x2y1z1 *= voxel_x2y1z1;
+    //     sample_x1y2z1 *= voxel_x1y2z1;
+    //     sample_x2y2z1 *= voxel_x2y2z1;
 
-        sample_x1y1z2 *= voxel_x1y1z2;
-        sample_x2y1z2 *= voxel_x2y1z2;
-        sample_x1y2z2 *= voxel_x1y2z2;
-        sample_x2y2z2 *= voxel_x2y2z2;
-    #endif
+    //     sample_x1y1z2 *= voxel_x1y1z2;
+    //     sample_x2y1z2 *= voxel_x2y1z2;
+    //     sample_x1y2z2 *= voxel_x1y2z2;
+    //     sample_x2y2z2 *= voxel_x2y2z2;
+    // #endif
 
     vec3 mixF = s_min / (s_min + s_max);
 

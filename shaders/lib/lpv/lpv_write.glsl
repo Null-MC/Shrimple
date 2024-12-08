@@ -1,5 +1,5 @@
 void AddLpvLight(const in ivec3 imgCoord, const in vec3 lightColor, const in float lightRange) {
-    if (clamp(imgCoord, ivec3(0), ivec3(SceneLPVSize-1)) != imgCoord) return;
+    if (!IsInVoxelBounds(imgCoord)) return;
 
     vec3 hsv = RgbToHsv(lightColor);
     hsv.z = lightRange / LpvBlockSkyRange.x;

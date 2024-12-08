@@ -76,7 +76,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 // _surfacePos += fragLocalNormal * 0.0002;
                 lightVec = lightLocalPos - surfacePos;
 
-                vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
+                vec3 traceOrigin = GetVoxelPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                 bool traceSelf = false; //lightData.z & 1u;
@@ -151,7 +151,7 @@ void SampleHandLight(inout vec3 blockDiffuse, inout vec3 blockSpecular, const in
                 // _surfacePos += fragLocalNormal * 0.0002;
                 lightVec = lightLocalPos - surfacePos;
 
-                vec3 traceOrigin = GetVoxelBlockPosition(lightLocalPos);
+                vec3 traceOrigin = GetVoxelPosition(lightLocalPos);
                 vec3 traceEnd = traceOrigin - 0.99*lightVec;
 
                 bool traceSelf = false; //lightData.z & 1u;

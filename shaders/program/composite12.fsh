@@ -282,8 +282,10 @@ uniform vec3 eyePosition;
 #endif
 
 #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+    #include "/lib/voxel/voxel_common.glsl"
+
     #include "/lib/lighting/voxel/mask.glsl"
-    #include "/lib/lighting/voxel/block_mask.glsl"
+    // #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/lighting/voxel/blocks.glsl"
 #endif
 
@@ -613,7 +615,7 @@ layout(location = 0) out vec4 outFinal;
                 float skyLightF = _pow2(deferredLighting.y);
 
                 #ifdef IS_LPV_SKYLIGHT_ENABLED
-                    vec3 lpvPos = GetLPVPosition(localPos);
+                    vec3 lpvPos = GetVoxelPosition(localPos);
 
                     float lpvFade = GetLpvFade(lpvPos);
                     lpvFade = smootherstep(lpvFade);
