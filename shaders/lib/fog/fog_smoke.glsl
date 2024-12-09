@@ -10,11 +10,11 @@ const int SmokeTraceOctaves = 4;
     const float SmokeAmbientF = 0.02;
 #else
     const float SmokeScale = 0.05;
-    const float SmokeSpeed = 0.22;
-    const float SmokeDensityF = 0.58;
-    const float SmokeScatterF = 0.76;
-    const float SmokeAbsorbF  = 0.24;
-    const float SmokeAmbientF = 0.09;
+    const float SmokeSpeed = 0.28;
+    const float SmokeDensityF = 1.00;
+    const float SmokeScatterF = 0.24;
+    const float SmokeAbsorbF  = 0.08;
+    const float SmokeAmbientF = 0.14;
 #endif
 
 
@@ -24,12 +24,15 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
     for (int octave = 0; octave < octaveCount; octave++) {
         float scale = exp2(SmokeMaxOctaves - octave);
         vec3 samplePos = worldPos / scale;
+        samplePos = samplePos.xzy;
 
         #ifdef WORLD_NETHER
-            samplePos = samplePos.xzy;
+            samplePos.z -= SmokeSpeed*time;
+        #else
+            // samplePos.xy -= vec2(0.8, 0.6) * SmokeSpeed*time;
+            samplePos.z += SmokeSpeed*time;
         #endif
 
-        samplePos.z -= SmokeSpeed*time;
         samplePos *= SmokeScale;
 
         float sampleF = textureLod(texClouds, samplePos * (octave+1), 0).r;
@@ -37,5 +40,5 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
     }
 
     const float sampleMaxInv = 1.0;//rcp(1.0 - rcp(exp2(octaveCount)));
-    return pow(_smoothstep(sampleD * sampleMaxInv), 24.0);// + 0.012;
+    return pow(smoothstep(0.4, 1.0, sampleD * sampleMaxInv), 8.0);// + 0.012;
 }

@@ -261,7 +261,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if defined IS_WORLD_SMOKE_ENABLED && !defined WORLD_SKY_ENABLED
-            float smokeF = SampleSmokeOctaves(traceWorldPos, SmokeTraceOctaves, time);
+            float smokeF = 1.0;
+            if (traceDist < 300.0) {
+                smokeF = SampleSmokeOctaves(traceWorldPos, SmokeTraceOctaves, time);
+                smokeF = mix(smokeF, 1.0, _smoothstep(traceDist / 300.0));
+            }
 
             sampleDensity = smokeF * SmokeDensityF;
             sampleScattering = vec3(SmokeScatterF);
@@ -471,7 +475,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         lpvLight *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
                 #endif
 
-                blockLightAccum += 12.0 * phaseIso * lpvFade * lpvLight;
+                blockLightAccum += 9.0 * phaseIso * lpvFade * lpvLight;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * Lighting_Brightness;
