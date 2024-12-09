@@ -433,15 +433,17 @@ void main() {
             for (int i = 0; i < 8; i++) {
                 float closestDist = minOf(nextDist);
                 vec3 sampleStep = direction*closestDist;
-                ivec3 samplePos = ivec3(floor(currPos + 0.5*sampleStep));
-                currPos += sampleStep;
 
+                ivec3 samplePos = ivec3(floor(currPos + 0.5*sampleStep));
                 if (samplePos.y != 0) break;
+
+                // TODO: shadow trace?
 
                 vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
                 nextDist -= closestDist;
                 nextDist += stepSizes * stepAxis;
+                currPos += sampleStep;
 
                 float density = 1.0 * texelFetch(TEX_CLOUDS_VANILLA, samplePos.xz, 0).r;
                 final.a *= exp(-closestDist * density);

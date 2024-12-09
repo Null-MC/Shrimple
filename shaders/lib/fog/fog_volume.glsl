@@ -471,7 +471,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         lpvLight *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
                 #endif
 
-                blockLightAccum += 1.5 * phaseIso * lpvFade * lpvLight;
+                blockLightAccum += 12.0 * phaseIso * lpvFade * lpvLight;
             #endif
 
             sampleLit += blockLightAccum * VolumetricBrightnessBlock;// * Lighting_Brightness;
