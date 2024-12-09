@@ -5,7 +5,7 @@ const vec3 colorSkyNight   = _RGBToLinear(vec3(0.095, 0.090, 0.106)) * 0.1;
 const vec3 colorFogNight   = _RGBToLinear(vec3(0.276, 0.278, 0.288)) * 0.3;
 
 const vec3 colorSkyHorizon = _RGBToLinear(vec3(0.306, 0.275, 0.471)) * 0.4;
-const vec3 colorFogHorizon = _RGBToLinear(vec3(0.788, 0.655, 0.298)) * 0.4;
+const vec3 colorFogHorizon = _RGBToLinear(vec3(0.780, 0.490, 0.216)) * 0.4;
 
 // const vec3 colorRainSkyDay = _RGBToLinear(vec3(0.332, 0.352, 0.399)) * 0.5;
 const vec3 colorRainFogDay = _RGBToLinear(vec3(0.596, 0.596, 0.62)) * 0.4;

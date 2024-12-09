@@ -16,3 +16,7 @@ vec3 GetVoxelPosition(const in vec3 position) {
 bool IsInVoxelBounds(const in ivec3 voxelPos) {
     return clamp(voxelPos, 0, VOXEL_SIZE-1) == voxelPos;
 }
+
+bool IsInVoxelBounds(const in vec3 voxelPos) {
+    return clamp(voxelPos, 0.5, VOXEL_SIZE-0.5) == voxelPos;
+}

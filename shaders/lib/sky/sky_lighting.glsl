@@ -38,7 +38,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         localSkyLightDir = GetAreaLightDir(localViewDir, localSkyLightDir, texNormal);
 
     float shadowDistF = saturate(viewDist / shadowDistance);
-    // float NoLm = max(dot(texNormal, localSkyLightDir), 0.0);
 
     #ifndef IRIS_FEATURE_SSBO
         vec3 WorldSkyLightColor = GetSkyLightColor();
@@ -60,7 +59,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         geoNoL = dot(localNormal, localSkyLightDir);
 
     vec3 H = normalize(localSkyLightDir + localViewDir);
-    // vec3 accumDiffuse = GetSkyDiffuseLighting(localViewDir, localSkyLightDir, geoNoL, texNormal, H, roughL, sss) * (1.0 - ambientF) * skyLightShadowColor;
     float NoLm = GetLightNoL(geoNoL, texNormal, localSkyLightDir, sss);
     float NoVm = max(dot(texNormal, localViewDir), 0.0);
     float LoHm = max(dot(localSkyLightDir, H), 0.0);
@@ -69,8 +67,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     vec3 accumDiffuse = D * skyLightShadowColor;// * (1.0 - ambientF);
 
     float skyLightF = lmcoord.y;
-    // float skyLightF = _pow2(lmcoord.y);
-    // float skyLightF = _smoothstep(lmcoord.y);
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetVoxelPosition(localPos);
@@ -89,31 +85,22 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
     #endif
 
-    // skyLightF = _pow2(skyLightF);
-
     vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
     ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
 
-    vec3 ambientSkyLight = skyLightF * ambientSkyLight_indirect;
+    vec3 ambientSkyLight = skyLightF * ambientSkyLight_indirect * ambientF;
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
         lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal, 1.0);
-        vec3 lpvIndirectSample = 0.3 * SampleLpvIndirect(lpvSamplePos);
+        vec3 lpvIndirectSample = 0.2 * SampleLpvIndirect(lpvSamplePos);
+
+        ambientSkyLight *= 0.5;
 
         // TODO: reduce lpvFade by horizonF ?
         ambientSkyLight += skyLightColor * lpvIndirectSample * lpvFade;
     #endif
 
-    accumDiffuse += ambientSkyLight * (occlusion * ambientF);
-
-    // #if MATERIAL_SPECULAR != SPECULAR_NONE
-    //     #if MATERIAL_SPECULAR == SPECULAR_LABPBR
-    //         if (IsMetal(metal_f0))
-    //             accumDiffuse *= mix(MaterialMetalBrightnessF, 1.0, roughL);
-    //     #else
-    //         accumDiffuse *= mix(vec3(1.0), albedo, metal_f0 * (1.0 - roughL));
-    //     #endif
-    // #endif
+    accumDiffuse += ambientSkyLight * (occlusion);
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED
@@ -140,17 +127,12 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
             LoHm = max(dot(localSkyLightDir, H), 0.0);
         }
 
-        // float VoHm = max(dot(localViewDir, H), 0.0);
         vec3 F = GetMaterialFresnel(albedo, metal_f0, roughL, LoHm, isUnderWater);
+        vec3 S = SampleLightSpecular(NoLm, NoHm, LoHm, F, roughL);
 
-        //float invGeoNoL = saturate(geoNoL*40.0);
-        // skySpecular += invGeoNoL * SampleLightSpecular(NoVm, NoLm, NoHm, VoHm, F, roughL) * skyLightShadowColor;
-        skySpecular += step(-EPSILON, geoNoL) * SampleLightSpecular(NoLm, NoHm, LoHm, F, roughL) * skyLightShadowColor;
+        skySpecular += step(-EPSILON, geoNoL) * S * skyLightShadowColor;
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
-            vec3 viewPos = mul3(gbufferModelView, localPos);
-            vec3 texViewNormal = mat3(gbufferModelView) * N;
-
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
 
             if (tir) skyReflectF = vec3(1.0);
@@ -158,6 +140,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
             accumDiffuse *= 1.0 - skyReflectF;
 
             #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
+                vec3 viewPos = mul3(gbufferModelView, localPos);
+                vec3 texViewNormal = mat3(gbufferModelView) * N;
+                
                 skySpecular += ApplyReflections(localPos, viewPos, texViewNormal, skyLightF, sqrt(roughL)) * skyReflectF;
             #endif
         #endif

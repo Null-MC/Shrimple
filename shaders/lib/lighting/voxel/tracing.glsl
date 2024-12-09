@@ -112,12 +112,10 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
         nextDist -= closestDist;
         nextDist += stepSizes * stepAxis;
 
-        // if (GetVoxelGridCell(voxelPos, gridCell, blockCell)) {
-        ivec3 _voxelPos = ivec3(voxelPos);
-        if (IsInVoxelBounds(_voxelPos)) {
+        if (IsInVoxelBounds(voxelPos)) {
             // uint gridIndex = GetVoxelGridCellIndex(gridCell);
             // uint blockId = GetVoxelBlockMask(blockCell, gridIndex);
-            uint blockId = imageLoad(imgVoxels, ivec3(_voxelPos)).r;
+            uint blockId = imageLoad(imgVoxels, ivec3(voxelPos)).r;
 
             // #ifdef DYN_LIGHT_OCTREE
             //     if ((SceneBlockMaps[gridIndex].OctreeMask[0] & 1u) == 0u) continue;

@@ -18,12 +18,17 @@ in VertexData {
 
     vec3 physics_localPosition;
     float physics_localWaviness;
-
-    vec3 viewPos_T;
-
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-        vec3 lightPos_T;
+    
+    #ifdef WATER_TESSELLATION_ENABLED
+        vec3 surfacePos;
+        float vertexY;
     #endif
+
+    // vec3 viewPos_T;
+
+    // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+    //     vec3 lightPos_T;
+    // #endif
 
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

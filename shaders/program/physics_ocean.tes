@@ -1,0 +1,249 @@
+#define RENDER_OCEAN
+#define RENDER_GBUFFER
+#define RENDER_TESS_EVAL
+
+layout (triangles, fractional_even_spacing, ccw) in;
+
+#include "/lib/constants.glsl"
+#include "/lib/common.glsl"
+
+in VertexData {
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+
+    flat mat2 atlasBounds;
+
+    #ifdef WATER_TESSELLATION_ENABLED
+        vec3 surfacePos;
+        float vertexY;
+    #endif
+
+    // #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
+    //     vec3 viewPos_T;
+
+    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+    //         vec3 lightPos_T;
+    //     #endif
+    // #endif
+
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vIn[];
+
+out VertexData {
+    vec4 color;
+    vec2 lmcoord;
+    vec2 texcoord;
+    vec3 localPos;
+    vec2 localCoord;
+    vec3 localNormal;
+    vec4 localTangent;
+
+    flat mat2 atlasBounds;
+
+    #ifdef WATER_TESSELLATION_ENABLED
+        vec3 surfacePos;
+        float vertexY;
+    #endif
+
+    // #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
+    //     vec3 viewPos_T;
+
+    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+    //         vec3 lightPos_T;
+    //     #endif
+    // #endif
+
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vec3 shadowPos[4];
+            flat int shadowTile;
+        #else
+            vec3 shadowPos;
+        #endif
+    #endif
+} vOut;
+
+uniform mat4 gbufferModelView;
+uniform float far;
+
+#ifdef WORLD_WATER_ENABLED
+    uniform float frameTimeCounter;
+    uniform vec3 cameraPosition;
+
+    uniform vec3 WaterAbsorbColor;
+    uniform vec3 WaterScatterColor;
+    uniform float waterDensitySmooth;
+
+    #ifdef ANIM_WORLD_TIME
+        uniform int worldTime;
+    #endif
+
+    #if defined WORLD_SHADOW_ENABLED && WATER_TESSELLATION_QUALITY > 0
+        uniform mat4 shadowProjection;
+        uniform vec3 shadowLightPosition;
+        // uniform float far;
+    #endif
+#endif
+
+#ifdef EFFECT_TAA_ENABLED
+    uniform int frameCounter;
+    uniform vec2 pixelSize;
+#endif
+
+#include "/lib/blocks.glsl"
+
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/utility/anim.glsl"
+    #include "/lib/world/water.glsl"
+
+    #if WATER_WAVE_SIZE > 0
+        #include "/lib/water/water_waves.glsl"
+    #endif
+
+    #ifdef WATER_FLOW
+        #include "/lib/water/foam.glsl"
+    #endif
+
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED && defined WATER_TESSELLATION_ENABLED
+        #include "/lib/utility/matrix.glsl"
+        #include "/lib/buffers/scene.glsl"
+        #include "/lib/buffers/shadow.glsl"
+        #include "/lib/shadows/common.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+        #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+            #include "/lib/shadows/distorted/common.glsl"
+        #endif
+    #endif
+#endif
+
+#if DISPLACE_MODE == DISPLACE_TESSELATION
+    #include "/lib/sampling/atlas.glsl"
+#endif
+
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
+#include "/lib/utility/tessellation.glsl"
+
+
+void main() {
+    gl_Position = _interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position);
+
+    vOut.color = _interpolate(vIn[0].color, vIn[1].color, vIn[2].color);
+    vOut.lmcoord = _interpolate(vIn[0].lmcoord, vIn[1].lmcoord, vIn[2].lmcoord);
+    vOut.texcoord = _interpolate(vIn[0].texcoord, vIn[1].texcoord, vIn[2].texcoord);
+    vOut.localPos = _interpolate(vIn[0].localPos, vIn[1].localPos, vIn[2].localPos);
+    vOut.localCoord = _interpolate(vIn[0].localCoord, vIn[1].localCoord, vIn[2].localCoord);
+    vOut.localNormal = _interpolate(vIn[0].localNormal, vIn[1].localNormal, vIn[2].localNormal);
+    vOut.localTangent = _interpolate(vIn[0].localTangent, vIn[1].localTangent, vIn[2].localTangent);
+
+    vOut.atlasBounds = vIn[0].atlasBounds;
+
+    vOut.physics_localPosition = _interpolate(vIn[0].physics_localPosition, vIn[1].physics_localPosition, vIn[2].physics_localPosition);
+    vOut.physics_localWaviness = _interpolate(vIn[0].physics_localWaviness, vIn[1].physics_localWaviness, vIn[2].physics_localWaviness);
+
+    #ifdef WATER_TESSELLATION_ENABLED
+        vOut.surfacePos = _interpolate(vIn[0].surfacePos, vIn[1].surfacePos, vIn[2].surfacePos);
+    #endif
+
+    #ifdef WATER_TESSELLATION_ENABLED
+        float distF = 1.0 - smoothstep(0.2, 2.8, length(vOut.surfacePos));
+        distF = 1.0 - _pow2(distF);
+        
+        #ifdef DISTANT_HORIZONS
+            float viewDist = length(vOut.localPos.xyz);
+            float waterClipFar = dh_clipDistF*far;
+            distF *= 1.0 - smoothstep(0.6*waterClipFar, waterClipFar, viewDist);
+        #endif
+
+        // reduce wave strength lower surface is
+        // prevent waving if connected to above water
+        // float vertexY = _interpolate(vIn[0].vertexY, vIn[1].vertexY, vIn[2].vertexY);
+        // float yF = vertexY * step(vertexY, (15.5/16.0));
+
+        float time = GetAnimationFactor();
+        vec3 waveOffset = GetWaveHeight(cameraPosition + vOut.localPos, vOut.lmcoord.y, time, WATER_WAVE_DETAIL);
+        vOut.localPos.y += distF * waveOffset.y;// * yF;// * abs(vOut.localNormal.y);
+
+        // #ifdef WATER_FLOW
+        //     float bump = SampleWaterBump(vOut.surfacePos + cameraPosition, vOut.localNormal);
+        //     vOut.localPos += 0.25 * distF * bump * vOut.localNormal;
+        // #endif
+
+        gl_Position.xyz = mul3(gbufferModelView, vOut.localPos);
+        gl_Position.w = 1.0;
+
+        // TODO: is this really worth it?
+        // #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //         vOut.shadowTile = -1;
+        //     #endif
+
+        //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE && !defined RENDER_BILLBOARD
+        //         vec3 viewNormal = mat3(gbufferModelView) * normalize(vOut.localNormal);
+        //         vec3 skyLightDir = normalize(shadowLightPosition);
+        //         float geoNoL = dot(skyLightDir, viewNormal);
+        //     #else
+        //         float geoNoL = 1.0;
+        //     #endif
+
+        //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+        //         #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+        //             ApplyShadows(vOut.localPos, _vLocalNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+        //         #else
+        //             ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL, vOut.shadowPos, vOut.shadowTile);
+        //         #endif
+        //     #else
+        //         #if defined RENDER_BILLBOARD || defined RENDER_CLOUDS
+        //             vOut.shadowPos = ApplyShadows(vOut.localPos, _vLocalNormal, geoNoL);
+        //         #else
+        //             vOut.shadowPos = ApplyShadows(vOut.localPos, vOut.localNormal, geoNoL);
+        //         #endif
+        //     #endif
+        // #endif
+    #endif
+
+    // #if defined PARALLAX_ENABLED || defined WORLD_WATER_ENABLED
+    //     vOut.viewPos_T = _interpolate(vIn[0].viewPos_T, vIn[1].viewPos_T, vIn[2].viewPos_T);
+
+    //     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+    //         vOut.lightPos_T = _interpolate(vIn[0].lightPos_T, vIn[1].lightPos_T, vIn[2].lightPos_T);
+    //     #endif
+    // #endif
+
+    #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            vOut.shadowPos[0] = _interpolate(vIn[0].shadowPos[0], vIn[1].shadowPos[0], vIn[2].shadowPos[0]);
+            vOut.shadowPos[1] = _interpolate(vIn[0].shadowPos[1], vIn[1].shadowPos[1], vIn[2].shadowPos[1]);
+            vOut.shadowPos[2] = _interpolate(vIn[0].shadowPos[2], vIn[1].shadowPos[2], vIn[2].shadowPos[2]);
+            vOut.shadowPos[3] = _interpolate(vIn[0].shadowPos[3], vIn[1].shadowPos[3], vIn[2].shadowPos[3]);
+
+            vOut.shadowTile = vIn[0].shadowTile;
+        #else
+            vOut.shadowPos = _interpolate(vIn[0].shadowPos, vIn[1].shadowPos, vIn[2].shadowPos);
+        #endif
+    #endif
+
+    #ifdef WATER_TESSELLATION_ENABLED
+        gl_Position = gl_ProjectionMatrix * gl_Position;
+
+        #ifdef EFFECT_TAA_ENABLED
+            jitter(gl_Position);
+        #endif
+    #endif
+}

@@ -9,7 +9,7 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 
     float lpvFade = 0.0;
     vec3 lpvLight = vec3(0.0);
-    if (IsInVoxelBounds(ivec3(lpvPos))) {
+    if (IsInVoxelBounds(lpvPos)) {
         vec3 samplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal);
         vec4 lpvSample = SampleLpv(samplePos);
 

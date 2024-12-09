@@ -10,7 +10,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
 #ifdef IS_LPV_ENABLED
     vec3 GetLpvAmbientLighting(const in vec3 localPos, const in vec3 localNormal, const in vec3 texNormal, const in float lmBlock) {
         vec3 lpvPos = GetVoxelPosition(localPos);
-        if (!IsInVoxelBounds(ivec3(lpvPos))) return vec3(0.0);
+        if (!IsInVoxelBounds(lpvPos)) return vec3(0.0);
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);

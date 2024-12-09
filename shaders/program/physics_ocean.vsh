@@ -22,7 +22,7 @@ out VertexData {
     vec3 physics_localPosition;
     float physics_localWaviness;
 
-    vec3 viewPos_T;
+    // vec3 viewPos_T;
 
     #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
         vec3 lightPos_T;
@@ -222,12 +222,12 @@ void main() {
     GetAtlasBounds(vOut.texcoord, vOut.atlasBounds, vOut.localCoord);
 
     // vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-    vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
-    mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
+    // vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
+    // mat3 matViewTBN = GetViewTBN(viewNormal, viewTangent, at_tangent.w);
 
-    vOut.viewPos_T = viewPos * matViewTBN;
+    // vOut.viewPos_T = viewPos * matViewTBN;
 
-    #ifdef WORLD_SHADOW_ENABLED
-        vOut.lightPos_T = shadowLightPosition * matViewTBN;
-    #endif
+    // #ifdef WORLD_SHADOW_ENABLED
+    //     vOut.lightPos_T = shadowLightPosition * matViewTBN;
+    // #endif
 }
