@@ -1,6 +1,5 @@
 const float phaseAir = phaseIso;
 
-// const float WorldAtmosphereMin =  68.0;
 const float WorldAtmosphereMax = 480.0;
 const float WorldAtmosphereCurve = 12.0;
 const float WorldAtmosphereCurveRain = 4.0;
@@ -19,30 +18,23 @@ float GetSkyAltitudeFactor(const in float altitude) {
         float t = frameTimeCounter / 3600.0;
         vec3 o = 600.0 * vec3(t, t, 0.0);
 
-        float n1 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.125, 0).r;
-        float n2 = textureLod(TEX_CLOUDS, (texPos - o) * 0.030, 0).r;
-        float noiseNear = sqrt((1.0 - n1) * n2);
-        // float noiseNear = 2.0 * n1 * n2;
-
-        float n3 = textureLod(TEX_CLOUDS, (texPos + o*2.0) * 0.0040, 0).r;
-        float n4 = textureLod(TEX_CLOUDS, (texPos - o) * 0.0024, 0).r;
-        float n5 = textureLod(TEX_CLOUDS, (texPos - o) * 0.0003, 0).r;
-        float noiseFar = sqrt((1.0 - n4) * n3 * n5);
-
         float sampleDist = length(worldPos - cameraPosition);
-        float distF = smoothstep(120.0, 0.0, sampleDist);
-        float noise = 0.2 * noiseNear * distF + noiseFar;
 
-        float heightF = GetSkyAltitudeFactor(altitude);
+        float fogF = 1.0 - textureLod(TEX_CLOUDS, (texPos - o) * 0.003, 0).r;
+        fogF = _pow2(fogF);
 
-        float fogF = noise;//smoothstep(0.5 * heightF, 1.0, noise);
-        //fogF = pow(fogF, 3.0);// + MinFogDensity;// * 0.5 + 0.5;
-        fogF = 16.0 * _pow3(fogF);
+        if (sampleDist < 120.0) {
+            float noiseNear = textureLod(TEX_CLOUDS, (texPos - o) * 0.05, 0).r;
+            noiseNear = noiseNear*2.0 - 1.0;
+            noiseNear = _pow2(noiseNear);
 
-        // float fogF = step(0.65, noise);
+            float distF = smoothstep(120.0, 0.0, sampleDist);
 
-        // float _far = 0.25 * dhFarPlane;
-        // fogF *= smoothstep(SkyFar, _far, sampleDist);
+            fogF += 0.2 * noiseNear * distF;
+        }
+
+        fogF = 8.0 * _pow2(fogF);
+
         fogF *= exp(-0.002 * sampleDist);
 
         return 0.2 + fogF;
@@ -50,15 +42,8 @@ float GetSkyAltitudeFactor(const in float altitude) {
 #endif
 
 float GetSkyDensity() {
-    // float heightF = 1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY);
-    // return AirDensityF * (1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY));
-
     float skyLightF = eyeBrightnessSmooth.y / 240.0;
     float densityFinal = GetAirDensity(skyLightF);
-
-    // #ifdef VOLUMETRIC_NOISE_ENABLED
-    //     densityFinal *= GetSkyDensityNoise(worldPos);
-    // #endif
 
     return max(densityFinal, 0.0);
 }
@@ -79,9 +64,6 @@ float GetSkyAltitudeDensity(const in float altitude) {
 
 // altitude: world-pos.y
 float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const in float caveFogF) {
-    // float heightF = 1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY);
-    // return AirDensityF * (1.0 - smoothstep(WORLD_SEA_LEVEL, WorldAtmosphereMax, worldY));
-
     float densityFinal = GetSkyDensity();
 
     #ifdef SKY_CAVE_FOG_ENABLED
