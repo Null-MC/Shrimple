@@ -94,9 +94,9 @@ uniform vec3 previousCameraPosition;
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
+    // #ifdef SHADOW_CLOUD_ENABLED
+    //     #include "/lib/clouds/cloud_vanilla.glsl"
+    // #endif
 #endif
 
 #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED

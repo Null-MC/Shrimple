@@ -50,7 +50,7 @@
         //     reflectColor += starLight * Sky_BrightnessF; // * moonUpF
         // #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && (!defined RENDER_GBUFFER || defined RENDER_WATER)
+        #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
             vec3 lightWorldDir = reflectDir / reflectDir.y;
 
             const vec3 cloudColor = _RGBToLinear(vec3(0.8));

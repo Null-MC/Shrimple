@@ -43,9 +43,9 @@ uniform ivec2 eyeBrightnessSmooth;
 	uniform int frameCounter;
 	uniform int fogShape;
 
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     uniform sampler3D TEX_CLOUDS;
+    #ifdef SKY_CLOUD_ENABLED
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -135,10 +135,8 @@ void main() {
     gl_Position = gl_ProjectionMatrix * viewPos;
 
 
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE
-        #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-            const float CloudHeight = 4.0;
-        #endif
+    #ifdef SKY_CLOUD_ENABLED
+        const float CloudHeight = 4.0;
 
         vec3 worldPos = cameraPosition + vOut.localPos;
 

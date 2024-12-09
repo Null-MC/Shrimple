@@ -80,7 +80,9 @@ const bool colortex15Clear = true;
 #define SKY_STARS 2 // [0 1 2]
 
 // Sky Cloud Options
-#define SKY_CLOUD_TYPE 1 // [0 1]
+#define SKY_CLOUD_ENABLED
+#define SKY_CLOUD_SOFT
+// #define SKY_CLOUD_TYPE 1 // [0 1]
 #define SKY_CLOUD_SPEED 24 // [0 2 4 8 12 16 20 24 32 48 64 96 128]
 #define SKY_CLOUD_OPACITY 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 160 165 170 175 180 185 190 195 200]
 #define SKY_CLOUD_COVER_MIN 25 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
@@ -373,6 +375,7 @@ const bool colortex15Clear = true;
 
 // Distant Horizons
 #define DH_SHADOW_ENABLED
+//#define DH_CLOUDS_ENABLED
 #define DH_TRANSITION
 #define DH_TRANSITION_ENTITIES
 #define DH_TRANSITION_SHADOWS
@@ -515,7 +518,7 @@ const bool colortex15Clear = true;
     #define DEFERRED_BUFFER_ENABLED
 #endif
 
-#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SHADOW_ENABLED && defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
+#if defined SHADOW_CLOUD_ENABLED && defined WORLD_SHADOW_ENABLED && defined WORLD_SKY_ENABLED && defined SKY_CLOUD_ENABLED
     #define RENDER_CLOUD_SHADOWS_ENABLED
 #endif
 
@@ -541,6 +544,8 @@ const bool colortex15Clear = true;
 
 
 #ifdef ANIM_WORLD_TIME
+#endif
+#ifdef SKY_CLOUD_ENABLED
 #endif
 #ifdef WORLD_WETNESS_ENABLED
 #endif
@@ -611,6 +616,8 @@ const bool colortex15Clear = true;
 #ifdef DH_TRANSITION
 #endif
 #ifdef DH_TRANSITION_ENTITIES
+#endif
+#ifdef DH_CLOUDS_ENABLED
 #endif
 #ifdef DEBUG_TRANSPARENT
 #endif

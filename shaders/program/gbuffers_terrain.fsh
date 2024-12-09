@@ -306,9 +306,9 @@ uniform int frameCounter;
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
 
-        #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #endif
+        // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        // #endif
     #endif
 
     #include "/lib/lighting/sampling.glsl"
@@ -703,10 +703,10 @@ void main() {
             // shadowColor = vec3(pow(lmFinal.y, 9));
         #endif
         
-        #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
-            deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
-        #endif
+        // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
+        //     deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
+        // #endif
         
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
             ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);

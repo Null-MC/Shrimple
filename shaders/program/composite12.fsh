@@ -64,7 +64,7 @@ uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
     #endif
 #endif
 
-#if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+#if defined WORLD_SKY_ENABLED && defined SKY_CLOUD_ENABLED
     uniform sampler2D TEX_CLOUDS_VANILLA;
 #endif
 
@@ -322,11 +322,11 @@ uniform vec3 eyePosition;
     #include "/lib/world/lightning.glsl"
 
     //#if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-            #include "/lib/clouds/cloud_custom_shadow.glsl"
-            #include "/lib/clouds/cloud_custom_trace.glsl"
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        //     #include "/lib/clouds/cloud_custom_shadow.glsl"
+        //     #include "/lib/clouds/cloud_custom_trace.glsl"
+        #ifdef SKY_CLOUD_ENABLED
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     //#endif

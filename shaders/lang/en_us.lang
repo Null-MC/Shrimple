@@ -869,6 +869,8 @@ option.DH_CLIP_DIST=Transition Distance
 option.DH_CLIP_DIST.comment=The distance from the camera that Distant Horizons terrain will start fading/clipping, as a percentage of the [vanilla] render distance.
 suffix.DH_CLIP_DIST=%
 
+option.DH_CLOUDS_ENABLED=Clouds
+
 
 screen.DEBUG_OPTIONS=Shrimple
 

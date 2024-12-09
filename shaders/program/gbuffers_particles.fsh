@@ -73,7 +73,7 @@ uniform sampler2D noisetex;
     //#ifdef SHADOW_CLOUD_ENABLED
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #ifdef SKY_CLOUD_ENABLED
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     //#endif
@@ -197,7 +197,7 @@ uniform vec3 eyePosition;
         
         // uniform float cloudHeight;
 
-        #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+        #ifdef SKY_CLOUD_ENABLED
             uniform float cloudTime;
         #endif
 
@@ -340,9 +340,9 @@ uniform vec3 eyePosition;
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        #ifdef SKY_CLOUD_ENABLED
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif

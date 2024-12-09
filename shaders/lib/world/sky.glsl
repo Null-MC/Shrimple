@@ -73,7 +73,7 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
 #endif
 
 vec3 CalculateSkyLightWeatherColor(const in vec3 skyLightColor) {
-    #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    #ifdef SKY_CLOUD_ENABLED
         return skyLightColor * (1.0 - 0.8*weatherStrength);
     #else
         return skyLightColor;

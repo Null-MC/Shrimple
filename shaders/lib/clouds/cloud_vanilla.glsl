@@ -13,3 +13,14 @@
 //     camOffset.xz -= ivec2(greaterThan(abs(camOffset.xz), vec2(10.0))) * irisCamWrap; // eyePosition precission issues can cause this to be wrong, since the camera is usally not farther than 5 blocks, this should be fine
 //     return camOffset;
 // }
+
+vec3 GetCloudTexcoord(in vec3 worldPos, const in vec2 cloudOffset) {
+    // worldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
+    // worldPos.y += eyePosition.y;
+
+    vec3 cloudTexcoord = worldPos;
+    cloudTexcoord.y = (cloudTexcoord.y - cloudHeight) / 4.5;
+    cloudTexcoord.xz = ((cloudTexcoord.xz + vec2(0.0, 4.0)) / 12.0 - cloudOffset) / 256.0;
+
+    return mod(cloudTexcoord, 1.0);
+}

@@ -63,9 +63,9 @@ uniform sampler2D noisetex;
     #endif
 
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     uniform sampler3D TEX_CLOUDS;
+        #ifdef SKY_CLOUD_ENABLED
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -233,9 +233,9 @@ uniform int heldBlockLightValue2;
 
 #ifdef WORLD_SKY_ENABLED
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        #ifdef SKY_CLOUD_ENABLED
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif

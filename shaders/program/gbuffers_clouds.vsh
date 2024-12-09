@@ -91,25 +91,21 @@ uniform vec3 cameraPosition;
 
 
 void main() {
-    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
-        vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-        vOut.color = gl_Color;
+    vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+    vOut.color = gl_Color;
 
-        vec4 viewPos = BasicVertex();
+    vec4 viewPos = BasicVertex();
 
-        #ifdef DISTANT_HORIZONS
-            vOut.viewPosZ = -viewPos.z;
-        #endif
+    #ifdef DISTANT_HORIZONS
+        vOut.viewPosZ = -viewPos.z;
+    #endif
 
-        vec3 viewNormal = gl_NormalMatrix * gl_Normal;
-        vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
+    vec3 viewNormal = gl_NormalMatrix * gl_Normal;
+    vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
 
-        gl_Position = gl_ProjectionMatrix * viewPos;
+    gl_Position = gl_ProjectionMatrix * viewPos;
 
-        #ifdef EFFECT_TAA_ENABLED
-            jitter(gl_Position);
-        #endif
-    #else
-        gl_Position = vec4(-1.0);
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
     #endif
 }

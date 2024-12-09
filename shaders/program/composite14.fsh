@@ -29,7 +29,7 @@ in vec2 texcoord;
         uniform sampler2D texSky;
     #endif
 
-    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    #ifdef VL_BUFFER_ENABLED
         uniform sampler2D BUFFER_VL_SCATTER;
         uniform sampler2D BUFFER_VL_TRANSMIT;
     #endif
@@ -42,7 +42,7 @@ in vec2 texcoord;
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #ifdef SKY_CLOUD_ENABLED
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -97,7 +97,7 @@ in vec2 texcoord;
             uniform vec3 sunPosition;
         #endif
 
-        #if SKY_CLOUD_TYPE != CLOUDS_NONE
+        #ifdef SKY_CLOUD_ENABLED
             uniform float cloudTime;
             uniform float cloudHeight;
             uniform vec3 eyePosition;
@@ -176,13 +176,13 @@ in vec2 texcoord;
     #endif
 
     #ifdef WORLD_SKY_ENABLED
-        #if SKY_CLOUD_TYPE != CLOUDS_NONE
+        #ifdef SKY_CLOUD_ENABLED
             #include "/lib/clouds/cloud_common.glsl"
         #endif
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            #include "/lib/clouds/cloud_custom.glsl"
-        #endif
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     #include "/lib/clouds/cloud_custom.glsl"
+        // #endif
     #endif
 
     #ifdef IS_LPV_SKYLIGHT_ENABLED
@@ -207,7 +207,7 @@ in vec2 texcoord;
             #include "/lib/material/fresnel.glsl"
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && SKY_CLOUD_TYPE == CLOUDS_VANILLA && defined WORLD_SKY_ENABLED && defined IS_IRIS
+        #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
 
@@ -220,7 +220,7 @@ in vec2 texcoord;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    #ifdef VL_BUFFER_ENABLED
         #if VOLUMETRIC_BLUR_SIZE > 0
             #include "/lib/sampling/gaussian.glsl"
             #include "/lib/sampling/fog_filter.glsl"
@@ -540,7 +540,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #if defined VL_BUFFER_ENABLED || SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            #ifdef VL_BUFFER_ENABLED
                 #if VOLUMETRIC_BLUR_SIZE > 0
                     VL_GaussianFilter(final, texcoord, depthOpaqueL);
                 #else
@@ -550,7 +550,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 

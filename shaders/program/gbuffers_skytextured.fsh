@@ -51,7 +51,7 @@ uniform int frameCounter;
 void main() {
     vec4 color = textureLod(gtexture, vIn.texcoord, 0);
 
-    #if SKY_CLOUD_TYPE == CLOUD_TYPE_VANILLA
+    #ifdef SKY_CLOUD_ENABLED
         color.rgb *= vIn.color.rgb;
     #endif
 

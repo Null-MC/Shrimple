@@ -76,17 +76,17 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
-        #else
-            float weatherF = 1.0;// - 0.8 * _pow2(weatherStrength);
-        #endif
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
+        // #else
+        //     float weatherF = 1.0;// - 0.8 * _pow2(weatherStrength);
+        // #endif
 
         //vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+        vec3 skyLightColor = WorldSkyLightColor * VolumetricBrightnessSky;
         //skyLightColor *= smoothstep(0.0, 0.1, abs(localSunDirection.y));
 
-        #if defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
             //vec3 lightWorldDir = mat3(gbufferModelViewInverse) * shadowLightPosition;
             // TODO: Why TF was this dividing by Y?
             vec3 lightWorldDir = localSkyLightDirection;// / localSkyLightDirection.y;
@@ -94,11 +94,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            // float cloudAlt = GetCloudAltitude();
-            // vec2 cloudOffset = GetCloudOffset();
-            // float phaseCloud = GetCloudPhase(VoL);
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA //&& VOLUMETRIC_BRIGHT_SKY > 0
+        #ifdef SKY_CLOUD_ENABLED
             vec2 cloudOffset = GetCloudOffset();
             vec3 camOffset = GetCloudCameraOffset();
         #endif
@@ -390,17 +386,13 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE != CLOUDS_NONE
+        #if defined WORLD_SKY_ENABLED && defined SKY_CLOUD_ENABLED
             float cloudShadow = 1.0;
 
-            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                // cloudShadow = TraceCloudShadow(traceWorldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
-            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
-                    cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
-                    //sampleF *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudShadow, 1.0);
-                }
-            #endif
+            if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
+                cloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
+                //sampleF *= 1.0 - (1.0 - Shadow_CloudBrightnessF) * min(cloudShadow, 1.0);
+            }
 
             sampleF *= cloudShadow * 0.5 + 0.5;
         #endif

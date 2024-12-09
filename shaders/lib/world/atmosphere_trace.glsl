@@ -54,10 +54,10 @@ float GetSkyAltitudeDensity(const in float altitude) {
     float curve = mix(WorldAtmosphereCurve, WorldAtmosphereCurveRain, weatherStrength);
     float density = pow(heightF, curve);
 
-    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-        float z = altitude - cloudHeight;
-        if (z > 0.0 && z < 20.0) density = 12.0;
-    #endif
+    // #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    //     float z = altitude - cloudHeight;
+    //     if (z > 0.0 && z < 20.0) density = 12.0;
+    // #endif
 
     return density;
 }

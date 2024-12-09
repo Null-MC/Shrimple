@@ -49,7 +49,7 @@ uniform sampler2D noisetex;
 #if defined WORLD_SKY_ENABLED && (defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED)
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
     //     uniform sampler3D TEX_CLOUDS;
-    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    #ifdef SKY_CLOUD_ENABLED
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -217,11 +217,11 @@ uniform vec3 eyePosition;
 #endif
 
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
-    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        #include "/lib/clouds/cloud_custom.glsl"
-        #include "/lib/clouds/cloud_custom_shadow.glsl"
-        #include "/lib/clouds/cloud_custom_trace.glsl"
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     #include "/lib/clouds/cloud_custom.glsl"
+    //     #include "/lib/clouds/cloud_custom_shadow.glsl"
+    //     #include "/lib/clouds/cloud_custom_trace.glsl"
+    #ifdef SKY_CLOUD_ENABLED
         #include "/lib/clouds/cloud_vanilla.glsl"
         #include "/lib/clouds/cloud_vanilla_shadow.glsl"
     #endif
@@ -382,10 +382,10 @@ void main() {
         #endif
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
-        shadowColor *= 1.0 - (1.0 - cloudShadow) * 0.8;
-    #endif
+    // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
+    //     float cloudShadow = TraceCloudShadow(cameraPosition + vIn.localPos, localSkyLightDirection, CLOUD_GROUND_SHADOW_STEPS);
+    //     shadowColor *= 1.0 - (1.0 - cloudShadow) * 0.8;
+    // #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
     float roughL = _pow2(roughness);

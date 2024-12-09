@@ -80,7 +80,7 @@ uniform int frameCounter;
     uniform vec3 sunPosition;
     uniform vec3 skyColor;
 
-    #if SKY_CLOUD_TYPE != CLOUDS_NONE && defined IS_IRIS
+    #ifdef SKY_CLOUD_ENABLED
         uniform float cloudTime;
         uniform float cloudHeight;
     #endif
