@@ -49,9 +49,9 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     float ambientF = mix(3.0 * Lighting_AmbientF, 1.0, pow(weatherStrength, 0.75));
     ambientF = mix(ambientF, 1.0, horizonF);
-    ambientF *= mix(1.0, 0.12, horizonF);
+    ambientF *= mix(1.0, 0.2, horizonF);
 
-    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * abs(localSunDirection.y);
+    vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * sqrt(abs(localSunDirection.y));
     vec3 skyLightShadowColor = shadowColor * skyLightColor;
 
     float geoNoL = 1.0;

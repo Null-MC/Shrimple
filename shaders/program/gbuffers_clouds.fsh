@@ -17,14 +17,14 @@ in VertexData {
         float viewPosZ;
     #endif
 
-    #ifdef RENDER_SHADOWS_ENABLED
-        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-            vec3 shadowPos[4];
-            flat int shadowTile;
-        #else
-            vec3 shadowPos;
-        #endif
-    #endif
+    // #ifdef RENDER_SHADOWS_ENABLED
+    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+    //         vec3 shadowPos[4];
+    //         flat int shadowTile;
+    //     #else
+    //         vec3 shadowPos;
+    //     #endif
+    // #endif
 } vIn;
 
 uniform sampler2D gtexture;
@@ -89,20 +89,20 @@ uniform vec3 skyColor;
     uniform float waterDensitySmooth;
 #endif
 
-#ifdef WORLD_SHADOW_ENABLED
-    uniform sampler2D shadowtex0;
-    uniform sampler2D shadowtex1;
+// #ifdef WORLD_SHADOW_ENABLED
+//     uniform sampler2D shadowtex0;
+//     uniform sampler2D shadowtex1;
 
-    #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
-    #endif
+//     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+//         uniform sampler2DShadow shadowtex0HW;
+//     #endif
     
-    uniform vec3 shadowLightPosition;
+//     uniform vec3 shadowLightPosition;
 
-    #ifdef SHADOW_ENABLED
-        uniform mat4 shadowProjection;
-    #endif
-#endif
+//     #ifdef SHADOW_ENABLED
+//         uniform mat4 shadowProjection;
+//     #endif
+// #endif
 
 uniform int heldItemId;
 uniform int heldItemId2;
@@ -197,19 +197,19 @@ uniform float cloudTime;
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/buffers/shadow.glsl"
+// #ifdef RENDER_SHADOWS_ENABLED
+//     #include "/lib/buffers/shadow.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
-    #endif
+//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+//         #include "/lib/shadows/cascaded/common.glsl"
+//         #include "/lib/shadows/cascaded/render.glsl"
+//     #else
+//         #include "/lib/shadows/distorted/common.glsl"
+//         #include "/lib/shadows/distorted/render.glsl"
+//     #endif
 
-    #include "/lib/shadows/render.glsl"
-#endif
+//     #include "/lib/shadows/render.glsl"
+// #endif
 
 //#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
     #ifdef LIGHTING_FLICKER
