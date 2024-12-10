@@ -52,7 +52,6 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     ambientF *= mix(1.0, 0.2, horizonF);
 
     vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * sqrt(abs(localSunDirection.y));
-    vec3 skyLightShadowColor = shadowColor * skyLightColor;
 
     float geoNoL = 1.0;
     if (!all(lessThan(abs(localNormal), EPSILON3)))
@@ -64,7 +63,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float LoHm = max(dot(localSkyLightDir, H), 0.0);
 
     float D = SampleLightDiffuse(NoVm, NoLm, LoHm, roughL);
-    vec3 accumDiffuse = D * skyLightShadowColor;// * (1.0 - ambientF);
+    vec3 accumDiffuse = invPI * D * shadowColor * skyLightColor;// * (1.0 - ambientF);
 
     float skyLightF = lmcoord.y;
 
@@ -100,7 +99,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         ambientSkyLight += skyLightColor * lpvIndirectSample * lpvFade;
     #endif
 
-    accumDiffuse += ambientSkyLight * (occlusion);
+    accumDiffuse += ambientSkyLight * occlusion;
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED
@@ -130,7 +129,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         vec3 F = GetMaterialFresnel(albedo, metal_f0, roughL, LoHm, isUnderWater);
         vec3 S = SampleLightSpecular(NoLm, NoHm, LoHm, F, roughL);
 
-        skySpecular += step(-EPSILON, geoNoL) * S * skyLightShadowColor;
+        // skyLightColor = CalculateSkyLightColor(localSunDirection.y);
+        // skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor) * sqrt(abs(localSunDirection.y));
+
+        skySpecular += step(-EPSILON, geoNoL) * S * skyLightColor * shadowColor;
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);

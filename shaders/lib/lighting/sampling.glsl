@@ -37,7 +37,7 @@ float G1V(const in float NoV, const in float k) {
 vec3 SampleLightSpecular(const in float NoL, const in float NoH, const in float LoH, const in vec3 F, const in float roughL) {
     // if (NoL <= 0.0) return vec3(0.0);
 
-    float alpha = max(roughL, 0.08);
+    float alpha = max(roughL, ROUGH_MIN);
 
     // D
     float alpha2 = _pow2(alpha);
@@ -49,5 +49,5 @@ vec3 SampleLightSpecular(const in float NoL, const in float NoH, const in float 
     float k2 = _pow2(k);
     float V = rcp(_pow2(LoH) * (1.0 - k2) + k2);
 
-    return (NoL * D * V) * F;
+    return clamp((NoL * D * V) * F, 0.0, 10.0);
 }

@@ -67,7 +67,7 @@ const float g_sigmaV = 0.1;
 
 void populateSharedBuffer() {
     if (gl_LocalInvocationIndex < 5)
-        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
+        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, abs(gl_LocalInvocationIndex - 2));
     
     uint i_base = uint(gl_LocalInvocationIndex) * 2u;
     if (i_base >= sharedBufferSize) return;
@@ -192,9 +192,8 @@ void main() {
 
 
         vec4 diffuseOld = textureLod(altFrame ? texDiffuseRT : texDiffuseRT_alt, texcoord_re, 0);
-        float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
-
         vec3 localPosLast = textureLod(altFrame ? texLocalPosLast : texLocalPosLast_alt, texcoord_re, 0).rgb;
+        float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
 
         float offsetThreshold = clamp(depthL * 0.04, 0.0, 1.0);
         if (distance(localPos_re, localPosLast) > offsetThreshold) counter = 1.0;
