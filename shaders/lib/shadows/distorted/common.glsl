@@ -1,5 +1,5 @@
 float GetShadowRange() {
-    return -2.0 / shadowProjection[2][2];
+    return -2.0 / shadowProjectionEx[2][2];
 }
 
 vec3 GetShadowSize() {
