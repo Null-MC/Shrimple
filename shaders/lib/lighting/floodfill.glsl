@@ -35,5 +35,6 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
-    return (albedo * invPI) * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
+    vec3 diffuseFinal = (albedo * invPI) * (Lighting_MinF * occlusion + diffuse);
+    return diffuseFinal + specular;// * _pow3(occlusion);
 }

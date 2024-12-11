@@ -173,7 +173,14 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
                 if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS && blockId != blockIdLast) {
                     vec3 glassTint = GetLightGlassTint(blockId) * Lighting_TintF;
                     glassTint += max(1.0 - Lighting_TintF, 0.0);
+
                     color *= glassTint;
+
+                    // float lum = luminance(color);
+                    // if (lum > EPSILON) {
+                    //     color *= glassTint;
+                    //     color *= lum / luminance(color);
+                    // }
                 }
                 else {
             #endif

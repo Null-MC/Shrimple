@@ -30,10 +30,10 @@ uniform sampler2D texLocalPosLast_alt;
 
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_VELOCITY;
-uniform sampler2D depthtex0;
+uniform sampler2D depthtex1;
 
 #ifdef DISTANT_HORIZONS
-	uniform sampler2D dhDepthTex0;
+	uniform sampler2D dhDepthTex1;
 #endif
 
 uniform vec2 viewSize;
@@ -90,11 +90,11 @@ void populateSharedBuffer() {
 	    if (all(greaterThanEqual(uv, ivec2(0))) && all(lessThan(uv, ivec2(viewSize + 0.5)))) {
 	    	diffuse = textureLod(BUFFER_BLOCK_DIFFUSE, uv/viewSize, 0).rgb;
 
-	    	float depth = texelFetch(depthtex0, uv, 0).r;
+	    	float depth = texelFetch(depthtex1, uv, 0).r;
 	    	depthL = linearizeDepth(depth, near, farPlane);
 
             #ifdef DISTANT_HORIZONS
-                float depthDH = texelFetch(dhDepthTex0, uv, 0).r;
+                float depthDH = texelFetch(dhDepthTex1, uv, 0).r;
                 float depthDHL = linearizeDepth(depthDH, dhNearPlane, dhFarPlane);
 
                 if (depth >= 1.0 || (depthDHL < depthL && depthDH > 0.0)) {
