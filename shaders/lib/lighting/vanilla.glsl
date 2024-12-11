@@ -12,13 +12,11 @@ void GetVanillaLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 shadowC
         diffuse = lightmapBlock * Lighting_Brightness;
     #endif
 
-    diffuse *= invPI * occlusion;
+    diffuse *= occlusion;
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
-    vec3 final = albedo;
-	final *= (Lighting_MinF * occlusion + diffuse) + emission * MaterialEmissionF;
-	final += specular;
+    vec3 diffuseFinal = (albedo * invPI) * (Lighting_MinF * occlusion + diffuse) + emission * MaterialEmissionF;
 
-	return final;
+	return diffuseFinal + specular;
 }

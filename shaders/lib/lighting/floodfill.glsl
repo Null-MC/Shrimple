@@ -31,9 +31,9 @@ void GetFloodfillLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, con
         #endif
     }
 
-    blockDiffuse += invPI * mix(lmBlockLight, lpvLight, lpvFade) * occlusion;
+    blockDiffuse += mix(lmBlockLight, lpvLight, lpvFade) * occlusion;
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
-    return albedo * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
+    return (albedo * invPI) * (Lighting_MinF * occlusion + diffuse) + specular * _pow3(occlusion);
 }

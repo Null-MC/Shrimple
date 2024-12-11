@@ -638,7 +638,11 @@ layout(location = 0) out vec4 outFinal;
                 //     sssColor = normalize(albedo);
                 // sssFinal *= sssColor;
 
-                diffuseFinal += (3.0*phaseIso) * sss * MaterialSssStrengthF * sssFinal;
+                vec3 viewDir = normalize(localPos);
+                float VoL = dot(viewDir, localSkyLightDirection);
+                float sss_phase = max(HG(VoL, 0.16), 0.0);
+
+                diffuseFinal += 8.0 * sss_phase * sss * MaterialSssStrengthF * sssFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
