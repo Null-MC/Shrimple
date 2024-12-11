@@ -79,7 +79,6 @@ uniform vec3 playerBodyVector;
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/buffers/block_static.glsl"
         #include "/lib/buffers/block_voxel.glsl"
-        //#include "/lib/buffers/lighting.glsl"
         #include "/lib/buffers/light_voxel.glsl"
     #endif
 #endif
@@ -111,20 +110,14 @@ uniform vec3 playerBodyVector;
     
     #include "/lib/voxel/voxel_common.glsl"
     
-    // #include "/lib/lighting/voxel/block_light_map.glsl"
     #include "/lib/voxel/lights/mask.glsl"
-    // #include "/lib/lighting/voxel/block_mask.glsl"
     #include "/lib/voxel/lights/light_mask.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
     #include "/lib/lighting/voxel/lights_render.glsl"
     #include "/lib/voxel/blocks.glsl"
-    
-    // #include "/lib/lighting/voxel/item_light_map.glsl"
-    // #include "/lib/lighting/voxel/items.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    //#include "/lib/buffers/collisions.glsl"
     #include "/lib/lighting/voxel/tinting.glsl"
     #include "/lib/lighting/voxel/tracing.glsl"
 #endif
@@ -138,9 +131,6 @@ uniform vec3 playerBodyVector;
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
 #endif
-
-//#include "/lib/lighting/basic_hand.glsl"
-//#include "/lib/lighting/traced.glsl"
 
 #if LIGHTING_TRACE_RES != 0
     #include "/lib/utility/temporal_offset.glsl"

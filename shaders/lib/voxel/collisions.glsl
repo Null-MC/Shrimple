@@ -778,43 +778,84 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
     switch (blockId) {
         case BLOCK_BUTTON_FLOOR_N_S:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 5.0/16.0), 0.000, ( 6.0/16.0));
-            boundsMax[0] = vec3((11.0/16.0), 0.125, (10.0/16.0));
+            boundsMin[0] = modelPart( 5,  0,  6);
+            boundsMax[0] = modelPart(11,  2, 10);
             break;
         case BLOCK_BUTTON_FLOOR_W_E:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 6.0/16.0), 0.000, ( 5.0/16.0));
-            boundsMax[0] = vec3((10.0/16.0), 0.125, (11.0/16.0));
+            boundsMin[0] = modelPart( 6,  0,  5);
+            boundsMax[0] = modelPart(10,  2, 11);
             break;
         case BLOCK_BUTTON_CEILING_N_S:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 5.0/16.0), 0.875, ( 6.0/16.0));
-            boundsMax[0] = vec3((11.0/16.0), 1.000, (10.0/16.0));
+            boundsMin[0] = modelPart( 5, 14,  6);
+            boundsMax[0] = modelPart(11, 16, 10);
             break;
         case BLOCK_BUTTON_CEILING_W_E:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 6.0/16.0), 0.875, ( 5.0/16.0));
-            boundsMax[0] = vec3((10.0/16.0), 1.000, (11.0/16.0));
+            boundsMin[0] = modelPart( 6, 14,  5);
+            boundsMax[0] = modelPart(10, 16, 11);
             break;
         case BLOCK_BUTTON_WALL_N:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 5.0/16.0), ( 6.0/16.0), 0.875);
-            boundsMax[0] = vec3((11.0/16.0), (10.0/16.0), 1.000);
+            boundsMin[0] = modelPart( 5,  6, 14);
+            boundsMax[0] = modelPart(11, 10, 16);
             break;
         case BLOCK_BUTTON_WALL_E:
             shapeCount = 1u;
-            boundsMin[0] = vec3(0.000, ( 6.0/16.0), ( 5.0/16.0));
-            boundsMax[0] = vec3(0.125, (10.0/16.0), (11.0/16.0));
+            boundsMin[0] = modelPart( 0,  6,  5);
+            boundsMax[0] = modelPart( 2, 10, 11);
             break;
         case BLOCK_BUTTON_WALL_S:
             shapeCount = 1u;
-            boundsMin[0] = vec3(( 5.0/16.0), ( 6.0/16.0), 0.000);
-            boundsMax[0] = vec3((11.0/16.0), (10.0/16.0), 0.125);
+            boundsMin[0] = modelPart( 5,  6,  0);
+            boundsMax[0] = modelPart(11, 10,  2);
             break;
         case BLOCK_BUTTON_WALL_W:
             shapeCount = 1u;
-            boundsMin[0] = vec3(0.875, ( 6.0/16.0), ( 5.0/16.0));
-            boundsMax[0] = vec3(1.000, (10.0/16.0), (11.0/16.0));
+            boundsMin[0] = modelPart(14,  6,  5);
+            boundsMax[0] = modelPart(16, 10, 11);
+            break;
+
+        case BLOCK_BUTTON_PRESSED_FLOOR_N_S:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5,  0,  6);
+            boundsMax[0] = modelPart(11,  1, 10);
+            break;
+        case BLOCK_BUTTON_PRESSED_FLOOR_W_E:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 6,  0,  5);
+            boundsMax[0] = modelPart(10,  1, 11);
+            break;
+        case BLOCK_BUTTON_PRESSED_CEILING_N_S:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5, 15,  6);
+            boundsMax[0] = modelPart(11, 16, 10);
+            break;
+        case BLOCK_BUTTON_PRESSED_CEILING_W_E:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 6, 15,  5);
+            boundsMax[0] = modelPart(10, 16, 11);
+            break;
+        case BLOCK_BUTTON_PRESSED_WALL_N:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5,  6, 15);
+            boundsMax[0] = modelPart(11, 10, 16);
+            break;
+        case BLOCK_BUTTON_PRESSED_WALL_E:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 0,  6,  5);
+            boundsMax[0] = modelPart( 1, 10, 11);
+            break;
+        case BLOCK_BUTTON_PRESSED_WALL_S:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart( 5,  6,  0);
+            boundsMax[0] = modelPart(11, 10,  1);
+            break;
+        case BLOCK_BUTTON_PRESSED_WALL_W:
+            shapeCount = 1u;
+            boundsMin[0] = modelPart(15,  6,  5);
+            boundsMax[0] = modelPart(16, 10, 11);
             break;
     }
 
@@ -1999,32 +2040,48 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
                 break;
 
             case BLOCK_FENCE_W_N_E:
-                shapeCount = 3u;
+                shapeCount = 5u;
                 boundsMin[1] = modelPart( 0,  6,  7);
                 boundsMax[1] = modelPart(16,  9,  9);
                 boundsMin[2] = modelPart( 0, 12,  7);
                 boundsMax[2] = modelPart(16, 15,  9);
+                boundsMin[3] = modelPart( 7,  6,  0);
+                boundsMax[3] = modelPart( 9,  9,  8);
+                boundsMin[4] = modelPart( 7, 12,  0);
+                boundsMax[4] = modelPart( 9, 15,  8);
                 break;
             case BLOCK_FENCE_W_S_E:
-                shapeCount = 3u;
+                shapeCount = 5u;
                 boundsMin[1] = modelPart( 0,  6,  7);
                 boundsMax[1] = modelPart(16,  9,  9);
                 boundsMin[2] = modelPart( 0, 12,  7);
                 boundsMax[2] = modelPart(16, 15,  9);
+                boundsMin[3] = modelPart( 7,  6,  8);
+                boundsMax[3] = modelPart( 9,  9, 16);
+                boundsMin[4] = modelPart( 7, 12,  8);
+                boundsMax[4] = modelPart( 9, 15, 16);
                 break;
             case BLOCK_FENCE_N_W_S:
-                shapeCount = 3u;
+                shapeCount = 5u;
                 boundsMin[1] = modelPart( 7,  6,  0);
                 boundsMax[1] = modelPart( 9,  9, 16);
                 boundsMin[2] = modelPart( 7, 12,  0);
                 boundsMax[2] = modelPart( 9, 15, 16);
+                boundsMin[3] = modelPart( 0,  6,  7);
+                boundsMax[3] = modelPart( 8,  9,  9);
+                boundsMin[4] = modelPart( 0, 12,  7);
+                boundsMax[4] = modelPart( 8, 15,  9);
                 break;
             case BLOCK_FENCE_N_E_S:
-                shapeCount = 3u;
+                shapeCount = 5u;
                 boundsMin[1] = modelPart( 7,  6,  0);
                 boundsMax[1] = modelPart( 9,  9, 16);
                 boundsMin[2] = modelPart( 7, 12,  0);
                 boundsMax[2] = modelPart( 9, 15, 16);
+                boundsMin[3] = modelPart( 0,  6,  7);
+                boundsMax[3] = modelPart(16,  9,  9);
+                boundsMin[4] = modelPart( 0, 12,  7);
+                boundsMax[4] = modelPart(16, 15,  9);
                 break;
 
             case BLOCK_FENCE_ALL:

@@ -30,7 +30,7 @@ const ivec3 workGroups = ivec3(4, 5, 1);
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED || LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
-        #include "/lib/lighting/voxel/collisions.glsl"
+        #include "/lib/voxel/collisions.glsl"
     #endif
 #endif
 
