@@ -34,6 +34,10 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = 1.0 - _smoothstep(lpvFade);
 
+        // float viewDist = length(localPos);
+        // float shadowFade = smoothstep(0.8*shadowDistance, 0.9*shadowDistance, viewDist);
+        // lpvFade = max(lpvFade, shadowFade);
+
         vec3 lmBlockLight = (_pow3(lmcoord.x) * Lighting_Brightness) * blackbody(LIGHTING_TEMP);
         sampleDiffuse += lmBlockLight * lpvFade * occlusion;
 
