@@ -798,7 +798,7 @@ layout(location = 0) out vec4 outFinal;
 
                     fogColorFinal *= Sky_BrightnessF;
 
-                    // #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                    // #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                     //     float skyTraceFar = far;
                     //     #ifdef DISTANT_HORIZONS
                     //         skyTraceFar = max(far, dhFarPlane);
@@ -854,18 +854,18 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
+        #if defined WORLD_WATER_ENABLED && LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && WATER_DEPTH_LAYERS == 1
             if (isEyeInWater == 1) {
                 float waterDist = min(viewDist, far);
 
                 #ifdef WORLD_SKY_ENABLED
-                    float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                    // float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                    #ifdef WORLD_SKY_ENABLED
-                        eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                    #endif
+                    // #ifdef WORLD_SKY_ENABLED
+                    //     eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                    // #endif
                     
-                    eyeSkyLightF += 0.02;
+                    // eyeSkyLightF += 0.02;
 
                     //float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                     // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;
@@ -876,7 +876,10 @@ layout(location = 0) out vec4 outFinal;
                     //     skyColorFinal = RGBToLinear(skyColorFinal);// * eyeBrightF;
                     // #endif
 
-                    vec3 vlLight = (phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal) * eyeSkyLightF;
+                    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                    vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;
+
+                    vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorAmbient;// * eyeSkyLightF;
                 #else
                     vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                 #endif
@@ -894,7 +897,7 @@ layout(location = 0) out vec4 outFinal;
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     float fogF = GetCustomWaterFogFactor(viewDist);
 
-                    #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+                    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
                         // final.rgb *= 1.0 - fogF;
                         fogF = 1.0;
                     #else
@@ -908,7 +911,7 @@ layout(location = 0) out vec4 outFinal;
             }
         #endif
 
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FAST && WATER_DEPTH_LAYERS > 1
+        #if defined WORLD_WATER_ENABLED && LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && WATER_DEPTH_LAYERS > 1
             float farDist = min(viewDist, far);
             float waterDist = 0.0;
             //bool isWater = false;
@@ -969,7 +972,17 @@ layout(location = 0) out vec4 outFinal;
             #endif
         #endif
 
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST && !defined WORLD_SKY_ENABLED
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && defined WORLD_SKY_ENABLED
+            float maxDist = min(viewDist, far);
+            float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+            vec3 skyColorAmbient = WorldSkyAmbientColor * eyeSkyLightF;
+
+            float airDensityF = GetAirDensity(eyeSkyLightF);
+            vec3 vlLight = (phaseIso * WorldSkyLightColor + AirAmbientF * skyColorAmbient);// * eyeSkyLightF;
+            ApplyScatteringTransmission(final.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+        #endif
+
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && !defined WORLD_SKY_ENABLED
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif
@@ -984,7 +997,7 @@ layout(location = 0) out vec4 outFinal;
                     float skyLightF = eyeBrightnessSmooth.y / 240.0;
                     skyLightF = _pow2(skyLightF);
 
-                    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+                    #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST
                         skyLightColor *= skyLightF;
                     #endif
 

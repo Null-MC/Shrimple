@@ -31,7 +31,7 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
 
     // vec3 skyColorAmbient = SampleSkyIrradiance(localViewDir) * eyeBrightF;
 
-    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+    #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phaseSky = GetSkyPhase(VoL);
     #else

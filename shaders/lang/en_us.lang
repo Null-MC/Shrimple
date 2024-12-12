@@ -83,11 +83,6 @@ value.SKY_FOG_SHAPE.0=Default
 value.SKY_FOG_SHAPE.1=Sphere
 value.SKY_FOG_SHAPE.2=Cylinder
 
-option.SKY_VOL_FOG_TYPE=Volumetric Fog
-value.SKY_VOL_FOG_TYPE.0=None
-value.SKY_VOL_FOG_TYPE.1=Fast
-value.SKY_VOL_FOG_TYPE.2=Fancy
-
 option.SKY_FOG_DENSITY=Daytime Density
 option.SKY_FOG_DENSITY.comment=Describes the density of the atmospheric fog used for volumetric lighting.
 suffix.SKY_FOG_DENSITY=%
@@ -443,6 +438,11 @@ option.LIGHTING_MODE_HAND=Hand
 value.LIGHTING_MODE_HAND.0=None
 value.LIGHTING_MODE_HAND.1=Simple
 value.LIGHTING_MODE_HAND.2=Ray-Traced
+
+option.LIGHTING_VOLUMETRIC=Volumetric Fog
+value.LIGHTING_VOLUMETRIC.0=None
+value.LIGHTING_VOLUMETRIC.1=Fast
+value.LIGHTING_VOLUMETRIC.2=Fancy
 
 option.LIGHTING_MIN=Minimum
 option.LIGHTING_MIN.comment=The minimum amount of light for the world.

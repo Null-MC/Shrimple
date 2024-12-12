@@ -99,7 +99,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         ambientSkyLight += skyLightColor * lpvIndirectSample * lpvFade;
     #endif
 
-    accumDiffuse += PI * ambientSkyLight * occlusion;
+    accumDiffuse += ambientSkyLight * occlusion;
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED

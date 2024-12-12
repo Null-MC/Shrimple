@@ -17,15 +17,12 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    // #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
-        uniform sampler2D texDiffuseRT;
-        uniform sampler2D texDiffuseRT_alt;
-    // #else
-    //     uniform sampler2D BUFFER_BLOCK_DIFFUSE;
-    // #endif
+    uniform sampler2D texDiffuseRT;
+    uniform sampler2D texDiffuseRT_alt;
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE
-        uniform sampler2D BUFFER_BLOCK_SPECULAR;
+        uniform sampler2D texSpecularRT;
+        uniform sampler2D texSpecularRT_alt;
     #endif
 #endif
 
@@ -347,10 +344,6 @@ uniform vec3 eyePosition;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    // #if LIGHTING_TRACE_FILTER > 0
-    //     #include "/lib/sampling/light_filter.glsl"
-    // #endif
-    
     #include "/lib/lighting/traced.glsl"
 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
     #include "/lib/lighting/floodfill.glsl"
@@ -572,12 +565,16 @@ layout(location = 0) out vec4 outFinal;
                     #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
                         bool altFrame = (frameCounter % 2) == 0;
                         sampleDiffuse = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, iTex, 0).rgb;
+
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            sampleSpecular = texelFetch(altFrame ? texSpecularRT_alt : texSpecularRT, iTex, 0).rgb;
+                        #endif
                     #else
                         sampleDiffuse = texelFetch(texDiffuseRT, iTex, 0).rgb;
-                    #endif
 
-                    #if MATERIAL_SPECULAR != SPECULAR_NONE
-                        sampleSpecular = textureLod(BUFFER_BLOCK_SPECULAR, texcoord, 0).rgb;
+                        #if MATERIAL_SPECULAR != SPECULAR_NONE
+                            sampleSpecular = texelFetch(texSpecularRT, iTex, 0).rgb;
+                        #endif
                     #endif
                 #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                     GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, deferredLighting.xy, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
@@ -697,7 +694,7 @@ layout(location = 0) out vec4 outFinal;
 
                 fogColorFinal *= Sky_BrightnessF;
 
-                // #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                // #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 //     #ifdef DISTANT_HORIZONS
                 //         float skyTraceFar = max(far, dhFarPlane);
                 //     #else

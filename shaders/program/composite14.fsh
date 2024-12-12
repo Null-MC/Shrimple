@@ -393,9 +393,9 @@ layout(location = 0) out vec4 outFinal;
                 }
             #endif
 
-            #if WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
+            #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST
                 if (waterDist > EPSILON) {
-                    vec3 vlLight = phaseIso + WaterAmbientF;
+                    vec3 vlLight = vec3(phaseIso + WaterAmbientF);
 
                     #ifdef WORLD_SKY_ENABLED
                         float weatherSkyLightF = eyeSkyLightF;
@@ -484,7 +484,7 @@ layout(location = 0) out vec4 outFinal;
                         waterDist = max(farDist - distTranslucent, 0.0);
                     }
 
-                    #if WATER_VOL_FOG_TYPE == VOL_TYPE_FAST
+                    #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST
                         // float farDist = min(distOpaque, far);
 
                         // //float waterDist = 0.0;
@@ -550,15 +550,18 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #if defined WORLD_WATER_ENABLED && SKY_VOL_FOG_TYPE == VOL_TYPE_FAST //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+            #if defined WORLD_WATER_ENABLED && LIGHTING_VOLUMETRIC == VOL_TYPE_FAST //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
                 if (isWater && isEyeInWater == 1) {
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
                     // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                     // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
 
+                    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                    vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;
+
                     float airDensityF = GetAirDensity(eyeSkyLightF);
-                    vec3 vlLight = phaseAir * WorldSkyLightColor + AirAmbientF * skyColorFinal;
+                    vec3 vlLight = phaseIso * WorldSkyLightColor + AirAmbientF * skyColorAmbient;
                     ApplyScatteringTransmission(final.rgb, viewDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif

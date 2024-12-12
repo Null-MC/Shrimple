@@ -16,7 +16,7 @@ void GetVanillaLighting(out vec3 diffuse, in vec2 lmcoord, const in vec3 shadowC
 }
 
 vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, in vec3 specular, const in float metal_f0, const in float roughL, const in float emission, const in float occlusion) {
-    vec3 diffuseFinal = (albedo * invPI) * (Lighting_MinF * occlusion + diffuse) + emission * MaterialEmissionF;
+    vec3 diffuseFinal = Lighting_MinF * occlusion + diffuse + emission * MaterialEmissionF;
 
-	return diffuseFinal + specular;
+	return albedo * diffuseFinal + specular;
 }

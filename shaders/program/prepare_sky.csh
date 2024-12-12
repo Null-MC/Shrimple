@@ -60,7 +60,7 @@ uniform int fogShape;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
-#if SKY_VOL_FOG_TYPE > 0
+#if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
     #include "/lib/lighting/scatter_transmit.glsl"
 
     #if WORLD_CURVE_RADIUS > 0
@@ -81,7 +81,7 @@ vec3 SampleSkyColor(const in vec3 localDir) {
 
     skyColor *= Sky_BrightnessF;
 
-    // #if SKY_VOL_FOG_TYPE > 0
+    // #if LIGHTING_VOLUMETRIC > 0
     //     float _far = far;
     //     #ifdef DISTANT_HORIZONS
     //         _far = 0.5*dhFarPlane;

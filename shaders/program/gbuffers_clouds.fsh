@@ -462,7 +462,7 @@ void main() {
         //     final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
         // #else
 
-        #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+        #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
             // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
             // #else

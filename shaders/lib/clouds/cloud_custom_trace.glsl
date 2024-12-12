@@ -25,7 +25,7 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
         float VoL = dot(localSkyLightDirection, localViewDir);
         float phaseCloud = GetCloudPhase(VoL);
 
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             float phaseSky = GetSkyPhase(VoL);
         #else
             const float phaseSky = phaseIso;
@@ -105,7 +105,7 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
 
         float VoL = dot(localSkyLightDirection, localViewDir);
 
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             float phaseSky = GetSkyPhase(VoL);
         #else
             const float phaseSky = phaseIso;

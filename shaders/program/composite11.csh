@@ -16,11 +16,23 @@ shared float gaussianBuffer[5];
 shared vec3 sharedDiffuseBuffer[sharedBufferSize];
 shared float sharedDepthBuffer[sharedBufferSize];
 
+#if MATERIAL_SPECULAR != SPECULAR_NONE
+    shared vec3 sharedSpecularBuffer[sharedBufferSize];
+#endif
+
 layout(rgba16f) uniform writeonly image2D imgDiffuseRT;
 layout(rgba16f) uniform writeonly image2D imgDiffuseRT_alt;
 
 uniform sampler2D texDiffuseRT;
 uniform sampler2D texDiffuseRT_alt;
+
+#if MATERIAL_SPECULAR != SPECULAR_NONE
+    layout(rgba16f) uniform writeonly image2D imgSpecularRT;
+    layout(rgba16f) uniform writeonly image2D imgSpecularRT_alt;
+
+    uniform sampler2D texSpecularRT;
+    uniform sampler2D texSpecularRT_alt;
+#endif
 
 layout(rgba16f) uniform writeonly image2D imgLocalPosLast;
 layout(rgba16f) uniform writeonly image2D imgLocalPosLast_alt;
@@ -31,6 +43,10 @@ uniform sampler2D texLocalPosLast_alt;
 uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_VELOCITY;
 uniform sampler2D depthtex1;
+
+#if MATERIAL_SPECULAR != SPECULAR_NONE
+    uniform sampler2D BUFFER_BLOCK_SPECULAR;
+#endif
 
 #ifdef DISTANT_HORIZONS
 	uniform sampler2D dhDepthTex1;
@@ -62,6 +78,7 @@ uniform vec3 cameraPosition;
 
 
 const float AccumMaxFrames = 30.0;
+const float AccumMaxFrames_specular = 8.0;
 const float g_sigmaXY = 9.0;
 const float g_sigmaV = 0.1;
 
@@ -87,8 +104,15 @@ void populateSharedBuffer() {
 
 	    float depthL = far;
 	    vec3 diffuse = vec3(0.0);
+        vec3 specular = vec3(0.0);
+
 	    if (all(greaterThanEqual(uv, ivec2(0))) && all(lessThan(uv, ivec2(viewSize + 0.5)))) {
-	    	diffuse = textureLod(BUFFER_BLOCK_DIFFUSE, uv/viewSize, 0).rgb;
+            vec2 sampleCoord = uv/viewSize;
+	    	diffuse = textureLod(BUFFER_BLOCK_DIFFUSE, sampleCoord, 0).rgb;
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                specular = textureLod(BUFFER_BLOCK_SPECULAR, sampleCoord, 0).rgb;
+            #endif
 
 	    	float depth = texelFetch(depthtex1, uv, 0).r;
 	    	depthL = linearizeDepth(depth, near, farPlane);
@@ -106,14 +130,19 @@ void populateSharedBuffer() {
 
     	sharedDiffuseBuffer[i_shared] = diffuse;
     	sharedDepthBuffer[i_shared] = depthL;
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            sharedSpecularBuffer[i_shared] = specular;
+        #endif
     }
 }
 
-vec3 sampleSharedBuffer(const in float depthL) {
+void sampleSharedBuffer(const in float depthL, out vec3 outDiffuse, out vec3 outSpecular) {
     ivec2 uv_base = ivec2(gl_LocalInvocationID.xy) + 2;
 
+    vec3 accumDiffuse = vec3(0.0);
+    vec3 accumSpecular = vec3(0.0);
     float total = 0.0;
-    vec3 accum = vec3(0.0);
     
     for (int iy = -2; iy <= 2; iy++) {
         float fy = gaussianBuffer[iy+2];
@@ -124,19 +153,34 @@ vec3 sampleSharedBuffer(const in float depthL) {
             ivec2 uv_shared = uv_base + ivec2(ix, iy);
             int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 
-            vec3 sampleValue = sharedDiffuseBuffer[i_shared];
+            vec3 sampleDiffuse = sharedDiffuseBuffer[i_shared];
             float sampleDepthL = sharedDepthBuffer[i_shared];
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                vec3 sampleSpecular = sharedSpecularBuffer[i_shared];
+            #endif
             
             float fv = Gaussian(g_sigmaV, sampleDepthL - depthL);
             
             float weight = fx*fy*fv;
-            accum += weight * sampleValue;
             total += weight;
+
+            accumDiffuse += weight * sampleDiffuse;
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                accumSpecular += weight * sampleSpecular;
+            #endif
         }
     }
     
-    if (total <= EPSILON) return vec3(0.0);
-    return accum / total;
+    if (total > EPSILON) {
+        outDiffuse = accumDiffuse / total;
+        outSpecular = accumSpecular / total;
+    }
+    else {
+        outDiffuse = vec3(0.0);
+        outSpecular = vec3(0.0);
+    }
 }
 
 
@@ -154,7 +198,6 @@ void main() {
     ivec2 uv_shared = ivec2(gl_LocalInvocationID.xy) + 2;
     int i_shared = uv_shared.y * sharedBufferRes + uv_shared.x;
 	float depthL = sharedDepthBuffer[i_shared];
-
 
     #ifdef LIGHTING_TRACED_ACCUMULATE
         vec2 texcoord = (uv + 0.5) / viewSize;
@@ -193,26 +236,55 @@ void main() {
 
         vec4 diffuseOld = textureLod(altFrame ? texDiffuseRT : texDiffuseRT_alt, texcoord_re, 0);
         vec3 localPosLast = textureLod(altFrame ? texLocalPosLast : texLocalPosLast_alt, texcoord_re, 0).rgb;
-        float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            vec3 specularOld = textureLod(altFrame ? texSpecularRT : texSpecularRT_alt, texcoord_re, 0).rgb;
+        #endif
+
+        float counter = diffuseOld.a + 1.0;
 
         float offsetThreshold = clamp(depthL * 0.04, 0.0, 1.0);
         if (distance(localPos_re, localPosLast) > offsetThreshold) counter = 1.0;
         if (saturate(texcoord_re) != texcoord_re) counter = 1.0;
 
-    	vec3 diffuseNew = sampleSharedBuffer(depthL);
+    	vec3 diffuseNew, specularNew;
+        sampleSharedBuffer(depthL, diffuseNew, specularNew);
 
-        diffuseNew = mix(diffuseOld.rgb, diffuseNew, rcp(counter));
+        // float counter = min(diffuseOld.a + 1.0, AccumMaxFrames);
+        float diffuseMixF = rcp(min(counter, AccumMaxFrames));
+        diffuseNew = mix(diffuseOld.rgb, diffuseNew, diffuseMixF);
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            float specularMixF = rcp(min(counter, AccumMaxFrames_specular));
+            specularNew = mix(specularOld, specularNew, specularMixF);
+        #endif
+
+        counter = min(counter, 999.0);
 
         if (altFrame) {
             imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, counter));
-            imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 0.0));
+            imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 1.0));
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                imageStore(imgSpecularRT_alt, uv, vec4(specularNew, 1.0));
+            #endif
         }
         else {
             imageStore(imgDiffuseRT, uv, vec4(diffuseNew, counter));
-            imageStore(imgLocalPosLast, uv, vec4(localPos, 0.0));
+            imageStore(imgLocalPosLast, uv, vec4(localPos, 1.0));
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                imageStore(imgSpecularRT, uv, vec4(specularNew, 1.0));
+            #endif
         }
     #else
-        vec3 diffuse = sampleSharedBuffer(depthL);
-        imageStore(imgDiffuseRT, uv, vec4(diffuse, 0.0));
+        vec3 diffuse, specular;
+        sampleSharedBuffer(depthL, diffuse, specular);
+
+        imageStore(imgDiffuseRT, uv, vec4(diffuse, 1.0));
+
+        #if MATERIAL_SPECULAR != SPECULAR_NONE
+            imageStore(imgSpecularRT, uv, vec4(specular, 1.0));
+        #endif
     #endif
 }

@@ -22,7 +22,7 @@ vec3 GetCustomWaterFogColor(const in float sunUpF) {
 float GetCustomWaterFogFactor(const in float fogDist) {
     float waterFogFar = min(16.0 / WaterDensityF, far);
 
-    #if WATER_VOL_FOG_TYPE != VOL_TYPE_NONE
+    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
         float waterFogNear = 0.65 * waterFogFar;
         const float waterFogPower = 1.0;
     #else

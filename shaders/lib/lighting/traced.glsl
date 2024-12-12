@@ -47,8 +47,8 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
 
 #if !(defined RENDER_OPAQUE_RT_LIGHT || defined RENDER_TRANSLUCENT_RT_LIGHT)
     vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
-        vec3 diffuseFinal = (albedo * invPI) * (Lighting_MinF * occlusion + diffuse);
+        vec3 diffuseFinal = Lighting_MinF * occlusion + diffuse;
         
-        return diffuseFinal + specular;// * _pow3(occlusion)
+        return albedo * diffuseFinal + specular;
     }
 #endif

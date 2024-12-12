@@ -10,7 +10,7 @@ const float FogDensity_Cave = SKY_CAVE_FOG_DENSITY * 0.01;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    // #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+    // #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
     //     float AirDensityF = mix(FogDensity_Day, min(FogDensity_Day * 6.0, 1.0), localWeatherStrength);
     // #else
     //     const float AirDensityF = 0.0;
@@ -36,7 +36,7 @@ uniform float weatherHumidity;
 
 float GetAirDensity(const in float skyLightF) {
     #ifdef WORLD_SKY_ENABLED
-        #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+        #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
             // base
             float density = FogDensity_Day * weatherHumidity;
 

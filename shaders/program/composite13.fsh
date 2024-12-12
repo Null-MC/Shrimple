@@ -24,7 +24,7 @@ uniform sampler2D noisetex;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
+#if defined WORLD_SKY_ENABLED //&& (LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         // uniform sampler3D TEX_CLOUDS;
     #ifdef SKY_CLOUD_ENABLED
@@ -345,7 +345,7 @@ void main() {
         float distTranslucent = length(localPosTranslucent);
         vec3 localViewDir = localPosOpaque / distOpaque;
 
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             bool isWater = false;
             #if defined WORLD_WATER_ENABLED
                 #if WATER_DEPTH_LAYERS > 1
@@ -371,10 +371,10 @@ void main() {
             float distFar = clamp(distOpaque, near, farMax);
 
             bool hasVl = false;
-            #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
                 if (isEyeInWater == 1) hasVl = true;
             #endif
-            #if WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+            #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
                 if (isEyeInWater != 1 && isWater) hasVl = true;
 
                 #if WATER_DEPTH_LAYERS > 1
@@ -389,7 +389,7 @@ void main() {
             if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, distNear, distFar, distTranslucent, isWater);
         #endif
 
-        // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+        // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && LIGHTING_VOLUMETRIC != VOL_TYPE_FANCY
         //     if (isEyeInWater == 1) {
         //         // vec4 scatterTransmit = TraceCloudVL(cameraPosition, localViewDir, distOpaque, depthOpaque, CLOUD_STEPS, CLOUD_SHADOW_STEPS);
         //         // scatterFinal += scatterTransmit.rgb * transmitFinal;
@@ -401,7 +401,7 @@ void main() {
         //         //float cloudDistNear = length(cloudNear);
         //         float cloudDistFar = length(cloudFar);
 
-        //         #if SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+        //         #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST
         //             float cloudDistNear = distTranslucent;
 
         //             if (depthOpaque >= 1.0)

@@ -257,7 +257,7 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED //&& (SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY)
+#ifdef RENDER_SHADOWS_ENABLED //&& (LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY || LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY)
     #include "/lib/buffers/shadow.glsl"
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -356,15 +356,15 @@ void main() {
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(1.0);
 
-    #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY || WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+    #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
         bool hasVl = false;
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     hasVl = true;
         // #endif
-        #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             if (isEyeInWater != 1) hasVl = true;
         #endif
-        #if defined WORLD_WATER_ENABLED && WATER_VOL_FOG_TYPE == VOL_TYPE_FANCY
+        #if defined WORLD_WATER_ENABLED && LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             if (isEyeInWater == 1) hasVl = true;
         #endif
 
@@ -375,7 +375,7 @@ void main() {
         if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
     #endif
 
-    // #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& SKY_VOL_FOG_TYPE != VOL_TYPE_FANCY
+    // #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& LIGHTING_VOLUMETRIC != VOL_TYPE_FANCY
     //     #ifdef WORLD_WATER_ENABLED
     //         if (isEyeInWater != 1) {
     //     #endif
@@ -391,7 +391,7 @@ void main() {
     //             float cloudDistFar = min(length(cloudFar), 2000.0);
     //             int cloudSampleCount = int(mix(CLOUD_STEPS_MAX, CLOUD_STEPS_MIN, abs(localViewDir.y)));
 
-    //             #if SKY_VOL_FOG_TYPE == VOL_TYPE_FANCY
+    //             #if LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
     //                 // float vlDistFar = farMax;
     //                 float skyDistFar = SkyFar;
     //                 if (depthTrans < 1.0) {
@@ -411,7 +411,7 @@ void main() {
 
     //                 if (skyDistFar - cloudDistFar > EPSILON)
     //                     TraceCloudSky(scatterFinal, transmitFinal, cameraPosition, localViewDir, cloudDistFar, skyDistFar, VOLUMETRIC_SAMPLES/2, CLOUD_SHADOW_STEPS);
-    //             #elif SKY_VOL_FOG_TYPE == VOL_TYPE_FAST
+    //             #elif LIGHTING_VOLUMETRIC == VOL_TYPE_FAST
     //                 float skyDistFar = SkyFar;
     //                 if (depthTrans < 1.0) {
     //                     cloudDistNear = min(cloudDistNear, viewDist);

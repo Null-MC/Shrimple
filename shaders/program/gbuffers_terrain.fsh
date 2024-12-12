@@ -750,7 +750,7 @@ void main() {
             color.a = 1.0;
         #endif
 
-        #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+        #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             #ifdef WORLD_WATER_ENABLED
                 if (isEyeInWater == 0) {
             #endif

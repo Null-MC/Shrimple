@@ -7,7 +7,7 @@
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-const ivec3 workGroups = ivec3(1, 1, 1);
+const ivec3 workGroups = ivec3(2, 2, 1);
 
 layout(rgba16f) uniform writeonly image2D imgSkyIrradiance;
 
@@ -54,12 +54,12 @@ vec3 CalculateIrradiance(const in vec3 normal) {
         }
     }
 
-    return PI * (irradiance / nrSamples);
+    return PI * irradiance / nrSamples;
 }
 
 void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / 8.0;
+    vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / 16.0;
 
     vec3 normal = DirectionFromUV(texcoord);
     vec3 irradiance = CalculateIrradiance(normal);

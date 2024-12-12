@@ -26,7 +26,7 @@
                 
         //         reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * Sky_BrightnessF;
 
-        //         #if !defined MATERIAL_REFLECT_CLOUDS && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+        //         #if !defined MATERIAL_REFLECT_CLOUDS && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
         //             // TODO
         //         #endif
 
@@ -224,7 +224,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //     //float farMax = min(viewDist, far);
     //     bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
 
-    //     #if SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+    //     #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
     //         const float cloudDistNear = 0.0;
     //         float cloudDistFar = !isSkyFrag ? reflectDist : SkyFar;
     //     #else
@@ -279,7 +279,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     //         else {
     //     #endif
 
-    //         #if defined WORLD_SKY_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE
+    //         #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
     //             if (reflectDist > 0.0) {
     //                 bool isSkyFrag = reflectDepth >= 1.0 || reflectF <= 0.0;
     //                 float _skyFar = !isSkyFrag ? reflectDist : farMax;

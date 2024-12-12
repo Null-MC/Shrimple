@@ -150,7 +150,7 @@ void main() {
 
     //final.rgb *= 1.0 - blindnessSmooth;
 
-    // #if !defined DEFERRED_BUFFER_ENABLED && SKY_VOL_FOG_TYPE != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
+    // #if !defined DEFERRED_BUFFER_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE <= CLOUDS_VANILLA
     //     #ifdef WORLD_WATER_ENABLED
     //         if (isEyeInWater == 0) {
     //     #endif
