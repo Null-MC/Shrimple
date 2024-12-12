@@ -74,7 +74,7 @@ uniform int fogShape;
 
 vec3 SampleSkyColor(const in vec3 localDir) {
     #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 skyColor = GetCustomSkyColor(localSunDirection.y, localDir.y);
+        vec3 skyColor = GetCustomSkyColor(localSunDirection, localDir);
     #else
         vec3 skyColor = GetVanillaFogColor(fogColor, localDir.y);
         skyColor = RGBToLinear(skyColor);

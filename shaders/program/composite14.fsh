@@ -434,7 +434,7 @@ layout(location = 0) out vec4 outFinal;
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeSkyLightF;
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeSkyLightF;
                 #else
                     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
                     skyColorFinal = RGBToLinear(skyColorFinal) * eyeSkyLightF;
@@ -556,7 +556,7 @@ layout(location = 0) out vec4 outFinal;
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
                     // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
+                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeBrightF;
 
                     float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                     vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;

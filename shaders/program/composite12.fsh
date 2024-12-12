@@ -680,7 +680,7 @@ layout(location = 0) out vec4 outFinal;
                     //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
                     // #endif
 
-                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection.y, localViewDir.y);
+                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection, localViewDir);
 
                     float fogDist = GetShapedFogDistance(localPos);
                     float fogF = GetCustomFogFactor(fogDist);

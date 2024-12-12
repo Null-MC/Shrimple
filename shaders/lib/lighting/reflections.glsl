@@ -24,7 +24,7 @@
         //         else {
         //     #endif
                 
-        //         reflectColor = GetCustomSkyColor(localSunDirection.y, reflectDir.y) * Sky_BrightnessF;
+        //         reflectColor = GetCustomSkyColor(localSunDirection, reflectDir) * Sky_BrightnessF;
 
         //         #if !defined MATERIAL_REFLECT_CLOUDS && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
         //             // TODO
@@ -184,7 +184,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
                             fogColorFinal = skyColor;
 
                             #if SKY_TYPE == SKY_TYPE_CUSTOM
-                                // fogColorFinal = GetCustomSkyColor(localSunDirection.y, reflectLocalDir.y);
+                                // fogColorFinal = GetCustomSkyColor(localSunDirection, reflectLocalDir);
 
                                 float fogDist = GetShapedFogDistance(reflectLocalPos);
                                 fogF = GetCustomFogFactor(fogDist);

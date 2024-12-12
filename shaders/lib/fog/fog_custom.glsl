@@ -11,18 +11,19 @@ const vec3 colorFogHorizon = _RGBToLinear(vec3(0.780, 0.490, 0.216)) * 0.4;
 const vec3 colorRainFogDay = _RGBToLinear(vec3(0.596, 0.596, 0.62)) * 0.4;
 
 
-vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
+vec3 GetCustomSkyColor(const in vec3 localSunDir, const in vec3 localViewDir) {
     #ifdef WORLD_SKY_ENABLED
-        float dayF = smoothstep(-0.1, 0.3, sunUpF);
+        float dayF = smoothstep(-0.1, 0.3, localSunDir.y);
         vec3 skyColor = mix(colorSkyNight, colorSkyDay, dayF);
 
-        //float horizonF = smoothstep(0.0, 0.6, abs(sunUpF + 0.06));
-        float horizonF = GetSkyHorizonF(sunUpF);
+        //float horizonF = smoothstep(0.0, 0.6, abs(localSunDir.y + 0.06));
+        float horizonF = GetSkyHorizonF(localSunDir.y);
         skyColor = mix(skyColor, colorSkyHorizon, horizonF);
 
         // #if LIGHTING_VOLUMETRIC == VOL_TYPE_NONE || SKY_CLOUD_TYPE <= CLOUDS_VANILLA
             vec3 fogColor = mix(colorFogNight, colorFogDay, dayF);
             
+            horizonF *= dot(localSunDir, localViewDir) * 0.5 + 0.5;
             fogColor = mix(fogColor, colorFogHorizon, horizonF);
 
             vec3 rainFogColor = mix(vec3(0.0), colorRainFogDay, dayF);
@@ -35,7 +36,7 @@ vec3 GetCustomSkyColor(const in float sunUpF, const in float viewUpF) {
         // #endif
 
         // #if LIGHTING_VOLUMETRIC == VOL_TYPE_NONE || SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-            return GetSkyFogColor(skyColor, fogColor, viewUpF);
+            return GetSkyFogColor(skyColor, fogColor, localViewDir.y);
         // #else
         //     return skyColor;
         // #endif

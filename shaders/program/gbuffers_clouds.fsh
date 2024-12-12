@@ -391,7 +391,7 @@ void main() {
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeBrightF;
         #else
             vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
             skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
@@ -473,7 +473,7 @@ void main() {
             vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
             // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF * eyeBrightF;
+            // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeBrightF;
 
             float skyLightF = eyeBrightnessSmooth.y / 240.0;
             float airDensityF = GetAirDensity(skyLightF);

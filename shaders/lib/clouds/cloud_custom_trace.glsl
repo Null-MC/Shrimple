@@ -4,7 +4,7 @@ float GetCloudPhase(const in float VoL) {return 0.25;}//DHG(VoL, -0.16, 0.84, 0.
 #ifdef RENDER_FRAG
     vec3 GetSkyColorUp() {
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection.y, 1.0) * Sky_BrightnessF;
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF;
         #else
             vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
             skyColorFinal = RGBToLinear(skyColorFinal);
