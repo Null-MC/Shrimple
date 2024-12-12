@@ -38,7 +38,6 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowModelView;
             uniform mat4 shadowProjection;
-            //uniform vec3 cameraPosition;
             uniform float far;
         #endif
     #endif
@@ -92,8 +91,6 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 
 void main() {
-    // int i = int(gl_GlobalInvocationID.x);
-
     #ifdef IRIS_FEATURE_SSBO
         #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
             HandLightTypePrevious1 = HandLightType1;
@@ -134,17 +131,7 @@ void main() {
         //gbufferPreviousModelViewProjectionInverse = inverse(gbufferPreviousModelViewProjection);
 
         #if (defined WORLD_SKY_ENABLED && defined RENDER_SHADOWS_ENABLED) //|| defined LIGHT_COLOR_ENABLED
-            // shadowModelViewEx = shadowModelView;
-            // shadowModelViewEx[3][0] = 0.0;
-            // shadowModelViewEx[3][1] = 0.0;
-            // shadowModelViewEx[3][2] = 0.0;
-
             shadowModelViewEx = BuildShadowViewMatrix(localSkyLightDirection);
-
-            //mat4 matTranslate = mat4(1.0);
-            //matTranslate[2][3] = -1.0;
-
-            //shadowModelViewEx = matTranslate * shadowModelViewEx;
 
             #if SHADOW_TYPE != SHADOW_TYPE_CASCADED
                 float _far = (3.0 * far);

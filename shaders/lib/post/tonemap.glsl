@@ -122,7 +122,7 @@ vec3 tonemap_FilmicHejl2015(const in vec3 color) {
 }
 
 vec3 tonemap_Lottes(const in vec3 color) {
-    const vec3 a = vec3(1.4);
+    const vec3 a = vec3(1.4); // saturation?
     const vec3 d = vec3(0.977);
     const vec3 hdrMax = vec3(2.0);
     const vec3 midIn = vec3(0.28);

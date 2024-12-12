@@ -885,32 +885,32 @@ layout(location = 0) out vec4 outFinal;
                     vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                 #endif
 
-                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, VOLUMETRIC_SAMPLES);
+                ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
             }
         #endif
 
         final.a = 1.0;
 
-        #if defined SKY_BORDER_FOG_ENABLED && defined WORLD_WATER_ENABLED
-            if (isEyeInWater == 1) {
-                // water fog
+        // #if defined SKY_BORDER_FOG_ENABLED && defined WORLD_WATER_ENABLED
+        //     if (isEyeInWater == 1) {
+        //         // water fog
 
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    float fogF = GetCustomWaterFogFactor(viewDist);
+        //         #if SKY_TYPE == SKY_TYPE_CUSTOM
+        //             float fogF = GetCustomWaterFogFactor(viewDist);
 
-                    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
-                        // final.rgb *= 1.0 - fogF;
-                        fogF = 1.0;
-                    #else
-                        // vec3 skyColorFinal = RGBToLinear(skyColor);
-                        vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                        final.rgb = mix(final.rgb, fogColorFinal, fogF);
-                    #endif
-                #else
-                    // TODO
-                #endif
-            }
-        #endif
+        //             #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
+        //                 // final.rgb *= 1.0 - fogF;
+        //                 fogF = 1.0;
+        //             #else
+        //                 // vec3 skyColorFinal = RGBToLinear(skyColor);
+        //                 vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+        //                 final.rgb = mix(final.rgb, fogColorFinal, fogF);
+        //             #endif
+        //         #else
+        //             // TODO
+        //         #endif
+        //     }
+        // #endif
 
         #if defined WORLD_WATER_ENABLED && LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && WATER_DEPTH_LAYERS > 1
             float farDist = min(viewDist, far);
@@ -974,13 +974,15 @@ layout(location = 0) out vec4 outFinal;
         #endif
 
         #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && defined WORLD_SKY_ENABLED
-            float maxDist = min(viewDist, far);
-            float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
-            vec3 skyColorAmbient = WorldSkyAmbientColor * eyeSkyLightF;
+            if (isEyeInWater == 0) {
+                float maxDist = min(viewDist, far);
+                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                vec3 skyColorAmbient = WorldSkyAmbientColor * eyeSkyLightF;
 
-            float airDensityF = GetAirDensity(eyeSkyLightF);
-            vec3 vlLight = (phaseIso * WorldSkyLightColor + AirAmbientF * skyColorAmbient);// * eyeSkyLightF;
-            ApplyScatteringTransmission(final.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+                float airDensityF = GetAirDensity(eyeSkyLightF);
+                vec3 vlLight = (phaseIso * WorldSkyLightColor + AirAmbientF * skyColorAmbient);// * eyeSkyLightF;
+                ApplyScatteringTransmission(final.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+            }
         #endif
 
         #if LIGHTING_VOLUMETRIC == VOL_TYPE_FAST && !defined WORLD_SKY_ENABLED

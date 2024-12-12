@@ -495,15 +495,17 @@ layout(location = 0) out vec4 outFinal;
 
                         if (waterDist > EPSILON) {
                             #ifdef WORLD_SKY_ENABLED
-                                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                                // float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
-                                #ifdef WORLD_SKY_ENABLED
-                                    eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
-                                #endif
+                                // #ifdef WORLD_SKY_ENABLED
+                                //     eyeSkyLightF *= 1.0 - 0.8 * rainStrength;
+                                // #endif
                                 
-                                eyeSkyLightF += 0.02;
+                                // eyeSkyLightF += 0.02;
 
-                                vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorFinal;
+                                float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
+                                vec3 skyColorAmbient = WorldSkyAmbientColor * eyeSkyLightF;
+                                vec3 vlLight = phaseIso * WorldSkyLightColor + WaterAmbientF * skyColorAmbient;
                             #else
                                 vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                             #endif
@@ -514,32 +516,32 @@ layout(location = 0) out vec4 outFinal;
                 #endif
             #endif
 
-            #ifdef SKY_BORDER_FOG_ENABLED
-                #if !defined IRIS_FEATURE_SSBO && defined WORLD_SKY_ENABLED
-                    vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-                #endif
+            // #ifdef SKY_BORDER_FOG_ENABLED
+            //     #if !defined IRIS_FEATURE_SSBO && defined WORLD_SKY_ENABLED
+            //         vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+            //     #endif
 
-                #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
-                    if (isWater) {
-                        // water fog from outside water
+            //     #if defined WORLD_WATER_ENABLED && !defined VL_BUFFER_ENABLED
+            //         if (isWater) {
+            //             // water fog from outside water
 
-                        #if SKY_TYPE == SKY_TYPE_CUSTOM
-                            float fogDist = max(waterDist, 0.0);
-                            float fogF = GetCustomWaterFogFactor(fogDist);
+            //             #if SKY_TYPE == SKY_TYPE_CUSTOM
+            //                 float fogDist = max(waterDist, 0.0);
+            //                 float fogF = GetCustomWaterFogFactor(fogDist);
 
-                            #ifdef WORLD_SKY_ENABLED
-                                vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
-                            #else
-                                vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
-                            #endif
+            //                 #ifdef WORLD_SKY_ENABLED
+            //                     vec3 fogColorFinal = GetCustomWaterFogColor(localSunDirection.y);
+            //                 #else
+            //                     vec3 fogColorFinal = GetCustomWaterFogColor(0.0);
+            //                 #endif
 
-                            final = mix(final, fogColorFinal, fogF);
-                        #else
-                            ApplyVanillaFog(final, localPosOpaque);
-                        #endif
-                    }
-                #endif
-            #endif
+            //                 final = mix(final, fogColorFinal, fogF);
+            //             #else
+            //                 ApplyVanillaFog(final, localPosOpaque);
+            //             #endif
+            //         }
+            //     #endif
+            // #endif
 
             #ifdef VL_BUFFER_ENABLED
                 #if VOLUMETRIC_BLUR_SIZE > 0

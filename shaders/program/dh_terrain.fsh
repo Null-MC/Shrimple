@@ -358,7 +358,7 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
     vec3 worldPos = vIn.localPos + cameraPosition;
 
-    float porosity = 0.0;
+    float porosity = 0.7;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float skyWetness = 0.0, puddleF = 0.0;
         //vec4 rippleNormalStrength = vec4(0.0);
@@ -376,7 +376,7 @@ void main() {
             surface_metal_f0 = 0.04;
 
             // porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            porosity = 0.75;
+            // porosity = 0.75;
             skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
             puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
