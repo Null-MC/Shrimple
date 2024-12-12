@@ -44,6 +44,7 @@ uniform int frameCounter;
     uniform float weatherStrength;
     uniform vec3 sunPosition;
     uniform vec3 skyColor;
+    uniform int moonPhase;
 #endif
 
 #ifdef DISTANT_HORIZONS

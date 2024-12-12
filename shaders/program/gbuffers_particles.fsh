@@ -137,6 +137,7 @@ uniform int fogMode;
 uniform ivec2 eyeBrightnessSmooth;
 
 #ifdef WORLD_SKY_ENABLED
+    uniform int moonPhase;
     uniform float sunAngle;
     uniform vec3 skyColor;
     uniform float rainStrength;

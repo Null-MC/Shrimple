@@ -33,6 +33,7 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         uniform float rainStrength;
         uniform float weatherStrength;
         uniform vec3 sunPosition;
+        uniform int moonPhase;
 
         #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowModelView;

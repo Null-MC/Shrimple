@@ -106,6 +106,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float rainStrength;
     uniform float weatherStrength;
     uniform float sunAngle;
+    uniform int moonPhase;
     
     uniform float lightningStrength;
     uniform float cloudHeight;

@@ -16,6 +16,7 @@ uniform int renderStage;
 uniform float rainStrength;
 uniform float weatherStrength;
 uniform int frameCounter;
+uniform int moonPhase;
 
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferModelViewInverse;

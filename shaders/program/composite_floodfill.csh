@@ -49,6 +49,7 @@ const float LpvIndirectFalloff = 0.98;
     #ifdef WORLD_SKY_ENABLED
         uniform float rainStrength;
         uniform float weatherStrength;
+        uniform int moonPhase;
 
         #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowProjection;

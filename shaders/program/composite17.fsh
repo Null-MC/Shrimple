@@ -86,6 +86,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float weatherStrength;
+    uniform int moonPhase;
 
     uniform float cloudHeight;
 

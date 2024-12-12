@@ -92,6 +92,7 @@ in vec2 texcoord;
         uniform float rainStrength;
         uniform float weatherStrength;
         uniform float sunAngle;
+        uniform int moonPhase;
 
         #ifndef IRIS_FEATURE_SSBO
             uniform vec3 sunPosition;

@@ -120,6 +120,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;
+    uniform int moonPhase;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

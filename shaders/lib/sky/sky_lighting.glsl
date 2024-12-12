@@ -65,7 +65,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float D = SampleLightDiffuse(NoVm, NoLm, LoHm, roughL);
     vec3 accumDiffuse = D * shadowColor * skyLightColor;// * (1.0 - ambientF);
 
-    float skyLightF = lmcoord.y;
+    // float skyLightF = lmcoord.y;
+    float skyLightF = _pow2(lmcoord.y);
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && !defined RENDER_CLOUDS
         vec3 lpvPos = GetVoxelPosition(localPos);
@@ -91,7 +92,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY && !defined RENDER_CLOUDS
         lpvSamplePos = GetLpvSamplePos(lpvPos, localNormal, texNormal, 1.0);
-        vec3 lpvIndirectSample = 0.5 * SampleLpvIndirect(lpvSamplePos);
+        vec3 lpvIndirectSample = SampleLpvIndirect(lpvSamplePos);
 
         // ambientSkyLight *= 0.5;
 

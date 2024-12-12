@@ -44,15 +44,18 @@ vec3 GetSkySunColor(const in float localSunDirY) {
     return mix(worldSunColor, worldHorizonColor, horizonF);
 }
 
+const float moonPhaseStrength[8] = float[](1.00, 0.75, 0.50, 0.25, 0.00, 0.25, 0.50, 0.75);
+
 vec3 GetSkyMoonColor(const in float moonUpF) {
     float horizonF = GetSkyHorizonF(moonUpF);
-    return mix(worldMoonColor, worldHorizonColor, horizonF);
+    vec3 phaseColor = worldMoonColor * moonPhaseStrength[moonPhase];
+    return mix(phaseColor, worldHorizonColor, horizonF);
 }
 
 #if !defined IRIS_FEATURE_SSBO || defined RENDER_BEGIN
     vec3 CalculateSkyLightColor(const in float localSunDirY, const in float moonBrightnessF, const in float sunBrightnessF) {
         bool isSun = IsSkyLightSun(localSunDirY);
-        vec3 skyLightColor = isSun ? worldSunColor : worldMoonColor;
+        vec3 skyLightColor = isSun ? worldSunColor : (worldMoonColor * moonPhaseStrength[moonPhase]);
 
         float sunF = smoothstep(-0.1, 0.2, localSunDirY);
         float brightness = mix(moonBrightnessF, sunBrightnessF, sunF);

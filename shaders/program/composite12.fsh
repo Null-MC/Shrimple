@@ -127,6 +127,7 @@ uniform int heldBlockLightValue2;
     uniform float weatherStrength;
     uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
+    uniform int moonPhase;
     uniform float wetness;
     
     uniform float lightningStrength;

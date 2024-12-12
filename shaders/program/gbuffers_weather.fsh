@@ -102,17 +102,16 @@ uniform int heldBlockLightValue2;
 
 uniform float blindnessSmooth;
 
+uniform int moonPhase;
 uniform float sunAngle;
 uniform vec3 sunPosition;
 uniform vec3 shadowLightPosition;
 uniform float rainStrength;
 uniform float weatherStrength;
 
-#ifdef IS_IRIS
-    uniform float lightningStrength;
-    uniform float cloudHeight;
-    uniform float cloudTime;
-#endif
+uniform float lightningStrength;
+uniform float cloudHeight;
+uniform float cloudTime;
 
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE

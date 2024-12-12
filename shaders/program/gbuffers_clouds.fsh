@@ -80,6 +80,7 @@ uniform float rainStrength;
 uniform float weatherStrength;
 uniform float blindnessSmooth;
 
+uniform int moonPhase;
 uniform float sunAngle;
 uniform vec3 skyColor;
 

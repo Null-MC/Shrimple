@@ -125,6 +125,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    uniform int moonPhase;
     uniform float sunAngle;
     uniform float rainStrength;
     uniform float weatherStrength;

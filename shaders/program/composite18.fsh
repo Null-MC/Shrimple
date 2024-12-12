@@ -123,6 +123,7 @@ uniform int heldBlockLightValue2;
     uniform float rainStrength;
     uniform float weatherStrength;
     //uniform float wetness;
+    uniform int moonPhase;
 
     uniform float cloudHeight;
     uniform float cloudTime;

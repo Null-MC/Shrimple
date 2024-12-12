@@ -151,6 +151,7 @@ uniform int frameCounter;
     uniform vec3 sunPosition;
     uniform float rainStrength;
     uniform float wetness;
+    uniform int moonPhase;
 
     uniform float weatherStrength;
     uniform float weatherPuddleStrength;

@@ -36,6 +36,7 @@ uniform float weatherStrength;
 uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
 uniform int renderStage;
+uniform int moonPhase;
 
 #if SKY_STARS == STARS_FANCY
     uniform int worldTime;
