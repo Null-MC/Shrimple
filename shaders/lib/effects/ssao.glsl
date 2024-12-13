@@ -81,8 +81,8 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        // float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
-        float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
+        // float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
 
         #ifdef EFFECT_SSAO_RT
             float sampleWeight = saturate(sampleDist / radius);

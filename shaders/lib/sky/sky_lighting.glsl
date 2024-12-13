@@ -65,6 +65,10 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     float D = SampleLightDiffuse(NoVm, NoLm, LoHm, roughL);
     vec3 accumDiffuse = D * shadowColor * skyLightColor;// * (1.0 - ambientF);
 
+    #ifdef LIGHTING_DIFFUSE_AO
+        accumDiffuse *= occlusion;
+    #endif
+
     // float skyLightF = lmcoord.y;
     float skyLightF = _pow2(lmcoord.y);
 
