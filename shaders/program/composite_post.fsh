@@ -32,8 +32,8 @@ uniform bool hideGUI;
 #include "/lib/post/tonemap.glsl"
 #include "/lib/post/exposure.glsl"
 
-#if PERKINJE_STRENGTH > 0
-    #include "/lib/post/purkinje.glsl"
+#if EFFECT_PURKINJE_STRENGTH > 0
+    #include "/lib/effects/purkinje.glsl"
 #endif
 
 
@@ -45,7 +45,7 @@ void main() {
 
     ApplyPostExposure(color);
 
-    #if PERKINJE_STRENGTH > 0
+    #if EFFECT_PURKINJE_STRENGTH > 0
         color = PurkinjeShift(color, PurkinjeStrength);
     #endif
 

@@ -57,6 +57,7 @@ uniform float blindnessSmooth;
     uniform float rainStrength;
     uniform float weatherStrength;
     uniform vec3 skyColor;
+    uniform int moonPhase;
 #endif
 
 #if defined WORLD_SHADOW_ENABLED

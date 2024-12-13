@@ -1,6 +1,6 @@
 // https://www.shadertoy.com/view/lXy3DW
 
-const float PurkinjeStrength = PERKINJE_STRENGTH * 0.01;
+const float PurkinjeStrength = EFFECT_PURKINJE_STRENGTH * 0.01;
 
 
 vec3 PurkinjeShift(const in vec3 light, const in float intensity) {

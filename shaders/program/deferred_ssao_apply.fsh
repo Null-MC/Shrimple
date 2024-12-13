@@ -32,7 +32,7 @@ uniform int fogShape;
 
 #ifdef WORLD_SKY_ENABLED
     uniform vec3 skyColor;
-
+    uniform int moonPhase;
     uniform float rainStrength;
     uniform float weatherStrength;
     uniform ivec2 eyeBrightnessSmooth;

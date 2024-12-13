@@ -733,6 +733,10 @@ screen.EFFECT_OPTIONS=Effects
 option.EFFECT_AUTO_EXPOSE=Auto-Exposure
 option.EFFECT_AUTO_EXPOSE.comment=Enables a cheap auto-exposure effect based on brightness at the cameras location.
 
+option.EFFECT_PURKINJE_STRENGTH=Purkinje Strength
+suffix.EFFECT_PURKINJE_STRENGTH=%
+value.EFFECT_PURKINJE_STRENGTH.0=OFF
+
 
 screen.EFFECT_FXAA_OPTIONS=FXAA
 
