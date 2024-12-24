@@ -565,10 +565,18 @@ layout(location = 0) out vec4 outFinal;
 
                     #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
                         bool altFrame = (frameCounter % 2) == 0;
-                        sampleDiffuse = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, iTex, 0).rgb;
+                        if (altFrame) {
+                            sampleDiffuse = texelFetch(texDiffuseRT_alt, iTex, 0).rgb;
+                        } else {
+                            sampleDiffuse = texelFetch(texDiffuseRT, iTex, 0).rgb;
+                        }
 
                         #if MATERIAL_SPECULAR != SPECULAR_NONE
-                            sampleSpecular = texelFetch(altFrame ? texSpecularRT_alt : texSpecularRT, iTex, 0).rgb;
+                            if (altFrame) {
+                                sampleSpecular = texelFetch(texSpecularRT_alt, iTex, 0).rgb;
+                            } else {
+                                sampleSpecular = texelFetch(texSpecularRT, iTex, 0).rgb;   
+                            }
                         #endif
                     #else
                         sampleDiffuse = texelFetch(texDiffuseRT, iTex, 0).rgb;
