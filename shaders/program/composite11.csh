@@ -234,12 +234,26 @@ void main() {
         vec2 texcoord_re = ndcPos_re.xy * 0.5 + 0.5;
 
 
-        vec4 diffuseOld = textureLod(altFrame ? texDiffuseRT : texDiffuseRT_alt, texcoord_re, 0);
-        vec3 localPosLast = textureLod(altFrame ? texLocalPosLast : texLocalPosLast_alt, texcoord_re, 0).rgb;
+        vec4 diffuseOld;
+        vec3 localPosLast;
+        vec3 specularOld;
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            vec3 specularOld = textureLod(altFrame ? texSpecularRT : texSpecularRT_alt, texcoord_re, 0).rgb;
-        #endif
+        if (altFrame) {
+            diffuseOld = textureLod(texDiffuseRT, texcoord_re, 0);
+            localPosLast = textureLod(texLocalPosLast, texcoord_re, 0).rgb;
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                specularOld = textureLod(texSpecularRT, texcoord_re, 0).rgb;
+            #endif
+        }
+        else {
+            diffuseOld = textureLod(texDiffuseRT_alt, texcoord_re, 0);
+            localPosLast = textureLod(texLocalPosLast_alt, texcoord_re, 0).rgb;
+
+            #if MATERIAL_SPECULAR != SPECULAR_NONE
+                specularOld = textureLod(texSpecularRT_alt, texcoord_re, 0).rgb;
+            #endif
+        }
 
         float counter = diffuseOld.a + 1.0;
 
