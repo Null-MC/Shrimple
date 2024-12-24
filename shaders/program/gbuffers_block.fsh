@@ -418,10 +418,8 @@ void main() {
     #ifdef PARALLAX_ENABLED
         // bool skipParallax = any(lessThan(vIn.atlasBounds[1], vec2(1.0)));
 
-        bool a = any(
-            isnan(vIn.atlasBounds[0]) || isinf(vIn.atlasBounds[0]) ||
-            isnan(vIn.atlasBounds[1]) || isinf(vIn.atlasBounds[1])
-        );
+        bool a = any(isnan(vIn.atlasBounds[0])) || any(isinf(vIn.atlasBounds[0]))
+            || any(isnan(vIn.atlasBounds[1])) || any(isinf(vIn.atlasBounds[1]));
         
         bool b = any(lessThan(vIn.atlasBounds[1], vec2(1.0e-8)))
             || any(greaterThan(vIn.atlasBounds[1], vec2(1.0)));
