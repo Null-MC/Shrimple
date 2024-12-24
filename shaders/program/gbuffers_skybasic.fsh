@@ -37,10 +37,11 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform float blindnessSmooth;
 uniform int renderStage;
 uniform int moonPhase;
+uniform float sunAngle;
 
 #if SKY_STARS == STARS_FANCY
     uniform int worldTime;
-    uniform float sunAngle;
+    // uniform float sunAngle;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
