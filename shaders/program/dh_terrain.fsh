@@ -121,9 +121,9 @@ uniform vec3 eyePosition;
 //     uniform vec4 spriteBounds;
 // #endif
 
-// #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-//     uniform float alphaTestRef;
-// #endif
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
+#endif
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

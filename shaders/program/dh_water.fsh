@@ -115,6 +115,21 @@ uniform float near;
 uniform float far;
 uniform float farPlane;
 
+uniform float blindnessSmooth;
+uniform ivec2 eyeBrightnessSmooth;
+
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
+
+uniform float dhNearPlane;
+uniform float dhFarPlane;
+
 #ifndef DEFERRED_BUFFER_ENABLED
     uniform vec3 fogColor;
     uniform float fogDensity;
@@ -123,9 +138,6 @@ uniform float farPlane;
     uniform int fogShape;
     uniform int fogMode;
 #endif
-
-uniform float blindnessSmooth;
-uniform ivec2 eyeBrightnessSmooth;
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #ifdef IS_LPV_ENABLED
@@ -151,11 +163,9 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float weatherStrength;
     uniform float skyWetnessSmooth;
 
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
-        uniform float cloudHeight;
-        uniform float cloudTime;
-    #endif
+    uniform float lightningStrength;
+    uniform float cloudHeight;
+    uniform float cloudTime;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
@@ -168,19 +178,9 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform mat4 shadowProjection;
 #endif
 
-uniform int heldItemId;
-uniform int heldItemId2;
-uniform int heldBlockLightValue;
-uniform int heldBlockLightValue2;
-
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
+#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+    uniform float alphaTestRef;
 #endif
-
-uniform float dhNearPlane;
-uniform float dhFarPlane;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"

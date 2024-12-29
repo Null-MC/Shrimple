@@ -133,7 +133,9 @@ void main() {
         final.rgb = RGBToLinear(final.rgb);
     #endif
 
-    final.rgb *= Sky_BrightnessF;
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        final.rgb *= Sky_BrightnessF;
+    #endif
 
     #if SKY_STARS == STARS_FANCY
         // vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
