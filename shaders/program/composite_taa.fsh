@@ -136,7 +136,7 @@ vec4 sampleHistoryCatmullRom(const in vec2 uv) {
     return clamp(result, 0.0, 65000.0);
 }
 
-#include "/lib/effects/taa_epic.glsl"
+#include "/lib/effects/taa.glsl"
 
 
 /* RENDERTARGETS: 0,5 */
