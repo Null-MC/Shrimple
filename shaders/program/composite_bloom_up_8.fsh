@@ -46,7 +46,7 @@ void main() {
     float exposure = GetPostExposure();
     color /= exposure;
 
-    #if POST_TONEMAP == 0
+    #ifndef POST_TONEMAP
         // apply a reinhard like curve to prevent blowout when tonemap is disabled
         color = color / (color + 1.0);
     #endif
