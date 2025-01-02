@@ -1,6 +1,12 @@
 // xy: diffuse, specular
 vec2 GetLightAttenuation(const in vec3 lightVec, const in float lightRange) {
     float lightDist = length(lightVec);
+    float r = saturate(lightDist/lightRange);
+
+    float f1 = saturate(rcp(r + 1.0));
+    float f2 = 1.0 - r;
+
+    return vec2(min(f1, _pow2(f2)));
     float lightAtt = 1.0 - saturate(lightDist / lightRange);
     return vec2(pow5(lightAtt), _pow2(lightAtt));
 }

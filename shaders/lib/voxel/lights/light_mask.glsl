@@ -9,8 +9,8 @@ const int LightMaskBitCount = int(log2(LIGHT_BIN_SIZE));
         uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
 
         ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
-        uint bit = imageLoad(imgLocalLightMask, texcoord).r;
-        return bitfieldExtract(bit, int(maskIndex & 31u), 16);
+        uint lightData = imageLoad(imgLocalLightMask, texcoord).r;
+        return bitfieldExtract(lightData, int(maskIndex & 31u), 8);
 
 //        uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31u);
 //        return (bit & 0xFFu);

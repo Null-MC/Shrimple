@@ -2078,9 +2078,9 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
                 boundsMax[1] = modelPart( 9,  9, 16);
                 boundsMin[2] = modelPart( 7, 12,  0);
                 boundsMax[2] = modelPart( 9, 15, 16);
-                boundsMin[3] = modelPart( 0,  6,  7);
+                boundsMin[3] = modelPart( 8,  6,  7);
                 boundsMax[3] = modelPart(16,  9,  9);
-                boundsMin[4] = modelPart( 0, 12,  7);
+                boundsMin[4] = modelPart( 8, 12,  7);
                 boundsMax[4] = modelPart(16, 15,  9);
                 break;
 

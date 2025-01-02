@@ -102,7 +102,7 @@ void ParseLightRange(const in uvec4 data, out float range) {
 
 void ParseLightColor(const in uvec4 data, out vec3 color) {
     const uvec3 offsets = uvec3(8u, 16u, 24u);
-    color = ((data.zzz >> offsets) & 255u) / 255.0;
+    color = ((data.zzz >> offsets) & 0xFFu) / 255.0;
 }
 
 void ParseLightData(const in uvec4 data, out vec3 position, out float size, out float range, out vec3 color) {
