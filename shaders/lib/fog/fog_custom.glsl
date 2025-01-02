@@ -42,7 +42,7 @@ vec3 GetCustomSkyColor(const in vec3 localSunDir, const in vec3 localViewDir) {
 
     vec3 GetCustomRainFogColor(const in float sunUpF) {
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
-        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * Sky_SunBrightnessF;
+        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF);
         return RGBToLinear(vec3(0.214, 0.242, 0.247)) * skyBrightness * eyeBrightness;
     }
 

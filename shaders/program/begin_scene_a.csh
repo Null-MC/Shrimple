@@ -115,7 +115,7 @@ void main() {
             //WeatherSkyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
             // TODO: currently using previous-frame data, needs to be moved
-            WorldSkyAmbientColor = SampleSkyIrradiance(vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF;
+            WorldSkyAmbientColor = SampleSkyIrradiance(vec3(0.0, 1.0, 0.0));
 
             if (lightningBoltPosition.w > 0.5)
                 lightningPosition = lightningBoltPosition.xyz + cameraPosition;

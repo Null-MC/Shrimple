@@ -24,7 +24,7 @@
         //         else {
         //     #endif
                 
-        //         reflectColor = GetCustomSkyColor(localSunDirection, reflectDir) * Sky_BrightnessF;
+        //         reflectColor = GetCustomSkyColor(localSunDirection, reflectDir);
 
         //         #if !defined MATERIAL_REFLECT_CLOUDS && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
         //             // TODO
@@ -37,7 +37,7 @@
         //     vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
         //     reflectColor = RGBToLinear(reflectColor);
         // #else
-        //     vec3 reflectColor = RGBToLinear(skyColor) * Sky_BrightnessF;
+        //     vec3 reflectColor = RGBToLinear(skyColor);
         // #endif
 
         vec2 uvSky = DirectionToUV(reflectDir);
@@ -47,7 +47,7 @@
         //     // WARN: this needs to be applied BEFORE vol fog!
         //     vec3 starViewDir = getStarViewDir(reflectDir);
         //     vec3 starLight = GetStarLight(starViewDir);
-        //     reflectColor += starLight * Sky_BrightnessF; // * moonUpF
+        //     reflectColor += starLight; // * moonUpF
         // #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
@@ -102,7 +102,7 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
         vec3 skyColor = textureLod(texSky, uvSky, 0).rgb;
         vec3 reflectColor = skyColor * pow5(skyLight);
     #else
-        vec3 skyColor = RGBToLinear(fogColor) * Sky_BrightnessF;
+        vec3 skyColor = RGBToLinear(fogColor);
         vec3 reflectColor = skyColor;
     #endif
     

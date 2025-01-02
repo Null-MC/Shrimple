@@ -86,7 +86,7 @@ void ApplyLightAnimation(inout vec3 lightColor, inout float lightRange, const in
 
 void ParseLightPosition(const in uvec4 data, out vec3 position) {
     const uvec3 offsets = uvec3(0u, 16u, 0u);
-    uvec3 posHalf = (data.xxy >> offsets) & uint(0xffff);
+    uvec3 posHalf = (data.xxy >> offsets) & 0xFFFFu;
     position = uintBitsToFloat(half2float(posHalf));
 }
 

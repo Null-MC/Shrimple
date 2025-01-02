@@ -133,10 +133,6 @@ void main() {
         final.rgb = RGBToLinear(final.rgb);
     #endif
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE
-        final.rgb *= Sky_BrightnessF;
-    #endif
-
     #if SKY_STARS == STARS_FANCY
         // vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
         vec3 starViewDir = getStarViewDir(localViewDir);
@@ -147,7 +143,7 @@ void main() {
         #endif
 
         float moonUpF = smoothstep(-0.1, 0.2, -localSunDirection.y);
-        final.rgb += starLight * (moonUpF * Sky_BrightnessF);
+        final.rgb += starLight * moonUpF;
     #elif SKY_STARS == STARS_VANILLA
         if (renderStage == MC_RENDER_STAGE_STARS) {
             final = starData;

@@ -46,7 +46,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
 
     for (int i = 0; i < SSR_MAXSTEPS; i++) {
         float stepScale = exp2(level);
-        tracePos = screenRay*stepScale + lastTracePos;
+        tracePos = fma(screenRay, vec3(stepScale), lastTracePos);
 
         vec3 clipMax = vec3(1.0) - vec3(pixelSize * stepScale, EPSILON);
 

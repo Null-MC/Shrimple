@@ -4,7 +4,7 @@ vec3 GetVanillaFogColor(const in vec3 fogColor, const in float viewUpF) {
     #endif
     
     #ifdef WORLD_SKY_ENABLED
-        return GetSkyFogColor(skyColor, fogColor, viewUpF);// * Sky_BrightnessF;
+        return GetSkyFogColor(skyColor, fogColor, viewUpF);
     #else
         return fogColor;
     #endif

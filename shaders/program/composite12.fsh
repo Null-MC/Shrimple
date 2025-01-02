@@ -504,9 +504,7 @@ layout(location = 0) out vec4 outFinal;
                 bool isWater = GetWaterMask(ivec2(gl_FragCoord.xy));
 
                 #if WATER_DEPTH_LAYERS > 1
-                    uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
-                    uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
-                    bool hasWaterDepth = false;
+                    uint waterPixelIndex = GetWaterDepthIndex(uvec2(gl_FragCoord.xy));
 
                     vec3 clipPosTrans = vec3(texcoord, depthTrans) * 2.0 - 1.0;
                     vec3 localPosTrans = unproject(gbufferModelViewProjectionInverse, clipPosTrans);
@@ -515,7 +513,7 @@ layout(location = 0) out vec4 outFinal;
                     float waterDepth[WATER_DEPTH_LAYERS+1];
                     GetAllWaterDepths(waterPixelIndex, waterDepth);
 
-                    hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
+                    bool hasWaterDepth = viewDist > waterDepth[0] && viewDist < waterDepth[1];
 
                     #if WATER_DEPTH_LAYERS >= 3
                         hasWaterDepth = hasWaterDepth || (viewDist > waterDepth[2] && viewDist < waterDepth[3]);
@@ -634,7 +632,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 #if MATERIAL_SSS_AMBIENT > 0
-                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir) * Sky_BrightnessF;
+                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir);
 
                     sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * occlusion * skyLightF);
                 #endif
@@ -701,8 +699,6 @@ layout(location = 0) out vec4 outFinal;
                     float fogF = 0.0;//deferredFog.a;
                 #endif
 
-                fogColorFinal *= Sky_BrightnessF;
-
                 // #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
                 //     #ifdef DISTANT_HORIZONS
                 //         float skyTraceFar = max(far, dhFarPlane);
@@ -727,7 +723,7 @@ layout(location = 0) out vec4 outFinal;
         }
         else {
             #ifdef WORLD_NETHER
-                final = RGBToLinear(fogColor) * Sky_BrightnessF;
+                final = RGBToLinear(fogColor);
             #else
                 final = texelFetch(BUFFER_FINAL, iTex, 0).rgb;
             #endif

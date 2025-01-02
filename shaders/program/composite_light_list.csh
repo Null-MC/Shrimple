@@ -150,9 +150,11 @@ void main() {
                             float lightSize = lightRangeSize.y;
 
                             // bool lightTraced = GetLightTraced(lightType);
-                            bool lightTraced = (lightInfo.Metadata & 1u) == 1u;
-                            bool selfTraced = ((lightInfo.Metadata >> 1u) & 1u) == 1u;
-                            
+//                            bool lightTraced = (lightInfo.Metadata & 1u) == 1u;
+//                            bool selfTraced = ((lightInfo.Metadata >> 1u) & 1u) == 1u;
+                            bool lightTraced = bitfieldExtract(lightInfo.Metadata, 0, 1) == 1u;
+                            bool selfTraced = bitfieldExtract(lightInfo.Metadata, 1, 1) == 1u;
+
                             uint lightGlobalIndex = lightGlobalOffset + lightLocalIndex;
                             SceneLights[lightGlobalIndex] = BuildLightData(blockLocalPos + lightOffset, lightTraced, selfTraced, lightMask, lightSize, lightRange, lightColor);
                             SceneLightMaps[gridIndex].GlobalLights[lightLocalIndex] = lightGlobalIndex;

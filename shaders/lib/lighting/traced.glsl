@@ -49,6 +49,6 @@ void GetFinalBlockLighting(inout vec3 sampleDiffuse, inout vec3 sampleSpecular, 
     vec3 GetFinalLighting(const in vec3 albedo, in vec3 diffuse, const in vec3 specular, const in float occlusion) {
         vec3 diffuseFinal = Lighting_MinF * occlusion + diffuse;
         
-        return albedo * diffuseFinal + specular;
+        return fma(albedo, diffuseFinal, specular);
     }
 #endif

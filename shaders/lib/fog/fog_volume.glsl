@@ -114,7 +114,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #if WATER_DEPTH_LAYERS > 1 //&& LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             uvec2 uv = uvec2(gl_FragCoord.xy * exp2(VOLUMETRIC_RES));
-            uint uvIndex = uint(uv.y * viewWidth + uv.x);
+            uint uvIndex = GetWaterDepthIndex(uv);
 
             float waterDepth[WATER_DEPTH_LAYERS+1];
             GetAllWaterDepths(uvIndex, waterDepth);
@@ -151,14 +151,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             stepDistF = pow(stepDistF, VL_StepPower);
 
             float stepDistDiff = stepDistF - stepDistLastF;
-            float stepDistDither = stepDistDiff * dither + stepDistLastF;
+            float stepDistDither = fma(stepDistDiff, dither, stepDistLastF);
             stepDistLastF = stepDistF;
 
-            vec3 traceLocalPos = stepDistDither * localRay + localStart;
+            vec3 traceLocalPos = fma(localRay, vec3(stepDistDither), localStart);
             float stepLength = stepDistDiff * localRayLength;
         #else
             float iStep = i + dither;// * step(1, i);
-            vec3 traceLocalPos = localStep * iStep + localStart;
+            vec3 traceLocalPos = fma(localStep, vec3(iStep), localStart);
         #endif
 
         vec3 traceWorldPos = traceLocalPos + cameraPosition;
@@ -293,7 +293,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             #if VL_STEP_POWER != 100
                 vec3 shadowViewPos = mul3(shadowModelViewEx, traceLocalPos);
             #else
-                vec3 shadowViewPos = shadowViewStep * iStep + shadowViewStart;
+                vec3 shadowViewPos = fma(shadowViewStep, vec3(iStep), shadowViewStart);
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -310,10 +310,12 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                         // shadowPos = (shadowViewPos * shadowClipStart[cascade]).xyz;
 
 
-                        shadowPos = mul3(cascadeProjection[cascade], shadowViewPos) * 0.5 + 0.5;
-                        shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
+                        shadowPos = mul3(cascadeProjection[cascade], shadowViewPos);
+                        shadowPos = fma(shadowPos, vec3(0.5), vec3(0.5));
+
+                        shadowPos.xy = fma(shadowPos.xy, vec2(0.5), shadowProjectionPos[cascade]);
                     #else
-                        shadowPos = iStep * shadowClipStep[cascade] + shadowClipStart[cascade];
+                        shadowPos = fma(shadowClipStep[cascade], vec3(iStep), shadowClipStart[cascade]);
                     #endif
 
                     //sampleF = CompareDepth(shadowPos, vec2(0.0), shadowSampleBias);
@@ -329,7 +331,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 #if VL_STEP_POWER != 100
                     vec3 shadowNdcPos = mul3(shadowProjectionEx, shadowViewPos);
                 #else
-                    vec3 shadowNdcPos = shadowClipStep * iStep + shadowClipStart;
+                    vec3 shadowNdcPos = fma(shadowClipStep, vec3(iStep), shadowClipStart);
                 #endif
 
                 shadowNdcPos = distort(shadowNdcPos);
@@ -341,7 +343,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                 shadowFade *= step(shadowNdcPos.z, 1.0);
                 shadowFade = 1.0 - shadowFade;
 
-                vec3 shadowPos = shadowNdcPos * 0.5 + 0.5;
+                vec3 shadowPos = fma(shadowNdcPos, vec3(0.5), vec3(0.5));
 
                 if (shadowFade < 1.0) {
                     const float geoNoL = 1.0; // WARN: useless without geoNoL?

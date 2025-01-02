@@ -367,10 +367,8 @@ layout(location = 0) out vec4 outFinal;
         float eyeSkyLightF = eyeBrightnessSmooth.y / 240.0;
 
         #if defined WORLD_WATER_ENABLED && WATER_DEPTH_LAYERS > 1
-            uvec2 waterScreenUV = uvec2(gl_FragCoord.xy);
-            uint waterPixelIndex = uint(waterScreenUV.y * viewWidth + waterScreenUV.x);
-
             float waterDepth[WATER_DEPTH_LAYERS+1];
+            uint waterPixelIndex = GetWaterDepthIndex(uvec2(gl_FragCoord.xy));
             GetAllWaterDepths(waterPixelIndex, waterDepth);
 
             float farDist = min(distOpaque, far);
@@ -434,7 +432,7 @@ layout(location = 0) out vec4 outFinal;
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeSkyLightF;
+                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeSkyLightF;
                 #else
                     vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
                     skyColorFinal = RGBToLinear(skyColorFinal) * eyeSkyLightF;
@@ -558,7 +556,7 @@ layout(location = 0) out vec4 outFinal;
                     float viewDist = max(min(distOpaque, far) - distTranslucent, 0.0);
 
                     // float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * Sky_BrightnessF * eyeBrightF;
+                    // vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
 
                     float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
                     vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;

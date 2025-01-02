@@ -102,7 +102,7 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
         vec3 diffuseLightPos = lightPos;
 
         #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined HAS_LIGHTING_TRACED_SOFTSHADOWS && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
-            diffuseLightPos += lightSize * offset;
+            diffuseLightPos = fma(offset, vec3(lightSize), diffuseLightPos);
         #endif
 
         vec3 lightSurfacePos = surfacePos;
@@ -114,8 +114,10 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
         vec3 lightDir = normalize(lightVec);
 
-        uint traceFace = 1u << GetLightMaskFace(-lightVec);
-        if ((lightData.z & traceFace) == traceFace) continue;
+//        uint traceFace = 1u << GetLightMaskFace(-lightVec);
+//        if ((lightData.z & traceFace) == traceFace) continue;
+        uint traceFaceIndex = GetLightMaskFace(-lightVec);
+        if (bitfieldExtract(lightData.z, int(traceFaceIndex), 1) == 1u) continue;
 
         // #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined RENDER_FRAG
             if (bitfieldExtract(lightData.z, 0, 1) == 1u) {

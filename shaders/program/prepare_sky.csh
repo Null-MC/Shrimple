@@ -80,8 +80,6 @@ vec3 SampleSkyColor(const in vec3 localDir) {
         skyColor = RGBToLinear(skyColor);
     #endif
 
-    skyColor *= Sky_BrightnessF;
-
     // #if LIGHTING_VOLUMETRIC > 0
     //     float _far = far;
     //     #ifdef DISTANT_HORIZONS

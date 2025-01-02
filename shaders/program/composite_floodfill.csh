@@ -348,7 +348,7 @@ vec4 sampleDirectShared(ivec3 pos, int mask_index, out float weight) {
     if (blockId > 0 && blockId != BLOCK_EMPTY)
         ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
 
-    float wMask = (mixMask >> mask_index) & 1u;
+    uint wMask = bitfieldExtract(mixMask, mask_index, 1);
     return lpvDirectBuffer[shared_index] * wMask;// * mixWeight;
 }
 
@@ -364,7 +364,7 @@ vec4 sampleDirectShared(ivec3 pos, int mask_index, out float weight) {
         if (blockId > 0 && blockId != BLOCK_EMPTY)
             ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
 
-        float wMask = (mixMask >> mask_index) & 1u;
+        uint wMask = bitfieldExtract(mixMask, mask_index, 1);
         return lpvIndirectBuffer[shared_index] * wMask;// * mixWeight;
     }
 #endif
@@ -381,8 +381,8 @@ vec4 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
     vec4 nZ1 = sampleDirectShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
     vec4 nZ2 = sampleDirectShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
 
-    float wMax = 6.0;//max(sumOf(w1 + w2), 1.0);
-    float avgFalloff = rcp(wMax) * LpvFalloff;
+    const float wMaxInv = rcp(6.0);//max(sumOf(w1 + w2), 1.0);
+    float avgFalloff = wMaxInv * LpvFalloff;
     return (nX1 + nX2 + nY1 + nY2 + nZ1 + nZ2) * avgFalloff;
 }
 
@@ -433,24 +433,11 @@ void PopulateShared() {
     uint blockId1 = BLOCK_EMPTY;
     uint blockId2 = BLOCK_EMPTY;
 
-    // ivec3 voxelPos1 = voxelOffset + pos1;
-    // ivec3 voxelPos2 = voxelOffset + pos2;
-
     if (IsInVoxelBounds(pos1)) {
-        // ivec3 gridCell = ivec3(floor(voxelPos1 / LIGHT_BIN_SIZE));
-        // uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        // ivec3 blockCell = voxelPos1 - gridCell * LIGHT_BIN_SIZE;
-
-        // blockId1 = GetVoxelBlockMask(blockCell, gridIndex);
         blockId1 = imageLoad(imgVoxels, pos1).r;
     }
 
     if (IsInVoxelBounds(pos2)) {
-        // ivec3 gridCell = ivec3(floor(voxelPos2 / LIGHT_BIN_SIZE));
-        // uint gridIndex = GetVoxelGridCellIndex(gridCell);
-        // ivec3 blockCell = voxelPos2 - gridCell * LIGHT_BIN_SIZE;
-
-        // blockId2 = GetVoxelBlockMask(blockCell, gridIndex);
         blockId2 = imageLoad(imgVoxels, pos2).r;
     }
 
@@ -535,7 +522,7 @@ void main() {
                         // bounceOffset.y *= bounceYF;
 
                         // float sunUpF = smoothstep(-0.1, 0.3, localSunDirection.y);
-                        //float skyLightBrightF = mix(Sky_MoonBrightnessF, Sky_SunBrightnessF, sunUpF);
+                        //float skyLightBrightF = mix(Sky_MoonBrightnessF, 1.0, sunUpF);
                         //skyLightBrightF *= 1.0 - 0.8 * weatherStrength;
                         // TODO: make darker at night
 

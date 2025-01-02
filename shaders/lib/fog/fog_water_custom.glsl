@@ -6,7 +6,7 @@ vec3 GetCustomWaterFogColor(const in float sunUpF) {
     float brightnessF = 1.0 - WaterMinBrightness;
 
     #ifdef WORLD_SKY_ENABLED
-        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF) * Sky_SunBrightnessF;
+        float skyBrightness = smoothstep(-0.1, 0.3, sunUpF);
         float weatherBrightness = 1.0 - 0.92 * rainStrength;
         float eyeBrightness = eyeBrightnessSmooth.y / 240.0;
 

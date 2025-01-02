@@ -5,23 +5,20 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 8, local_size_y = 8) in;
+layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
+uniform float viewWidth;
 uniform vec2 viewSize;
 
 #include "/lib/buffers/water_depths.glsl"
 
 
 void main() {
-    ivec2 iViewSize = ivec2(viewSize);
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    if (any(greaterThanEqual(pos, iViewSize))) return;
+    if (any(greaterThanEqual(gl_GlobalInvocationID.xy, uvec2(viewSize)))) return;
 
-    uint waterUV = uint(gl_GlobalInvocationID.y * iViewSize.x + gl_GlobalInvocationID.x);
-
-    // WaterDepths[waterUV].IsWater = false;
+    uint waterUV = GetWaterDepthIndex(gl_GlobalInvocationID.xy);
     for (int i = 0; i < WATER_DEPTH_LAYERS; i++)
         WaterDepths[waterUV].Depth[i] = UINT32_MAX;
 }

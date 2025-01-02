@@ -55,20 +55,10 @@ suffix.SKY_WEATHER_OPACITY=%
 
 screen.SKY_BRIGHTNESS_OPTIONS=Настройка Яркости
 
-=====Sun Brightness=====
-
-option.SKY_SUN_BRIGHTNESS=Яркость Солнца
-suffix.SKY_SUN_BRIGHTNESS=%
-
 =====Moon Brightness=====
 
 option.SKY_MOON_BRIGHTNESS=Яркость Луны
 suffix.SKY_MOON_BRIGHTNESS=%
-
-=====Sky Brightness=====
-
-option.SKY_BRIGHTNESS=Яркость Неба
-suffix.SKY_BRIGHTNESS=%
 
 /////CLOUD OPTIONS/////
 

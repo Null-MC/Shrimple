@@ -13,3 +13,7 @@ struct WaterDepthPixelData {
 {
     WaterDepthPixelData WaterDepths[];
 };
+
+uint GetWaterDepthIndex(uvec2 uv) {
+    return uint(fma(uv.y, uint(viewWidth), uv.x));
+}

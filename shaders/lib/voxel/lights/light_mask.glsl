@@ -9,8 +9,11 @@ const int LightMaskBitCount = int(log2(LIGHT_BIN_SIZE));
         uint intIndex = gridIndex * (LIGHT_BIN_SIZE3 * DYN_LIGHT_MASK_STRIDE / 32) + (maskIndex >> 5);
 
         ivec2 texcoord = ivec2(intIndex % DYN_LIGHT_IMG_SIZE, int(intIndex / DYN_LIGHT_IMG_SIZE));
-        uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31);
-        return (bit & 0xFF);
+        uint bit = imageLoad(imgLocalLightMask, texcoord).r;
+        return bitfieldExtract(bit, int(maskIndex & 31u), 16);
+
+//        uint bit = imageLoad(imgLocalLightMask, texcoord).r >> (maskIndex & 31u);
+//        return (bit & 0xFFu);
     }
 #endif
 
@@ -41,7 +44,7 @@ uint GetLightMaskFace(const in vec3 normal) {
 #elif defined RENDER_SHADOWCOMP && !defined RENDER_BEGIN_LPV
     bool LightIntersectsBin(const in vec3 binPos, const in float binSize, const in vec3 lightPos, const in float lightRange) { 
         vec3 pointDist = lightPos - clamp(lightPos, binPos, binPos + binSize);
-        return length(pointDist) < lightRange;
+        return _lengthSq(pointDist) < _pow2(lightRange);
     }
 #endif
 

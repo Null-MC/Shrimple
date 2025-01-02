@@ -17,7 +17,7 @@ void ApplyScatteringTransmission(inout vec3 scatterFinal, inout vec3 transmitFin
     vec3 stepTransmittance = exp(-stepDist * extinctF * density);
 
     for (int i = 0; i < stepCount; i++) {
-        scatterFinal += lightIntegral * transmitFinal;
+        scatterFinal = fma(lightIntegral, transmitFinal, scatterFinal);
         transmitFinal *= stepTransmittance;
     }
 }
@@ -26,5 +26,5 @@ void ApplyScatteringTransmission(inout vec3 colorFinal, const in float traceDist
     vec3 scatterFinal = vec3(0.0);
     vec3 transmitFinal = vec3(1.0);
     ApplyScatteringTransmission(scatterFinal, transmitFinal, traceDist, inScattering, density, scatterF, extinctF, stepCount);
-    colorFinal = colorFinal * transmitFinal + scatterFinal;
+    colorFinal = fma(colorFinal, transmitFinal, scatterFinal);
 }

@@ -60,9 +60,6 @@ suffix.WORLD_SKY_REFLECTIONS=%
 
 screen.WORLD_BRIGHTNESS_OPTIONS=Helligkeitsoptionen
 
-option.SKY_SUN_BRIGHTNESS=Sonnenlicht
-suffix.SKY_SUN_BRIGHTNESS=%
-
 option.SKY_MOON_BRIGHTNESS=Mondlicht
 suffix.SKY_MOON_BRIGHTNESS=%
 

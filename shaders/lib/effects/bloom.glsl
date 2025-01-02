@@ -53,8 +53,8 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         GetBloomTileOuterBounds(tile, boundsMin, boundsMax);
 
         vec2 screenPos = step(0.5, texcoord);
-        screenPos = screenPos * (boundsMax - boundsMin) + boundsMin;
-        gl_Position.xy = screenPos * 2.0 - 1.0;
+        screenPos = fma(screenPos, (boundsMax - boundsMin), boundsMin);
+        gl_Position.xy = fma(screenPos, vec2(2.0), vec2(-1.0));
     }
 
     void UpdateTileVertexBounds_Up(const in int tile) {
@@ -62,8 +62,8 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         GetBloomTileInnerBounds(tile, boundsMin, boundsMax);
 
         vec2 screenPos = step(0.5, texcoord);
-        screenPos = screenPos * (boundsMax - boundsMin) + boundsMin;
-        gl_Position.xy = screenPos * 2.0 - 1.0;
+        screenPos = fma(screenPos, (boundsMax - boundsMin), boundsMin);
+        gl_Position.xy = fma(screenPos, vec2(2.0), vec2(-1.0));
     }
 #endif
 
@@ -78,7 +78,8 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
                 //float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
                 float sampleWeight = 1.0 - length(sampleOffset) * 0.25;
 
-                vec3 sampleColor = textureLod(texColor, texcoord + sampleOffset * pixelSize, 0).rgb;
+                vec2 sampleCoord = fma(sampleOffset, pixelSize, texcoord);
+                vec3 sampleColor = textureLod(texColor, sampleCoord, 0).rgb;
                 color += sampleWeight * sampleColor;
                 totalWeight += sampleWeight;
             }
@@ -114,7 +115,7 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         GetBloomTileInnerBounds(tile+1, srcBoundsMin, srcBoundsMax);
 
         vec2 tex = (texcoord - 0.5 * pixelSize) / (1.0 - pixelSize);
-        tex = tex * (srcBoundsMax - srcBoundsMin) + srcBoundsMin;
+        tex = fma(tex, (srcBoundsMax - srcBoundsMin), srcBoundsMin);
         tex -= 0.5 * pixelSize;
 
         vec3 color1 = textureLod(texSrc, tex, 0).rgb;

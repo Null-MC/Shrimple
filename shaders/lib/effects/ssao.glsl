@@ -47,7 +47,8 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         #endif
 
         vec3 sampleViewPos = viewPos + offset;
-        vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos) * 0.5 + 0.5;
+        vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos);
+        sampleClipPos = fma(sampleClipPos, vec3(0.5), vec3(0.5));
 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
 

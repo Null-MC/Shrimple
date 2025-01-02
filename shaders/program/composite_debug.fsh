@@ -218,8 +218,7 @@ void main() {
 		text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
 		text.fpPrecision = 4;
 
-		ivec2 center = ivec2(viewSize * 0.5);
-        uint waterUV = uint(center.y * viewSize.x + center.x);
+        uint waterUV = GetWaterDepthIndex(uvec2(viewSize * 0.5));
 
 		// printString((_C, _o, _u, _n, _t, _colon, _space));
 		// printUnsignedInt(WaterDepths[waterUV].Count);

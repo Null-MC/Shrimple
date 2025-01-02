@@ -11,7 +11,6 @@ uniform vec3 fogColor;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
-	vec3 color = RGBToLinear(fogColor);// * Sky_BrightnessF;
-
+	vec3 color = RGBToLinear(fogColor);
 	outFinal = vec4(color, 1.0);
 }

@@ -56,9 +56,7 @@ void main() {
         color.rgb *= vIn.color.rgb;
     #endif
 
-    color.rgb = RGBToLinear(color.rgb);// * Sky_BrightnessF;
-
-    //color.a = saturate(length2(color.rgb) / sqrt(3.0));
+    color.rgb = RGBToLinear(color.rgb);
 
     // try and reduce amount of velocity pixels affected
     if (luminance(color.rgb) * color.a < (8.0/255.0)) {discard; return;}
@@ -73,9 +71,9 @@ void main() {
         #endif
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
-            color.rgb *= 20.0 * WorldSunLightColor * Sky_SunBrightnessF;
+            color.rgb *= 20.0 * WorldSunLightColor;
         #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= 2.0 * Sky_BrightnessF;
+            color.rgb *= 2.0;
         #endif
 
         color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);
@@ -87,21 +85,10 @@ void main() {
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
             color.rgb *= 4.0 * WorldMoonLightColor;
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= Sky_BrightnessF;
         #endif
 
         color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
     }
-    else {
-        #ifndef WORLD_END
-            color.rgb *= Sky_BrightnessF;
-        #endif
-    }
-
-    // #ifdef WORLD_END
-    //     color.rgb *= Sky_BrightnessF;
-    // #endif
 
     //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
     //    color.rgb *= 2.0;

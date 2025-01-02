@@ -75,7 +75,7 @@ vec3 GetSkyMoonColor(const in float moonUpF) {
     }
 
     vec3 CalculateSkyLightColor(const in float localSunDirY) {
-        return CalculateSkyLightColor(localSunDirY, Sky_MoonBrightnessF, Sky_SunBrightnessF);
+        return CalculateSkyLightColor(localSunDirY, Sky_MoonBrightnessF, 1.0);
     }
 #endif
 
