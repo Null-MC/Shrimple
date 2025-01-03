@@ -8,6 +8,8 @@ const int SmokeTraceOctaves = 4;
     const float SmokeScatterF = 0.96;
     const float SmokeAbsorbF  = 0.64;
     const float SmokeAmbientF = 0.02;
+
+    const float SmokeLevelF = WORLD_NETHER_SMOKE_LEVEL*0.01;
 #else
     const float SmokeScale = 0.05;
     const float SmokeSpeed = 0.28;
@@ -15,7 +17,11 @@ const int SmokeTraceOctaves = 4;
     const float SmokeScatterF = 0.24;
     const float SmokeAbsorbF  = 0.08;
     const float SmokeAmbientF = 0.14;
+
+    const float SmokeLevelF = WORLD_END_SMOKE_LEVEL*0.01;
 #endif
+
+const float SmokeThresholdF = 1.0 - SmokeLevelF;
 
 
 float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in float time) {
@@ -40,5 +46,5 @@ float SampleSmokeOctaves(in vec3 worldPos, const in int octaveCount, const in fl
     }
 
     const float sampleMaxInv = 1.0;//rcp(1.0 - rcp(exp2(octaveCount)));
-    return pow(smoothstep(0.4, 1.0, sampleD * sampleMaxInv), 8.0);// + 0.012;
+    return pow(smoothstep(SmokeThresholdF, 1.0, sampleD * sampleMaxInv), 8.0);// + 0.012;
 }

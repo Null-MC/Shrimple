@@ -261,10 +261,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #if defined IS_WORLD_SMOKE_ENABLED && !defined WORLD_SKY_ENABLED
-            float smokeF = 1.0;
+            float smokeF = 0.25*SmokeLevelF;
             if (traceDist < 300.0) {
-                smokeF = SampleSmokeOctaves(traceWorldPos, SmokeTraceOctaves, time);
-                smokeF = mix(smokeF, 1.0, _smoothstep(traceDist / 300.0));
+                float texSmokeF = SampleSmokeOctaves(traceWorldPos, SmokeTraceOctaves, time);
+                smokeF = mix(texSmokeF, smokeF, _smoothstep(traceDist / 300.0));
             }
 
             sampleDensity = smokeF * SmokeDensityF;
