@@ -52,46 +52,52 @@ uniform int moonPhase;
 void main() {
     vec4 color = textureLod(gtexture, vIn.texcoord, 0);
 
-    #ifdef SKY_CLOUD_ENABLED
+    #ifdef WORLD_OVERWORLD
+        #ifdef SKY_CLOUD_ENABLED
+            color.rgb *= vIn.color.rgb;
+        #endif
+
+        color.rgb = RGBToLinear(color.rgb);
+
+        // try and reduce amount of velocity pixels affected
+        if (luminance(color.rgb) * color.a < (8.0/255.0)) {discard; return;}
+
+        #ifndef IRIS_FEATURE_SSBO
+            vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
+        #endif
+
+        if (renderStage == MC_RENDER_STAGE_SUN) {
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
+            #endif
+
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                color.rgb *= 10.0 * WorldSunLightColor;
+            #elif SKY_TYPE == SKY_TYPE_VANILLA
+                color.rgb *= 2.0;
+            #endif
+
+            color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);
+        }
+        else if (renderStage == MC_RENDER_STAGE_MOON) {
+            #ifndef IRIS_FEATURE_SSBO
+                vec3 WorldMoonLightColor = GetSkyMoonColor(localSunDirection.y);
+            #endif
+
+            #if SKY_TYPE == SKY_TYPE_CUSTOM
+                color.rgb *= 4.0 * WorldMoonLightColor;
+            #endif
+
+            color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
+        }
+
+        //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
+        //    color.rgb *= 2.0;
+    #else
+        // END sky
         color.rgb *= vIn.color.rgb;
+        color.rgb = RGBToLinear(color.rgb);
     #endif
-
-    color.rgb = RGBToLinear(color.rgb);
-
-    // try and reduce amount of velocity pixels affected
-    if (luminance(color.rgb) * color.a < (8.0/255.0)) {discard; return;}
-
-    #ifndef IRIS_FEATURE_SSBO
-        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
-    #endif
-
-    if (renderStage == MC_RENDER_STAGE_SUN) {
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 WorldSunLightColor = GetSkySunColor(localSunDirection.y);
-        #endif
-
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            color.rgb *= 10.0 * WorldSunLightColor;
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            color.rgb *= 2.0;
-        #endif
-
-        color.rgb *= smoothstep(-0.1, 0.1, localSunDirection.y);
-    }
-    else if (renderStage == MC_RENDER_STAGE_MOON) {
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 WorldMoonLightColor = GetSkyMoonColor(localSunDirection.y);
-        #endif
-
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            color.rgb *= 4.0 * WorldMoonLightColor;
-        #endif
-
-        color.rgb *= smoothstep(0.1, -0.1, localSunDirection.y);
-    }
-
-    //if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON)
-    //    color.rgb *= 2.0;
 
     // color.rgb += InterleavedGradientNoise(gl_FragCoord.xy) / 256.0;
 

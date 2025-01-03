@@ -109,9 +109,9 @@ uniform float sunAngle;
 
 void main() {
     vec2 texcoord = gl_FragCoord.xy / viewSize;
-    
     vec3 clipPos = vec3(texcoord * 2.0 - 1.0, 1.0);
-    vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
+//    vec3 viewPos = (gbufferProjectionInverse * vec4(clipPos, 1.0)).xyz;
+    vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
     // vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
     #ifndef IRIS_FEATURE_SSBO

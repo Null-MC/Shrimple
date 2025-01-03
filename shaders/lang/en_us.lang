@@ -92,6 +92,9 @@ option.WORLD_END_SMOKE=End Smoke
 option.WORLD_END_AMBIENT=End Ambient
 suffix.WORLD_END_AMBIENT=%
 
+option.WORLD_END_SMOKE_LEVEL=Smoke Amount
+suffix.WORLD_END_SMOKE_LEVEL=%
+
 
 screen.SKY_COLOR_OPTIONS=Sky Light Colors
 

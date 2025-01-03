@@ -274,7 +274,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             samplePhase = phaseIso;
 
             #ifdef WORLD_END
-                const vec3 EndSmokeAmbientColor = _RGBToLinear(vec3(0.698, 0.212, 0.89));
+                const vec3 EndSmokeAmbientColor = 0.2*_RGBToLinear(vec3(0.698, 0.212, 0.89));
                 sampleAmbient = SmokeAmbientF * EndSmokeAmbientColor;
             #endif
         #endif
