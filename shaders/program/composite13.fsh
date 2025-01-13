@@ -152,7 +152,7 @@ uniform vec3 eyePosition;
         #include "/lib/water/water_mask_read.glsl"
     #endif
 
-    #ifdef IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
+    #if defined IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
         #include "/lib/buffers/block_voxel.glsl"
     #endif
 
@@ -165,7 +165,7 @@ uniform vec3 eyePosition;
     //     #include "/lib/buffers/water_depths.glsl"
     // #endif
 
-    #ifdef IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
+    #if defined IS_LPV_ENABLED || (VOLUMETRIC_BRIGHT_BLOCK > 0 && LIGHTING_MODE != LIGHTING_MODE_NONE)
         #include "/lib/blocks.glsl"
 
         #include "/lib/voxel/voxel_common.glsl"
