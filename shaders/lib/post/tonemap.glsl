@@ -22,8 +22,8 @@ vec3 agx(vec3 val) {
         0.0784335999999992,  0.878468636469772,  0.0784336,
         0.0792237451477643, 0.0791661274605434, 0.879142973793104);
 
-    const float min_ev = -12.47393f;
-    const float max_ev = 4.026069f;
+    const float min_ev = -9.0;
+    const float max_ev = 1.0;
 
     // Input transform
     val = agx_mat * val;
@@ -62,7 +62,7 @@ vec3 agxLook(vec3 val) {
     vec3 offset = vec3(0.0);
     vec3 slope = vec3(1.0);
     vec3 power = vec3(1.0, 1.0, 1.0);
-    float sat = 1.2;
+    float sat = 1.0;
 
     // ASC CDL
     val = pow(val * slope + offset, power);
@@ -73,7 +73,7 @@ vec3 tonemap_AgX(vec3 color) {
     color = agx(color);
     color = agxLook(color);
     color = agxEotf(color);
-    color = pow(color, vec3(2.2));
+    color = pow(max(color, vec3(0.0)), vec3(2.2));
     return color;
 }
 

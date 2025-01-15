@@ -610,10 +610,10 @@ layout(location = 0) out vec4 outFinal;
                 #if MATERIAL_SSS_AMBIENT > 0
                     vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir);
 
-                    sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * occlusion * skyLightF);
+                    sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * skyLightF);
                 #endif
 
-                diffuseFinal += sssFinal;
+                diffuseFinal += sssFinal * occlusion;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -634,18 +634,19 @@ layout(location = 0) out vec4 outFinal;
                 //albedo *= 1.0 - skyF;
             #endif
 
+            vec3 albedo_pm = albedo * deferredColor.a;
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;
                 specularFinal += sampleSpecular;
 
-                final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
             #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
             #else
-                final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
+                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
             #endif
 
-            final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
+            //final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
 
             // #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA
             //     vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
