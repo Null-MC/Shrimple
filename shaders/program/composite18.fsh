@@ -647,6 +647,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             //final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
+            final.a = deferredColor.a;
 
             // #if defined SKY_BORDER_FOG_ENABLED && SKY_TYPE == SKY_TYPE_VANILLA
             //     vec3 fogColorFinal = GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
