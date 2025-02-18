@@ -42,7 +42,7 @@ in vec2 texcoord;
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -98,7 +98,7 @@ in vec2 texcoord;
             uniform vec3 sunPosition;
         #endif
 
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
             uniform float cloudHeight;
             uniform vec3 eyePosition;
@@ -177,13 +177,13 @@ in vec2 texcoord;
     #endif
 
     #ifdef WORLD_SKY_ENABLED
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE != CLOUDS_NONE
             #include "/lib/clouds/cloud_common.glsl"
         #endif
 
-        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        //     #include "/lib/clouds/cloud_custom.glsl"
-        // #endif
+        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            #include "/lib/clouds/cloud_custom.glsl"
+        #endif
     #endif
 
     #ifdef IS_LPV_SKYLIGHT_ENABLED
@@ -208,8 +208,10 @@ in vec2 texcoord;
             #include "/lib/material/fresnel.glsl"
         #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
-            #include "/lib/clouds/cloud_vanilla.glsl"
+        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
         #endif
 
         #ifdef WORLD_SKY_ENABLED

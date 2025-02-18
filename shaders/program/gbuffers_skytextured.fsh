@@ -53,7 +53,8 @@ void main() {
     vec4 color = textureLod(gtexture, vIn.texcoord, 0);
 
     #ifdef WORLD_OVERWORLD
-        #ifdef SKY_CLOUD_ENABLED
+        // TODO: why is this dependent on clouds being enabled?
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             color.rgb *= vIn.color.rgb;
         #endif
 

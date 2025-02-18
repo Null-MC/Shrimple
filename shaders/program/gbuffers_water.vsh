@@ -133,6 +133,7 @@ uniform float far;
 #include "/lib/blocks.glsl"
 
 #include "/lib/sampling/atlas.glsl"
+#include "/lib/sampling/noise.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"

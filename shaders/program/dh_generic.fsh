@@ -253,16 +253,16 @@ uniform int frameCounter;
 
     #include "/lib/lighting/sampling.glsl"
 
-    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
-        #include "/lib/voxel/lights/mask.glsl"
-        // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/voxel/blocks.glsl"
-    #endif
+//    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+//        #include "/lib/voxel/lights/mask.glsl"
+//        // #include "/lib/lighting/voxel/block_mask.glsl"
+//        #include "/lib/voxel/blocks.glsl"
+//    #endif
     
-    #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
-        #include "/lib/lighting/voxel/tinting.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
+//    #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+//        #include "/lib/lighting/voxel/tinting.glsl"
+//        #include "/lib/lighting/voxel/tracing.glsl"
+//    #endif
 #endif
 
 #include "/lib/lighting/voxel/item_light_map.glsl"
@@ -275,15 +275,23 @@ uniform int frameCounter;
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/scatter_transmit.glsl"
 
-    #ifdef IS_LPV_ENABLED
-        #include "/lib/buffers/volume.glsl"
-
-        #include "/lib/voxel/lpv/lpv.glsl"
-        #include "/lib/voxel/lpv/lpv_render.glsl"
-    #endif
+//    #ifdef IS_LPV_ENABLED
+//        #include "/lib/buffers/volume.glsl"
+//
+//        #include "/lib/voxel/lpv/lpv.glsl"
+//        #include "/lib/voxel/lpv/lpv_render.glsl"
+//    #endif
     
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
+            #if defined(WORLD_SKY_ENABLED) && defined(MATERIAL_REFLECT_CLOUDS)
+                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    #include "/lib/clouds/cloud_custom.glsl"
+                #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                    #include "/lib/clouds/cloud_vanilla.glsl"
+                #endif
+            #endif
+
             #include "/lib/lighting/reflections.glsl"
         #endif
 
@@ -292,13 +300,13 @@ uniform int frameCounter;
         #endif
     #endif
 
-    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/lighting/traced.glsl"
-    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        #include "/lib/lighting/floodfill.glsl"
-    #else
+    //#if LIGHTING_MODE == LIGHTING_MODE_TRACED
+    //    #include "/lib/lighting/traced.glsl"
+    //#elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+    //    #include "/lib/lighting/floodfill.glsl"
+    //#else
         #include "/lib/lighting/vanilla.glsl"
-    #endif
+    //#endif
 
     // #include "/lib/lighting/basic_hand.glsl"
 #endif
@@ -543,11 +551,11 @@ void main() {
             ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        //    color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        //#elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-        #endif
+        //#endif
 
         color.a = 1.0;
 

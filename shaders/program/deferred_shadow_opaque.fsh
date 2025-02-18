@@ -34,9 +34,9 @@ in vec2 texcoord;
     #endif
 
     #if defined WORLD_SKY_ENABLED && ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
-        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        //     uniform sampler3D TEX_CLOUDS;
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform sampler3D TEX_CLOUDS;
+        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -68,11 +68,16 @@ in vec2 texcoord;
         uniform float dhFarPlane;
     #endif
 
-    #if defined WORLD_SKY_ENABLED //&& defined SHADOW_CLOUD_ENABLED
+    #ifdef WORLD_SKY_ENABLED //&& defined SHADOW_CLOUD_ENABLED
         uniform vec3 eyePosition;
         uniform float weatherStrength;
         uniform float cloudHeight;
         uniform float cloudTime;
+
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform float rainStrength;
+            uniform float frameTimeCounter;
+        #endif
     #endif
 
     #include "/lib/sampling/depth.glsl"
@@ -88,10 +93,10 @@ in vec2 texcoord;
         #include "/lib/clouds/cloud_common.glsl"
 
         #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
-            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            //     #include "/lib/clouds/cloud_custom.glsl"
-            //     #include "/lib/clouds/cloud_custom_shadow.glsl"
-            #ifdef SKY_CLOUD_ENABLED
+             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                 #include "/lib/clouds/cloud_custom.glsl"
+                 //#include "/lib/clouds/cloud_custom_shadow.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_vanilla.glsl"
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
             #endif
@@ -375,9 +380,15 @@ void main() {
                 #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                     float cloudShadow = 1.0;
 
-                    #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                         vec3 worldPos = cameraPosition + localPos;
-                        cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                        float cloudShadowDist = abs((cloudHeight - worldPos.y) / localSkyLightDirection.y);
+                        vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + worldPos;
+                        float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
+
+                        if (cloudShadowDensity > 0.0) {
+                            cloudShadow = exp(-10.0 * cloudShadowDensity);
+                        }
                     #else
                         vec2 cloudOffset = GetCloudOffset();
                         vec3 camOffset = GetCloudCameraOffset();

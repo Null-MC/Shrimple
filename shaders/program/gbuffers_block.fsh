@@ -298,6 +298,10 @@ uniform ivec2 eyeBrightnessSmooth;
 #endif
 
 #if !defined DEFERRED_BUFFER_ENABLED && defined IRIS_FEATURE_SSBO
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/voxel/voxel_common.glsl"
+    #endif
+
     #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
         #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
@@ -349,6 +353,14 @@ uniform ivec2 eyeBrightnessSmooth;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if defined(WORLD_SKY_ENABLED) && defined(MATERIAL_REFLECT_CLOUDS)
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #include "/lib/clouds/cloud_custom.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
+        #endif
+
         #include "/lib/lighting/reflections.glsl"
     #endif
 

@@ -44,7 +44,7 @@ uniform sampler2D lightmap;
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
     //     uniform sampler3D TEX_CLOUDS;
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -224,9 +224,9 @@ uniform vec3 eyePosition;
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
 
-    // #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //     #include "/lib/clouds/cloud_custom.glsl"
-    // #endif
+     #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+         #include "/lib/clouds/cloud_custom.glsl"
+     #endif
 #endif
 
 #ifdef RENDER_SHADOWS_ENABLED
@@ -289,7 +289,7 @@ uniform vec3 eyePosition;
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
     #include "/lib/buffers/volume.glsl"
     #include "/lib/utility/hsv.glsl"
-    
+
     #include "/lib/voxel/lpv/lpv.glsl"
     #include "/lib/voxel/lpv/lpv_render.glsl"
 

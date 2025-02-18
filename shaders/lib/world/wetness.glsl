@@ -11,10 +11,10 @@ float GetSkyWetness(in vec3 worldPos, const in vec3 localNormal, const in vec2 l
     #endif
 
     #if WORLD_WETNESS_PUDDLES != PUDDLES_FULL
-        vec3 texPos = 0.02 * worldPos.xzy;
+        vec3 texPos = 0.02 * worldPos;
         float noise = 0.0;
         for (int i = 0; i < 3; i++) {
-            float sampleNoise = 1.0 - textureLod(texClouds, texPos, 0).r;
+            float sampleNoise = textureLod(texClouds, texPos, 0).r;
             noise += sampleNoise / (i+1);
             texPos *= 3.0;
         }

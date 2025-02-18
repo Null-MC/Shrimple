@@ -54,7 +54,7 @@ uniform sampler2D depthtex0;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -258,9 +258,9 @@ uniform float dhFarPlane;
         #endif
     
         #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            //     #include "/lib/clouds/cloud_custom.glsl"
-            #ifdef SKY_CLOUD_ENABLED
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #include "/lib/clouds/cloud_custom.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_vanilla.glsl"
             #endif
         #endif
@@ -293,16 +293,16 @@ uniform float dhFarPlane;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
-        #include "/lib/voxel/lights/mask.glsl"
-        // #include "/lib/lighting/voxel/block_mask.glsl"
-        #include "/lib/voxel/blocks.glsl"
-    #endif
+//    #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+//        #include "/lib/voxel/lights/mask.glsl"
+//        // #include "/lib/lighting/voxel/block_mask.glsl"
+//        #include "/lib/voxel/blocks.glsl"
+//    #endif
 
-    #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
-        #include "/lib/lighting/voxel/tinting.glsl"
-        #include "/lib/lighting/voxel/tracing.glsl"
-    #endif
+//    #if LIGHTING_MODE_HAND == HAND_LIGHT_TRACED
+//        #include "/lib/lighting/voxel/tinting.glsl"
+//        #include "/lib/lighting/voxel/tracing.glsl"
+//    #endif
 
     #include "/lib/lighting/voxel/item_light_map.glsl"
     #include "/lib/lighting/voxel/lights.glsl"
@@ -327,13 +327,13 @@ uniform float dhFarPlane;
         #include "/lib/lighting/voxel/sampling.glsl"
     #endif
 
-    #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
-        #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/hsv.glsl"
-
-        #include "/lib/voxel/lpv/lpv.glsl"
-        #include "/lib/voxel/lpv/lpv_render.glsl"
-    #endif
+//    #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
+//        #include "/lib/buffers/volume.glsl"
+//        #include "/lib/utility/hsv.glsl"
+//
+//        #include "/lib/voxel/lpv/lpv.glsl"
+//        #include "/lib/voxel/lpv/lpv_render.glsl"
+//    #endif
 
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
@@ -345,13 +345,13 @@ uniform float dhFarPlane;
         #endif
     #endif
 
-    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/lighting/traced.glsl"
-    #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        #include "/lib/lighting/floodfill.glsl"
-    #else
+    //#if LIGHTING_MODE == LIGHTING_MODE_TRACED
+    //    #include "/lib/lighting/traced.glsl"
+    //#elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+    //    #include "/lib/lighting/floodfill.glsl"
+    //#else
         #include "/lib/lighting/vanilla.glsl"
-    #endif
+    //#endif
 
     // #include "/lib/lighting/basic_hand.glsl"
 
@@ -563,13 +563,13 @@ void main() {
             }
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
             // GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
-
-            diffuseFinal += emission * MaterialEmissionF;
-        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+        //
+        //    diffuseFinal += emission * MaterialEmissionF;
+        //#elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
-        #endif
+        //#endif
 
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
             const bool tir = false; // TODO: ?
@@ -587,11 +587,11 @@ void main() {
             ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+        //    color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+        //#elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
             color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-        #endif
+        //#endif
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE
             if (isWater) {

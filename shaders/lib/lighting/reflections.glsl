@@ -1,44 +1,9 @@
-// vec3 GetReflectiveness(const in float NoVm, const in vec3 f0, const in float roughL) {
-//     return F_schlickRough(NoVm, f0, roughL) * MaterialReflectionStrength * (1.0 - roughL);
-// }
-
 #ifdef WORLD_SKY_ENABLED
     vec3 GetSkyReflectionColor(const in vec3 localPos, const in vec3 reflectDir, const in float skyLight, const in float roughness) {
         #ifndef IRIS_FEATURE_SSBO
             vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
-
-        // #if SKY_TYPE == SKY_TYPE_CUSTOM
-        //     vec3 reflectColor;
-
-        //     #ifdef WORLD_WATER_ENABLED
-        //         if (isEyeInWater == 1) {
-        //             // #ifndef IRIS_FEATURE_SSBO
-        //             //     vec3 WorldSkyLightColor = GetSkyLightColor();
-        //             // #endif
-
-        //             vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-        //             reflectColor = GetCustomWaterFogColor(localSunDirection.y);
-        //         }
-        //         else {
-        //     #endif
-                
-        //         reflectColor = GetCustomSkyColor(localSunDirection, reflectDir);
-
-        //         #if !defined MATERIAL_REFLECT_CLOUDS && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
-        //             // TODO
-        //         #endif
-
-        //     #ifdef WORLD_WATER_ENABLED
-        //         }
-        //     #endif
-        // #elif SKY_TYPE == SKY_TYPE_VANILLA
-        //     vec3 reflectColor = GetVanillaFogColor(fogColor, reflectDir.y);
-        //     reflectColor = RGBToLinear(reflectColor);
-        // #else
-        //     vec3 reflectColor = RGBToLinear(skyColor);
-        // #endif
 
         vec2 uvSky = DirectionToUV(reflectDir);
         vec3 reflectColor = textureLod(texSky, uvSky, 0).rgb;
@@ -50,17 +15,55 @@
         //     reflectColor += starLight; // * moonUpF
         // #endif
 
-        #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && (!defined RENDER_GBUFFER || defined RENDER_WATER)
-            vec3 lightWorldDir = reflectDir / reflectDir.y;
+        #if defined MATERIAL_REFLECT_CLOUDS && ((!defined RENDER_GBUFFER || defined RENDER_WATER) || !defined DEFERRED_BUFFER_ENABLED)
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                if (abs(reflectDir.y) > 0.0 && isEyeInWater == 0) {
+                    vec3 worldPos = localPos + cameraPosition;
+                    float cloudPlaneOffset = cloudHeight - worldPos.y;
 
-            const vec3 cloudColor = _RGBToLinear(vec3(0.8));
-            const vec3 cloudColorRain = _RGBToLinear(vec3(0.139, 0.184, 0.192));
+                    if (sign(cloudPlaneOffset) == sign(reflectDir.y)) {
+                        float cloudDist = abs(cloudPlaneOffset / reflectDir.y);
+                        vec3 cloud_localPos = cloudDist * reflectDir;
+                        vec3 cloudWorldPos = cloud_localPos + worldPos;
 
-            vec2 cloudOffset = GetCloudOffset();
-            vec3 camOffset = GetCloudCameraOffset();
-            float cloudF = SampleClouds(localPos, lightWorldDir, cloudOffset, camOffset, max(roughness, 0.1));
-            vec3 cloudColorFinal = WorldSkyLightColor * mix(cloudColor, cloudColorRain, rainStrength);
-            reflectColor = mix(reflectColor, cloudColorFinal, cloudF);
+                        float cloudDensity = SampleCloudDensity(cloudWorldPos);
+                        vec3 cloudLight = WorldSkyLightColor;
+
+                        #ifdef EFFECT_TAA_ENABLED
+                            float dither = InterleavedGradientNoiseTime();
+                        #else
+                            float dither = InterleavedGradientNoise();
+                        #endif
+
+                        float shadowStepDist = 4.0;
+                        float shadowDensity = 0.0;
+                        for (float ii = dither; ii < 8.0; ii += 1.0) {
+                            vec3 cloudShadow_worldPos = (shadowStepDist * ii) * localSkyLightDirection + cloudWorldPos;
+                            shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
+                            shadowStepDist *= 2.0;
+                        }
+
+                        if (shadowDensity > 0.0)
+                            cloudLight *= exp(-0.5 * shadowDensity);
+
+                        const float traceStepLen = 10.0;
+                        ApplyScatteringTransmission(reflectColor, traceStepLen, cloudLight, cloudDensity, AirScatterColor, AirExtinctColor, 4);
+
+                        //reflectColor = mix(reflectColor, cloudColorFinal, cloudDensity);
+                    }
+                }
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+//                vec3 lightWorldDir = reflectDir / reflectDir.y;
+//
+//                const vec3 cloudColor = _RGBToLinear(vec3(0.8));
+//                const vec3 cloudColorRain = _RGBToLinear(vec3(0.139, 0.184, 0.192));
+//
+//                vec2 cloudOffset = GetCloudOffset();
+//                vec3 camOffset = GetCloudCameraOffset();
+//                float cloudF = SampleClouds(localPos, lightWorldDir, cloudOffset, camOffset, max(roughness, 0.1));
+//                vec3 cloudColorFinal = WorldSkyLightColor * mix(cloudColor, cloudColorRain, rainStrength);
+//                reflectColor = mix(reflectColor, cloudColorFinal, cloudF);
+            #endif
         #endif
 
         if (isEyeInWater != 1) {
@@ -97,9 +100,9 @@ vec3 ApplyReflections(const in vec3 localPos, const in vec3 viewPos, const in ve
     vec3 reflectLocalDir = normalize(mat3(gbufferModelViewInverse) * reflectViewDir);
 
     #ifdef WORLD_SKY_ENABLED
-        //vec3 reflectColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
-        vec2 uvSky = DirectionToUV(reflectLocalDir);
-        vec3 skyColor = textureLod(texSky, uvSky, 0).rgb;
+        vec3 skyColor = GetSkyReflectionColor(localPos, reflectLocalDir, skyLight, roughness);
+        //vec2 uvSky = DirectionToUV(reflectLocalDir);
+        //vec3 skyColor = textureLod(texSky, uvSky, 0).rgb;
         vec3 reflectColor = skyColor * pow5(skyLight);
     #else
         vec3 skyColor = RGBToLinear(fogColor);

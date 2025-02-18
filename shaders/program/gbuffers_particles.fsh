@@ -73,7 +73,7 @@ uniform sampler2D noisetex;
     //#ifdef SHADOW_CLOUD_ENABLED
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     //#endif
@@ -198,13 +198,13 @@ uniform vec3 eyePosition;
         
         // uniform float cloudHeight;
 
-        #ifdef SKY_CLOUD_ENABLED
+        //#if SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform float cloudTime;
-        #endif
+        //#endif
 
-        #ifdef IS_IRIS
+        //#ifdef IS_IRIS
             uniform float lightningStrength;
-        #endif
+        //#endif
     #endif
 
     uniform int heldItemId;
@@ -341,10 +341,12 @@ uniform vec3 eyePosition;
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
 
-        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        //     #include "/lib/clouds/cloud_custom.glsl"
-        #ifdef SKY_CLOUD_ENABLED
-            #include "/lib/clouds/cloud_vanilla.glsl"
+        #ifdef RENDER_CLOUD_SHADOWS_ENABLED
+            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            //     #include "/lib/clouds/cloud_custom.glsl"
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
         #endif
     #endif
 
@@ -374,9 +376,9 @@ uniform vec3 eyePosition;
         #include "/lib/sky/sky_trace.glsl"
     #endif
 
-    #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        #include "/lib/lighting/reflections.glsl"
-    #endif
+//    #if MATERIAL_REFLECTIONS != REFLECT_NONE
+//        #include "/lib/lighting/reflections.glsl"
+//    #endif
 
     #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
         #include "/lib/sky/irradiance.glsl"

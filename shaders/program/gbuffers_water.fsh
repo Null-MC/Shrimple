@@ -86,7 +86,7 @@ uniform sampler2D noisetex;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             // uniform sampler3D TEX_CLOUDS;
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -290,7 +290,7 @@ uniform vec3 eyePosition;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     #include "/lib/clouds/cloud_custom.glsl"
-        #ifdef SKY_CLOUD_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif
@@ -321,6 +321,10 @@ uniform vec3 eyePosition;
     #ifdef LIGHTING_FLICKER
         // #include "/lib/lighting/blackbody.glsl"
         #include "/lib/lighting/flicker.glsl"
+    #endif
+
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/voxel/voxel_common.glsl"
     #endif
 
     #ifdef IS_LPV_ENABLED
@@ -384,9 +388,11 @@ uniform vec3 eyePosition;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
-        // #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        //     #include "/lib/shadows/clouds.glsl"
-        // #endif
+        #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED
+            #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_custom.glsl"
+            #endif
+        #endif
     
         #include "/lib/lighting/reflections.glsl"
     #endif

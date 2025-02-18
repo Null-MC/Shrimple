@@ -140,7 +140,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         skySpecular += step(-EPSILON, geoNoL) * S * skyLightColor * shadowColor;
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined(RENDER_PARTICLES)
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
 
             if (tir) skyReflectF = vec3(1.0);

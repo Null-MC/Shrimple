@@ -27,7 +27,7 @@ uniform sampler2D noisetex;
 #if defined WORLD_SKY_ENABLED //&& (LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY || SKY_CLOUD_TYPE > CLOUDS_VANILLA) //&& defined SHADOW_CLOUD_ENABLED
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         // uniform sampler3D TEX_CLOUDS;
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 // #elif defined IS_WORLD_SMOKE_ENABLED && defined VL_BUFFER_ENABLED
@@ -243,11 +243,11 @@ uniform vec3 eyePosition;
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
-    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //     #include "/lib/clouds/cloud_custom.glsl"
-    //     #include "/lib/clouds/cloud_custom_shadow.glsl"
-    //     #include "/lib/clouds/cloud_custom_trace.glsl"
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+         #include "/lib/clouds/cloud_custom.glsl"
+         //#include "/lib/clouds/cloud_custom_shadow.glsl"
+         //#include "/lib/clouds/cloud_custom_trace.glsl"
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
         #include "/lib/clouds/cloud_vanilla_shadow.glsl"
     #endif

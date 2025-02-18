@@ -59,7 +59,7 @@ uniform sampler2D BUFFER_OVERLAY;
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
     //     uniform sampler3D TEX_CLOUDS;
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -275,11 +275,11 @@ uniform vec3 eyePosition;
     
     #include "/lib/world/lightning.glsl"
 
-    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //     #include "/lib/clouds/cloud_custom.glsl"
-    //     #include "/lib/clouds/cloud_custom_shadow.glsl"
-    //     #include "/lib/clouds/cloud_custom_trace.glsl"
-    // #endif
+     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+         #include "/lib/clouds/cloud_custom.glsl"
+         //#include "/lib/clouds/cloud_custom_shadow.glsl"
+         //#include "/lib/clouds/cloud_custom_trace.glsl"
+     #endif
 #endif
 
 #include "/lib/lights.glsl"
@@ -317,8 +317,10 @@ uniform vec3 eyePosition;
 #endif
 
 #if MATERIAL_REFLECTIONS != REFLECT_NONE
-    #if defined MATERIAL_REFLECT_CLOUDS && defined SKY_CLOUD_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
-        #include "/lib/clouds/cloud_vanilla.glsl"
+    #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #include "/lib/clouds/cloud_vanilla.glsl"
+        #endif
     #endif
     
     #include "/lib/lighting/reflections.glsl"

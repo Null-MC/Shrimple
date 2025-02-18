@@ -73,9 +73,9 @@ uniform sampler2D noisetex;
 #endif
 
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
-    // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-    //     uniform sampler3D TEX_CLOUDS;
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform sampler3D TEX_CLOUDS;
+    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -278,6 +278,10 @@ uniform vec3 eyePosition;
         // #endif
     #endif
 
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/voxel/voxel_common.glsl"
+    #endif
+
     #ifdef IS_LPV_ENABLED
         #include "/lib/voxel/lights/mask.glsl"
         // #include "/lib/lighting/voxel/block_mask.glsl"
@@ -327,6 +331,14 @@ uniform vec3 eyePosition;
     #endif
 
     #if MATERIAL_REFLECTIONS != REFLECT_NONE
+        #if defined(WORLD_SKY_ENABLED) && defined(MATERIAL_REFLECT_CLOUDS)
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #include "/lib/clouds/cloud_custom.glsl"
+            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
+        #endif
+
         #include "/lib/lighting/reflections.glsl"
     #endif
     

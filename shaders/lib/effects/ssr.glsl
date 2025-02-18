@@ -60,7 +60,7 @@ vec4 GetReflectionPosition(const in sampler2D depthtex, const in vec3 clipPos, c
             lastVisPos = t;
 
             // allow sky reflection
-            if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
+            //if (tracePos.z >= 1.0 && t.xy == tracePos.xy) alpha = 1.0;
 
             level = 0;
             break;

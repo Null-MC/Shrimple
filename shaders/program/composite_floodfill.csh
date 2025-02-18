@@ -33,7 +33,7 @@ const float LpvIndirectFalloff = 0.98;
         #ifdef SHADOW_CLOUD_ENABLED
             // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             //     uniform sampler3D TEX_CLOUDS;
-            #ifdef SKY_CLOUD_ENABLED
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 uniform sampler2D TEX_CLOUDS_VANILLA;
             #endif
         #endif
@@ -140,7 +140,7 @@ const float LpvIndirectFalloff = 0.98;
             // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
             //     #include "/lib/clouds/cloud_custom.glsl"
             //     #include "/lib/clouds/cloud_custom_shadow.glsl"
-            #ifdef SKY_CLOUD_ENABLED
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_vanilla.glsl"
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
             #endif

@@ -50,6 +50,32 @@ option.SKY_MOON_BRIGHTNESS=Moon Light
 suffix.SKY_MOON_BRIGHTNESS=%
 
 
+screen.OVERWORLD_CLOUD_OPTIONS=Clouds
+
+option.SKY_CLOUD_TYPE=Type
+value.SKY_CLOUD_TYPE.0=None
+value.SKY_CLOUD_TYPE.1=Vanilla
+value.SKY_CLOUD_TYPE.2=Fancy
+value.SKY_CLOUD_TYPE.3=Cubed
+
+option.SKY_CLOUD_SPEED=Speed
+option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.
+suffix.SKY_CLOUD_SPEED=x
+
+option.SKY_CLOUD_OPACITY=Opacity
+suffix.SKY_CLOUD_OPACITY=%
+
+option.SKY_CLOUD_COVER_MIN=Min Coverage
+suffix.SKY_CLOUD_COVER_MIN=%
+
+option.SKY_CLOUD_ALTITUDE=Altitude
+option.SKY_CLOUD_ALTITUDE.comment=The world Y level where the bottom of clouds will start. For vanilla cloud height you must use sodium-extra mod (value=default).
+value.SKY_CLOUD_ALTITUDE.0=Default
+
+option.SKY_CLOUD_HEIGHT=Height
+option.SKY_CLOUD_HEIGHT.comment=The vertical height range of the cloud volume (in blocks). For fancy/cubed clouds only.
+
+
 screen.OVERWORLD_FOG_OPTIONS=Fog
 
 option.WORLD_SEA_LEVEL=Sea Level
@@ -109,32 +135,6 @@ option.SKY_LIGHT_COLOR_HORIZON_B=Horizon:Blue
 option.SKY_LIGHT_COLOR_NIGHT_R=Night:Red
 option.SKY_LIGHT_COLOR_NIGHT_G=Night:Green
 option.SKY_LIGHT_COLOR_NIGHT_B=Night:Blue
-
-
-screen.SKY_CLOUD_OPTIONS=Clouds
-
-option.SKY_CLOUD_TYPE=Type
-value.SKY_CLOUD_TYPE.0=None
-value.SKY_CLOUD_TYPE.1=Vanilla
-value.SKY_CLOUD_TYPE.2=Fancy
-value.SKY_CLOUD_TYPE.3=Cubed
-
-option.SKY_CLOUD_SPEED=Speed
-option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.
-suffix.SKY_CLOUD_SPEED=x
-
-option.SKY_CLOUD_OPACITY=Opacity
-suffix.SKY_CLOUD_OPACITY=%
-
-option.SKY_CLOUD_COVER_MIN=Min Coverage
-suffix.SKY_CLOUD_COVER_MIN=%
-
-option.SKY_CLOUD_ALTITUDE=Altitude
-option.SKY_CLOUD_ALTITUDE.comment=The world Y level where the bottom of clouds will start. For vanilla cloud height you must use sodium-extra mod (value=default).
-value.SKY_CLOUD_ALTITUDE.0=Default
-
-option.SKY_CLOUD_HEIGHT=Height
-option.SKY_CLOUD_HEIGHT.comment=The vertical height range of the cloud volume (in blocks). For fancy/cubed clouds only.
 
 
 screen.WORLD_OPTIONS=World

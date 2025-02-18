@@ -35,14 +35,14 @@ vec3 CalculateIrradiance(const in vec3 normal) {
     float nrSamples = 0.0;
     vec3 irradiance = vec3(0.0);
 
-    for (float phi = 0.0; phi < TAU; phi += sampleDelta) {
-        float cos_phi = cos(phi+phi_dither);
-        float sin_phi = sin(phi+phi_dither);
+    for (float phi = phi_dither; phi < TAU; phi += sampleDelta) {
+        float cos_phi = cos(phi);
+        float sin_phi = sin(phi);
 
-        for (float theta = 0.0; theta < 0.5*PI; theta += sampleDelta) {
+        for (float theta = theta_dither; theta < 0.5*PI; theta += sampleDelta) {
             // spherical to cartesian (in tangent space)
-            float cos_theta = cos(theta+theta_dither);
-            float sin_theta = sin(theta+theta_dither);
+            float cos_theta = cos(theta);
+            float sin_theta = sin(theta);
 
             vec3 tangentSample = vec3(
                 sin_theta * cos_phi,

@@ -81,7 +81,7 @@ uniform int frameCounter;
     uniform vec3 skyColor;
     uniform int moonPhase;
 
-    #ifdef SKY_CLOUD_ENABLED
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
         uniform float cloudTime;
         uniform float cloudHeight;
     #endif
