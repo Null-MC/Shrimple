@@ -22,5 +22,7 @@ float SampleCloudDensity(const in vec3 worldPos) {
 
     noise *= smoothstep(8000.0, 5000.0, distance(worldPos.xz, cameraPosition.xz));
 
-    return noise;
+    float densityF = mix(1.0, 2.0, weatherStrength);
+
+    return noise * densityF;
 }

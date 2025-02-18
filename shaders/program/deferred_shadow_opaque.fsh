@@ -234,6 +234,29 @@ void main() {
                 float zRange = GetShadowRange();
             #endif
 
+            float cloudShadow = 1.0;
+            #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
+                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    vec3 worldPos = cameraPosition + localPos;
+                    float cloudShadowDist = abs((cloudHeight - worldPos.y) / localSkyLightDirection.y);
+                    vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + worldPos;
+                    float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
+
+                    if (cloudShadowDensity > 0.0) {
+                        cloudShadow = exp(-4.0 * cloudShadowDensity);
+                    }
+                #else
+                    vec2 cloudOffset = GetCloudOffset();
+                    vec3 camOffset = GetCloudCameraOffset();
+                    //vec3 worldPos = cameraPosition + localPos;
+                    //float cloudShadow = TraceCloudShadow(worldPos, localSkyLightDirection, CLOUD_SHADOW_STEPS);
+                    cloudShadow = SampleCloudShadow(localPos, localSkyLightDirection, cloudOffset, camOffset, 0.5);
+                    cloudShadow = cloudShadow * 0.5 + 0.5;
+                #endif
+
+                shadowFinal *= cloudShadow;
+            #endif
+
             #if MATERIAL_SSS != 0
                 float sss = unpackUnorm4x8(deferredData.r).w;
 
@@ -246,25 +269,8 @@ void main() {
                     sssSample = GetSssFactor(shadowPos, offsetBias, sss);
                 #endif
 
-                sssFinal = mix(sssSample, sss, shadowFade);
+                sssFinal = mix(sssSample, sss, shadowFade) * cloudShadow;
             #endif
-
-            // #ifdef SHADOW_COLORED
-            //     if (shadowFade < 1.0)
-            //         shadowFinal = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-
-            //     // shadowFinal = min(shadowFinal, vec3(lmShadow));
-            // #else
-            //     float shadowF = 1.0;
-            //     if (shadowFade < 1.0)
-            //         shadowF = GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss);
-                
-            //     //shadowF = min(shadowF, lmShadow);
-            //     shadowFinal = vec3(shadowF);
-            // #endif
-
-            // vec2 sssOffset = hash22(vec2(dither, 0.0)) - 0.5;
-            // sssOffset *= sss * _pow2(dither) * MATERIAL_SSS_SCATTER;
 
             #ifdef SHADOW_SCREEN
                 float viewDist = length(viewPos);

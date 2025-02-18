@@ -54,11 +54,6 @@ uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
-
-    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
-        uniform sampler3D texIndirectLpv_1;
-        uniform sampler3D texIndirectLpv_2;
-    #endif
 #endif
 
 #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -302,10 +297,6 @@ uniform vec3 eyePosition;
     
     #include "/lib/voxel/lpv/lpv.glsl"
     #include "/lib/voxel/lpv/lpv_render.glsl"
-
-    #if defined IS_LPV_SKYLIGHT_ENABLED && LPV_SKYLIGHT == LPV_SKYLIGHT_FANCY
-        #include "/lib/voxel/lpv/lpv_render_indirect.glsl"
-    #endif
 #endif
 
 #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
