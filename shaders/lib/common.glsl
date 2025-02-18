@@ -290,20 +290,15 @@ const bool colortex15Clear = true;
 //#define DYN_LIGHT_FRUSTUM_TEST
 //#define DYN_LIGHT_BLOCK_ENTITIES
 //#define DYN_LIGHT_WEATHER
-#define LIGHTING_TRACE_LPV_AMBIENT 0.05 // [0.00 0.05 0.10 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0]
+#define LIGHTING_TRACE_LPV_AMBIENT 5 // [0 2 4 6 8 10 12 14 16 18 20 25 30 40 50 60 70 80 90 100]
 
 // Dynamic LPV
-// #define LPV_ENABLED
 #define LPV_SKYLIGHT 0 // [0 1]
 #define LPV_SAMPLE_MODE 1 // [0 1 2]
-#define LPV_SHADOW_SAMPLES 6 // [1 2 3 4 5 6 7 8 9 12 15 18 21 25]
-#define LPV_LIGHTMAP_MIX 10 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 55 60 65 70 75 80 85 90 95 100]
 #define LPV_SKYLIGHT_RANGE 16 // [12 16 20 24 28 32]
 #define LPV_BLOCKLIGHT_SCALE 12 // [8 12 16 24 32 48 64 96 128]
 #define LPV_FRUSTUM_OFFSET 30 // [0 5 10 15 20 25 30 35 40 45 50]
-#define LPV_GI_RANGE 16 // [1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26 28 30 32]
 //#define LPV_VANILLA_BRIGHTNESS
-//#define LPV_BLEND_ALT
 #define LPV_GLASS_TINT
 //#define LPV_VOXEL_TEST
 //#define LPV_AO_FIX
@@ -536,7 +531,7 @@ const bool colortex15Clear = true;
     #define RENDER_CLOUD_SHADOWS_ENABLED
 #endif
 
-#if defined LPV_ENABLED && LIGHTING_MODE > LIGHTING_MODE_NONE
+#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || (LIGHTING_MODE == LIGHTING_MODE_TRACED && LIGHTING_TRACE_LPV_AMBIENT > 0)
     #define IS_LPV_ENABLED
 #endif
 
@@ -605,8 +600,6 @@ const bool colortex15Clear = true;
 #endif
 #ifdef LIGHTING_FULLBRIGHT_FIX
 #endif
-#ifdef LPV_ENABLED
-#endif
 #ifdef VOLUMETRIC_BLOCK_RT
 #endif
 #ifdef DEFER_TRANSLUCENT
@@ -666,7 +659,6 @@ const float Lighting_TintF = LIGHTING_TINT_STRENGTH * 0.01;
 const float Lighting_PenumbraF = LIGHTING_TRACE_PENUMBRA * 0.01;
 const float Lighting_Brightness = LIGHTING_BRIGHTNESS * 0.01;
 const float Lighting_RangeF = LIGHTING_RANGE * 0.01;
-const float Lpv_LightmapMixF = LPV_LIGHTMAP_MIX * 0.01;
 // const float LpvBlockLightF = exp2(LPV_BRIGHT_BLOCK - 1);
 const float Shadow_MinPcfSize = SHADOW_PCF_SIZE_MIN;
 const float Shadow_MaxPcfSize = SHADOW_PCF_SIZE_MAX;

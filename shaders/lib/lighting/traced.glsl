@@ -14,7 +14,6 @@ float GetVoxelFade(const in vec3 voxelPos) {
 
         float lpvFade = GetLpvFade(lpvPos);
         lpvFade = smootherstep(lpvFade);
-        lpvFade *= 1.0 - Lpv_LightmapMixF;
 
         vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
 
@@ -24,7 +23,7 @@ float GetVoxelFade(const in vec3 voxelPos) {
             vec3 lpvLight = GetLpvBlockLight(lpvSample);
         #endif
 
-        return LIGHTING_TRACE_LPV_AMBIENT * lpvLight * lpvFade;// * Lighting_AmbientF;
+        return (LIGHTING_TRACE_LPV_AMBIENT * 0.01) * lpvLight * lpvFade;// * Lighting_AmbientF;
     }
 #endif
 

@@ -219,7 +219,7 @@ void main() {
                 }
             #endif
 
-            #ifdef IS_LPV_ENABLED //&& (LIGHTING_MODE == LIGHTING_MODE_FLOODFILL || LPV_SHADOW_SAMPLES > 0)
+            #ifdef IS_LPV_ENABLED
                 #if defined IRIS_VERSION && IRIS_VERSION >= 10800
                     bool isThisPlayer = entityId == ENTITY_PLAYER_CURRENT;
                 #else

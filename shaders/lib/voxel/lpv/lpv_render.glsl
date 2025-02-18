@@ -19,13 +19,14 @@ float LpvVoxelTest(const in ivec3 voxelCoord) {
 }
 
 vec4 SampleLpvNearest(const in ivec3 lpvPos) {
-    vec4 lpvSample = (frameCounter % 2) == 0
     #ifndef RENDER_GBUFFER
-        ? texelFetch(texLPV_1, lpvPos, 0)
-        : texelFetch(texLPV_2, lpvPos, 0);
+        vec4 lpvSample = (frameCounter % 2) == 0
+            ? texelFetch(texLPV_1, lpvPos, 0)
+            : texelFetch(texLPV_2, lpvPos, 0);
     #else
-        ? texelFetch(texLPV_2, lpvPos, 0)
-        : texelFetch(texLPV_1, lpvPos, 0);
+        vec4 lpvSample = (frameCounter % 2) == 0
+            ? texelFetch(texLPV_2, lpvPos, 0)
+            : texelFetch(texLPV_1, lpvPos, 0);
     #endif
 
     return lpvSample / Lighting_RangeF;
@@ -34,9 +35,15 @@ vec4 SampleLpvNearest(const in ivec3 lpvPos) {
 vec4 SampleLpvLinear(const in vec3 lpvPos) {
     vec3 texcoord = lpvPos / VoxelBufferSize;
 
-    return (frameCounter % 2) == 0
-        ? textureLod(texLPV_1, texcoord, 0)
-        : textureLod(texLPV_2, texcoord, 0);
+    #ifndef RENDER_GBUFFER
+        return (frameCounter % 2) == 0
+            ? textureLod(texLPV_1, texcoord, 0)
+            : textureLod(texLPV_2, texcoord, 0);
+    #else
+        return (frameCounter % 2) == 0
+            ? textureLod(texLPV_2, texcoord, 0)
+            : textureLod(texLPV_1, texcoord, 0);
+    #endif
 }
 
 vec4 SampleLpvCubic(in vec3 lpvPos) {
@@ -176,17 +183,6 @@ vec3 GetLpvFogBlockLight(const in vec4 lpvSample) {
 
     return rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
 }
-
-// vec3 GetLpvBlockLight(const in vec4 lpvSample, const in float minBlockLight) {
-//     vec3 hsv = RgbToHsv(lpvSample.rgb);
-//     // hsv.z = max(hsv.z, minBlockLight*0.33);
-//     // hsv.z = _pow2(hsv.z);
-//     hsv.z = _pow2(minBlockLight)*0.33;
-    
-//     vec3 lpvBlockLight = HsvToRgb(hsv);
-
-//     return lpvBlockLight * ((LPV_BLOCKLIGHT_SCALE / 15.0) * Lighting_Brightness);
-// }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {
     float skyLight = saturate(lpvSample.a);

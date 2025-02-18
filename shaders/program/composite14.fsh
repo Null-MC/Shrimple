@@ -339,7 +339,6 @@ layout(location = 0) out vec4 outFinal;
 
                 float lpvFade = GetLpvFade(lpvPos);
                 lpvFade = smootherstep(lpvFade);
-                lpvFade *= 1.0 - Lpv_LightmapMixF;
 
                 vec4 lpvSample = SampleLpv(lpvPos, localNormal, texNormal);
                 float lpvSkyLight = GetLpvSkyLight(lpvSample);
