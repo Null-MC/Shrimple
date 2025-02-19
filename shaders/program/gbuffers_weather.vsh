@@ -136,12 +136,10 @@ void main() {
 
 
     #if SKY_CLOUD_TYPE != CLOUDS_NONE
-        const float CloudHeight = 4.0;
-
         vec3 worldPos = cameraPosition + vOut.localPos;
 
 	    float cloudAlt = GetCloudAltitude();
-        float cloudY = smoothstep(0.0, CloudHeight * 0.5, worldPos.y - cloudAlt);
+        float cloudY = smoothstep(0.0, CloudPlaneHeight * 0.5, worldPos.y - cloudAlt);
         vOut.color.a *= 1.0 - cloudY;
 
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA && defined SKY_WEATHER_CLOUD_ONLY

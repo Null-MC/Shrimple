@@ -140,9 +140,9 @@ void main() {
 
                     if (random.z < 0.02) {
                         float angle = random.x * TAU;
-                        float dist = random.y * 1000.0 + 100.0;
+                        float dist = random.y * 2000.0 + 120.0;
 
-                        lightningPosition.y = WORLD_SEA_LEVEL;
+                        lightningPosition.y = cloudHeight - 80.0;
                         lightningPosition.xz = vec2(cos(angle), sin(angle)) * dist;
                         lightningPosition.xz += cameraPosition.xz;
                         lightningPosition.w = 1.0;

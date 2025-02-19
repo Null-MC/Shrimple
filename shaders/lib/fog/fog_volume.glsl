@@ -151,16 +151,21 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 cloudDensity = SampleCloudDensity(cloudWorldPos);
 
-                float shadowStepDist = 4.0;
-                float shadowDensity = 0.0;
-                for (float ii = dither; ii < 8.0; ii += 1.0) {
-                    vec3 cloudShadow_worldPos = (shadowStepDist * ii) * localSkyLightDirection + cloudWorldPos;
-                    shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
-                    shadowStepDist *= 2.0;
-                }
+                //if (cloudPlaneOffset > 0.0) {
+                    float shadowStepDist = 4.0;
+                    float shadowDensity = -cloudDensity;
+                    for (float ii = dither; ii < 8.0; ii += 1.0) {
+                        vec3 cloudShadow_worldPos = (shadowStepDist * ii) * localSkyLightDirection + cloudWorldPos;
+                        shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
+                        shadowStepDist *= 2.0;
+                    }
 
-                if (shadowDensity > 0.0)
-                    cloudShadow = exp(-0.5 * shadowDensity);
+                    if (shadowDensity > 0.0)
+                        cloudShadow = exp(-2.0 * AirExtinctFactor * shadowDensity);
+                //}
+                //else {
+                //    cloudShadow = 10.0;
+                //}
             }
         }
     #endif
@@ -256,12 +261,15 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         #ifdef WORLD_SKY_ENABLED
             vec3 sampleColor = skyLightColor;
+            bool isCloudStep = false;
 
             if (!isWater) {
                 sampleDensity = GetFinalFogDensity(traceWorldPos, traceAltitude, caveFogF);
 
-                 #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                    if (cloudDensity > 0.0 && traceDist > cloudDist && traceDist - stepLength < cloudDist) {
+                 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    isCloudStep = cloudDensity > 0.0 && traceDist > cloudDist && traceDist - stepLength < cloudDist;
+
+                    if (isCloudStep) {
                         sampleDensity = cloudDensity;
                         sampleColor *= cloudShadow;
                         stepLength = 10.0;
@@ -395,19 +403,19 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         // #ifdef RENDER_CLOUD_SHADOWS_ENABLED
-        #if defined WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE != CLOUDS_NONE
+        #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE != CLOUDS_NONE
             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-                if (traceWorldPos.y < cloudHeight) {
+                if (traceWorldPos.y < cloudHeight && !isCloudStep) {
                     float cloudShadowDist = abs((cloudHeight - traceWorldPos.y) / localSkyLightDirection.y);
                     vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + traceWorldPos;
                     float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                     if (cloudShadowDensity > 0.0) {
-                        sampleF *= exp(-10.0 * cloudShadowDensity);
+                        sampleF *= exp(-AirExtinctFactor * cloudShadowDensity);
                     }
                 }
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
-                if (traceWorldPos.y < cloudHeight + 0.5*CloudHeight) {
+                if (traceWorldPos.y < cloudHeight + 0.5*CloudPlaneHeight) {
                     float sampleCloudShadow = SampleCloudShadow(traceLocalPos, localSkyLightDirection, cloudOffset, camOffset, 0.0);
 
                     sampleF *= sampleCloudShadow * 0.5 + 0.5;
@@ -429,16 +437,16 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                     // TODO: self-shadowing?
-                    float shadowStepDist = 1.0;
+                    float shadowStepDist = 2.0;
                     float shadowDensity = 0.0;
                     for (float ii = dither; ii < 8.0; ii += 1.0) {
                         vec3 cloudShadow_worldPos = (shadowStepDist * ii) * -lightningDirectionStrength.xyz + traceWorldPos;
                         shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
-                        shadowStepDist *= 2.0;
+                        shadowStepDist *= 1.5;
                     }
 
                     if (shadowDensity > 0.0)
-                        lightningDirectionStrength.w *= exp(-0.1 * shadowDensity);
+                        lightningDirectionStrength.w *= exp(-AirExtinctFactor * shadowDensity);
                 #endif
 
                 // TODO: fix phase
@@ -512,7 +520,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyColorAmbient;
+            sampleAmbient *= phaseIso * skyColorAmbient;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;

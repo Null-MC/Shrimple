@@ -74,6 +74,9 @@ in vec2 texcoord;
         uniform float cloudHeight;
         uniform float cloudTime;
 
+        uniform float sunAngle;
+        uniform ivec2 eyeBrightnessSmooth;
+
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform float rainStrength;
             uniform float frameTimeCounter;
@@ -89,13 +92,16 @@ in vec2 texcoord;
         #include "/lib/buffers/shadow.glsl"
     #endif
 
-    #if defined WORLD_SKY_ENABLED && defined IS_IRIS
+    #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
+        #include "/lib/world/atmosphere.glsl"
 
         #if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
-             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
-                 #include "/lib/clouds/cloud_custom.glsl"
-                 //#include "/lib/clouds/cloud_custom_shadow.glsl"
+            //#include "/lib/clouds/cloud_common.glsl"
+
+            #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                #include "/lib/clouds/cloud_custom.glsl"
+                //#include "/lib/clouds/cloud_custom_shadow.glsl"
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
                 #include "/lib/clouds/cloud_vanilla.glsl"
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
@@ -243,7 +249,7 @@ void main() {
                     float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                     if (cloudShadowDensity > 0.0) {
-                        cloudShadow = exp(-4.0 * cloudShadowDensity);
+                        cloudShadow = exp(-2.0 * AirExtinctFactor * cloudShadowDensity);
                     }
                 #else
                     vec2 cloudOffset = GetCloudOffset();

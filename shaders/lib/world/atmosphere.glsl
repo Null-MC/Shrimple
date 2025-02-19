@@ -20,10 +20,11 @@ const float FogDensity_Cave = SKY_CAVE_FOG_DENSITY * 0.01;
     // const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.1));
     // const vec3 AirExtinctColor_rain = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));
 
-    const float AirAmbientF = 0.07;//mix(0.02, 0.0, weatherStrength);
+    const float AirAmbientF = 0.3;//mix(0.02, 0.0, weatherStrength);
     vec3 AirScatterColor = vec3(0.12);//vec3(mix(0.12, 0.09, weatherStrength));
     // const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.6));//mix(0.02, 0.006, weatherStrength);
-    vec3 AirExtinctColor = vec3(0.06);//vec3(mix(0.08, 0.09, weatherStrength));//mix(0.02, 0.006, weatherStrength);
+    float AirExtinctFactor = 0.03;
+    vec3 AirExtinctColor = vec3(AirExtinctFactor);//vec3(mix(0.08, 0.09, weatherStrength));//mix(0.02, 0.006, weatherStrength);
 #else
     // const float AirDensityF = FogDensity_Day;
     vec3 AirAmbientF = RGBToLinear(fogColor);
