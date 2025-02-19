@@ -264,6 +264,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     if (cloudDensity > 0.0 && traceDist > cloudDist && traceDist - stepLength < cloudDist) {
                         sampleDensity = cloudDensity;
                         sampleColor *= cloudShadow;
+                        stepLength = 10.0;
                     }
                  #endif
             }
@@ -422,11 +423,27 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleLit *= exp(-VOLUMETRIC_FAKE_SHADOW * sampleExtinction * _pow2(sampleDensity));
             #endif
 
-            if (lightningStrength > EPSILON) {
+            if (lightningPosition.w > EPSILON) {
                 vec4 lightningDirectionStrength = GetLightningDirectionStrength(traceLocalPos);
-                sampleLit += 0.4 * samplePhase * lightningDirectionStrength.w;
+                //sampleLit += 0.3 * samplePhase * lightningDirectionStrength.w;
 
-                // TODO: use phase function?
+                #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    // TODO: self-shadowing?
+                    float shadowStepDist = 1.0;
+                    float shadowDensity = 0.0;
+                    for (float ii = dither; ii < 8.0; ii += 1.0) {
+                        vec3 cloudShadow_worldPos = (shadowStepDist * ii) * -lightningDirectionStrength.xyz + traceWorldPos;
+                        shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
+                        shadowStepDist *= 2.0;
+                    }
+
+                    if (shadowDensity > 0.0)
+                        lightningDirectionStrength.w *= exp(-0.1 * shadowDensity);
+                #endif
+
+                // TODO: fix phase
+                //sampleLit += 0.3 * samplePhase * lightningDirectionStrength.w;
+                sampleLit += 0.3*phaseIso * lightningDirectionStrength.w;
             }
         #endif
 

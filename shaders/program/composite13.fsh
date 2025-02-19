@@ -94,7 +94,7 @@ uniform vec3 eyePosition;
     uniform float cloudHeight;
 
     #ifdef IS_IRIS
-        uniform float lightningStrength;
+        //uniform float lightningStrength;
         uniform float cloudTime;
     #endif
 #endif

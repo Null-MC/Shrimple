@@ -92,7 +92,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
     #ifdef IS_IRIS
         uniform vec3 eyePosition;
-        uniform float lightningStrength;
+        //uniform float lightningStrength;
         uniform float cloudTime;
     #endif
 #endif

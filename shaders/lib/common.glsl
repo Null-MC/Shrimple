@@ -80,6 +80,7 @@ const bool colortex15Clear = true;
 #define SKY_WEATHER_OPACITY 60 // [0 2 4 6 8 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define SKY_WEATHER_CLOUD_ONLY
 #define SKY_STARS 2 // [0 1 2]
+#define SKY_MORE_LIGHTNING
 
 
 // Nether Options

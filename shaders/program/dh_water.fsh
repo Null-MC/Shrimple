@@ -163,7 +163,7 @@ uniform float dhFarPlane;
     uniform float weatherStrength;
     uniform float skyWetnessSmooth;
 
-    uniform float lightningStrength;
+    //uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
 #endif

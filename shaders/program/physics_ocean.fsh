@@ -138,7 +138,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float skyWetnessSmooth;
 
     #ifdef IS_IRIS
-        uniform float lightningStrength;
+        //uniform float lightningStrength;
         uniform float cloudHeight;
         uniform float cloudTime;
     #endif

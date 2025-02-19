@@ -123,9 +123,7 @@ uniform int heldBlockLightValue2;
     uniform float cloudHeight;
     uniform float cloudTime;
 
-    #ifdef IS_IRIS
-        uniform float lightningStrength;
-    #endif
+    //uniform float lightningStrength;
 #endif
 
 #ifdef WORLD_WATER_ENABLED

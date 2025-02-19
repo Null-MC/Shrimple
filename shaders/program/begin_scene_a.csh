@@ -35,6 +35,14 @@ const ivec3 workGroups = ivec3(1, 1, 1);
         uniform vec3 sunPosition;
         uniform int moonPhase;
 
+        uniform float thunderStrength;
+        uniform float frameTime;
+
+        #ifdef SKY_MORE_LIGHTNING
+            uniform float cloudHeight;
+            uniform int frameCounter;
+        #endif
+
         #ifdef RENDER_SHADOWS_ENABLED
             uniform mat4 shadowModelView;
             uniform mat4 shadowProjection;
@@ -56,10 +64,14 @@ const ivec3 workGroups = ivec3(1, 1, 1);
     #include "/lib/blocks.glsl"
     #include "/lib/items.glsl"
 
-    #include "/lib/sampling/erp.glsl"
-
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/light_static.glsl"
+
+    #include "/lib/sampling/erp.glsl"
+
+    #ifdef SKY_MORE_LIGHTNING
+        #include "/lib/sampling/noise.glsl"
+    #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
         #include "/lib/buffers/light_voxel.glsl"
@@ -117,8 +129,29 @@ void main() {
             // TODO: currently using previous-frame data, needs to be moved
             WorldSkyAmbientColor = SampleSkyIrradiance(vec3(0.0, 1.0, 0.0));
 
-            if (lightningBoltPosition.w > 0.5)
-                lightningPosition = lightningBoltPosition.xyz + cameraPosition;
+            if (lightningBoltPosition.w > 0.5) {
+                lightningPosition.xyz = lightningBoltPosition.xyz + cameraPosition;
+                lightningPosition.w = 1.0;
+            }
+
+            #ifdef SKY_MORE_LIGHTNING
+                if (thunderStrength > 0.5 && lightningPosition.w < EPSILON) {
+                    vec3 random = hash31(frameCounter);
+
+                    if (random.z < 0.02) {
+                        float angle = random.x * TAU;
+                        float dist = random.y * 1000.0 + 100.0;
+
+                        lightningPosition.y = WORLD_SEA_LEVEL;
+                        lightningPosition.xz = vec2(cos(angle), sin(angle)) * dist;
+                        lightningPosition.xz += cameraPosition.xz;
+                        lightningPosition.w = 1.0;
+                    }
+                }
+            #endif
+
+            //lightningPosition.w *= exp(-0.1 * frameTime);
+            lightningPosition.w = max(lightningPosition.w - frameTime, 0.0);
         #else
             WorldSunLightColor = vec3(0.0);
             WorldMoonLightColor = vec3(0.0);

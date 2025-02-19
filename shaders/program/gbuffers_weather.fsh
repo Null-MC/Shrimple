@@ -26,6 +26,8 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 
+//uniform sampler2D BUFFER_FINAL_PREV;
+
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
     uniform sampler2D lightmap;
 #else
@@ -104,7 +106,7 @@ uniform vec3 shadowLightPosition;
 uniform float rainStrength;
 uniform float weatherStrength;
 
-uniform float lightningStrength;
+//uniform float lightningStrength;
 uniform float cloudHeight;
 uniform float cloudTime;
 
@@ -127,6 +129,8 @@ uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
 uniform vec3 playerBodyVector;
 uniform vec3 eyePosition;
+
+uniform float nightVision;
 
 #ifdef VL_BUFFER_ENABLED
     uniform mat4 shadowModelView;
@@ -303,6 +307,8 @@ uniform vec3 eyePosition;
     #include "/lib/fog/fog_volume.glsl"
 #endif
 
+//#include "/lib/post/exposure.glsl"
+
 
 #ifdef EFFECT_TAA_ENABLED
     #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
@@ -346,6 +352,12 @@ void main() {
     }
 
     color.a *= Sky_RainOpacityF;
+
+    //color.rgb = texelFetch(BUFFER_FINAL_PREV, ivec2(gl_FragCoord.xy), 0).rgb;
+    //color.a = 1.0;
+
+    //float exposure = GetPostExposure();
+    //color.rgb /= exposure;
 
     const vec3 normal = vec3(0.0);
     const float occlusion = 1.0;

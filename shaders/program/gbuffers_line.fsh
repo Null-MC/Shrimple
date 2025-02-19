@@ -91,7 +91,7 @@ uniform int frameCounter;
 #endif
 
 
-#if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+#ifdef DEFERRED_BUFFER_ENABLED
     layout(location = 0) out vec4 outDeferredColor;
     layout(location = 1) out uvec4 outDeferredData;
     layout(location = 2) out vec3 outDeferredTexNormal;
@@ -138,7 +138,7 @@ void main() {
 
     if (color.a < alphaTestRef) {discard; return;}
 
-    #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
+    #ifdef DEFERRED_BUFFER_ENABLED
         const vec3 normal = vec3(0.0);
         const float occlusion = 0.0;
         const float roughness = 1.0;

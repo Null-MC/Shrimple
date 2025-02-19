@@ -202,9 +202,7 @@ uniform vec3 eyePosition;
             uniform float cloudTime;
         //#endif
 
-        //#ifdef IS_IRIS
-            uniform float lightningStrength;
-        //#endif
+        //uniform float lightningStrength;
     #endif
 
     uniform int heldItemId;

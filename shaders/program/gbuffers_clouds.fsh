@@ -16,15 +16,6 @@ in VertexData {
     #ifdef DISTANT_HORIZONS
         float viewPosZ;
     #endif
-
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-    //         vec3 shadowPos[4];
-    //         flat int shadowTile;
-    //     #else
-    //         vec3 shadowPos;
-    //     #endif
-    // #endif
 } vIn;
 
 uniform sampler2D gtexture;
@@ -90,21 +81,6 @@ uniform vec3 skyColor;
     uniform float waterDensitySmooth;
 #endif
 
-// #ifdef WORLD_SHADOW_ENABLED
-//     uniform sampler2D shadowtex0;
-//     uniform sampler2D shadowtex1;
-
-//     #if defined SHADOW_ENABLE_HWCOMP && defined IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-//         uniform sampler2DShadow shadowtex0HW;
-//     #endif
-    
-//     uniform vec3 shadowLightPosition;
-
-//     #ifdef SHADOW_ENABLED
-//         uniform mat4 shadowProjection;
-//     #endif
-// #endif
-
 uniform int heldItemId;
 uniform int heldItemId2;
 uniform int heldBlockLightValue;
@@ -116,7 +92,7 @@ uniform vec3 relativeEyePosition;
 uniform vec3 playerBodyVector;
 uniform vec3 eyePosition;
 
-uniform float lightningStrength;
+//uniform float lightningStrength;
 uniform float cloudHeight;
 uniform float cloudTime;
 
@@ -137,15 +113,10 @@ uniform float cloudTime;
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/block_static.glsl"
     #include "/lib/buffers/light_static.glsl"
-    // #include "/lib/buffers/lighting.glsl"
 
     #if defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
         #include "/lib/buffers/block_voxel.glsl"
     #endif
-    
-    // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-    //     #include "/lib/buffers/block_static.glsl"
-    // #endif
 #endif
 
 #include "/lib/blocks.glsl"
@@ -198,20 +169,6 @@ uniform float cloudTime;
 #include "/lib/material/hcm.glsl"
 #include "/lib/material/fresnel.glsl"
 
-// #ifdef RENDER_SHADOWS_ENABLED
-//     #include "/lib/buffers/shadow.glsl"
-
-//     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-//         #include "/lib/shadows/cascaded/common.glsl"
-//         #include "/lib/shadows/cascaded/render.glsl"
-//     #else
-//         #include "/lib/shadows/distorted/common.glsl"
-//         #include "/lib/shadows/distorted/render.glsl"
-//     #endif
-
-//     #include "/lib/shadows/render.glsl"
-// #endif
-
 //#if !(defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED)
     #ifdef LIGHTING_FLICKER
         #include "/lib/lighting/flicker.glsl"
@@ -244,10 +201,6 @@ uniform float cloudTime;
     #endif
 
     #include "/lib/lighting/sampling.glsl"
-
-    // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
-    //     #include "/lib/lighting/voxel/sampling.glsl"
-    // #endif
 
     #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
         #include "/lib/buffers/volume.glsl"
@@ -334,19 +287,6 @@ void main() {
     const float sss = 1.0;
 
     vec3 shadowColor = vec3(1.0);
-    // #ifdef RENDER_SHADOWS_ENABLED
-    //     #ifndef IRIS_FEATURE_SSBO
-    //         vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-    //     #endif
-    
-    //     float shadowFade = smoothstep(shadowDistance - 20.0, shadowDistance + 20.0, viewDist);
-
-    //     #ifdef SHADOW_COLORED
-    //         shadowColor = GetFinalShadowColor(localSkyLightDirection, shadowFade, sss);
-    //     #else
-    //         shadowColor = vec3(GetFinalShadowFactor(localSkyLightDirection, shadowFade, sss));
-    //     #endif
-    // #endif
 
     float fogF = 0.0;
     #ifdef SKY_BORDER_FOG_ENABLED
@@ -364,123 +304,92 @@ void main() {
     albedo.rgb = RGBToLinear(albedo.rgb);
     //albedo.rgb *= 1.0 - 0.7 * rainStrength;
 
-    // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
-    //     float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
+    float roughL = _pow2(roughness);
+    vec4 final = albedo;
 
-    //     outDeferredColor = vec4(LinearToRGB(albedo.rgb), albedo.a);
-    //     outDeferredShadow = vec4(shadowColor + dither, 0.0);
+    vec3 diffuseFinal = vec3(0.0);
+    vec3 specularFinal = vec3(0.0);
 
-    //     const vec2 lmcoord = vec2((0.5/16.0), (15.5/16.0));
+    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
+    #else
+        vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+        skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+    #endif
 
-    //     uvec4 deferredData;
-    //     deferredData.r = packUnorm4x8(vec4(normal, sss + dither));
-    //     deferredData.g = packUnorm4x8(vec4(lmcoord, occlusion, emission) + dither);
-    //     deferredData.b = packUnorm4x8(vec4(fogColor, fogF + dither));
-    //     deferredData.a = packUnorm4x8(vec4(normal, 1.0));
-    //     outDeferredData = deferredData;
+    #if LIGHTING_MODE == LIGHTING_MODE_NONE
+        diffuseFinal += albedo.rgb * (1.0 + fogColor);
+    #else
+        diffuseFinal += albedo.rgb * (shadowColor * WorldSkyLightColor + 0.3*skyColorFinal);
+    #endif
 
-    //     #if MATERIAL_SPECULAR != SPECULAR_NONE
-    //         outDeferredRough = vec4(roughness, metal_f0, 0.0, 1.0) + dither;
-    //     #endif
-    // #else
-        float roughL = _pow2(roughness);
-        vec4 final = albedo;
+    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE <= LIGHTING_MODE_FLOODFILL
+        SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+    #endif
 
-        vec3 diffuseFinal = vec3(0.0);
-        vec3 specularFinal = vec3(0.0);
+    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
+    #else
+        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
+    #endif
 
-        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
-        #else
-            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
-        #endif
+    #ifdef SKY_CLOUD_SOFT
+        vec3 worldPos = vIn.localPos + cameraPosition;// - fract(cameraPosition/12.0)*12.0;
 
-        #if LIGHTING_MODE == LIGHTING_MODE_NONE
-            diffuseFinal += albedo.rgb * (1.0 + fogColor);
-        #else
-            diffuseFinal += albedo.rgb * (shadowColor * WorldSkyLightColor + 0.3*skyColorFinal);
-        #endif
+        vec2 cloudOffset = GetCloudOffset();
+        vec3 cloudTexcoord = GetCloudTexcoord(worldPos, cloudOffset) * vec2(256.0, 1.0).xyx;
 
-        #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE <= LIGHTING_MODE_FLOODFILL
-            SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
-        #endif
+        vec3 direction = normalize(vIn.localPos);
 
-        #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
-            final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
-        #else
-            final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-        #endif
+        direction.y /= (4.5/12.0);
 
-        #ifdef SKY_CLOUD_SOFT
-            vec3 worldPos = vIn.localPos + cameraPosition;// - fract(cameraPosition/12.0)*12.0;
+        vec3 stepDir = sign(direction);
+        vec3 stepSizes = rcp(abs(direction));
+        vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(cloudTexcoord)) / direction;
 
-            vec2 cloudOffset = GetCloudOffset();
-            vec3 cloudTexcoord = GetCloudTexcoord(worldPos, cloudOffset) * vec2(256.0, 1.0).xyx;
+        vec3 currPos = cloudTexcoord;
 
-            vec3 direction = normalize(vIn.localPos);
+        final.a = 1.0;
 
-            direction.y /= (4.5/12.0);
+        for (int i = 0; i < 8; i++) {
+            float closestDist = minOf(nextDist);
+            vec3 sampleStep = direction*closestDist;
 
-            vec3 stepDir = sign(direction);
-            vec3 stepSizes = rcp(abs(direction));
-            vec3 nextDist = (stepDir * 0.5 + 0.5 - fract(cloudTexcoord)) / direction;
+            ivec3 samplePos = ivec3(floor(currPos + 0.5*sampleStep));
+            if (samplePos.y != 0) break;
 
-            vec3 currPos = cloudTexcoord;
+            // TODO: shadow trace?
 
-            final.a = 1.0;
+            vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
 
-            for (int i = 0; i < 8; i++) {
-                float closestDist = minOf(nextDist);
-                vec3 sampleStep = direction*closestDist;
+            nextDist -= closestDist;
+            nextDist += stepSizes * stepAxis;
+            currPos += sampleStep;
 
-                ivec3 samplePos = ivec3(floor(currPos + 0.5*sampleStep));
-                if (samplePos.y != 0) break;
+            float density = 1.0 * texelFetch(TEX_CLOUDS_VANILLA, samplePos.xz, 0).r;
+            final.a *= exp(-closestDist * density);
+        }
 
-                // TODO: shadow trace?
+        final.a = 1.0 - final.a;
+    #endif
 
-                vec3 stepAxis = vec3(lessThanEqual(nextDist, vec3(closestDist)));
-
-                nextDist -= closestDist;
-                nextDist += stepSizes * stepAxis;
-                currPos += sampleStep;
-
-                float density = 1.0 * texelFetch(TEX_CLOUDS_VANILLA, samplePos.xz, 0).r;
-                final.a *= exp(-closestDist * density);
-            }
-
-            final.a = 1.0 - final.a;
-        #endif
-
-        // #ifdef VL_BUFFER_ENABLED
-        //     #ifndef IRIS_FEATURE_SSBO
-        //         vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-        //     #endif
-
-        //     vec3 localViewDir = normalize(vIn.localPos);
-        //     vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist, far));
-        //     final.rgb = final.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
+        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
         // #else
+            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
+        // #endif
 
-        #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
-            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-            //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
-            // #else
-                float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
-            // #endif
-        
-            vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-            float skyLightF = eyeBrightnessSmooth.y / 240.0;
-            float airDensityF = GetAirDensity(skyLightF);
-            vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
-            ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
-        #endif
-        
-        //final = vec4(normal, 1.0);
-        outFinal = final;
-    //#endif
+        float skyLightF = eyeBrightnessSmooth.y / 240.0;
+        float airDensityF = GetAirDensity(skyLightF);
+        vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
+        ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+    #endif
+
+    outFinal = final;
 
     #ifdef EFFECT_TAA_ENABLED
         // TODO: get vanilla cloud velocity

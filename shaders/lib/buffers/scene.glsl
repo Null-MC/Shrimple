@@ -43,5 +43,5 @@
         mat4 dhProjectionFullPrev;          // 64
     #endif
 
-    vec3 lightningPosition;                  // 12
+    vec4 lightningPosition;                  // 12
 };

@@ -165,11 +165,9 @@ uniform ivec2 eyeBrightnessSmooth;
     #ifdef WORLD_SKY_ENABLED
         uniform vec3 sunPosition;
 
-        #ifdef IS_IRIS
-            uniform float cloudTime;
-            uniform float cloudHeight;
-            uniform float lightningStrength;
-        #endif
+        uniform float cloudTime;
+        uniform float cloudHeight;
+        //uniform float lightningStrength;
     #endif
 
     uniform int heldItemId;

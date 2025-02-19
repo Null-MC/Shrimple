@@ -129,7 +129,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         skySpecular += step(-EPSILON, geoNoL) * S * skyLightColor * shadowColor;
 
-        #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined(RENDER_PARTICLES)
+        #if MATERIAL_REFLECTIONS != REFLECT_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE && !defined(RENDER_PARTICLES)
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
 
             if (tir) skyReflectF = vec3(1.0);
@@ -147,7 +147,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     skyDiffuse += accumDiffuse;
 
-    if (lightningStrength > EPSILON) {
+    if (lightningPosition.w > EPSILON) {
         vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
         float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
         skyDiffuse += lightningNoLm * lightningDirectionStrength.w * skyLightF;

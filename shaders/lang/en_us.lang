@@ -46,6 +46,9 @@ value.SKY_STARS.0=None
 value.SKY_STARS.1=Vanilla
 value.SKY_STARS.2=Custom
 
+option.SKY_MORE_LIGHTNING=More Lightning
+option.SKY_MORE_LIGHTNING.comment=Adds more [artificial] lightning strikes to the sky during thunder storms.
+
 option.SKY_MOON_BRIGHTNESS=Moon Light
 suffix.SKY_MOON_BRIGHTNESS=%
 

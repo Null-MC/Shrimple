@@ -103,7 +103,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float sunAngle;
     uniform int moonPhase;
     
-    uniform float lightningStrength;
+    //uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
 #endif

@@ -16,8 +16,8 @@ const vec3 worldMoonColor    = _RGBToLinear(vec3(SKY_LIGHT_COLOR_NIGHT_R, SKY_LI
 
 const float SkyHorizonOffset = -0.10;
 
-const float LightningRangeInv = rcp(200.0);
-const float LightningBrightness = 20.0;
+const float LightningRangeInv = rcp(1200.0);
+const float LightningBrightness = 6.0;
 
 
 bool IsSkyLightSun(const in float localSunDirY) {

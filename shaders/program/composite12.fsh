@@ -125,7 +125,7 @@ uniform int heldBlockLightValue2;
     uniform int moonPhase;
     uniform float wetness;
     
-    uniform float lightningStrength;
+    //uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
 
@@ -167,9 +167,9 @@ uniform vec3 eyePosition;
 #endif
 
 #ifndef IRIS_FEATURE_SSBO
-    #ifdef WORLD_SKY_ENABLED
-        uniform float lightningPosition;
-    #endif
+//    #ifdef WORLD_SKY_ENABLED
+//        uniform vec4 lightningPosition;
+//    #endif
 
     #if MC_VERSION > 11900
         uniform float darknessFactor;

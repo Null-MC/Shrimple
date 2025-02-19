@@ -169,7 +169,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
-    uniform float lightningStrength;
+    //uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
 #endif

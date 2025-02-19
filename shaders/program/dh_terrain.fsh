@@ -80,7 +80,7 @@ uniform int frameCounter;
 
     uniform float cloudTime;
     uniform float cloudHeight;
-    uniform float lightningStrength;
+    //uniform float lightningStrength;
 #endif
 
 uniform vec3 eyePosition;

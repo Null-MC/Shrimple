@@ -160,7 +160,7 @@ uniform int frameCounter;
     #ifdef IS_IRIS
         uniform float cloudTime;
         uniform float cloudHeight;
-        uniform float lightningStrength;
+        //uniform float lightningStrength;
     #endif
 #endif
 
