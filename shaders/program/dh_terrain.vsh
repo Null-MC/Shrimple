@@ -79,21 +79,29 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/utility/matrix.glsl"
+        #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
-    
-    #include "/lib/shadows/common.glsl"
+    //    #if defined(SHADOW_CLOUD_ENABLED) && SKY_CLOUD_TYPE != CLOUDS_NONE
+    //        #include "/lib/clouds/cloud_common.glsl"
+    //
+    //        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    //            //#include "/lib/clouds/cloud_custom.glsl"
+    //        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    //            #include "/lib/clouds/cloud_vanilla.glsl"
+    //        #endif
+    //    #endif
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/apply.glsl"
+        #include "/lib/shadows/common.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/apply.glsl"
+        #endif
     #endif
 #endif
 

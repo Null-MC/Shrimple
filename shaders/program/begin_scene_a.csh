@@ -37,6 +37,8 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
         uniform float thunderStrength;
         uniform float frameTime;
+        uniform float cloudTime;
+        uniform vec3 eyePosition;
 
         #ifdef SKY_MORE_LIGHTNING
             uniform float cloudHeight;
@@ -87,6 +89,8 @@ const ivec3 workGroups = ivec3(1, 1, 1);
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/world/sky.glsl"
         #include "/lib/sky/irradiance.glsl"
+
+        #include "/lib/clouds/cloud_common.glsl"
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
@@ -140,9 +144,11 @@ void main() {
 
                     if (random.z < 0.02) {
                         float angle = random.x * TAU;
-                        float dist = random.y * 2000.0 + 120.0;
+                        float dist = random.y * 2000.0 + 200.0;
 
-                        lightningPosition.y = cloudHeight - 80.0;
+                        float cloudAlt = GetCloudAltitude();
+
+                        lightningPosition.y = cloudAlt - 80.0;
                         lightningPosition.xz = vec2(cos(angle), sin(angle)) * dist;
                         lightningPosition.xz += cameraPosition.xz;
                         lightningPosition.w = 1.0;
@@ -150,8 +156,7 @@ void main() {
                 }
             #endif
 
-            //lightningPosition.w *= exp(-0.1 * frameTime);
-            lightningPosition.w = max(lightningPosition.w - frameTime, 0.0);
+            lightningPosition.w = max(lightningPosition.w - lightningSpeed*frameTime, 0.0);
         #else
             WorldSunLightColor = vec3(0.0);
             WorldMoonLightColor = vec3(0.0);

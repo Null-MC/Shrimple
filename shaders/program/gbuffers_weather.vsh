@@ -85,13 +85,15 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/curvature.glsl"
 #endif
 
+#include "/lib/clouds/cloud_common.glsl"
+
 #ifdef WORLD_SHADOW_ENABLED
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
+//    #ifdef SHADOW_CLOUD_ENABLED
+//        #include "/lib/clouds/cloud_vanilla.glsl"
+//    #endif
     
 	#include "/lib/shadows/common.glsl"
 
@@ -103,8 +105,6 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/shadows/distorted/apply.glsl"
 	#endif
 #endif
-
-#include "/lib/clouds/cloud_common.glsl"
 
 // #if defined SKY_WEATHER_CLOUD_ONLY && SKY_CLOUD_TYPE > CLOUDS_VANILLA
 // 	#include "/lib/lighting/hg.glsl"

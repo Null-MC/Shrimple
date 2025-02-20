@@ -18,8 +18,10 @@
         #if defined MATERIAL_REFLECT_CLOUDS && ((!defined RENDER_GBUFFER || defined RENDER_WATER) || !defined DEFERRED_BUFFER_ENABLED)
             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                 if (abs(reflectDir.y) > 0.0 && isEyeInWater == 0) {
+                    float cloudAlt = GetCloudAltitude();
+
                     vec3 worldPos = localPos + cameraPosition;
-                    float cloudPlaneOffset = cloudHeight - worldPos.y;
+                    float cloudPlaneOffset = cloudAlt - worldPos.y;
 
                     if (sign(cloudPlaneOffset) == sign(reflectDir.y)) {
                         float cloudDist = abs(cloudPlaneOffset / reflectDir.y);
@@ -27,7 +29,12 @@
                         vec3 cloudWorldPos = cloud_localPos + worldPos;
 
                         float cloudDensity = SampleCloudDensity(cloudWorldPos);
-                        vec3 cloudLight = WorldSkyLightColor;
+
+                        float phaseSky = GetSkyPhase(dot(localSkyLightDirection, reflectDir));
+                        vec3 cloudLight = phaseSky * WorldSkyLightColor;
+
+                        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                        vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;
 
                         #ifdef EFFECT_TAA_ENABLED
                             float dither = InterleavedGradientNoiseTime();
@@ -44,10 +51,11 @@
                         }
 
                         if (shadowDensity > 0.0)
-                            cloudLight *= exp(-0.5 * shadowDensity);
+                            cloudLight *= exp(-AirExtinctFactor * shadowDensity);
 
                         const float traceStepLen = 10.0;
-                        ApplyScatteringTransmission(reflectColor, traceStepLen, cloudLight, cloudDensity, AirScatterColor, AirExtinctColor, 4);
+                        cloudLight += AirAmbientF * phaseIso * skyColorAmbient;
+                        ApplyScatteringTransmission(reflectColor, traceStepLen, cloudLight, cloudDensity, AirScatterColor, AirExtinctColor, 1);
 
                         //reflectColor = mix(reflectColor, cloudColorFinal, cloudDensity);
                     }

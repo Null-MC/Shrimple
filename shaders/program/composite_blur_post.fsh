@@ -37,6 +37,12 @@ uniform float weatherStrength;
 //     uniform float centerDepthSmooth;
 // #endif
 
+#ifdef WORLD_SKY_ENABLED
+    uniform float cloudTime;
+    uniform vec3 eyePosition;
+    uniform vec3 cameraPosition;
+#endif
+
 #ifdef WORLD_WATER_ENABLED
     uniform vec3 WaterAbsorbColor;
     uniform vec3 WaterScatterColor;
@@ -56,6 +62,10 @@ uniform float weatherStrength;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/gaussian.glsl"
 #include "/lib/sampling/ign.glsl"
+
+#ifdef WORLD_SKY_ENABLED
+    #include "/lib/clouds/cloud_common.glsl"
+#endif
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/lighting/hg.glsl"

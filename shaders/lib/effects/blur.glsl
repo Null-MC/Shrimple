@@ -114,7 +114,9 @@ vec3 GetBlur(const in vec2 texcoord, const in float fragDepthL, const in float m
 
     #ifdef WORLD_SKY_ENABLED
         #if EFFECT_BLUR_RADIUS_WEATHER > 0
-            if (!isWater) maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER), _pow2(weatherStrength));
+            float cloudAlt = GetCloudAltitude();
+            float weatherF = _pow2(weatherStrength) * smoothstep(cloudAlt + CloudPlaneHeight, cloudAlt, cameraPosition.y);
+            if (!isWater) maxRadius = mix(maxRadius, max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER), weatherF);
         #endif
     #elif defined IS_WORLD_SMOKE_ENABLED
         if (!isWater) maxRadius = max(maxRadius, EFFECT_BLUR_RADIUS_WEATHER);

@@ -66,21 +66,23 @@ uniform vec3 cameraPosition;
     #include "/lib/world/curvature.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/utility/matrix.glsl"
+        #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
-    
-    #include "/lib/shadows/common.glsl"
+        #ifdef SHADOW_CLOUD_ENABLED
+            #include "/lib/clouds/cloud_vanilla.glsl"
+        #endif
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/apply.glsl"
+        #include "/lib/shadows/common.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/apply.glsl"
+        #endif
     #endif
 #endif
 

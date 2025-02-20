@@ -243,13 +243,15 @@ void main() {
             float cloudShadow = 1.0;
             #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                 #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                    float cloudAlt = GetCloudAltitude();
+
                     vec3 worldPos = cameraPosition + localPos;
-                    float cloudShadowDist = abs((cloudHeight - worldPos.y) / localSkyLightDirection.y);
+                    float cloudShadowDist = abs((cloudAlt - worldPos.y) / localSkyLightDirection.y);
                     vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + worldPos;
                     float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                     if (cloudShadowDensity > 0.0) {
-                        cloudShadow = exp(-2.0 * AirExtinctFactor * cloudShadowDensity);
+                        cloudShadow = exp(-10.0 * AirExtinctFactor * cloudShadowDensity);
                     }
                 #else
                     vec2 cloudOffset = GetCloudOffset();
@@ -393,8 +395,10 @@ void main() {
                     float cloudShadow = 1.0;
 
                     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                        float cloudAlt = GetCloudAltitude();
+
                         vec3 worldPos = cameraPosition + localPos;
-                        float cloudShadowDist = abs((cloudHeight - worldPos.y) / localSkyLightDirection.y);
+                        float cloudShadowDist = abs((cloudAlt - worldPos.y) / localSkyLightDirection.y);
                         vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + worldPos;
                         float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 

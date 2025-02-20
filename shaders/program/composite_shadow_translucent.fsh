@@ -314,8 +314,10 @@ void main() {
 
                 #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED
                     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+                        float cloudAlt = GetCloudAltitude();
+
                         vec3 worldPos = cameraPosition + localPos;
-                        float cloudShadowDist = abs((cloudHeight - worldPos.y) / localSkyLightDirection.y);
+                        float cloudShadowDist = abs((cloudAlt - worldPos.y) / localSkyLightDirection.y);
                         vec3 cloudShadowWorldPos = cloudShadowDist * localSkyLightDirection + worldPos;
                         float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 

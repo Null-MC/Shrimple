@@ -126,57 +126,59 @@ uniform vec4 entityColor;
     #include "/lib/voxel/voxel_common.glsl"
 #endif
 
-#ifdef RENDER_SHADOWS_ENABLED
-    #include "/lib/utility/matrix.glsl"
-    #include "/lib/buffers/shadow.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/utility/matrix.glsl"
+        #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
+//        #ifdef SHADOW_CLOUD_ENABLED
+//            #include "/lib/clouds/cloud_vanilla.glsl"
+//        #endif
+
+        #include "/lib/shadows/common.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/apply.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/apply.glsl"
+        #endif
+    #elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
+        #include "/lib/buffers/block_static.glsl"
+
+        #ifdef IS_LPV_ENABLED
+            #include "/lib/buffers/volume.glsl"
+            #include "/lib/utility/hsv.glsl"
+        #endif
+
+        #ifdef LIGHTING_FLICKER
+            #include "/lib/utility/anim.glsl"
+            #include "/lib/lighting/blackbody.glsl"
+            #include "/lib/lighting/flicker.glsl"
+        #endif
+
+        #include "/lib/lights.glsl"
+        #include "/lib/lighting/voxel/lights_render.glsl"
+
+        //#include "/lib/voxel/lights/mask.glsl"
+        //#include "/lib/lighting/voxel/block_mask.glsl"
+        //#include "/lib/voxel/blocks.glsl"
+
+        #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
+            #include "/lib/voxel/lpv/lpv.glsl"
+            #include "/lib/voxel/lpv/lpv_write.glsl"
+        #endif
+
+        #include "/lib/lighting/voxel/entities.glsl"
+        #include "/lib/lighting/voxel/item_light_map.glsl"
+        #include "/lib/lighting/voxel/items.glsl"
+
+        // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+        //     #include "/lib/lighting/voxel/lights.glsl"
+        //     #include "/lib/voxel/lights/light_mask.glsl"
+        // #endif
     #endif
-    
-    #include "/lib/shadows/common.glsl"
-
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/apply.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/apply.glsl"
-    #endif
-#elif defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED
-    #include "/lib/buffers/block_static.glsl"
-
-    #ifdef IS_LPV_ENABLED
-        #include "/lib/buffers/volume.glsl"
-        #include "/lib/utility/hsv.glsl"
-    #endif
-
-    #ifdef LIGHTING_FLICKER
-        #include "/lib/utility/anim.glsl"
-        #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
-
-    #include "/lib/lights.glsl"
-    #include "/lib/lighting/voxel/lights_render.glsl"
-
-    //#include "/lib/voxel/lights/mask.glsl"
-    //#include "/lib/lighting/voxel/block_mask.glsl"
-    //#include "/lib/voxel/blocks.glsl"
-
-    #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
-        #include "/lib/voxel/lpv/lpv.glsl"
-        #include "/lib/voxel/lpv/lpv_write.glsl"
-    #endif
-
-    #include "/lib/lighting/voxel/entities.glsl"
-    #include "/lib/lighting/voxel/item_light_map.glsl"
-    #include "/lib/lighting/voxel/items.glsl"
-
-    // #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    //     #include "/lib/lighting/voxel/lights.glsl"
-    //     #include "/lib/voxel/lights/light_mask.glsl"
-    // #endif
 #endif
 
 // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE
