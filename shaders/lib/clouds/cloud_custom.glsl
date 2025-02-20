@@ -24,7 +24,7 @@ float SampleCloudDensity(const in vec3 worldPos) {
 
     noise = min(noise, max(1.0 - 0.025*abs(worldPos.y - cloudAlt), 0.0));
 
-    float threshold = mix(0.48, 0.28, weatherCloudStrength);
+    float threshold = mix(0.48, 0.36, weatherCloudStrength);
     //noise = smoothstep(threshold, 1.0, noise);
     noise = saturate(unmix(noise, threshold, 1.0));
 

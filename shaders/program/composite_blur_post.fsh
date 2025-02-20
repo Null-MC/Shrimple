@@ -31,16 +31,18 @@ uniform float farPlane;
 
 uniform int isEyeInWater;
 uniform int frameCounter;
-uniform float weatherStrength;
 
 // #if EFFECT_BLUR_TYPE == DIST_BLUR_DOF
 //     uniform float centerDepthSmooth;
 // #endif
 
 #ifdef WORLD_SKY_ENABLED
-    uniform float cloudTime;
     uniform vec3 eyePosition;
     uniform vec3 cameraPosition;
+
+    uniform float cloudTime;
+    uniform float cloudHeight;
+    uniform float weatherStrength;
 #endif
 
 #ifdef WORLD_WATER_ENABLED
