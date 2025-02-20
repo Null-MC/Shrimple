@@ -80,6 +80,6 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
 }
 
 float GetSkyPhase(const in float VoL) {
-    return HG(VoL, 0.24);
-    // return DHG(VoL, -0.03, 0.86, 0.16);
+    return DHG(VoL, -0.09, 0.86, 0.3);
+    //return HG(VoL, 0.24);
 }

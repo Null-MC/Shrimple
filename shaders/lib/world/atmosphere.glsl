@@ -10,17 +10,7 @@ const float FogDensity_Cave = SKY_CAVE_FOG_DENSITY * 0.01;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
-    // #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
-    //     float AirDensityF = mix(FogDensity_Day, min(FogDensity_Day * 6.0, 1.0), localWeatherStrength);
-    // #else
-    //     const float AirDensityF = 0.0;
-    // #endif
-
-    // const float AirDensityRainF = 0.08;
-    // const vec3 AirScatterColor_rain = _RGBToLinear(vec3(0.1));
-    // const vec3 AirExtinctColor_rain = _RGBToLinear(1.0 - vec3(0.698, 0.702, 0.722));
-
-    const float AirAmbientF = 0.3;//mix(0.02, 0.0, weatherStrength);
+    const float AirAmbientF = 0.6;//mix(0.02, 0.0, weatherStrength);
     vec3 AirScatterColor = vec3(0.12);//vec3(mix(0.12, 0.09, weatherStrength));
     // const vec3 AirExtinctColor = _RGBToLinear(1.0 - vec3(0.6));//mix(0.02, 0.006, weatherStrength);
     float AirExtinctFactor = 0.03;

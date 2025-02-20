@@ -75,7 +75,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
 
-        vec3 skyColorAmbient = WorldSkyAmbientColor * eyeBrightF;
+        vec3 skyColorAmbient = phaseIso * eyeBrightF * WorldSkyAmbientColor;
 
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
@@ -545,7 +545,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= phaseIso * skyColorAmbient;
+            sampleAmbient *= skyColorAmbient;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;
