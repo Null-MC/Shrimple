@@ -24,12 +24,6 @@ in VertexData {
         float vertexY;
     #endif
 
-    // vec3 viewPos_T;
-
-    // #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-    //     vec3 lightPos_T;
-    // #endif
-
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 shadowPos[4];
@@ -58,6 +52,14 @@ uniform sampler2D noisetex;
 #endif
 
 #ifdef WORLD_SKY_ENABLED
+    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+        uniform sampler2D texSkyIrradiance;
+    #endif
+
+    #if MATERIAL_REFLECTIONS != REFLECT_NONE && !defined DEFERRED_BUFFER_ENABLED
+        uniform sampler2D texSky;
+    #endif
+
     #ifdef WORLD_WETNESS_ENABLED
         uniform sampler3D TEX_RIPPLES;
     #endif
@@ -133,6 +135,7 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform vec3 shadowLightPosition;
     uniform float rainStrength;
     uniform float wetness;
+    uniform int moonPhase;
 
     uniform float weatherStrength;
     uniform float skyWetnessSmooth;
@@ -157,11 +160,11 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool isSpectator;
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool isSpectator;
+uniform bool firstPersonCamera;
+uniform vec3 playerBodyVector;
+uniform vec3 relativeEyePosition;
+uniform vec3 eyePosition;
 
 #ifdef DISTANT_HORIZONS
     uniform float dhFarPlane;
@@ -190,6 +193,7 @@ uniform int heldBlockLightValue2;
 #include "/lib/sampling/atlas.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/ign.glsl"
+#include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
@@ -304,7 +308,8 @@ uniform int heldBlockLightValue2;
         #include "/lib/lighting/reflections.glsl"
     #endif
 
-    #ifdef WORLD_SKY_ENABLED
+    #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+        #include "/lib/sky/irradiance.glsl"
         #include "/lib/sky/sky_lighting.glsl"
     #endif
 

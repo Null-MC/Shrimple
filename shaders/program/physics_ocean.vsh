@@ -24,9 +24,9 @@ out VertexData {
 
     // vec3 viewPos_T;
 
-    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
-        vec3 lightPos_T;
-    #endif
+//    #if defined WORLD_SKY_ENABLED && defined WORLD_SHADOW_ENABLED
+//        vec3 lightPos_T;
+//    #endif
 
     #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
