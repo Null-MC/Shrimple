@@ -79,6 +79,7 @@ in vec2 texcoord;
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform float rainStrength;
             uniform float frameTimeCounter;
+            uniform float weatherCloudStrength;
         #endif
     #endif
 

@@ -92,10 +92,10 @@ uniform vec3 eyePosition;
     uniform int moonPhase;
 
     uniform float cloudHeight;
+    uniform float cloudTime;
 
-    #ifdef IS_IRIS
-        //uniform float lightningStrength;
-        uniform float cloudTime;
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform float weatherCloudStrength;
     #endif
 #endif
 

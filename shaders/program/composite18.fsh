@@ -123,7 +123,9 @@ uniform int heldBlockLightValue2;
     uniform float cloudHeight;
     uniform float cloudTime;
 
-    //uniform float lightningStrength;
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform float weatherCloudStrength;
+    #endif
 #endif
 
 #ifdef WORLD_WATER_ENABLED

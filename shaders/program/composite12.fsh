@@ -129,8 +129,8 @@ uniform int heldBlockLightValue2;
     uniform float cloudHeight;
     uniform float cloudTime;
 
-    #if (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED
-        // uniform float cloudTime;
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform float weatherCloudStrength;
     #endif
 #endif
 

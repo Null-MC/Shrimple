@@ -103,6 +103,10 @@ in vec2 texcoord;
             uniform float cloudHeight;
             uniform vec3 eyePosition;
         #endif
+
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+            uniform float weatherCloudStrength;
+        #endif
     #endif
 
     #ifdef WORLD_WATER_ENABLED

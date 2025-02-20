@@ -106,9 +106,12 @@ uniform vec3 shadowLightPosition;
 uniform float rainStrength;
 uniform float weatherStrength;
 
-//uniform float lightningStrength;
 uniform float cloudHeight;
 uniform float cloudTime;
+
+#if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+    uniform float weatherCloudStrength;
+#endif
 
 
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
@@ -217,8 +220,6 @@ uniform float nightVision;
 #if defined SHADOW_CLOUD_ENABLED || defined VL_BUFFER_ENABLED
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         #include "/lib/clouds/cloud_custom.glsl"
-        //#include "/lib/clouds/cloud_custom_shadow.glsl"
-        //#include "/lib/clouds/cloud_custom_trace.glsl"
     #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
         #include "/lib/clouds/cloud_vanilla.glsl"
         #include "/lib/clouds/cloud_vanilla_shadow.glsl"

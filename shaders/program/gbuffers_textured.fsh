@@ -103,9 +103,12 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float sunAngle;
     uniform int moonPhase;
     
-    //uniform float lightningStrength;
     uniform float cloudHeight;
     uniform float cloudTime;
+
+    #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        uniform float weatherCloudStrength;
+    #endif
 #endif
 
 #ifdef RENDER_SHADOWS_ENABLED
