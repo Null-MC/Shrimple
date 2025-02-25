@@ -98,7 +98,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     vec3 waveNormal = normalize(vec3(direction * totalFactor, PHYSICS_NORMAL_STRENGTH));
 
     // TODO: dFdx/y normals
-    
+
     vec2 eyePosition = position + physics_modelOffset.xz;
     vec2 rippleFetch = (eyePosition + vec2(physics_rippleRange)) / (physics_rippleRange * 2.0);
     vec2 rippleTexelSize = vec2(2.0 / textureSize(physics_ripples, 0).x, 0.0);
@@ -107,7 +107,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
     float top = texture(physics_ripples, rippleFetch - rippleTexelSize.yx).r;
     float bottom = texture(physics_ripples, rippleFetch + rippleTexelSize.yx).r;
     float totalEffect = left + right + top + bottom;
-    
+
     vec3 rippleNormal = normalize(vec3(left - right, top - bottom, 1.0));
     return normalize(mix(waveNormal, rippleNormal, sqrt(totalEffect)));
 }

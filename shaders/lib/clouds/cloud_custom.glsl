@@ -17,10 +17,25 @@ float SampleCloudDensity(const in vec3 worldPos) {
 
     vec3 samplePos = worldPos * 0.0001;
     samplePos.y = mod(0.002*cloudTime, 1.0);
-    float noise1 = 1.0 - textureLod(TEX_CLOUDS, samplePos, 0).r;
-    float noise2 = 1.0 - textureLod(TEX_CLOUDS, samplePos*3.0, 0).r;
-    float noise3 = 1.0 - textureLod(TEX_CLOUDS, samplePos*16.0, 0).r;
-    float noise = 0.6*noise1 + 0.3*noise2 + 0.1*noise3;
+
+    float weight = 1.0;
+    float maxWeight = 0.0;
+    float noise = 0.0;
+    for (int i = 0; i < SKY_CLOUD_DETAIL; i++) {
+        float sampleNoise = 1.0 - textureLod(TEX_CLOUDS, samplePos, 0).r;
+        noise += weight * sampleNoise;
+
+        samplePos.xz *= 3.0;
+        maxWeight += weight;
+        weight *= 0.5;
+    }
+
+    noise /= maxWeight;
+
+//    float noise1 = 1.0 - textureLod(TEX_CLOUDS, samplePos, 0).r;
+//    float noise2 = 1.0 - textureLod(TEX_CLOUDS, samplePos*3.0, 0).r;
+//    float noise3 = 1.0 - textureLod(TEX_CLOUDS, samplePos*16.0, 0).r;
+//    float noise = 0.6*noise1 + 0.3*noise2 + 0.1*noise3;
 
     const float cloudScaleY = rcp(80);
     noise = min(noise, max(1.0 - 0.025*abs(worldPos.y - cloudAlt), 0.0));
