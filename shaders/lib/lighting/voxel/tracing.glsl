@@ -213,10 +213,9 @@ vec3 TraceDDA(vec3 origin, const in vec3 endPos, const in float range, const in 
 
 #ifndef RENDER_COMPUTE
     vec3 GetLightPenumbraOffset() {
-        vec3 offset = hash32(gl_FragCoord.xy + 0.33 * frameCounter);
-        return offset - 0.5;
-
-        // offset = offset*2.0 - 1.0;
-        // return sqrt(abs(offset)) * sign(offset) * 0.5;
+        vec2 texSize = textureSize(texBlueNoise, 0);
+        vec2 coord = (gl_FragCoord.xy + vec2(71.0, 83.0) * frameCounter) / texSize;
+        vec3 noise = textureLod(texBlueNoise, fract(coord), 0).rgb;
+        return 0.5 * normalize(noise * 2.0 - 1.0);
     }
 #endif

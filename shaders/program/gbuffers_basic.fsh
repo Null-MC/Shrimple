@@ -207,6 +207,7 @@ void main() {
         const float roughness = 1.0;
         const float metal_f0 = 0.04;
         const float porosity = 0.0;
+        const float emission = 0.0;
         const float isWater = 0.0;
         const float parallaxShadow = 1.0;
 
@@ -214,7 +215,7 @@ void main() {
         outDeferredTexNormal = normal;
 
         outDeferredData.r = packUnorm4x8(vec4(normal, 0.0));
-        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, 1.0, 0.0) + dither);
+        outDeferredData.g = packUnorm4x8(vec4(vIn.lmcoord, 1.0, emission) + dither);
         outDeferredData.b = packUnorm4x8(vec4(isWater, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else

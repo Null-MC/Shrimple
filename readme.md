@@ -44,4 +44,5 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 - Fayer: _very_ extensive help with QA, support, repairs, and motivation.
 - Builderb0y: help with optimized bit-magic supporting the core of voxelization.
 - Bálint: Created the fancy Iris warning, as well as DDA tracing & bit-shifting madness.
+- Gri: Supplying texture for, and helping implement, Blue-Noise for smoother RT lighting.
 - Tech: Helped implement improved soft shadow filtering & dithering.

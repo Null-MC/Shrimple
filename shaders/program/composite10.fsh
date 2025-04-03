@@ -14,6 +14,7 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
+uniform sampler2D texBlueNoise;
 
 #ifndef RENDER_SHADOWS_ENABLED
     uniform sampler2D shadowcolor0;

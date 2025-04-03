@@ -15,6 +15,7 @@ uniform sampler2D BUFFER_FINAL;
 uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
+uniform sampler2D texBlueNoise;
 
 #if LIGHTING_MODE == LIGHTING_MODE_TRACED
     uniform sampler2D texDiffuseRT;

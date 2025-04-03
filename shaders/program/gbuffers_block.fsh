@@ -648,7 +648,7 @@ void main() {
             diffuseFinal += WorldAmbientF;
         #endif
         
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
+        #if MATERIAL_SPECULAR != SPECULAR_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE
             ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
         #endif
 

@@ -37,6 +37,7 @@ in VertexData {
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+uniform sampler2D texBlueNoise;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex;

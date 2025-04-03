@@ -170,7 +170,13 @@ vec4 SampleLpv(const in vec3 lpvPos, const in vec3 geoNormal, const in vec3 texN
     }
 #else
     vec3 GetLpvBlockLight(const in vec4 lpvSample) {
-        return lpvSample.rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
+        vec3 rgb = lpvSample.rgb;
+
+        vec3 hsv = RgbToHsv(rgb);
+        hsv.z = pow(hsv.z, 2.0);
+        rgb = HsvToRgb(hsv);
+
+        return rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
     }
 #endif
 

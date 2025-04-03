@@ -160,11 +160,11 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     for (float ii = dither; ii < 8.0; ii += 1.0) {
                         vec3 cloudShadow_worldPos = (shadowStepDist * ii) * localSkyLightDirection + cloudWorldPos;
                         shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
-                        shadowStepDist *= 2.0;
+                        shadowStepDist *= 1.5;
                     }
 
                     if (shadowDensity > 0.0)
-                        cloudShadow = exp(-AirExtinctFactor * shadowDensity);
+                        cloudShadow = exp(-2.0*AirExtinctFactor * shadowDensity);
                 //}
                 //else {
                 //    cloudShadow = 10.0;
@@ -545,7 +545,10 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            sampleAmbient *= skyColorAmbient;
+            if (isCloudStep)
+                sampleAmbient *= luminance(skyColorAmbient);
+            else
+                sampleAmbient *= skyColorAmbient;
         #endif
 
         vec3 lightF = sampleLit + sampleAmbient;

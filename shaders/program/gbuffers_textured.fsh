@@ -26,6 +26,7 @@ in VertexData {
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
 uniform sampler2D lightmap;
+uniform sampler2D texBlueNoise;
 
 #ifdef WORLD_SKY_ENABLED
     #if LIGHTING_MODE != LIGHTING_MODE_NONE

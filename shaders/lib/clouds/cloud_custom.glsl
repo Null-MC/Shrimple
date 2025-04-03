@@ -25,9 +25,9 @@ float SampleCloudDensity(const in vec3 worldPos) {
         float sampleNoise = 1.0 - textureLod(TEX_CLOUDS, samplePos, 0).r;
         noise += weight * sampleNoise;
 
-        samplePos.xz *= 3.0;
+        samplePos.xz *= 2.5;
         maxWeight += weight;
-        weight *= 0.5;
+        weight *= 0.4;
     }
 
     noise /= maxWeight;
@@ -38,11 +38,14 @@ float SampleCloudDensity(const in vec3 worldPos) {
 //    float noise = 0.6*noise1 + 0.3*noise2 + 0.1*noise3;
 
     const float cloudScaleY = rcp(80);
-    noise = min(noise, max(1.0 - 0.025*abs(worldPos.y - cloudAlt), 0.0));
+    float heightDiff = abs(worldPos.y - cloudAlt);
+    //noise = min(noise, max(1.0 - heightDiff*cloudScaleY, 0.0));
+    noise = max(noise - heightDiff*cloudScaleY, 0.0);
 
     float threshold = mix(0.48, 0.36, weatherCloudStrength);
     //noise = smoothstep(threshold, 1.0, noise);
     noise = saturate(unmix(noise, threshold, 1.0));
+    //noise = noise*noise;
 
     noise *= smoothstep(8000.0, 5000.0, distance(worldPos.xz, cameraPosition.xz));
 

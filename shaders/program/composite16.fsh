@@ -15,6 +15,7 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D TEX_LIGHTMAP;
+uniform sampler2D texBlueNoise;
 
 // #if MATERIAL_SPECULAR != SPECULAR_NONE
 //     uniform sampler2D BUFFER_ROUGHNESS;

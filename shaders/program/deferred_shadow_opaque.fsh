@@ -404,7 +404,7 @@ void main() {
                         float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                         if (cloudShadowDensity > 0.0) {
-                            cloudShadow = exp(-10.0 * cloudShadowDensity);
+                            cloudShadow = exp(-1.0 * cloudShadowDensity);
                         }
                     #else
                         vec2 cloudOffset = GetCloudOffset();

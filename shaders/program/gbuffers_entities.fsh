@@ -483,11 +483,12 @@ void main() {
     // #endif
 
     color *= vIn.color;
-    color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         color.rgb = LinearToRGB(vec3(WHITEWORLD_VALUE));
     #endif
+
+    color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;

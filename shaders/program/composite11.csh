@@ -77,9 +77,9 @@ uniform vec3 cameraPosition;
 #include "/lib/sampling/gaussian.glsl"
 
 
-const float AccumMaxFrames = 30.0;
+const float AccumMaxFrames = 60.0;
 const float AccumMaxFrames_specular = 8.0;
-const float g_sigmaXY = 9.0;
+const float g_sigmaXY = 220.0;
 const float g_sigmaV = 0.1;
 
 void populateSharedBuffer() {

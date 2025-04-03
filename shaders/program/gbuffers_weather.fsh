@@ -25,6 +25,7 @@ in VertexData {
 
 uniform sampler2D gtexture;
 uniform sampler2D noisetex;
+uniform sampler2D texBlueNoise;
 
 //uniform sampler2D BUFFER_FINAL_PREV;
 

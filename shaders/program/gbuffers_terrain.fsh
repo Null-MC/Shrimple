@@ -748,7 +748,7 @@ void main() {
             SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
         #endif
 
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
+        #if MATERIAL_SPECULAR != SPECULAR_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE
             ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
         #endif
 
