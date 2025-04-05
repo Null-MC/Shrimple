@@ -1809,6 +1809,8 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMin[3] = modelPart( 0, 14, 14);
             boundsMax[3] = modelPart(16, 16, 16);
             break;
+//        case BLOCK_DECO_RAILING:
+//            break;
         case BLOCK_CREATE_TRACK_SIGNAL:
             shapeCount = 3u;
             boundsMin[0] = modelPart( 0,  0,  0);

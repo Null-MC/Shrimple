@@ -594,7 +594,7 @@ void main() {
     float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
     GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
 
-    #ifdef WORLD_WATER_ENABLED
+    #if defined(WORLD_WATER_ENABLED) && !defined(WATER_TEXTURED)
         if (isWater) {
             albedo = mix(albedo, vec3(1.0), oceanFoam);
             metal_f0  = mix(0.02, 0.04, oceanFoam);
@@ -624,7 +624,9 @@ void main() {
     float parallaxShadow = 1.0;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
+        #ifndef WATER_TEXTURED
         if (!isWater)
+        #endif
             GetMaterialNormal(atlasCoord, dFdXY, texNormal);
 
         #ifdef PARALLAX_ENABLED

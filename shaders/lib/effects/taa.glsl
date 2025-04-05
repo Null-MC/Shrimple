@@ -96,6 +96,8 @@ vec4 ApplyTAA(const in vec2 uv) {
     vec3 diff = antialiased - preclamping;
     float clampAmount = dot(diff, diff);
     mixRate *= rcp(1.0 + clampAmount);
+
+    mixRate *= exp(-10.0 * frameTime);
     
     antialiased = decodePalYuv(antialiased);
         

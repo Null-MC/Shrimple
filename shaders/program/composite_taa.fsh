@@ -32,6 +32,7 @@ uniform vec2 pixelSize;
 uniform float near;
 uniform float farPlane;
 uniform int frameCounter;
+uniform float frameTime;
 
 #ifdef DISTANT_HORIZONS
     uniform mat4 dhModelViewInverse;
