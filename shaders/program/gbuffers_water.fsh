@@ -446,7 +446,6 @@ uniform vec3 eyePosition;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     bool isWater = vIn.blockId == BLOCK_WATER;
     float viewDist = length(vIn.localPos);
 
@@ -458,9 +457,19 @@ void main() {
     vec2 waterUvOffset = vec2(0.0);
     vec2 lmFinal = vIn.lmcoord;
 
+    float mip = textureQueryLod(gtexture, vIn.texcoord).y;
+    #ifdef WATER_TEXTURED
+        if (isWater) mip = min(mip, 1.0);
+    #endif
+
 
     #ifdef DISTANT_HORIZONS
         // TODO: discard if DH opaque nearer?
+    #endif
+
+    #if defined(DISTANT_HORIZONS) && defined(DH_TRANSITION)
+        float lodFadeF = smoothstep(0.6 * far, 0.9 * far, viewDist);
+        mip = max(mip, 4.0 * lodFadeF);
     #endif
 
     vec3 localViewDir = normalize(vIn.localPos);
@@ -504,9 +513,9 @@ void main() {
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
         float surface_roughness, surface_metal_f0;
-        GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        GetMaterialSpecular(vIn.blockId, vIn.texcoord, mip, surface_roughness, surface_metal_f0);
 
-        porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+        porosity = GetMaterialPorosity(vIn.texcoord, mip, surface_roughness, surface_metal_f0);
         float skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
         float puddleF = GetWetnessPuddleF(skyWetness, porosity);
 
@@ -529,23 +538,12 @@ void main() {
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST)
-            atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(localCoord, mip, tanViewDir, viewDist, texDepth, traceCoordDepth);
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
-
-    #ifdef DISTANT_HORIZONS
-        if (!isWater) {
-            #ifdef EFFECT_TAA_ENABLED
-                float ditherOut = InterleavedGradientNoiseTime();
-            #else
-                float ditherOut = GetScreenBayerValue();
-            #endif
-
-            float ditherFadeF = smoothstep(dh_clipDistF * far, far, viewDist);
-            color.a *= step(ditherFadeF, ditherOut);
-        }
-    #endif
+    vec4 color;
+    color = textureLod(gtexture, atlasCoord, mip);
+    color.a = textureLod(gtexture, atlasCoord, 0.0).a;
 
     float alphaThreshold = 0.1;//(1.5/255.0);
 
@@ -561,6 +559,17 @@ void main() {
     #ifdef MATERIAL_REFLECT_GLASS
         if (vIn.blockId == BLOCK_GLASS || vIn.blockId == BLOCK_GLASS_PANE) alphaThreshold = -1.0;
     #endif
+
+//    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+//        #ifdef EFFECT_TAA_ENABLED
+//            float ditherOut = InterleavedGradientNoiseTime();
+//        #else
+//            float ditherOut = GetScreenBayerValue();
+//        #endif
+//
+//        float ditherFadeF = smoothstep(dh_clipDistF * far, far, viewDist);
+//        color.a *= step(ditherFadeF, ditherOut);
+//    #endif
 
     if (color.a < alphaThreshold) {
         discard;
@@ -582,7 +591,7 @@ void main() {
     #endif
 
     #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
-        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+        float texOcclusion = textureLod(normals, atlasCoord, mip).b;
         occlusion *= texOcclusion;
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
         float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;
@@ -590,9 +599,9 @@ void main() {
     #endif
 
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
-    GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
+    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, mip);
+    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, mip);
+    GetMaterialSpecular(vIn.blockId, atlasCoord, mip, roughness, metal_f0);
 
     #if defined(WORLD_WATER_ENABLED) && !defined(WATER_TEXTURED)
         if (isWater) {
@@ -627,7 +636,7 @@ void main() {
         #ifndef WATER_TEXTURED
         if (!isWater)
         #endif
-            GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+            GetMaterialNormal(atlasCoord, mip, texNormal);
 
         #ifdef PARALLAX_ENABLED
             if (!skipParallax) {
@@ -635,14 +644,14 @@ void main() {
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, mip, traceCoordDepth.z, tanViewDir);
                     }
                 #endif
 
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
                         vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                        parallaxShadow = GetParallaxShadow(traceCoordDepth, mip, tanLightDir);
                     }
                 #endif
             }

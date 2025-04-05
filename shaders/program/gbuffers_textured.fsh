@@ -347,12 +347,12 @@ void main() {
     float sss = 0.0;
 
     #ifdef MATERIAL_PARTICLES
-        mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
+        float mip = textureQueryLod(gtexture, vIn.texcoord).y;
         float roughness;
 
-        sss = GetMaterialSSS(-1, vIn.texcoord, dFdXY);
-        emission = GetMaterialEmission(-1, vIn.texcoord, dFdXY);
-        GetMaterialSpecular(-1, vIn.texcoord, dFdXY, roughness, metal_f0);
+        sss = GetMaterialSSS(-1, vIn.texcoord, mip);
+        emission = GetMaterialEmission(-1, vIn.texcoord, mip);
+        GetMaterialSpecular(-1, vIn.texcoord, mip, roughness, metal_f0);
 
         roughL = _pow2(roughness);
     #endif

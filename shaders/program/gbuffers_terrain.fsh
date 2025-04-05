@@ -426,12 +426,13 @@ uniform int frameCounter;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     float viewDist = length(vIn.localPos);
     vec2 atlasCoord = vIn.texcoord;
     vec2 localCoord = vIn.localCoord;
     vec2 lmFinal = vIn.lmcoord;
-    
+
+    float mip = textureQueryLod(gtexture, atlasCoord).y;
+
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
@@ -458,10 +459,10 @@ void main() {
             #endif
 
             float surface_roughness, surface_metal_f0;
-            GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+            GetMaterialSpecular(vIn.blockId, vIn.texcoord, mip, surface_roughness, surface_metal_f0);
 
             #if MATERIAL_POROSITY != 0
-                porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+                porosity = GetMaterialPorosity(vIn.texcoord, mip, surface_roughness, surface_metal_f0);
             #endif
 
             skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
@@ -486,7 +487,7 @@ void main() {
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
-            atlasCoord = GetParallaxCoord(localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(localCoord, mip, tanViewDir, viewDist, texDepth, traceCoordDepth);
 
             #ifdef MATERIAL_PARALLAX_DEPTH_WRITE
                 float pomDist = (1.0 - traceCoordDepth.z) / max(-tanViewDir.z, 0.00001);
@@ -511,7 +512,14 @@ void main() {
         #endif
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
+        float lodFadeF = smoothstep(0.6 * far, 0.9 * far, viewDist);
+        mip = max(mip, 4.0 * lodFadeF);
+    #endif
+
+    vec4 color;
+    color.rgb = textureLod(gtexture, atlasCoord, mip).rgb;
+    color.a = textureLod(gtexture, atlasCoord, 0.0).a;
 
     #if defined DISTANT_HORIZONS && defined DH_TRANSITION
         #ifdef EFFECT_TAA_ENABLED
@@ -541,12 +549,12 @@ void main() {
 
     float occlusion = 1.0;
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, dFdXY);
-    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, dFdXY);
-    GetMaterialSpecular(vIn.blockId, atlasCoord, dFdXY, roughness, metal_f0);
+    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, mip);
+    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, mip);
+    GetMaterialSpecular(vIn.blockId, atlasCoord, mip, roughness, metal_f0);
 
     #if MATERIAL_POROSITY != 0 && defined(WORLD_WETNESS_ENABLED) && (defined(WORLD_SKY_ENABLED) || defined(WORLD_WATER_ENABLED))
-        porosity = GetMaterialPorosity(atlasCoord, dFdXY, roughness, metal_f0);
+        porosity = GetMaterialPorosity(atlasCoord, mip, roughness, metal_f0);
     #endif
 
     #if MATERIAL_EMISSION == EMISSION_NONE
@@ -564,7 +572,7 @@ void main() {
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
         if (vIn.blockId != BLOCK_LAVA)
-            GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+            GetMaterialNormal(atlasCoord, mip, texNormal);
 
         #ifdef PARALLAX_ENABLED
             if (!skipParallax) {
@@ -572,14 +580,14 @@ void main() {
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, mip, traceCoordDepth.z, tanViewDir);
                     }
                 #endif
 
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
                         vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                        parallaxShadow = GetParallaxShadow(traceCoordDepth, mip, tanLightDir);
                     }
                 #endif
             }
@@ -587,7 +595,7 @@ void main() {
     #endif
 
     #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
-        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+        float texOcclusion = textureLod(normals, atlasCoord, mip).b;
         occlusion *= texOcclusion;
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
         float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;

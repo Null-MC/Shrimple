@@ -7,7 +7,7 @@
 #endif
 
 #ifdef RENDER_FRAG
-    vec3 GenerateNormal(const in vec2 texcoord, const in mat2 dFdXY) {
+    vec3 GenerateNormal(const in vec2 texcoord, const in float mip) {
         #ifdef RENDER_ENTITIES
             vec2 texSize = textureSize(gtexture, 0);
         #else
@@ -30,10 +30,10 @@
         vec2 texcoordY1 = GetAtlasCoord(texcoordSnapped - vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
         vec2 texcoordY2 = GetAtlasCoord(texcoordSnapped + vec2(0.0, tilePixelSize.y), vIn.atlasBounds);
 
-        vec4 texColorX1 = textureGrad(gtexture, texcoordX1, dFdXY[0], dFdXY[1]);
-        vec4 texColorX2 = textureGrad(gtexture, texcoordX2, dFdXY[0], dFdXY[1]);
-        vec4 texColorY1 = textureGrad(gtexture, texcoordY1, dFdXY[0], dFdXY[1]);
-        vec4 texColorY2 = textureGrad(gtexture, texcoordY2, dFdXY[0], dFdXY[1]);
+        vec4 texColorX1 = textureLod(gtexture, texcoordX1, mip);
+        vec4 texColorX2 = textureLod(gtexture, texcoordX2, mip);
+        vec4 texColorY1 = textureLod(gtexture, texcoordY1, mip);
+        vec4 texColorY2 = textureLod(gtexture, texcoordY2, mip);
 
         float texHeightX1 = luminance(RGBToLinear(texColorX1.rgb) * texColorX1.a);
         float texHeightX2 = luminance(RGBToLinear(texColorX2.rgb) * texColorX2.a);
@@ -42,7 +42,7 @@
 
         #if MATERIAL_NORMAL_EDGE != 0
             vec2 texcoordC = GetAtlasCoord(texcoordSnapped, vIn.atlasBounds);
-            vec4 texColorC = textureGrad(gtexture, texcoordC, dFdXY[0], dFdXY[1]).rgb;
+            vec4 texColorC = textureLod(gtexture, texcoordC, mip).rgb;
             float texHeightC = luminance(RGBToLinear(texColorC.rgb) * texColorC.a);
 
             #if MATERIAL_NORMAL_EDGE == 1
@@ -76,28 +76,28 @@
         return normalize(vec3(roundTex, 1.0));
     }
 
-    bool GetMaterialNormal(const in vec2 texcoord, const in mat2 dFdXY, inout vec3 normal) {
+    bool GetMaterialNormal(const in vec2 texcoord, const in float mip, inout vec3 normal) {
         bool valid = false;
         #if MATERIAL_NORMALS == NORMALMAP_LABPBR
-            vec2 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rg;
+            vec2 texNormalLab = textureLod(normals, texcoord, mip).rg;
 
-            if (any(greaterThan(texNormal.rg, EPSILON2))) {
-                normal.xy = texNormal.xy * 2.0 - (254.0/255.0);
+            if (any(greaterThan(texNormalLab.rg, EPSILON2))) {
+                normal.xy = texNormalLab.xy * 2.0 - (254.0/255.0);
                 normal.z = sqrt(max(1.0 - dot(normal.xy, normal.xy), 0.0));
                 valid = true;
             }
         #elif MATERIAL_NORMALS == NORMALMAP_OLDPBR
-            vec3 texNormal = textureGrad(normals, texcoord, dFdXY[0], dFdXY[1]).rgb;
+            vec3 texNormalOld = textureLod(normals, texcoord, mip).rgb;
 
-            if (any(greaterThan(texNormal, EPSILON3))) {
-                normal = normalize(texNormal * 2.0 - (254.0/255.0));
+            if (any(greaterThan(texNormalOld, EPSILON3))) {
+                normal = normalize(texNormalOld * 2.0 - (254.0/255.0));
                 valid = true;
             }
         #elif MATERIAL_NORMALS == NORMALMAP_GENERATED
             #if defined RENDER_ENTITIES && MATERIAL_NORMAL_ROUND > 0
                 normal = GenerateRoundNormal();
             #else
-                normal = GenerateNormal(texcoord, dFdXY);
+                normal = GenerateNormal(texcoord, mip);
             #endif
             valid = true;
         #endif

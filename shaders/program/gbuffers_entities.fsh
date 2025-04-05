@@ -399,8 +399,8 @@ uniform vec3 eyePosition;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec2 atlasCoord = vIn.texcoord;
+    float mip = textureQueryLod(gtexture, atlasCoord).y;
 
     #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
         float texDepth = 1.0;
@@ -408,7 +408,7 @@ void main() {
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         bool skipParallax = false;
-        vec4 preN = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]);
+        vec4 preN = textureLod(normals, atlasCoord, mip);
         if (preN.a < EPSILON) skipParallax = true;
 
         if (entityId == ENTITY_SHADOW) skipParallax = true;
@@ -430,7 +430,7 @@ void main() {
     else {
         #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
             if (!skipParallax && viewDist < MATERIAL_DISPLACE_MAX_DIST) {
-                atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+                atlasCoord = GetParallaxCoord(vIn.localCoord, mip, tanViewDir, viewDist, texDepth, traceCoordDepth);
             }
 
         #endif
@@ -438,16 +438,16 @@ void main() {
         // color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
 
         #if defined DISTANT_HORIZONS && defined DH_TRANSITION_ENTITIES
-            float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
-            float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
+//            float md = max(length2(dFdXY[0]), length2(dFdXY[1]));
+//            float lodGrad = 0.5 * log2(md);// * MIP_BIAS;
 
             float lodFadeF = smoothstep(0.6 * far, 0.9 * far, viewDist);
-            float lodFinal = max(lodGrad, 4.0 * lodFadeF);
+            float lodFinal = max(mip, 4.0 * lodFadeF);
 
             color.rgb = textureLod(gtexture, atlasCoord, lodFinal).rgb;
-            color.a   = textureLod(gtexture, atlasCoord, lodGrad).a;
+            color.a   = textureLod(gtexture, atlasCoord, mip).a;
         #else
-            color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+            color = textureLod(gtexture, atlasCoord, mip);
         #endif
     }
 
@@ -503,9 +503,9 @@ void main() {
 
     vec2 lmFinal = vIn.lmcoord;
     float roughness, metal_f0, sss, emission;
-    sss = GetMaterialSSS(entityId, atlasCoord, dFdXY);
-    emission = GetMaterialEmission(entityId, atlasCoord, dFdXY);
-    GetMaterialSpecular(-1, atlasCoord, dFdXY, roughness, metal_f0);
+    sss = GetMaterialSSS(entityId, atlasCoord, mip);
+    emission = GetMaterialEmission(entityId, atlasCoord, mip);
+    GetMaterialSpecular(-1, atlasCoord, mip, roughness, metal_f0);
 
     float occlusion = 1.0;
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
@@ -544,7 +544,7 @@ void main() {
         bool isValidNormal = false;
 
         if (entityId != ENTITY_PHYSICSMOD_SNOW)
-            isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+            isValidNormal = GetMaterialNormal(atlasCoord, mip, texNormal);
 
         #if defined PARALLAX_ENABLED && defined MATERIAL_DISPLACE_ENTITIES
             if (!skipParallax) {
@@ -552,7 +552,7 @@ void main() {
                     float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                     if (depthDiff >= ParallaxSharpThreshold) {
-                        texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                        texNormal = GetParallaxSlopeNormal(atlasCoord, mip, traceCoordDepth.z, tanViewDir);
                         isValidNormal = true;
                     }
                 #endif
@@ -560,7 +560,7 @@ void main() {
                 #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                     if (traceCoordDepth.z + EPSILON < 1.0) {
                         vec3 tanLightDir = normalize(vIn.lightPos_T);
-                        parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                        parallaxShadow = GetParallaxShadow(traceCoordDepth, mip, tanLightDir);
                     }
                 #endif
 
@@ -600,7 +600,7 @@ void main() {
     #endif
 
     #if MATERIAL_OCCLUSION == OCCLUSION_LABPBR
-        float texOcclusion = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).b;
+        float texOcclusion = textureLod(normals, atlasCoord, mip).b;
         occlusion *= texOcclusion;
     #elif MATERIAL_OCCLUSION == OCCLUSION_DEFAULT
         float texOcclusion = max(texNormal.z, 0.0) * 0.5 + 0.5;

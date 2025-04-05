@@ -438,10 +438,10 @@ uniform vec3 eyePosition;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     float viewDist = length(vIn.localPos);
 
-    vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
+    float mip = textureQueryLod(gtexture, vIn.texcoord).y;
+    vec4 color = textureLod(gtexture, vIn.texcoord, mip) * vIn.color;
 
     #ifdef RENDER_TRANSLUCENT
         const float alphaThreshold = (1.5/255.0);
@@ -467,9 +467,9 @@ void main() {
         const int particleId = -1;
 
         float roughness, metal_f0;
-        float sss = GetMaterialSSS(particleId, vIn.texcoord, dFdXY);
-        float emission = GetMaterialEmission(particleId, vIn.texcoord, dFdXY);
-        GetMaterialSpecular(particleId, vIn.texcoord, dFdXY, roughness, metal_f0);
+        float sss = GetMaterialSSS(particleId, vIn.texcoord, mip);
+        float emission = GetMaterialEmission(particleId, vIn.texcoord, mip);
+        GetMaterialSpecular(particleId, vIn.texcoord, mip, roughness, metal_f0);
     #else
         const float emission = 0.0;
         const float roughness = 1.0;
@@ -482,7 +482,7 @@ void main() {
     vec3 texNormal = vec3(0.0);
 
     #if defined MATERIAL_PARTICLES && MATERIAL_NORMALS != NORMALMAP_NONE
-        GetMaterialNormal(vIn.texcoord, dFdXY, texNormal);
+        GetMaterialNormal(vIn.texcoord, mip, texNormal);
         texNormal = mat3(gbufferModelViewInverse) * texNormal;
 
         // vec3 localNormal2 = -normalize(vIn.localPos);

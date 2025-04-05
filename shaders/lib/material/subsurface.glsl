@@ -13,7 +13,7 @@
 #endif
 
 #ifdef RENDER_FRAG
-    float GetMaterialSSS(const in int id, const in vec2 texcoord, const in mat2 dFdXY) {
+    float GetMaterialSSS(const in int id, const in vec2 texcoord, const in float mip) {
         float sss = 0.0;
 
         #ifdef RENDER_ENTITIES
@@ -21,7 +21,7 @@
         #endif
 
         #if MATERIAL_SSS == SSS_LABPBR
-            sss = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).b;
+            sss = textureLod(specular, texcoord, mip).b;
             sss = max(sss - 0.25, 0.0) / 0.75;
         #elif MATERIAL_SSS == SSS_DEFAULT
             int materialId = id;

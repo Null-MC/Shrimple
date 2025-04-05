@@ -382,8 +382,8 @@ uniform vec3 eyePosition;
 #endif
 
 void main() {
-    mat2 dFdXY = mat2(dFdx(vIn.texcoord), dFdy(vIn.texcoord));
     vec2 atlasCoord = vIn.texcoord;
+    float mip = textureQueryLod(gtexture, atlasCoord).y;
 
     float viewDist = length(vIn.localPos);
     
@@ -393,11 +393,11 @@ void main() {
         vec3 tanViewDir = normalize(vIn.viewPos_T);
 
         if (viewDist < MATERIAL_DISPLACE_MAX_DIST) {
-            atlasCoord = GetParallaxCoord(vIn.localCoord, dFdXY, tanViewDir, viewDist, texDepth, traceCoordDepth);
+            atlasCoord = GetParallaxCoord(vIn.localCoord, mip, tanViewDir, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
-    vec4 color = textureGrad(gtexture, atlasCoord, dFdXY[0], dFdXY[1]);
+    vec4 color = textureLod(gtexture, atlasCoord, mip);
 
     #ifdef RENDER_TRANSLUCENT
         const float alphaThreshold = (1.5/255.0);
@@ -432,9 +432,9 @@ void main() {
     #endif
 
     float roughness, metal_f0, emission, sss;
-    sss = GetMaterialSSS(itemId, atlasCoord, dFdXY);
-    emission = GetMaterialEmission(itemId, atlasCoord, dFdXY);
-    GetMaterialSpecular(itemId, atlasCoord, dFdXY, roughness, metal_f0);
+    sss = GetMaterialSSS(itemId, atlasCoord, mip);
+    emission = GetMaterialEmission(itemId, atlasCoord, mip);
+    GetMaterialSpecular(itemId, atlasCoord, mip, roughness, metal_f0);
 
     #if defined RENDER_TRANSLUCENT && defined TRANSLUCENT_SSS_ENABLED
         sss = max(sss, 1.0 - color.a);
@@ -444,14 +444,14 @@ void main() {
     float parallaxShadow = 1.0;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        bool isValidNormal = GetMaterialNormal(atlasCoord, dFdXY, texNormal);
+        bool isValidNormal = GetMaterialNormal(atlasCoord, mip, texNormal);
 
         #ifdef PARALLAX_ENABLED
             #if DISPLACE_MODE == DISPLACE_POM_SHARP
                 float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
 
                 if (depthDiff >= ParallaxSharpThreshold) {
-                    texNormal = GetParallaxSlopeNormal(atlasCoord, dFdXY, traceCoordDepth.z, tanViewDir);
+                    texNormal = GetParallaxSlopeNormal(atlasCoord, mip, traceCoordDepth.z, tanViewDir);
                     isValidNormal = true;
                 }
             #endif
@@ -459,7 +459,7 @@ void main() {
             #if defined WORLD_SKY_ENABLED && MATERIAL_PARALLAX_SHADOW_SAMPLES > 0
                 if (traceCoordDepth.z + EPSILON < 1.0) {
                     vec3 tanLightDir = normalize(vIn.lightPos_T);
-                    parallaxShadow = GetParallaxShadow(traceCoordDepth, dFdXY, tanLightDir);
+                    parallaxShadow = GetParallaxShadow(traceCoordDepth, mip, tanLightDir);
                 }
             #endif
         #endif

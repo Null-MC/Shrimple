@@ -218,6 +218,8 @@ void main() {
                 vec3 worldPos = localPos + cameraPosition;
                 vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON);
                 localPos = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+
+                localPos += localNormal * rcp(SHADOW_PIXELATE);
             #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED

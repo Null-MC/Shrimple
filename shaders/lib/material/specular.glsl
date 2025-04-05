@@ -35,7 +35,7 @@
 #endif
 
 #if defined RENDER_FRAG && !(defined RENDER_CLOUDS || defined RENDER_WEATHER || defined RENDER_DEFERRED || defined RENDER_COMPOSITE) //&& (!defined RENDER_BILLBOARD || ((defined RENDER_PARTICLES || defined RENDER_TEXTURED) && defined MATERIAL_PARTICLES))
-    void GetMaterialSpecular(const in int blockId, const in vec2 texcoord, const in mat2 dFdXY, out float roughness, out float metal_f0) {
+    void GetMaterialSpecular(const in int blockId, const in vec2 texcoord, const in float mip, out float roughness, out float metal_f0) {
         roughness = 1.0;
         metal_f0 = 0.04;
 
@@ -48,7 +48,7 @@
         #endif
 
         #if MATERIAL_SPECULAR == SPECULAR_OLDPBR || MATERIAL_SPECULAR == SPECULAR_LABPBR
-            vec2 specularMap = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).rg;
+            vec2 specularMap = textureLod(specular, texcoord, mip).rg;
             roughness = 1.0 - specularMap.r;
             metal_f0 = specularMap.g;
         #elif defined RENDER_ENTITIES

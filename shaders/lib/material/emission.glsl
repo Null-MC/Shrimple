@@ -12,17 +12,17 @@ float GetSceneLightEmission(const in uint lightType) {
 #endif
 
 #ifdef RENDER_FRAG
-    float GetMaterialEmission(const in int id, const in vec2 texcoord, const in mat2 dFdXY) {
+    float GetMaterialEmission(const in int id, const in vec2 texcoord, const in float mip) {
         float emission = 0.0;
 
         #if MATERIAL_EMISSION == EMISSION_OLDPBR
-            emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).b;
+            emission = textureLod(specular, texcoord, mip).b;
 
             #if MATERIAL_EMISSION_POWER != 100
                 emission = pow(emission, Material_EmissionPower);
             #endif
         #elif MATERIAL_EMISSION == EMISSION_LABPBR
-            emission = textureGrad(specular, texcoord, dFdXY[0], dFdXY[1]).a;
+            emission = textureLod(specular, texcoord, mip).a;
             emission = fract(emission);
 
             #if MATERIAL_EMISSION_POWER != 100

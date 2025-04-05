@@ -1,4 +1,4 @@
-vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+vec2 GetParallaxCoord(const in vec2 texcoord, const in float mip, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
     vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * MaterialParallaxOffset) / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
     const float stepDepth = MaterialParallaxOffset / MATERIAL_PARALLAX_SAMPLES;
 
@@ -36,10 +36,10 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
             uv[2] = GetAtlasCoord(uv[2], vIn.atlasBounds);
             uv[3] = GetAtlasCoord(uv[3], vIn.atlasBounds);
 
-            texDepth = TextureGradLinear(normals, uv, dFdXY, f, 3);
+            texDepth = TextureLodLinear(normals, uv, mip, f, 3);
         #else
             vec2 traceAtlasCoord = GetAtlasCoord(localTraceCoord, vIn.atlasBounds);
-            texDepth = textureGrad(normals, traceAtlasCoord, dFdXY[0], dFdXY[1]).a;
+            texDepth = textureLod(normals, traceAtlasCoord, mip).a;
         #endif
 
         depthDist = MaterialParallaxOffset - i * stepDepth - texDepth;
@@ -71,7 +71,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in mat2 dFdXY, const in vec3
     #endif
 }
 
-float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in vec3 tanLightDir) {
+float GetParallaxShadow(const in vec3 traceTex, const in float mip, const in vec3 tanLightDir) {
     vec2 stepCoord = tanLightDir.xy * ParallaxDepthF * rcp(1.0 + tanLightDir.z * MATERIAL_PARALLAX_SHADOW_SAMPLES);
     const float stepDepth = rcp(MATERIAL_PARALLAX_SHADOW_SAMPLES);
 
@@ -98,10 +98,10 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
             uv[2] = GetAtlasCoord(uv[2], vIn.atlasBounds);
             uv[3] = GetAtlasCoord(uv[3], vIn.atlasBounds);
 
-            float texDepth = TextureGradLinear(normals, uv, dFdXY, f, 3);
+            float texDepth = TextureLodLinear(normals, uv, mip, f, 3);
         #else
             vec2 atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-            float texDepth = textureGrad(normals, atlasCoord, dFdXY[0], dFdXY[1]).a;
+            float texDepth = textureLod(normals, atlasCoord, mip).a;
         #endif
 
         #ifdef MATERIAL_PARALLAX_SOFTSHADOW
@@ -116,7 +116,7 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
 }
 
 #if DISPLACE_MODE == DISPLACE_POM_SHARP
-    vec3 GetParallaxSlopeNormal(const in vec2 atlasCoord, const in mat2 dFdXY, const in float traceDepth, const in vec3 tanViewDir) {
+    vec3 GetParallaxSlopeNormal(const in vec2 atlasCoord, const in float mip, const in float traceDepth, const in vec3 tanViewDir) {
         vec2 atlasPixelSize = rcp(atlasSize);
         float atlasAspect = atlasSize.x / atlasSize.y;
 
@@ -144,8 +144,8 @@ float GetParallaxShadow(const in vec3 traceTex, const in mat2 dFdXY, const in ve
         vec2 tY = GetLocalCoord(atlasCoord + tex_y * atlasPixelSize, vIn.atlasBounds);
         tY = GetAtlasCoord(tY, vIn.atlasBounds);
 
-        float height_x = textureGrad(normals, tX, dFdXY[0], dFdXY[1]).a;
-        float height_y = textureGrad(normals, tY, dFdXY[0], dFdXY[1]).a;
+        float height_x = textureLod(normals, tX, mip).a;
+        float height_y = textureLod(normals, tY, mip).a;
         vec3 signMask = vec3(0.0);
 
         if (dir) {
