@@ -603,6 +603,15 @@ void main() {
     float emission = GetMaterialEmission(vIn.blockId, atlasCoord, mip);
     GetMaterialSpecular(vIn.blockId, atlasCoord, mip, roughness, metal_f0);
 
+    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED)
+        if (isWater && roughness > 1.0-EPSILON) {
+            // default specular values only
+            metal_f0 = 0.02;
+            roughness = WATER_ROUGH;
+            //sss = 0.0;
+        }
+    #endif
+
     #if defined(WORLD_WATER_ENABLED) && !defined(WATER_TEXTURED)
         if (isWater) {
             albedo = mix(albedo, vec3(1.0), oceanFoam);
