@@ -390,10 +390,18 @@ void main() {
                         #endif
                     }
                 #else
-                    #ifdef SHADOW_COLORED
-                        vec3 shadowSample = GetShadowColor(shadowPos, offsetBias);
+                    #if SHADOW_FILTER == SHADOW_FILTER_PIXEL
+                        #ifdef SHADOW_COLORED
+                            vec3 shadowSample = GetShadowColor(localPos, localNormal, offsetBias);
+                        #else
+                            vec3 shadowSample = vec3(GetShadowFactor(localPos, localNormal, offsetBias));
+                        #endif
                     #else
-                        vec3 shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
+                        #ifdef SHADOW_COLORED
+                            vec3 shadowSample = GetShadowColor(shadowPos, offsetBias);
+                        #else
+                            vec3 shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
+                        #endif
                     #endif
                 #endif
 

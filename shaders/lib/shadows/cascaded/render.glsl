@@ -112,11 +112,16 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
     #endif
 #endif
 
-#if SHADOW_FILTER == 3
-    // Pixelated
+#if SHADOW_FILTER == SHADOW_FILTER_PIXEL
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(const in vec3 localPos, const in int cascade) {
-            float offsetBias = GetShadowOffsetBias(cascade);
+        vec3 _sample(const in vec3 localPos, const in float offsetBias, const in int cascade) {
+            vec3 shadowViewPos = mul3(shadowModelViewEx, localPos);
+
+            // convert to shadow screen space
+            vec3 shadowPos = mul3(cascadeProjection[cascade], shadowViewPos);
+
+            shadowPos = shadowPos * 0.5 + 0.5;
+            shadowPos.xy = shadowPos.xy * 0.5 + shadowProjectionPos[cascade];
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
             if (shadowPos.z - offsetBias > depthOpaque) return vec3(0.0);
@@ -133,6 +138,31 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             shadowColor.rgb = mix(shadowColor.rgb, vec3(0.0), _pow2(shadowColor.a));
 
             return shadowColor.rgb;
+        }
+
+        vec3 GetShadowColor(const in vec3 localPos, const in vec3 localNormal, const in int cascade) {
+            float offsetBias = GetShadowOffsetBias(cascade);
+
+            //float bias = GetShadowNormalBias(cascade, geoNoL);
+            //vec3 offsetLocalPos = localNormal * bias + localPos;
+
+            vec3 worldPos = localPos + cameraPosition;
+            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+
+            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+
+            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+
+            vec3 s1 = _sample(localPosMin, offsetBias, cascade);
+            vec3 s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias, cascade);
+            vec3 s3 = _sample(vec3(localPosMin.x, localPosMin.y, localPosMax.z), offsetBias, cascade);
+            vec3 s4 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMax.z), offsetBias, cascade);
+            vec3 s5 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMin.z), offsetBias, cascade);
+            vec3 s6 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMin.z), offsetBias, cascade);
+            vec3 s7 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMax.z), offsetBias, cascade);
+            vec3 s8 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMax.z), offsetBias, cascade);
+            return (s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8) / 8.0;
         }
     #else
         float _sample(const in vec3 localPos, const in float offsetBias, const in int cascade) {
@@ -172,8 +202,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return (s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8) / 8.0;
         }
     #endif
-#elif SHADOW_FILTER == 2
-    // PCF + PCSS
+#elif SHADOW_FILTER == SHADOW_FILTER_PCSS
     float FindBlockerDistance(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
         float dither = GetShadowDither();
         float zRange = GetShadowRange();
@@ -245,8 +274,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #endif
-#elif SHADOW_FILTER == 1
-    // PCF
+#elif SHADOW_FILTER == SHADOW_FILTER_PCF
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
             // vec2 pixelRadius = max(GetPixelRadius(Shadow_MaxPcfSize, cascade), minShadowPixelRadius);
@@ -262,8 +290,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             return 1.0 - GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
         }
     #endif
-#elif SHADOW_FILTER == 0
-    // Unfiltered
+#elif SHADOW_FILTER == SHADOW_FILTER_NONE
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in int cascade) {
             float offsetBias = GetShadowOffsetBias(cascade);

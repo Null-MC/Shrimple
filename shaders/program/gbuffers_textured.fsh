@@ -116,6 +116,7 @@ uniform ivec2 eyeBrightnessSmooth;
     // uniform vec3 shadowLightPosition;
 
     #if SHADOW_TYPE != SHADOW_TYPE_NONE
+        uniform mat4 shadowModelView;
         uniform mat4 shadowProjection;
     #endif
 #endif

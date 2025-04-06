@@ -95,10 +95,24 @@
 
                 float offsetBias = GetShadowOffsetBias(vIn.shadowPos, geoNoL);
 
-                #ifdef SHADOW_COLORED
-                    shadow = GetShadowColor(vIn.shadowPos, offsetBias);
+                #if SHADOW_FILTER == SHADOW_FILTER_PIXEL
+                    #ifdef RENDER_BILLBOARD
+                        vec3 localNormal = vec3(0.0);
+                    #else
+                        vec3 localNormal = normalize(vIn.localNormal);
+                    #endif
+
+                    #ifdef SHADOW_COLORED
+                        shadow = GetShadowColor(vIn.localPos, localNormal, offsetBias);
+                    #else
+                        shadow = GetShadowFactor(vIn.localPos, localNormal, offsetBias);
+                    #endif
                 #else
-                    shadow = GetShadowFactor(vIn.shadowPos, offsetBias);
+                    #ifdef SHADOW_COLORED
+                        shadow = GetShadowColor(vIn.shadowPos, offsetBias);
+                    #else
+                        shadow = GetShadowFactor(vIn.shadowPos, offsetBias);
+                    #endif
                 #endif
             #endif
         #endif

@@ -135,10 +135,12 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
     return 2.0 * blockRadius * pixelPerBlockScale * shadowPixelSize;// * (1.0 - distortFactor);
 }
 
-#if SHADOW_FILTER == 3
-    // Pixelated
+#if SHADOW_FILTER == SHADOW_FILTER_PIXEL
     #ifdef SHADOW_COLORED
-        vec3 GetShadowColor(in vec3 shadowPos, const in float offsetBias) {
+        vec3 _sample(const in vec3 localPos, const in float offsetBias) {
+            vec3 shadowViewPos = mul3(shadowModelViewEx, localPos);
+            vec3 shadowPos = mul3(shadowProjectionEx, shadowViewPos);
+
             shadowPos = distort(shadowPos) * 0.5 + 0.5;
 
             float depthOpaque = texture(shadowtex1, shadowPos.xy).r;
@@ -161,13 +163,61 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
 
             return shadowColor.rgb;
         }
+
+        vec3 GetShadowColor(const in vec3 localPos, const in vec3 localNormal, const in float offsetBias) {
+            //float bias = GetShadowNormalBias(cascade, geoNoL);
+            //vec3 offsetLocalPos = localNormal * bias + localPos;
+
+            vec3 worldPos = localPos + cameraPosition;
+            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+
+            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+
+            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+
+            vec3 s1 = _sample(localPosMin, offsetBias);
+            vec3 s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias);
+            vec3 s3 = _sample(vec3(localPosMin.x, localPosMin.y, localPosMax.z), offsetBias);
+            vec3 s4 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMax.z), offsetBias);
+            vec3 s5 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMin.z), offsetBias);
+            vec3 s6 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMin.z), offsetBias);
+            vec3 s7 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMax.z), offsetBias);
+            vec3 s8 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMax.z), offsetBias);
+            return (s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8) / 8.0;
+        }
     #else
-        float GetShadowFactor(const in vec3 shadowPos, const in float offsetBias) {
+        float _sample(const in vec3 localPos, const in float offsetBias) {
+            vec3 shadowViewPos = mul3(shadowModelViewEx, localPos);
+            vec3 shadowPos = mul3(shadowProjectionEx, shadowViewPos);
+
             return CompareDepth(shadowPos, vec2(0.0), offsetBias);
         }
+
+        float GetShadowFactor(const in vec3 localPos, const in vec3 localNormal, const in float offsetBias) {
+            //float bias = GetShadowNormalBias(cascade, geoNoL);
+            //vec3 offsetLocalPos = localNormal * bias + localPos;
+
+            vec3 worldPos = localPos + cameraPosition;
+            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+
+            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+
+            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+
+            float s1 = _sample(localPosMin, offsetBias);
+            float s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias);
+            float s3 = _sample(vec3(localPosMin.x, localPosMin.y, localPosMax.z), offsetBias);
+            float s4 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMax.z), offsetBias);
+            float s5 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMin.z), offsetBias);
+            float s6 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMin.z), offsetBias);
+            float s7 = _sample(vec3(localPosMin.x, localPosMax.y, localPosMax.z), offsetBias);
+            float s8 = _sample(vec3(localPosMax.x, localPosMax.y, localPosMax.z), offsetBias);
+            return (s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8) / 8.0;
+        }
     #endif
-#elif SHADOW_FILTER == 2
-    // PCF + PCSS
+#elif SHADOW_FILTER == SHADOW_FILTER_PCSS
     float FindBlockerDistance(const in vec3 shadowPos, const in vec2 pixelRadius, const in float bias) {
         float dither = GetShadowDither();
 
@@ -250,8 +300,7 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             return GetShadowing_PCF(shadowPos, pixelRadius, offsetBias);
         }
     #endif
-#elif SHADOW_FILTER == 1
-    // PCF
+#elif SHADOW_FILTER == SHADOW_FILTER_PCF
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(const in vec3 shadowPos, const in float offsetBias) {
             // vec2 pixelRadius = max(GetShadowPixelRadius(shadowPos, Shadow_MaxPcfSize), minShadowPixelRadius);
@@ -265,8 +314,7 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             return 1.0 - GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
         }
     #endif
-#elif SHADOW_FILTER == 0
-    // Unfiltered
+#elif SHADOW_FILTER == SHADOW_FILTER_NONE
     #ifdef SHADOW_COLORED
         vec3 GetShadowColor(in vec3 shadowPos, const in float offsetBias) {
             shadowPos = distort(shadowPos) * 0.5 + 0.5;
