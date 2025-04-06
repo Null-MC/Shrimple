@@ -229,11 +229,11 @@ void main() {
             // float texNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
             shadowFinal *= step(0.0, geoNoL);// * texNoLm;
 
-            #if SHADOW_PIXELATE > 0
-                vec3 worldPos = localPos + cameraPosition;
-                vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE) / SHADOW_PIXELATE;
-                localPos = floor(worldPos) - cameraPosition + f;
-            #endif
+//            #if SHADOW_PIXELATE > 0
+//                vec3 worldPos = localPos + cameraPosition;
+//                vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE) / SHADOW_PIXELATE;
+//                localPos = floor(worldPos) - cameraPosition + f;
+//            #endif
 
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int shadowTile;
@@ -292,10 +292,18 @@ void main() {
                 vec3 shadowSample = vec3(1.0);
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     if (cascadeIndex >= 0) {
-                        #ifdef SHADOW_COLORED
-                            shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex);
+                        #if SHADOW_FILTER == SHADOW_FILTER_PIXEL
+                            #ifdef SHADOW_COLORED
+                                shadowSample = GetShadowColor(localPos, localNormal, cascadeIndex);
+                            #else
+                                shadowSample = vec3(GetShadowFactor(localPos, localNormal, cascadeIndex));
+                            #endif
                         #else
-                            shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex));
+                            #ifdef SHADOW_COLORED
+                                shadowSample = GetShadowColor(shadowPos[cascadeIndex], cascadeIndex);
+                            #else
+                                shadowSample = vec3(GetShadowFactor(shadowPos[cascadeIndex], cascadeIndex));
+                            #endif
                         #endif
                     }
                 #else

@@ -671,6 +671,13 @@ value.SHADOW_TYPE.0=None
 value.SHADOW_TYPE.2=Distorted
 value.SHADOW_TYPE.3=Cascaded
 
+option.SHADOW_FILTER=Filtering
+option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
+value.SHADOW_FILTER.0=None
+value.SHADOW_FILTER.1=Soft-Fixed
+value.SHADOW_FILTER.2=Soft-Dynamic
+value.SHADOW_FILTER.3=Pixelated
+
 option.shadowMapResolution=Resolution
 option.shadowMapResolution.comment=Resolution of the shadow map. Higher numbers mean more accurate shadows.
 suffix.shadowMapResolution=x
@@ -687,12 +694,6 @@ option.SHADOW_COLOR_BLEND.comment=Allows colored shadows to blend multiple color
 
 option.SHADOW_CLOUD_ENABLED=Clouds
 option.SHADOW_CLOUD_ENABLED.comment=Enables shadows from clouds.
-
-option.SHADOW_FILTER=Filtering
-option.SHADOW_FILTER.comment=Type type of filtering to apply to shadow sampling.
-value.SHADOW_FILTER.0=None
-value.SHADOW_FILTER.1=Soft-Fixed
-value.SHADOW_FILTER.2=Soft-Dynamic
 
 option.LIGHT_LEAK_FIX=Light-Leak Fix
 option.LIGHT_LEAK_FIX.comment=Prevents light-leaking into caves and other dark areas by forcing areas with zero sky-light to be fully shadowed.

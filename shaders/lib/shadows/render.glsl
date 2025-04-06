@@ -69,10 +69,24 @@
                     // vec3 _shadowPos = vIn.shadowPos[cascadeIndex];
                     // _shadowPos.xy += rcp(shadowProjectionSize[cascadeIndex]) * sssOffset;
 
-                    #ifdef SHADOW_COLORED
-                        shadow = GetShadowColor(vIn.shadowPos[cascadeIndex], cascadeIndex);
+                    #if SHADOW_FILTER == SHADOW_FILTER_PIXEL
+                        #ifdef RENDER_BILLBOARD
+                            vec3 localNormal = vec3(0.0);
+                        #else
+                            vec3 localNormal = normalize(vIn.localNormal);
+                        #endif
+
+                        #ifdef SHADOW_COLORED
+                            shadow = GetShadowColor(vIn.localPos, localNormal, cascadeIndex);
+                        #else
+                            shadow = GetShadowFactor(vIn.localPos, localNormal, cascadeIndex);
+                        #endif
                     #else
-                        shadow = GetShadowFactor(vIn.shadowPos[cascadeIndex], cascadeIndex);
+                        #ifdef SHADOW_COLORED
+                            shadow = GetShadowColor(vIn.shadowPos[cascadeIndex], cascadeIndex);
+                        #else
+                            shadow = GetShadowFactor(vIn.shadowPos[cascadeIndex], cascadeIndex);
+                        #endif
                     #endif
                 }
             #else
