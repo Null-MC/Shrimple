@@ -169,12 +169,12 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             //vec3 offsetLocalPos = localNormal * bias + localPos;
 
             vec3 worldPos = localPos + cameraPosition;
-            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
-            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+            vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+            localPosMin += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
 
-            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+            vec3 localPosMax = localPosMin + rcp(MATERIAL_RESOLUTION);
 
             vec3 s1 = _sample(localPosMin, offsetBias);
             vec3 s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias);
@@ -199,12 +199,12 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             //vec3 offsetLocalPos = localNormal * bias + localPos;
 
             vec3 worldPos = localPos + cameraPosition;
-            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
-            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+            vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+            localPosMin += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
 
-            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+            vec3 localPosMax = localPosMin + rcp(MATERIAL_RESOLUTION);
 
             float s1 = _sample(localPosMin, offsetBias);
             float s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias);

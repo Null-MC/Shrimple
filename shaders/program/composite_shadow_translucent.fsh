@@ -228,13 +228,7 @@ void main() {
             //shadowFinal *= geoNoLm;
             // float texNoLm = max(dot(texNormal, localSkyLightDirection), 0.0);
             shadowFinal *= step(0.0, geoNoL);// * texNoLm;
-
-//            #if SHADOW_PIXELATE > 0
-//                vec3 worldPos = localPos + cameraPosition;
-//                vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE) / SHADOW_PIXELATE;
-//                localPos = floor(worldPos) - cameraPosition + f;
-//            #endif
-
+            
             #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                 int shadowTile;
                 vec3 shadowPos[4];

@@ -250,6 +250,10 @@ suffix.WATER_SURFACE_PIXEL_RES=x
 
 screen.MATERIAL_OPTIONS=Materials
 
+option.MATERIAL_RESOLUTION=Resolution
+option.MATERIAL_RESOLUTION.comment=The resolution of the texture/resource pack. For 'pixelated' effects only!
+suffix.MATERIAL_RESOLUTION=x
+
 option.MATERIAL_NORMALS=Normal Map
 option.MATERIAL_NORMALS.comment=The type of normal-map data.
 value.MATERIAL_NORMALS.0=OFF
@@ -622,6 +626,8 @@ option.LIGHTING_TRACE_AO_SHADOWS.comment=Fakes micro-shadowing from occlusion us
 option.DYN_LIGHT_WEATHER=Weather Particles
 option.DYN_LIGHT_WEATHER.comment=Determines whether dynamic lighting is applied to weather particles. Enabling this option is heavy on performance!
 
+option.LIGHTING_TRACE_PIXELATE=Pixelate
+
 
 screen.VOLUMETRIC_OPTIONS=Volumetric Fog
 
@@ -697,10 +703,6 @@ option.SHADOW_CLOUD_ENABLED.comment=Enables shadows from clouds.
 
 option.LIGHT_LEAK_FIX=Light-Leak Fix
 option.LIGHT_LEAK_FIX.comment=Prevents light-leaking into caves and other dark areas by forcing areas with zero sky-light to be fully shadowed.
-
-option.SHADOW_PIXELATE=Pixelate
-suffix.SHADOW_PIXELATE=x
-value.SHADOW_PIXELATE.0=OFF
 
 
 screen.SHADOW_ADVANCED_OPTIONS=Advanced Shadow Options

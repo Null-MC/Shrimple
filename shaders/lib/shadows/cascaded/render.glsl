@@ -104,10 +104,10 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             float shadow = 0.0;
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
                 vec2 pixelOffset = (rotation * pcfDiskOffset[i]) * pixelRadius;
-                shadow += 1.0 - CompareDepth(shadowPos, pixelOffset, bias);
+                shadow += CompareDepth(shadowPos, pixelOffset, bias);
             }
 
-            return 1.0 - shadow * rcp(SHADOW_PCF_SAMPLES);
+            return shadow * rcp(SHADOW_PCF_SAMPLES);
         }
     #endif
 #endif
@@ -147,12 +147,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             //vec3 offsetLocalPos = localNormal * bias + localPos;
 
             vec3 worldPos = localPos + cameraPosition;
-            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
-            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+            vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+            localPosMin += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
 
-            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+            vec3 localPosMax = localPosMin + rcp(MATERIAL_RESOLUTION);
 
             vec3 s1 = _sample(localPosMin, offsetBias, cascade);
             vec3 s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias, cascade);
@@ -184,12 +184,12 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             //vec3 offsetLocalPos = localNormal * bias + localPos;
 
             vec3 worldPos = localPos + cameraPosition;
-            vec3 f = floor(fract(worldPos) * SHADOW_PIXELATE + EPSILON) + 0.5;
-            vec3 localPosMin = floor(worldPos) - cameraPosition + f / SHADOW_PIXELATE;
+            vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+            vec3 localPosMin = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-            localPosMin += 0.5*localNormal * rcp(SHADOW_PIXELATE);
+            localPosMin += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
 
-            vec3 localPosMax = localPosMin + rcp(SHADOW_PIXELATE);
+            vec3 localPosMax = localPosMin + rcp(MATERIAL_RESOLUTION);
 
             float s1 = _sample(localPosMin, offsetBias, cascade);
             float s2 = _sample(vec3(localPosMax.x, localPosMin.y, localPosMin.z), offsetBias, cascade);
@@ -287,7 +287,7 @@ float CompareDepth(const in vec3 shadowPos, const in vec2 offset, const in float
             // vec2 pixelRadius = max(GetPixelRadius(Shadow_MaxPcfSize, cascade), minShadowPixelRadius);
             float offsetBias = GetShadowOffsetBias(cascade);
 
-            return 1.0 - GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
+            return GetShadowing_PCF(shadowPos, vec2(minShadowPixelRadius), offsetBias);
         }
     #endif
 #elif SHADOW_FILTER == SHADOW_FILTER_NONE
