@@ -23,6 +23,10 @@ out VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #ifdef IS_LPV_ENABLED
+        vec3 originPos;
+    #endif
+
     #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
@@ -275,12 +279,15 @@ void main() {
         #endif
     #endif
 
+    vec3 originPos = at_midBlock/64.0 + vOut.localPos;
+    #ifdef IS_LPV_ENABLED
+        vOut.originPos = originPos;
+    #endif
 
     #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;
 
-        vec3 originPos = at_midBlock/64.0 + vOut.localPos;
         ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
         bool intersects = IsInVoxelBounds(voxelPos);
 

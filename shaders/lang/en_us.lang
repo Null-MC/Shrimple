@@ -432,6 +432,8 @@ option.MATERIAL_REFLECT_CLOUDS.comment=Allows clouds to be visible in reflection
 option.MATERIAL_REFLECT_GLASS=Glass
 option.MATERIAL_REFLECT_GLASS.comment=Allows regular glass to have reflections on cutout/invisible areas.
 
+option.MATERIAL_REFLECT_PIXELATE=Pixelate
+
 
 screen.MATERIAL_REFRACT_OPTIONS=Refraction
 

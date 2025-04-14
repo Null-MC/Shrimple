@@ -43,8 +43,9 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
     vec3 traceStep = localViewDir * stepLength;
     vec3 traceStart = localViewDir * distMin;
 
+    float caveFogF = 0.0;
     #ifdef SKY_CAVE_FOG_ENABLED
-        float caveFogF = GetCaveFogF();
+        caveFogF = GetCaveFogF();
     #endif
 
     // float skyLightF = eyeBrightnessSmooth.y / 240.0;

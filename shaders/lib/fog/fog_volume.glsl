@@ -193,8 +193,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         }
     #endif
 
+    float caveFogF = 0.0;
     #ifdef SKY_CAVE_FOG_ENABLED
-        float caveFogF = GetCaveFogF();
+        caveFogF = GetCaveFogF();
     #endif
 
     #define VL_STEP_POWER 160

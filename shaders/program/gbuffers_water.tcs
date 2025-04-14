@@ -22,6 +22,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #ifdef IS_LPV_ENABLED
+        vec3 originPos;
+    #endif
+
     #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
@@ -59,6 +63,10 @@ out VertexData {
 
     flat int blockId;
     flat mat2 atlasBounds;
+
+    #ifdef IS_LPV_ENABLED
+        vec3 originPos;
+    #endif
 
     #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
@@ -106,6 +114,10 @@ void main() {
 
     vOut[gl_InvocationID].blockId = vIn[gl_InvocationID].blockId;
     vOut[gl_InvocationID].atlasBounds = vIn[gl_InvocationID].atlasBounds;
+
+    #ifdef IS_LPV_ENABLED
+        vOut[gl_InvocationID].originPos = vIn[gl_InvocationID].originPos;
+    #endif
 
     #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vOut[gl_InvocationID].surfacePos = vIn[gl_InvocationID].surfacePos;

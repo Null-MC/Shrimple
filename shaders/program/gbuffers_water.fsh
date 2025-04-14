@@ -17,6 +17,10 @@ in VertexData {
     flat int blockId;
     flat mat2 atlasBounds;
 
+    #ifdef IS_LPV_ENABLED
+        vec3 originPos;
+    #endif
+
     #if defined WORLD_WATER_ENABLED && (defined WATER_TESSELLATION_ENABLED || WATER_WAVE_SIZE > 0)
         vec3 surfacePos;
     #endif
@@ -71,6 +75,10 @@ uniform sampler2D noisetex;
 #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
     uniform sampler2D depthtex1;
     uniform sampler2D BUFFER_FINAL;
+#endif
+
+#ifdef IS_LPV_ENABLED
+    uniform usampler3D texVoxels;
 #endif
 
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE > LIGHTING_MODE_BASIC || defined IS_LPV_SKYLIGHT_ENABLED)
@@ -315,6 +323,10 @@ uniform vec3 eyePosition;
 #include "/lib/lighting/directional.glsl"
 // #include "/lib/lighting/voxel/block_light_map.glsl"
 
+#if (!defined(DEFERRED_BUFFER_ENABLED) && LIGHTING_MODE != LIGHTING_MODE_NONE) || defined(IS_LPV_ENABLED)
+    #include "/lib/voxel/voxel_common.glsl"
+#endif
+
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/blackbody.glsl"
 
@@ -323,9 +335,9 @@ uniform vec3 eyePosition;
         #include "/lib/lighting/flicker.glsl"
     #endif
 
-    #if LIGHTING_MODE != LIGHTING_MODE_NONE
-        #include "/lib/voxel/voxel_common.glsl"
-    #endif
+//    #if LIGHTING_MODE != LIGHTING_MODE_NONE
+//        #include "/lib/voxel/voxel_common.glsl"
+//    #endif
 
     #ifdef IS_LPV_ENABLED
         #include "/lib/voxel/lights/mask.glsl"
@@ -603,24 +615,39 @@ void main() {
     float emission = GetMaterialEmission(vIn.blockId, atlasCoord, mip);
     GetMaterialSpecular(vIn.blockId, atlasCoord, mip, roughness, metal_f0);
 
-    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED)
-        if (isWater && roughness > 1.0-EPSILON) {
-            // default specular values only
-            metal_f0 = 0.02;
-            roughness = WATER_ROUGH;
-            //sss = 0.0;
-        }
-    #endif
+    #ifdef WORLD_WATER_ENABLED
+        // TODO: CHANGE TO IS_VOXEL_ENABLED! (doesn't exist rn)
+        bool isWaterCovered = false;
+        #ifdef IS_LPV_ENABLED
+            if (isWater) {
+                ivec3 voxelPos = ivec3(GetVoxelPosition(vIn.originPos));
+                // TODO: offset in normal direction
+                voxelPos += ivec3(round(localNormal));
 
-    #if defined(WORLD_WATER_ENABLED) && !defined(WATER_TEXTURED)
+                uint blockId = texelFetch(texVoxels, voxelPos, 0).r;
+                isWaterCovered = (blockId != 0u);
+            }
+        #endif
+
         if (isWater) {
-            albedo = mix(albedo, vec3(1.0), oceanFoam);
-            metal_f0  = mix(0.02, 0.04, oceanFoam);
-            roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
-            sss = oceanFoam;
+            #ifdef WATER_TEXTURED
+                // default specular values when not present
+                if (roughness > 1.0-EPSILON) {
+                    metal_f0 = 0.02;
+                    roughness = WATER_ROUGH;
+                    //sss = 0.0;
+                }
+            #else
+                if (isWaterCovered) oceanFoam = 0.0;
 
-            color.a = max(color.a, 0.02);
-            color.a = mix(color.a, 1.0, oceanFoam);
+                albedo = mix(albedo, vec3(1.0), oceanFoam);
+                metal_f0  = mix(0.02, 0.04, oceanFoam);
+                roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
+                sss = oceanFoam;
+
+                color.a = max(color.a, 0.02);
+                color.a = mix(color.a, 1.0, oceanFoam);
+            #endif
         }
     #endif
 
@@ -707,14 +734,16 @@ void main() {
             #endif
 
             #ifdef WATER_FLOW
-                float bump = SampleWaterBump(waterWorldPos, localNormal);
+                if (!isWaterCovered) {
+                    float bump = SampleWaterBump(waterWorldPos, localNormal);
 
-                vec3 bumpPos = waterLocalPos + 0.15*bump * localNormal;
-                vec3 bumpDX = dFdx(bumpPos);
-                vec3 bumpDY = dFdy(bumpPos);
-                vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
+                    vec3 bumpPos = waterLocalPos + 0.15*bump * localNormal;
+                    vec3 bumpDX = dFdx(bumpPos);
+                    vec3 bumpDY = dFdy(bumpPos);
+                    vec3 bumpNormal = normalize(cross(bumpDX, bumpDY));
 
-                texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
+                    texNormal = normalize(mix(texNormal, bumpNormal, 1.0 - abs(localNormal.y)));
+                }
             #endif
         }
     #endif

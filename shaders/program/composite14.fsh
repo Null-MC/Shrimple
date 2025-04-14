@@ -353,8 +353,21 @@ layout(location = 0) out vec4 outFinal;
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
             skyReflectF *= MaterialReflectionStrength * (1.0 - roughL);
 
+            vec3 reflectLocalPos = localPosOpaque;
+            vec3 reflectViewPos = viewPosOpaque;
+
+            #ifdef MATERIAL_REFLECT_PIXELATE
+                vec3 worldPos = reflectLocalPos + cameraPosition;
+                vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+                reflectLocalPos = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
+
+                reflectLocalPos += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
+
+                reflectViewPos = mul3(gbufferModelView, reflectLocalPos);
+            #endif
+
             vec3 texViewNormal = mat3(gbufferModelView) * texNormal;
-            vec3 specular = ApplyReflections(localPosOpaque, viewPosOpaque, texViewNormal, skyLightF, roughness) * skyReflectF;
+            vec3 specular = ApplyReflections(reflectLocalPos, reflectViewPos, texViewNormal, skyLightF, roughness) * skyReflectF;
 
             specular *= GetMetalTint(albedo, metal_f0);
 
