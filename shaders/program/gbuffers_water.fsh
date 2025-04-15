@@ -707,12 +707,36 @@ void main() {
     #endif
 
     vec3 localTangent = normalize(vIn.localTangent.xyz);
+
+    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED) && WATER_WAVE_SIZE > 0
+        if (isWater && abs(vIn.localNormal.y) > 0.5) {
+            float waveDistF = 32.0 / (32.0 + viewDist);
+
+            vec3 wavePos = waterLocalPos;
+            wavePos.y += waveOffset.y * waveDistF;
+
+            vec3 dX = dFdx(wavePos);
+            vec3 dY = dFdy(wavePos);
+            localNormal = normalize(cross(dX, dY));
+            waterUvOffset = waveOffset.xz * waveDistF;
+
+            // TODO: regen tangent?
+
+            // if (localNormal.y < 0.0) texNormal = -texNormal;
+
+            if (localNormal.y >= 1.0 - EPSILON) {
+                localCoord += waterUvOffset;
+                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+            }
+        }
+    #endif
+
     mat3 matLocalTBN = GetLocalTBN(localNormal, localTangent, vIn.localTangent.w);
     texNormal = matLocalTBN * texNormal;
 
     #ifdef WORLD_WATER_ENABLED
         if (isWater) {
-            #if WATER_WAVE_SIZE > 0
+            #if WATER_WAVE_SIZE > 0 && !defined(WATER_TEXTURED)
                 if (abs(vIn.localNormal.y) > 0.5) {
                     float waveDistF = 32.0 / (32.0 + viewDist);
 
