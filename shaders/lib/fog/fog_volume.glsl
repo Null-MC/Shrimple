@@ -7,7 +7,7 @@ float GetWaterPhase(const in float VoL) {
 }
 
 
-void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater) {
+void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 localViewDir, const in float nearDist, const in float farDist, const in float distTrans, in bool isWater, in bool isSky) {
     vec3 localStart = localViewDir * nearDist;
     vec3 localEnd = localViewDir * farDist;
     vec3 localRay = localEnd - localStart;
@@ -562,4 +562,34 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         //if (all(lessThan(transmitFinal, EPSILON3))) break;
     }
+
+    #if defined(WORLD_SKY_ENABLED) && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
+        if (isSky && cloudDensity > EPSILON) {
+            #if VL_STEP_POWER != 100
+                const float VL_StepPower = VL_STEP_POWER * 0.01;
+                float stepDistLastF = (VOLUMETRIC_SAMPLES-1.0) / VOLUMETRIC_SAMPLES;
+                stepDistLastF = pow(stepDistLastF, VL_StepPower);
+
+                float stepDistDiff = 1.0 - stepDistLastF;
+                float stepDistDither = fma(stepDistDiff, dither, stepDistLastF);
+
+                vec3 localStep = localRay * stepDistDither;
+            #endif
+
+            float endWorldY = localEnd.y + cameraPosition.y;
+            endWorldY -= (1.0-dither) * localStep.y;
+
+            if (endWorldY <= cloudHeight) {
+                float sampleF = eyeBrightF;
+                vec3 sampleColor = skyLightColor * cloudShadow + cloudLightning;
+                vec3 sampleLit = phaseSky * sampleF * sampleColor;
+
+                vec3 sampleAmbient = vec3(AirAmbientF * luminance(skyColorAmbient));
+                vec3 lightF = sampleLit + sampleAmbient;
+
+                const float traceStepLen = 10.0;
+                ApplyScatteringTransmission(scatterFinal, transmitFinal, traceStepLen, lightF, cloudDensity, AirScatterColor, AirExtinctColor);
+            }
+        }
+    #endif
 }

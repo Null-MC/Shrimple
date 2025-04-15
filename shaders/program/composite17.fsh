@@ -329,7 +329,7 @@ void main() {
     float viewDist = length(localPos);
     vec3 localViewDir = localPos / viewDist;
 
-    float farMax = far;// - 0.002;
+    float farMax = far * 2.0;// - 0.002;
     #ifdef DISTANT_HORIZONS
         farMax = 0.5*dhFarPlane;// - 0.1;
     #endif
@@ -373,7 +373,9 @@ void main() {
             if (isWater) farDist = min(farDist, far);
         #endif
 
-        if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater);
+        bool isSky = depthTrans >= 1.0;
+
+        if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, near, farDist, viewDist, isWater, isSky);
     #endif
 
     // #ifdef WORLD_SKY_ENABLED //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA //&& LIGHTING_VOLUMETRIC != VOL_TYPE_FANCY

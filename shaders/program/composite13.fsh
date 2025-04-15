@@ -387,7 +387,9 @@ void main() {
                 if (isWater) distFar = min(distFar, distNear + far);
             #endif
 
-            if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, distNear, distFar, distTranslucent, isWater);
+            bool isSky = depthTrans >= 1.0;
+
+            if (hasVl) ApplyVolumetricLighting(scatterFinal, transmitFinal, localViewDir, distNear, distFar, distTranslucent, isWater, isSky);
         #endif
 
         // #if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA && LIGHTING_VOLUMETRIC != VOL_TYPE_FANCY
