@@ -138,7 +138,7 @@ void main() {
         vec3 starViewDir = getStarViewDir(localViewDir);
         vec3 starLight = GetStarLight(starViewDir);
 
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
             starLight *= 1.0 - 0.8 * weatherStrength;
         #endif
 

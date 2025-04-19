@@ -67,7 +67,7 @@ uniform sampler2D noisetex;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -239,7 +239,7 @@ uniform vec3 eyePosition;
     #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     #include "/lib/clouds/cloud_custom.glsl"
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif

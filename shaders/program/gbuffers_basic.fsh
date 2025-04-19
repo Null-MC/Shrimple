@@ -197,7 +197,9 @@ uniform int frameCounter;
 
 void main() {
 	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
-	
+
+    if (color.a < alphaTestRef) {discard; return;}
+
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
 

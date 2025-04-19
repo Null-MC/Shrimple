@@ -42,7 +42,7 @@ in vec2 texcoord;
     #if defined WORLD_SKY_ENABLED //&& defined IS_IRIS && ((defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || (defined SHADOW_CLO))
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     uniform sampler3D TEX_CLOUDS;
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -185,7 +185,7 @@ in vec2 texcoord;
             #include "/lib/clouds/cloud_common.glsl"
         #endif
 
-        #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
     #endif
@@ -204,7 +204,7 @@ in vec2 texcoord;
         #include "/lib/voxel/lpv/lpv_render.glsl"
     #endif
 
-    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN
+    #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && LIGHTING_MODE != LIGHTING_MODE_NONE
         #if MATERIAL_SPECULAR != SPECULAR_NONE
             #include "/lib/blocks.glsl"
             #include "/lib/items.glsl"
@@ -213,7 +213,7 @@ in vec2 texcoord;
         #endif
 
         #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED
-            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
                 #include "/lib/clouds/cloud_vanilla.glsl"
             #endif
         #endif
@@ -310,7 +310,7 @@ layout(location = 0) out vec4 outFinal;
         
         vec3 localViewDir = normalize(localPosOpaque);
 
-        #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && MATERIAL_SPECULAR != SPECULAR_NONE
+        #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && LIGHTING_MODE != LIGHTING_MODE_NONE && MATERIAL_SPECULAR != SPECULAR_NONE
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
             vec3 texNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iTex, 0).rgb;
             uvec4 deferredData = texelFetch(BUFFER_DEFERRED_DATA, iTex, 0);

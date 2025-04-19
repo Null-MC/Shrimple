@@ -17,16 +17,6 @@ uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D texBlueNoise;
 
-#if LIGHTING_MODE == LIGHTING_MODE_TRACED
-    uniform sampler2D texDiffuseRT;
-    uniform sampler2D texDiffuseRT_alt;
-
-    #if MATERIAL_SPECULAR != SPECULAR_NONE
-        uniform sampler2D texSpecularRT;
-        uniform sampler2D texSpecularRT_alt;
-    #endif
-#endif
-
 #ifdef RENDER_SHADOWS_ENABLED
     // uniform sampler2D BUFFER_DEFERRED_SHADOW;
     uniform sampler2D texShadowSSS;
@@ -52,12 +42,24 @@ uniform sampler2D texBlueNoise;
     uniform sampler3D texCaustics;
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D TEX_LIGHTMAP;
+#elif LIGHTING_MODE == LIGHTING_MODE_TRACED
+    uniform sampler2D texDiffuseRT;
+    uniform sampler2D texDiffuseRT_alt;
+
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        uniform sampler2D texSpecularRT;
+        uniform sampler2D texSpecularRT_alt;
+    #endif
+#endif
+
 #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler3D texLPV_1;
     uniform sampler3D texLPV_2;
 #endif
 
-#if defined WORLD_SKY_ENABLED && SKY_CLOUD_TYPE == CLOUDS_VANILLA
+#if defined WORLD_SKY_ENABLED && (SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT)
     uniform sampler2D TEX_CLOUDS_VANILLA;
 #endif
 
@@ -316,7 +318,7 @@ uniform vec3 eyePosition;
             #include "/lib/clouds/cloud_custom.glsl"
             //#include "/lib/clouds/cloud_custom_shadow.glsl"
             //#include "/lib/clouds/cloud_custom_trace.glsl"
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #elif SKY_CLOUD_TYPE != CLOUDS_NONE
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     //#endif
@@ -326,12 +328,12 @@ uniform vec3 eyePosition;
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
-#if MATERIAL_REFLECTIONS != REFLECT_NONE
-    //#include "/lib/utility/depth_tiles.glsl"
-    #include "/lib/lighting/reflections.glsl"
-#endif
+//#if MATERIAL_REFLECTIONS != REFLECT_NONE
+//    //#include "/lib/utility/depth_tiles.glsl"
+//    #include "/lib/lighting/reflections.glsl"
+//#endif
 
-#ifdef WORLD_SKY_ENABLED
+#if defined(WORLD_SKY_ENABLED) && LIGHTING_MODE != LIGHTING_MODE_NONE
     #include "/lib/sky/irradiance.glsl"
     #include "/lib/sky/sky_lighting.glsl"
 #endif

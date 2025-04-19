@@ -20,7 +20,6 @@ uniform sampler2D BUFFER_DEFERRED_COLOR;
 uniform sampler2D BUFFER_DEFERRED_SHADOW;
 uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
-uniform sampler2D BUFFER_BLOCK_DIFFUSE;
 uniform sampler2D BUFFER_OVERLAY;
 // uniform sampler2D TEX_LIGHTMAP;
 uniform sampler2D texBlueNoise;
@@ -33,13 +32,19 @@ uniform sampler2D texBlueNoise;
     #endif
 #endif
 
-#if MATERIAL_SPECULAR != SPECULAR_NONE
-    uniform sampler2D BUFFER_BLOCK_SPECULAR;
-#endif
-
 #ifdef VL_BUFFER_ENABLED
     uniform sampler2D BUFFER_VL_SCATTER;
     uniform sampler2D BUFFER_VL_TRANSMIT;
+#endif
+
+#if LIGHTING_MODE == LIGHTING_MODE_NONE
+    uniform sampler2D TEX_LIGHTMAP;
+#elif LIGHTING_MODE == LIGHTING_MODE_TRACED
+    uniform sampler2D BUFFER_BLOCK_DIFFUSE;
+
+    #if MATERIAL_SPECULAR != SPECULAR_NONE
+        uniform sampler2D BUFFER_BLOCK_SPECULAR;
+    #endif
 #endif
 
 #ifdef IS_LPV_ENABLED
@@ -55,7 +60,7 @@ uniform sampler2D texBlueNoise;
 #if defined WORLD_SKY_ENABLED && defined IS_IRIS //&& defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
     //     uniform sampler3D TEX_CLOUDS;
-    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -271,7 +276,7 @@ uniform vec3 eyePosition;
     
     #include "/lib/world/lightning.glsl"
 
-     #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
          #include "/lib/clouds/cloud_custom.glsl"
          //#include "/lib/clouds/cloud_custom_shadow.glsl"
          //#include "/lib/clouds/cloud_custom_trace.glsl"
@@ -308,9 +313,9 @@ uniform vec3 eyePosition;
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
-#if MATERIAL_REFLECTIONS != REFLECT_NONE
+#if MATERIAL_REFLECTIONS != REFLECT_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE
     #if defined MATERIAL_REFLECT_CLOUDS && defined WORLD_SKY_ENABLED
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
             #include "/lib/clouds/cloud_vanilla.glsl"
         #endif
     #endif
@@ -318,7 +323,7 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/reflections.glsl"
 #endif
 
-#ifdef WORLD_SKY_ENABLED
+#if defined(WORLD_SKY_ENABLED) && LIGHTING_MODE != LIGHTING_MODE_NONE
     #include "/lib/sky/irradiance.glsl"
     #include "/lib/sky/sky_lighting.glsl"
 #endif

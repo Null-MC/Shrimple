@@ -254,7 +254,7 @@ uniform float cloudTime;
 void main() {
     vec4 albedo = texture(gtexture, vIn.texcoord);
 
-    #ifdef SKY_CLOUD_SOFT
+    #if SKY_CLOUD_TYPE == CLOUDS_SOFT
         albedo *= 0.8;
     #else
         albedo *= vIn.color;
@@ -335,7 +335,7 @@ void main() {
         final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
     #endif
 
-    #ifdef SKY_CLOUD_SOFT
+    #if SKY_CLOUD_TYPE == CLOUDS_SOFT
         vec3 worldPos = vIn.localPos + cameraPosition;// - fract(cameraPosition/12.0)*12.0;
 
         vec2 cloudOffset = GetCloudOffset();

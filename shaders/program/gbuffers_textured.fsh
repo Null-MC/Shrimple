@@ -45,7 +45,7 @@ uniform sampler2D texBlueNoise;
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
     // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
     //     uniform sampler3D TEX_CLOUDS;
-    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif

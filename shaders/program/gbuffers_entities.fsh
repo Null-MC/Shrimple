@@ -68,7 +68,7 @@ uniform sampler2D noisetex;
 #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
     #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         uniform sampler3D TEX_CLOUDS;
-    #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+    #elif SKY_CLOUD_TYPE != CLOUDS_NONE
         uniform sampler2D TEX_CLOUDS_VANILLA;
     #endif
 #endif
@@ -335,7 +335,7 @@ uniform vec3 eyePosition;
         #if defined(WORLD_SKY_ENABLED) && defined(MATERIAL_REFLECT_CLOUDS)
             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                 #include "/lib/clouds/cloud_custom.glsl"
-            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #elif SKY_CLOUD_TYPE != CLOUDS_NONE
                 #include "/lib/clouds/cloud_vanilla.glsl"
             #endif
         #endif

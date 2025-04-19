@@ -7,8 +7,8 @@ vec2 GetLightAttenuation(const in vec3 lightVec, const in float lightRange) {
     float f2 = 1.0 - r;
 
     return vec2(min(f1, _pow2(f2)));
-    float lightAtt = 1.0 - saturate(lightDist / lightRange);
-    return vec2(pow5(lightAtt), _pow2(lightAtt));
+//    float lightAtt = 1.0 - saturate(lightDist / lightRange);
+//    return vec2(pow5(lightAtt), _pow2(lightAtt));
 }
 
 // TODO: remove SSS
@@ -55,5 +55,5 @@ vec3 SampleLightSpecular(const in float NoL, const in float NoH, const in float 
     float k2 = _pow2(k);
     float V = rcp(_pow2(LoH) * (1.0 - k2) + k2);
 
-    return clamp((NoL * D * V) * F, 0.0, 10.0);
+    return NoL * clamp((D * V), 0.0, 10.0) * F;
 }

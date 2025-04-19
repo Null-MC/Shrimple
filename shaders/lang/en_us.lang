@@ -1,6 +1,7 @@
 profile.VANILLA=Vanilla
-profile.SHADOWS=Shadows
-profile.LIGHTS=Colored Light
+profile.VIBRANT=Vibrant
+profile.SHADOWS=Basic
+profile.LIGHTS=Fancy
 profile.RTX=RTX
 
 
@@ -58,8 +59,8 @@ screen.OVERWORLD_CLOUD_OPTIONS=Clouds
 option.SKY_CLOUD_TYPE=Type
 value.SKY_CLOUD_TYPE.0=None
 value.SKY_CLOUD_TYPE.1=Vanilla
-value.SKY_CLOUD_TYPE.2=Fancy
-value.SKY_CLOUD_TYPE.3=Cubed
+value.SKY_CLOUD_TYPE.2=Soft
+value.SKY_CLOUD_TYPE.3=Fancy
 
 option.SKY_CLOUD_SPEED=Speed
 option.SKY_CLOUD_SPEED.comment=The speed clouds move across the sky/change. Only affects "custom" clouds.

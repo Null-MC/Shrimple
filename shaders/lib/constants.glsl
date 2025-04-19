@@ -20,7 +20,8 @@
 
 #define CLOUDS_NONE 0
 #define CLOUDS_VANILLA 1
-#define CLOUDS_CUSTOM 2
+#define CLOUDS_SOFT 2
+#define CLOUDS_CUSTOM 3
 
 #define STARS_NONE 0
 #define STARS_VANILLA 1

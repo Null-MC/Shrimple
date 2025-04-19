@@ -36,7 +36,7 @@ in vec2 texcoord;
     #if defined WORLD_SKY_ENABLED && ((MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS) || defined SHADOW_CLOUD_ENABLED)
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform sampler3D TEX_CLOUDS;
-        #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+        #elif SKY_CLOUD_TYPE != CLOUDS_NONE
             uniform sampler2D TEX_CLOUDS_VANILLA;
         #endif
     #endif
@@ -103,7 +103,7 @@ in vec2 texcoord;
             #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
                 #include "/lib/clouds/cloud_custom.glsl"
                 //#include "/lib/clouds/cloud_custom_shadow.glsl"
-            #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
+            #elif SKY_CLOUD_TYPE != CLOUDS_NONE
                 #include "/lib/clouds/cloud_vanilla.glsl"
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
             #endif
@@ -248,7 +248,7 @@ void main() {
                     if (cloudShadowDensity > 0.0) {
                         cloudShadow = exp(-10.0 * AirExtinctFactor * cloudShadowDensity);
                     }
-                #else
+                #elif SKY_CLOUD_TYPE != CLOUDS_NONE
                     vec2 cloudOffset = GetCloudOffset();
                     vec3 camOffset = GetCloudCameraOffset();
                     //vec3 worldPos = cameraPosition + localPos;
@@ -416,7 +416,7 @@ void main() {
                         if (cloudShadowDensity > 0.0) {
                             cloudShadow = exp(-1.0 * cloudShadowDensity);
                         }
-                    #else
+                    #elif SKY_CLOUD_TYPE != CLOUDS_NONE
                         vec2 cloudOffset = GetCloudOffset();
                         vec3 camOffset = GetCloudCameraOffset();
                         //vec3 worldPos = cameraPosition + localPos;
