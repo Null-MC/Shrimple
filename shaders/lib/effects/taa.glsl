@@ -49,7 +49,8 @@ vec4 ApplyTAA(const in vec2 uv) {
     // uvLast += getJitterOffset(frameCounter-1);
 
     #ifdef EFFECT_TAA_SHARPEN
-        vec4 lastColor = sampleHistoryCatmullRom(uvLast);
+        vec4 lastColor = sample_CatmullRom(BUFFER_FINAL_PREV, uvLast, viewSize);
+        lastColor = min(lastColor, 65000.0);
     #else
         vec4 lastColor = textureLod(BUFFER_FINAL_PREV, uvLast, 0);
     #endif

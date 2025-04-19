@@ -222,12 +222,12 @@ void main() {
         localPos = localNormal * bias + localPos;
 
         #ifdef LIGHTING_TRACE_PIXELATE
-        // TODO: add normal offset bias
+            // TODO: add normal offset bias
 
-        vec3 cameraOffset = fract(cameraPosition);
-        vec3 snappedPos = localPos + cameraOffset;
-        snappedPos = floor(snappedPos) + (floor(fract(snappedPos) * MATERIAL_RESOLUTION) + 0.5) / MATERIAL_RESOLUTION;
-        localPos = snappedPos - cameraOffset;
+            vec3 cameraOffset = fract(cameraPosition);
+            vec3 snappedPos = localPos + cameraOffset;
+            snappedPos = floor(snappedPos) + (floor(fract(snappedPos) * MATERIAL_RESOLUTION) + 0.5) / MATERIAL_RESOLUTION;
+            localPos = snappedPos - cameraOffset;
         #endif
 
         vec3 diffuseFinal = vec3(0.0);

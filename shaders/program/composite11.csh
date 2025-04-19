@@ -74,6 +74,7 @@ uniform vec3 cameraPosition;
 
 #include "/lib/buffers/scene.glsl"
 #include "/lib/sampling/depth.glsl"
+#include "/lib/sampling/catmull-rom.glsl"
 #include "/lib/sampling/gaussian.glsl"
 
 
@@ -234,31 +235,52 @@ void main() {
         vec2 texcoord_re = ndcPos_re.xy * 0.5 + 0.5;
 
 
-        vec4 diffuseOld;
-        vec3 localPosLast;
-        vec3 specularOld;
+        vec3 diffuseOld, specularOld;
 
+        #ifdef LIGHTING_TRACE_SHARPEN
+            if (altFrame) {
+                diffuseOld = sample_CatmullRom(texDiffuseRT, texcoord_re, viewSize).rgb;
+
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    specularOld = sample_CatmullRom(texSpecularRT, texcoord_re, viewSize).rgb;
+                #endif
+            }
+            else {
+                diffuseOld = sample_CatmullRom(texDiffuseRT_alt, texcoord_re, viewSize).rgb;
+
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    specularOld = sample_CatmullRom(texSpecularRT_alt, texcoord_re, viewSize).rgb;
+                #endif
+            }
+        #else
+            if (altFrame) {
+                diffuseOld = textureLod(texDiffuseRT, texcoord_re, 0).rgb;
+
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    specularOld = textureLod(texSpecularRT, texcoord_re, 0).rgb;
+                #endif
+            }
+            else {
+                diffuseOld = textureLod(texDiffuseRT_alt, texcoord_re, 0).rgb;
+
+                #if MATERIAL_SPECULAR != SPECULAR_NONE
+                    specularOld = textureLod(texSpecularRT_alt, texcoord_re, 0).rgb;
+                #endif
+            }
+        #endif
+
+        vec4 localPosLast;
         if (altFrame) {
-            diffuseOld = textureLod(texDiffuseRT, texcoord_re, 0);
-            localPosLast = textureLod(texLocalPosLast, texcoord_re, 0).rgb;
-
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                specularOld = textureLod(texSpecularRT, texcoord_re, 0).rgb;
-            #endif
+            localPosLast = textureLod(texLocalPosLast, texcoord_re, 0);
         }
         else {
-            diffuseOld = textureLod(texDiffuseRT_alt, texcoord_re, 0);
-            localPosLast = textureLod(texLocalPosLast_alt, texcoord_re, 0).rgb;
-
-            #if MATERIAL_SPECULAR != SPECULAR_NONE
-                specularOld = textureLod(texSpecularRT_alt, texcoord_re, 0).rgb;
-            #endif
+            localPosLast = textureLod(texLocalPosLast_alt, texcoord_re, 0);
         }
 
-        float counter = diffuseOld.a + 1.0;
+        float counter = localPosLast.w + 1.0;
 
         float offsetThreshold = clamp(depthL * 0.04, 0.0, 1.0);
-        if (distance(localPos_re, localPosLast) > offsetThreshold) counter = 1.0;
+        if (distance(localPos_re, localPosLast.xyz) > offsetThreshold) counter = 1.0;
         if (saturate(texcoord_re) != texcoord_re) counter = 1.0;
 
     	vec3 diffuseNew, specularNew;
@@ -273,19 +295,19 @@ void main() {
             specularNew = mix(specularOld, specularNew, specularMixF);
         #endif
 
-        counter = min(counter, 999.0);
+        counter = min(counter, 60.0);
 
         if (altFrame) {
-            imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, counter));
-            imageStore(imgLocalPosLast_alt, uv, vec4(localPos, 1.0));
+            imageStore(imgDiffuseRT_alt, uv, vec4(diffuseNew, 1.0));
+            imageStore(imgLocalPosLast_alt, uv, vec4(localPos, counter));
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 imageStore(imgSpecularRT_alt, uv, vec4(specularNew, 1.0));
             #endif
         }
         else {
-            imageStore(imgDiffuseRT, uv, vec4(diffuseNew, counter));
-            imageStore(imgLocalPosLast, uv, vec4(localPos, 1.0));
+            imageStore(imgDiffuseRT, uv, vec4(diffuseNew, 1.0));
+            imageStore(imgLocalPosLast, uv, vec4(localPos, counter));
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
                 imageStore(imgSpecularRT, uv, vec4(specularNew, 1.0));

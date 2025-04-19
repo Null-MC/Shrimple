@@ -477,7 +477,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
                 // TODO: fix phase
                 //sampleLit += 0.3 * samplePhase * lightningDirectionStrength.w;
-                sampleLit += 0.1*phaseIso * lightningDirectionStrength.w;
+                sampleLit += 0.1*phaseIso * lightningDirectionStrength.w * _pow2(eyeBrightF);
             }
         #endif
 
