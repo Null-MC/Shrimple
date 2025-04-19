@@ -328,10 +328,10 @@ uniform vec3 eyePosition;
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
-//#if MATERIAL_REFLECTIONS != REFLECT_NONE
-//    //#include "/lib/utility/depth_tiles.glsl"
-//    #include "/lib/lighting/reflections.glsl"
-//#endif
+#if MATERIAL_REFLECTIONS == REFLECT_SKY
+    //#include "/lib/utility/depth_tiles.glsl"
+    #include "/lib/lighting/reflections.glsl"
+#endif
 
 #if defined(WORLD_SKY_ENABLED) && LIGHTING_MODE != LIGHTING_MODE_NONE
     #include "/lib/sky/irradiance.glsl"

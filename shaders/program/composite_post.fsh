@@ -32,10 +32,6 @@ uniform bool hideGUI;
 #include "/lib/post/tonemap.glsl"
 #include "/lib/post/exposure.glsl"
 
-#if EFFECT_PURKINJE_STRENGTH > 0
-    #include "/lib/effects/purkinje.glsl"
-#endif
-
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
@@ -44,10 +40,6 @@ void main() {
     vec3 color = texelFetch(BUFFER_FINAL, ivec2(gl_FragCoord.xy), 0).rgb;
 
     ApplyPostExposure(color);
-
-    #if EFFECT_PURKINJE_STRENGTH > 0
-        color = PurkinjeShift(color, PurkinjeStrength);
-    #endif
 
     ApplyPostGrading(color);
 

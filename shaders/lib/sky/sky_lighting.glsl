@@ -112,9 +112,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         LoHm = 0.0;
         float NoHm = 0.0;
 
-        vec3 N = all(lessThan(abs(texNormal), EPSILON3)) ? localNormal : texNormal;
+        bool hasTexNormal = !all(lessThan(abs(texNormal), EPSILON3));
+        vec3 N = hasTexNormal ? texNormal : localNormal;
 
-        if (!all(lessThan(abs(N), EPSILON3))) {
+        bool hasNormal = !all(lessThan(abs(N), EPSILON3));
+        if (hasNormal) {
             NoLm = max(dot(N, localSkyLightDir), 0.0);
             NoHm = max(dot(N, H), 0.0);
             NoVm = max(dot(N, localViewDir), 0.0);
@@ -130,31 +132,33 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         skySpecular += step(-EPSILON, geoNoL) * S * skyLightColor * shadowColor;
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE && !defined(RENDER_PARTICLES)
-            vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
+            if (hasTexNormal) {
+                vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
 
-            if (tir) skyReflectF = vec3(1.0);
+                if (tir) skyReflectF = vec3(1.0);
 
-            accumDiffuse *= 1.0 - skyReflectF;
+                accumDiffuse *= 1.0 - skyReflectF;
 
-            #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
-                vec3 reflectLocalPos = localPos;
-                //vec3 reflectViewPos = viewPosOpaque;
+                #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
+                    vec3 reflectLocalPos = localPos;
+                    //vec3 reflectViewPos = viewPosOpaque;
 
-                #ifdef MATERIAL_REFLECT_PIXELATE
-                    vec3 worldPos = reflectLocalPos + cameraPosition;
-                    vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
-                    reflectLocalPos = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
+                    #ifdef MATERIAL_REFLECT_PIXELATE
+                        vec3 worldPos = reflectLocalPos + cameraPosition;
+                        vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
+                        reflectLocalPos = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-                    reflectLocalPos += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
+                        reflectLocalPos += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
 
-                    //reflectViewPos = mul3(gbufferModelView, reflectLocalPos);
+                        //reflectViewPos = mul3(gbufferModelView, reflectLocalPos);
+                    #endif
+
+                    vec3 viewPos = mul3(gbufferModelView, reflectLocalPos);
+                    vec3 texViewNormal = mat3(gbufferModelView) * N;
+
+                    skySpecular += ApplyReflections(reflectLocalPos, viewPos, texViewNormal, skyLightF, sqrt(roughL)) * skyReflectF;
                 #endif
-
-                vec3 viewPos = mul3(gbufferModelView, reflectLocalPos);
-                vec3 texViewNormal = mat3(gbufferModelView) * N;
-                
-                skySpecular += ApplyReflections(reflectLocalPos, viewPos, texViewNormal, skyLightF, sqrt(roughL)) * skyReflectF;
-            #endif
+            }
         #endif
     #endif
 
