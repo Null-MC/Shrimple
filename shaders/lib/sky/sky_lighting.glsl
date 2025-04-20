@@ -89,12 +89,15 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
         skyLightF = mix(skyLightF, lpvSkyLight, lpvFade);
     #endif
 
-    vec3 ambientSkyLight_indirect = SampleSkyIrradiance(texNormal);
-    ambientSkyLight_indirect *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        vec3 ambientSkyLight = SampleSkyIrradiance(texNormal);
+        ambientSkyLight *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
+    #else
+        vec3 ambientSkyLight = RGBToLinear(fogColor) + RGBToLinear(skyColor);
+        ambientSkyLight = ambientF * 0.5 * ambientSkyLight;
+    #endif
 
-    vec3 ambientSkyLight = skyLightF * ambientSkyLight_indirect;// * ambientF;
-
-    accumDiffuse += ambientSkyLight * occlusion;
+    accumDiffuse += skyLightF * ambientSkyLight * occlusion;
 
     #if MATERIAL_SPECULAR != SPECULAR_NONE && !defined RENDER_CLOUDS
         #ifndef RENDER_SHADOWS_ENABLED

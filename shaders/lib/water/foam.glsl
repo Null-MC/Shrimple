@@ -25,16 +25,16 @@ float SampleWaterBump(const in vec3 worldPos, const vec3 localNormal) {
 	texPos1.y *= 0.4;
 	texPos2.y *= 0.4;
 
-	float minF = 0.7*textureLod(texClouds, 0.02*texPos0.xzy, 0).r;
-	minF += 0.3*textureLod(texClouds, 0.09*texPos0.xzy, 0).r;
+	float minF = 0.7*textureLod(texClouds, 0.02*texPos0, 0).r;
+	minF += 0.3*textureLod(texClouds, 0.09*texPos0, 0).r;
 	minF = smoothstep(0.5, 1.0, minF);
 
 	float nm = abs(localNormal.y);
     float strength = 1.0 - max(nm*16.0-15.0, 0.0);
 	minF = strength;
 
-	float sampleF = textureLod(texClouds, 0.1*texPos1.xzy, 0).r;
-	sampleF *= textureLod(texClouds, 0.3*texPos2.xzy, 0).r;
+	float sampleF = textureLod(texClouds, 0.1*texPos1, 0).r;
+	sampleF *= textureLod(texClouds, 0.3*texPos2, 0).r;
 
 	return minF * sampleF;
 }
@@ -48,16 +48,15 @@ float SampleWaterFoam(const in vec3 worldPos, const vec3 localNormal) {
 	texPos1.y *= 0.4;
 	texPos2.y *= 0.4;
 
-	float minF = textureLod(texClouds, 0.02*texPos1.xzy, 0).r;
-	minF *= textureLod(texClouds, 0.09*texPos2.xzy, 0).r;
-	// minF = sqrt(minF);
+	float minF = 1.0 - textureLod(texClouds, 0.013*texPos1, 0).r;
+	//minF *= textureLod(texClouds, 0.09*texPos2, 0).r;
 
 	float nm = max(abs(localNormal.y), 0.0);
     float strength = 1.0 - max(nm*8.0-7.0, 0.0);
 	minF = mix(minF, 1.0, strength);
 
-	float sampleF = textureLod(texClouds, 0.2*texPos1.xzy, 0).r;
-	sampleF *= 1.0 - textureLod(texClouds, 0.5*texPos2.xzy, 0).r;
+	float sampleF = textureLod(texClouds, 0.09*texPos1, 0).r;
+	sampleF *= textureLod(texClouds, 0.25*texPos2, 0).r;
 
-	return minF * sampleF;// * Water_WaveStrength;
+	return sampleF * minF;// * Water_WaveStrength;
 }

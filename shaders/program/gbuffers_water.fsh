@@ -742,6 +742,7 @@ void main() {
 
                     vec3 wavePos = waterLocalPos;
                     wavePos.y += waveOffset.y * waveDistF;
+                    wavePos.y += 0.02*oceanFoam;
 
                     vec3 dX = dFdx(wavePos);
                     vec3 dY = dFdy(wavePos);

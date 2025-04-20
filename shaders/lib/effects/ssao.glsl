@@ -1,11 +1,18 @@
 const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
 
-#define EFFECT_SSAO_RT
+//#define EFFECT_SSAO_RT
 
 
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     #ifdef EFFECT_TAA_ENABLED
-        float dither = InterleavedGradientNoiseTime();
+        vec2 texSize = textureSize(texBlueNoise, 0);
+        vec2 coord = (gl_FragCoord.xy + vec2(71.0, 83.0) * frameCounter) / texSize;
+        vec3 noise = textureLod(texBlueNoise, fract(coord), 0).rgb;
+        //return 0.5 * normalize(noise * 2.0 - 1.0);
+        float dither = noise.r;
+
+
+        //float dither = InterleavedGradientNoiseTime();
     #else
         float dither = InterleavedGradientNoise();
     #endif

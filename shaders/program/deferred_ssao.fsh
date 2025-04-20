@@ -9,6 +9,7 @@ in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
+uniform sampler2D texBlueNoise;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex0;
@@ -71,7 +72,8 @@ void main() {
     float occlusion = 0.0;
 
     if (depth < 1.0) {
-        vec3 texViewNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, ivec2(gl_FragCoord.xy), 0).rgb;
+        ivec2 iuv = ivec2(texcoord * viewSize);
+        vec3 texViewNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iuv, 0).rgb;
 
         if (any(greaterThan(texViewNormal, EPSILON3))) {
             texViewNormal = normalize(texViewNormal * 2.0 - 1.0);
