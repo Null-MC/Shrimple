@@ -7,14 +7,15 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     #ifdef EFFECT_TAA_ENABLED
         vec2 texSize = textureSize(texBlueNoise, 0);
         vec2 coord = (gl_FragCoord.xy + vec2(71.0, 83.0) * frameCounter) / texSize;
-        vec3 noise = textureLod(texBlueNoise, fract(coord), 0).rgb;
-        //return 0.5 * normalize(noise * 2.0 - 1.0);
-        float dither = noise.r;
-
+        float dither = textureLod(texBlueNoise, fract(coord), 0).r;
 
         //float dither = InterleavedGradientNoiseTime();
     #else
-        float dither = InterleavedGradientNoise();
+        vec2 texSize = textureSize(texBlueNoise, 0);
+        vec2 coord = gl_FragCoord.xy / texSize;
+        float dither = textureLod(texBlueNoise, coord, 0).r;
+
+        //float dither = InterleavedGradientNoise();
     #endif
 
     #ifdef EFFECT_SSAO_RT

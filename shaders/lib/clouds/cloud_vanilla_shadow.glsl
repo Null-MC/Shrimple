@@ -30,11 +30,11 @@ vec3 GetCloudShadowTexcoord(in vec3 worldPos, const in vec3 localDir, const in v
 
 #ifndef RENDER_VERTEX
     float SampleCloudShadow(const in vec3 localPos, const in vec3 localDir, const in vec2 cloudOffset, const in vec3 camOffset, const in float blur) {
-        const int maxLod = int(log2(256));
+        const int maxLod = 0;//int(log2(256));
 
         vec3 vertexWorldPos = localPos + camOffset;
         vec3 cloudTexcoord = GetCloudShadowTexcoord(vertexWorldPos, localDir, cloudOffset);
-        float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexcoord.xy, blur * maxLod).a;
+        float cloudF = textureLod(TEX_CLOUDS_VANILLA, cloudTexcoord.xy, blur * maxLod).r;
 
         cloudF *= 1.0 - smoothstep(0.8*far, 3.0 * far, cloudTexcoord.z);
 
