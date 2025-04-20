@@ -13,7 +13,7 @@ float GetSkyAltitudeFactor(const in float altitude) {
     float GetSkyDensityNoise(const in vec3 worldPos, const in float altitude) {
         const float MinFogDensity = 0.0;
 
-        vec3 texPos = worldPos.xzy * vec3(1.0, 1.0, 4.0);
+        vec3 texPos = worldPos * vec3(1.0, 4.0, 1.0);
 
         float t = frameTimeCounter / 3600.0;
         vec3 o = 600.0 * vec3(t, t, 0.0);

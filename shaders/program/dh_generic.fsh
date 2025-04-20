@@ -109,16 +109,12 @@ uniform int frameCounter;
     uniform float weatherPuddleStrength;
     uniform float skyWetnessSmooth;
 
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight;
-        //uniform float lightningStrength;
-    #endif
+    uniform float cloudTime;
+    uniform float cloudHeight;
+    //uniform float lightningStrength;
 #endif
 
-#ifdef IS_IRIS
-    uniform vec3 eyePosition;
-#endif
+uniform vec3 eyePosition;
 
 // #ifdef WORLD_SHADOW_ENABLED
 //     uniform mat4 shadowModelView;
@@ -135,6 +131,10 @@ uniform int frameCounter;
     uniform vec3 WaterScatterColor;
     uniform float waterDensitySmooth;
 #endif
+
+//#ifndef IRIS_FEATURE_SSBO
+    uniform vec3 shadowLightPosition;
+//#endif
 
 #if !defined IRIS_FEATURE_SSBO || LIGHTING_MODE != LIGHTING_MODE_TRACED
     uniform float blindnessSmooth;
@@ -346,34 +346,34 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
 
     float porosity = 0.0;
-    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-        float skyWetness = 0.0, puddleF = 0.0;
-        //vec4 rippleNormalStrength = vec4(0.0);
-
-        // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
-            // #if DISPLACE_MODE == DISPLACE_TESSELATION
-            //     vec3 worldPos = vIn.surfacePos + cameraPosition;
-            // #else
-                vec3 worldPos = vIn.localPos + cameraPosition;
-            // #endif
-
-            float surface_roughness, surface_metal_f0;
-            //GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            surface_roughness = 0.95;
-            surface_metal_f0 = 0.04;
-
-            // porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
-            porosity = 0.75;
-            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
-            puddleF = GetWetnessPuddleF(skyWetness, porosity);
-
-            #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
-                //rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
-                //localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
-                // if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-            #endif
-        // }
-    #endif
+//    #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+//        float skyWetness = 0.0, puddleF = 0.0;
+//        //vec4 rippleNormalStrength = vec4(0.0);
+//
+//        // if (renderStage == MC_RENDER_STAGE_TERRAIN_SOLID || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT) {
+//            // #if DISPLACE_MODE == DISPLACE_TESSELATION
+//            //     vec3 worldPos = vIn.surfacePos + cameraPosition;
+//            // #else
+//                vec3 worldPos = vIn.localPos + cameraPosition;
+//            // #endif
+//
+//            float surface_roughness, surface_metal_f0;
+//            //GetMaterialSpecular(vIn.blockId, vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+//            surface_roughness = 0.95;
+//            surface_metal_f0 = 0.04;
+//
+//            // porosity = GetMaterialPorosity(vIn.texcoord, dFdXY, surface_roughness, surface_metal_f0);
+//            porosity = 0.75;
+//            skyWetness = GetSkyWetness(worldPos, localNormal, lmFinal);//, vBlockId);
+//            puddleF = GetWetnessPuddleF(skyWetness, porosity);
+//
+//            #if WORLD_WETNESS_PUDDLES > PUDDLES_BASIC
+//                //rippleNormalStrength = GetWetnessRipples(worldPos, viewDist, puddleF);
+//                //localCoord -= rippleNormalStrength.yx * rippleNormalStrength.w * RIPPLE_STRENGTH;
+//                // if (!skipParallax) atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+//            #endif
+//        // }
+//    #endif
 
     vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
 
@@ -392,19 +392,19 @@ void main() {
     roughness = 0.95;
     metal_f0 = 0.04;
 
-    if (vIn.materialId == DH_BLOCK_LEAVES) sss = 0.8;
-    if (vIn.materialId == DH_BLOCK_SNOW) sss = 0.6;
-    if (vIn.materialId == DH_BLOCK_LAVA) emission = 1.0;
-    if (vIn.materialId == DH_BLOCK_ILLUMINATED) emission = 1.0;
+//    if (vIn.materialId == DH_BLOCK_LEAVES) sss = 0.8;
+//    if (vIn.materialId == DH_BLOCK_SNOW) sss = 0.6;
+//    if (vIn.materialId == DH_BLOCK_LAVA) emission = 1.0;
+//    if (vIn.materialId == DH_BLOCK_ILLUMINATED) emission = 1.0;
     
     vec3 texNormal = localNormal;
 
     vec3 localViewDir = normalize(vIn.localPos);
 
     #ifdef DEFERRED_BUFFER_ENABLED
-        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-            ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
-        #endif
+//        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+//            ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
+//        #endif
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
@@ -431,15 +431,15 @@ void main() {
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
     #else
         float roughL = _pow2(roughness);
-        
+
+        //#ifndef IRIS_FEATURE_SSBO
+            vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+        //#endif
+
+        float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+
         vec3 shadowColor = vec3(1.0);
         #ifdef RENDER_SHADOWS_ENABLED
-            #ifndef IRIS_FEATURE_SSBO
-                vec3 localSkyLightDirection = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-            #endif
-
-            float skyGeoNoL = dot(localNormal, localSkyLightDirection);
-
             if (skyGeoNoL < EPSILON && sss < EPSILON) {
                 shadowColor = vec3(0.0);
             }
@@ -520,44 +520,49 @@ void main() {
         //     deferredShadow.rgb *= 1.0 - (1.0 - cloudShadow) * (1.0 - Shadow_CloudBrightnessF);
         // #endif
         
-        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
-            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
-        #endif
+//        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
+//            ApplySkyWetness(albedo, roughness, porosity, skyWetness, puddleF);
+//        #endif
 
-        vec3 diffuseFinal = vec3(0.0);
-        vec3 specularFinal = vec3(0.0);
+//        vec3 diffuseFinal = vec3(0.0);
+//        vec3 specularFinal = vec3(0.0);
+//
+//        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+//            // GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+//
+//            diffuseFinal += emission * MaterialEmissionF;
+//        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+//            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
+//        #endif
+//
+//        // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
+//        //     SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
+//        // #endif
+//
+//        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
+//            const bool tir = false;
+//            const bool isUnderWater = false;
+//            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
+//        #else
+//            diffuseFinal += WorldAmbientF;
+//        #endif
+//
+////        #if MATERIAL_SPECULAR != SPECULAR_NONE
+////            ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
+////        #endif
+//
+//        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+//        //    color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+//        //#elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
+//            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
+//        //#endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            // GetFloodfillLighting(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, lmFinal, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+        //float geoNoL = 1.0;
 
-            diffuseFinal += emission * MaterialEmissionF;
-        #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
-        #endif
+        float lit = skyGeoNoL*0.5 + 0.5;
 
-        // #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE
-        //     SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, localNormal, texNormal, albedo, roughL, metal_f0, occlusion, sss);
-        // #endif
-
-        #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
-            const bool tir = false;
-            const bool isUnderWater = false;
-            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, vIn.localPos, localNormal, texNormal, albedo, vIn.lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
-        #else
-            diffuseFinal += WorldAmbientF;
-        #endif
-
-        #if MATERIAL_SPECULAR != SPECULAR_NONE
-            ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
-        #endif
-
-        //#if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-        //    color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
-        //#elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-        //#endif
-
-        color.a = 1.0;
+        color.rgb = albedo * (lit*0.5 + 0.5);
+        //color.a = 1.0;
 
         #ifdef SKY_BORDER_FOG_ENABLED
             ApplyFog(color, vIn.localPos, localViewDir);

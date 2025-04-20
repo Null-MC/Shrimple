@@ -452,8 +452,9 @@ layout(location = 0) out vec4 outFinal;
                 #if SKY_TYPE == SKY_TYPE_CUSTOM
                     vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeSkyLightF;
                 #else
-                    vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-                    skyColorFinal = RGBToLinear(skyColorFinal) * eyeSkyLightF;
+                    vec3 fogColorL = RGBToLinear(fogColor);
+                    vec3 skyColorFinal = GetVanillaFogColor(fogColorL, 1.0);
+                    skyColorFinal = skyColorFinal * eyeSkyLightF;
                 #endif
             #endif
 

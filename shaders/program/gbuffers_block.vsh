@@ -107,9 +107,9 @@ uniform ivec2 atlasSize;
     #include "/lib/utility/matrix.glsl"
     #include "/lib/buffers/shadow.glsl"
 
-    #ifdef SHADOW_CLOUD_ENABLED
-        #include "/lib/clouds/cloud_vanilla.glsl"
-    #endif
+//    #ifdef SHADOW_CLOUD_ENABLED
+//        #include "/lib/clouds/cloud_vanilla.glsl"
+//    #endif
     
     #include "/lib/shadows/common.glsl"
 

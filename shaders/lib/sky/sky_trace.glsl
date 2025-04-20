@@ -25,7 +25,8 @@ void TraceSky(inout vec3 scatterFinal, inout vec3 transmitFinal, const in vec3 w
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
     #else
-        vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+        vec3 fogColorL = RGBToLinear(fogColor);
+        vec3 skyColorFinal = GetVanillaFogColor(fogColorL, 1.0);
         skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
     #endif
 

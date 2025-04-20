@@ -129,8 +129,9 @@ void main() {
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         final.rgb = GetCustomSkyColor(localSunDirection, localViewDir);
     #else
-        final.rgb = GetVanillaFogColor(fogColor, localViewDir.y);
-        final.rgb = RGBToLinear(final.rgb);
+        vec3 fogColorL = RGBToLinear(fogColor);
+        final.rgb = GetVanillaFogColor(fogColorL, localViewDir.y);
+        //final.rgb = RGBToLinear(final.rgb);
     #endif
 
     #if SKY_STARS == STARS_FANCY
@@ -166,7 +167,9 @@ void main() {
     //         }
     //     #endif
     // #endif
-    
+
+    //final.rgb = vec3(0.0);
+
     outFinal = final;
 
     #ifdef EFFECT_TAA_ENABLED

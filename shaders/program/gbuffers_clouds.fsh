@@ -252,7 +252,7 @@ uniform float cloudTime;
 #endif
 
 void main() {
-    vec4 albedo = texture(gtexture, vIn.texcoord);
+    vec4 albedo = vec4(1.0);//texture(gtexture, vIn.texcoord);
 
     #if SKY_CLOUD_TYPE == CLOUDS_SOFT
         albedo *= 0.8;
@@ -260,10 +260,10 @@ void main() {
         albedo *= vIn.color;
     #endif
 
-    if (albedo.a < 0.2) {
-        discard;
-        return;
-    }
+//    if (albedo.a < 0.2) {
+//        discard;
+//        return;
+//    }
 
     // albedo.a = sqrt(albedo.a);
     // albedo.a = min(albedo.a * SkyCloudOpacityF, 1.0);
@@ -289,18 +289,18 @@ void main() {
 
     vec3 shadowColor = vec3(1.0);
 
-    float fogF = 0.0;
-    #ifdef SKY_BORDER_FOG_ENABLED
-        float fogDist = 0.5 * GetShapedFogDistance(vIn.localPos);
-
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            fogF = GetCustomFogFactor(fogDist);
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
-        #endif
-
-        albedo.a *= 1.0 - fogF;
-    #endif
+//    float fogF = 0.0;
+//    #ifdef SKY_BORDER_FOG_ENABLED
+//        float fogDist = 0.5 * GetShapedFogDistance(vIn.localPos);
+//
+//        #if SKY_TYPE == SKY_TYPE_CUSTOM
+//            fogF = GetCustomFogFactor(fogDist);
+//        #elif SKY_TYPE == SKY_TYPE_VANILLA
+//            fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
+//        #endif
+//
+//        albedo.a *= 1.0 - fogF;
+//    #endif
 
     albedo.rgb = RGBToLinear(albedo.rgb);
     //albedo.rgb *= 1.0 - 0.7 * rainStrength;
@@ -311,29 +311,29 @@ void main() {
     vec3 diffuseFinal = vec3(0.0);
     vec3 specularFinal = vec3(0.0);
 
-    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
-    #else
-        vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-        skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
-    #endif
-
-    #if LIGHTING_MODE == LIGHTING_MODE_NONE
-        diffuseFinal += albedo.rgb * (1.0 + fogColor);
-    #else
-        diffuseFinal += albedo.rgb * (shadowColor * WorldSkyLightColor + 0.3*skyColorFinal);
-    #endif
-
-    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE <= LIGHTING_MODE_FLOODFILL
-        SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
-    #endif
-
-    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
-        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
-    #else
-        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
-    #endif
+//    float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+//    #if SKY_TYPE == SKY_TYPE_CUSTOM
+//        vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
+//    #else
+//        vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+//        skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+//    #endif
+//
+//    #if LIGHTING_MODE == LIGHTING_MODE_NONE
+//        diffuseFinal += albedo.rgb * (1.0 + fogColor);
+//    #else
+//        diffuseFinal += albedo.rgb * (shadowColor * WorldSkyLightColor + 0.3*skyColorFinal);
+//    #endif
+//
+//    #if LIGHTING_MODE_HAND != HAND_LIGHT_NONE && LIGHTING_MODE <= LIGHTING_MODE_FLOODFILL
+//        SampleHandLight(diffuseFinal, specularFinal, vIn.localPos, normal, normal, albedo.rgb, roughL, metal_f0, occlusion, sss);
+//    #endif
+//
+//    #if LIGHTING_MODE >= LIGHTING_MODE_FLOODFILL
+//        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, occlusion);
+//    #else
+//        final.rgb = GetFinalLighting(albedo.rgb, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
+//    #endif
 
     #if SKY_CLOUD_TYPE == CLOUDS_SOFT
         vec3 worldPos = vIn.localPos + cameraPosition;// - fract(cameraPosition/12.0)*12.0;
@@ -375,7 +375,29 @@ void main() {
         final.a = 1.0 - final.a;
     #endif
 
+    //float fogF = 0.0;
+    #ifdef SKY_BORDER_FOG_ENABLED
+        float fogDist = 0.5 * GetShapedFogDistance(vIn.localPos);
+
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            float fogF = GetCustomFogFactor(fogDist);
+        #elif SKY_TYPE == SKY_TYPE_VANILLA
+            float fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
+        #endif
+
+        //albedo.a *= 1.0 - fogF;
+        final = mix(final, vec4(RGBToLinear(fogColor), 1.0), fogF);
+    #endif
+
     #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
+        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
+        #else
+            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+        #endif
+
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
         // #else
@@ -384,8 +406,8 @@ void main() {
 
         vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
 
-        float skyLightF = eyeBrightnessSmooth.y / 240.0;
-        float airDensityF = GetAirDensity(skyLightF);
+        //float skyLightF = eyeBrightnessSmooth.y / 240.0;
+        float airDensityF = GetAirDensity(eyeBrightF);
         vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
         ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
     #endif

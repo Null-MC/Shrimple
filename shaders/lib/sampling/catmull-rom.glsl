@@ -3,6 +3,8 @@ vec4 sample_CatmullRom(const in sampler2D texSampler, const in vec2 uv, const in
     vec2 texPos1 = floor(samplePos - 0.5) + 0.5;
     vec2 f = samplePos - texPos1;
 
+    //if (uv.x < 0.5) return textureLod(texSampler, uv, 0);
+
     // Compute the Catmull-Rom weights using the fractional offset that we calculated earlier.
     // These equations are pre-expanded based on our knowledge of where the texels will be located,
     // which lets us avoid having to evaluate a piece-wise function.

@@ -172,7 +172,7 @@ vec2 GetShadowPixelRadius(const in vec3 shadowPos, const in float blockRadius) {
             vec3 f = floor(fract(worldPos) * MATERIAL_RESOLUTION + EPSILON) + 0.5;
             vec3 localPosMin = floor(worldPos) - cameraPosition + f / MATERIAL_RESOLUTION;
 
-            localPosMin += 0.5*localNormal * rcp(MATERIAL_RESOLUTION);
+            localPosMin += 2.0*localNormal * rcp(MATERIAL_RESOLUTION);
 
             vec3 localPosMax = localPosMin + rcp(MATERIAL_RESOLUTION);
 
