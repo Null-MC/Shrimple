@@ -274,9 +274,13 @@ uniform vec3 eyePosition;
 
 #include "/lib/fog/fog_render.glsl"
 
-#ifndef IS_RENDER_DEFERRED
-    #include "/lib/lighting/blackbody.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
+#ifdef LIGHTING_FLICKER
+    #include "/lib/lighting/flicker.glsl"
+#endif
+
+#ifndef IS_RENDER_DEFERRED
     #ifdef RENDER_SHADOWS_ENABLED
         #include "/lib/buffers/shadow.glsl"
 
@@ -289,11 +293,6 @@ uniform vec3 eyePosition;
         #endif
         
         #include "/lib/shadows/render.glsl"
-    #endif
-
-    #ifdef LIGHTING_FLICKER
-        // #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
     #endif
 #endif
 

@@ -258,17 +258,16 @@ uniform vec3 eyePosition;
     #include "/lib/material/normalmap.glsl"
 #endif
 
+#include "/lib/lighting/blackbody.glsl"
+
+#ifdef LIGHTING_FLICKER
+#include "/lib/lighting/flicker.glsl"
+#endif
+
 #include "/lib/lighting/voxel/lights.glsl"
 #include "/lib/lighting/voxel/lights_render.glsl"
 
 #ifndef DEFERRED_BUFFER_ENABLED
-    #include "/lib/lighting/blackbody.glsl"
-
-    #ifdef LIGHTING_FLICKER
-        // #include "/lib/lighting/blackbody.glsl"
-        #include "/lib/lighting/flicker.glsl"
-    #endif
-
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"

@@ -294,15 +294,13 @@ uniform int frameCounter;
 
 #include "/lib/material/normalmap.glsl"
 #include "/lib/lighting/directional.glsl"
+#include "/lib/lighting/blackbody.glsl"
 
 #ifdef LIGHTING_FLICKER
-    // #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
-    #include "/lib/lighting/blackbody.glsl"
-
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"

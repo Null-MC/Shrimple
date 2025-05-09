@@ -258,15 +258,14 @@ uniform vec3 eyePosition;
 
 #include "/lib/physics_mod/snow.glsl"
 
+#include "/lib/lighting/blackbody.glsl"
+
 #ifdef LIGHTING_FLICKER
-    // #include "/lib/lighting/blackbody.glsl"
     #include "/lib/lighting/flicker.glsl"
 #endif
 
 // #if !defined DEFERRED_BUFFER_ENABLED || (defined RENDER_TRANSLUCENT && !defined DEFER_TRANSLUCENT)
 #ifndef DEFERRED_BUFFER_ENABLED
-    #include "/lib/lighting/blackbody.glsl"
-
     #ifdef WORLD_SKY_ENABLED
         #include "/lib/clouds/cloud_common.glsl"
         #include "/lib/world/lightning.glsl"
