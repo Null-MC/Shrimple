@@ -37,39 +37,46 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
     // vec3 traceEnd = GetVoxelLightPosition(surfacePos);
     vec3 cameraOffset = fract(cameraPosition);
 
-    uint iOffset = 0u;
-    uint iStep = 1u;
-    #ifdef DYN_LIGHT_INTERLEAVE_ENABLED
-        uint interleaveCount = uint(ceil(lightCount / float(LIGHTING_TRACE_SAMPLE_MAX)));
-
-        if (interleaveCount > 1u) {
-            iStep = interleaveCount;
-
-            float n = InterleavedGradientNoise();
-            iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
-            //iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
-        }
-    #endif
+//    uint iOffset = 0u;
+//    uint iStep = 1u;
+//    #ifdef DYN_LIGHT_INTERLEAVE_ENABLED
+//        uint interleaveCount = uint(ceil(lightCount / float(LIGHTING_TRACE_SAMPLE_MAX)));
+//
+//        if (interleaveCount > 1u) {
+//            iStep = interleaveCount;
+//
+//            float n = InterleavedGradientNoise();
+//            iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
+//            //iOffset = uint(n * interleaveCount + frameCounter % interleaveCount);
+//        }
+//    #endif
 
     #if LIGHTING_TRACE_SAMPLE_MAX > 0
-        const int MaxSampleCount = min(LIGHTING_TRACE_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
+        const int BinMaxSampleCount = min(LIGHTING_TRACE_SAMPLE_MAX, LIGHT_BIN_MAX_COUNT);
+        float bright_scale = max(lightCount / float(BinMaxSampleCount), 1.0);
+
+        int i_offset = int(lightCount * hash13(vec3(gl_FragCoord.xy, frameCounter)));
     #else
-        const int MaxSampleCount = LIGHT_BIN_MAX_COUNT;
+        const int BinMaxSampleCount = LIGHT_BIN_MAX_COUNT;
+        const float bright_scale = 1.0;
+        const int i_offset = 0;
     #endif
+
+    uint maxSampleCount = min(lightCount, BinMaxSampleCount);
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED && defined HAS_LIGHTING_TRACED_SOFTSHADOWS && !(defined RENDER_TRANSLUCENT || defined RENDER_COMPUTE)
         vec3 offset = GetLightPenumbraOffset() * Lighting_PenumbraF;
     #endif
 
-    for (uint i = 0u; i < min(lightCount, MaxSampleCount); i++) {
+    for (uint i = 0u; i < maxSampleCount; i++) {
         vec3 lightPos, lightColor, lightVec;
         float lightSize, lightRange, traceDist2;
         uvec4 lightData;
 
         //bool hasLight = false;
         //for (uint i2 = 0u; i2 < 16u; i2++) {
-            uint lightIndex = (i * iStep + iOffset) % lightCount;
-            if (i * iStep >= lightCount) break;
+            uint lightIndex = (i + i_offset) % lightCount;
+            //if (i * iStep >= lightCount) break;
             //if (lightIndex >= lightCount) break;
 
             lightData = GetVoxelLight(gridIndex, lightIndex % lightCount);
@@ -77,10 +84,9 @@ void SampleDynamicLighting(inout vec3 blockDiffuse, inout vec3 blockSpecular, co
 
             lightColor = RGBToLinear(lightColor);
 
-            #ifdef DYN_LIGHT_INTERLEAVE_ENABLED
-                lightColor *= interleaveCount;
-                //lightColor *= min(iStep, lightCount);
-            #endif
+            //#ifdef DYN_LIGHT_INTERLEAVE_ENABLED
+                lightColor *= bright_scale;
+            //#endif
 
             float traceRange2 = lightRange + 0.5;
             traceRange2 = _pow2(traceRange2);

@@ -403,7 +403,9 @@ void main() {
 
         if (isWater && abs(localNormal.y) > 0.5) {
             #ifdef PHYSICS_OCEAN
-                float waviness = 1.0;//max(vIn.physics_localWaviness, 0.02);
+                // TODO: this doesn't work!
+                const float waviness = 1.0;//max(vIn.physics_localWaviness, 0.02);
+                const float physics_iterationsNormal = 8;
                 WavePixelData wave = physics_wavePixel(vIn.physics_localPosition.xz, waviness, physics_iterationsNormal, physics_gameTime);
                 texNormal = wave.normal;
                 oceanFoam = wave.foam;

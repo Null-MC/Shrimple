@@ -133,7 +133,7 @@ void main() {
 		vec3 color = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
 		color = LinearToRGB(color);
 	#elif DEBUG_VIEW == DEBUG_VIEW_BLOCK_DIFFUSE
-        #ifdef HAS_LIGHTING_TRACED_SOFTSHADOWS
+        #ifdef LIGHTING_TRACED_ACCUMULATE
             bool altFrame = (frameCounter % 2) == 0;
             vec3 color = texelFetch(altFrame ? texDiffuseRT_alt : texDiffuseRT, uv, 0).rgb;
         #else
