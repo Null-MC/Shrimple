@@ -3,7 +3,9 @@ void GetBlockWavingRangeAttachment(const in uint blockId, out float range, out u
     attachment = 0u;
 
     switch (blockId) {
+        case BLOCK_BUSH:
         case BLOCK_DEAD_BUSH:
+        case BLOCK_GROUND_LEAVES:
         case BLOCK_NETHER_SPROUTS:
         case BLOCK_SUNFLOWER_LOWER:
         case BLOCK_SWEET_BERRY_BUSH:
@@ -36,6 +38,7 @@ void GetBlockWavingRangeAttachment(const in uint blockId, out float range, out u
         case BLOCK_ROSE_BUSH_LOWER:
         case BLOCK_SAPLING:
         case BLOCK_TALL_GRASS_LOWER:
+        case BLOCK_TORCHFLOWER:
         case BLOCK_TULIP:
         case BLOCK_WARPED_ROOTS:
         case BLOCK_WHEAT:
