@@ -42,7 +42,7 @@
 
         #if MATERIAL_NORMAL_EDGE != 0
             vec2 texcoordC = GetAtlasCoord(texcoordSnapped, vIn.atlasBounds);
-            vec4 texColorC = textureLod(gtexture, texcoordC, mip).rgb;
+            vec4 texColorC = textureLod(gtexture, texcoordC, mip);
             float texHeightC = luminance(RGBToLinear(texColorC.rgb) * texColorC.a);
 
             #if MATERIAL_NORMAL_EDGE == 1
