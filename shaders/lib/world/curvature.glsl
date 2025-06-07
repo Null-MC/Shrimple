@@ -1,13 +1,22 @@
- vec3 GetWorldCurvedPosition(in vec3 position) {
-     // horizon-stretching fix by cr0420
-     position.xz *= 1.0 + length2(position.xz) / _pow2(WORLD_CURVE_RADIUS) * 0.25;
+vec3 GetWorldCurvedPosition(in vec3 position, out float angleY) {
+    // horizon-stretching fix by cr0420
+    position.xz *= 1.0 + length2(position.xz) / _pow2(WORLD_CURVE_RADIUS) * 0.25;
 
-     position.y += WORLD_CURVE_RADIUS;
-     position = normalize(position) * position.y;
-     position.y -= WORLD_CURVE_RADIUS;
+    float offset_y = WORLD_CURVE_RADIUS + cameraPosition.y;
 
-     return position;
- }
+    position.y += offset_y;
+    vec3 n = normalize(position);
+    angleY = n.y;
+    position = n * position.y;
+    position.y -= offset_y;
+
+    return position;
+}
+
+vec3 GetWorldCurvedPosition(in vec3 position) {
+    float angleY;
+    return GetWorldCurvedPosition(position, angleY);
+}
 
 float GetWorldAltitude(in vec3 localPos) {
     localPos.y += World_CurveRadius + cameraPosition.y;

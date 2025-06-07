@@ -240,6 +240,9 @@ void main() {
         #endif
     #endif
 
+    if (viewPos == vec4(vec3(666.666), 1.0))
+        gl_Position = vec4(-10.0);
+
     #if (defined IS_TRACING_ENABLED || defined IS_LPV_ENABLED) && !defined RENDER_SHADOWS_ENABLED
         uint blockId = vOut.blockId;
         if (blockId <= 0) blockId = BLOCK_SOLID;

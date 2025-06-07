@@ -96,13 +96,19 @@ vec4 BasicVertex() {
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
     #if WORLD_CURVE_RADIUS > 0
+        float angleY = 1.0;
+
         #ifdef WORLD_CURVE_SHADOWS
-            vOut.localPos = GetWorldCurvedPosition(vOut.localPos);
+            vOut.localPos = GetWorldCurvedPosition(vOut.localPos, angleY);
             viewPos = mul3(gbufferModelView, vOut.localPos);
+
+            if (vOut.localPos.y + cameraPosition.y < -WORLD_CURVE_RADIUS) viewPos = vec3(666.666);
         #else
-            vec3 worldPos = GetWorldCurvedPosition(vOut.localPos);
-            viewPos = mul3(gbufferModelView, worldPos);
+            vec3 localPos = GetWorldCurvedPosition(vOut.localPos, angleY);
+            viewPos = mul3(gbufferModelView, localPos);
         #endif
+
+//        if (angleY <= 0.0) viewPos = vec3(666.666);
     #endif
 
     #if !(defined RENDER_BILLBOARD || defined RENDER_CLOUDS)
