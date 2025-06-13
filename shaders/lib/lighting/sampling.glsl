@@ -55,5 +55,5 @@ vec3 SampleLightSpecular(const in float NoL, const in float NoH, const in float 
     float k2 = _pow2(k);
     float V = rcp(_pow2(LoH) * (1.0 - k2) + k2);
 
-    return NoL * clamp((D * V), 0.0, 10.0) * F;
+    return NoL * clamp((D * V), 0.0, 1000.0) * F;
 }

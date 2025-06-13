@@ -18,10 +18,9 @@
 void main() {
     ivec2 vertId = gl_VertexID & ivec2(1, 2);
     ivec2 xy = (vertId << ivec2(2, 1)) - 1;
-
     gl_Position = vec4(xy, 0.0, 1.0);
 
-    #ifdef EFFECT_TAA_ENABLED
-        jitter(gl_Position);
-    #endif
+//    #ifdef EFFECT_TAA_ENABLED
+//        jitter(gl_Position);
+//    #endif
 }

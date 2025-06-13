@@ -136,11 +136,11 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
         #if MATERIAL_REFLECTIONS != REFLECT_NONE && LIGHTING_MODE != LIGHTING_MODE_NONE && !defined(RENDER_PARTICLES)
             if (hasTexNormal) {
-                vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
+//                vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, NoVm, isUnderWater);
+//
+//                if (tir) skyReflectF = vec3(1.0);
 
-                if (tir) skyReflectF = vec3(1.0);
-
-                accumDiffuse *= 1.0 - skyReflectF;
+                //accumDiffuse *= 1.0 - skyReflectF;
 
                 #if !(MATERIAL_REFLECTIONS == REFLECT_SCREEN && defined RENDER_OPAQUE_FINAL)
                     vec3 reflectLocalPos = localPos;
@@ -162,7 +162,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
                     vec3 viewPos = mul3(gbufferModelView, reflectLocalPos);
                     vec3 texViewNormal = mat3(gbufferModelView) * N;
 
-                    skySpecular += ApplyReflections(reflectLocalPos, viewPos, texViewNormal, skyLightF, sqrt(roughL)) * skyReflectF;
+                    skySpecular += ApplyReflections(reflectLocalPos, viewPos, texViewNormal, skyLightF, sqrt(roughL));// * skyReflectF;
                 #endif
             }
         #endif

@@ -351,7 +351,7 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             vec3 skyReflectF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
-            skyReflectF *= MaterialReflectionStrength * (1.0 - roughL);
+            //skyReflectF *= MaterialReflectionStrength * (1.0 - roughL);
 
             vec3 reflectLocalPos = localPosOpaque;
             vec3 reflectViewPos = viewPosOpaque;

@@ -75,7 +75,12 @@ void main() {
                         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
     int blockId = int(mc_Entity.x + 0.5);
-    if (blockId <= 0) blockId = BLOCK_SOLID;
+    if (isRenderTerrain) {
+        if (blockId <= 0) blockId = BLOCK_SOLID;
+    }
+    else {
+        blockId = BLOCK_EMPTY;
+    }
 
     #ifndef SHADOW_COLORED
         if (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT && blockId != BLOCK_WATER) {

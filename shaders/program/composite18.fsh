@@ -446,6 +446,12 @@ layout(location = 0) out vec4 outFinal;
         float roughL = 1.0;
         vec3 texNormal;
 
+        vec3 view_F = vec3(0.0);
+        vec3 diffuseFinal = vec3(0.0);
+        vec3 specularFinal = vec3(0.0);
+        float occlusion = 1.0;
+        float emission = 0.0;
+
         #if WATER_DEPTH_LAYERS > 1
             uint waterPixelIndex = GetWaterDepthIndex(uvec2(gl_FragCoord.xy));
         #endif
@@ -527,14 +533,14 @@ layout(location = 0) out vec4 outFinal;
             //     #endif
             // #endif
 
-            float occlusion = deferredLighting.z;
-            float emission = deferredLighting.a;
+            occlusion = deferredLighting.z;
+            emission = deferredLighting.a;
             float sss = deferredNormal.a;
 
             //if (isWater) deferredColor.a *= Water_OpacityF;
 
-            vec3 diffuseFinal = vec3(0.0);
-            vec3 specularFinal = vec3(0.0);
+//            vec3 diffuseFinal = vec3(0.0);
+//            vec3 specularFinal = vec3(0.0);
 
             #if LIGHTING_MODE > LIGHTING_MODE_BASIC
                 #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -618,30 +624,30 @@ layout(location = 0) out vec4 outFinal;
                 ApplyMetalDarkening(diffuseFinal, specularFinal, albedo, metal_f0, roughL);
             #endif
 
-            diffuseFinal *= deferredColor.a;
+            //diffuseFinal *= deferredColor.a;
 
             if (isWater) metal_f0 = 0.02;
 
             float skyNoVm = max(dot(texNormal, -localViewDir), 0.0);
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE
-                vec3 skyF = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
-                skyF *= MaterialReflectionStrength;// * (1.0 - roughL);
+                view_F = GetMaterialFresnel(albedo, metal_f0, roughL, skyNoVm, false);
+                //view_F *= MaterialReflectionStrength;// * (1.0 - roughL);
 
-                deferredColor.a = clamp(deferredColor.a, maxOf(skyF), 1.0);
-                //albedo *= 1.0 - skyF;
+                //deferredColor.a = clamp(deferredColor.a, maxOf(view_F), 1.0);
+                //albedo *= 1.0 - view_F;
             #endif
 
-            vec3 albedo_pm = albedo * deferredColor.a;
+//            vec3 albedo_pm = albedo * deferredColor.a;
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;
                 specularFinal += sampleSpecular;
-
-                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
-            #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
-            #else
-                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
+//
+//                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
+//            #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+//                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, occlusion);
+//            #else
+//                final.rgb = GetFinalLighting(albedo_pm, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
             #endif
 
             //final.a = min(deferredColor.a + luminance(specularFinal), 1.0);
@@ -845,7 +851,25 @@ layout(location = 0) out vec4 outFinal;
             opaqueFinal *= tint;
         }
 
-        final.rgb += opaqueFinal * (1.0 - final.a);
+        final.rgb = opaqueFinal;
+
+        if (deferredColor.a > (0.5/255.0) && depthTrans < 1.0) {
+            diffuseFinal += Lighting_MinF * occlusion;
+            diffuseFinal += emission * MaterialEmissionF;
+            diffuseFinal *= albedo;
+
+            final.rgb = mix(opaqueFinal, diffuseFinal, deferredColor.a);
+            final.rgb = mix(final.rgb, specularFinal, view_F);
+
+//            #if LIGHTING_MODE == LIGHTING_MODE_TRACED
+//                final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+//            #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
+//                final.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
+//            #else
+//                final.rgb = mix(final.rgb, specularFinal, view_F);
+//            #endif
+        }
+
 
         #ifdef WORLD_WATER_ENABLED
             if (isEyeInWater == 1) {

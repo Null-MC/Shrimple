@@ -108,15 +108,26 @@ void main() {
     vec3 ndcPos = vec3(uv, physics_fragZ) * 2.0 - 1.0;
     vec3 viewPos = unproject(gbufferProjectionInverse, ndcPos);
 
-    vec3 dX = normalize(dFdx(viewPos));
-    vec3 dY = normalize(dFdy(viewPos));
-    vec3 viewNormal = normalize(cross(dX, dY));
+    vec3 dX = dFdx(viewPos);
+    vec3 dY = dFdy(viewPos);
+
+    vec3 viewNormal = vec3(0.0, 0.0, 1.0);
+    if (_lengthSq(dX) > 0.0 && _lengthSq(dY) > 0.0) {
+        dX = normalize(dX);
+        dY = normalize(dY);
+        viewNormal = normalize(cross(dX, dY));
+
+        //viewNormal.z = pow(viewNormal.z, 0.2);// * sign(viewNormal.z);
+        //viewNormal.z = pow(saturate(viewNormal.z*2.0 - 1.0), 0.25);
+        viewNormal = normalize(viewNormal);
+    }
+
     vec3 localNormal = mat3(gbufferModelViewInverse) * viewNormal;
 
     if (physics_fragZ == 1.0) {discard; return;}
 
     #if (defined MATERIAL_REFRACT_ENABLED || defined DEFER_TRANSLUCENT) && defined DEFERRED_BUFFER_ENABLED
-        const float roughness = 0.12;
+        const float roughness = 0.04;
         const float metal_f0 = 0.02;
         const float sss = 0.0;
         const float porosity = 0.0;
@@ -133,7 +144,9 @@ void main() {
         outDeferredColor = color + dither;
         outDeferredTexNormal = localNormal * 0.5 + 0.5;
 
-        outDeferredData.r = packUnorm4x8(vec4(localNormal * 0.5 + 0.5, sss + dither));
+        const vec3 geoNormal = vec3(0.0, 0.0, -1.0);
+
+        outDeferredData.r = packUnorm4x8(vec4(geoNormal * 0.5 + 0.5, sss + dither));
         outDeferredData.g = packUnorm4x8(vec4(lmFinal, occlusion, emission) + dither);
         outDeferredData.b = packUnorm4x8(vec4(isWater ? 1.0 : 0.0, parallaxShadow, 0.0, 0.0) + dither);
         outDeferredData.a = packUnorm4x8(vec4(roughness, metal_f0, porosity, 1.0) + dither);
