@@ -22,6 +22,8 @@ out VertexData {
 
     flat mat2 atlasBounds;
 
+    vec4 endPortalTexProj;
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -156,6 +158,12 @@ void main() {
             vOut.lightPos_T = shadowLightPosition * matViewTBN;
         #endif
     #endif
+
+    // end portal texture projection
+    vec4 texProj0 = gl_Position * 0.5;
+    texProj0.xy = vec2(texProj0.x + texProj0.w, texProj0.y + texProj0.w);
+    texProj0.zw = gl_Position.zw;
+    vOut.endPortalTexProj = texProj0;
 
     #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);

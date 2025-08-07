@@ -1,6 +1,14 @@
 vec2 GetParallaxCoord(const in vec2 texcoord, const in float mip, const in vec3 tanViewDir, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-    vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * MaterialParallaxOffset) / (1.0 + tanViewDir.z * MATERIAL_PARALLAX_SAMPLES);
-    const float stepDepth = MaterialParallaxOffset / MATERIAL_PARALLAX_SAMPLES;
+    #ifdef MATERIAL_PARALLAX_OPTIMIZE
+        vec2 atlasCoord = GetAtlasCoord(texcoord, vIn.atlasBounds);
+        float maxTexDepth = 1.0 - texelFetch(normals, ivec2(atlasCoord * atlasSize), 2).a;
+        maxTexDepth = sqrt(maxTexDepth);
+    #else
+        const float maxTexDepth = 1.0;
+    #endif
+
+    vec2 stepCoord = tanViewDir.xy * (ParallaxDepthF * maxTexDepth) / (tanViewDir.z * MATERIAL_PARALLAX_SAMPLES + 1.0);
+    const float stepDepth = maxTexDepth / MATERIAL_PARALLAX_SAMPLES;
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 atlasPixelSize = rcp(atlasSize);
@@ -42,7 +50,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in float mip, const in vec3 
             texDepth = textureLod(normals, traceAtlasCoord, mip).a;
         #endif
 
-        depthDist = MaterialParallaxOffset - i * stepDepth - texDepth;
+        depthDist = 1.0 - i * stepDepth - texDepth;
     }
 
     i = max(i - 1.0, 0.0);
@@ -50,9 +58,9 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in float mip, const in vec3 
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH
         vec2 currentTraceOffset = texcoord - i * stepCoord;
-        float currentTraceDepth = max(MaterialParallaxOffset - i * stepDepth, 0.0);
+        float currentTraceDepth = max(1.0 - i * stepDepth, 0.0);
         vec2 prevTraceOffset = texcoord - pI * stepCoord;
-        float prevTraceDepth = max(MaterialParallaxOffset - pI * stepDepth, 0.0);
+        float prevTraceDepth = max(1.0 - pI * stepDepth, 0.0);
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
         t = clamp(t, 0.0, 1.0);
@@ -61,7 +69,7 @@ vec2 GetParallaxCoord(const in vec2 texcoord, const in float mip, const in vec3 
         traceDepth.z = mix(prevTraceDepth, currentTraceDepth, t);
     #else
         traceDepth.xy = texcoord - pI * stepCoord;
-        traceDepth.z = max(MaterialParallaxOffset - pI * stepDepth, 0.0);
+        traceDepth.z = max(1.0 - pI * stepDepth, 0.0);
     #endif
 
     #if DISPLACE_MODE == DISPLACE_POM_SMOOTH

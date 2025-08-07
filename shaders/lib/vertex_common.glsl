@@ -1,7 +1,7 @@
 vec4 BasicVertex() {
     vec4 pos = gl_Vertex;
 
-    #if defined RENDER_TERRAIN || defined RENDER_WATER
+    #if defined(RENDER_TERRAIN) || defined(RENDER_WATER)
         vOut.blockId = int(mc_Entity.x + 0.5);
     #endif
 

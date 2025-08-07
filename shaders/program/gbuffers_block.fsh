@@ -16,6 +16,8 @@ in VertexData {
 
     flat mat2 atlasBounds;
 
+    vec4 endPortalTexProj;
+
     #ifdef PARALLAX_ENABLED
         vec3 viewPos_T;
 
@@ -224,6 +226,7 @@ uniform ivec2 eyeBrightnessSmooth;
 #include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
+#include "/lib/utility/end-portal.glsl"
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/fresnel.glsl"
@@ -513,7 +516,13 @@ void main() {
     float sss = GetMaterialSSS(blockEntityId, atlasCoord, mip);
     float emission = GetMaterialEmission(blockEntityId, atlasCoord, mip);
     GetMaterialSpecular(blockEntityId, atlasCoord, mip, roughness, metal_f0);
-    
+
+    if (blockEntityId == BLOCK_END_PORTAL) {
+        color.rgb = render_endPortal(vIn.endPortalTexProj);
+        color.a = 1.0;
+        emission = 1.0;
+    }
+
     vec3 albedo = RGBToLinear(color.rgb);
     vec3 texNormal = localNormal;
     bool isValidNormal = false;

@@ -442,7 +442,7 @@ void main() {
     #endif
 
     bool skipParallax = false;
-    if (vIn.blockId == BLOCK_LAVA) skipParallax = true;
+    if (vIn.blockId == BLOCK_LAVA || vIn.blockId == BLOCK_END_PORTAL) skipParallax = true;
 
     float porosity = 0.0;
     #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED

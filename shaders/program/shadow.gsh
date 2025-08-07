@@ -152,7 +152,7 @@ uniform float far;
 #endif
 
 void main() {
-    vec3 originPos = (vIn[0].originPos + vIn[1].originPos + vIn[2].originPos) * rcp(3.0);
+    vec3 originPos = (vIn[0].originPos + vIn[1].originPos + vIn[2].originPos) / 3.0;
 
     bool isRenderTerrain = renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
                         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
