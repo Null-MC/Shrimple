@@ -6,8 +6,8 @@
 #include "/lib/common.glsl"
 
 in VertexData {
-    vec4 color;
-    vec2 lmcoord;
+    //vec4 color;
+    //vec2 lmcoord;
     vec2 texcoord;
     vec3 localPos;
     vec2 localCoord;
@@ -423,7 +423,7 @@ void main() {
     float viewDist = length(vIn.localPos);
     vec2 atlasCoord = vIn.texcoord;
     vec2 localCoord = vIn.localCoord;
-    vec2 lmFinal = vIn.lmcoord;
+    vec2 lmFinal;// = vIn.lmcoord;
 
     float mip = textureQueryLod(gtexture, atlasCoord).y;
 
@@ -511,14 +511,17 @@ void main() {
 //        mip = max(mip, 4.0 * lodFadeF);
 //    #endif
 
-    vec4 color;
-    color.rgb = textureLod(gtexture, atlasCoord, mip).rgb;
-    color.a = textureLod(gtexture, atlasCoord, 0.0).a;
+//    vec4 color;
+//    color.rgb = textureLod(gtexture, atlasCoord, mip).rgb;
+//    color.a = textureLod(gtexture, atlasCoord, 0.0).a;
+    vec4 color = textureLod(gtexture, atlasCoord, mip);
 
     float occlusion;
     vec4 overlayColor;
     clrwl_computeFragment(color, color, lmFinal, occlusion, overlayColor);
     color.rgb = mix(color.rgb, overlayColor.rgb, overlayColor.a);
+
+    lmFinal = LightMapNorm(lmFinal);
 
 //    #if defined DISTANT_HORIZONS && defined DH_TRANSITION
 //        #ifdef EFFECT_TAA_ENABLED
@@ -543,7 +546,7 @@ void main() {
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);
     #elif defined LIGHTING_DEBUG_LEVELS
-        albedo = GetLightLevelColor(vIn.lmcoord.x);
+        albedo = GetLightLevelColor(lmFinal.x);
     #endif
 
     float roughness, metal_f0;
@@ -739,7 +742,7 @@ void main() {
 
             diffuseFinal += emission * MaterialEmissionF;
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
+            GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
         #endif
 
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE

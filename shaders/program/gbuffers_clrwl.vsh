@@ -7,13 +7,13 @@
 
 in vec4 at_tangent;
 in vec3 at_midBlock;
-in vec4 mc_Entity;
+//in vec4 mc_Entity;
 in vec4 mc_midTexCoord;
 in vec3 vaPosition;
 
 out VertexData {
-    vec4 color;
-    vec2 lmcoord;
+    //vec4 color;
+    //vec2 lmcoord;
     vec2 texcoord;
     vec3 localPos;
     vec2 localCoord;
@@ -188,10 +188,10 @@ uniform vec3 eyePosition;
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    vOut.color = gl_Color;
+    //vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+    //vOut.color = gl_Color;
 
-    vOut.lmcoord = LightMapNorm(vOut.lmcoord);
+    //vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     #ifdef EFFECT_TAA_ENABLED
         vOut.velocity = vec3(0.0);
