@@ -41,8 +41,12 @@
 #endif
 
 
-vec2 getJitterOffset(const in int frameOffset) {
+vec2 getJitterOffset(const in int frameOffset, const in vec2 pixelSize) {
 	return (taa_offsets[frameOffset % EFFECT_TAA_MAX_FRAMES] - 0.5) * pixelSize;
+}
+
+vec2 getJitterOffset(const in int frameOffset) {
+    return (taa_offsets[frameOffset % EFFECT_TAA_MAX_FRAMES] - 0.5) * pixelSize;
 }
 
 void jitter(inout vec4 ndcPos) {

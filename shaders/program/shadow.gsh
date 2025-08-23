@@ -38,6 +38,10 @@ uniform vec3 cameraPosition;
 //uniform vec3 previousCameraPosition;
 uniform float far;
 
+#ifdef SHADOW_TAA
+    uniform vec2 pixelSize;
+#endif
+
 #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE != SHADOW_TYPE_NONE
     uniform mat4 gbufferProjection;
     uniform mat4 shadowModelView;
@@ -135,6 +139,10 @@ uniform float far;
     #else
         #include "/lib/shadows/distorted/common.glsl"
     #endif
+#endif
+
+#ifdef SHADOW_TAA
+    #include "/lib/effects/taa_jitter.glsl"
 #endif
 
 
@@ -334,6 +342,10 @@ void main() {
                     gl_Position.xy = gl_Position.xy * 0.5 + shadowTilePos;
                     gl_Position.xy = gl_Position.xy * 2.0 - 1.0;
 
+                    #ifdef SHADOW_TAA
+                        gl_Position.xy += getJitterOffset(frameCounter, vec2(shadowPixelSize)) * 2.0;
+                    #endif
+
                     EmitVertex();
                 }
 
@@ -354,6 +366,10 @@ void main() {
 
                 gl_Position.xyz = distort(gl_Position.xyz);
                 gl_Position.w = 1.0;
+
+                #ifdef SHADOW_TAA
+                    gl_Position.xy += getJitterOffset(frameCounter, vec2(shadowPixelSize)) * 2.0;
+                #endif
 
                 EmitVertex();
             }

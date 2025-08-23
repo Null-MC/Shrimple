@@ -57,6 +57,7 @@
                 lightColor = LIGHT_COLOR_CRYING_OBSIDIAN;
                 break;
             case LIGHT_END_ROD:
+            case LIGHT_EDGE:
                 lightColor = LIGHT_COLOR_END_ROD;
                 break;
             case LIGHT_END_STONE_LAMP:
@@ -506,6 +507,7 @@
                 lightRange = 10.0;
                 break;
             case LIGHT_END_ROD:
+            case LIGHT_EDGE:
                 lightRange = 14.0;
                 break;
             case LIGHT_EYEBLOSSOM:
@@ -937,6 +939,7 @@
             case LIGHT_WHITE_CANDLES_4:
             case LIGHT_YELLOW_CANDLES_4:
             case LIGHT_END_ROD:
+            case LIGHT_EDGE:
             case LIGHT_BLAST_FURNACE_N:
             case LIGHT_BLAST_FURNACE_E:
             case LIGHT_BLAST_FURNACE_S:

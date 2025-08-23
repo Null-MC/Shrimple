@@ -273,6 +273,9 @@ uint GetSceneLightType(const in uint blockId) {
         case BLOCK_END_STONE_LAMP:
             lightType = LIGHT_END_STONE_LAMP;
             break;
+        case BLOCK_EDGE_LIGHT:
+            lightType = LIGHT_EDGE;
+            break;
     }
 
     // 400
