@@ -9,7 +9,7 @@ in vec4 at_tangent;
 in vec3 at_midBlock;
 //in vec4 mc_Entity;
 in vec4 mc_midTexCoord;
-in vec3 vaPosition;
+//in vec3 vaPosition;
 
 out VertexData {
     //vec4 color;
@@ -20,7 +20,7 @@ out VertexData {
     vec3 localNormal;
     vec4 localTangent;
 
-    flat int blockId;
+    //flat int blockId;
     flat mat2 atlasBounds;
     
     #ifdef EFFECT_TAA_ENABLED
@@ -64,6 +64,7 @@ uniform float far;
     uniform float frameTimeCounter;
 #endif
 
+uniform int blockEntityId;
 uniform bool firstPersonCamera;
 uniform vec3 eyePosition;
 
@@ -122,9 +123,9 @@ uniform vec3 eyePosition;
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
-#if WORLD_WIND_STRENGTH > 0 //&& defined WORLD_SKY_ENABLED
-    #include "/lib/world/waving.glsl"
-#endif
+//#if WORLD_WIND_STRENGTH > 0 //&& defined WORLD_SKY_ENABLED
+//    #include "/lib/world/waving.glsl"
+//#endif
 
 #if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
     #include "/lib/utility/matrix.glsl"
@@ -188,10 +189,6 @@ uniform vec3 eyePosition;
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-    //vOut.lmcoord  = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-    //vOut.color = gl_Color;
-
-    //vOut.lmcoord = LightMapNorm(vOut.lmcoord);
 
     #ifdef EFFECT_TAA_ENABLED
         vOut.velocity = vec3(0.0);
@@ -220,7 +217,4 @@ void main() {
     #ifdef EFFECT_TAA_ENABLED
         jitter(gl_Position);
     #endif
-
-//    if (viewPos == vec4(vec3(666.666), 1.0))
-//        gl_Position = vec4(-10.0);
 }

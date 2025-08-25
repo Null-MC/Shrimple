@@ -1271,7 +1271,9 @@ void GetVoxelBlockParts(const in uint blockId, out uint shapeCount, out vec3 bou
             boundsMin[4] = modelPart( 2,  2, 14);
             boundsMax[4] = modelPart(14, 16, 16);
             break;
-        case BLOCK_CREATE_BLAZE_BURNER:
+        case BLOCK_CREATE_BLAZE_BURNER_LOW:
+        case BLOCK_CREATE_BLAZE_BURNER_MEDIUM:
+        case BLOCK_CREATE_BLAZE_BURNER_HIGH:
             shapeCount = 1u;
             boundsMin[0] = modelPart( 2,  0,  2);
             boundsMax[0] = modelPart(14,  4, 14);

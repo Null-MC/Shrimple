@@ -5,11 +5,12 @@
 #include "/lib/common.glsl"
 
 in VertexData {
-    vec4 color;
+    //vec4 color;
     vec2 texcoord;
     float viewDist;
+    float lightRange;
 
-    flat uint blockId;
+    //flat uint blockId;
 
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
         flat vec2 shadowTilePos;
@@ -22,11 +23,11 @@ uniform int frameCounter;
 uniform int renderStage;
 uniform float far;
 
-#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
-    uniform float alphaTestRef;
-#endif
+//#if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
+//    uniform float alphaTestRef;
+//#endif
 
-#include "/lib/blocks.glsl"
+//#include "/lib/blocks.glsl"
 
 #ifdef DISTANT_HORIZONS
     #ifdef EFFECT_TAA_ENABLED
@@ -54,7 +55,7 @@ void main() {
     clrwl_computeFragment(color, color, lmcoord, ao, overlayColor);
 
     #if !defined SHADOW_SOLID || defined DISTANT_HORIZONS
-        float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
+        float alphaThreshold = renderStage == CLRWL_RENDER_STAGE_TRANSLUCENT
             ? (1.5/255.0) : 0.5;
 
         #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
@@ -78,10 +79,10 @@ void main() {
         }
     #endif
 
-    color.rgb *= vIn.color.rgb;
+//    color.rgb *= vIn.color.rgb;
 
     #if defined SHADOW_COLORED && defined SHADOW_COLOR_BLEND
-        if (renderStage != MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)
+        if (renderStage != CLRWL_RENDER_STAGE_TRANSLUCENT)
             color.a = 1.0;
 
         color.rgb = RGBToLinear(color.rgb);
@@ -91,8 +92,8 @@ void main() {
         color.rgb = LinearToRGB(color.rgb);
     #endif
 
-    if (vIn.blockId == BLOCK_WATER)
-        color = vec4(0.90, 0.94, 0.96, 0.0);
+//    if (vIn.blockId == BLOCK_WATER)
+//        color = vec4(0.90, 0.94, 0.96, 0.0);
     
     outColor0 = color;
 }

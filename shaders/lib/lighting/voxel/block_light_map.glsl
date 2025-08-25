@@ -634,6 +634,18 @@ uint GetSceneLightType(const in uint blockId) {
             break;
     }
 
+    switch (blockId) {
+        case BLOCK_CREATE_BLAZE_BURNER_LOW:
+            lightType = LIGHT_CREATE_BLAZE_BURNER_LOW;
+            break;
+        case BLOCK_CREATE_BLAZE_BURNER_MEDIUM:
+            lightType = LIGHT_CREATE_BLAZE_BURNER_MEDIUM;
+            break;
+        case BLOCK_CREATE_BLAZE_BURNER_HIGH:
+            lightType = LIGHT_CREATE_BLAZE_BURNER_HIGH;
+            break;
+    }
+
     #if DYN_LIGHT_GLOW_BERRIES != DYN_LIGHT_BLOCK_NONE
         if (blockId == BLOCK_CAVEVINE_BERRIES) lightType = LIGHT_CAVEVINE_BERRIES;
     #endif

@@ -14,6 +14,7 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 ## Mod Support
  - Applied Energistics 2
  - BigGlobe
+ - Colorwheel
  - Create (+Deco, +Steam 'N Rails)
  - Distant Horizons
  - Loot Urns

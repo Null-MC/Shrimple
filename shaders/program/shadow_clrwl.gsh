@@ -8,36 +8,32 @@ layout(triangle_strip, max_vertices=12) out;
 #include "/lib/common.glsl"
 
 in VertexData {
-    vec4 color;
     vec2 texcoord;
     float viewDist;
+    float lightRange;
 
-    flat int blockId;
     flat vec3 originPos;
 } vIn[];
 
 out VertexData {
-    vec4 color;
     vec2 texcoord;
     float viewDist;
-
-    flat uint blockId;
+    float lightRange;
 
     #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_CASCADED
         flat vec2 shadowTilePos;
     #endif
 } vOut;
 
-//vec4 clrwl_overlayColor = vec4(0.0);
-
 #if defined LIGHTING_FLICKER && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
     uniform sampler2D noisetex;
 #endif
 
-uniform int renderStage;
+//uniform int renderStage;
 uniform mat4 gbufferModelView;
 uniform vec3 cameraPosition;
 //uniform vec3 previousCameraPosition;
+uniform int blockEntityId;
 uniform float far;
 
 #ifdef SHADOW_TAA
@@ -63,68 +59,31 @@ uniform float far;
     uniform mat4 gbufferModelViewInverse;
     uniform vec3 previousCameraPosition;
     uniform mat4 gbufferPreviousModelView;
-    uniform int currentRenderedItemId;
-    //uniform vec4 entityColor;
+//    uniform int currentRenderedItemId;
 
-    #ifdef ANIM_WORLD_TIME
-        uniform int worldTime;
-    #else
-        uniform float frameTimeCounter;
-    #endif
+//    #ifdef ANIM_WORLD_TIME
+//        uniform int worldTime;
+//    #else
+//        uniform float frameTimeCounter;
+//    #endif
 #endif
-
-#include "/lib/blocks.glsl"
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     
-    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
-        #include "/lib/buffers/block_static.glsl"
-        #include "/lib/buffers/block_voxel.glsl"
-        #include "/lib/buffers/light_static.glsl"
-    #endif
-    
-    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/buffers/light_voxel.glsl"
-    #endif
-
     #ifdef IS_LPV_ENABLED
+        #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/light_static.glsl"
         #include "/lib/buffers/volume.glsl"
-    #endif
 
-    #if defined IS_LPV_ENABLED || defined IS_TRACING_ENABLED
-        #include "/lib/entities.glsl"
-        #include "/lib/items.glsl"
         #include "/lib/lights.glsl"
 
-        #include "/lib/sampling/noise.glsl"
-
-        #ifdef LIGHTING_FLICKER
-            #include "/lib/utility/anim.glsl"
-            #include "/lib/lighting/blackbody.glsl"
-            #include "/lib/lighting/flicker.glsl"
-        #endif
-        
-        #include "/lib/voxel/lights/mask.glsl"
-        #include "/lib/lighting/voxel/lights.glsl"
-        #include "/lib/lighting/voxel/lights_render.glsl"
-        #include "/lib/voxel/blocks.glsl"
+        //#include "/lib/sampling/noise.glsl"
+        #include "/lib/utility/hsv.glsl"
 
         #include "/lib/voxel/voxel_common.glsl"
-
-        #include "/lib/lighting/voxel/item_light_map.glsl"
-        #include "/lib/lighting/voxel/items.glsl"
-    #endif
-
-//    #if defined IS_LPV_ENABLED && (LIGHTING_MODE != LIGHTING_MODE_NONE || defined IS_LPV_SKYLIGHT_ENABLED)
-//        #include "/lib/utility/hsv.glsl"
-//        #include "/lib/voxel/lpv/lpv.glsl"
-//        #include "/lib/voxel/lpv/lpv_write.glsl"
-//        #include "/lib/lighting/voxel/entities.glsl"
-//    #endif
-
-    #if LIGHTING_MODE == LIGHTING_MODE_TRACED
-        #include "/lib/voxel/lights/light_mask.glsl"
+        #include "/lib/voxel/lpv/lpv.glsl"
+        #include "/lib/voxel/lpv/lpv_write.glsl"
     #endif
 #endif
 
@@ -164,24 +123,38 @@ uniform float far;
 void main() {
     vec3 originPos = (vIn[0].originPos + vIn[1].originPos + vIn[2].originPos) / 3.0;
 
-    bool isRenderTerrain = renderStage == MC_RENDER_STAGE_TERRAIN_SOLID
-                        || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT
-                        || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
-                        || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
+    #ifdef IS_LPV_ENABLED
+        float lightRange = vIn[0].lightRange;
+
+        if (lightRange > EPSILON) {
+            vec3 lpvPos = GetVoxelPosition(originPos);
+            ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
+
+            uint lightType = StaticBlockMap[blockEntityId].lightType;
+            vec3 lightColor = vec3(1.0);
+
+            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+                StaticLightData lightInfo = StaticLightMap[lightType];
+                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+//                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+//                    lightRange = lightRangeSize.x * 255.0;
+
+                lightColor = RGBToLinear(lightColor);
+
+//                    vec3 worldPos = cameraPosition + originPos;
+//                    ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+
+//                    #ifdef LIGHTING_FLICKER
+//                        vec2 lightNoise = GetDynLightNoise(worldPos);
+//                        ApplyLightFlicker(lightColor, lightType, lightNoise);
+//                    #endif
+            }
+
+            AddLpvLight(imgCoordPrev, lightColor, lightRange);
+        }
+    #endif
 
     #ifdef RENDER_SHADOWS_ENABLED
-        if (isRenderTerrain) {
-            // TODO: use emission as inv of alpha instead?
-            if (vIn[0].blockId == BLOCK_FIRE || vIn[0].blockId == BLOCK_SOUL_FIRE) return;
-        }
-
-        //vec3 originShadowViewPos = (shadowModelViewEx * vec4(vOriginPos[0], 1.0)).xyz;
-
-        // #if defined IRIS_FEATURE_SSBO && LIGHTING_MODE != LIGHTING_MODE_NONE && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
-        //     if (!all(greaterThan(originShadowViewPos.xy, shadowViewBoundsMin))
-        //      || !all(lessThan(originShadowViewPos.xy, shadowViewBoundsMax))) return;
-        // #endif
-
         #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
             vec3 originShadowViewPos = mul3(shadowModelViewEx, originPos);
 
@@ -211,10 +184,9 @@ void main() {
                 for (int v = 0; v < 3; v++) {
                     vOut.shadowTilePos = shadowTilePos;
 
-                    vOut.color = vIn[v].color;
                     vOut.texcoord = vIn[v].texcoord;
                     vOut.viewDist = vIn[v].viewDist;
-                    vOut.blockId = vIn[v].blockId;
+                    vOut.lightRange = vIn[v].lightRange;
 
                     clrwl_setVertexOut(v);
 
@@ -236,10 +208,9 @@ void main() {
             }
         #else
             for (int v = 0; v < 3; v++) {
-                vOut.color = vIn[v].color;
                 vOut.texcoord = vIn[v].texcoord;
                 vOut.viewDist = vIn[v].viewDist;
-                vOut.blockId = vIn[v].blockId;
+                vOut.lightRange = vIn[v].lightRange;
 
                 clrwl_setVertexOut(v);
 

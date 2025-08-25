@@ -14,7 +14,7 @@ in VertexData {
     vec3 localNormal;
     vec4 localTangent;
 
-    flat int blockId;
+    //flat int blockId;
     flat mat2 atlasBounds;
     
     #ifdef EFFECT_TAA_ENABLED
@@ -116,6 +116,7 @@ uniform sampler2D noisetex;
 
 uniform ivec2 atlasSize;
 uniform int renderStage;
+uniform int blockEntityId;
 
 uniform int worldTime;
 uniform mat4 gbufferModelView;
@@ -423,7 +424,7 @@ void main() {
     float viewDist = length(vIn.localPos);
     vec2 atlasCoord = vIn.texcoord;
     vec2 localCoord = vIn.localCoord;
-    vec2 lmFinal;// = vIn.lmcoord;
+    vec2 lmFinal = vec2(0.5/16.0);// = vIn.lmcoord;
 
     float mip = textureQueryLod(gtexture, atlasCoord).y;
 
@@ -453,7 +454,7 @@ void main() {
             #endif
 
             float surface_roughness, surface_metal_f0;
-            GetMaterialSpecular(vIn.blockId, vIn.texcoord, mip, surface_roughness, surface_metal_f0);
+            GetMaterialSpecular(blockEntityId, vIn.texcoord, mip, surface_roughness, surface_metal_f0);
 
             #if MATERIAL_POROSITY != 0
                 porosity = GetMaterialPorosity(vIn.texcoord, mip, surface_roughness, surface_metal_f0);
@@ -553,17 +554,17 @@ void main() {
     #endif
 
     float roughness, metal_f0;
-    float sss = GetMaterialSSS(vIn.blockId, atlasCoord, mip);
-    float emission = GetMaterialEmission(vIn.blockId, atlasCoord, mip);
-    GetMaterialSpecular(vIn.blockId, atlasCoord, mip, roughness, metal_f0);
+    float sss = GetMaterialSSS(blockEntityId, atlasCoord, mip);
+    float emission = GetMaterialEmission(blockEntityId, atlasCoord, mip);
+    GetMaterialSpecular(blockEntityId, atlasCoord, mip, roughness, metal_f0);
 
     #if MATERIAL_POROSITY != 0 && defined(WORLD_WETNESS_ENABLED) && (defined(WORLD_SKY_ENABLED) || defined(WORLD_WATER_ENABLED))
         porosity = GetMaterialPorosity(atlasCoord, mip, roughness, metal_f0);
     #endif
 
     #if MATERIAL_EMISSION == EMISSION_NONE
-        if (vIn.blockId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
-        if (vIn.blockId == BLOCK_GLOW_LICHEN) emission = 0.0;
+        if (blockEntityId == BLOCK_CAVEVINE_BERRIES) emission = 0.0;
+        if (blockEntityId == BLOCK_GLOW_LICHEN) emission = 0.0;
     #endif
 
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
@@ -575,7 +576,7 @@ void main() {
     float parallaxShadow = 1.0;
 
     #if MATERIAL_NORMALS != NORMALMAP_NONE
-        if (vIn.blockId != BLOCK_LAVA)
+        if (blockEntityId != BLOCK_LAVA)
             GetMaterialNormal(atlasCoord, mip, texNormal);
 
         #ifdef PARALLAX_ENABLED
@@ -643,6 +644,9 @@ void main() {
             outDeferredTexNormal = outDeferredTexNormal * 0.5 + 0.5;
     #endif
 
+    bool isWater = blockEntityId == BLOCK_WATER;
+    if (isWater) albedo.rgb = vec3(1,0,0);
+
     #ifdef DEFERRED_BUFFER_ENABLED
         #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
             ApplySkyWetness(roughness, porosity, skyWetness, puddleF);
@@ -656,11 +660,7 @@ void main() {
         #endif
 
         color.rgb = LinearToRGB(albedo);
-
-        // color.r = (vIn.blockId % 4) / 4.0;
-        // color.g = (vIn.blockId % 8) / 8.0;
-        // color.b = (vIn.blockId % 16) / 16.0;
-
+    
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 

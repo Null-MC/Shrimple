@@ -390,6 +390,18 @@
                 break;
         }
 
+        switch (lightType) {
+            case LIGHT_CREATE_BLAZE_BURNER_LOW:
+                lightColor = vec3(0.749, 0.365, 0.165);
+                break;
+            case LIGHT_CREATE_BLAZE_BURNER_MEDIUM:
+                lightColor = vec3(0.878, 0.71, 0.286);
+                break;
+            case LIGHT_CREATE_BLAZE_BURNER_HIGH:
+                lightColor = vec3(0.561, 0.765, 0.929);
+                break;
+        }
+
         // #ifdef MAGNIFICENT_COLORS
         //     if (lightType == LIGHT_SEA_LANTERN) lightColor = vec3(0.2, 0.8, 1.0) * .5;
         //     if (lightType == LIGHT_GLOWSTONE) lightColor = vec3(1.0, 0.7, 0.4);
