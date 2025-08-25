@@ -541,7 +541,10 @@ void main() {
 
     //color.rgb *= vIn.color.rgb;
     vec3 albedo = RGBToLinear(color.rgb);
-    color.a = 1.0;
+
+    #ifndef RENDER_TRANSLUCENT
+        color.a = 1.0;
+    #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
         albedo = vec3(WHITEWORLD_VALUE);

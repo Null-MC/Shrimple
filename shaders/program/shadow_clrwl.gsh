@@ -216,6 +216,8 @@ void main() {
                     vOut.viewDist = vIn[v].viewDist;
                     vOut.blockId = vIn[v].blockId;
 
+                    clrwl_setVertexOut(v);
+
                     gl_Position.xyz = mul3(cascadeProjection[c], gl_in[v].gl_Position.xyz);
                     gl_Position.w = 1.0;
 
@@ -238,6 +240,8 @@ void main() {
                 vOut.texcoord = vIn[v].texcoord;
                 vOut.viewDist = vIn[v].viewDist;
                 vOut.blockId = vIn[v].blockId;
+
+                clrwl_setVertexOut(v);
 
                 #ifdef IRIS_FEATURE_SSBO
                     gl_Position.xyz = mul3(shadowProjectionEx, gl_in[v].gl_Position.xyz);
