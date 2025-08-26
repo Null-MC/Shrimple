@@ -13,6 +13,7 @@ in VertexData {
     float lightRange;
 
     flat vec3 originPos;
+    flat int blockId;
 } vIn[];
 
 out VertexData {
@@ -130,7 +131,8 @@ void main() {
             vec3 lpvPos = GetVoxelPosition(originPos);
             ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
 
-            uint lightType = StaticBlockMap[blockEntityId].lightType;
+            int blockId = vIn[0].blockId; // blockEntityId
+            uint lightType = StaticBlockMap[blockId].lightType;
             vec3 lightColor = vec3(1.0);
 
             if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {

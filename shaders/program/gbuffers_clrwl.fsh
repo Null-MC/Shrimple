@@ -660,7 +660,7 @@ void main() {
         #endif
 
         color.rgb = LinearToRGB(albedo);
-    
+
         if (!all(lessThan(abs(texNormal), EPSILON3)))
             texNormal = texNormal * 0.5 + 0.5;
 
