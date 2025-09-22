@@ -15,22 +15,11 @@
 #else
     layout(location = 0) out vec4 outFinal;
 
-    #ifdef EFFECT_SSAO_ENABLED
-        layout(location = 1) out vec3 outDeferredTexNormal;
-
-        #ifdef EFFECT_TAA_ENABLED
-            /* RENDERTARGETS: 0,9,7 */
-            layout(location = 2) out vec4 outVelocity;
-        #else
-            /* RENDERTARGETS: 0,9 */
-        #endif
+    #ifdef EFFECT_TAA_ENABLED
+        /* RENDERTARGETS: 0,7 */
+        layout(location = 1) out vec4 outVelocity;
     #else
-        #ifdef EFFECT_TAA_ENABLED
-            /* RENDERTARGETS: 0,7 */
-            layout(location = 1) out vec4 outVelocity;
-        #else
-            /* RENDERTARGETS: 0 */
-        #endif
+        /* RENDERTARGETS: 0 */
     #endif
 #endif
 
@@ -38,7 +27,10 @@ uniform int fogShape = 0;
 
 #include "/lib/buffers/scene.glsl"
 
+#include "/lib/blocks.glsl"
+
 #include "/lib/sampling/ign.glsl"
+#include "/lib/utility/anim.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #ifdef WORLD_SKY_ENABLED
@@ -47,6 +39,18 @@ uniform int fogShape = 0;
     #ifdef WORLD_WETNESS_ENABLED
 //        #include "/lib/world/wetness.glsl"
 //        #include "/lib/world/wetness_ripples.glsl"
+    #endif
+#endif
+
+#ifdef WORLD_WATER_ENABLED
+    #include "/lib/world/water.glsl"
+
+    #if WATER_WAVE_SIZE > 0
+        #include "/lib/water/water_waves.glsl"
+    #endif
+
+    #if defined WATER_FOAM || defined WATER_FLOW
+        #include "/lib/water/foam.glsl"
     #endif
 #endif
 
@@ -104,6 +108,8 @@ uniform int fogShape = 0;
 
 
 void voxy_emitFragment(VoxyFragmentParameters parameters) {
+    bool isWater = parameters.customId == BLOCK_WATER;
+
     vec4 color = parameters.sampledColour;
     color.rgb *= parameters.tinting.rgb;
 
@@ -117,15 +123,96 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     vec2 lmcoord = LightMapNorm(parameters.lightMap);
     const float parallaxShadow = 1.0;
 
-    const float roughness = 0.86;//GetBlockRoughness(parameters.customId);
+    float roughness = 0.86;//GetBlockRoughness(parameters.customId);
     const float emission = 0.0;//computeBlockEmission(parameters.customId);
-    const float metal_f0 = 0.04;//GetBlockMetalF0(parameters.customId);
-    const float sss = 0.0;//GetBlockSSS(parameters.customId);
+    float metal_f0 = 0.04;//GetBlockMetalF0(parameters.customId);
+    float sss = 0.0;//GetBlockSSS(parameters.customId);
     const float occlusion = 1.0;
     const float porosity = 0.0;
 
+    vec3 ndcPos = gl_FragCoord.xyz;
+    ndcPos.xy /= viewSize;
+    ndcPos = ndcPos * 2.0 - 1.0;
+
+    vec3 viewPos = unproject(gbufferProjectionInverse, ndcPos);
+    vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+    float viewDist = length(localPos);
+
+    #ifdef WORLD_WATER_ENABLED
+        // TODO: CHANGE TO IS_VOXEL_ENABLED! (doesn't exist rn)
+        const bool isWaterCovered = false;
+        vec3 waveOffset = vec3(0.0);
+        float oceanFoam = 0.0;
+//        #ifdef IS_LPV_ENABLED
+//            if (isWater) {
+//                ivec3 voxelPos = ivec3(GetVoxelPosition(vIn.originPos));
+//                // TODO: offset in normal direction
+//                voxelPos += ivec3(round(localNormal));
+//
+//                uint blockId = texelFetch(texVoxels, voxelPos, 0).r;
+//                isWaterCovered = (blockId != 0u);
+//            }
+//        #endif
+
+        if (isWater) {
+            vec3 waterWorldPos = localPos + cameraPosition;
+
+            #if WATER_WAVE_SIZE > 0
+                if (abs(localGeoNormal.y) > 0.5) {
+                    float time = GetAnimationFactor();
+                    waveOffset = GetWaveHeight(waterWorldPos, lmcoord.y, time, WATER_WAVE_DETAIL);
+                }
+            #endif
+
+            #ifdef WATER_FOAM
+                oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localGeoNormal);
+            #endif
+
+            #ifdef WATER_TEXTURED
+                // default specular values when not present
+                if (roughness > 1.0-EPSILON) {
+                    metal_f0 = 0.02;
+                    roughness = WATER_ROUGH;
+                    //sss = 0.0;
+                }
+            #else
+                if (isWaterCovered) oceanFoam = 0.0;
+
+                albedo = mix(albedo, vec3(1.0), oceanFoam);
+                metal_f0  = mix(0.02, 0.04, oceanFoam);
+                roughness = mix(WATER_ROUGH, 0.50, oceanFoam);
+                sss = oceanFoam;
+
+                color.a = max(color.a, 0.02);
+                color.a = mix(color.a, 1.0, oceanFoam);
+            #endif
+        }
+    #endif
+
+    vec3 localTexNormal = localGeoNormal;
+    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED) && WATER_WAVE_SIZE > 0
+        if (isWater && localGeoNormaL.y > 0.5) {
+            float waveDistF = 32.0 / (32.0 + viewDist);
+
+            vec3 wavePos = waterLocalPos;
+            wavePos.y += waveOffset.y * waveDistF;
+
+            vec3 dX = dFdx(wavePos);
+            vec3 dY = dFdy(wavePos);
+            localTexNormal = normalize(cross(dX, dY));
+            //waterUvOffset = waveOffset.xz * waveDistF;
+
+            // TODO: regen tangent?
+
+//            if (localNormal.y >= 1.0 - EPSILON) {
+//                localCoord += waterUvOffset;
+//                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+//            }
+        }
+    #endif
+
     #if defined DEFERRED_BUFFER_ENABLED || defined EFFECT_SSAO_ENABLED
-        outDeferredTexNormal = localGeoNormal * 0.5 + 0.5;
+        outDeferredTexNormal = localTexNormal * 0.5 + 0.5;
     #endif
 
     #ifdef DEFERRED_BUFFER_ENABLED
@@ -156,7 +243,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
                 vec3 localSkyLightDirection = normalize((gbufferModelViewInverse * vec4(shadowLightPosition, 1.0)).xyz);
             #endif
 
-            float skyGeoNoL = dot(localNormal, localSkyLightDirection);
+            float skyGeoNoL = dot(localGeoNormal, localSkyLightDirection);
 
             if (skyGeoNoL < EPSILON && sss < EPSILON) {
                 shadowColor = vec3(0.0);
@@ -208,15 +295,8 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         vec3 diffuseFinal = vec3(0.0);
         vec3 specularFinal = vec3(0.0);
 
-        vec3 ndcPos = gl_FragCoord.xyz;
-        ndcPos.xy /= viewSize;
-        ndcPos = ndcPos * 2.0 - 1.0;
-
-        vec3 viewPos = unproject(gbufferProjectionInverse, ndcPos);
-        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-
         #if LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
-            GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localNormal, texNormal, lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
+            GetFloodfillLighting(diffuseFinal, specularFinal, localPos, localGeoNormal, localTexNormal, lmcoord, shadowColor, albedo, metal_f0, roughL, occlusion, sss, false);
 
             diffuseFinal += emission * MaterialEmissionF;
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
@@ -226,7 +306,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE
             const bool tir = false;
             const bool isUnderWater = false;
-            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localNormal, texNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
+            GetSkyLightingFinal(diffuseFinal, specularFinal, shadowColor, localPos, localGeoNormal, localTexNormal, albedo, lmcoord, roughL, metal_f0, occlusion, sss, isUnderWater, tir);
         #else
             diffuseFinal += WorldAmbientF;
         #endif

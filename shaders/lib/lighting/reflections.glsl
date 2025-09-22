@@ -5,8 +5,13 @@
             vec3 WorldSkyLightColor = GetSkyLightColor(localSunDirection);
         #endif
 
-        vec2 uvSky = DirectionToUV(reflectDir);
-        vec3 reflectColor = textureLod(texSky, uvSky, 0).rgb;
+        #if SKY_TYPE == SKY_TYPE_CUSTOM
+            vec2 uvSky = DirectionToUV(reflectDir);
+            vec3 reflectColor = textureLod(texSky, uvSky, 0).rgb;
+        #else
+            vec3 fogColorL = RGBToLinear(fogColor);
+            vec3 reflectColor = GetVanillaFogColor(fogColorL, reflectDir.y);
+        #endif
 
         // #if SKY_STARS == STARS_FANCY
         //     // WARN: this needs to be applied BEFORE vol fog!

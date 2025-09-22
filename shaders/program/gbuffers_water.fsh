@@ -515,11 +515,11 @@ void main() {
                     waveOffset = GetWaveHeight(waterWorldPos, vIn.lmcoord.y, time, WATER_WAVE_DETAIL);
                 }
             #endif
-        }
 
-        #ifdef WATER_FOAM
-            oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localNormal);
-        #endif
+            #ifdef WATER_FOAM
+                oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localNormal);
+            #endif
+        }
     #endif
 
     float porosity = 0.0;

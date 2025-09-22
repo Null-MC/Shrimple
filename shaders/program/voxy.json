@@ -4,7 +4,7 @@
     #include "/lib/common.glsl"
   ",
   "version": 1,
-  "excludeLodsFromVanillaDepth": true,
+  "excludeLodsFromVanillaDepth": false,
   #ifdef DEFERRED_BUFFER_ENABLED
     #ifdef EFFECT_TAA_ENABLED
       "opaqueDrawBuffers": [1, 3, 9, 7],
@@ -22,7 +22,7 @@
       "translucentDrawBuffers": [0, 9],
     #endif
   #endif
-  "translucentPatchData":"void voxy_emitFragment(VoxyFragmentParameters parameters) {discard;}",
+  //"translucentPatchData":"void voxy_emitFragment(VoxyFragmentParameters parameters) {discard;}",
   #ifdef DEFERRED_BUFFER_ENABLED
   "blending": {
     -1: "SRC_ALPHA ONE_MINUS_SRC_ALPHA ONE ONE_MINUS_SRC_ALPHA",
@@ -48,6 +48,11 @@
     "frameTimeCounter",
     "sunAngle",
     "rainStrength",
+    "fogStart",
+    "fogEnd",
+    "fogShape",
+    "fogColor",
+    "skyColor",
     "wetness",
     "worldTime",
     "moonPhase",
@@ -63,6 +68,9 @@
     "darknessFactor",
     "eyeAltitude",
     "viewSize",
+    "waterDensitySmooth",
+    "WaterScatterColor",
+    "WaterAbsorbColor",
     "weatherStrength"
   ],
   "samplers": {
