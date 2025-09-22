@@ -13,14 +13,15 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 
 ## Mod Support
  - Applied Energistics 2
- - BigGlobe
- - Colorwheel
+ - [Big Globe](https://modrinth.com/mod/big-globe)
+ - [Colorwheel](https://modrinth.com/mod/colorwheel)
  - Create (+Deco, +Steam 'N Rails)
- - Distant Horizons
+ - [Distant Horizons](https://modrinth.com/mod/distanthorizons)
+ - [Fractal Lightning](https://modrinth.com/mod/fractal-lightning)
  - Loot Urns
  - Maccaws Lights
  - Modern Industrialization
- - PhysicsMod
+ - [Physics Mod](https://www.patreon.com/c/Haubna/posts)
  - Redstone Lamps Plus
  - Saro´s Road Blocks
  - Supplementaries

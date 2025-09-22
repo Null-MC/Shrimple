@@ -1,0 +1,65 @@
+{
+  "unusedString": "
+    #include "/lib/constants.glsl"
+    #include "/lib/common.glsl"
+  ",
+  "version": 1,
+  "excludeLodsFromVanillaDepth": true,
+  #ifdef DEFERRED_BUFFER_ENABLED
+    #ifdef EFFECT_TAA_ENABLED
+      "opaqueDrawBuffers": [1, 3, 9, 7],
+      "translucentDrawBuffers": [1, 3, 9, 7],
+    #else
+      "opaqueDrawBuffers": [1, 3, 9],
+      "translucentDrawBuffers": [1, 3, 9],
+    #endif
+  #else
+    #ifdef EFFECT_TAA_ENABLED
+      "opaqueDrawBuffers": [0, 9, 7],
+      "translucentDrawBuffers": [0, 9, 7],
+    #else
+      "opaqueDrawBuffers": [0, 9],
+      "translucentDrawBuffers": [0, 9],
+    #endif
+  #endif
+  "translucentPatchData":"void voxy_emitFragment(VoxyFragmentParameters parameters) {discard;}",
+  "blending": {
+    //-1: "off",
+    7: "off",
+    9: "off"
+    //0: "ONE ONE_MINUS_SRC_ALPHA ONE ONE_MINUS_SRC_ALPHA"
+  },
+  "uniforms": [
+    "gbufferModelView",
+    "gbufferModelViewInverse",
+    "gbufferProjection",
+    "gbufferProjectionInverse",
+    "gbufferPreviousModelView",
+    "gbufferPreviousProjection",
+    "shadowModelView",
+    "shadowModelViewInverse",
+    "shadowProjection",
+    "shadowProjectionInverse",
+    "cameraPosition",
+    "previousCameraPosition",
+    "near",
+    "far",
+    "frameTimeCounter",
+    "sunAngle",
+    "rainStrength",
+    "wetness",
+    "worldTime",
+    "moonPhase",
+    "frameCounter",
+    "isEyeInWater",
+    "blindness",
+    "nightVision",
+    "darknessFactor",
+    "eyeAltitude"
+  ],
+  "samplers": {
+    "noisetex": "sampler2D",
+    "texClouds": "sampler3D",
+    "texSkyIrradiance": "sampler2D"
+  }
+}

@@ -22,6 +22,7 @@ in VertexData {
 } vIn;
 
 uniform sampler2D gtexture;
+uniform sampler2D specular;
 uniform sampler2D lightmap;
 
 // #if defined WORLD_SKY_ENABLED && defined SHADOW_CLOUD_ENABLED
@@ -104,6 +105,8 @@ uniform int frameCounter;
 
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/light_static.glsl"
 #endif
 
 #include "/lib/sampling/noise.glsl"
@@ -111,6 +114,8 @@ uniform int frameCounter;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/utility/lightmap.glsl"
+
+#include "/lib/material/emission.glsl"
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/lighting/hg.glsl"
@@ -196,12 +201,16 @@ uniform int frameCounter;
 #endif
 
 void main() {
-	vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
+    float mip = textureQueryLod(gtexture, vIn.texcoord).y;
+	vec4 color = textureLod(gtexture, vIn.texcoord, mip) * vIn.color;
 
     if (color.a < alphaTestRef) {discard; return;}
 
 	const vec3 normal = vec3(0.0);
 	const float sss = 0.0;
+
+    int blockId = -1;//vIn.blockId;
+    float emission = GetMaterialEmission(blockId, vIn.texcoord, mip);
 
     #ifdef DEFERRED_BUFFER_ENABLED
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
@@ -209,7 +218,7 @@ void main() {
         const float roughness = 1.0;
         const float metal_f0 = 0.04;
         const float porosity = 0.0;
-        const float emission = 0.0;
+        //const float emission = 0.0;
         const float isWater = 0.0;
         const float parallaxShadow = 1.0;
 

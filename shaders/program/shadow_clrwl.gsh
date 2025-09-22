@@ -74,14 +74,17 @@ uniform float far;
     
     #ifdef IS_LPV_ENABLED
         #include "/lib/buffers/block_static.glsl"
+        #include "/lib/buffers/block_voxel.glsl"
         #include "/lib/buffers/light_static.glsl"
         #include "/lib/buffers/volume.glsl"
 
+        #include "/lib/blocks.glsl"
         #include "/lib/lights.glsl"
 
         //#include "/lib/sampling/noise.glsl"
         #include "/lib/utility/hsv.glsl"
 
+        #include "/lib/voxel/blocks.glsl"
         #include "/lib/voxel/voxel_common.glsl"
         #include "/lib/voxel/lpv/lpv.glsl"
         #include "/lib/voxel/lpv/lpv_write.glsl"
@@ -127,33 +130,40 @@ void main() {
     #ifdef IS_LPV_ENABLED
         float lightRange = vIn[0].lightRange;
 
-        if (lightRange > EPSILON) {
-            vec3 lpvPos = GetVoxelPosition(originPos);
-            ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
+//        if (lightRange > EPSILON) {
+//            vec3 lpvPos = GetVoxelPosition(originPos);
+//            ivec3 imgCoordPrev = ivec3(lpvPos) + GetVoxelFrameOffset();
+//
+//            int blockId = vIn[0].blockId; // blockEntityId
+//            uint lightType = StaticBlockMap[blockId].lightType;
+//            vec3 lightColor = vec3(1.0);
+//
+//            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
+//                StaticLightData lightInfo = StaticLightMap[lightType];
+//                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
+////                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
+////                    lightRange = lightRangeSize.x * 255.0;
+//
+//                lightColor = RGBToLinear(lightColor);
+//
+////                    vec3 worldPos = cameraPosition + originPos;
+////                    ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
+//
+////                    #ifdef LIGHTING_FLICKER
+////                        vec2 lightNoise = GetDynLightNoise(worldPos);
+////                        ApplyLightFlicker(lightColor, lightType, lightNoise);
+////                    #endif
+//            }
+//
+//            AddLpvLight(imgCoordPrev, lightColor, lightRange);
+//        }
+//        else {
+            ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
+            bool intersects = IsInVoxelBounds(voxelPos);
 
-            int blockId = vIn[0].blockId; // blockEntityId
-            uint lightType = StaticBlockMap[blockId].lightType;
-            vec3 lightColor = vec3(1.0);
-
-            if (lightType != LIGHT_NONE && lightType != LIGHT_IGNORED) {
-                StaticLightData lightInfo = StaticLightMap[lightType];
-                lightColor = unpackUnorm4x8(lightInfo.Color).rgb;
-//                    vec2 lightRangeSize = unpackUnorm4x8(lightInfo.RangeSize).xy;
-//                    lightRange = lightRangeSize.x * 255.0;
-
-                lightColor = RGBToLinear(lightColor);
-
-//                    vec3 worldPos = cameraPosition + originPos;
-//                    ApplyLightAnimation(lightColor, lightRange, lightType, worldPos);
-
-//                    #ifdef LIGHTING_FLICKER
-//                        vec2 lightNoise = GetDynLightNoise(worldPos);
-//                        ApplyLightFlicker(lightColor, lightType, lightNoise);
-//                    #endif
-            }
-
-            AddLpvLight(imgCoordPrev, lightColor, lightRange);
-        }
+            if (intersects && !IsTraceEmptyBlock(vIn[0].blockId))
+                imageStore(imgVoxels, voxelPos, uvec4(vIn[0].blockId));
+//        }
     #endif
 
     #ifdef RENDER_SHADOWS_ENABLED

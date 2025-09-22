@@ -18,7 +18,7 @@ const float SkyHorizonOffset = -0.10;
 
 const float LightningRangeInv = rcp(2000.0);
 const float LightningBrightness = 5.0;
-const float lightningSpeed = 2.0;
+const float lightningSpeed = 1.5;
 
 
 bool IsSkyLightSun(const in float localSunDirY) {

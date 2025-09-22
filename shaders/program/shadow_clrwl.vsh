@@ -80,7 +80,7 @@ void main() {
     vOut.originPos = mul3(gl_ModelViewMatrix, vOut.originPos);
 
 //    if (!isRenderTerrain) {
-//        vOut.originPos -= 0.05 * geoViewNormal;
+//        vOut.originPos -= 0.25 * geoViewNormal;
 //    }
 
     vOut.originPos = mul3(shadowModelViewInverse, vOut.originPos);

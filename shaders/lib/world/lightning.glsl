@@ -10,6 +10,9 @@ vec4 GetLightningDirectionStrength(const in vec3 localPos) {
     vec3 lightningDir = lightningOffset / lightningDist;
     //float lightningNoLm = max(dot(lightningDir, texNormal), 0.0);
     //diffuse += lightningNoLm * lightningStrength * LightningBrightness * pow5(att);
-    float lit = sin(lightningPosition.w * PI);
+
+    //float lit = lightningPosition.w;//max(sin(lightningPosition.w * PI), 0.0);
+    float lit = 0.5 - 0.5 * cos(sqrt(lightningPosition.w) * TAU);
+
     return vec4(lightningDir, _pow2(lit) * LightningBrightness * pow5(att));
 }

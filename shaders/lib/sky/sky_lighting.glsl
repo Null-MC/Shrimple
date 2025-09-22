@@ -173,6 +173,8 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
     if (lightningPosition.w > EPSILON) {
         vec4 lightningDirectionStrength = GetLightningDirectionStrength(localPos);
         float lightningNoLm = max(dot(lightningDirectionStrength.xyz, texNormal), 0.0);
+        float skyLightF = smoothstep((14.0/15.0), 1.0, lmcoord.y);
+
         skyDiffuse += lightningNoLm * lightningDirectionStrength.w * skyLightF;
     }
 }

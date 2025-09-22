@@ -110,8 +110,10 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         ao = ao / max(maxWeight, 1.0);
         ao = pow(ao, rcp(EFFECT_SSAO_STRENGTH));
     #else
-        ao = ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH;
-        ao = ao / (ao + rcp(EFFECT_SSAO_STRENGTH));
+        ao = ao / max(maxWeight, 1.0);
+        //ao = ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH;
+        //ao = ao / (ao + rcp(EFFECT_SSAO_STRENGTH));
+        ao = smoothstep(0.0, 0.5, ao);
     #endif
 
     return ao;
