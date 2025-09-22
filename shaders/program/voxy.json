@@ -23,12 +23,13 @@
     #endif
   #endif
   "translucentPatchData":"void voxy_emitFragment(VoxyFragmentParameters parameters) {discard;}",
+  #ifdef DEFERRED_BUFFER_ENABLED
   "blending": {
-    //-1: "off",
-    7: "off",
-    9: "off"
-    //0: "ONE ONE_MINUS_SRC_ALPHA ONE ONE_MINUS_SRC_ALPHA"
+    -1: "SRC_ALPHA ONE_MINUS_SRC_ALPHA ONE ONE_MINUS_SRC_ALPHA",
+    1: "off",
+    2: "off"
   },
+  #endif
   "uniforms": [
     "gbufferModelView",
     "gbufferModelViewInverse",
@@ -52,14 +53,23 @@
     "moonPhase",
     "frameCounter",
     "isEyeInWater",
+    "firstPersonCamera",
+    "playerBodyVector",
+    "eyePosition",
+    "relativeEyePosition",
+    "cloudTime",
     "blindness",
     "nightVision",
     "darknessFactor",
-    "eyeAltitude"
+    "eyeAltitude",
+    "viewSize",
+    "weatherStrength"
   ],
   "samplers": {
+    "lightmap": "sampler2D",
     "noisetex": "sampler2D",
-    "texClouds": "sampler3D",
-    "texSkyIrradiance": "sampler2D"
+    "texSky": "sampler2D",
+    "texSkyIrradiance": "sampler2D",
+    "texClouds": "sampler3D"
   }
 }
