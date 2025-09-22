@@ -38,6 +38,11 @@ uniform int fogShape = 0;
 
 #include "/lib/buffers/scene.glsl"
 
+//#if MATERIAL_EMISSION != EMISSION_NONE
+    #include "/lib/buffers/block_static.glsl"
+    #include "/lib/buffers/light_static.glsl"
+//#endif
+
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/lightmap.glsl"
 
@@ -49,6 +54,10 @@ uniform int fogShape = 0;
 //        #include "/lib/world/wetness_ripples.glsl"
     #endif
 #endif
+
+//#if MATERIAL_EMISSION != EMISSION_NONE
+    #include "/lib/material/emission.glsl"
+//#endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/sampling/erp.glsl"
@@ -117,12 +126,27 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     vec2 lmcoord = LightMapNorm(parameters.lightMap);
     const float parallaxShadow = 1.0;
 
-    const float roughness = 0.86;//GetBlockRoughness(parameters.customId);
-    const float emission = 0.0;//computeBlockEmission(parameters.customId);
-    const float metal_f0 = 0.04;//GetBlockMetalF0(parameters.customId);
-    const float sss = 0.0;//GetBlockSSS(parameters.customId);
+    float roughness = 0.86;
+    float emission = 0.0;
+    float metal_f0 = 0.04;
+    float sss = 0.0;
     const float occlusion = 1.0;
-    const float porosity = 0.0;
+    const float porosity = 0.5;
+
+    uint blockId = parameters.customId;
+    if (blockId > 0u) {
+        StaticBlockData blockData = StaticBlockMap[blockId];
+        //uint lightType = blockData.lightType;
+
+        roughness = blockData.materialRough;
+        metal_f0 = blockData.materialMetalF0;
+        //sss = GetBlockSSS(parameters.customId);
+
+        if (blockData.lightType > 0u) {
+            emission = GetSceneLightEmission(blockData.lightType);
+            emission = _pow3(emission) * Lighting_Brightness;
+        }
+    }
 
     #if defined DEFERRED_BUFFER_ENABLED || defined EFFECT_SSAO_ENABLED
         outDeferredTexNormal = localGeoNormal * 0.5 + 0.5;

@@ -22,14 +22,17 @@
       "translucentDrawBuffers": [0, 9],
     #endif
   #endif
-  //"translucentPatchData":"void voxy_emitFragment(VoxyFragmentParameters parameters) {discard;}",
   #ifdef DEFERRED_BUFFER_ENABLED
   "blending": {
-    -1: "SRC_ALPHA ONE_MINUS_SRC_ALPHA ONE ONE_MINUS_SRC_ALPHA",
-    1: "off",
-    2: "off"
+    -1: "off"
   },
-  #endif
+  #endif,
+//  #ifdef TAA
+//    "taaOffset": "{
+//      vec2 offset = taa_offsets[frameCounter, % EFFECT_TAA_MAX_FRAMES] - 0.5;
+//      return 2.0 * offset * pixelSize;
+//    }",
+//  #endif
   "uniforms": [
     "gbufferModelView",
     "gbufferModelViewInverse",
@@ -71,7 +74,8 @@
     "waterDensitySmooth",
     "WaterScatterColor",
     "WaterAbsorbColor",
-    "weatherStrength"
+    "weatherStrength",
+    "pixelSize"
   ],
   "samplers": {
     "lightmap": "sampler2D",

@@ -164,9 +164,9 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
                 }
             #endif
 
-            #ifdef WATER_FOAM
-                oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localGeoNormal);
-            #endif
+//            #ifdef WATER_FOAM
+//                oceanFoam = SampleWaterFoam(waterWorldPos + vec3(waveOffset.xz, 0.0).xzy, localGeoNormal);
+//            #endif
 
             #ifdef WATER_TEXTURED
                 // default specular values when not present
@@ -190,30 +190,32 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     vec3 localTexNormal = localGeoNormal;
-    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED) && WATER_WAVE_SIZE > 0
-        if (isWater && localGeoNormaL.y > 0.5) {
-            float waveDistF = 32.0 / (32.0 + viewDist);
-
-            vec3 wavePos = waterLocalPos;
-            wavePos.y += waveOffset.y * waveDistF;
-
-            vec3 dX = dFdx(wavePos);
-            vec3 dY = dFdy(wavePos);
-            localTexNormal = normalize(cross(dX, dY));
-            //waterUvOffset = waveOffset.xz * waveDistF;
-
-            // TODO: regen tangent?
-
-//            if (localNormal.y >= 1.0 - EPSILON) {
-//                localCoord += waterUvOffset;
-//                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
-//            }
-        }
-    #endif
+//    #if defined(WORLD_WATER_ENABLED) && defined(WATER_TEXTURED) && WATER_WAVE_SIZE > 0
+//        if (isWater && localGeoNormaL.y > 0.5) {
+//            float waveDistF = 32.0 / (32.0 + viewDist);
+//
+//            vec3 wavePos = waterLocalPos;
+//            wavePos.y += waveOffset.y * waveDistF;
+//
+//            vec3 dX = dFdx(wavePos);
+//            vec3 dY = dFdy(wavePos);
+//            localTexNormal = normalize(cross(dX, dY));
+//            //waterUvOffset = waveOffset.xz * waveDistF;
+//
+//            // TODO: regen tangent?
+//
+////            if (localNormal.y >= 1.0 - EPSILON) {
+////                localCoord += waterUvOffset;
+////                atlasCoord = GetAtlasCoord(localCoord, vIn.atlasBounds);
+////            }
+//        }
+//    #endif
 
     #if defined DEFERRED_BUFFER_ENABLED || defined EFFECT_SSAO_ENABLED
         outDeferredTexNormal = localTexNormal * 0.5 + 0.5;
     #endif
+
+    //albedo = vec3(0.0);
 
     #ifdef DEFERRED_BUFFER_ENABLED
 //        #if defined WORLD_SKY_ENABLED && defined WORLD_WETNESS_ENABLED
