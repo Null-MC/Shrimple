@@ -8,6 +8,7 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
+uniform usampler2D BUFFER_DEFERRED_DATA;
 uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D texBlueNoise;
 
@@ -36,6 +37,8 @@ uniform float farPlane;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/effects/ssao.glsl"
+
+#include "/lib/material/mat_deferred.glsl"
 
 #ifdef EFFECT_TAA_ENABLED
     #include "/lib/effects/taa_jitter.glsl"
@@ -76,18 +79,25 @@ void main() {
 
     if (depth < 1.0) {
         ivec2 iuv = ivec2(texcoord * viewSize);
-        vec3 texViewNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iuv, 0).rgb;
 
-        if (any(greaterThan(texViewNormal, EPSILON3))) {
-            texViewNormal = normalize(texViewNormal * 2.0 - 1.0);
-            texViewNormal = mat3(gbufferModelView) * texViewNormal;
+        uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, iuv, 0).b;
+        float deferredMaterial = unpackUnorm4x8(deferredDataB).r;
+        uint matId = uint(deferredMaterial*255.0+0.5);
+
+        if (matId != deferredMat_hand) {
+            vec3 texViewNormal = texelFetch(BUFFER_DEFERRED_NORMAL_TEX, iuv, 0).rgb;
+
+            if (any(greaterThan(texViewNormal, EPSILON3))) {
+                texViewNormal = normalize(texViewNormal * 2.0 - 1.0);
+                texViewNormal = mat3(gbufferModelView) * texViewNormal;
+            }
+
+            occlusion = GetSpiralOcclusion(viewPos, texViewNormal);
+
+            // fade away from nearby surfaces
+            // float viewDist = length(viewPos);
+            // occlusion *= smoothstep(0.0, 3.0, viewDist);
         }
-
-        occlusion = GetSpiralOcclusion(viewPos, texViewNormal);
-
-        // fade away from nearby surfaces
-        // float viewDist = length(viewPos);
-        // occlusion *= smoothstep(0.0, 3.0, viewDist);
     }
 
     outAO = 1.0 - occlusion;

@@ -485,7 +485,7 @@ void main() {
     #if defined DEFERRED_BUFFER_ENABLED && (!defined RENDER_TRANSLUCENT || (defined RENDER_TRANSLUCENT && defined DEFER_TRANSLUCENT))
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
         
-        const float matId = (deferredMat_entity+0.5)/255.0;
+        const float matId = (deferredMat_hand+0.5)/255.0;
         
         outDeferredColor = color + dither;
         outDeferredTexNormal = texNormal * 0.5 + 0.5;
