@@ -44,7 +44,7 @@ const float g_sigmaV = 0.02;
 
 void populateSharedBuffer() {
     if (gl_LocalInvocationIndex < 5)
-        gaussianBuffer[gl_LocalInvocationIndex] = Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
+        gaussianBuffer[gl_LocalInvocationIndex] = 1.0;//Gaussian(g_sigmaXY, gl_LocalInvocationIndex - 2);
     
     uint i_base = uint(gl_LocalInvocationIndex) * 2u;
     if (i_base >= sharedBufferSize) return;

@@ -43,6 +43,8 @@ uniform int fogShape = 0;
     #include "/lib/buffers/light_static.glsl"
 //#endif
 
+#include "/lib/blocks.glsl"
+
 #include "/lib/sampling/ign.glsl"
 #include "/lib/utility/lightmap.glsl"
 
@@ -134,7 +136,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     const float porosity = 0.5;
 
     uint blockId = parameters.customId;
-    if (blockId > 0u) {
+    if (blockId > BLOCK_IGNORED) {
         StaticBlockData blockData = StaticBlockMap[blockId];
         //uint lightType = blockData.lightType;
 

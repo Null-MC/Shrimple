@@ -23,12 +23,15 @@ uniform mat4 gbufferProjectionInverse;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int frameCounter;
+uniform float near;
+uniform float farPlane;
 
 #ifdef DISTANT_HORIZONS
     uniform mat4 dhProjectionInverse;
     uniform float dhFarPlane;
 #endif
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
