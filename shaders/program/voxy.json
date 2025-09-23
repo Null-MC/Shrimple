@@ -83,5 +83,76 @@
     "texSky": "sampler2D",
     "texSkyIrradiance": "sampler2D",
     "texClouds": "sampler3D"
+  },
+  "ssbos": {
+    -1:"
+      struct StaticLightData {
+        uint Color;
+        uint Offset;
+        uint RangeSize;
+        uint Metadata;
+      };
+
+      struct BlockCollisionData {
+        uvec2 Bounds[BLOCK_MASK_PARTS];
+        uint Count;
+      };
+
+      struct StaticBlockData {
+        uint lightType;
+
+        float materialRough;
+        float materialMetalF0;
+        float materialSSS;
+
+        #if WORLD_WIND_STRENGTH > 0
+          float wavingRange;
+          uint wavingAttachment;
+        #endif
+
+        #ifdef IS_LPV_ENABLED
+          uint lpv_data;
+        #endif
+
+        #ifdef IS_TRACING_ENABLED
+          BlockCollisionData Collisions;
+        #endif
+      };
+    ",
+    0:"{
+      vec3 HandLightPos1;
+      uint HandLightType1;
+      vec3 HandLightPos2;
+      uint HandLightType2;
+      uint HandLightTypePrevious1;
+      uint HandLightTypePrevious2;
+      int worldTimeCurrent;
+      int worldTimePrevious;
+      mat4 matColorPost;
+      vec3 localSunDirection;
+      vec3 localSkyLightDirection;
+      vec3 WorldSunLightColor;
+      vec3 WorldMoonLightColor;
+      vec3 WorldSkyLightColor;
+      vec3 WorldSkyAmbientColor;
+      mat4 gbufferModelViewProjectionInverse;
+      mat4 gbufferPreviousModelViewProjection;
+      mat4 shadowModelViewEx;
+      mat4 shadowProjectionEx;
+
+      #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+        mat4 shadowModelViewProjection;
+      #endif
+
+      #ifdef DISTANT_HORIZONS
+        mat4 dhProjectionFull;
+        mat4 dhProjectionFullInv;
+        mat4 dhProjectionFullPrev;
+      #endif
+
+      vec4 lightningPosition;
+    }",
+    2:"{StaticBlockData StaticBlockMap[];}",
+    3:"{StaticLightData StaticLightMap[];}"
   }
 }

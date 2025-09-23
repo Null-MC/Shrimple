@@ -36,13 +36,6 @@
 
 uniform int fogShape = 0;
 
-#include "/lib/buffers/scene.glsl"
-
-//#if MATERIAL_EMISSION != EMISSION_NONE
-    #include "/lib/buffers/block_static.glsl"
-    #include "/lib/buffers/light_static.glsl"
-//#endif
-
 #include "/lib/blocks.glsl"
 
 #include "/lib/sampling/ign.glsl"
@@ -142,7 +135,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
         roughness = blockData.materialRough;
         metal_f0 = blockData.materialMetalF0;
-        //sss = GetBlockSSS(parameters.customId);
+        sss = blockData.materialSSS;
 
         if (blockData.lightType > 0u) {
             emission = GetSceneLightEmission(blockData.lightType);

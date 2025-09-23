@@ -25,8 +25,6 @@
 
 uniform int fogShape = 0;
 
-#include "/lib/buffers/scene.glsl"
-
 #include "/lib/blocks.glsl"
 
 #include "/lib/sampling/ign.glsl"

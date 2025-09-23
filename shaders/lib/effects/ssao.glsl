@@ -1,6 +1,6 @@
 const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
 
-//#define EFFECT_SSAO_RT
+#define EFFECT_SSAO_RT
 const int SSAO_TRACE_SAMPLES = 6;
 
 
@@ -21,8 +21,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
     #ifdef EFFECT_SSAO_RT
         float viewDist = length(viewPos);
-        float viewDistF = saturate(viewDist / 800.0);
-        float radius = mix(0.6, 12.0, viewDistF);
+        float radius = mix(0.6, 8.0, viewDist / 800.0);
     #else
         // const float inv = rcp(EFFECT_SSAO_SAMPLES);
         const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
@@ -44,7 +43,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             offset = normalize(offset) * radius;// * dither;
             offset *= sign(dot(offset, viewNormal));
 
-            offset.z += viewDistF;
+            offset.z += viewDist * 0.001;
         #else
             vec3 offset = vec3(
                 sin(rotatePhase),
@@ -93,13 +92,14 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         // float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
 
         #ifdef EFFECT_SSAO_RT
-            float sampleWeight = saturate(sampleDist / radius);
+            float sampleWeight = 1.0;//saturate(sampleDist / radius);
         #else
             float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
+            sampleWeight = 1.0 - sampleWeight;
         #endif
 
         // sampleWeight = pow(sampleWeight, 4.0);
-        sampleWeight = 1.0 - sampleWeight;
+//        sampleWeight = 1.0 - sampleWeight;
 
         #ifdef EFFECT_SSAO_RT
             // TODO: RT step check
