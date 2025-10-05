@@ -13,7 +13,7 @@ uniform sampler2D BUFFER_DEFERRED_NORMAL_TEX;
 uniform sampler2D texBlueNoise;
 
 #ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex0;
+    uniform sampler2D dhDepthTex;
 #endif
 
 uniform mat4 gbufferModelView;
@@ -28,7 +28,9 @@ uniform float near;
 uniform float farPlane;
 
 #ifdef DISTANT_HORIZONS
+    uniform mat4 dhProjection;
     uniform mat4 dhProjectionInverse;
+    uniform float dhNearPlane;
     uniform float dhFarPlane;
 #endif
 
@@ -62,22 +64,22 @@ void main() {
         mat4 projectionInv = gbufferProjectionInverse;
 
         if (depth >= 1.0) {
-            depth = textureLod(dhDepthTex0, texcoord, 0).r;
+            depth = textureLod(dhDepthTex, texcoord, 0).r;
             projectionInv = dhProjectionInverse;
         }
-    #endif
-
-    vec3 clipPos = vec3(coord, depth) * 2.0 - 1.0;
-
-    #ifdef DISTANT_HORIZONS
-        vec3 viewPos = unproject(projectionInv, clipPos);
-    #else
-        vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
     #endif
 
     float occlusion = 0.0;
 
     if (depth < 1.0) {
+        vec3 clipPos = vec3(coord, depth) * 2.0 - 1.0;
+
+        #ifdef DISTANT_HORIZONS
+            vec3 viewPos = unproject(projectionInv, clipPos);
+        #else
+            vec3 viewPos = unproject(gbufferProjectionInverse, clipPos);
+        #endif
+
         ivec2 iuv = ivec2(texcoord * viewSize);
 
         uint deferredDataB = texelFetch(BUFFER_DEFERRED_DATA, iuv, 0).b;

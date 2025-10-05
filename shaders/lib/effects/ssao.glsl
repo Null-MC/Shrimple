@@ -8,9 +8,9 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     #ifdef EFFECT_TAA_ENABLED
         vec2 texSize = textureSize(texBlueNoise, 0);
         vec2 coord = (gl_FragCoord.xy + vec2(71.0, 83.0) * frameCounter) / texSize;
-        //float dither = textureLod(texBlueNoise, fract(coord), 0).r;
+        float dither = textureLod(texBlueNoise, fract(coord), 0).r;
 
-        float dither = InterleavedGradientNoise();
+        //float dither = InterleavedGradientNoiseTime();
     #else
         vec2 texSize = textureSize(texBlueNoise, 0);
         vec2 coord = gl_FragCoord.xy / texSize;
@@ -21,7 +21,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
     #ifdef EFFECT_SSAO_RT
         float viewDist = length(viewPos);
-        float radius = mix(0.6, 8.0, viewDist / 800.0);
+        float radius = mix(0.6, 16.0, viewDist / 800.0);
     #else
         // const float inv = rcp(EFFECT_SSAO_SAMPLES);
         const float rStep = EFFECT_SSAO_RADIUS / float(EFFECT_SSAO_SAMPLES);
@@ -43,7 +43,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             offset = normalize(offset) * radius;// * dither;
             offset *= sign(dot(offset, viewNormal));
 
-            offset.z += viewDist * 0.001;
+            //offset.z += viewDist * 0.001;
         #else
             vec3 offset = vec3(
                 sin(rotatePhase),
@@ -55,7 +55,22 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         #endif
 
         vec3 sampleViewPos = viewPos + offset;
-        vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos);
+
+        #ifdef DISTANT_HORIZONS
+            mat4 projection = gbufferProjection;
+            float traceNear = near;
+            float traceFar = farPlane;
+            if (abs(sampleViewPos.z) > dhNearPlane) {
+                projection = dhProjection;
+                traceNear = dhNearPlane;
+                traceFar = dhFarPlane;
+            }
+
+            vec3 sampleClipPos = unproject(projection, sampleViewPos);
+        #else
+            vec3 sampleClipPos = unproject(gbufferProjection, sampleViewPos);
+        #endif
+
         sampleClipPos = fma(sampleClipPos, vec3(0.5), vec3(0.5));
 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
@@ -66,11 +81,15 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             mat4 projectionInv = gbufferProjectionInverse;
 
             if (sampleClipDepth >= 1.0) {
-                sampleClipDepth = textureLod(dhDepthTex0, sampleClipPos.xy, 0.0).r;
+                sampleClipDepth = textureLod(dhDepthTex, sampleClipPos.xy, 0.0).r;
+                //projection = dhProjection;
                 projectionInv = dhProjectionInverse;
             }
 
-            if (sampleClipDepth >= 1.0) continue;
+            if (sampleClipDepth >= 1.0) {
+                maxWeight += 1.0;
+                continue;
+            }
 
             sampleClipPos.z = sampleClipDepth;
             sampleViewPos = unproject(projectionInv, sampleClipPos * 2.0 - 1.0);
@@ -105,16 +124,29 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             // TODO: RT step check
             //float sampleOcclusion = 0.0;
             //float traceStepSize = 0.01;
-            vec3 clipPos = unproject(gbufferProjection, viewPos) * 0.5 + 0.5;
+            vec3 clipPos = unproject(projection, viewPos) * 0.5 + 0.5;
+            // TODO: fix DH projection!
+
             //vec3 traceStep = normalize(sampleClipPos - clipPos) * traceStepSize;
             vec3 traceStep = (sampleClipPos - clipPos) / SSAO_TRACE_SAMPLES;
             vec3 traceClipPos = clipPos + dither*traceStep;
 
             bool hit = false;
             for (int i = 0; i < SSAO_TRACE_SAMPLES; i++) {
+                float sampleNear = near;
+                float sampleFar = farPlane;
                 float sampleDepth = textureLod(depthtex0, traceClipPos.xy, 0).r;
-                float sampleDepthL = linearizeDepthFast(sampleDepth, near, farPlane);
-                float traceDepthL = linearizeDepthFast(traceClipPos.z, near, farPlane);
+
+                #ifdef DISTANT_HORIZONS
+                    if (sampleDepth >= 1.0) {
+                        sampleDepth = textureLod(dhDepthTex, traceClipPos.xy, 0).r;
+                        sampleNear = dhNearPlane;
+                        sampleFar = dhFarPlane;
+                    }
+                #endif
+
+                float sampleDepthL = linearizeDepthFast(sampleDepth, sampleNear, sampleFar);
+                float traceDepthL = linearizeDepthFast(traceClipPos.z, traceNear, traceFar);
 
                 float thickness = 0.2 + 0.14*viewDist;
 

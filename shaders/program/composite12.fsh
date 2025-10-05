@@ -649,7 +649,13 @@ layout(location = 0) out vec4 outFinal;
             #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 diffuseFinal += sampleDiffuse;
                 specularFinal += max(sampleSpecular, 0.0);
+            #endif
 
+            #ifdef LIGHTING_DIFFUSE_AO
+                diffuseFinal *= occlusion;
+            #endif
+
+            #if LIGHTING_MODE == LIGHTING_MODE_TRACED
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
             #elif LIGHTING_MODE == LIGHTING_MODE_FLOODFILL
                 final = GetFinalLighting(albedo, diffuseFinal, specularFinal, occlusion);
