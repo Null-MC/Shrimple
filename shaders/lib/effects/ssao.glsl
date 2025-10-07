@@ -124,7 +124,11 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             // TODO: RT step check
             //float sampleOcclusion = 0.0;
             //float traceStepSize = 0.01;
-            vec3 clipPos = unproject(projection, viewPos) * 0.5 + 0.5;
+            #ifdef DISTANT_HORIZONS
+                vec3 clipPos = unproject(projection, viewPos) * 0.5 + 0.5;
+            #else
+                vec3 clipPos = unproject(gbufferProjectionInverse, viewPos) * 0.5 + 0.5;
+            #endif
             // TODO: fix DH projection!
 
             //vec3 traceStep = normalize(sampleClipPos - clipPos) * traceStepSize;
@@ -146,7 +150,12 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
                 #endif
 
                 float sampleDepthL = linearizeDepthFast(sampleDepth, sampleNear, sampleFar);
-                float traceDepthL = linearizeDepthFast(traceClipPos.z, traceNear, traceFar);
+
+                #ifdef DISTANT_HORIZONS
+                    float traceDepthL = linearizeDepthFast(traceClipPos.z, traceNear, traceFar);
+                #else
+                    float traceDepthL = linearizeDepthFast(traceClipPos.z, near, farPlane);
+                #endif
 
                 float thickness = 0.2 + 0.14*viewDist;
 

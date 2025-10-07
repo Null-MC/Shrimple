@@ -33,11 +33,22 @@ uniform bool hideGUI;
 #include "/lib/post/exposure.glsl"
 
 
+// borrowed from seus renewed
+void ApplyVignette(inout vec3 color, const in vec2 texcoord) {
+    float dist = distance(texcoord, vec2(0.5f)) * 2.0;
+    dist /= 1.5142;
+
+    color.rgb *= max(1.0 - dist * 0.5, 0.0);
+}
+
+
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
 
 void main() {
     vec3 color = texelFetch(BUFFER_FINAL, ivec2(gl_FragCoord.xy), 0).rgb;
+
+    ApplyVignette(color, texcoord);
 
     ApplyPostExposure(color);
 
