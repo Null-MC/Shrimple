@@ -189,6 +189,8 @@ in vec2 texcoord;
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/clouds/cloud_custom.glsl"
         #endif
+
+        #include "/lib/sky/sky_render.glsl"
     #endif
 
     #ifdef IS_LPV_SKYLIGHT_ENABLED
@@ -450,13 +452,17 @@ layout(location = 0) out vec4 outFinal;
 
         if (depthTransL < depthOpaqueL) {
             #ifdef WORLD_SKY_ENABLED
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeSkyLightF;
-                #else
-                    vec3 fogColorL = RGBToLinear(fogColor);
-                    vec3 skyColorFinal = GetVanillaFogColor(fogColorL, 1.0);
-                    skyColorFinal = skyColorFinal * eyeSkyLightF;
-                #endif
+                // TODO: isn't this in SSBO already?
+                vec3 skyColorL = GetSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0));
+                vec3 skyColorFinal = skyColorL * eyeSkyLightF;
+
+//                #if SKY_TYPE == SKY_TYPE_CUSTOM
+//                    vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeSkyLightF;
+//                #else
+//                    vec3 fogColorL = RGBToLinear(fogColor);
+//                    vec3 skyColorFinal = GetVanillaFogColor(fogColorL, 1.0);
+//                    skyColorFinal = skyColorFinal * eyeSkyLightF;
+//                #endif
             #endif
 
             #ifdef WORLD_WATER_ENABLED

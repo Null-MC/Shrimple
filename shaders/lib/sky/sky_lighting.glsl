@@ -91,7 +91,7 @@ void GetSkyLightingFinal(inout vec3 skyDiffuse, inout vec3 skySpecular, in vec3 
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         vec3 ambientSkyLight = SampleSkyIrradiance(texNormal);
-        ambientSkyLight *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
+        //ambientSkyLight *= saturate(texNormal.y + 1.0) * 0.8 + 0.2;
     #else
         vec3 ambientSkyLight = RGBToLinear(fogColor) + RGBToLinear(skyColor);
         ambientSkyLight = ambientF * 0.5 * ambientSkyLight;

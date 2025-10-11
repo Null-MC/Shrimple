@@ -414,10 +414,10 @@ void main() {
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
 
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
+//        float fogF = 0.0;
+//        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
+//            fogF = GetVanillaFogFactor(vIn.localPos);
+//        #endif
 
         color.rgb = LinearToRGB(albedo);
 

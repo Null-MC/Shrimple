@@ -72,15 +72,11 @@ uniform int fogShape;
     #include "/lib/sky/sky_trace.glsl"
 #endif
 
+#include "/lib/sky/sky_render.glsl"
+
 
 vec3 SampleSkyColor(const in vec3 localDir) {
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        vec3 skyColorL = GetCustomSkyColor(localSunDirection, localDir);
-    #else
-        vec3 fogColorL = RGBToLinear(fogColor);
-        vec3 skyColorL = GetVanillaFogColor(fogColorL, localDir.y);
-        //skyColorL = RGBToLinear(skyColor);
-    #endif
+    vec3 skyColorL = GetSkyColor(localSunDirection, localDir);
 
     // #if LIGHTING_VOLUMETRIC > 0
     //     float _far = far;

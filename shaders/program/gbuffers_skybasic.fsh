@@ -98,6 +98,8 @@ uniform float sunAngle;
     #include "/lib/sky/stars.glsl"
 #endif
 
+#include "/lib/sky/sky_render.glsl"
+
 
 #ifdef EFFECT_TAA_ENABLED
     /* RENDERTARGETS: 0,7 */
@@ -126,14 +128,7 @@ void main() {
     // float viewUpF = dot(viewDir, upDir);
 
     vec4 final = vec4(1.0);
-
-    #if SKY_TYPE == SKY_TYPE_CUSTOM
-        final.rgb = GetCustomSkyColor(localSunDirection, localViewDir);
-    #else
-        vec3 fogColorL = RGBToLinear(fogColor);
-        final.rgb = GetVanillaFogColor(fogColorL, localViewDir.y);
-        //final.rgb = RGBToLinear(final.rgb);
-    #endif
+    final.rgb = GetSkyColor(localSunDirection, localViewDir);
 
     #if SKY_STARS == STARS_FANCY
         // vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
