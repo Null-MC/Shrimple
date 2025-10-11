@@ -62,11 +62,12 @@ uniform int frameCounter;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/world/common.glsl"
 
-#ifdef SKY_BORDER_FOG_ENABLED
+#if !defined(DEFERRED_BUFFER_ENABLED) && defined(SKY_BORDER_FOG_ENABLED)
     #include "/lib/fog/fog_common.glsl"
     
     #ifdef WORLD_SKY_ENABLED

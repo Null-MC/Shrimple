@@ -184,10 +184,10 @@ vec3 GetLpvFogBlockLight(const in vec4 lpvSample) {
     vec3 hsv = RgbToHsv(lpvSample.rgb);
     // hsv.z = max(hsv.z, minBlockLight*0.33);
     // hsv.z = _pow2(hsv.z);
-    hsv.z = _pow3(hsv.z);
+    hsv.z = _pow3(hsv.z * (LPV_BLOCKLIGHT_SCALE/15.0)) * 3.0;
     vec3 rgb = HsvToRgb(hsv);
 
-    return rgb * (LPV_BLOCKLIGHT_SCALE/15.0) * Lighting_Brightness;
+    return rgb * Lighting_Brightness;
 }
 
 float GetLpvSkyLight(const in vec4 lpvSample) {

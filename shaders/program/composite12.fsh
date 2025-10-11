@@ -38,10 +38,6 @@ uniform sampler2D texBlueNoise;
     #endif
 #endif
 
-#if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED && defined IS_IRIS
-    uniform sampler3D texCaustics;
-#endif
-
 #if LIGHTING_MODE == LIGHTING_MODE_NONE
     uniform sampler2D TEX_LIGHTMAP;
 #elif LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -218,8 +214,9 @@ uniform vec3 eyePosition;
 #include "/lib/sampling/gaussian.glsl"
 // #include "/lib/sampling/bilateral_gaussian.glsl"
 
-#include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/hsv.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/temporal_offset.glsl"
 
@@ -250,10 +247,6 @@ uniform vec3 eyePosition;
 
 #ifdef WORLD_WATER_ENABLED
     #include "/lib/world/water.glsl"
-
-    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-        #include "/lib/lighting/caustics.glsl"
-    #endif
 #endif
 
 #if SKY_TYPE == SKY_TYPE_CUSTOM
@@ -527,11 +520,14 @@ layout(location = 0) out vec4 outFinal;
                         puddleF = 1.0;
                     #endif
 
-                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
-                        const float shadowDepth = 8.0; // TODO
-                        float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
-                        shadowColor *= causticLight;
-                    #endif
+//                    const float shadowDepth = 8.0; // TODO
+//
+//                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+//                        float causticLight = SampleWaterCaustics(localPos, shadowDepth, deferredLighting.y);
+//                        shadowColor *= causticLight;
+//                    #endif
+//
+//                    shadowColor *= exp(shadowDepth * WaterDensityF * -WaterAbsorbF);
                 }
             #endif
 

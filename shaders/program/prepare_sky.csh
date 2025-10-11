@@ -46,6 +46,7 @@ uniform int fogShape;
 #endif
 
 #include "/lib/sampling/erp.glsl"
+#include "/lib/utility/oklab.glsl"
 
 #include "/lib/lighting/hg.glsl"
 

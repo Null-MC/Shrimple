@@ -134,6 +134,7 @@ uniform vec3 eyePosition;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 
 #include "/lib/lighting/hg.glsl"
 #include "/lib/lighting/scatter_transmit.glsl"

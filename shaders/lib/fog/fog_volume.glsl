@@ -423,7 +423,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     sampleColor *= SampleWaterCaustics(traceLocalPos, sampleDepth, 1.0);
                 #endif
 
-                //sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
+                sampleColor *= exp(sampleDepth * WaterDensityF * -WaterAbsorbF);
             }
         #endif
 

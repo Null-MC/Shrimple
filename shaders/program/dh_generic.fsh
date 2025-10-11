@@ -181,6 +181,7 @@ uniform vec3 eyePosition;
 
 #include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/hg.glsl"
@@ -189,7 +190,10 @@ uniform vec3 eyePosition;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
-#include "/lib/fog/fog_common.glsl"
+
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/fog/fog_common.glsl"
+#endif
 
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/world/sky.glsl"
@@ -204,17 +208,19 @@ uniform vec3 eyePosition;
     #include "/lib/world/water.glsl"
 #endif
 
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-    
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/fog/fog_water_custom.glsl"
-    #endif
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
+#ifndef DEFERRED_BUFFER_ENABLED
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
 
-#include "/lib/fog/fog_render.glsl"
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
+    #endif
+
+    #include "/lib/fog/fog_render.glsl"
+#endif
 
 #ifdef RENDER_SHADOWS_ENABLED
     // #include "/lib/buffers/shadow.glsl"

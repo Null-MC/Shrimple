@@ -80,6 +80,7 @@ uniform int frameCounter;
     uniform float weatherStrength;
     uniform vec3 sunPosition;
     uniform vec3 skyColor;
+    uniform float sunAngle;
     uniform int moonPhase;
 
     #if SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -113,6 +114,7 @@ uniform int frameCounter;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/sampling/ign.glsl"
 
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/material/emission.glsl"

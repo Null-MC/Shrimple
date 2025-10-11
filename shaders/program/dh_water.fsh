@@ -206,6 +206,7 @@ uniform float dhFarPlane;
 #include "/lib/sampling/ign.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/blackbody.glsl"

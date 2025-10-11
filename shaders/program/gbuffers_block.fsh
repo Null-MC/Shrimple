@@ -225,6 +225,7 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/end-portal.glsl"
 
@@ -234,7 +235,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/world/common.glsl"
-#include "/lib/fog/fog_common.glsl"
+
+#ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/fog/fog_common.glsl"
+#endif
 
 #if AF_SAMPLES > 1
     #include "/lib/sampling/anisotropic.glsl"
@@ -254,34 +258,36 @@ uniform ivec2 eyeBrightnessSmooth;
     #include "/lib/world/water.glsl"
 #endif
 
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-    
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/fog/fog_water_custom.glsl"
-    #endif
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
-
-#include "/lib/fog/fog_render.glsl"
-
 #if MATERIAL_NORMALS != NORMALMAP_NONE || defined PARALLAX_ENABLED
     #include "/lib/utility/tbn.glsl"
 #endif
 
-#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-    #include "/lib/buffers/shadow.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #else
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
-    #include "/lib/shadows/render.glsl"
+    #include "/lib/fog/fog_render.glsl"
+
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/buffers/shadow.glsl"
+
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
+        #else
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
+        #endif
+
+        #include "/lib/shadows/render.glsl"
+    #endif
 #endif
 
 #if MATERIAL_NORMALS != NORMALMAP_NONE

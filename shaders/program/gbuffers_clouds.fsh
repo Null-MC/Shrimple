@@ -130,6 +130,7 @@ uniform float cloudTime;
 #include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/hg.glsl"
@@ -269,6 +270,7 @@ void main() {
     // albedo.a = min(albedo.a * SkyCloudOpacityF, 1.0);
 
     float viewDist = length(vIn.localPos);
+    vec3 localViewDir = vIn.localPos / viewDist;
 
     #ifdef DISTANT_HORIZONS
         float depthDh = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
@@ -341,7 +343,7 @@ void main() {
         vec2 cloudOffset = GetCloudOffset();
         vec3 cloudTexcoord = GetCloudTexcoord(worldPos, cloudOffset) * vec2(256.0, 1.0).xyx;
 
-        vec3 direction = normalize(vIn.localPos);
+        vec3 direction = localViewDir;
 
         direction.y /= (4.5/12.0);
 
@@ -377,40 +379,44 @@ void main() {
 
     //float fogF = 0.0;
     #ifdef SKY_BORDER_FOG_ENABLED
-        float fogDist = 0.5 * GetShapedFogDistance(vIn.localPos);
+        float fogDist = 0.25 * GetShapedFogDistance(vIn.localPos);
 
         #if SKY_TYPE == SKY_TYPE_CUSTOM
+            // TODO: switch for in-water?
+            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection, localViewDir);
             float fogF = GetCustomFogFactor(fogDist);
         #elif SKY_TYPE == SKY_TYPE_VANILLA
-            float fogF = GetFogFactor(fogDist, fogStart, fogEnd, 1.0);
+            vec3 fogColorL = RGBToLinear(fogColor);
+            vec3 fogColorFinal = GetVanillaFogColor(fogColorL, localViewDir.y);
+            float fogF = GetVanillaFogFactor(fogDist);
         #endif
 
         //albedo.a *= 1.0 - fogF;
-        final = mix(final, vec4(RGBToLinear(fogColor), 1.0), fogF);
+        final.rgb = mix(final.rgb, fogColorFinal, fogF);
     #endif
 
-    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
-        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
-        #else
-            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
-            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
-        #endif
-
-        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
-        // #else
-            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
-        // #endif
-
-        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
-
-        //float skyLightF = eyeBrightnessSmooth.y / 240.0;
-        float airDensityF = GetAirDensity(eyeBrightF);
-        vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
-        ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
-    #endif
+//    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE
+//        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+//        #if SKY_TYPE == SKY_TYPE_CUSTOM
+//            vec3 skyColorFinal = GetCustomSkyColor(localSunDirection, vec3(0.0, 1.0, 0.0)) * eyeBrightF;
+//        #else
+//            vec3 skyColorFinal = GetVanillaFogColor(fogColor, 1.0);
+//            skyColorFinal = RGBToLinear(skyColorFinal) * eyeBrightF;
+//        #endif
+//
+//        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+//        //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
+//        // #else
+//            float weatherF = 1.0 - 0.8 * _pow2(weatherStrength);
+//        // #endif
+//
+//        vec3 skyLightColor = WorldSkyLightColor * weatherF * VolumetricBrightnessSky;
+//
+//        //float skyLightF = eyeBrightnessSmooth.y / 240.0;
+//        float airDensityF = GetAirDensity(eyeBrightF);
+//        vec3 vlLight = phaseAir * skyLightColor + AirAmbientF * skyColorFinal;
+//        ApplyScatteringTransmission(final.rgb, min(viewDist, far), vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+//    #endif
 
     outFinal = final;
 

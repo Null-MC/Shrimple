@@ -67,6 +67,7 @@ uniform int fogShape;
         #include "/lib/buffers/scene.glsl"
     #endif
 
+    #include "/lib/utility/oklab.glsl"
     #include "/lib/fog/fog_common.glsl"
 
     #ifdef WORLD_SKY_ENABLED
@@ -79,6 +80,10 @@ uniform int fogShape;
 
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
+
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
     #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
     #endif

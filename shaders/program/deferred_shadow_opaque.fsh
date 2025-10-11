@@ -41,6 +41,10 @@ in vec2 texcoord;
         #endif
     #endif
 
+    #if defined WATER_CAUSTICS && defined WORLD_WATER_ENABLED && defined WORLD_SKY_ENABLED
+        uniform sampler3D texCaustics;
+    #endif
+
     uniform mat4 gbufferModelView;
     uniform mat4 gbufferProjection;
     uniform mat4 gbufferModelViewInverse;
@@ -49,6 +53,7 @@ in vec2 texcoord;
     uniform mat4 shadowProjection;
     uniform vec3 cameraPosition;
     uniform int frameCounter;
+    uniform float frameTimeCounter;
 
     uniform vec2 viewSize;
     uniform vec2 pixelSize;
@@ -79,10 +84,18 @@ in vec2 texcoord;
 
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             uniform float rainStrength;
-            uniform float frameTimeCounter;
             uniform float weatherCloudStrength;
         #endif
     #endif
+
+    #ifdef WORLD_WATER_ENABLED
+        uniform int isEyeInWater;
+        uniform vec3 WaterAbsorbColor;
+        uniform vec3 WaterScatterColor;
+        uniform float waterDensitySmooth;
+    #endif
+
+    #include "/lib/utility/anim.glsl"
 
     #include "/lib/sampling/depth.glsl"
     #include "/lib/sampling/ign.glsl"
@@ -107,6 +120,14 @@ in vec2 texcoord;
                 #include "/lib/clouds/cloud_vanilla.glsl"
                 #include "/lib/clouds/cloud_vanilla_shadow.glsl"
             #endif
+        #endif
+    #endif
+
+    #ifdef WORLD_WATER_ENABLED
+        #include "/lib/world/water.glsl"
+
+        #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+            #include "/lib/lighting/caustics.glsl"
         #endif
     #endif
 
@@ -363,6 +384,8 @@ void main() {
             #endif
 
             if (geoNoL > 0.0) {
+                float waterDepth = 0.0; // TODO
+
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     vec3 shadowSample = vec3(1.0);
 
@@ -395,7 +418,19 @@ void main() {
                             vec3 shadowSample = vec3(GetShadowFactor(shadowPos, offsetBias));
                         #endif
                     #endif
+
+                    vec3 shadowPosWater = distort(shadowPos) * 0.5 + 0.5;
+                    float depthTrans = texture(shadowtex0, shadowPosWater.xy).r;
+                    waterDepth = max(shadowPosWater.z - depthTrans, 0.0) * zRange;
                 #endif
+
+                if (waterDepth > 0.0) {
+                    shadowSample *= exp(waterDepth * WaterDensityF * -WaterAbsorbF);
+
+                    #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
+                        shadowSample *= SampleWaterCaustics(localPos, waterDepth, lmcoord.y);
+                    #endif
+                }
 
                 // shadowFinal *= mix(step(0.0, geoNoL), 1.0, sss);
                 // shadowFinal *= step(0.0, geoNoL);

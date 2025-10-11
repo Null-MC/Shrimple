@@ -67,6 +67,7 @@ uniform float sunAngle;
 #endif
 
 #include "/lib/sampling/noise.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/matrix.glsl"
 
 #include "/lib/lighting/hg.glsl"

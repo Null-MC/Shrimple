@@ -176,6 +176,7 @@ uniform float nightVision;
 #include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 
 #include "/lib/lighting/hg.glsl"

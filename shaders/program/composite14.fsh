@@ -148,6 +148,7 @@ in vec2 texcoord;
     #include "/lib/sampling/erp.glsl"
 
     #include "/lib/utility/hsv.glsl"
+    #include "/lib/utility/oklab.glsl"
 
     #include "/lib/lighting/hg.glsl"
     #include "/lib/lighting/scatter_transmit.glsl"

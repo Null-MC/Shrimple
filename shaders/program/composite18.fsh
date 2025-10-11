@@ -204,6 +204,7 @@ uniform vec3 eyePosition;
 // #include "/lib/sampling/bilateral_gaussian.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/temporal_offset.glsl"
 

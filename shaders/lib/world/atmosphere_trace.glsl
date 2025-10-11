@@ -74,6 +74,7 @@ float GetFinalFogDensity(const in vec3 worldPos, const in float altitude, const 
         densityFinal *= GetSkyDensityNoise(worldPos, altitude);
     #endif
 
+    //densityFinal = 0.2;
     densityFinal *= GetSkyAltitudeDensity(altitude);
 
     return densityFinal;
