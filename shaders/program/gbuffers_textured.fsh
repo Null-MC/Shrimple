@@ -192,6 +192,10 @@ uniform vec3 eyePosition;
 #include "/lib/world/atmosphere.glsl"
 #include "/lib/fog/fog_common.glsl"
 
+#if AF_SAMPLES > 1
+    #include "/lib/sampling/anisotropic.glsl"
+#endif
+
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif
@@ -215,20 +219,17 @@ uniform vec3 eyePosition;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
-#include "/lib/fog/fog_render.glsl"
-
-#if AF_SAMPLES > 1
-    #include "/lib/sampling/anisotropic.glsl"
-#endif
-
 #ifdef WORLD_SKY_ENABLED
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
+    #include "/lib/sky/sky_render.glsl"
 
      #if defined SHADOW_CLOUD_ENABLED && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
          #include "/lib/clouds/cloud_custom.glsl"
      #endif
 #endif
+
+#include "/lib/fog/fog_render.glsl"
 
 #ifdef RENDER_SHADOWS_ENABLED
     #include "/lib/buffers/shadow.glsl"

@@ -297,6 +297,10 @@ uniform vec3 eyePosition;
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sky/sky_render.glsl"
+    #endif
+
     #include "/lib/fog/fog_render.glsl"
 #endif
 
@@ -906,7 +910,7 @@ void main() {
         #endif
 
         #ifdef SKY_BORDER_FOG_ENABLED
-            ApplyFog(color, vIn.localPos, localViewDir);
+            ApplyBorderFog(color.rgb, vIn.localPos, localViewDir);
         #endif
 
         #ifdef VL_BUFFER_ENABLED

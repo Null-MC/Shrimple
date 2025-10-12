@@ -305,6 +305,8 @@ uniform vec3 eyePosition;
 #if defined WORLD_SKY_ENABLED
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
+    #include "/lib/sky/sky_render.glsl"
+    #include "/lib/fog/fog_render.glsl"
 
     //#if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
@@ -673,47 +675,7 @@ layout(location = 0) out vec4 outFinal;
             // #endif
 
             #ifdef SKY_BORDER_FOG_ENABLED
-                // vec2 uvSky = DirectionToUV(localViewDir);
-                // vec3 fogColorFinal = textureLod(texSky, uvSky, 0).rgb;
-
-                #if SKY_TYPE == SKY_TYPE_CUSTOM
-                    // #ifndef IRIS_FEATURE_SSBO
-                    //     vec3 localSunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                    // #endif
-
-                    vec3 fogColorFinal = GetCustomSkyColor(localSunDirection, localViewDir);
-
-                    float fogDist = GetShapedFogDistance(localPos);
-                    float fogF = GetCustomFogFactor(fogDist);
-                #else
-                    // vec4 deferredFog = unpackUnorm4x8(deferredData.b);
-                    
-                    vec3 fogColorFinal = vec3(0.0);//GetVanillaFogColor(deferredFog.rgb, localViewDir.y);
-                    // fogColorFinal = RGBToLinear(fogColorFinal);
-
-                    float fogF = 0.0;//deferredFog.a;
-                #endif
-
-                // #if defined WORLD_SKY_ENABLED && LIGHTING_VOLUMETRIC != VOL_TYPE_NONE //&& SKY_CLOUD_TYPE > CLOUDS_VANILLA
-                //     #ifdef DISTANT_HORIZONS
-                //         float skyTraceFar = max(far, dhFarPlane);
-                //     #else
-                //         float skyTraceFar = far;
-                //     #endif
-
-                //     vec3 skyScatter = vec3(0.0);
-                //     vec3 skyTransmit = vec3(1.0);
-
-                //     #if SKY_CLOUD_TYPE <= CLOUDS_VANILLA
-                //         TraceSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8);
-                //     #else
-                //         TraceCloudSky(skyScatter, skyTransmit, cameraPosition, localViewDir, viewDist, skyTraceFar, 8, CLOUD_SHADOW_STEPS);
-                //     #endif
-
-                //     fogColorFinal = fogColorFinal * skyTransmit + skyScatter;
-                // #endif
-
-                final = mix(final, fogColorFinal, fogF);
+                ApplyBorderFog(final, localPos, localViewDir);
             #endif
         }
         else {

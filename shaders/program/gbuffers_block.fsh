@@ -273,6 +273,10 @@ uniform ivec2 eyeBrightnessSmooth;
         #include "/lib/fog/fog_vanilla.glsl"
     #endif
 
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sky/sky_render.glsl"
+    #endif
+
     #include "/lib/fog/fog_render.glsl"
 
     #ifdef RENDER_SHADOWS_ENABLED

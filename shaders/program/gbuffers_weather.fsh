@@ -212,6 +212,7 @@ uniform float nightVision;
     #include "/lib/fog/fog_vanilla.glsl"
 #endif
 
+#include "/lib/sky/sky_render.glsl"
 #include "/lib/fog/fog_render.glsl"
 
 #if MATERIAL_SPECULAR != SPECULAR_NONE

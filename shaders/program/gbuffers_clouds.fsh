@@ -165,6 +165,7 @@ uniform float cloudTime;
         #endif
     #endif
 
+    #include "/lib/sky/sky_render.glsl"
     #include "/lib/fog/fog_render.glsl"
 // #endif
 
@@ -379,20 +380,24 @@ void main() {
 
     //float fogF = 0.0;
     #ifdef SKY_BORDER_FOG_ENABLED
-        float fogDist = 0.25 * GetShapedFogDistance(vIn.localPos);
+        ApplyBorderFog(final.rgb, vIn.localPos, localViewDir, fogEnd);
 
-        #if SKY_TYPE == SKY_TYPE_CUSTOM
-            // TODO: switch for in-water?
-            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection, localViewDir);
-            float fogF = GetCustomFogFactor(fogDist);
-        #elif SKY_TYPE == SKY_TYPE_VANILLA
-            vec3 fogColorL = RGBToLinear(fogColor);
-            vec3 fogColorFinal = GetVanillaFogColor(fogColorL, localViewDir.y);
-            float fogF = GetVanillaFogFactor(fogDist);
-        #endif
 
-        //albedo.a *= 1.0 - fogF;
-        final.rgb = mix(final.rgb, fogColorFinal, fogF);
+
+//        float fogDist = 0.25 * GetShapedFogDistance(vIn.localPos);
+//
+//        #if SKY_TYPE == SKY_TYPE_CUSTOM
+//            // TODO: switch for in-water?
+//            vec3 fogColorFinal = GetCustomSkyColor(localSunDirection, localViewDir);
+//            float fogF = GetCustomFogFactor(fogDist);
+//        #elif SKY_TYPE == SKY_TYPE_VANILLA
+//            vec3 fogColorL = RGBToLinear(fogColor);
+//            vec3 fogColorFinal = GetVanillaFogColor(fogColorL, localViewDir.y);
+//            float fogF = GetVanillaFogFactor(fogDist);
+//        #endif
+//
+//        //albedo.a *= 1.0 - fogF;
+//        final.rgb = mix(final.rgb, fogColorFinal, fogF);
     #endif
 
 //    #if LIGHTING_VOLUMETRIC != VOL_TYPE_NONE

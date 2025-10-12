@@ -33,16 +33,18 @@ float GetShapedFogDistance(const in vec3 localPos) {
     return length(fogPos);
 }
 
+float GetBorderFogFactor(const in float fogDist, const in float far) {
+    return GetFogFactor(fogDist, 0.9 * far, far, 1.0);
+}
+
 float GetBorderFogFactor(const in float fogDist) {
     #ifdef DISTANT_HORIZONS
-        float borderFogStart = 0.2 * dhFarPlane;
-        float borderFogEnd = 0.5 * dhFarPlane;
+        float _far = 0.5 * dhFarPlane;
     #else
-        float borderFogStart = 0.9 * far;
-        float borderFogEnd = far;
+        float _far = far;
     #endif
 
-    return GetFogFactor(fogDist, borderFogStart, borderFogEnd, 1.0);
+    return GetBorderFogFactor(fogDist, _far);
 }
 
 vec3 GetSkyFogColor(const in vec3 skyColor, const in vec3 fogColor, const in float viewUpF) {
