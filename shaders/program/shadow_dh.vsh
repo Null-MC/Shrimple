@@ -38,6 +38,11 @@ uniform vec3 cameraPosition;
 
 
 void main() {
+    #ifndef DH_SHADOW_ENABLED
+        gl_Position = vec4(-10.0);
+        return;
+    #endif
+
     vOut.materialId = uint(dhMaterialId);
     vOut.color = gl_Color;
 
