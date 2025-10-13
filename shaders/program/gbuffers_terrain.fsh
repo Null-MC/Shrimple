@@ -245,10 +245,6 @@ uniform int frameCounter;
 #include "/lib/world/common.glsl"
 // #include "/lib/world/foliage.glsl"
 
-#ifndef DEFERRED_BUFFER_ENABLED
-    #include "/lib/fog/fog_common.glsl"
-#endif
-
 // #if AF_SAMPLES > 1
 //     #include "/lib/sampling/anisotropic.glsl"
 // #endif
@@ -271,6 +267,8 @@ uniform int frameCounter;
 #endif
 
 #ifndef DEFERRED_BUFFER_ENABLED
+    #include "/lib/fog/fog_common.glsl"
+
     #if SKY_TYPE == SKY_TYPE_CUSTOM
         #include "/lib/fog/fog_custom.glsl"
 
