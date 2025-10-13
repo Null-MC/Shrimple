@@ -165,6 +165,10 @@ uniform vec3 eyePosition;
     uniform float dhFarPlane;
 #endif
 
+#ifdef VOXY
+    uniform int vxRenderDistance;
+#endif
+
 #ifndef IRIS_FEATURE_SSBO
 //    #ifdef WORLD_SKY_ENABLED
 //        uniform vec4 lightningPosition;

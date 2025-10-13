@@ -38,7 +38,11 @@ uniform float farPlane;
 #include "/lib/sampling/noise.glsl"
 #include "/lib/sampling/ign.glsl"
 
-#include "/lib/effects/ssao.glsl"
+#ifdef EFFECT_SSAO_RT
+    #include "/lib/effects/ssao_rt.glsl"
+#else
+    #include "/lib/effects/ssao.glsl"
+#endif
 
 #include "/lib/material/mat_deferred.glsl"
 
@@ -93,6 +97,8 @@ void main() {
                 texViewNormal = normalize(texViewNormal * 2.0 - 1.0);
                 texViewNormal = mat3(gbufferModelView) * texViewNormal;
             }
+
+            viewPos.z += EFFECT_SSAO_BIAS * 0.1;
 
             occlusion = GetSpiralOcclusion(viewPos, texViewNormal);
 

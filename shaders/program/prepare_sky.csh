@@ -41,6 +41,10 @@ uniform int fogShape;
     uniform float dhFarPlane;
 #endif
 
+#ifdef VOXY
+    uniform int vxRenderDistance;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif

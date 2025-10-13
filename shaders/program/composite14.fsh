@@ -128,6 +128,10 @@ in vec2 texcoord;
         uniform float dhFarPlane;
     #endif
 
+    #ifdef VOXY
+        uniform int vxRenderDistance;
+    #endif
+
     #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
         uniform float alphaTestRef;
     #endif
@@ -312,6 +316,7 @@ layout(location = 0) out vec4 outFinal;
         #endif
         
         vec3 localViewDir = normalize(localPosOpaque);
+        vec3 overlay = final;
 
         #if MATERIAL_REFLECTIONS == REFLECT_SCREEN && LIGHTING_MODE != LIGHTING_MODE_NONE && MATERIAL_SPECULAR != SPECULAR_NONE
             vec4 deferredColor = texelFetch(BUFFER_DEFERRED_COLOR, iTex, 0);
@@ -374,7 +379,7 @@ layout(location = 0) out vec4 outFinal;
 
             specular *= GetMetalTint(albedo, metal_f0);
 
-            final += specular;
+            overlay += specular;
         #endif
 
         float distOpaque = length(localPosOpaque);
@@ -432,7 +437,7 @@ layout(location = 0) out vec4 outFinal;
                     vec3 scatterFinal = vec3(0.0);
                     vec3 transmitFinal = vec3(1.0);
                     ApplyScatteringTransmission(scatterFinal, transmitFinal, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
-                    final.rgb = final.rgb * transmitFinal + scatterFinal;
+                    overlay = overlay * transmitFinal + scatterFinal;
                 }
 
                 // vec3 viewDir = normalize(viewPosOpaque);
@@ -534,7 +539,7 @@ layout(location = 0) out vec4 outFinal;
                                 vec3 vlLight = vec3(phaseIso + WaterAmbientF);
                             #endif
 
-                            ApplyScatteringTransmission(final.rgb, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
+                            ApplyScatteringTransmission(overlay, waterDist, vlLight, WaterDensityF, WaterScatterF, WaterAbsorbF, 8);
                         }
                     #endif
                 #endif
@@ -569,11 +574,11 @@ layout(location = 0) out vec4 outFinal;
 
             #ifdef VL_BUFFER_ENABLED
                 #if VOLUMETRIC_BLUR_SIZE > 0
-                    VL_GaussianFilter(final, texcoord, depthOpaqueL);
+                    VL_GaussianFilter(overlay, texcoord, depthOpaqueL);
                 #else
                     vec3 vlScatter = textureLod(BUFFER_VL_SCATTER, texcoord, 0).rgb;
                     vec3 vlTransmit = textureLod(BUFFER_VL_TRANSMIT, texcoord, 0).rgb;
-                    final = final * vlTransmit + vlScatter;
+                    overlay = overlay * vlTransmit + vlScatter;
                 #endif
             #endif
 
@@ -589,10 +594,14 @@ layout(location = 0) out vec4 outFinal;
 
                     float airDensityF = GetAirDensity(eyeSkyLightF);
                     vec3 vlLight = phaseIso * WorldSkyLightColor + AirAmbientF * skyColorAmbient;
-                    ApplyScatteringTransmission(final.rgb, viewDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+                    ApplyScatteringTransmission(overlay, viewDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
                 }
             #endif
         }
+
+        float fogDist = GetShapedFogDistance(localPosOpaque);
+        float fogF = GetBorderFogFactor(fogDist);
+        final = mix(overlay, final, fogF);
 
         outFinal = vec4(final, 1.0);
     }

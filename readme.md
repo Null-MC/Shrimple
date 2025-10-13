@@ -25,6 +25,7 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
  - Redstone Lamps Plus
  - Saro´s Road Blocks
  - Supplementaries
+ - [Voxy](https://modrinth.com/mod/voxy)
 
 
 ## FAQ

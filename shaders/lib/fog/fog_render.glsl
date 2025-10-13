@@ -11,13 +11,15 @@ void ApplyBorderFog(inout vec3 color, const in vec3 localPos, const in vec3 loca
 }
 
 void ApplyBorderFog(inout vec3 color, const in vec3 localPos, const in vec3 localViewDir) {
-    #ifdef DISTANT_HORIZONS
-        float _far = 0.5 * dhFarPlane;
-    #else
-        float _far = far;
+    #ifndef IRIS_FEATURE_SSBO
+        vec3 localSunDirection = mat3(gbufferModelViewInverse) * normalize(sunPosition);
     #endif
 
-    ApplyBorderFog(color, localPos, localViewDir, _far);
+    vec3 skyColorL = GetSkyColor(localSunDirection, localViewDir);
+    float fogDist  = GetShapedFogDistance(localPos);
+
+    float fogF = GetBorderFogFactor(fogDist);
+    color = mix(color, skyColorL, fogF);
 }
 
 void ApplyFog(inout vec3 color, const in vec3 localPos, const in vec3 localViewDir) {

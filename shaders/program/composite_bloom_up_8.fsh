@@ -12,6 +12,7 @@ uniform sampler2D BUFFER_BLOOM_TILES;
 uniform vec2 viewSize;
 uniform vec2 pixelSize;
 uniform int frameCounter;
+uniform int isEyeInWater;
 uniform float nightVision;
 
 #include "/lib/sampling/ign.glsl"
@@ -40,6 +41,10 @@ void main() {
     #else
         vec3 color = textureLod(BUFFER_BLOOM_TILES, srcTex, 0).rgb;
     #endif
+
+    if (isEyeInWater == 1) {
+        color *= 3.0;
+    }
 
     color *= EffectBloomStrengthF;
 

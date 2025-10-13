@@ -40,6 +40,8 @@ float GetBorderFogFactor(const in float fogDist, const in float far) {
 float GetBorderFogFactor(const in float fogDist) {
     #ifdef DISTANT_HORIZONS
         float _far = 0.5 * dhFarPlane;
+    #elif defined(VOXY)
+        float _far = 0.8 * vxRenderDistance * 16.0;
     #else
         float _far = far;
     #endif

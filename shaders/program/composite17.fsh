@@ -131,6 +131,10 @@ uniform ivec2 eyeBrightnessSmooth;
     uniform float dhFarPlane;
 #endif
 
+#ifdef VOXY
+    uniform int vxRenderDistance;
+#endif
+
 #if MC_VERSION >= 11700 && defined ALPHATESTREF_ENABLED
     uniform float alphaTestRef;
 #endif
@@ -330,9 +334,12 @@ void main() {
     float viewDist = length(localPos);
     vec3 localViewDir = localPos / viewDist;
 
-    float farMax = far * 2.0;// - 0.002;
     #ifdef DISTANT_HORIZONS
-        farMax = 0.5*dhFarPlane;// - 0.1;
+        float farMax = 0.5*dhFarPlane;// - 0.1;
+    #elif defined()
+        float farMax = 0.8 * vxRenderDistance * 16.0;
+    #else
+        float farMax = far * 2.0;// - 0.002;
     #endif
 
     farMax -= 0.002 * viewDist;

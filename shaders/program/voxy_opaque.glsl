@@ -128,6 +128,12 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     const float occlusion = 1.0;
     const float porosity = 0.5;
 
+    #if DEBUG_VIEW == DEBUG_VIEW_WHITEWORLD
+        albedo = vec3(WHITEWORLD_VALUE);
+    #elif defined LIGHTING_DEBUG_LEVELS
+        albedo = GetLightLevelColor(vIn.lmcoord.x);
+    #endif
+
     uint blockId = parameters.customId;
     if (blockId > BLOCK_IGNORED) {
         StaticBlockData blockData = StaticBlockMap[blockId];

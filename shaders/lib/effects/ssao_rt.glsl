@@ -1,4 +1,6 @@
-//const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
+const float SSAO_bias = EFFECT_SSAO_BIAS * 0.01;
+
+const int SSAO_TRACE_SAMPLES = 6;
 
 
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
@@ -17,24 +19,21 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     #endif
 
     float viewDist = length(viewPos);
-    float max_radius = min(EFFECT_SSAO_RADIUS, viewDist);
-
-    // const float inv = rcp(EFFECT_SSAO_SAMPLES);
-    float rStep = max_radius / EFFECT_SSAO_SAMPLES;
-
-    float rotatePhase = dither * TAU;
-    float radius = rStep;
+    float radius = mix(0.6, 16.0, viewDist / 800.0);
 
     float ao = 0.0;
     float maxWeight = 0.0;
     for (int i = 0; i < EFFECT_SSAO_SAMPLES; i++) {
-        vec3 offset = vec3(
-            sin(rotatePhase),
-            cos(rotatePhase),
-        0.0) * radius;
+        #ifdef EFFECT_TAA_ENABLED
+            vec3 offset = hash33(vec3(gl_FragCoord.xy, frameCounter + i)) - 0.5;
+        #else
+            vec3 offset = hash33(vec3(gl_FragCoord.xy, i)) - 0.5;
+        #endif
 
-        radius += rStep;
-        rotatePhase += GOLDEN_ANGLE;
+        offset = normalize(offset) * radius;// * dither;
+        offset *= sign(dot(offset, viewNormal));
+
+        //offset.z += viewDist * 0.001;
 
         vec3 sampleViewPos = viewPos + offset;
 
@@ -55,10 +54,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
         sampleClipPos = fma(sampleClipPos, vec3(0.5), vec3(0.5));
 
-        if (saturate(sampleClipPos.xy) != sampleClipPos.xy) {
-            maxWeight += 1.0;
-            continue;
-        }
+        if (saturate(sampleClipPos.xy) != sampleClipPos.xy) continue;
 
         float sampleClipDepth = textureLod(depthtex0, sampleClipPos.xy, 0.0).r;
 
@@ -91,29 +87,70 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         // sampleClipPos.z = sampleClipDepth;
         // sampleViewPos = unproject(gbufferProjectionInverse * vec4(sampleClipPos * 2.0 - 1.0, 1.0));
 
-        //sampleViewPos.z -= 0.2;
-
         vec3 diff = sampleViewPos - viewPos;
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        //float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
-        float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
+        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_bias, 0.0) / (1.0 - SSAO_bias);
+        // float sampleNoLm = max(dot(viewNormal, sampleNormal), 0.0);
 
-        float sampleWeight = saturate(sampleDist / (EFFECT_SSAO_RADIUS));
-        sampleWeight = 1.0 - sampleWeight;
+        float sampleWeight = 1.0;//saturate(sampleDist / radius);
 
         // sampleWeight = pow(sampleWeight, 4.0);
 //        sampleWeight = 1.0 - sampleWeight;
+
+        // TODO: RT step check
+        //float sampleOcclusion = 0.0;
+        //float traceStepSize = 0.01;
+        #ifdef DISTANT_HORIZONS
+            vec3 clipPos = unproject(projection, viewPos) * 0.5 + 0.5;
+        #else
+            vec3 clipPos = unproject(gbufferProjectionInverse, viewPos) * 0.5 + 0.5;
+        #endif
+        // TODO: fix DH projection!
+
+        //vec3 traceStep = normalize(sampleClipPos - clipPos) * traceStepSize;
+        vec3 traceStep = (sampleClipPos - clipPos) / SSAO_TRACE_SAMPLES;
+        vec3 traceClipPos = clipPos + dither*traceStep;
+
+        bool hit = false;
+        for (int i = 0; i < SSAO_TRACE_SAMPLES; i++) {
+            float sampleNear = near;
+            float sampleFar = farPlane;
+            float sampleDepth = textureLod(depthtex0, traceClipPos.xy, 0).r;
+
+            #ifdef DISTANT_HORIZONS
+                if (sampleDepth >= 1.0) {
+                    sampleDepth = textureLod(dhDepthTex, traceClipPos.xy, 0).r;
+                    sampleNear = dhNearPlane;
+                    sampleFar = dhFarPlane;
+                }
+            #endif
+
+            float sampleDepthL = linearizeDepthFast(sampleDepth, sampleNear, sampleFar);
+
+            #ifdef DISTANT_HORIZONS
+                float traceDepthL = linearizeDepthFast(traceClipPos.z, traceNear, traceFar);
+            #else
+                float traceDepthL = linearizeDepthFast(traceClipPos.z, near, farPlane);
+            #endif
+
+            float thickness = 0.2 + 0.14*viewDist;
+
+            if (traceDepthL > sampleDepthL + EPSILON && traceDepthL < sampleDepthL + thickness) hit = true;
+
+            traceClipPos += traceStep;
+            //traceStep *= 1.5;
+        }
+
+        //if (!hit) sampleNoLm = 0.0;
 
         ao += sampleNoLm * sampleWeight;
         maxWeight += sampleWeight;
     }
 
-    ao = ao / max(maxWeight, 1.0);
-    //ao = ao / max(maxWeight, 1.0) * EFFECT_SSAO_STRENGTH;
-    //ao = ao / (ao + rcp(EFFECT_SSAO_STRENGTH));
-    ao = smoothstep(0.0, 1.0, ao * EFFECT_SSAO_STRENGTH);
+    ao = ao / max(maxWeight, 0.001);
+    ao = pow(ao, rcp(EFFECT_SSAO_STRENGTH));
 
     return ao;
 }
