@@ -231,6 +231,7 @@ uniform int frameCounter;
 
 #include "/lib/utility/hsv.glsl"
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
@@ -576,8 +577,7 @@ void main() {
     #endif
 
     #if defined WORLD_AO_ENABLED //&& !defined EFFECT_SSAO_ENABLED
-        //occlusion = RGBToLinear(glcolor.a);
-        occlusion = _pow2(vIn.color.a);
+        //occlusion = _pow2(vIn.color.a);
     #endif
     
     vec3 texNormal = vec3(0.0, 0.0, 1.0);
@@ -661,11 +661,6 @@ void main() {
         #endif
 
         float dither = (InterleavedGradientNoise() - 0.5) / 255.0;
-
-        float fogF = 0.0;
-        #if SKY_TYPE == SKY_TYPE_VANILLA && defined SKY_BORDER_FOG_ENABLED
-            fogF = GetVanillaFogFactor(vIn.localPos);
-        #endif
 
         color.rgb = LinearToRGB(albedo);
 
