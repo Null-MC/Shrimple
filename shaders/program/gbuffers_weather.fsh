@@ -425,7 +425,8 @@ void main() {
 
     #if LIGHTING_MODE != LIGHTING_MODE_NONE
         float VoL = dot(localSkyLightDirection, localViewDir);
-        float phase = DHG(VoL, -0.35, 0.65, 0.3);
+//        float phase = DHG(VoL, -0.35, 0.65, 0.3);
+        float phase = saturate(HG(VoL, 0.68));
 
         // #if defined WORLD_SKY_ENABLED && defined RENDER_CLOUD_SHADOWS_ENABLED && SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     phase *= cloudShadow;
@@ -433,9 +434,10 @@ void main() {
 
         vec3 skyLightShadowColor = shadowColor * CalculateSkyLightWeatherColor(WorldSkyLightColor);
 
-        vec3 skyAmbient = 0.1 * SampleSkyIrradiance(localViewDir) * eyeSkyLightF;
-        vec3 skyLight = 10.0 * phase * skyLightShadowColor + skyAmbient;
-        diffuseFinal += skyLight;
+        vec3 skyAmbient = 0.3 * SampleSkyIrradiance(localViewDir) * eyeSkyLightF;
+        vec3 skyLight = 4.0 * phase * skyLightShadowColor + skyAmbient;
+        diffuseFinal = vec3(0.0);
+        specularFinal = skyLight;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_TRACED
@@ -446,25 +448,25 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuseFinal, specularFinal, metal_f0, roughL, emission, occlusion);
     #endif
 
-    #ifdef SKY_BORDER_FOG_ENABLED
-        ApplyFog(color, vIn.localPos, localViewDir);
-    #endif
-
-    #if defined VL_BUFFER_ENABLED && defined VL_PARTICLES_ENABLED
-        #ifndef IRIS_FEATURE_SSBO
-            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
-        #endif
-
-        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
-        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
-    #else
-        float maxDist = min(viewDist, far);
-        // TODO: limit to < cloudNear
-
-        float airDensityF = GetAirDensity(eyeSkyLightF);
-        vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
-        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
-    #endif
+//    #ifdef SKY_BORDER_FOG_ENABLED
+//        ApplyFog(color, vIn.localPos, localViewDir);
+//    #endif
+//
+//    #if defined VL_BUFFER_ENABLED && defined VL_PARTICLES_ENABLED
+//        #ifndef IRIS_FEATURE_SSBO
+//            vec3 localSunDirection = normalize((gbufferModelViewInverse * vec4(sunPosition, 1.0)).xyz);
+//        #endif
+//
+//        vec4 vlScatterTransmit = GetVolumetricLighting(localViewDir, localSunDirection, near, min(viewDist - 0.05, far), far);
+//        color.rgb = color.rgb * vlScatterTransmit.a + vlScatterTransmit.rgb;
+//    #else
+//        float maxDist = min(viewDist, far);
+//        // TODO: limit to < cloudNear
+//
+//        float airDensityF = GetAirDensity(eyeSkyLightF);
+//        vec3 vlLight = (phaseAir + AirAmbientF) * WorldSkyLightColor;
+//        ApplyScatteringTransmission(color.rgb, maxDist, vlLight, airDensityF, AirScatterColor, AirExtinctColor, 8);
+//    #endif
 
     // #if defined DEFER_TRANSLUCENT && defined DEFERRED_BUFFER_ENABLED
     //     outDepth = vec4(gl_FragCoord.z, 0.0, 0.0, 1.0);

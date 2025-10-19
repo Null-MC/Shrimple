@@ -44,6 +44,10 @@ uniform int fogShape;
     uniform float dhFarPlane;
 #endif
 
+#ifdef VOXY
+    uniform int vxRenderDistance;
+#endif
+
 #ifdef SKY_BORDER_FOG_ENABLED
     #ifdef WORLD_WATER_ENABLED
         uniform vec3 WaterAbsorbColor;

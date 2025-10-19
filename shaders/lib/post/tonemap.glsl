@@ -117,8 +117,8 @@ vec3 tonemap_ACESFit2(const in vec3 color) {
 
 vec3 tonemap_FilmicHejl2015(const in vec3 color) {
     vec3 va = 1.425 * color + 0.05;
-    vec3 vf = ((color * va + 0.004) / ((color * (va + 0.55) + 0.0491))) - 0.0821;
-    return vf / 0.918;
+    vec3 vf = ((color * va + 0.004) / (max(color * (va + 0.55) + 0.0491, EPSILON))) - 0.0821;
+    return saturate(vf / 0.918);
 }
 
 vec3 tonemap_Lottes(const in vec3 color) {

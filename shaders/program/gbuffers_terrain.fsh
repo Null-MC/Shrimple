@@ -743,7 +743,8 @@ void main() {
 
             diffuseFinal += emission * MaterialEmissionF;
         #elif LIGHTING_MODE < LIGHTING_MODE_FLOODFILL
-            GetVanillaLighting(diffuseFinal, vIn.lmcoord, shadowColor, occlusion);
+            GetVanillaLighting(diffuseFinal, lmFinal, shadowColor, occlusion);
+            //diffuseFinal = vec3(1.0);
         #endif
 
         #if defined WORLD_SKY_ENABLED && LIGHTING_MODE != LIGHTING_MODE_NONE

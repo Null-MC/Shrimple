@@ -132,6 +132,8 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
     #ifdef DISTANT_HORIZONS
         float shadowDistFar = min(shadowDistance, 0.5*dhFarPlane);
+    #elif defined(VOXY)
+        float shadowDistFar = min(shadowDistance, vxRenderDistance * 16.0);
     #else
         float shadowDistFar = min(shadowDistance, far);
     #endif
@@ -159,12 +161,14 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     float shadowDensity = 0.0;//-cloudDensity;
                     for (float ii = dither; ii < 8.0; ii += 1.0) {
                         vec3 cloudShadow_worldPos = (shadowStepDist * ii) * localSkyLightDirection + cloudWorldPos;
-                        shadowDensity += SampleCloudDensity(cloudShadow_worldPos) * shadowStepDist;
+                        float sampleDensity = SampleCloudDensity(cloudShadow_worldPos);
+                        sampleDensity = max(sampleDensity - 0.1*abs(cloudShadow_worldPos.y - cloudAlt), 0.0);
+                        shadowDensity += sampleDensity * shadowStepDist;
                         shadowStepDist *= 1.5;
                     }
 
                     if (shadowDensity > 0.0)
-                        cloudShadow = exp(-2.0*AirExtinctFactor * shadowDensity);
+                        cloudShadow = exp(-AirExtinctFactor * shadowDensity);
                 //}
                 //else {
                 //    cloudShadow = 10.0;
@@ -438,7 +442,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                     if (cloudShadowDensity > 0.0) {
-                        sampleF *= exp(-10.0*AirExtinctFactor * cloudShadowDensity);
+                        sampleF *= exp(-AirExtinctFactor * cloudShadowDensity);
                     }
                 }
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -579,7 +583,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float endWorldY = localEnd.y + cameraPosition.y;
             endWorldY -= (1.0-dither) * localStep.y;
 
-            if (endWorldY <= cloudHeight) {
+            if (endWorldY <= cloudAlt) {
                 float sampleF = eyeBrightF;
                 vec3 sampleColor = skyLightColor * cloudShadow + cloudLightning;
                 vec3 sampleLit = phaseSky * sampleF * sampleColor;
