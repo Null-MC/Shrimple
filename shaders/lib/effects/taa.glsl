@@ -48,7 +48,7 @@ vec4 ApplyTAA(const in vec2 uv) {
 
     // uvLast += getJitterOffset(frameCounter-1);
 
-    #ifdef EFFECT_TAA_SHARPEN
+    #ifdef EFFECT_TAA_SHARPEN_PRE
         vec4 lastColor = sample_CatmullRom(BUFFER_FINAL_PREV, uvLast, viewSize);
         lastColor = min(lastColor, 65000.0);
     #else
@@ -96,9 +96,9 @@ vec4 ApplyTAA(const in vec2 uv) {
         
     vec3 diff = antialiased - preclamping;
     float clampAmount = dot(diff, diff);
-    mixRate *= rcp(1.0 + clampAmount);
+    mixRate *= rcp(1.0 + 0.2*clampAmount);
 
-    mixRate *= exp(-10.0 * frameTime);
+    //mixRate *= exp(-10.0 * frameTime);
     
     antialiased = decodePalYuv(antialiased);
         

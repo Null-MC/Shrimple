@@ -56,7 +56,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         sampleClipPos = fma(sampleClipPos, vec3(0.5), vec3(0.5));
 
         if (saturate(sampleClipPos.xy) != sampleClipPos.xy) {
-            maxWeight += 1.0;
+            //maxWeight += 1.0;
             continue;
         }
 

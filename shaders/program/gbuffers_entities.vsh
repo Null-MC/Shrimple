@@ -93,8 +93,7 @@ uniform vec4 entityColor;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform vec2 pixelSize;
-    // uniform int frameCounter;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

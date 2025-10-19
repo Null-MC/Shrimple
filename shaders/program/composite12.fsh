@@ -104,6 +104,10 @@ uniform int heldBlockLightValue2;
     uniform float frameTimeCounter;
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 taa_offset;
+#endif
+
 #ifndef IRIS_FEATURE_SSBO
     uniform mat4 gbufferPreviousModelView;
     uniform mat4 gbufferPreviousProjection;
@@ -349,9 +353,9 @@ uniform vec3 eyePosition;
     #include "/lib/lighting/basic_hand.glsl"
 #endif
 
-#ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa_jitter.glsl"
-#endif
+//#ifdef EFFECT_TAA_ENABLED
+//    #include "/lib/effects/taa_jitter.glsl"
+//#endif
 
 
 layout(location = 0) out vec4 outFinal;
@@ -403,7 +407,7 @@ layout(location = 0) out vec4 outFinal;
         if (depthOpaque < 1.0) {
             vec2 texJ = texcoord;
             #ifdef EFFECT_TAA_ENABLED
-                texJ -= getJitterOffset(frameCounter);
+                texJ -= taa_offset;
             #endif
 
             vec3 clipPos = vec3(texJ, depthOpaque) * 2.0 - 1.0;
@@ -601,8 +605,12 @@ layout(location = 0) out vec4 outFinal;
             #endif
 
             #if MATERIAL_SSS != 0 && defined RENDER_SHADOWS_ENABLED
+                vec3 viewDir = normalize(localPos);
+                float VoL = dot(viewDir, localSkyLightDirection);
+                float sss_phase = max(HG(VoL, 0.16), 0.0);
+
                 vec3 skyLightColor = CalculateSkyLightWeatherColor(WorldSkyLightColor);
-                vec3 sssFinal = shadowSSS * skyLightColor;
+                vec3 sssFinal = 8.0 * sss_phase * shadowSSS * skyLightColor;
 
                 vec3 sss_albedo = vec3(1.0);
                 #ifdef MATERIAL_SSS_TINT
@@ -627,7 +635,7 @@ layout(location = 0) out vec4 outFinal;
                 #endif
 
                 #if MATERIAL_SSS_AMBIENT > 0
-                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(localViewDir);
+                    vec3 sssSkyAmbientColor = SampleSkyIrradiance(texNormal);
 
                     sssFinal += sss_albedo * sssSkyAmbientColor * (MaterialSssAmbientF * occlusion * skyLightF);
                 #endif
@@ -637,11 +645,7 @@ layout(location = 0) out vec4 outFinal;
                 //     sssColor = normalize(albedo);
                 // sssFinal *= sssColor;
 
-                vec3 viewDir = normalize(localPos);
-                float VoL = dot(viewDir, localSkyLightDirection);
-                float sss_phase = max(HG(VoL, 0.16), 0.0);
-
-                diffuseFinal += 8.0 * sss_phase * sss * MaterialSssStrengthF * sssFinal;
+                diffuseFinal += sss * MaterialSssStrengthF * sssFinal;
             #endif
 
             #if MATERIAL_SPECULAR != SPECULAR_NONE

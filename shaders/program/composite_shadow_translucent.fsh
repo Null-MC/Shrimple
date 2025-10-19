@@ -63,6 +63,10 @@ in vec2 texcoord;
         uniform vec3 shadowLightPosition;
     #endif
 
+    #ifdef EFFECT_TAA_ENABLED
+        uniform vec2 taa_offset;
+    #endif
+
     #ifdef DISTANT_HORIZONS
         uniform mat4 dhProjection;
         uniform mat4 dhProjectionInverse;
@@ -124,9 +128,9 @@ in vec2 texcoord;
         #endif
     #endif
 
-    #ifdef EFFECT_TAA_ENABLED
-        #include "/lib/effects/taa_jitter.glsl"
-    #endif
+//    #ifdef EFFECT_TAA_ENABLED
+//        #include "/lib/effects/taa_jitter.glsl"
+//    #endif
 #endif
 
 
@@ -140,8 +144,8 @@ void main() {
         vec2 coord = texcoord;
 
         #ifdef EFFECT_TAA_ENABLED
-            vec2 jitterOffset = getJitterOffset(frameCounter);
-            coord -= jitterOffset;
+            //vec2 jitterOffset = getJitterOffset(frameCounter);
+            coord -= taa_offset;
         #endif
 
         float depthTrans = textureLod(depthtex0, texcoord, 0).r;
@@ -362,7 +366,7 @@ void main() {
                     vec3 traceScreenDir = normalize(clipPosEnd - clipPosStart);
                     
                     #ifdef EFFECT_TAA_ENABLED
-                        clipPosStart.xy += jitterOffset;
+                        clipPosStart.xy += taa_offset;
                     #endif
 
                     vec3 traceScreenStep = traceScreenDir * pixelSize.y;

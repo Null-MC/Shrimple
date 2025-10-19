@@ -116,8 +116,7 @@ uniform float far;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    // uniform int frameCounter;
-    uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

@@ -16,6 +16,10 @@ uniform int frameCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 taa_offset;
+#endif
+
 #if WORLD_CURVE_RADIUS > 0
     #include "/lib/world/curvature.glsl"
 #endif

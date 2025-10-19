@@ -46,9 +46,9 @@ uniform float farPlane;
 
 #include "/lib/material/mat_deferred.glsl"
 
-#ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa_jitter.glsl"
-#endif
+//#ifdef EFFECT_TAA_ENABLED
+//    #include "/lib/effects/taa_jitter.glsl"
+//#endif
 
 
 /* RENDERTARGETS: 6 */

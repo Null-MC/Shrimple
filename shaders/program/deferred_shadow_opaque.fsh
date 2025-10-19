@@ -25,6 +25,8 @@ in vec2 texcoord;
         uniform sampler2D shadowcolor0;
     #endif
 
+    uniform sampler2D shadowcolor1;
+
     #ifdef SHADOW_ENABLE_HWCOMP
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             uniform sampler2DShadow shadowtex1HW;
@@ -64,6 +66,10 @@ in vec2 texcoord;
 
     #ifndef IRIS_FEATURE_SSBO
         uniform vec3 shadowLightPosition;
+    #endif
+
+    #ifdef EFFECT_TAA_ENABLED
+        uniform vec2 taa_offset;
     #endif
 
     #ifdef DISTANT_HORIZONS
@@ -149,9 +155,9 @@ in vec2 texcoord;
         #endif
     #endif
 
-    #ifdef EFFECT_TAA_ENABLED
-        #include "/lib/effects/taa_jitter.glsl"
-    #endif
+//    #ifdef EFFECT_TAA_ENABLED
+//        #include "/lib/effects/taa_jitter.glsl"
+//    #endif
 #endif
 
 
@@ -165,8 +171,7 @@ void main() {
         vec2 coord = texcoord;
 
         #ifdef EFFECT_TAA_ENABLED
-            vec2 jitterOffset = getJitterOffset(frameCounter);
-            coord -= jitterOffset;
+            coord -= taa_offset;
         #endif
 
         float depth = textureLod(depthtex1, texcoord, 0).r;
@@ -312,7 +317,7 @@ void main() {
                 vec3 traceScreenDir = normalize(clipPosEnd - clipPosStart);
 
                 #ifdef EFFECT_TAA_ENABLED
-                    clipPosStart.xy += jitterOffset;
+                    clipPosStart.xy += taa_offset;
                 #endif
 
                 vec3 traceScreenStep = traceScreenDir * pixelSize.y;
@@ -384,7 +389,7 @@ void main() {
             #endif
 
             if (geoNoL > 0.0) {
-                float waterDepth = 0.0; // TODO
+                float waterDepth = 0.0;
 
                 #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
                     vec3 shadowSample = vec3(1.0);
@@ -420,8 +425,11 @@ void main() {
                     #endif
 
                     vec3 shadowPosWater = distort(shadowPos) * 0.5 + 0.5;
-                    float depthTrans = texture(shadowtex0, shadowPosWater.xy).r;
-                    waterDepth = max(shadowPosWater.z - depthTrans, 0.0) * zRange;
+                    float isWater = texture(shadowcolor1, shadowPosWater.xy).r;
+                    if (isWater > 0.5) {
+                        float depthTrans = texture(shadowtex0, shadowPosWater.xy).r;
+                        waterDepth = max(shadowPosWater.z - depthTrans, 0.0) * zRange;
+                    }
                 #endif
 
                 if (waterDepth > 0.0) {

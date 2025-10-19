@@ -92,8 +92,7 @@ uniform vec3 eyePosition;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform float frameTime;
-    uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

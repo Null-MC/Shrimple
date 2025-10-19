@@ -11,8 +11,7 @@ out VertexData {
 } vOut;
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform int frameCounter;
-	uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 
     #include "/lib/effects/taa_jitter.glsl"
 #endif

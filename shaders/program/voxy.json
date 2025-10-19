@@ -27,12 +27,9 @@
     -1: "off"
   },
   #endif,
-//  #ifdef TAA
-//    "taaOffset": "{
-//      vec2 offset = taa_offsets[frameCounter, % EFFECT_TAA_MAX_FRAMES] - 0.5;
-//      return 2.0 * offset * pixelSize;
-//    }",
-//  #endif
+  #ifdef EFFECT_TAA_ENABLED
+    "taaOffset": "{return taa_offset;}",
+  #endif
   "uniforms": [
     "gbufferModelView",
     "gbufferModelViewInverse",
@@ -75,7 +72,8 @@
     "WaterScatterColor",
     "WaterAbsorbColor",
     "weatherStrength",
-    "pixelSize"
+    "pixelSize",
+    "taa_offset"
   ],
   "samplers": {
     "lightmap": "sampler2D",

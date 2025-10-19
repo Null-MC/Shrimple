@@ -826,8 +826,8 @@ option.EFFECT_TAA_ENABLED.comment=Enables temporal anti-aliasing. May cause ghos
 option.EFFECT_TAA_MAX_ACCUM=Max Frames
 option.EFFECT_TAA_MAX_ACCUM.comment=The maximum number of frames that can be accumulated/combined.
 
-option.EFFECT_TAA_SHARPEN=Sharpen
-option.EFFECT_TAA_SHARPEN.comment=Makes TAA sharper. May cause visual artiafcts.
+option.EFFECT_TAA_SHARPEN_POST=Sharpen
+option.EFFECT_TAA_SHARPEN_POST.comment=Makes TAA sharper. May cause visual artiafcts.
 
 
 screen.POST_OPTIONS=Post-Processing

@@ -71,9 +71,7 @@ uniform vec3 cameraPosition;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform float frameTime;
-    uniform int frameCounter;
-    uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

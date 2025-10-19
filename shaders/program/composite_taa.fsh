@@ -24,6 +24,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 
+uniform vec2 taa_offset;
 uniform float viewWidth;
 uniform float viewHeight;
 uniform vec2 viewSize;
@@ -48,7 +49,7 @@ uniform float frameTime;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/catmull-rom.glsl"
-#include "/lib/effects/taa_jitter.glsl"
+//#include "/lib/effects/taa_jitter.glsl"
 
 vec3 getReprojectedClipPos(const in vec2 texcoord, const in float depthNow, const in vec3 velocity, const in bool isDepthDh) {
     vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;

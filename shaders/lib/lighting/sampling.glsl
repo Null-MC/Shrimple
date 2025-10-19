@@ -22,7 +22,7 @@ float GetLightNoL(const in float geoNoL, const in vec3 texNormal, const in vec3 
     NoL = max(geoNoL, 0.0);
 
     if (!all(lessThan(abs(texNormal), EPSILON3))) {
-        NoL = max(texNoL, 0.0) * step(0.0, geoNoL);
+        NoL = max(texNoL, 0.0);// * step(0.0, geoNoL);
     }
 
     return saturate(NoL);

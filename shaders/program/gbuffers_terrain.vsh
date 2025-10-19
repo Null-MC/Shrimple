@@ -59,18 +59,17 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferPreviousModelView;
 uniform vec3 cameraPosition;
 uniform vec3 previousCameraPosition;
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
 uniform ivec2 atlasSize;
 uniform float far;
+
+uniform float frameTime;
 
 #ifdef ANIM_WORLD_TIME
     uniform int worldTime;
 #else
     uniform float frameTimeCounter;
-#endif
-
-#ifdef IS_IRIS
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
 #endif
 
 #ifdef WORLD_SHADOW_ENABLED
@@ -97,8 +96,8 @@ uniform float far;
 #endif
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform float frameTime;
-    uniform vec2 pixelSize;
+    //uniform float frameTime;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

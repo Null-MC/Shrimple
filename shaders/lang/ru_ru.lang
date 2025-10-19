@@ -665,8 +665,8 @@ option.EFFECT_TAA_ENABLED.comment=Включение временного сгл
 option.EFFECT_TAA_MAX_ACCUM=Максимальные Кадры
 option.EFFECT_TAA_MAX_ACCUM.comment=Максимальное количество кадров, которые можно накапливать/комбинировать.
 
-option.EFFECT_TAA_SHARPEN=Резкость
-option.EFFECT_TAA_SHARPEN.comment=Делает ВС (TAA) более резким. Может вызывать визуальные артефакты.
+option.EFFECT_TAA_SHARPEN_POST=Резкость
+option.EFFECT_TAA_SHARPEN_POST.comment=Делает ВС (TAA) более резким. Может вызывать визуальные артефакты.
 
 
 screen.POST_OPTIONS=Настройки Пост-Обработки

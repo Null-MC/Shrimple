@@ -61,14 +61,16 @@ uniform ivec2 eyeBrightnessSmooth;
 		uniform float near;
 	#endif
 
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-        uniform vec3 eyePosition;
-    #endif
+    uniform float cloudTime;
+    uniform vec3 eyePosition;
 #endif
 
 #ifdef DISTANT_HORIZONS
 	uniform float dhFarPlane;
+#endif
+
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -118,6 +120,10 @@ uniform ivec2 eyeBrightnessSmooth;
 
 #include "/lib/vertex_common.glsl"
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
 
 void main() {
 	if (SKY_WEATHER_OPACITY == 0) {
@@ -134,6 +140,9 @@ void main() {
     vec4 viewPos = BasicVertex();
     gl_Position = gl_ProjectionMatrix * viewPos;
 
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 
     #if SKY_CLOUD_TYPE != CLOUDS_NONE
         vec3 worldPos = cameraPosition + vOut.localPos;

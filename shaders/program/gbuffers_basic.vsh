@@ -17,8 +17,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjection;
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform vec2 pixelSize;
-    uniform int frameCounter;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
@@ -33,8 +32,6 @@ uniform mat4 gbufferProjection;
 
 
 void main() {
-	// gl_Position = ftransform();
-
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
     gl_Position = gbufferProjection * vec4(viewPos, 1.0);

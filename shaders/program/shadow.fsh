@@ -37,8 +37,9 @@ uniform float far;
 #endif
 
 
-/* RENDERTARGETS: 0 */
+/* RENDERTARGETS: 0,1 */
 layout(location = 0) out vec4 outColor0;
+layout(location = 1) out float outColor1;
 
 void main() {
     #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
@@ -49,8 +50,8 @@ void main() {
     vec4 color = texture(gtexture, vIn.texcoord);
 
     #if !defined SHADOW_SOLID || defined DISTANT_HORIZONS
-        float alphaThreshold = renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT
-            ? (1.5/255.0) : 0.5;
+        float alphaThreshold = (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)
+            ? (1.5/255.0) : 0.16;
 
         #if defined DISTANT_HORIZONS && defined DH_SHADOW_ENABLED && defined DH_TRANSITION_SHADOWS
             #ifdef EFFECT_TAA_ENABLED
@@ -90,4 +91,5 @@ void main() {
         color = vec4(0.90, 0.94, 0.96, 0.0);
     
     outColor0 = color;
+    outColor1 = vIn.blockId == BLOCK_WATER ? 1.0 : 0.0;
 }

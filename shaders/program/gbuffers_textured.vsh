@@ -57,6 +57,10 @@ uniform vec3 cameraPosition;
     #endif
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 taa_offset;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
 #endif
@@ -88,6 +92,10 @@ uniform vec3 cameraPosition;
 
 #include "/lib/vertex_common.glsl"
 
+#ifdef EFFECT_TAA_ENABLED
+    #include "/lib/effects/taa_jitter.glsl"
+#endif
+
 
 void main() {
     vOut.texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
@@ -102,4 +110,8 @@ void main() {
 
     vec4 viewPos = BasicVertex();
     gl_Position = gl_ProjectionMatrix * viewPos;
+
+    #ifdef EFFECT_TAA_ENABLED
+        jitter(gl_Position);
+    #endif
 }

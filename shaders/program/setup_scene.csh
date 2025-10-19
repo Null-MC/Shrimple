@@ -28,7 +28,7 @@ void main() {
             lightningPosition = vec4(0.0);
         #endif
 
-        #if defined WORLD_SHADOW_ENABLED && (defined SHADOW_ENABLED || defined SHADOW_CLOUD_ENABLED) && SHADOW_FILTER != 0
+        #if defined WORLD_SHADOW_ENABLED && defined SHADOW_ENABLED //|| defined SHADOW_CLOUD_ENABLED) && SHADOW_FILTER != 0
             for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
                 float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
                 float theta = i * GoldenAngle + PHI;

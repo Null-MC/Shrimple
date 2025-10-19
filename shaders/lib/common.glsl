@@ -2,6 +2,7 @@ const float sunPathRotation = 5; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10
 
 /*
 const int shadowcolor0Format = RGBA8;
+const int shadowcolor1Format = R8;
 
 const int colortex0Format  = RGB16F;
 const int colortex1Format  = RGBA8;
@@ -121,7 +122,7 @@ const bool colortex15Clear = true;
 
 // World Options
 //#define WORLD_AMBIENT_MODE 1 // [0 1 2]
-//#define WORLD_AO_ENABLED
+#define WORLD_AO_ENABLED
 //#define WORLD_SKY_REFLECTIONS 100 // [0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define WORLD_WETNESS_ENABLED
 #define WORLD_CURVE_RADIUS 0 // [1 2 3 4 6 8 10 12 16 20 24 28 32 40 60 80 120 160 200 400 800 1200 1600 2400 3200 0]
@@ -358,15 +359,16 @@ const bool colortex15Clear = true;
 
 #define EFFECT_SSAO_ENABLED
 #define EFFECT_SSAO_SAMPLES 8 // [2 4 6 8 10 12 14 16 20 24 28 32]
-#define EFFECT_SSAO_RADIUS 1.2 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.2 2.4 2.6 2.8 3.0 4.0 5.0 6.0 8.0 10.0 12.0 14.0 16.0]
-#define EFFECT_SSAO_STRENGTH 2.5 // [0.5 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7 8 9 10 12 14 16 18 20 24 28 32]
-#define EFFECT_SSAO_BIAS 8 // [2 3 4 6 8 12 16 24 32 48]
+#define EFFECT_SSAO_RADIUS 1.4 // [0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.2 2.4 2.6 2.8 3.0 4.0 5.0 6.0 8.0 10.0 12.0 14.0 16.0]
+#define EFFECT_SSAO_STRENGTH 1.2 // [0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0]
+#define EFFECT_SSAO_BIAS 2 // [2 3 4 6 8 12 16 24 32 48]
 #define EFFECT_SSAO_MIN 0.0
 //#define EFFECT_SSAO_RT
 
 #define EFFECT_TAA_ENABLED
-#define EFFECT_TAA_MAX_ACCUM 6 // [2 3 4 5 6 7 8 10 12 16 20 24 28 32 48 64]
-#define EFFECT_TAA_SHARPEN
+#define EFFECT_TAA_MAX_ACCUM 16 // [2 3 4 5 6 7 8 10 12 16 20 24 28 32 48 64]
+//#define EFFECT_TAA_SHARPEN_PRE
+#define EFFECT_TAA_SHARPEN_POST
 //#define EFFECT_TAA_ACCUM
 
 //#define EFFECT_FXAA_ENABLED
@@ -614,6 +616,8 @@ const bool colortex15Clear = true;
 #ifdef EFFECT_BLOOM_ENABLED
 #endif
 #ifdef EFFECT_SSAO_ENABLED
+#endif
+#ifdef EFFECT_TAA_SHARPEN_POST
 #endif
 #ifdef WATER_MULTIDEPTH_DEBUG
 #endif

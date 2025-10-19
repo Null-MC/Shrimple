@@ -71,5 +71,6 @@ composite41		[debug] bloom tile merge
 composite42		debug views
 
 composite50		taa resolve
++composite51    CAS
 
 final			final --/ debug output

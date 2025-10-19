@@ -78,10 +78,8 @@ uniform int isEyeInWater;
         uniform float near;
     #endif
 
-    #ifdef IS_IRIS
-        uniform float cloudTime;
-        uniform float cloudHeight;
-    #endif
+    uniform float cloudTime;
+    uniform float cloudHeight;
 
     #ifdef DISTANT_HORIZONS
         uniform float dhFarPlane;
@@ -92,13 +90,11 @@ uniform int isEyeInWater;
 //     uniform mat4 gbufferPreviousModelView;
 // #endif
 
-#ifdef IS_IRIS
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
 
 #ifdef EFFECT_TAA_ENABLED
-    uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO

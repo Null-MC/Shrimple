@@ -74,16 +74,13 @@ uniform ivec2 atlasSize;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 
-#ifdef IS_IRIS
-    uniform bool firstPersonCamera;
-    uniform vec3 eyePosition;
-#endif
+uniform bool firstPersonCamera;
+uniform vec3 eyePosition;
 
 #ifdef EFFECT_TAA_ENABLED
     uniform mat4 gbufferPreviousModelView;
     uniform vec3 previousCameraPosition;
-    uniform int frameCounter;
-    uniform vec2 pixelSize;
+    uniform vec2 taa_offset;
 #endif
 
 #ifdef IRIS_FEATURE_SSBO
