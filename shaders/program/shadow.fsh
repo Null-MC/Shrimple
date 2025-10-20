@@ -49,7 +49,7 @@ void main() {
 
     vec4 color = texture(gtexture, vIn.texcoord);
 
-    #if !defined SHADOW_SOLID || defined DISTANT_HORIZONS
+    #if !defined RENDER_SOLID || (defined DISTANT_HORIZONS && defined DH_TRANSITION)
         float alphaThreshold = (renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT)
             ? (1.5/255.0) : 0.16;
 

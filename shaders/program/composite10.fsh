@@ -69,6 +69,10 @@ uniform float blindnessSmooth;
     uniform int isEyeInWater;
 #endif
 
+#ifdef EFFECT_TAA_ENABLED
+    uniform vec2 taa_offset;
+#endif
+
 #ifdef IRIS_FEATURE_SSBO
     #include "/lib/buffers/scene.glsl"
     #include "/lib/buffers/block_static.glsl"
@@ -132,10 +136,6 @@ uniform float blindnessSmooth;
 
 #include "/lib/utility/temporal_offset.glsl"
 
-#ifdef EFFECT_TAA_ENABLED
-    #include "/lib/effects/taa_jitter.glsl"
-#endif
-
 
 layout(location = 0) out vec4 outDiffuse;
 #if MATERIAL_SPECULAR != SPECULAR_NONE
@@ -164,7 +164,7 @@ void main() {
     ivec2 iTex = ivec2(tex2 * viewSize);
 
     #ifdef EFFECT_TAA_ENABLED
-        tex2 -= getJitterOffset(frameCounter);
+        tex2 -= taa_offset;
     #endif
 
     // float depth = textureLod(depthtex1, tex2, 0).r;

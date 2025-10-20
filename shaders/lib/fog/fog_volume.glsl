@@ -75,7 +75,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
 
-        vec3 skyColorAmbient = phaseIso * eyeBrightF * WorldSkyAmbientColor;
+        vec3 skyColorAmbient = 0.2 * eyeBrightF * WorldSkyAmbientColor;
 
         // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
         //     float weatherF = 1.0 - 0.5 * _pow2(weatherStrength);
@@ -140,7 +140,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
 
     #if defined(WORLD_SKY_ENABLED) && SKY_CLOUD_TYPE == CLOUDS_CUSTOM
         float cloudDensity = 0.0;
-        float cloudShadow = 1.0;
+        float cloudShadow = 5.0;
         float cloudLightning = 0.0;
         float cloudDist = 0.0;
 
@@ -168,7 +168,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     }
 
                     if (shadowDensity > 0.0)
-                        cloudShadow = exp(-AirExtinctFactor * shadowDensity);
+                        cloudShadow *= exp(-AirExtinctFactor * shadowDensity);
                 //}
                 //else {
                 //    cloudShadow = 10.0;
@@ -442,7 +442,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
                     float cloudShadowDensity = SampleCloudDensity(cloudShadowWorldPos);
 
                     if (cloudShadowDensity > 0.0) {
-                        sampleF *= exp(-AirExtinctFactor * cloudShadowDensity);
+                        sampleF *= exp(-10.0 * AirExtinctFactor * cloudShadowDensity);
                     }
                 }
             #elif SKY_CLOUD_TYPE == CLOUDS_VANILLA
@@ -550,9 +550,9 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
         #endif
 
         #ifdef WORLD_SKY_ENABLED
-            if (isCloudStep)
-                sampleAmbient *= luminance(skyColorAmbient);
-            else
+//            if (isCloudStep)
+//                sampleAmbient *= luminance(skyColorAmbient);
+//            else
                 sampleAmbient *= skyColorAmbient;
         #endif
 

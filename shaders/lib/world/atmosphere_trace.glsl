@@ -1,8 +1,8 @@
 const float phaseAir = phaseIso;
 
-const float WorldAtmosphereMax = 480.0;
-const float WorldAtmosphereCurve = 12.0;
-const float WorldAtmosphereCurveRain = 4.0;
+const float WorldAtmosphereMax = 860.0;
+const float WorldAtmosphereCurve = 22.0;
+const float WorldAtmosphereCurveRain = 16.0;
 
 
 float GetSkyAltitudeFactor(const in float altitude) {

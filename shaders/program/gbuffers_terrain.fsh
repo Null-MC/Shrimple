@@ -442,7 +442,7 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
     if (!gl_FrontFacing) localNormal = -localNormal;
 
-    #ifdef DISTANT_HORIZONS
+    #if defined(DISTANT_HORIZONS) && defined(DH_TRANSITION) && DH_CLIP_DIST < 100
         float dhDepth = texelFetch(dhDepthTex, ivec2(gl_FragCoord.xy), 0).r;
         float dhDepthL = linearizeDepthFast(dhDepth, dhNearPlane, dhFarPlane);
         float depthL = linearizeDepthFast(gl_FragCoord.z, near, farPlane);
@@ -538,10 +538,12 @@ void main() {
         color.a *= step(ditherFadeF, ditherOut);
     #endif
 
-    if (color.a < alphaTestRef) {
-        discard;
-        return;
-    }
+    #ifndef RENDER_SOLID
+        if (color.a < alphaTestRef) {
+            discard;
+            return;
+        }
+    #endif
 
     color.rgb *= vIn.color.rgb;
     vec3 albedo = RGBToLinear(color.rgb);

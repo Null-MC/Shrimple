@@ -19,6 +19,11 @@ float SampleCloudDensity(const in vec3 worldPos) {
     samplePos.xz = 0.06 * cloudScale * (worldPos.xz - windOffset);
     samplePos.y = mod(0.004*cloudTime, 1.0);
 
-    return textureLod(TEX_CLOUDS, samplePos, 0).r * 8.0
-        - textureLod(TEX_CLOUDS, samplePos*vec2(24.0,1.0).xyx, 0).r * 0.4;
+    float density = textureLod(TEX_CLOUDS, samplePos, 0).r * 4.0
+        - textureLod(TEX_CLOUDS, samplePos*vec2(24.0,1.0).xyx, 0).r * 0.2;
+
+    float dist = distance(worldPos, cameraPosition);
+    density *= smoothstep(9000.0, 4000.0, dist);
+
+    return density;
 }
