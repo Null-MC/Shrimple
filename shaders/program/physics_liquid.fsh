@@ -17,6 +17,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 uniform int isEyeInWater;
 uniform int frameCounter;
+uniform float far;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
@@ -25,8 +26,13 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform int fogShape;
 
+#ifdef IRIS_FEATURE_SSBO
+    #include "/lib/buffers/scene.glsl"
+#endif
 
 #include "/lib/sampling/ign.glsl"
+
+#include "/lib/utility/oklab.glsl"
 
 #ifndef DEFERRED_BUFFER_ENABLED
     #include "/lib/fog/fog_common.glsl"
@@ -39,6 +45,10 @@ uniform int fogShape;
         #endif
     #elif SKY_TYPE == SKY_TYPE_VANILLA
         #include "/lib/fog/fog_vanilla.glsl"
+    #endif
+
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sky/sky_render.glsl"
     #endif
 
     #include "/lib/fog/fog_render.glsl"

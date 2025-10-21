@@ -196,6 +196,7 @@ uniform vec3 eyePosition;
 #include "/lib/sampling/erp.glsl"
 
 #include "/lib/utility/anim.glsl"
+#include "/lib/utility/oklab.glsl"
 #include "/lib/utility/lightmap.glsl"
 #include "/lib/utility/tbn.glsl"
 
@@ -223,40 +224,46 @@ uniform vec3 eyePosition;
 
 #include "/lib/world/water.glsl"
 
-#if SKY_TYPE == SKY_TYPE_CUSTOM
-    #include "/lib/fog/fog_custom.glsl"
-    
-    #ifdef WORLD_WATER_ENABLED
-        #include "/lib/fog/fog_water_custom.glsl"
+#ifndef DEFERRED_BUFFER_ENABLED
+    #if SKY_TYPE == SKY_TYPE_CUSTOM
+        #include "/lib/fog/fog_custom.glsl"
+
+        #ifdef WORLD_WATER_ENABLED
+            #include "/lib/fog/fog_water_custom.glsl"
+        #endif
+    #elif SKY_TYPE == SKY_TYPE_VANILLA
+        #include "/lib/fog/fog_vanilla.glsl"
     #endif
-#elif SKY_TYPE == SKY_TYPE_VANILLA
-    #include "/lib/fog/fog_vanilla.glsl"
-#endif
 
-#include "/lib/fog/fog_render.glsl"
+    #ifdef WORLD_SKY_ENABLED
+        #include "/lib/sky/sky_render.glsl"
+    #endif
 
-#ifdef WORLD_SKY_ENABLED
-    #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
-        // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
-        //     #include "/lib/clouds/cloud_custom.glsl"
-        #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
-            #include "/lib/clouds/cloud_vanilla.glsl"
+    #include "/lib/fog/fog_render.glsl"
+
+    #ifdef WORLD_SKY_ENABLED
+        #if defined SHADOW_CLOUD_ENABLED || (MATERIAL_REFLECTIONS != REFLECT_NONE && defined MATERIAL_REFLECT_CLOUDS)
+            // #if SKY_CLOUD_TYPE > CLOUDS_VANILLA
+            //     #include "/lib/clouds/cloud_custom.glsl"
+            #if SKY_CLOUD_TYPE == CLOUDS_VANILLA || SKY_CLOUD_TYPE == CLOUDS_SOFT
+                #include "/lib/clouds/cloud_vanilla.glsl"
+            #endif
         #endif
     #endif
-#endif
 
-#if defined RENDER_SHADOWS_ENABLED && !defined DEFERRED_BUFFER_ENABLED
-    #include "/lib/buffers/shadow.glsl"
+    #ifdef RENDER_SHADOWS_ENABLED
+        #include "/lib/buffers/shadow.glsl"
 
-    #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
-        #include "/lib/shadows/cascaded/common.glsl"
-        #include "/lib/shadows/cascaded/render.glsl"
-    #elif SHADOW_TYPE != SHADOW_TYPE_NONE
-        #include "/lib/shadows/distorted/common.glsl"
-        #include "/lib/shadows/distorted/render.glsl"
+        #if SHADOW_TYPE == SHADOW_TYPE_CASCADED
+            #include "/lib/shadows/cascaded/common.glsl"
+            #include "/lib/shadows/cascaded/render.glsl"
+        #elif SHADOW_TYPE != SHADOW_TYPE_NONE
+            #include "/lib/shadows/distorted/common.glsl"
+            #include "/lib/shadows/distorted/render.glsl"
+        #endif
+
+        #include "/lib/shadows/render.glsl"
     #endif
-    
-    #include "/lib/shadows/render.glsl"
 #endif
 
 #include "/lib/lights.glsl"
