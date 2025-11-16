@@ -419,7 +419,7 @@ void ApplyVolumetricLighting(inout vec3 scatterFinal, inout vec3 transmitFinal, 
             float sampleF = 0.0;
         #endif
 
-        #if !defined RENDER_WEATHER //&& LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
+        #if !defined(RENDER_WEATHER) && defined(WORLD_WATER_ENABLED) //&& LIGHTING_VOLUMETRIC == VOL_TYPE_FANCY
             if (isWater) {
                 #if defined WATER_CAUSTICS && defined WORLD_SKY_ENABLED
                     // TODO: replace traceLocalPos with water surface pos

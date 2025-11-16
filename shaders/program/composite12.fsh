@@ -314,8 +314,11 @@ uniform vec3 eyePosition;
     #include "/lib/clouds/cloud_common.glsl"
     #include "/lib/world/lightning.glsl"
     #include "/lib/sky/sky_render.glsl"
-    #include "/lib/fog/fog_render.glsl"
+#endif
 
+#include "/lib/fog/fog_render.glsl"
+
+#if defined WORLD_SKY_ENABLED
     //#if (defined MATERIAL_REFLECT_CLOUDS && MATERIAL_REFLECTIONS != REFLECT_NONE) || defined RENDER_CLOUD_SHADOWS_ENABLED
         #if SKY_CLOUD_TYPE == CLOUDS_CUSTOM
             #include "/lib/clouds/cloud_custom.glsl"

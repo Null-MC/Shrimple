@@ -438,8 +438,9 @@ void main() {
         color.rgb = GetFinalLighting(albedo, diffuse, specular, metal_f0, roughL, emission, occlusion);
     #endif
 
-    #ifdef SKY_BORDER_FOG_ENABLED
-        ApplyFog(color, vIn.localPos, localViewDir);
+    #if defined(SKY_BORDER_FOG_ENABLED) //&& defined(WORLD_SKY_ENABLED)
+        //ApplyFog(color, vIn.localPos, localViewDir);
+        ApplyBorderFog(color.rgb, vIn.localPos, localViewDir);
     #endif
 
     outFinal = color;
