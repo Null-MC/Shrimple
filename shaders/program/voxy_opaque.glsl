@@ -34,8 +34,6 @@
     #endif
 #endif
 
-uniform int fogShape = 0;
-
 #include "/lib/blocks.glsl"
 
 #include "/lib/sampling/ign.glsl"
