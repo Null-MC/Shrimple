@@ -138,7 +138,7 @@
       mat4 shadowModelViewEx;
       mat4 shadowProjectionEx;
 
-      #if defined WORLD_SHADOW_ENABLED && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
+      #if defined(WORLD_SHADOW_ENABLED) && SHADOW_TYPE == SHADOW_TYPE_DISTORTED
         mat4 shadowModelViewProjection;
       #endif
 
