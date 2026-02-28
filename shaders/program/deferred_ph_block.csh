@@ -103,7 +103,7 @@ void main() {
 
         if (lightRange > EPSILON && !(light.blockId == BLOCK_LAVA || light.blockId == BLOCK_CAVEVINE_BERRIES)) {
             // compute view-space position and collision test
-            vec3 lightLocalPos = light.position - (cameraPosition - world_offset);
+            vec3 lightLocalPos = light.position - rt_camera_position;
             vec3 lightViewPos = mul3(gbufferModelView, lightLocalPos);
             bool hit = true;
 
@@ -197,7 +197,7 @@ void main() {
             int lightIndex = sharedLightList[i];
             Light light = load_light(lightIndex);
 
-            vec3 lightLocalPos = light.position - (cameraPosition - world_offset);
+            vec3 lightLocalPos = light.position - rt_camera_position;
             vec3 lightOffset = lightLocalPos - localPos;
             float lightDist = length(lightOffset);
             vec3 lightDir = lightOffset / lightDist;
@@ -216,7 +216,7 @@ void main() {
 
 
 //            vec3 rtOrigin = light.position - 0.5 * lightDir;
-            vec3 rtOrigin = localPos + (cameraPosition - world_offset)
+            vec3 rtOrigin = localPos + rt_camera_position
                 + 0.02 * localGeoNormal;
 
             RayJob ray = RayJob(rtOrigin, lightDir,

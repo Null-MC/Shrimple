@@ -271,10 +271,7 @@ void main() {
         #endif
 
         #ifdef SHADOW_CLOUDS
-            vec2 cloudOffset = GetCloudOffset();
-            vec3 cloudTexcoord = GetCloudShadowTexcoord(vIn.localPos, localSkyLightDir, cloudOffset);
-            float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-            shadow *= _pow2(cloudShadow);
+            shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
         #endif
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);

@@ -92,7 +92,7 @@ void main() {
 
             // TODO: offset by geo-normal?
             // vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
-            vec3 rtOrigin = handLightPos + (cameraPosition - world_offset);
+            vec3 rtOrigin = handLightPos + rt_camera_position;
 
             RayJob ray = RayJob(rtOrigin, lightDir,
                 vec3(0), vec3(0), vec3(0), false);

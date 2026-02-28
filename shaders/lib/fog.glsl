@@ -1,4 +1,4 @@
-#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+#if OVERWORLD_SKY == SKY_ENHANCED
     #define FOG_HORIZON_F 0.08
 #else
     #define FOG_HORIZON_F 0.02
@@ -39,8 +39,10 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
 
     #ifdef WORLD_NETHER
         return fogColorL;
+    #elif defined(WORLD_END)
+        return skyColorL;
     #else
-        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        #if OVERWORLD_SKY == SKY_ENHANCED
 //            vec3 localSunDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
 
             float dayF = smoothstep(-0.1, 0.3, sunLocalDir.y);

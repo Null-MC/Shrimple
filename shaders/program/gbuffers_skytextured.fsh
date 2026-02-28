@@ -23,7 +23,7 @@ void main() {
 
     color.rgb = RGBToLinear(color.rgb);
 
-    #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+    #if OVERWORLD_SKY == SKY_VANILLA
         if (renderStage == MC_RENDER_STAGE_SUN) {
             color.rgb *= 8.0;
         }
@@ -31,7 +31,7 @@ void main() {
 //        color = saturate(color);
     #endif
 
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #if OVERWORLD_SKY == SKY_ENHANCED
         if (renderStage == MC_RENDER_STAGE_SUN) {
             color.rgb *= 16.0;
         }

@@ -38,6 +38,10 @@ option.BLOCK_OUTLINE_COLOR_B=Color Blue
 
 screen.WORLD_OVERWORLD=Overworld
 
+option.OVERWORLD_SKY=Sky/Fog
+value.OVERWORLD_SKY.0=Vanilla
+value.OVERWORLD_SKY.1=Enhanced
+
 option.OVERWORLD_NIGHT_BRIGHTNESS=Night Brightness
 suffix.OVERWORLD_NIGHT_BRIGHTNESS=%
 

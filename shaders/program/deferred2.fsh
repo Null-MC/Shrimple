@@ -101,7 +101,7 @@ vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
 }
 
 vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal) {
-    vec3 rtOrigin = localPos + (cameraPosition - world_offset);
+    vec3 rtOrigin = localPos + rt_camera_position;
 
     float pdf;
     vec2 seed = hash22(gl_FragCoord.xy + vec2(23.0, 47.0)*frameCounter);
@@ -130,7 +130,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
         vec3 hitLocalNormal = ray.result_normal;
 
         #ifdef LIGHTING_COLORED
-            vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
+            vec3 hitLocalPos = ray.result_position - rt_camera_position;
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
             lighting += SampleFloodFill(samplePos) * 3.0;
@@ -159,10 +159,8 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
                 #endif
 
                 #ifdef SHADOW_CLOUDS
-                    vec2 cloudOffset = GetCloudOffset();
-                    vec3 cloudTexcoord = GetCloudShadowTexcoord(hitLocalPos, localSkyLightDir, cloudOffset);
-                    float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-                    sky_NoL *= _pow2(cloudShadow) * 0.5 + 0.5;
+                    float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
+                    sky_NoL *= cloudShadow * 0.5 + 0.5;
                 #endif
 
                 lighting += sky_NoL * hitAlbedo * skylightColor;

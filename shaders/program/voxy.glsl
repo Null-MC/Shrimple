@@ -71,10 +71,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     float shadow = 1.0;
     #ifdef SHADOW_CLOUDS
-        vec2 cloudOffset = GetCloudOffset();
-        vec3 cloudTexcoord = GetCloudShadowTexcoord(localPos, localSkyLightDir, cloudOffset);
-        float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-        shadow = _pow2(cloudShadow);
+        shadow = SampleCloudShadow(localPos, localSkyLightDir);
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

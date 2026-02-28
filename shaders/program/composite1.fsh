@@ -166,7 +166,7 @@ void main() {
             bool hit = false;
             #ifdef PHOTONICS_REFLECT_ENABLED
                 vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-                vec3 rtPos = localPos + (cameraPosition - world_offset);
+                vec3 rtPos = localPos + rt_camera_position;
 
                 vec3 localNormal = mat3(gbufferModelViewInverse) * viewNormal;
                 vec3 localReflectDir = mat3(gbufferModelViewInverse) * reflectViewDir;
@@ -185,7 +185,7 @@ void main() {
                     hit = true;
                     vec3 albedo = RGBToLinear(ray.result_color);
 
-                    vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
+                    vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
 
                     float hit_sky = get_result_sky_light(hitLocalNormal) / 15.0;
