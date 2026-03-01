@@ -21,6 +21,7 @@ uniform usampler2D TEX_TEX_NORMAL;
     uniform sampler2D dhDepthTex0;
 #endif
 
+uniform float far;
 //uniform vec2 viewSize;
 uniform int frameCounter;
 uniform mat4 gbufferModelViewInverse;
@@ -164,12 +165,15 @@ void main() {
         // TODO: fix hand depth
 
         vec3 viewPos = project(SSAO_PROJ_INV, ndcPos);
+        float viewDist = length(viewPos);
 
-//        vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
-        vec3 viewTexNormal = OctDecode(unpackUnorm2x16(reflectNormalData));
+        if (viewDist >= 0.9 * far) {
+//            vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
+            vec3 viewTexNormal = OctDecode(unpackUnorm2x16(reflectNormalData));
 
-        occlusion = GetSpiralOcclusion(texcoord, viewPos, viewTexNormal);
-        occlusion = saturate(1.0 - occlusion);
+            occlusion = GetSpiralOcclusion(texcoord, viewPos, viewTexNormal);
+            occlusion = saturate(1.0 - occlusion);
+        }
     }
 
     outOcclusion = occlusion;

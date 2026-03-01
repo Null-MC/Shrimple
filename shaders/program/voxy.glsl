@@ -91,9 +91,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #else
         vec2 lmcoord = lmcoord_in;
 
-        #ifdef SHADOWS_ENABLED
-            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
-        #endif
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
 
         lmcoord.y *= GetOldLighting(localNormal);
 

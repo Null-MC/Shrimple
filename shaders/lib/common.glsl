@@ -48,7 +48,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 //#define SHADOWS_ENABLED
 #define SHADOW_RESOLUTION 1024 // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 450 500 600 700 800 900 1000 1200 1400 1600 1800 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000]
-#define SHADOW_AMBIENT 20 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98]
+#define SHADOW_AMBIENT 50 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98]
 #define SHADOW_CLOUDS
 
 //#define BLOOM_ENABLED
@@ -83,10 +83,6 @@ const bool shadowHardwareFiltering = true;
     const float voxelDistance = 64.0;
 #endif
 
-#ifdef PHOTONICS_GI_ENABLED
-    const float ambientOcclusionLevel = 0.0;
-#endif
-
 const float dh_clipDistF = 0.85;
 
 #if MATERIAL_FORMAT == MAT_DEFAULT && defined(MC_TEXTURE_FORMAT_LAB_PBR)
@@ -104,7 +100,6 @@ const float dh_clipDistF = 0.85;
     const int shadowMapResolution = SHADOW_RESOLUTION;
 #else
     const int shadowMapResolution = 2;
-    #undef SHADOW_CLOUDS
 #endif
 
 #ifndef PHOTONICS
@@ -117,6 +112,12 @@ const float dh_clipDistF = 0.85;
 
 #ifndef LIGHTING_HAND
     #undef PHOTONICS_HAND_LIGHT_ENABLED
+#endif
+
+#if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+    #undef PHOTONICS_HAND_LIGHT_ENABLED
+    #undef PHOTONICS_BLOCK_LIGHT_ENABLED
+    #undef PHOTONICS_GI_ENABLED
 #endif
 
 #if defined(PHOTONICS_HAND_LIGHT_ENABLED) || defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
@@ -155,6 +156,11 @@ const float dh_clipDistF = 0.85;
 
 #if defined(LIGHTING_REFLECT_ENABLED) || defined(PHOTONICS_LIGHT_ENABLED)
     #define DEFERRED_SPECULAR_ENABLED
+#endif
+
+
+#ifdef PHOTONICS_GI_ENABLED
+    const float ambientOcclusionLevel = 0.0;
 #endif
 
 

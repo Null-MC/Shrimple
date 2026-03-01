@@ -49,10 +49,10 @@ uniform sampler2D gtexture;
     #else
         uniform sampler2D shadowtex1;
     #endif
+#endif
 
-    #ifdef SHADOW_CLOUDS
-        uniform sampler2D texCloudShadow;
-    #endif
+#ifdef SHADOW_CLOUDS
+    uniform sampler2D texCloudShadow;
 #endif
 
 #ifdef LIGHTING_COLORED
@@ -258,6 +258,12 @@ void main() {
         shadowPos += 0.08 * localGeoNormal;
         shadowPos = mul3(shadowModelView, shadowPos);
         shadowPos.z += 0.032 * viewDist;
+
+        #ifdef MATERIAL_PBR_ENABLED
+            float sss = mat_sss(specularData.b);
+            shadowPos.z += sss;
+        #endif
+
         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
 
         distort(shadowPos.xy);
@@ -270,12 +276,17 @@ void main() {
             shadow = step(shadowPos.z, shadowDepth);
         #endif
 
-        #ifdef SHADOW_CLOUDS
-            shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
+        float shadow_NoL = dot(localTexNormal, localSkyLightDir);
+
+        #ifdef MATERIAL_PBR_ENABLED
+            shadow_NoL = mix(shadow_NoL, 1.0, sss);
         #endif
 
-        float shadow_NoL = dot(localTexNormal, localSkyLightDir);
         shadow *= pow(saturate(shadow_NoL), 0.2);
+    #endif
+
+    #ifdef SHADOW_CLOUDS
+        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
     #endif
 
     vec2 lmcoord = vIn.lmcoord;
@@ -321,9 +332,7 @@ void main() {
 
         color.rgb = albedo * (blockLight + skyLight);
     #else
-        #ifdef SHADOWS_ENABLED
-            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
-        #endif
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
 
         lmcoord.y *= GetOldLighting(localTexNormal);
 

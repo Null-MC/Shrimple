@@ -327,7 +327,7 @@ void main() {
             if (!hit) {
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
                 reflectColor = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
-                reflectColor *= lmcoord_y;
+                reflectColor *= _pow3(lmcoord_y);
             }
 
             float NoV = dot(viewNormal, -viewDir);

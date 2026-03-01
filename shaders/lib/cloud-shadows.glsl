@@ -23,8 +23,6 @@ vec3 GetCloudShadowTexcoord(const in vec3 localPos, const in vec3 localDir, cons
 
     worldPos -= cameraPosition;
 
-//    worldPos.x += 1024; // TODO: randomly added this to fix in 1.21.11
-
     worldPos.xz += mod(eyePosition.xz, 3072.0); // 3072 is one full cloud pattern
     worldPos.y += eyePosition.y;
 
@@ -43,5 +41,5 @@ float SampleCloudShadow(const in vec3 localPos, const in vec3 localLightDir) {
     float upF = smoothstep(0.06, 0.16, localLightDir.y);
     cloudShadow = mix(1.0, cloudShadow, upF);
 
-    return cloudShadow;
+    return cloudShadow * 0.7 + 0.3;
 }
