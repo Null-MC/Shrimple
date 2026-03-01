@@ -214,6 +214,7 @@ void main() {
         vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
 
         vec4 specularData = textureLod(specular, texcoord, mip);
+        float sss = mat_sss(specularData.b);
 
         // TODO: DEBUG ONLY!
 //        if (specularData.g >= 0.9) {
@@ -224,6 +225,7 @@ void main() {
         vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
         vec3 localTexNormal = localGeoNormal;
         const float tex_occlusion = 1.0;
+        const float sss = 0.0;
 
         // TODO: if vanilla lighting, make foliage have "up" normals
 //        #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
@@ -260,7 +262,6 @@ void main() {
         shadowPos.z += 0.032 * viewDist;
 
         #ifdef MATERIAL_PBR_ENABLED
-            float sss = mat_sss(specularData.b);
             shadowPos.z += sss;
         #endif
 
@@ -328,13 +329,22 @@ void main() {
 
         vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
         float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
+
+        #ifdef MATERIAL_PBR_ENABLED
+            skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
+        #endif
+
         vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
 
         color.rgb = albedo * (blockLight + skyLight);
     #else
         lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
 
-        lmcoord.y *= GetOldLighting(localTexNormal);
+        float oldLighting = GetOldLighting(localTexNormal);
+        #ifdef MATERIAL_PBR_ENABLED
+            oldLighting = mix(oldLighting, 1.0, sss);
+        #endif
+        lmcoord.y *= oldLighting;
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;
