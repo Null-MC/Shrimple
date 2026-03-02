@@ -976,7 +976,7 @@ void main() {
                 break;
         }
     #else
-        switch (lightType) {
+        switch (blockId) {
             case BLOCK_CANDLES_LIT_1:
                 color = color_Candle;
                 range = 3;

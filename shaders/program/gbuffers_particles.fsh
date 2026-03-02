@@ -16,6 +16,11 @@ uniform sampler2D gtexture;
     uniform sampler2D specular;
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D lightmap;
 #endif
@@ -72,6 +77,11 @@ uniform float dhFarPlane;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #endif
 
@@ -161,8 +171,16 @@ void main() {
             blockLight += lpvSample * lpvFade;
         #endif
 
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
-        vec3 skyLight = lmcoord.y * (shadow*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+        vec3 skyLight = shadow * skyLightColor;
+
+        #ifndef SHADOWS_ENABLED
+            skyLight *= lmcoord.y;
+        #endif
+
+        #ifndef PHOTONICS_GI_ENABLED
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(vec3(0,1,0));
+        #endif
 
         color.rgb = albedo * (blockLight + skyLight);
 
@@ -170,7 +188,7 @@ void main() {
             color.rgb *= _pow2(vIn.color.a);
         #endif
     #else
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;

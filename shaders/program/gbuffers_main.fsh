@@ -39,6 +39,11 @@ uniform sampler2D gtexture;
     uniform sampler2D specular;
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D lightmap;
 #endif
@@ -75,6 +80,7 @@ uniform float cloudHeight;
 uniform float cloudTime;
 uniform vec3 eyePosition;
 uniform vec4 entityColor;
+uniform int entityId;
 uniform float alphaTestRef;
 uniform vec3 sunLocalDir;
 //uniform vec3 sunPosition;
@@ -100,6 +106,7 @@ uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
 #include "/lib/blocks.glsl"
+#include "/lib/entities.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
@@ -121,6 +128,11 @@ uniform float dhFarPlane;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/vanilla-light.glsl"
@@ -162,6 +174,8 @@ void main() {
 
         #ifdef RENDER_TERRAIN
             if (vIn.blockId == BLOCK_LAVA || vIn.blockId == BLOCK_WATER || vIn.blockId == BLOCK_END_PORTAL) skipParallax = true;
+        #elif defined(RENDER_ENTITY)
+            if (entityId == ENTITY_SHADOW) skipParallax = true;
         #endif
 
         float texDepth = 1.0;
@@ -327,18 +341,26 @@ void main() {
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
         float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
 
         #ifdef MATERIAL_PBR_ENABLED
             skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
         #endif
 
-        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+
+        #ifndef SHADOWS_ENABLED
+            skyLight *= lmcoord.y;
+        #endif
+
+        #ifndef PHOTONICS_GI_ENABLED
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+        #endif
 
         color.rgb = albedo * (blockLight + skyLight);
     #else
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
         float oldLighting = GetOldLighting(localTexNormal);
         #ifdef MATERIAL_PBR_ENABLED

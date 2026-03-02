@@ -42,6 +42,10 @@
     "vxRenderDistance"
   ],
   "samplers": {
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+      "texSkyTransmit": "sampler2D",
+      "texSkyIrradiance": "sampler2D",
+    #endif
     #ifdef SHADOW_CLOUDS
       "texCloudShadow": "sampler2D",
     #endif

@@ -17,6 +17,10 @@ in VertexData {
     uniform sampler2D depthtex0;
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D lightmap;
 #endif
@@ -153,7 +157,7 @@ void main() {
         vec3 blockLight = lmcoord.x * blockLightColor;
 
 //        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
 
         float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
         vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*0.7 + 0.3) * skyLightColor;

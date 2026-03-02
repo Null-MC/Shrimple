@@ -23,10 +23,16 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
         uniform sampler3D texFloodFillB;
     #endif
 
-    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex1HW;
-    #else
-        uniform sampler2D shadowtex1;
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        uniform sampler2D texSkyTransmit;
+    #endif
+
+    #ifdef SHADOWS_ENABLED
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex1HW;
+        #else
+            uniform sampler2D shadowtex1;
+        #endif
     #endif
 #endif
 
@@ -72,6 +78,10 @@ uniform float dhFarPlane;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        #ifdef WORLD_OVERWORLD
+            #include "/lib/sky-transmit.glsl"
+        #endif
+
         #include "/lib/enhanced-lighting.glsl"
     #else
         #include "/lib/vanilla-light.glsl"
@@ -231,15 +241,15 @@ void main() {
                         #endif
 
 //                        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
+                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
 
                         float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
-                        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+                        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - AmbientLightF) + AmbientLightF) * skyLightColor;
 
                         reflectColor = albedo * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
-                            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
+                            lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
                         #endif
 
                         lmcoord.y *= GetOldLighting(hitLocalNormal);
