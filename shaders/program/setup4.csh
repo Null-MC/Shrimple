@@ -11,6 +11,7 @@ layout(rgba16f) uniform writeonly image2D imgSkyIrradiance;
 const ivec2 BufferSize = ivec2(24, 6);
 
 
+uniform float far;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 uniform float rainStrength;
