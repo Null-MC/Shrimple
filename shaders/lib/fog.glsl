@@ -37,6 +37,8 @@ float GetSkyHorizonF(const in float localSunDirY) {
 vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localSunDir, const in vec3 localViewDir) {
     if (isEyeInWater == 1) return fogColorL;
 
+//    return localViewDir * 0.5 + 0.5;
+
     #ifdef WORLD_NETHER
         return fogColorL;
     #elif defined(WORLD_END)

@@ -122,13 +122,13 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
     ray.origin = rtOrigin;
     ray.direction = trace_localDir;
 
-    RAY_ITERATION_COUNT = 20;
+    RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
     breakOnEmpty = true;
 
     trace_ray(ray, true);
 
-    breakOnEmpty = false;
-    RAY_ITERATION_COUNT = 100;
+//    breakOnEmpty = false;
+//    RAY_ITERATION_COUNT = 100;
 
     vec3 lighting;
     if (!ray.result_hit && !ray_iteration_bound_reached) {
@@ -145,7 +145,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
         #ifdef LIGHTING_COLORED
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
-            lighting += NoVm * SampleFloodFill(samplePos) * 3.0;
+            lighting += SampleFloodFill(samplePos) * 3.0;
         #endif
 
         #ifndef WORLD_NETHER
@@ -163,13 +163,13 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
             ray.origin = ray.result_position + 0.1 * hitLocalNormal;
             ray.direction = localSkyLightDir;
 
-            RAY_ITERATION_COUNT = 20;
-            breakOnEmpty = true;
+//            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
+//            breakOnEmpty = true;
 
             trace_ray(ray, true);
 
-            breakOnEmpty = false;
-            RAY_ITERATION_COUNT = 100;
+//            breakOnEmpty = false;
+//            RAY_ITERATION_COUNT = 100;
 
             if (!ray.result_hit && !ray_iteration_bound_reached) {
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -242,10 +242,10 @@ void main() {
 
     // adjust history weight on position match
     float viewDist = length(viewPos);
-    float dist = distance(localPos, prev_pos);
+    float dist = lengthSq(localPos - prev_pos + (cameraPosition - previousCameraPosition));
 //    prev_color.a *= step(dist, max(0.02*viewDist, 0.2));
     //prev_color.a /= 1.0 + dist;
-    prev_color.a *= exp(-2.0 * dist);
+    prev_color.a *= exp(-10.0 * dist);
 
     prev_color.a = clamp(prev_color.a + 1.0, 1.0, 64.0);
     prev_color.rgb = mix(prev_color.rgb, color, 1.0 / prev_color.a);

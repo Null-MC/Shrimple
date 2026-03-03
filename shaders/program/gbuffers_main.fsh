@@ -270,10 +270,13 @@ void main() {
 
     float shadow = 1.0;
     #ifdef SHADOWS_ENABLED
+        vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
+
         vec3 shadowPos = vIn.localPos;
         shadowPos += 0.08 * localGeoNormal;
         shadowPos = mul3(shadowModelView, shadowPos);
-        shadowPos.z += 0.032 * viewDist;
+//        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
+//        shadowPos.z += 0.032 * viewDist;
 
         #ifdef MATERIAL_PBR_ENABLED
             shadowPos.z += sss;

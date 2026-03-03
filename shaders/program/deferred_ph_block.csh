@@ -209,10 +209,14 @@ void main() {
             vec3 lightColor = RGBToLinear(lightColorRange.rgb);
             float lightRange = lightColorRange.a * 32.0;
 
-            lightColor *= 3.0 * (lightRange / 15.0);
+            lightColor *= 6.0 * (lightRange / 15.0);
 
             float NoLm = max(dot(localTexNormal, lightDir), 0.0);
-            float att = 1.0 - saturate(lightDist / lightRange);
+
+            float att_linear = 1.0 - saturate(lightDist / lightRange);
+//            float att_sq = 1.0 / (1.0 + _pow2(lightDist));
+//            float att = min(att_sq, _pow2(att_linear));
+            float att = _pow3(att_linear);
 
 
 //            vec3 rtOrigin = light.position - 0.5 * lightDir;

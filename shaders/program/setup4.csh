@@ -1,5 +1,3 @@
-//#define RENDER_SETUP
-
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
@@ -20,18 +18,23 @@ uniform int isEyeInWater;
 
 uniform int vxRenderDistance;
 
-//#include "/lib/sky-irradiance.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
 
 
-vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
-    float sign = step(0.0, normal.z) * 2.0 - 1.0;
+const vec3 faceDirs[6] = vec3[6](
+    vec3(-1, 0, 0), vec3( 1, 0, 0),
+    vec3( 0,-1, 0), vec3( 0, 1, 0),
+    vec3( 0, 0,-1), vec3( 0, 0, 1));
 
-    float a = -1.0 / (sign + normal.z);
-    float b = normal.x * normal.y * a;
-    vec3 tangent = vec3(1.0 + sign * normal.x * normal.x * a, sign * b, -sign * normal.x);
-    vec3 bitangent = vec3(b, sign + normal.y * normal.y * a, -normal.y);
+
+vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
+    vec3 bitangent = abs(normal.y) < 0.99
+        ? vec3(0.0, 1.0, 0.0)
+        : vec3(0.0, 0.0, 1.0);
+
+    vec3 tangent = normalize(cross(bitangent, normal));
+    bitangent = normalize(cross(tangent, bitangent));
     mat3 tbn = mat3(tangent, bitangent, normal);
 
     return tbn * local_dir;
@@ -58,7 +61,6 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir) {
         for (int y = 0; y < SampleCountY; y++) {
             float theta = y * theta_step;
 
-            // spherical to cartesian (in tangent space)
             float cos_theta = cos(theta);
             float sin_theta = sin(theta);
 
@@ -68,9 +70,7 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir) {
                 cos_theta);
 
             vec3 sampleDir = transform_to_world(localViewDir, tangentSample);
-
             vec3 skyColorFinal = GetSkyFogColor(skyColorL, fogColorL, localSunDir, sampleDir);
-
             irradiance += skyColorFinal * (cos_theta * sin_theta);
         }
     }
@@ -88,30 +88,8 @@ void main() {
     float cosTheta = 2.0*texcoord_x - 1.0;
     float theta = safeacos(cosTheta);
 
-    vec3 localSunDir = normalize(vec3(0.0, cosTheta, -sin(theta)));
-
-
-    vec3 localViewDir;
-    switch (gl_GlobalInvocationID.y) {
-        case 0:
-            localViewDir = vec3(-1, 0, 0);
-            break;
-        case 1:
-            localViewDir = vec3( 1, 0, 0);
-            break;
-        case 2:
-            localViewDir = vec3( 0,-1, 0);
-            break;
-        case 3:
-            localViewDir = vec3( 0, 1, 0);
-            break;
-        case 4:
-            localViewDir = vec3( 0, 0,-1);
-            break;
-        case 5:
-            localViewDir = vec3( 0, 0, 1);
-            break;
-    }
+    vec3 localSunDir = normalize(vec3(sin(theta), cosTheta, 0.0));
+    vec3 localViewDir = faceDirs[uv.y];
 
     vec3 irradiance = GetSkyIrradiance(localSunDir, localViewDir);
     imageStore(imgSkyIrradiance, uv, vec4(irradiance, 1.0));

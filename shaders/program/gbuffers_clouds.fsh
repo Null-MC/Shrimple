@@ -61,21 +61,17 @@ void main() {
     #endif
 
     vec4 color = vIn.color;
-
     color.rgb = RGBToLinear(color.rgb);
 
     float viewDist = length(vIn.localPos);
-
     vec3 localNormal = normalize(vIn.localNormal);
 
     float borderFogF = 0.0;//smoothstep(0.94 * far, far, viewDist);
     float envFogF = smoothstep(fogStart, fogEnd, viewDist);
     float fogF = max(borderFogF, envFogF);
 
-    vec3 fogColorL = RGBToLinear(fogColor);
-    vec3 skyColorL = RGBToLinear(skyColor);
     vec3 localViewDir = normalize(vIn.localPos);
-    vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localViewDir);
+    vec3 fogColorFinal = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
