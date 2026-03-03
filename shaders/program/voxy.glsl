@@ -10,6 +10,11 @@
 #include "/lib/shadows.glsl"
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/vanilla-light.glsl"
@@ -71,10 +76,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     float shadow = 1.0;
     #ifdef SHADOW_CLOUDS
-        vec2 cloudOffset = GetCloudOffset();
-        vec3 cloudTexcoord = GetCloudShadowTexcoord(localPos, localSkyLightDir, cloudOffset);
-        float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-        shadow = _pow2(cloudShadow);
+        shadow = SampleCloudShadow(localPos, localSkyLightDir);
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -83,20 +85,23 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-//        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
-
+        vec3 skyLightColor = GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
         float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
+        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
 
-        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+        #ifndef SHADOWS_ENABLED
+            skyLight *= lmcoord.y;
+        #endif
+
+        #ifndef PHOTONICS_GI_ENABLED
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localNormal);
+        #endif
 
         color.rgb = albedo.rgb * (blockLight + skyLight);
     #else
         vec2 lmcoord = lmcoord_in;
 
-        #ifdef SHADOWS_ENABLED
-            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
-        #endif
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
         lmcoord.y *= GetOldLighting(localNormal);
 

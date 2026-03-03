@@ -23,10 +23,16 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
         uniform sampler3D texFloodFillB;
     #endif
 
-    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex1HW;
-    #else
-        uniform sampler2D shadowtex1;
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        uniform sampler2D texSkyTransmit;
+    #endif
+
+    #ifdef SHADOWS_ENABLED
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            uniform sampler2DShadow shadowtex1HW;
+        #else
+            uniform sampler2D shadowtex1;
+        #endif
     #endif
 #endif
 
@@ -72,6 +78,10 @@ uniform float dhFarPlane;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        #ifdef WORLD_OVERWORLD
+            #include "/lib/sky-transmit.glsl"
+        #endif
+
         #include "/lib/enhanced-lighting.glsl"
     #else
         #include "/lib/vanilla-light.glsl"
@@ -166,7 +176,7 @@ void main() {
             bool hit = false;
             #ifdef PHOTONICS_REFLECT_ENABLED
                 vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-                vec3 rtPos = localPos + (cameraPosition - world_offset);
+                vec3 rtPos = localPos + rt_camera_position;
 
                 vec3 localNormal = mat3(gbufferModelViewInverse) * viewNormal;
                 vec3 localReflectDir = mat3(gbufferModelViewInverse) * reflectViewDir;
@@ -185,7 +195,7 @@ void main() {
                     hit = true;
                     vec3 albedo = RGBToLinear(ray.result_color);
 
-                    vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
+                    vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
 
                     float hit_sky = get_result_sky_light(hitLocalNormal) / 15.0;
@@ -231,15 +241,15 @@ void main() {
                         #endif
 
 //                        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
+                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
 
                         float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
-                        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+                        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - AmbientLightF) + AmbientLightF) * skyLightColor;
 
                         reflectColor = albedo * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
-                            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
+                            lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
                         #endif
 
                         lmcoord.y *= GetOldLighting(hitLocalNormal);
@@ -327,7 +337,7 @@ void main() {
             if (!hit) {
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
                 reflectColor = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
-                reflectColor *= lmcoord_y;
+                reflectColor *= _pow3(lmcoord_y);
             }
 
             float NoV = dot(viewNormal, -viewDir);

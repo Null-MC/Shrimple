@@ -4,9 +4,13 @@
 in VertexData {
     vec2 lmcoord;
     vec3 localPos;
-    flat uint localNormal;
 } vIn;
 
+
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+    uniform sampler2D texSkyIrradiance;
+#endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D lightmap;
@@ -70,6 +74,11 @@ uniform float dhFarPlane;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/vanilla-light.glsl"
@@ -90,17 +99,15 @@ uniform float dhFarPlane;
 #include "_output.glsl"
 
 void main() {
-    vec3 rayOrigin = vIn.localPos + (cameraPosition - world_offset);
-
-    vec3 localNormal = OctDecode(unpackUnorm2x16(vIn.localNormal));
-
     // avoid view bobbing
     vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
     vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
+    vec3 rayOrigin = vIn.localPos + rt_camera_position;
+    rayOrigin += 0.01 * localViewDir;
+
     RayJob ray = RayJob(
-        rayOrigin - 0.01 * localNormal,
-        localViewDir,
+        rayOrigin, localViewDir,
         vec3(0), vec3(0), vec3(0), false
     );
 
@@ -108,10 +115,9 @@ void main() {
     trace_ray(ray);
 
     if (!ray.result_hit) discard;
-    if (ray.result_normal != vec3(0.0))
-        localNormal = ray.result_normal;
 
-    vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
+    vec3 hitLocalNormal = ray.result_normal;
+    vec3 hitLocalPos = ray.result_position - rt_camera_position;
     vec3 hitViewPos = mul3(gbufferModelView, hitLocalPos);
 
     float hitViewDepth = -hitViewPos.z;
@@ -134,7 +140,7 @@ void main() {
     float shadow = 1.0;
     #ifdef SHADOWS_ENABLED
         vec3 shadowPos = hitLocalPos;
-        shadowPos += 0.08 * localNormal;
+        shadowPos += 0.08 * hitLocalNormal;
         shadowPos = mul3(shadowModelView, shadowPos);
         shadowPos.z += 0.032 * viewDist;
         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
@@ -150,13 +156,10 @@ void main() {
         #endif
 
         #ifdef SHADOW_CLOUDS
-            vec2 cloudOffset = GetCloudOffset();
-            vec3 cloudTexcoord = GetCloudShadowTexcoord(vIn.localPos, localSkyLightDir, cloudOffset);
-            float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-            shadow *= _pow2(cloudShadow);
+            shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
         #endif
 
-        float shadow_NoL = dot(localNormal, localSkyLightDir);
+        float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
         shadow *= pow(saturate(shadow_NoL), 0.2);
     #endif
 
@@ -178,16 +181,24 @@ void main() {
         vec3 blockLight = lmcoord.x * blockLightColor;
 
         #ifdef LIGHTING_COLORED
-            vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
+            vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             vec3 lpvSample = SampleFloodFill(samplePos) * 3.0;
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 
-//        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
+        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
+        float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
+        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
 
-        float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
-        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+        #ifndef SHADOWS_ENABLED
+            skyLight *= lmcoord.y;
+        #endif
+
+        #ifndef PHOTONICS_GI_ENABLED
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
+        #endif
+
+//        skyLight *= lmcoord.y;
 
         color.rgb = albedo * (blockLight + skyLight);
 
@@ -196,10 +207,10 @@ void main() {
 //        #endif
     #else
         #ifdef SHADOWS_ENABLED
-            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
+            lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
         #endif
 
-        lmcoord.y *= GetOldLighting(localNormal);
+        lmcoord.y *= GetOldLighting(hitLocalNormal);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;
@@ -210,7 +221,7 @@ void main() {
         lit = RGBToLinear(lit);
 
         #ifdef LIGHTING_COLORED
-            vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
+            vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             vec3 lpvSample = SampleFloodFill(samplePos, pow(vIn.lmcoord.x, 2.2));
             lit += lpvFade * lpvSample;
         #endif
@@ -222,7 +233,7 @@ void main() {
         float smoothness = 1.0 - mat_roughness_lab(specularData.r);
         float f0 = mat_f0_lab(specularData.g);
 
-        float NoV = dot(localNormal, -localViewDir);
+        float NoV = dot(hitLocalNormal, -localViewDir);
         color.rgb *= 1.0 - F_schlick(NoV, f0, 1.0) * _pow2(smoothness);
     #endif
 
@@ -241,9 +252,9 @@ void main() {
     outFinal = color;
 
     #ifdef DEFERRED_NORMAL_ENABLED
-        outGeoNormal = packUnorm2x16(OctEncode(localNormal));
+        outGeoNormal = packUnorm2x16(OctEncode(hitLocalNormal));
 
-        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
+        vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
         outTexNormal = packUnorm2x16(OctEncode(viewNormal));
     #endif
 

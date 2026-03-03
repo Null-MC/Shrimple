@@ -52,12 +52,14 @@ vec3 filter_ATrous(const in vec2 texcoord) {
     ivec2 uv = ivec2(texcoord * viewSize);
 
 //    vec3 cval = texelFetch(TEX_GI_COLOR, uv, 0).rgb;
+//    return cval;
+
     vec3 nval = atrous_GetTexNormal(uv);
     vec3 pval = atrous_GetViewPosition(uv);
 
-    const float c_phi = 0.1;
-    const float n_phi = 0.1;
-    const float p_phi = 0.1;
+//    const float c_phi = 0.1;
+    const float n_phi = 100.0;
+    const float p_phi = 100.0;
 
     float total_weight = 0.0;
     vec3 sum = vec3(0.0);
@@ -65,25 +67,20 @@ vec3 filter_ATrous(const in vec2 texcoord) {
     for (int i = 0; i < 25; i++) {
         ivec2 sample_uv = atrousOffsets[i] * ATrous_StepWidth + uv;
 
-        float dist2;
-        vec3 t;
-
         vec4 ctmp = texelFetch(TEX_GI_COLOR, sample_uv, 0);
-        ctmp.rgb *= saturate(ctmp.a / 4.0);
+
+        // scale weight by history counter
+        //ctmp.rgb *= saturate(ctmp.a * 0.5);
+
         // float3 t = cval - ctmp;
         // float dist2 = dot(t,t);
         // float c_w = 1.0;//min(exp(-(dist2)/c_phi), 1.0);
 
         vec3 ntmp = atrous_GetTexNormal(sample_uv);
-        t = nval - ntmp;
-        // dist2 = max(dot(t,t)/(stepwidth*stepwidth),0.0);
-        dist2 = max(dot(t, t), 0.0);
-        float n_w = min(exp(-(dist2)/n_phi), 1.0);
+        float n_w = min(exp(-lengthSq(nval - ntmp) * n_phi), 1.0);
 
         vec3 ptmp = atrous_GetViewPosition(sample_uv);
-        t = pval - ptmp;
-        dist2 = dot(t, t);
-        float p_w = min(exp(-(dist2)/p_phi), 1.0);
+        float p_w = min(exp(-lengthSq(pval - ptmp) * p_phi), 1.0);
 
         // float kernel_weight = c_w * n_w * p_w * atrousKernel[i];
         float kernel_weight = n_w * p_w * atrousKernel[i];

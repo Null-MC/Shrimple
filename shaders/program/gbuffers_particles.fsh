@@ -16,6 +16,11 @@ uniform sampler2D gtexture;
     uniform sampler2D specular;
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D lightmap;
 #endif
@@ -25,10 +30,16 @@ uniform sampler2D gtexture;
     uniform sampler3D texFloodFillB;
 #endif
 
-#ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-    uniform sampler2DShadow shadowtex1HW;
-#else
-    uniform sampler2D shadowtex1;
+#ifdef SHADOWS_ENABLED
+    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+        uniform sampler2DShadow shadowtex1HW;
+    #else
+        uniform sampler2D shadowtex1;
+    #endif
+#endif
+
+#ifdef SHADOW_CLOUDS
+    uniform sampler2D texCloudShadow;
 #endif
 
 uniform float far;
@@ -37,6 +48,9 @@ uniform float fogDensity;
 uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 skyColor;
+uniform float cloudHeight;
+uniform float cloudTime;
+uniform vec3 eyePosition;
 uniform float rainStrength;
 uniform float alphaTestRef;
 uniform vec3 sunLocalDir;
@@ -56,12 +70,18 @@ uniform float dhFarPlane;
 #include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/sampling/lightmap.glsl"
+#include "/lib/shadows.glsl"
 
 #ifdef MATERIAL_PBR_ENABLED
     #include "/lib/material.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #endif
 
@@ -70,8 +90,8 @@ uniform float dhFarPlane;
     #include "/lib/floodfill-render.glsl"
 #endif
 
-#ifdef SHADOWS_ENABLED
-    #include "/lib/shadows.glsl"
+#ifdef SHADOW_CLOUDS
+    #include "/lib/cloud-shadows.glsl"
 #endif
 
 
@@ -128,6 +148,10 @@ void main() {
         #endif
     #endif
 
+    #ifdef SHADOW_CLOUDS
+        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
+    #endif
+
     #ifdef LIGHTING_COLORED
         vec3 voxelPos = GetVoxelPosition(vIn.localPos);
         float lpvFade = GetVoxelFade(voxelPos);
@@ -147,8 +171,16 @@ void main() {
             blockLight += lpvSample * lpvFade;
         #endif
 
-        vec3 skyLightColor = GetSkyLightColor(sunLocalDir.y);
-        vec3 skyLight = lmcoord.y * (shadow*(1.0 - shadowAmbientF) + shadowAmbientF) * skyLightColor;
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+        vec3 skyLight = shadow * skyLightColor;
+
+        #ifndef SHADOWS_ENABLED
+            skyLight *= lmcoord.y;
+        #endif
+
+        #ifndef PHOTONICS_GI_ENABLED
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(vec3(0,1,0));
+        #endif
 
         color.rgb = albedo * (blockLight + skyLight);
 
@@ -156,9 +188,7 @@ void main() {
             color.rgb *= _pow2(vIn.color.a);
         #endif
     #else
-        #ifdef SHADOWS_ENABLED
-            lmcoord.y = min(lmcoord.y, shadow * (1.0 - shadowAmbientF) + shadowAmbientF);
-        #endif
+        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;

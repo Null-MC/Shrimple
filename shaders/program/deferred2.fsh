@@ -15,6 +15,11 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 uniform sampler2D TEX_GI_COLOR;
 uniform sampler2D TEX_GI_POSITION;
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+    uniform sampler2D texSkyTransmit;
+    uniform sampler2D texSkyIrradiance;
+#endif
+
 #ifdef SHADOW_CLOUDS
     uniform sampler2D texCloudShadow;
 #endif
@@ -42,6 +47,7 @@ uniform int isEyeInWater;
 uniform int frameCounter;
 uniform vec2 viewSize;
 uniform vec2 taa_offset = vec2(0.0);
+uniform vec2 taa_offset_prev = vec2(0.0);
 
 uniform int vxRenderDistance;
 
@@ -57,6 +63,11 @@ uniform int vxRenderDistance;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #endif
 
@@ -88,8 +99,7 @@ vec3 sample_cosine_weighted_hemisphere(const in vec2 rand, out float pdf) {
 }
 
 vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
-    float sign = sign(normal.z);
-    if (abs(normal.z) < EPSILON) sign = 1.0;
+    float sign = step(0.0, normal.z) * 2.0 - 1.0;
 
     float a = -1.0 / (sign + normal.z);
     float b = normal.x * normal.y * a;
@@ -101,7 +111,7 @@ vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
 }
 
 vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal) {
-    vec3 rtOrigin = localPos + (cameraPosition - world_offset);
+    vec3 rtOrigin = localPos + rt_camera_position;
 
     float pdf;
     vec2 seed = hash22(gl_FragCoord.xy + vec2(23.0, 47.0)*frameCounter);
@@ -112,13 +122,13 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
     ray.origin = rtOrigin;
     ray.direction = trace_localDir;
 
-    RAY_ITERATION_COUNT = 20;
+    RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
     breakOnEmpty = true;
 
     trace_ray(ray, true);
 
-    breakOnEmpty = false;
-    RAY_ITERATION_COUNT = 100;
+//    breakOnEmpty = false;
+//    RAY_ITERATION_COUNT = 100;
 
     vec3 lighting;
     if (!ray.result_hit && !ray_iteration_bound_reached) {
@@ -127,13 +137,23 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
     else {
         lighting = vec3(0.0);
         vec3 hitAlbedo = RGBToLinear(ray.result_color);
+        vec3 hitLocalPos = ray.result_position - rt_camera_position;
         vec3 hitLocalNormal = ray.result_normal;
 
+        float NoVm = max(dot(hitLocalNormal, trace_localDir), 0.0);
+
         #ifdef LIGHTING_COLORED
-            vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
             lighting += SampleFloodFill(samplePos) * 3.0;
+        #endif
+
+        #ifndef WORLD_NETHER
+            // TODO: add indirect sky lighting
+            float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
+//            vec3 hitSkyColorFinal = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), hitLocalNormal);
+            vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
+            lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
         #endif
 
         vec3 localSkyLightDir = normalize(mul3(gbufferModelViewInverse, shadowLightPosition));
@@ -143,26 +163,24 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
             ray.origin = ray.result_position + 0.1 * hitLocalNormal;
             ray.direction = localSkyLightDir;
 
-            RAY_ITERATION_COUNT = 20;
-            breakOnEmpty = true;
+//            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
+//            breakOnEmpty = true;
 
             trace_ray(ray, true);
 
-            breakOnEmpty = false;
-            RAY_ITERATION_COUNT = 100;
+//            breakOnEmpty = false;
+//            RAY_ITERATION_COUNT = 100;
 
             if (!ray.result_hit && !ray_iteration_bound_reached) {
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                    vec3 skylightColor = GetSkyLightColor(sunLocalDir.y);
+                    vec3 skylightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
                 #else
                     const vec3 skylightColor = RGBToLinear(vec3(0.89, 0.863, 0.722));
                 #endif
 
                 #ifdef SHADOW_CLOUDS
-                    vec2 cloudOffset = GetCloudOffset();
-                    vec3 cloudTexcoord = GetCloudShadowTexcoord(hitLocalPos, localSkyLightDir, cloudOffset);
-                    float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
-                    sky_NoL *= _pow2(cloudShadow) * 0.5 + 0.5;
+                    float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
+                    sky_NoL *= cloudShadow * 0.5 + 0.5;
                 #endif
 
                 lighting += sky_NoL * hitAlbedo * skylightColor;
@@ -183,9 +201,9 @@ void main() {
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
     vec3 screenPos = vec3(texcoord, depth);
 
-//    #ifdef TAA_ENABLED
-//        screenPos.xy -= taa_offset;
-//    #endif
+    #ifdef TAA_ENABLED
+        screenPos.xy -= taa_offset;
+    #endif
 
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
@@ -212,6 +230,10 @@ void main() {
     vec3 prev_clipPos = project(gbufferPreviousProjection, prev_viewPos);
     vec2 prev_screenPos = prev_clipPos.xy * 0.5 + 0.5;
 
+    #ifdef TAA_ENABLED
+        prev_screenPos.xy += taa_offset_prev;
+    #endif
+
     vec4 prev_color = textureLod(TEX_GI_COLOR, prev_screenPos, 0);
     vec3 prev_pos = textureLod(TEX_GI_POSITION, prev_screenPos, 0).xyz;
 
@@ -220,9 +242,10 @@ void main() {
 
     // adjust history weight on position match
     float viewDist = length(viewPos);
-    float dist = distance(localPos, prev_pos);
+    float dist = lengthSq(localPos - prev_pos + (cameraPosition - previousCameraPosition));
 //    prev_color.a *= step(dist, max(0.02*viewDist, 0.2));
-    prev_color.a /= 1.0 + dist;
+    //prev_color.a /= 1.0 + dist;
+    prev_color.a *= exp(-10.0 * dist);
 
     prev_color.a = clamp(prev_color.a + 1.0, 1.0, 64.0);
     prev_color.rgb = mix(prev_color.rgb, color, 1.0 / prev_color.a);

@@ -20,7 +20,7 @@ uniform vec3 cameraPosition;
 //layout(location = 0) out vec4 outColor;
 
 void main() {
-    vec3 rayOrigin = vIn.localPos + (cameraPosition - world_offset);
+    vec3 rayOrigin = vIn.localPos + rt_camera_position;
     vec3 localNormal = normalize(vIn.localNormal);
 
     RayJob ray = RayJob(
@@ -33,7 +33,7 @@ void main() {
 
     if (!ray.result_hit) discard;
 
-    vec3 hitLocalPos = ray.result_position - (cameraPosition - world_offset);
+    vec3 hitLocalPos = ray.result_position - rt_camera_position;
     vec3 hitViewPos = mul3(shadowModelView, hitLocalPos);
     vec3 hitScreenPos = project(shadowProjection, hitViewPos);
 

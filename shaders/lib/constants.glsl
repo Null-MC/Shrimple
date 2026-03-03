@@ -8,6 +8,9 @@
 #define BLOCK_OUTLINE_SOLID 1
 #define BLOCK_OUTLINE_CONSTRUCTION 2
 
+#define SKY_VANILLA 0
+#define SKY_ENHANCED 1
+
 #define MAT_DEFAULT 0
 #define MAT_LABPBR 2
 #define MAT_OLDPBR 1

@@ -6,7 +6,7 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_FINAL;
 
-uniform sampler2D texCloudShadow;
+//uniform sampler2D texCloudShadow;
 
 #if DEBUG_VIEW == DEBUG_VIEW_SSAO
     uniform sampler2D TEX_SSAO;
@@ -15,6 +15,8 @@ uniform sampler2D texCloudShadow;
 #ifdef PHOTONICS_LIGHT_DEBUG
     uniform usampler2D texLightDebug;
 #endif
+
+//uniform sampler2D texSkyIrradiance;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -93,6 +95,11 @@ void main() {
 //    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(900);
 //    if (saturate(tex) == tex) {
 //        color = textureLod(texCloudShadow, fract(tex*3.0), 0).rrr;
+//    }
+
+//    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(96, 24);
+//    if (saturate(tex) == tex) {
+//        color = textureLod(texSkyIrradiance, tex, 0).rgb;
 //    }
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;

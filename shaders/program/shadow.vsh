@@ -37,7 +37,12 @@ void main() {
             texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         #endif
 
-        gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);
+        vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
+
+        vec3 viewPosOffset = viewPos;
+        viewPosOffset.z -= 0.20 * viewNormal.z;
+
+        gl_Position = gl_ProjectionMatrix * vec4(viewPosOffset, 1.0);
         distort(gl_Position.xy);
     #else
         gl_Position = vec4(-10.0);

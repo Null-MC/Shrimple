@@ -107,6 +107,25 @@ float mat_emission(const in vec4 specularData) {
     #endif
 }
 
+float mat_sss_lab(const in float specular_b) {
+    return max(specular_b - (64.0/255.0), 0.0) * (255.0/191.0);
+}
+
+float mat_sss_old() {
+    return 0.0;
+}
+
+float mat_sss(const in float specular_b) {
+    #if MATERIAL_FORMAT == MAT_LABPBR
+        return mat_sss_lab(specular_b);
+    #elif MATERIAL_FORMAT == MAT_OLDPBR
+        return mat_sss_old();
+    #else
+        return 0.0;
+    #endif
+}
+
+
 void TransformEmission(inout float emission) {
     const float MAT_EmissionScale = MATERIAL_EMISSION_SCALE;
 

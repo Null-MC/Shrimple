@@ -1,4 +1,6 @@
 setup1			build static block data
+setup2			cloud shadow blur
+setup3			sky transmit LUT
 
 shadowcomp		floodfill propagation
 
