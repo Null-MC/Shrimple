@@ -27,7 +27,7 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
 //    sharedBuffer[i_shared] = 1.0 - texelFetch(texClouds, uv, 0).r;
     vec2 texcoord = (uv + 0.5) / shadowSize;
 //    vec2 texcoord = vec2(uv) / shadowSize;
-    sharedBuffer[i_shared] = 1.0 - textureLod(texClouds, texcoord, 0).r;
+    sharedBuffer[i_shared] = 1.0 - texture(texClouds, texcoord).r;
 }
 
 float Gaussian(const in float sigma, const in float x) {

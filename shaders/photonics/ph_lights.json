@@ -1,0 +1,659 @@
+{
+  "multi_threading_enabled": false,
+  "defines": {
+    "colors": {
+      "torch": "#ffa95b",
+      "campfire": "#ff9732",
+      "white_candle": "#ffffff",
+      "gray_candle": "#6b6b6b",
+      "black_candle": "#6b6b6b",
+      "red_candle": "#ff5555",
+      "orange_candle": "#fc7f18",
+      "yellow_candle": "#ffff55",
+      "lime_candle": "#55ff55",
+      "green_candle": "#00aa00",
+      "cyan_candle": "#00aaaa",
+      "light_blue_candle": "#55ffff",
+      "blue_candle": "#5555ff",
+      "purple_candle": "#812bb2",
+      "magenta_candle": "#bb3bb2",
+      "pink_candle": "#f387aa",
+      "soul_fire": "#33ccff",
+      "copper": "#75b37a",
+      "redstone": "#ff3333",
+      "amethyst": "#7a5bb5",
+      "cave_vines": "#ffa757",
+      "2500k": "#ff9f46",
+      "magma": "#ff6c00",
+      "obsidian": "#8308e4",
+      "sculk": "#278591",
+      "end": "#aaaaaa",
+      "generic": "#646464"
+    },
+    "intensities": {
+      "dim": 8,
+      "default": 12,
+      "full_block": 17.6,
+      "candle": 10.4,
+      "lantern": 16,
+      "campfire": 24,
+      "lamp": 10.4,
+      "exposed_lamp": 12,
+      "weathered_lamp": 10.4,
+      "oxidized_lamp": 28,
+      "redstone": 40,
+      "redstone_block": 16,
+      "small_amethyst_bud": 10.4,
+      "medium_amethyst_bud": 13.6,
+      "large_amethyst_bud": 16,
+      "amethyst_cluster": 21.6,
+      "cave_vines": 5.6,
+      "fire": 13.6,
+      "lava": 8,
+      "nether_portal": 2.4,
+      "sculk_vein": 20,
+      "end_rod": 5.6,
+      "glowstone": 5.6
+    },
+    "radii": {
+      "small": 1,
+      "default": 3,
+      "full_block": 6,
+      "candle": 2,
+      "lantern": 6,
+      "campfire": 7,
+      "lamp": 9,
+      "exposed_lamp": 7,
+      "weathered_lamp": 5,
+      "oxidized_lamp": 1,
+      "redstone": 1,
+      "cave_vines": 4,
+      "fire": 6,
+      "lava": 10,
+      "nether_portal": 15,
+      "end_rod": 12,
+      "glowstone": 7
+    },
+    "falloffs": {
+      "fast": 1,
+      "default": 0.2,
+      "full_block": 0.15,
+      "candle": 0.15,
+      "lantern": 0.17,
+      "campfire": 0.1,
+      "lamp": 0.1,
+      "exposed_lamp": 0.15,
+      "weathered_lamp": 0.15,
+      "oxidized_lamp": 0.15,
+      "cave_vines": 0.1,
+      "fire": 0.17,
+      "lava": 0.1,
+      "nether_portal": 0.15,
+      "end_rod": 0.15,
+      "glowstone": 0.5
+    }
+  },
+  "lights": {
+    "minecraft": {
+      "intensity": "*default",
+      "radius": "*default",
+      "falloff": "*default",
+      "is_traced": false,
+      "overrides": {
+        "torch": {
+          "color": "*torch",
+          "blocks": [
+            "minecraft:torch",
+            "minecraft:wall_torch",
+            "minecraft:jack_o_lantern"
+          ],
+          "overrides": {
+            "candle": {
+              "intensity": "*candle",
+              "radius": "*candle",
+              "falloff": "*candle",
+              "blocks": [
+                "minecraft:candle[lit=true]",
+                "minecraft:candle_cake[lit=true]",
+                "minecraft:brown_candle[lit=true]",
+                "minecraft:brown_candle_cake[lit=true]"
+              ],
+              "overrides": {
+                "white_candle": {
+                  "color": "*white_candle",
+                  "blocks": [
+                    "minecraft:white_candle[lit=true]",
+                    "minecraft:white_candle_cake[lit=true]"
+                  ]
+                },
+                "gray_candle": {
+                  "color": "*gray_candle",
+                  "blocks": [
+                    "minecraft:gray_candle[lit=true]",
+                    "minecraft:gray_candle_cake[lit=true]"
+                  ]
+                },
+                "black_candle": {
+                  "color": "*black_candle",
+                  "blocks": [
+                    "minecraft:black_candle[lit=true]",
+                    "minecraft:black_candle_cake[lit=true]"
+                  ]
+                },
+                "red_candle": {
+                  "color": "*red_candle",
+                  "blocks": [
+                    "minecraft:red_candle[lit=true]",
+                    "minecraft:red_candle_cake[lit=true]"
+                  ]
+                },
+                "orange_candle": {
+                  "color": "*orange_candle",
+                  "blocks": [
+                    "minecraft:orange_candle[lit=true]",
+                    "minecraft:orange_candle_cake[lit=true]"
+                  ]
+                },
+                "yellow_candle": {
+                  "color": "*yellow_candle",
+                  "blocks": [
+                    "minecraft:yellow_candle[lit=true]",
+                    "minecraft:yellow_candle_cake[lit=true]"
+                  ]
+                },
+                "lime_candle": {
+                  "color": "*lime_candle",
+                  "blocks": [
+                    "minecraft:lime_candle[lit=true]",
+                    "minecraft:lime_candle_cake[lit=true]"
+                  ]
+                },
+                "green_candle": {
+                  "color": "*green_candle",
+                  "blocks": [
+                    "minecraft:green_candle[lit=true]",
+                    "minecraft:green_candle_cake[lit=true]"
+                  ]
+                },
+                "cyan_candle": {
+                  "color": "*cyan_candle",
+                  "blocks": [
+                    "minecraft:cyan_candle[lit=true]",
+                    "minecraft:cyan_candle_cake[lit=true]"
+                  ]
+                },
+                "light_blue_candle": {
+                  "color": "*light_blue_candle",
+                  "blocks": [
+                    "minecraft:light_blue_candle[lit=true]",
+                    "minecraft:light_blue_candle_cake[lit=true]"
+                  ]
+                },
+                "blue_candle": {
+                  "color": "*blue_candle",
+                  "blocks": [
+                    "minecraft:blue_candle[lit=true]",
+                    "minecraft:blue_candle_cake[lit=true]"
+                  ]
+                },
+                "purple_candle": {
+                  "color": "*purple_candle",
+                  "blocks": [
+                    "minecraft:purple_candle[lit=true]",
+                    "minecraft:purple_candle_cake[lit=true]"
+                  ]
+                },
+                "magenta_candle": {
+                  "color": "*magenta_candle",
+                  "blocks": [
+                    "minecraft:magenta_candle[lit=true]",
+                    "minecraft:magenta_candle_cake[lit=true]"
+                  ]
+                },
+                "pink_candle": {
+                  "color": "*pink_candle",
+                  "blocks": [
+                    "minecraft:pink_candle[lit=true]",
+                    "minecraft:pink_candle_cake[lit=true]"
+                  ]
+                }
+              }
+            },
+            "lantern": {
+              "intensity": "*lantern",
+              "radius": "*lantern",
+              "falloff": "*lantern",
+              "blocks": [
+                "minecraft:lantern"
+              ]
+            },
+            "campfire": {
+              "color": "*campfire",
+              "intensity": "*campfire",
+              "radius": "*campfire",
+              "falloff": "*campfire",
+              "blocks": [
+                "minecraft:campfire[lit=true]"
+              ]
+            }
+          }
+        },
+        "soul_torch": {
+          "color": "*soul_fire",
+          "blocks": [
+            "minecraft:soul_torch",
+            "minecraft:soul_wall_torch"
+          ],
+          "overrides": {
+            "lantern": {
+              "intensity": "*lantern",
+              "radius": "*lantern",
+              "falloff": "*lantern",
+              "blocks": [
+                "minecraft:soul_lantern"
+              ]
+            },
+            "campfire": {
+              "intensity": "*campfire",
+              "radius": "*campfire",
+              "falloff": "*campfire",
+              "blocks": [
+                "minecraft:soul_campfire[lit=true]"
+              ]
+            }
+          }
+        },
+        "copper_torch": {
+          "color": "*copper",
+          "blocks": [
+            "minecraft:copper_torch",
+            "minecraft:copper_wall_torch"
+          ],
+          "overrides": {
+            "lantern": {
+              "intensity": "*lantern",
+              "radius": "*lantern",
+              "falloff": "*lantern",
+              "blocks": [
+                "minecraft:copper_lantern",
+                "minecraft:exposed_copper_lantern",
+                "minecraft:weathered_copper_lantern",
+                "minecraft:oxidized_copper_lantern",
+                "minecraft:waxed_copper_lantern",
+                "minecraft:waxed_exposed_copper_lantern",
+                "minecraft:waxed_weathered_copper_lantern",
+                "minecraft:waxed_oxidized_copper_lantern"
+              ]
+            }
+          }
+        },
+        "lamps": {
+          "color": "*torch",
+          "intensity": "*lamp",
+          "radius": "*lamp",
+          "falloff": "*lamp",
+          "blocks": [
+            "minecraft:redstone_lamp[lit=true]",
+            "minecraft:copper_bulb[lit=true]",
+            "minecraft:waxed_copper_bulb[lit=true]"
+          ],
+          "overrides": {
+            "exposed_bulb": {
+              "intensity": "*exposed_lamp",
+              "radius": "*exposed_lamp",
+              "falloff": "*exposed_lamp",
+              "blocks": [
+                "minecraft:exposed_copper_bulb[lit=true]",
+                "minecraft:waxed_exposed_copper_bulb[lit=true]"
+              ]
+            },
+            "weathered_bulb": {
+              "intensity": "*weathered_lamp",
+              "radius": "*weathered_lamp",
+              "falloff": "*weathered_lamp",
+              "blocks": [
+                "minecraft:weathered_copper_bulb[lit=true]",
+                "minecraft:waxed_weathered_copper_bulb[lit=true]"
+              ]
+            },
+            "oxidized_bulb": {
+              "intensity": "*oxidized_lamp",
+              "radius": "*oxidized_lamp",
+              "falloff": "*oxidized_lamp",
+              "is_traced": false,
+              "blocks": [
+                "minecraft:oxidized_copper_bulb[lit=true]",
+                "minecraft:waxed_weathered_copper_bulb[lit=true]"
+              ]
+            },
+            "light_block": {
+              "color": "*generic",
+              "blocks": [
+                "minecraft:light[level=1]",
+                "minecraft:light[level=2]",
+                "minecraft:light[level=3]",
+                "minecraft:light[level=4]",
+                "minecraft:light[level=5]",
+                "minecraft:light[level=6]",
+                "minecraft:light[level=7]",
+                "minecraft:light[level=8]",
+                "minecraft:light[level=9]",
+                "minecraft:light[level=10]",
+                "minecraft:light[level=11]",
+                "minecraft:light[level=12]",
+                "minecraft:light[level=13]",
+                "minecraft:light[level=14]",
+                "minecraft:light[level=15]"
+              ]
+            }
+          }
+        },
+        "redstone": {
+          "color": "*redstone",
+          "blocks": [
+            "minecraft:redstone_torch[lit=true]",
+            "minecraft:redstone_wall_torch[lit=true]",
+            "minecraft:repeater[powered=true]",
+            "minecraft:comparator[powered=true]"
+          ],
+          "overrides": {
+            "ore": {
+              "intensity": "*redstone",
+              "radius": "*redstone",
+              "is_traced": false,
+              "blocks": [
+                "minecraft:redstone_ore[lit=true]",
+                "minecraft:deepslate_redstone_ore[lit=true]"
+              ]
+            },
+            "dust": {
+              "intensity": "*redstone",
+              "radius": "*redstone",
+              "is_traced": false,
+              "blocks": [
+                "minecraft:redstone_wire[power=1]",
+                "minecraft:redstone_wire[power=2]",
+                "minecraft:redstone_wire[power=3]",
+                "minecraft:redstone_wire[power=4]",
+                "minecraft:redstone_wire[power=5]",
+                "minecraft:redstone_wire[power=6]",
+                "minecraft:redstone_wire[power=7]",
+                "minecraft:redstone_wire[power=8]",
+                "minecraft:redstone_wire[power=9]",
+                "minecraft:redstone_wire[power=10]",
+                "minecraft:redstone_wire[power=11]",
+                "minecraft:redstone_wire[power=12]",
+                "minecraft:redstone_wire[power=13]",
+                "minecraft:redstone_wire[power=14]",
+                "minecraft:redstone_wire[power=15]"
+              ]
+            },
+            "block": {
+              "intensity": "*full_block",
+              "radius": "*full_block",
+              "falloff": "*full_block",
+              "blocks": [
+                "minecraft:redstone_block"
+              ]
+            }
+          }
+        },
+        "amethyst": {
+          "color": "*amethyst",
+          "blocks": [
+            "minecraft:budding_amethyst",
+            "minecraft:amethyst_block"
+          ],
+          "overrides": {
+            "small_bud": {
+              "intensity": "*small_amethyst_bud",
+              "blocks": [
+                "minecraft:small_amethyst_bud"
+              ]
+            },
+            "medium_bud": {
+              "intensity": "*medium_amethyst_bud",
+              "blocks": [
+                "minecraft:medium_amethyst_bud"
+              ]
+            },
+            "large_bud": {
+              "intensity": "*large_amethyst_bud",
+              "blocks": [
+                "minecraft:large_amethyst_bud"
+              ]
+            },
+            "cluster": {
+              "intensity": "*amethyst_cluster",
+              "blocks": [
+                "minecraft:amethyst_cluster"
+              ]
+            }
+          }
+        },
+        "cave_vines": {
+          "color": "*cave_vines",
+          "intensity": "*cave_vines",
+          "radius": "*cave_vines",
+          "falloff": "*cave_vines",
+          "blocks": [
+            "minecraft:cave_vines[berries=true]",
+            "minecraft:cave_vines_plant[berries=true]"
+          ]
+        },
+        "fire": {
+          "intensity": "*fire",
+          "radius": "*fire",
+          "falloff": "*fire",
+          "overrides": {
+            "regular": {
+              "color": "*magma",
+              "blocks": [
+                "minecraft:fire"
+              ]
+            },
+            "soul": {
+              "color": "*soul_fire",
+              "blocks": [
+                "minecraft:soul_fire"
+              ]
+            }
+          }
+        },
+        "lava": {
+          "color": "*magma",
+          "intensity": "*lava",
+          "radius": "*lava",
+          "falloff": "*lava",
+          "blocks": [
+            "minecraft:lava"
+          ],
+          "overrides": {
+            "magma_block": {
+              "intensity": "*full_block",
+              "radius": "*full_block",
+              "falloff": "*full_block",
+              "blocks": [
+                "minecraft:magma_block"
+              ]
+            }
+          }
+        },
+        "obsidian": {
+          "color": "*obsidian",
+          "intensity": "*full_block",
+          "radius": "*full_block",
+          "falloff": "*full_block",
+          "blocks": [
+            "minecraft:crying_obsidian"
+          ],
+          "overrides": {
+            "nether_portal": {
+              "intensity": "*nether_portal",
+              "radius": "*nether_portal",
+              "falloff": "*nether_portal",
+              "blocks": [
+                "minecraft:nether_portal"
+              ]
+            },
+            "respawn_anchor": {
+              "intensity": "*default",
+              "radius": "*default",
+              "falloff": "*default",
+              "blocks": [
+                "minecraft:respawn_anchor"
+              ]
+            }
+          }
+        },
+        "sculk": {
+          "color": "*sculk",
+          "blocks": [
+            "minecraft:sculk_sensor",
+            "minecraft:calibrated_sculk_sensor",
+            "minecraft:sculk_catalyst",
+            "minecraft:sculk_shrieker"
+          ],
+          "overrides": {
+            "vein": {
+              "intensity": "*sculk_vein",
+              "is_traced": false,
+              "blocks": [
+                "minecraft:sculk_vein"
+              ]
+            }
+          }
+        },
+        "end": {
+          "color": "*end",
+          "blocks": [
+            "minecraft:end_gateway",
+            "minecraft:end_portal_frame"
+          ],
+          "overrides": {
+            "end_rod": {
+              "intensity": "*end_rod",
+              "radius": "*end_rod",
+              "falloff": "*end_rod",
+              "blocks": [
+                "minecraft:end_rod"
+              ]
+            }
+          }
+        },
+        "froglight": {
+          "intensity": "*full_block",
+          "radius": "*full_block",
+          "falloff": "*full_block",
+          "overrides": {
+            "pearlescent": {
+              "color": "#b28abd",
+              "blocks": [
+                "minecraft:pearlescent_froglight"
+              ]
+            },
+            "verdant": {
+              "color": "#91c382",
+              "blocks": [
+                "minecraft:verdant_froglight"
+              ]
+            },
+            "ochre": {
+              "color": "*2500k",
+              "blocks": [
+                "minecraft:ochre_froglight"
+              ]
+            }
+          }
+        },
+        "other": {
+          "color": "*torch",
+          "overrides": {
+            "blocks": {
+              "intensity": "*full_block",
+              "radius": "*full_block",
+              "falloff": "*full_block",
+              "overrides": {
+                "2500k": {
+                  "color": "*2500k",
+                  "blocks": [
+                    "minecraft:shroomlight",
+                    "minecraft:lava_cauldron",
+                    "minecraft:furnace[lit=true]",
+                    "minecraft:blast_furnace[lit=true]",
+                    "minecraft:smoker[lit=true]"
+                  ]
+                },
+                "generic": {
+                  "color": "*generic",
+                  "blocks": [
+                    "minecraft:beacon",
+                    "minecraft:sea_lantern",
+                    "minecraft:vault",
+                    "minecraft:trial_spawner",
+                    "minecraft:dragon_egg"
+                  ]
+                }
+              }
+            },
+            "glowstone": {
+              "intensity": "*glowstone",
+              "radius": "*glowstone",
+              "falloff": "*glowstone",
+              "blocks": [
+                "minecraft:glowstone"
+              ]
+            },
+            "glow_lichen": {
+              "color": "#8ea499",
+              "intensity": "*default",
+              "radius": "*default",
+              "falloff": "*default",
+              "blocks": [
+                "minecraft:glow_lichen"
+              ]
+            },
+            "enchanting_table": {
+              "color": "#7fc4b2",
+              "radius": 1,
+              "blocks": [
+                "minecraft:enchanting_table"
+              ]
+            },
+            "brewing_stand": {
+              "color": "#efef7b",
+              "radius": 1,
+              "blocks": [
+                "minecraft:brewing_stand"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "raytraced_lights": { },
+  "voxelized_blocks": [
+    "minecraft:crafting_table",
+    "minecraft:furnace",
+    "minecraft:bookshelf",
+
+    "minecraft:coal_ore",
+    "minecraft:copper_ore",
+    "minecraft:iron_ore",
+    "minecraft:gold_ore",
+    "minecraft:redstone_ore",
+    "minecraft:lapis_ore",
+    "minecraft:diamond_ore",
+    "minecraft:emerald_ore",
+
+    "minecraft:deepslate_coal_ore",
+    "minecraft:deepslate_copper_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:deepslate_redstone_ore",
+    "minecraft:deepslate_lapis_ore",
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:deepslate_emerald_ore"
+  ]
+}

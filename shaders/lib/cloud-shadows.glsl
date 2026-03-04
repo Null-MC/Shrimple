@@ -34,7 +34,7 @@ vec3 GetCloudShadowTexcoord(const in vec3 localPos, const in vec3 localDir, cons
 float SampleCloudShadow(const in vec3 localPos, const in vec3 localLightDir) {
     vec2 cloudOffset = GetCloudOffset();
     vec3 cloudTexcoord = GetCloudShadowTexcoord(localPos, localLightDir, cloudOffset);
-    float cloudShadow = textureLod(texCloudShadow, fract(cloudTexcoord.xy), 0).r;
+    float cloudShadow = texture(texCloudShadow, fract(cloudTexcoord.xy)).r;
     cloudShadow = _pow2(cloudShadow);
 
     // TODO: fade away

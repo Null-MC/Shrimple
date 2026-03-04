@@ -53,7 +53,7 @@ void main() {
 
     if (all(lessThan(uv, viewSize))) {
         vec2 texcoord = (uv + 0.5) / viewSize;
-        float depthNow = textureLod(depthtex0, texcoord, 0).r;
+        float depthNow = texture(depthtex0, texcoord).r;
         vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
 
         vec3 viewPos = project(gbufferProjectionInverse, clipPos);
@@ -73,7 +73,7 @@ void main() {
         #ifdef TAA_SHARPEN_HISTORY
             vec4 lastColor = sample_CatmullRom_RGBA(texTAA_prev, uv_prev, viewSize);
         #else
-            vec4 lastColor = textureLod(texTAA_prev, uv_prev, 0);
+            vec4 lastColor = texture(texTAA_prev, uv_prev);
         #endif
 
         float mixRate = TAA_MaxAccumFrames;//clamp(lastColor.a, 0.0, TAA_MaxAccumFrames);

@@ -19,6 +19,6 @@ const float mieAbsorptionBase = 4.4;
 
         uv = uv / 0.3 - 1.5;
 
-        return textureLod(texSkyTransmit, saturate(uv), 0).rgb;
+        return texture(texSkyTransmit, saturate(uv)).rgb;
     }
 #endif

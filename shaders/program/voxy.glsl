@@ -106,7 +106,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         lmcoord.y *= GetOldLighting(localNormal);
 
         lmcoord = LightMapTex(lmcoord);
-        vec3 lit = textureLod(lightmap, lmcoord, 0).rgb;
+        vec3 lit = texture(lightmap, lmcoord).rgb;
         lit = RGBToLinear(lit);
 
         color.rgb = albedo.rgb * lit;

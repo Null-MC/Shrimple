@@ -17,7 +17,7 @@ layout(location = 0) out vec4 outFinal;
 
 
 void main() {
-    vec4 color = textureLod(gtexture, vIn.texcoord, 0);
+    vec4 color = texture(gtexture, vIn.texcoord);
 
     color *= vIn.color;
 

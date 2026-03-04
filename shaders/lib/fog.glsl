@@ -14,7 +14,8 @@ const vec3 colorSkyHorizon = pow(vec3(0.290, 0.243, 0.529), vec3(2.2));
 const vec3 colorFogHorizon = pow(vec3(0.980, 0.533, 0.118), vec3(2.2));
 
 // const vec3 colorRainSkyDay = pow(vec3(0.332, 0.352, 0.399), vec3(2.2)) * 0.5;
-const vec3 colorRainFogDay = pow(vec3(0.596, 0.596, 0.620), vec3(2.2)) * 0.2;
+const vec3 colorRainSky = pow(vec3(0.557, 0.580, 0.671), vec3(2.2));
+const vec3 colorRainFog = pow(vec3(0.329, 0.329, 0.388), vec3(2.2));
 
 
 float fogify(const in float x, const in float w) {
@@ -58,11 +59,14 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
             horizonF *= dot(localSunDir, localViewDir) * 0.5 + 0.5;
             _fogColor = LabMixLinear(_fogColor, colorFogHorizon, horizonF);
 
-            vec3 rainFogColor = LabMixLinear(vec3(0.0), colorRainFogDay, dayF);
-            _fogColor = LabMixLinear(_fogColor, rainFogColor, rainStrength);
+            _skyColor = LabMixLinear(_skyColor, colorRainSky, rainStrength);
+            _fogColor = LabMixLinear(_fogColor, colorRainFog, rainStrength);
+
+//            vec3 rainFogColor = LabMixLinear(vec3(0.0), colorRainFogDay, dayF);
+//            _fogColor = LabMixLinear(_fogColor, rainFogColor, rainStrength);
 
             float fogF = fogify(max(localViewDir.y, 0.0), FOG_HORIZON_F);
-            return LabMixLinear(_skyColor, _fogColor, fogF) * mix(0.2, 1.0, dayF);
+            return LabMixLinear(_skyColor, _fogColor, fogF) * mix(0.04, 1.0, dayF);
         #else
             float fogF = fogify(max(localViewDir.y, 0.0), FOG_HORIZON_F);
             return LabMixLinear(skyColorL, fogColorL, fogF);

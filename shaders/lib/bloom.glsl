@@ -81,7 +81,7 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
                 float sampleWeight = 1.0 - length(sampleOffset) * 0.25;
 
                 vec2 sampleCoord = fma(sampleOffset, pixelSize, texcoord);
-                vec3 sampleColor = textureLod(texColor, sampleCoord, 0).rgb;
+                vec3 sampleColor = texture(texColor, sampleCoord).rgb;
                 color += sampleWeight * sampleColor;
                 totalWeight += sampleWeight;
             }
@@ -128,10 +128,10 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         tex = fma(tex, (srcBoundsMax - srcBoundsMin), srcBoundsMin);
 
         tex -= 0.5 * pixelSize;
-        vec3 color1 = textureLod(texSrc, tex, 0).rgb;
-        vec3 color2 = textureLodOffset(texSrc, tex, 0, ivec2(1,0)).rgb;
-        vec3 color3 = textureLodOffset(texSrc, tex, 0, ivec2(0,1)).rgb;
-        vec3 color4 = textureLodOffset(texSrc, tex, 0, ivec2(1,1)).rgb;
+        vec3 color1 = texture(texSrc, tex).rgb;
+        vec3 color2 = textureOffset(texSrc, tex, ivec2(1,0)).rgb;
+        vec3 color3 = textureOffset(texSrc, tex, ivec2(0,1)).rgb;
+        vec3 color4 = textureOffset(texSrc, tex, ivec2(1,1)).rgb;
 
         vec3 color = 0.25 * (color1 + color2 + color3 + color4);
 

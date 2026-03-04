@@ -129,7 +129,7 @@ void main() {
     copyToShared(uv_base, i_base + 0);
     copyToShared(uv_base, i_base + 1);
 
-    memoryBarrierShared();
+//    memoryBarrierShared();
     barrier();
 
     // exit early if OOB

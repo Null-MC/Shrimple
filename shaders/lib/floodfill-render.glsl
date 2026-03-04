@@ -21,8 +21,8 @@ vec3 _SampleFloodFill(const in vec3 lpvPos, const in int frame) {
     vec3 texcoord = lpvPos / VoxelBufferSize;
 
     vec3 lpvSample = (frame % 2) == 0
-        ? textureLod(texFloodFillA, texcoord, 0).rgb
-        : textureLod(texFloodFillB, texcoord, 0).rgb;
+        ? texture(texFloodFillA, texcoord).rgb
+        : texture(texFloodFillB, texcoord).rgb;
 
 //    vec3 lpvSample = (frame % 2) == 0
 //        ? texelFetch(texFloodFillA, ivec3(floor(lpvPos)), 0).rgb

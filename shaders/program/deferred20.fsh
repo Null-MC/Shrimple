@@ -90,13 +90,13 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
         vec3 sampleClipPos = project(SSAO_PROJ, sampleViewPos);
         sampleClipPos = saturate(sampleClipPos * 0.5 + 0.5);
 
-        float sampleClipDepth = textureLod(TEX_DEPTH, sampleClipPos.xy, 0.0).r;
+        float sampleClipDepth = texture(TEX_DEPTH, sampleClipPos.xy).r;
 
         #ifdef DISTANT_HORIZONS
             mat4 projectionInv = gbufferProjectionInverse;
 
             if (sampleClipDepth >= 1.0) {
-                sampleClipDepth = textureLod(dhDepthTex0, sampleClipPos.xy, 0.0).r;
+                sampleClipDepth = texture(dhDepthTex0, sampleClipPos.xy).r;
                 projectionInv = dhProjectionInverse;
             }
         #endif

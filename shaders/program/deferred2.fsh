@@ -24,7 +24,9 @@ uniform sampler2D TEX_GI_POSITION;
     uniform sampler2D texCloudShadow;
 #endif
 
-#ifdef LIGHTING_COLORED
+#ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+    uniform sampler2D texBlockLight;
+#elif defined(LIGHTING_COLORED)
     uniform sampler3D texFloodFillA;
     uniform sampler3D texFloodFillB;
 #endif
@@ -56,7 +58,9 @@ uniform int vxRenderDistance;
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
 
-#ifdef LIGHTING_COLORED
+#ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+    //
+#elif defined(LIGHTING_COLORED)
     #include "/lib/hsv.glsl"
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
@@ -82,6 +86,19 @@ vec2 hash22(const in vec2 seed) {
     vec3 p3 = fract(seed.xyx * U.xyz);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.xx + p3.yz) * p3.zy);
+}
+
+int randomInt(const in int seed) {
+    int value = seed;
+    value ^= value << 13;
+    value ^= value >> 17;
+    value ^= value << 5;
+    return value;
+}
+
+int randomInt(const in int offset, const in int count, const in int seed) {
+    int r = randomInt(seed);
+    return (r % count) + offset;
 }
 
 vec3 sample_cosine_weighted_hemisphere(const in vec2 rand, out float pdf) {
@@ -142,16 +159,62 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
 
         float NoVm = max(dot(hitLocalNormal, trace_localDir), 0.0);
 
-        #ifdef LIGHTING_COLORED
+        #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+//            vec3 hitTracePos = ray.result_position
+//                + 0.08 * hitLocalNormal;
+//
+//            // TODO: sample random block light
+//            int binStart = load_light_offset(hitTracePos);
+//            int binCount = light_registry_array[binStart];
+//            int i = (frameCounter) % binCount + (binStart+1);// randomInt(binStart+1, binCount, frameCounter);
+//            Light light = load_light(i);
+//
+//            if (binCount > 0) {
+//            vec3 lightOffset = light.position - hitTracePos;
+//            float lightDist = length(lightOffset);
+//            vec3 lightDir = lightOffset / lightDist;
+//
+//            ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
+//            vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
+//            vec3 lightColor = RGBToLinear(lightColorRange.rgb);
+//            float lightRange = lightColorRange.a * 32.0;
+//
+//            lightColor = vec3(1,0,0);
+//            lightRange = 15.0;
+//
+//            lightColor *= 6.0 * (lightRange / 15.0);
+//
+//            float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+//            float att_linear = 1.0 - saturate(lightDist / lightRange);
+//            float att = _pow3(att_linear);
+//
+////            RayJob ray = RayJob(hitTracePos, lightDir,
+////                vec3(0), vec3(0), vec3(0), false);
+////
+////            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
+////            breakOnEmpty=true;
+////
+////            trace_ray(ray, true);
+////
+////            if (ray.result_hit) {
+////                lightColor *= result_tint_color;
+////
+////                if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
+////                    att = 0.0;
+////                }
+////            }
+//
+//            lighting += lightColor;
+//            }
+        #elif defined(LIGHTING_COLORED)
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
-            vec3 samplePos = GetFloodFillSamplePos(voxelPos, localNormal);
+            vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             lighting += SampleFloodFill(samplePos) * 3.0;
         #endif
 
         #ifndef WORLD_NETHER
             // TODO: add indirect sky lighting
             float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
-//            vec3 hitSkyColorFinal = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), hitLocalNormal);
             vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
             lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
         #endif
@@ -234,8 +297,8 @@ void main() {
         prev_screenPos.xy += taa_offset_prev;
     #endif
 
-    vec4 prev_color = textureLod(TEX_GI_COLOR, prev_screenPos, 0);
-    vec3 prev_pos = textureLod(TEX_GI_POSITION, prev_screenPos, 0).xyz;
+    vec4 prev_color = texture(TEX_GI_COLOR, prev_screenPos);
+    vec3 prev_pos = texture(TEX_GI_POSITION, prev_screenPos).xyz;
 
     // reset accumulation if reprojected offscreen
     if (saturate(prev_screenPos) != prev_screenPos) prev_color.a = 0.0;

@@ -69,12 +69,19 @@ void main() {
         printUnsignedInt(ph_light_count);
         printLine();
 
+        int binStart = load_light_offset(rt_camera_position);
+        int binCount = light_registry_array[binStart];
+
+        printString((_C, _u, _r, _r, _e, _n, _t, _space, _b, _i, _n, _colon, _space));
+        printInt(binCount);
+        printLine();
+
         endText(color);
 
 
         vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(320, 240);
         if (saturate(tex) == tex) {
-            int counter = int(textureLod(texLightDebug, tex, 0).r);
+            int counter = int(texture(texLightDebug, tex).r);
             if (counter > 0) {
                 color = mix(vec3(0,0,1), vec3(0,1,0), saturate(counter/128.0));
                 color = mix(color, vec3(1,0,0), saturate((counter-128)/128.0));
@@ -88,18 +95,18 @@ void main() {
     #if DEBUG_VIEW == DEBUG_VIEW_SSAO
         vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(320, 240);
         if (saturate(tex) == tex) {
-            color = textureLod(TEX_SSAO, tex, 0).rrr;
+            color = texture(TEX_SSAO, tex).rrr;
         }
     #endif
 
 //    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(900);
 //    if (saturate(tex) == tex) {
-//        color = textureLod(texCloudShadow, fract(tex*3.0), 0).rrr;
+//        color = texture(texCloudShadow, fract(tex*3.0)).rrr;
 //    }
 
 //    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(96, 24);
 //    if (saturate(tex) == tex) {
-//        color = textureLod(texSkyIrradiance, tex, 0).rgb;
+//        color = texture(texSkyIrradiance, tex).rgb;
 //    }
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;

@@ -70,6 +70,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 //#define PHOTONICS_BLOCK_TINT_ENABLED
 #define PHOTONICS_GI_ENABLED
 #define PHOTONICS_LIGHT_STEPS 16 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
+#define PHOTONICS_BLOCK_LIGHT_SAMPLES 32 // [2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32]
 //#define PHOTONICS_LIGHT_DEBUG
 
 //#define DEBUG
@@ -78,6 +79,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 
 
 const bool shadowHardwareFiltering = true;
+const float shadowDistanceRenderMul = 1.0;
 
 #ifdef LIGHTING_COLORED
     const float voxelDistance = 64.0;

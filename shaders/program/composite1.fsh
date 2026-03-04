@@ -132,7 +132,7 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
-    float depth = textureLod(depthtex0, texcoord, 0).r;
+    float depth = texture(depthtex0, texcoord).r;
     vec3 reflectColor = vec3(0.0);
 
     if (depth < 1.0) {
@@ -219,7 +219,7 @@ void main() {
                         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
                             shadow = texture(shadowtex1HW, shadowPos).r;
                         #else
-                            float shadowDepth = textureLod(shadowtex1, shadowPos.xy, 0).r;
+                            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
                             shadow = step(shadowPos.z, shadowDepth);
                         #endif
 
@@ -255,7 +255,7 @@ void main() {
                         lmcoord.y *= GetOldLighting(hitLocalNormal);
 
                         lmcoord = LightMapTex(lmcoord);
-                        vec3 lit = textureLod(texLightmap, lmcoord, 0).rgb;
+                        vec3 lit = texture(texLightmap, lmcoord).rgb;
                         lit = RGBToLinear(lit);
 
                         #ifdef LIGHTING_COLORED
@@ -291,7 +291,7 @@ void main() {
                     traceScreenPos = traceClipPos.xy * 0.5 + 0.5;
                     if (saturate(traceScreenPos) != traceScreenPos) break;
 
-                    float sampleClipDepth = textureLod(depthtex0, traceScreenPos, 0).r * 2.0 - 1.0;
+                    float sampleClipDepth = texture(depthtex0, traceScreenPos).r * 2.0 - 1.0;
                     float screenDepthL = linearizeDepth(sampleClipDepth, near, farPlane);
                     float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
 
@@ -314,7 +314,7 @@ void main() {
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
                         if (saturate(testPos) != testPos) break;
 
-                        float sampleClipDepth = textureLod(depthtex0, testPos, 0).r * 2.0 - 1.0;
+                        float sampleClipDepth = texture(depthtex0, testPos).r * 2.0 - 1.0;
                         float screenDepthL = linearizeDepth(sampleClipDepth, near, farPlane);
                         float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
 

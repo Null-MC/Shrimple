@@ -69,6 +69,7 @@ void main() {
     }
 
 //    GroupMemoryBarrierWithGroupSync();
+//    groupMemoryBarrier();
     barrier();
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
@@ -87,13 +88,14 @@ void main() {
     }
 
 //    GroupMemoryBarrierWithGroupSync();
+//    groupMemoryBarrier();
     barrier();
 
     float depthMin = depthMinInt / float(UINT_MAX) * farPlane;
     float depthMax = depthMaxInt / float(UINT_MAX) * farPlane;
 
     int lightIndex = PH_LIGHT_OFFSET + int(gl_LocalInvocationIndex);
-    if (lightIndex < PH_MAX_LIGHTS) {
+    if (lightIndex < ph_light_count) {
         Light light = load_light(lightIndex);
 //        float lightRange = getLightRange(light.color, light.attenuation);
         ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
@@ -155,6 +157,9 @@ void main() {
     }
 
 //    GroupMemoryBarrierWithGroupSync();
+//    memoryBarrierAtomicCounter();
+//    memoryBarrierShared();
+//    groupMemoryBarrier();
     barrier();
 
     if (!on_screen) return;
@@ -192,7 +197,7 @@ void main() {
         #endif
 
 
-        counter = min(counter, PH_MAX_LIGHTS);
+        counter = min(counter, PHOTONICS_BLOCK_LIGHT_SAMPLES);
         for (uint i = 0; i < counter; i++) {
             int lightIndex = sharedLightList[i];
             Light light = load_light(lightIndex);

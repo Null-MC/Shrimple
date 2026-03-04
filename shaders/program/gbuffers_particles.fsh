@@ -143,7 +143,7 @@ void main() {
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
             shadow = texture(shadowtex1HW, shadowPos).r;
         #else
-            float shadowDepth = textureLod(shadowtex1, shadowPos.xy, 0).r;
+            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
             shadow = step(shadowPos.z, shadowDepth);
         #endif
     #endif
@@ -195,7 +195,7 @@ void main() {
         #endif
 
         lmcoord = LightMapTex(lmcoord);
-        vec3 lit = textureLod(lightmap, lmcoord, 0).rgb;
+        vec3 lit = texture(lightmap, lmcoord).rgb;
         lit = RGBToLinear(lit);
 
         #ifdef LIGHTING_COLORED
