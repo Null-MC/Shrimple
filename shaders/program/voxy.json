@@ -5,13 +5,13 @@
   ",
   "version": 1,
   "excludeLodsFromVanillaDepth": false,
-  #if defined(LIGHTING_REFLECT_ENABLED) || defined(PHOTONICS_LIGHT_ENABLED)
-    #ifdef PHOTONICS_LIGHT_ENABLED
-      "opaqueDrawBuffers": [0,1,2,3],
-      "translucentDrawBuffers": [0,1,2,3],
+  #ifdef DEFERRED_NORMAL_ENABLED
+    #ifdef DEFERRED_SPECULAR_ENABLED
+      "opaqueDrawBuffers": [0,4,2,3],
+      "translucentDrawBuffers": [0,4,2,3],
     #else
-      "opaqueDrawBuffers": [0,1,2],
-      "translucentDrawBuffers": [0,1,2],
+      "opaqueDrawBuffers": [0,4,2],
+      "translucentDrawBuffers": [0,4,2],
     #endif
   #else
     "opaqueDrawBuffers": [0],

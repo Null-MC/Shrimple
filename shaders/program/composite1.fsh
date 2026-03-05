@@ -350,18 +350,11 @@ void main() {
         vec3 tint = mix(vec3(1.0), albedo, metalness);
         reflectColor *= tint;
 
-        // TODO: apply fog
         float borderFogF = GetBorderFogStrength(viewDist);
         float envFogF = GetEnvFogStrength(viewDist);
         float fogF = max(borderFogF, envFogF);
 
         reflectColor *= 1.0 - fogF;
-
-//        vec3 fogColorL = RGBToLinear(fogColor);
-//        vec3 skyColorL = RGBToLinear(skyColor);
-//        vec3 localViewDir = normalize(localPos);
-//        vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localViewDir);
-//        color.rgb = mix(color.rgb, fogColorFinal, fogF);
     }
 
     vec3 src = texelFetch(TEX_FINAL, uv, 0).rgb;
