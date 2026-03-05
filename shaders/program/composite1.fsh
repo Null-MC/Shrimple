@@ -352,7 +352,7 @@ void main() {
 
         // TODO: apply fog
         float borderFogF = GetBorderFogStrength(viewDist);
-        float envFogF = smoothstep(fogStart, fogEnd, viewDist);
+        float envFogF = GetEnvFogStrength(viewDist);
         float fogF = max(borderFogF, envFogF);
 
         reflectColor *= 1.0 - fogF;

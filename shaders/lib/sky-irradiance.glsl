@@ -5,9 +5,11 @@ vec3 SampleSkyIrradiance(const in vec3 localNormal) {
 
     float sun_y = sunLocalDir.y * 0.5 + 0.5;
 
-    vec3 sx = texture(texSkyIrradiance, vec2(sun_y, dir_y.x)).rgb;
-    vec3 sy = texture(texSkyIrradiance, vec2(sun_y, dir_y.y)).rgb;
-    vec3 sz = texture(texSkyIrradiance, vec2(sun_y, dir_y.z)).rgb;
+    float rain = rainStrength * 0.5 + 0.25;
+
+    vec3 sx = texture(texSkyIrradiance, vec3(sun_y, dir_y.x, rain)).rgb;
+    vec3 sy = texture(texSkyIrradiance, vec3(sun_y, dir_y.y, rain)).rgb;
+    vec3 sz = texture(texSkyIrradiance, vec3(sun_y, dir_y.z, rain)).rgb;
 
     vec3 abs_normal = abs(localNormal);
     return sx*abs_normal.x + sy*abs_normal.y + sz*abs_normal.z;

@@ -1,15 +1,17 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 2) in;
 const ivec3 workGroups = ivec3(3, 1, 1);
 
-layout(rgba16f) uniform writeonly image2D imgSkyIrradiance;
+layout(rgba16f) uniform writeonly image3D imgSkyIrradiance;
 
-const ivec2 BufferSize = ivec2(24, 6);
+const ivec3 BufferSize = ivec3(24, 6, 2);
 
 
 uniform float far;
+uniform float fogStart;
+uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 uniform float rainStrength;
@@ -40,7 +42,7 @@ vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
     return tbn * local_dir;
 }
 
-vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir) {
+vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength) {
     const int SampleCountX = 16;
     const int SampleCountY = 8;
 
@@ -70,7 +72,7 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir) {
                 cos_theta);
 
             vec3 sampleDir = transform_to_world(localViewDir, tangentSample);
-            vec3 skyColorFinal = GetSkyFogColor(skyColorL, fogColorL, localSunDir, sampleDir);
+            vec3 skyColorFinal = GetSkyFogColor(skyColorL, fogColorL, localSunDir, sampleDir, rainStrength);
             irradiance += skyColorFinal * (cos_theta * sin_theta);
         }
     }
@@ -81,7 +83,7 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir) {
 
 
 void main() {
-    ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+    ivec3 uv = ivec3(gl_GlobalInvocationID);
     if (any(greaterThanEqual(uv, BufferSize))) return;
 
     float texcoord_x = (uv.x + 0.5) / float(BufferSize.x);
@@ -91,6 +93,8 @@ void main() {
     vec3 localSunDir = normalize(vec3(sin(theta), cosTheta, 0.0));
     vec3 localViewDir = faceDirs[uv.y];
 
-    vec3 irradiance = GetSkyIrradiance(localSunDir, localViewDir);
+    float rainStrength = float(uv.z);
+
+    vec3 irradiance = GetSkyIrradiance(localSunDir, localViewDir, rainStrength);
     imageStore(imgSkyIrradiance, uv, vec4(irradiance, 1.0));
 }

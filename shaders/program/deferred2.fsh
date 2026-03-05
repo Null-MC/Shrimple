@@ -17,7 +17,7 @@ uniform sampler2D TEX_GI_POSITION;
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
     uniform sampler2D texSkyTransmit;
-    uniform sampler2D texSkyIrradiance;
+    uniform sampler3D texSkyIrradiance;
 #endif
 
 #ifdef SHADOW_CLOUDS

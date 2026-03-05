@@ -188,7 +188,7 @@ void main() {
 
     #if !defined(SSAO_ENABLED) || defined(RENDER_TRANSLUCENT)
         float borderFogF = GetBorderFogStrength(viewDist);
-        float envFogF = smoothstep(fogStart, fogEnd, viewDist);
+        float envFogF = GetEnvFogStrength(viewDist);
         float fogF = max(borderFogF, envFogF);
 
         vec3 fogColorL = RGBToLinear(fogColor);

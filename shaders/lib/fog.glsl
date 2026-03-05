@@ -35,7 +35,7 @@ float GetSkyHorizonF(const in float localSunDirY) {
     return 1.0 - smoothstep(0.0, _max, localSunDirY - SkyHorizonOffset);
 }
 
-vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localSunDir, const in vec3 localViewDir) {
+vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength) {
     if (isEyeInWater == 1) return fogColorL;
 
 //    return localViewDir * 0.5 + 0.5;
@@ -49,24 +49,22 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
 //            vec3 localSunDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
 
             float dayF = smoothstep(-0.1, 0.3, localSunDir.y);
-            vec3 _skyColor = LabMixLinear(colorSkyNight, colorSkyDay, dayF);
+            vec3 skyColorLab = mix(LinearToLab(colorSkyNight), LinearToLab(colorSkyDay), dayF);
+            vec3 fogColorLab = mix(LinearToLab(colorFogNight), LinearToLab(colorFogDay), dayF);
 
             float horizonF = GetSkyHorizonF(localSunDir.y);
-            _skyColor = LabMixLinear(_skyColor, colorSkyHorizon, horizonF);
+            skyColorLab = mix(skyColorLab, LinearToLab(colorSkyHorizon), horizonF);
 
-            vec3 _fogColor = LabMixLinear(colorFogNight, colorFogDay, dayF);
+    skyColorLab = mix(skyColorLab, LinearToLab(colorRainSky), rainStrength);
+    fogColorLab = mix(fogColorLab, LinearToLab(colorRainFog), rainStrength);
 
+            // TODO: why is this being changed AFTER sky color?!
             horizonF *= dot(localSunDir, localViewDir) * 0.5 + 0.5;
-            _fogColor = LabMixLinear(_fogColor, colorFogHorizon, horizonF);
-
-            _skyColor = LabMixLinear(_skyColor, colorRainSky, rainStrength);
-            _fogColor = LabMixLinear(_fogColor, colorRainFog, rainStrength);
-
-//            vec3 rainFogColor = LabMixLinear(vec3(0.0), colorRainFogDay, dayF);
-//            _fogColor = LabMixLinear(_fogColor, rainFogColor, rainStrength);
+            fogColorLab = mix(fogColorLab, LinearToLab(colorFogHorizon), horizonF);
 
             float fogF = fogify(max(localViewDir.y, 0.0), FOG_HORIZON_F);
-            return LabMixLinear(_skyColor, _fogColor, fogF) * mix(0.04, 1.0, dayF);
+            vec3 colorLab = mix(skyColorLab, fogColorLab, fogF);
+            return LabToLinear(colorLab) * mix(0.04, 1.0, dayF);
         #else
             float fogF = fogify(max(localViewDir.y, 0.0), FOG_HORIZON_F);
             return LabMixLinear(skyColorL, fogColorL, fogF);
@@ -75,7 +73,7 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
 }
 
 vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localViewDir) {
-    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir);
+    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainStrength);
 }
 
 float GetBorderFogStrength(const in float viewDist) {
@@ -88,4 +86,24 @@ float GetBorderFogStrength(const in float viewDist) {
     #endif
 
     return smoothstep(0.94 * _far, _far, viewDist);
+    #undef _far
+}
+
+float GetEnvFogStrength(const in float viewDist) {
+    #if defined(WORLD_OVERWORLD) && OVERWORLD_SKY == SKY_ENHANCED
+        #ifdef VOXY
+            float _far = vxRenderDistance * 16.0;
+        #elif defined(DISTANT_HORIZONS)
+            float _far = 0.5 * dhFarPlane;
+        #else
+            #define _far far
+        #endif
+
+        float rain_end = min(800.0, _far);
+        float fog_end = mix(_far, rain_end, rainStrength);
+
+        return smoothstep(0.0, fog_end, viewDist);
+    #else
+        return smoothstep(fogStart, fogEnd, viewDist);
+    #endif
 }

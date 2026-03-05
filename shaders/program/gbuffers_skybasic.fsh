@@ -6,6 +6,8 @@ in vec3 localPos;
 
 
 uniform float far;
+uniform float fogStart;
+uniform float fogEnd;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float rainStrength;

@@ -16,7 +16,7 @@ uniform sampler2D TEX_FINAL;
     uniform usampler2D texLightDebug;
 #endif
 
-//uniform sampler2D texSkyIrradiance;
+//uniform sampler3D texSkyIrradiance;
 
 uniform vec2 viewSize;
 uniform int frameCounter;

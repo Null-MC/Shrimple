@@ -67,7 +67,7 @@ void main() {
     vec3 localNormal = normalize(vIn.localNormal);
 
     float borderFogF = 0.0;//smoothstep(0.94 * far, far, viewDist);
-    float envFogF = smoothstep(fogStart, fogEnd, viewDist);
+    float envFogF = GetEnvFogStrength(viewDist);
     float fogF = max(borderFogF, envFogF);
 
     vec3 localViewDir = normalize(vIn.localPos);

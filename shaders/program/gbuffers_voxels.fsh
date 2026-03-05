@@ -9,7 +9,7 @@ in VertexData {
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
     uniform sampler2D texSkyTransmit;
-    uniform sampler2D texSkyIrradiance;
+    uniform sampler3D texSkyIrradiance;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
@@ -239,7 +239,7 @@ void main() {
 
 
     float borderFogF = GetBorderFogStrength(viewDist);
-    float envFogF = smoothstep(fogStart, fogEnd, viewDist);
+    float envFogF = GetEnvFogStrength(viewDist);
     float fogF = max(borderFogF, envFogF);
 
     vec3 fogColorL = RGBToLinear(fogColor);
