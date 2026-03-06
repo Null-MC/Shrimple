@@ -33,6 +33,8 @@ uniform sampler2D TEX_GI_POSITION;
 
 uniform vec3 skyColor;
 uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
 uniform float rainStrength;
 uniform float cloudHeight;
 uniform float cloudTime;

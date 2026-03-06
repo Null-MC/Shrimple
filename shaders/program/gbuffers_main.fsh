@@ -244,7 +244,7 @@ void main() {
         // TODO: if vanilla lighting, make foliage have "up" normals
 //        #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
         #ifdef RENDER_TERRAIN
-            bool isGrass = vIn.blockId == BLOCK_GRASS
+            bool isGrass = vIn.blockId == BLOCK_GRASS_PLANT
                 || vIn.blockId == BLOCK_TALL_GRASS_LOWER
                 || vIn.blockId == BLOCK_TALL_GRASS_UPPER;
 

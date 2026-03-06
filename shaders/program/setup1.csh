@@ -5,8 +5,14 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 const ivec3 workGroups = ivec3(32, 32, 1);
 
-layout(rgba8) uniform writeonly image2D imgBlockLight;
-layout(r16ui) uniform writeonly uimage2D imgBlockMask;
+#ifdef WIND_ENABLED
+    layout(r8ui) uniform writeonly uimage2D imgBlockWaving;
+#endif
+
+#ifdef LIGHTING_COLORED
+    layout(rgba8) uniform writeonly image2D imgBlockLight;
+    layout(r16ui) uniform writeonly uimage2D imgBlockMask;
+#endif
 
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
@@ -52,13 +58,58 @@ void main() {
     uint blockId = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 256u;
 
     float mixWeight = 0.0;
-    uint mixMask = 0xFFFF;
+    uint mixMask = UINT_MAX;
     vec3 color = vec3(0.0);
     float range = 0.0;
+
+    uint wavingMask = 0u;
 
 
     // foliage
     if (blockId >= 100 && blockId < 200) mixWeight = 1.0;
+
+    switch (blockId) {
+        case BLOCK_AZURE_BLUET:
+        case BLOCK_BEETROOTS:
+        case BLOCK_BLUE_ORCHID:
+        case BLOCK_BUSH:
+        case BLOCK_CARROTS:
+        case BLOCK_CORNFLOWER:
+        case BLOCK_DANDELION:
+        case BLOCK_FERN:
+        case BLOCK_GROUND_LEAVES:
+        case BLOCK_GRASS_PLANT:
+        case BLOCK_LARGE_FERN_LOWER:
+        case BLOCK_LILAC_LOWER:
+        case BLOCK_LILY_OF_THE_VALLEY:
+        case BLOCK_OXEYE_DAISY:
+        case BLOCK_PEONY_LOWER:
+        case BLOCK_POPPY:
+        case BLOCK_POTATOES:
+        case BLOCK_ROSE_BUSH_LOWER:
+        case BLOCK_SAPLING:
+        case BLOCK_TALL_GRASS_LOWER:
+        case BLOCK_TULIP:
+        case BLOCK_WHEAT:
+            wavingMask = MASK(1,1,1,1,1,0);
+            break;
+        case BLOCK_LARGE_FERN_UPPER:
+        case BLOCK_LILAC_UPPER:
+        case BLOCK_PEONY_UPPER:
+        case BLOCK_ROSE_BUSH_UPPER:
+        case BLOCK_TALL_GRASS_UPPER:
+            wavingMask = MASK(1,1,1,1,1,1);
+            break;
+        case BLOCK_HANGING_ROOTS:
+            wavingMask = MASK(1,1,1,1,0,1);
+            break;
+    }
+
+    switch (blockId) {
+        case BLOCK_LEAVES:
+            wavingMask = MASK(1,1,1,1,1,1);
+            break;
+    }
 
     // IGNORED
     if (blockId > 900 && blockId < 1000) mixWeight = 1.0;
@@ -1025,10 +1076,16 @@ void main() {
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 
-    vec4 dataLight = vec4(color / 255.0, range / 32.0);
-    imageStore(imgBlockLight, uv, dataLight);
+    #ifdef LIGHTING_COLORED
+        vec4 dataLight = vec4(color / 255.0, range / 32.0);
+        imageStore(imgBlockLight, uv, dataLight);
 
-    uint dataMask = packUnorm4x8(vec4(mixWeight, 0.0, 0.0, 0.0));
-    dataMask = bitfieldInsert(dataMask, mixMask, 8, 8);
-    imageStore(imgBlockMask, uv, uvec4(dataMask));
+        uint dataMask = packUnorm4x8(vec4(mixWeight, 0.0, 0.0, 0.0));
+        dataMask = bitfieldInsert(dataMask, mixMask, 8, 8);
+        imageStore(imgBlockMask, uv, uvec4(dataMask));
+    #endif
+
+    #ifdef WIND_ENABLED
+        imageStore(imgBlockWaving, uv, uvec4(wavingMask));
+    #endif
 }

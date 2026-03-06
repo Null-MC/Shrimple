@@ -1,6 +1,7 @@
 #define PI 3.1415926538
 #define EPSILON 1e-6
-#define UINT_MAX 4294967295u
+#define UINT_MAX 0xFFFFFFFF
+#define USHORT_MAX 0xFFFF
 
 #define BLOCK_SOLID 1
 

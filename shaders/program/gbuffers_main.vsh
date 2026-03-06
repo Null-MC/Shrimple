@@ -5,6 +5,7 @@
 
 
 in vec4 at_tangent;
+in vec4 at_midBlock;
 in vec4 mc_midTexCoord;
 in vec4 mc_Entity;
 
@@ -37,8 +38,14 @@ out VertexData {
 } vOut;
 
 
+#if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
+    uniform usampler2D texBlockWaving;
+#endif
+
+uniform float frameTimeCounter;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
+uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
@@ -51,6 +58,10 @@ uniform vec2 taa_offset = vec2(0.0);
 
 #ifdef MATERIAL_PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
+#endif
+
+#if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
+    #include "/lib/wind-waving.glsl"
 #endif
 
 #ifdef LIGHTING_HAND
@@ -75,6 +86,29 @@ void main() {
 
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+
+    #ifdef RENDER_TERRAIN
+        vOut.blockId = int(mc_Entity.x + EPSILON);
+    #endif
+
+    #if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
+//        ivec2 blockUV = ivec2(blockId % 256, blockId / 256);
+//
+//        uint wavingMask = texelFetch(texBlockWaving, blockUV, 0).r;
+//        float waveBottom = bitfieldExtract(wavingMask, 2, 1);
+//        float waveTop = bitfieldExtract(wavingMask, 3, 1);
+//        float waveHeightF = 0.5 - at_midBlock.y / 64.0;
+//        float waveStrength = mix(waveBottom, waveTop, waveHeightF);
+//
+//        float time = mod(frameTimeCounter * 2.0, 2.0*PI);
+//        vec2 waveOffset = 0.3 * vec2(cos(time), sin(time));
+//        vOut.localPos.xz += waveOffset * waveStrength;
+
+        ApplyWindWaving(vOut.localPos, vOut.blockId);
+
+        viewPos = mul3(gbufferModelView, vOut.localPos);
+    #endif
+
     gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 
     #ifdef TAA_ENABLED
@@ -105,10 +139,5 @@ void main() {
         mat3 matViewTBN = BuildTBN(viewNormal, viewTangent, at_tangent.w);
 
         vOut.tangentViewPos = viewPos.xyz * matViewTBN;
-    #endif
-
-//    #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
-    #ifdef RENDER_TERRAIN
-        vOut.blockId = int(mc_Entity.x + EPSILON);
     #endif
 }

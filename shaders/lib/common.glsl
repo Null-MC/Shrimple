@@ -14,6 +14,8 @@ const bool colortex7Clear = false;
 
 const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -10 -5 0 1 2 5 10 15 20 25 30 35 40 45 50 55 60]
 
+//#define WIND_ENABLED
+
 #define OVERWORLD_SKY 0 // [0 1]
 #define OVERWORLD_NIGHT_BRIGHTNESS 4.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10 12 14 16 18 20 22 24 26 28 30]
 
