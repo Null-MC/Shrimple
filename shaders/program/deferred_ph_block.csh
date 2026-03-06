@@ -81,7 +81,7 @@ void main() {
 
         if (depth < 1.0) {
             float depthL = linearizeDepth(depth * 2.0 - 1.0, near, farPlane);
-            float depthInt = depthL / farPlane * UINT_MAX;
+            float depthInt = saturate(depthL / farPlane) * UINT_MAX;
             atomicMin(depthMinInt, uint(floor(depthInt)));
             atomicMax(depthMaxInt, uint(ceil(depthInt)));
         }

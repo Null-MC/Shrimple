@@ -42,13 +42,14 @@ out VertexData {
     uniform usampler2D texBlockWaving;
 #endif
 
-uniform float frameTimeCounter;
+uniform float windTime;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
+uniform vec3 cameraPosition;
 uniform vec2 taa_offset = vec2(0.0);
 
 
@@ -104,7 +105,9 @@ void main() {
 //        vec2 waveOffset = 0.3 * vec2(cos(time), sin(time));
 //        vOut.localPos.xz += waveOffset * waveStrength;
 
-        ApplyWindWaving(vOut.localPos, vOut.blockId);
+//        ApplyWindWaving(vOut.localPos, vOut.blockId);
+        vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
+        vOut.localPos += GetWindWavingOffset(originPos, vOut.blockId);
 
         viewPos = mul3(gbufferModelView, vOut.localPos);
     #endif

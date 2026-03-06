@@ -19,7 +19,7 @@ in vec4 at_midBlock;
 
 uniform int renderStage;
 uniform int blockEntityId;
-uniform float frameTimeCounter;
+uniform float windTime;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 gbufferModelViewInverse;
@@ -74,9 +74,9 @@ void main() {
         #ifdef WIND_ENABLED
             if (isRenderTerrain) {
                 vec3 localPos = mul3(shadowModelViewInverse, viewPos);
+                vec3 originPos = localPos + at_midBlock.xyz / 64.0;
 
-                ApplyWindWaving(localPos, blockId);
-
+                localPos += GetWindWavingOffset(originPos, blockId);
                 viewPos = mul3(shadowModelView, localPos);
             }
         #endif

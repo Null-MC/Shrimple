@@ -40,18 +40,25 @@ vec3 waving_fbm(const in vec3 worldPos, const in float time) {
     return -offset;
 }
 
-void ApplyWindWaving(inout vec3 localPos, const in int blockId) {
+vec3 GetWindWavingOffset(const in vec3 originPos, const in int blockId) {
     ivec2 blockUV = ivec2(blockId % 256, blockId / 256);
-
     uint wavingMask = texelFetch(texBlockWaving, blockUV, 0).r;
-    float waveBottom = bitfieldExtract(wavingMask, 2, 1);
-    float waveTop = bitfieldExtract(wavingMask, 3, 1);
+
+//    float waveBottom = bitfieldExtract(wavingMask, 2, 1);
+//    float waveTop = bitfieldExtract(wavingMask, 3, 1);
+    float waveBottom = bitfieldExtract(wavingMask, 0, 4) / 15.0;
+    float waveTop = bitfieldExtract(wavingMask, 4, 4) / 15.0;
+
     float waveHeightF = 0.5 - at_midBlock.y / 64.0;
     float waveStrength = mix(waveBottom, waveTop, waveHeightF);
 
-    float time = mod(frameTimeCounter * 2.0, 2.0*PI);
-    vec2 waveOffset = 0.3 * vec2(cos(time), sin(time));
-    localPos.xz += waveOffset * waveStrength;
+//    float time = mod(frameTimeCounter * 2.0, 2.0*PI);
+//    vec2 waveOffset = 0.3 * vec2(cos(time), sin(time));
+//    float time = frameTimeCounter / 3.6 * 3.0;
+//    time += Wind_Variation * time_dither;
+    vec3 waveOffset = waving_fbm(originPos + cameraPosition, windTime);
+
+    return waveOffset * waveStrength;
 }
 
 //vec3 GetWavingOffset(const in vec3 origin_worldPos, const in vec3 midPos, const in uint blockTags, const in float timeElapsed) {

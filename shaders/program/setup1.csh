@@ -62,7 +62,8 @@ void main() {
     vec3 color = vec3(0.0);
     float range = 0.0;
 
-    uint wavingMask = 0u;
+    float wavingBottom = 0.0;
+    float wavingTop = 0.0;
 
 
     // foliage
@@ -79,35 +80,39 @@ void main() {
         case BLOCK_FERN:
         case BLOCK_GROUND_LEAVES:
         case BLOCK_GRASS_PLANT:
-        case BLOCK_LARGE_FERN_LOWER:
-        case BLOCK_LILAC_LOWER:
         case BLOCK_LILY_OF_THE_VALLEY:
         case BLOCK_OXEYE_DAISY:
-        case BLOCK_PEONY_LOWER:
         case BLOCK_POPPY:
         case BLOCK_POTATOES:
-        case BLOCK_ROSE_BUSH_LOWER:
         case BLOCK_SAPLING:
-        case BLOCK_TALL_GRASS_LOWER:
         case BLOCK_TULIP:
         case BLOCK_WHEAT:
-            wavingMask = MASK(1,1,1,1,1,0);
+            wavingTop = 1.0;
+            break;
+        case BLOCK_LARGE_FERN_LOWER:
+        case BLOCK_LILAC_LOWER:
+        case BLOCK_PEONY_LOWER:
+        case BLOCK_ROSE_BUSH_LOWER:
+        case BLOCK_TALL_GRASS_LOWER:
+            wavingTop = 0.5;
             break;
         case BLOCK_LARGE_FERN_UPPER:
         case BLOCK_LILAC_UPPER:
         case BLOCK_PEONY_UPPER:
         case BLOCK_ROSE_BUSH_UPPER:
         case BLOCK_TALL_GRASS_UPPER:
-            wavingMask = MASK(1,1,1,1,1,1);
+            wavingBottom = 0.5;
+            wavingTop = 1.0;
             break;
         case BLOCK_HANGING_ROOTS:
-            wavingMask = MASK(1,1,1,1,0,1);
+            wavingBottom = 0.5;
             break;
     }
 
     switch (blockId) {
         case BLOCK_LEAVES:
-            wavingMask = MASK(1,1,1,1,1,1);
+            wavingTop = 1.0;
+            wavingBottom = 1.0;
             break;
     }
 
@@ -1086,6 +1091,9 @@ void main() {
     #endif
 
     #ifdef WIND_ENABLED
-        imageStore(imgBlockWaving, uv, uvec4(wavingMask));
+//        uint wavingData = (uint(wavingTop * 16.0) << 4) & uint(wavingBottom * 16.0);
+        uint wavingData = bitfieldInsert(0u, uint(wavingBottom * 15.0), 0, 4);
+        wavingData = bitfieldInsert(wavingData, uint(wavingTop * 15.0), 4, 4);
+        imageStore(imgBlockWaving, uv, uvec4(wavingData));
     #endif
 }
