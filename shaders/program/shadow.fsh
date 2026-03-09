@@ -4,6 +4,7 @@
 
 #ifndef RENDER_SOLID
     in vec2 texcoord;
+//    in int blockId;
 #endif
 
 

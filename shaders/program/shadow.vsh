@@ -7,6 +7,7 @@ in vec4 at_midBlock;
 
 #ifndef RENDER_SOLID
     out vec2 texcoord;
+//    out int blockId;
 #endif
 
 #ifdef LIGHTING_COLORED
@@ -29,6 +30,7 @@ uniform vec3 cameraPosition;
 #include "/lib/shadows.glsl"
 
 #ifdef WIND_ENABLED
+    #include "/lib/hash-noise.glsl"
     #include "/lib/wind-waving.glsl"
 #endif
 
@@ -67,6 +69,7 @@ void main() {
     #ifdef SHADOWS_ENABLED
         #ifndef RENDER_SOLID
             texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+//            blockId = int(mc_Entity.x + EPSILON);
         #endif
 
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
@@ -82,7 +85,7 @@ void main() {
         #endif
 
         vec3 viewPosOffset = viewPos;
-        viewPosOffset.z -= 0.20 * viewNormal.z;
+        viewPosOffset.z -= 0.20 * max(viewNormal.z, 0.0);
 
         gl_Position = gl_ProjectionMatrix * vec4(viewPosOffset, 1.0);
         distort(gl_Position.xy);

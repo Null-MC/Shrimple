@@ -4,6 +4,7 @@
 #define USHORT_MAX 0xFFFFu
 
 #define BLOCK_SOLID 1
+#define BLOCK_PHYMOD_SNOW 829925
 
 #define BLOCK_OUTLINE_NONE 0
 #define BLOCK_OUTLINE_SOLID 1
@@ -37,4 +38,5 @@
 #define DEBUG_VIEW_SSAO 1
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
-const float GOLDEN_ANGLE = 2.39996323;
+const float GoldenAngle = PI * (3.0 - sqrt(5.0));
+const float PHI = (1.0 + sqrt(5.0)) / 2.0;

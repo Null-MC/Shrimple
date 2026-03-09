@@ -116,6 +116,8 @@ option.SHADOW_RESOLUTION=Resolution
 option.shadowDistance=Distance
 suffix.shadowDistance=m
 
+option.SHADOW_PCF_SAMPLES=Sample Count
+
 option.SHADOW_AMBIENT=Ambient
 suffix.SHADOW_AMBIENT=%
 

@@ -79,7 +79,7 @@ void main() {
         case BLOCK_DANDELION:
         case BLOCK_FERN:
         case BLOCK_GROUND_LEAVES:
-        case BLOCK_GRASS_PLANT:
+        case BLOCK_GRASS_SHORT:
         case BLOCK_LILY_OF_THE_VALLEY:
         case BLOCK_OXEYE_DAISY:
         case BLOCK_POPPY:
@@ -93,6 +93,7 @@ void main() {
         case BLOCK_LILAC_LOWER:
         case BLOCK_PEONY_LOWER:
         case BLOCK_ROSE_BUSH_LOWER:
+        case BLOCK_SUNFLOWER_LOWER:
         case BLOCK_TALL_GRASS_LOWER:
             wavingTop = 0.5;
             break;
@@ -100,6 +101,7 @@ void main() {
         case BLOCK_LILAC_UPPER:
         case BLOCK_PEONY_UPPER:
         case BLOCK_ROSE_BUSH_UPPER:
+        case BLOCK_SUNFLOWER_UPPER:
         case BLOCK_TALL_GRASS_UPPER:
             wavingBottom = 0.5;
             wavingTop = 1.0;

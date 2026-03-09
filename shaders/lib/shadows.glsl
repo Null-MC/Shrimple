@@ -1,4 +1,4 @@
-const float Shadow_DistortF = 0.16;
+const float Shadow_DistortF = 0.08;
 
 //#ifdef PHOTONICS_GI_ENABLED
 //    const float shadowAmbientF = 0.0;

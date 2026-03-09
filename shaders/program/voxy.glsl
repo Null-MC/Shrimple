@@ -46,7 +46,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     // TODO: if vanilla lighting, make foliage have "up" normals
     #ifndef MATERIAL_PBR_ENABLED
-        bool isGrass = parameters.customId == BLOCK_GRASS_PLANT
+        bool isGrass = parameters.customId == BLOCK_GRASS_SHORT
             || parameters.customId == BLOCK_TALL_GRASS_LOWER
             || parameters.customId == BLOCK_TALL_GRASS_UPPER;
 

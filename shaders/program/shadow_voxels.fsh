@@ -23,9 +23,12 @@ void main() {
     vec3 rayOrigin = vIn.localPos + rt_camera_position;
     vec3 localNormal = normalize(vIn.localNormal);
 
+//    rayOrigin -= 0.001 * localNormal;
+    vec3 localViewDir = -shadowModelViewInverse[2].xyz;
+    rayOrigin += 0.01 * localViewDir;
+
     RayJob ray = RayJob(
-        rayOrigin - 0.001 * localNormal,
-        -shadowModelViewInverse[2].xyz,
+        rayOrigin, localViewDir,
         vec3(0), vec3(0), vec3(0), false);
 
     ray_constraint = ivec3(ray.origin);

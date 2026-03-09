@@ -71,7 +71,7 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
         ) * radius;
 
         radius += rStep;
-        rotatePhase += GOLDEN_ANGLE;
+        rotatePhase += GoldenAngle;
 
         vec3 sampleViewPos = viewPos + vec3(offset, -0.1);
 

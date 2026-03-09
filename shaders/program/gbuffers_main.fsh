@@ -8,7 +8,12 @@ in VertexData {
     vec2 lmcoord;
     vec2 texcoord;
     vec3 localPos;
-    vec3 localNormal;
+
+    #ifdef RENDER_ENTITY
+        vec3 localNormal;
+    #else
+        flat uint localNormal;
+    #endif
 
     #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
         flat float chunkFade;
@@ -50,9 +55,9 @@ uniform sampler2D gtexture;
 
 #ifdef SHADOWS_ENABLED
     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex1HW;
+        uniform sampler2DShadow shadowtex0HW;
     #else
-        uniform sampler2D shadowtex1;
+        uniform sampler2D shadowtex0;
     #endif
 #endif
 
@@ -111,7 +116,9 @@ uniform float dhFarPlane;
 #include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/tbn.glsl"
+#include "/lib/ign.glsl"
 #include "/lib/sampling/lightmap.glsl"
+#include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
 #include "/lib/ssao.glsl"
@@ -166,8 +173,13 @@ void main() {
 
     vec2 texcoord = vIn.texcoord;
 	float mip = textureQueryLod(gtexture, texcoord).y;
-    vec3 localGeoNormal = normalize(vIn.localNormal);
     vec3 localViewDir = vIn.localPos / viewDist;
+
+    #ifdef RENDER_ENTITY
+        vec3 localGeoNormal = normalize(vIn.localNormal);
+    #else
+        vec3 localGeoNormal = OctDecode(unpackUnorm2x16(vIn.localNormal));
+    #endif
 
     #ifdef MATERIAL_PARALLAX_ENABLED
         bool skipParallax = false;
@@ -208,6 +220,12 @@ void main() {
 
     #ifdef RENDER_ENTITY
         color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
+
+        if (entityId == BLOCK_PHYMOD_SNOW) {
+            vec3 pixelPos = floor((vIn.localPos + cameraPosition) * 16.0) / 16.0;
+            float noise = hash33(pixelPos).x;
+            color.rgb *= noise * 0.06 + 0.94;
+        }
     #endif
 
     #ifdef MATERIAL_PBR_ENABLED
@@ -244,7 +262,7 @@ void main() {
         // TODO: if vanilla lighting, make foliage have "up" normals
 //        #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
         #ifdef RENDER_TERRAIN
-            bool isGrass = vIn.blockId == BLOCK_GRASS_PLANT
+            bool isGrass = vIn.blockId == BLOCK_GRASS_SHORT
                 || vIn.blockId == BLOCK_TALL_GRASS_LOWER
                 || vIn.blockId == BLOCK_TALL_GRASS_UPPER;
 
@@ -287,12 +305,38 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            shadow = texture(shadowtex1HW, shadowPos).r;
-        #else
-            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
-            shadow = step(shadowPos.z, shadowDepth);
+        #if SHADOW_PCF_SAMPLES > 1
+            vec2 seed = gl_FragCoord.xy;
+            #ifdef TAA_ENABLED
+                seed += vec2(157,107) * frameCounter;
+            #endif
+            float dither = InterleavedGradientNoise(seed);
+            float angle = fract(dither) * (PI * 2.0);
+            float s = sin(angle), c = cos(angle);
+            mat2 rotation = mat2(c, -s, s, c);
+
+            const float pixelRadius = 3.0 / shadowMapResolution;
         #endif
+
+        shadow = 0.0;
+        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+            vec3 shadowSamplePos = shadowPos;
+            #if SHADOW_PCF_SAMPLES > 1
+                float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                float theta = i * GoldenAngle + PHI;
+
+                vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                shadowSamplePos.xy += (rotation * pcfDiskOffset) * pixelRadius;
+            #endif
+
+            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                shadow += texture(shadowtex0HW, shadowSamplePos).r;
+            #else
+                float shadowDepth = texture(shadowtex0, shadowSamplePos.xy).r;
+                shadow += step(shadowSamplePos.z, shadowDepth);
+            #endif
+        }
+        shadow = max(shadow/float(SHADOW_PCF_SAMPLES), 0.0);
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 

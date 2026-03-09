@@ -14,7 +14,12 @@ out VertexData {
     vec2 lmcoord;
     vec2 texcoord;
     vec3 localPos;
-    vec3 localNormal;
+
+    #ifdef RENDER_ENTITY
+        vec3 localNormal;
+    #else
+        flat uint localNormal;
+    #endif
 
     #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
         flat float chunkFade;
@@ -62,6 +67,7 @@ uniform vec2 taa_offset = vec2(0.0);
 #endif
 
 #if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
+    #include "/lib/hash-noise.glsl"
     #include "/lib/wind-waving.glsl"
 #endif
 
@@ -79,7 +85,13 @@ void main() {
     vOut.color = gl_Color;
 
     vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
-    vOut.localNormal = mat3(gbufferModelViewInverse) * viewNormal;
+    vec3 localNormal = mat3(gbufferModelViewInverse) * viewNormal;
+
+    #ifdef RENDER_ENTITY
+        vOut.localNormal = localNormal;
+    #else
+        vOut.localNormal = packUnorm2x16(OctEncode(localNormal));
+    #endif
 
     #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
         vOut.chunkFade = saturate(mc_chunkFade);
