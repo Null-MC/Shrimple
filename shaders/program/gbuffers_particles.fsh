@@ -172,15 +172,18 @@ void main() {
             blockLight += lpvSample * lpvFade;
         #endif
 
-        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
-        vec3 skyLight = shadow * skyLightColor;
+        vec3 skyLight = vec3(0.0);
+        #ifdef WORLD_OVERWORLD
+            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            skyLight = shadow * skyLightColor;
 
-        #ifndef SHADOWS_ENABLED
-            skyLight *= lmcoord.y;
-        #endif
+            #ifndef SHADOWS_ENABLED
+                skyLight *= lmcoord.y;
+            #endif
 
-        #ifndef PHOTONICS_GI_ENABLED
-            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(vec3(0,1,0));
+            #ifndef PHOTONICS_GI_ENABLED
+                skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(vec3(0,1,0));
+            #endif
         #endif
 
         color.rgb = albedo * (blockLight + skyLight);

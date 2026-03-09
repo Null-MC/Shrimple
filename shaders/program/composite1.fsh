@@ -257,17 +257,19 @@ void main() {
                             blockLight = lpvSample;
                         #endif
 
-//                        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
-                        float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
+                        vec3 skyLight = vec3(0.0);
+                        #ifdef WORLD_OVERWORLD
+                            vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
+                            float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
 
-                        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+                            skyLight = skyLight_NoLm * shadow * skyLightColor;
 
-                        #ifndef SHADOWS_ENABLED
-                            skyLight *= lmcoord.y;
+                            #ifndef SHADOWS_ENABLED
+                                skyLight *= lmcoord.y;
+                            #endif
+
+                            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
-
-                        skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
 
                         reflectColor = albedo * (blockLight + skyLight);
                     #else

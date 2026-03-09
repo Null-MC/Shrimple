@@ -362,21 +362,24 @@ void main() {
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 
-        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
-        float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
+        vec3 skyLight = vec3(0.0);
+        #ifdef WORLD_OVERWORLD
+            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
 
-        #ifdef MATERIAL_PBR_ENABLED
-            skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
-        #endif
+            #ifdef MATERIAL_PBR_ENABLED
+                skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
+            #endif
 
-        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+            skyLight = skyLight_NoLm * shadow * skyLightColor;
 
-        #ifndef SHADOWS_ENABLED
-            skyLight *= lmcoord.y;
-        #endif
+            #ifndef SHADOWS_ENABLED
+                skyLight *= lmcoord.y;
+            #endif
 
-        #ifndef PHOTONICS_GI_ENABLED
-            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+            #ifndef PHOTONICS_GI_ENABLED
+                skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+            #endif
         #endif
 
         color.rgb = albedo * (blockLight + skyLight + MinAmbientF);

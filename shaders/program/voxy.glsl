@@ -85,16 +85,19 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-        vec3 skyLightColor = GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
-        float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
-        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+        vec3 skyLight = vec3(0.0);
+        #ifdef WORLD_OVERWORLD
+            vec3 skyLightColor = GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
+            float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
+            skyLight = skyLight_NoLm * shadow * skyLightColor;
 
-        #ifndef SHADOWS_ENABLED
-            skyLight *= lmcoord.y;
-        #endif
+            #ifndef SHADOWS_ENABLED
+                skyLight *= lmcoord.y;
+            #endif
 
-        #ifndef PHOTONICS_GI_ENABLED
-            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localNormal);
+            #ifndef PHOTONICS_GI_ENABLED
+                skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localNormal);
+            #endif
         #endif
 
         color.rgb = albedo.rgb * (blockLight + skyLight);
