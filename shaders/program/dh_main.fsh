@@ -26,9 +26,9 @@ in VertexData {
 #endif
 
 #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-    uniform sampler2DShadow shadowtex1HW;
+    uniform sampler2DShadow shadowtex0HW;
 #else
-    uniform sampler2D shadowtex1;
+    uniform sampler2D shadowtex0;
 #endif
 
 uniform float far;
@@ -137,15 +137,14 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            shadow = texture(shadowtex1HW, shadowPos).r;
-        #else
-            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
-            shadow = step(shadowPos.z, shadowDepth);
-        #endif
+        shadow = SampleShadows(shadowPos);
 
         float shadow_NoL = dot(localNormal, localSkyLightDir);
         shadow *= pow(saturate(shadow_NoL), 0.2);
+    #endif
+
+    #ifdef SHADOW_CLOUDS
+        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
     #endif
 
     vec2 lmcoord = vIn.lmcoord;

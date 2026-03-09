@@ -47,6 +47,7 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 uniform vec3 shadowLightPosition;
 uniform vec3 sunLocalDir;
+uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
 uniform int frameCounter;
 uniform vec2 viewSize;

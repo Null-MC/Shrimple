@@ -104,6 +104,9 @@ option.LIGHTING_REFLECT_ENABLED=Reflections
 option.LIGHTING_VOXEL_SIZE=Voxel Size
 suffix.LIGHTING_VOXEL_SIZE=m
 
+option.LIGHTING_MIN=Minimum
+suffix.LIGHTING_MIN=%
+
 
 screen.SHADOWS=Shadows
 

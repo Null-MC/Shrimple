@@ -46,7 +46,11 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
         return skyColorL;
     #else
         #if OVERWORLD_SKY == SKY_ENHANCED
-//            vec3 localSunDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+            if (isEyeInWater == 1) {
+                const vec3 waterFogColorL = pow(vec3(0.357, 0.624, 0.82), vec3(2.2));
+                float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+                return waterFogColorL * _pow2(eyeBrightF);
+            }
 
             float dayF = smoothstep(-0.1, 0.3, localSunDir.y);
             vec3 skyColorLab = mix(LinearToLab(colorSkyNight), LinearToLab(colorSkyDay), dayF);
@@ -55,10 +59,10 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
             float horizonF = GetSkyHorizonF(localSunDir.y);
             skyColorLab = mix(skyColorLab, LinearToLab(colorSkyHorizon), horizonF);
 
-    skyColorLab = mix(skyColorLab, LinearToLab(colorRainSky), rainStrength);
-    fogColorLab = mix(fogColorLab, LinearToLab(colorRainFog), rainStrength);
+            skyColorLab = mix(skyColorLab, LinearToLab(colorRainSky), rainStrength);
+            fogColorLab = mix(fogColorLab, LinearToLab(colorRainFog), rainStrength);
 
-            // TODO: why is this being changed AFTER sky color?!
+            // directional horizon color
             horizonF *= dot(localSunDir, localViewDir) * 0.5 + 0.5;
             fogColorLab = mix(fogColorLab, LinearToLab(colorFogHorizon), horizonF);
 
@@ -91,16 +95,21 @@ float GetBorderFogStrength(const in float viewDist) {
 
 float GetEnvFogStrength(const in float viewDist) {
     #if defined(WORLD_OVERWORLD) && OVERWORLD_SKY == SKY_ENHANCED
-        #ifdef VOXY
-            float _far = vxRenderDistance * 16.0;
-        #elif defined(DISTANT_HORIZONS)
-            float _far = 0.5 * dhFarPlane;
-        #else
-            #define _far far
-        #endif
+        float fog_end;
+        if (isEyeInWater == 1) {
+            fog_end = 80.0;
+        } else {
+            #ifdef VOXY
+                float _far = vxRenderDistance * 16.0;
+            #elif defined(DISTANT_HORIZONS)
+                float _far = 0.5 * dhFarPlane;
+            #else
+                #define _far far
+            #endif
 
-        float rain_end = min(800.0, _far);
-        float fog_end = mix(_far, rain_end, rainStrength);
+            float rain_end = min(800.0, _far);
+            fog_end = mix(_far, rain_end, rainStrength);
+        }
 
         return smoothstep(0.0, fog_end, viewDist);
     #else

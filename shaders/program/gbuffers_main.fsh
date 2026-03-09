@@ -98,6 +98,7 @@ uniform vec3 cameraPosition;
 uniform int frameCounter;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
+uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
 uniform int heldItemId;
 uniform int heldItemId2;
@@ -152,6 +153,10 @@ uniform float dhFarPlane;
 
 #ifdef LIGHTING_HAND
     #include "/lib/hand-light.glsl"
+#endif
+
+#ifdef SHADOWS_ENABLED
+    #include "/lib/shadow-sample.glsl"
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -305,38 +310,7 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        #if SHADOW_PCF_SAMPLES > 1
-            vec2 seed = gl_FragCoord.xy;
-            #ifdef TAA_ENABLED
-                seed += vec2(157,107) * frameCounter;
-            #endif
-            float dither = InterleavedGradientNoise(seed);
-            float angle = fract(dither) * (PI * 2.0);
-            float s = sin(angle), c = cos(angle);
-            mat2 rotation = mat2(c, -s, s, c);
-
-            const float pixelRadius = 3.0 / shadowMapResolution;
-        #endif
-
-        shadow = 0.0;
-        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-            vec3 shadowSamplePos = shadowPos;
-            #if SHADOW_PCF_SAMPLES > 1
-                float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
-                float theta = i * GoldenAngle + PHI;
-
-                vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
-                shadowSamplePos.xy += (rotation * pcfDiskOffset) * pixelRadius;
-            #endif
-
-            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                shadow += texture(shadowtex0HW, shadowSamplePos).r;
-            #else
-                float shadowDepth = texture(shadowtex0, shadowSamplePos.xy).r;
-                shadow += step(shadowSamplePos.z, shadowDepth);
-            #endif
-        }
-        shadow = max(shadow/float(SHADOW_PCF_SAMPLES), 0.0);
+        shadow = SampleShadows(shadowPos);
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 
@@ -405,7 +379,7 @@ void main() {
             skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
         #endif
 
-        color.rgb = albedo * (blockLight + skyLight);
+        color.rgb = albedo * (blockLight + skyLight + MinAmbientF);
     #else
         lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
@@ -515,6 +489,12 @@ void main() {
     vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localViewDir);
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
+
+    if (isEyeInWater == 1) {
+        const vec3 waterAbsorbColor = vec3(0.357, 0.624, 0.82);
+        const vec3 waterAbsorbColorL = pow(1.0 - waterAbsorbColor, vec3(2.2));
+        color.rgb *= exp(-viewDist * waterAbsorbColorL);
+    }
 
     outFinal = color;
 

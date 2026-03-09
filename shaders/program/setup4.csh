@@ -17,6 +17,7 @@ uniform vec3 skyColor;
 uniform float rainStrength;
 uniform vec3 sunLocalDir;
 uniform int isEyeInWater;
+uniform ivec2 eyeBrightnessSmooth;
 
 uniform int vxRenderDistance;
 

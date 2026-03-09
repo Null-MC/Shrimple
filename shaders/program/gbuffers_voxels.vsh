@@ -33,17 +33,17 @@ void main() {
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
 
-    #ifdef WIND_ENABLED
-//        int blockId = int(mc_Entity.x + EPSILON);
-        int blockId = BLOCK_GRASS_SHORT;//get_block_id(vOut.localPos + rt_camera_position + at_midBlock.xyz/64.0);
-
-        if (blockId == BLOCK_GRASS_SHORT) {
-            vec3 localPos = vOut.localPos;
-            localPos.y += 0.5;
-
-            viewPos = mul3(gbufferModelView, localPos);
-        }
-    #endif
+//    #ifdef WIND_ENABLED
+////        int blockId = int(mc_Entity.x + EPSILON);
+//        int blockId = BLOCK_GRASS_SHORT;//get_block_id(vOut.localPos + rt_camera_position + at_midBlock.xyz/64.0);
+//
+//        if (blockId == BLOCK_GRASS_SHORT) {
+//            vec3 localPos = vOut.localPos;
+//            localPos.y += 0.5;
+//
+//            viewPos = mul3(gbufferModelView, localPos);
+//        }
+//    #endif
 
     gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);
 

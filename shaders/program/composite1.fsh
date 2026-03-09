@@ -25,13 +25,18 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         uniform sampler2D texSkyTransmit;
+        uniform sampler3D texSkyIrradiance;
+    #endif
+
+    #ifdef SHADOW_CLOUDS
+        uniform sampler2D texCloudShadow;
     #endif
 
     #ifdef SHADOWS_ENABLED
         #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            uniform sampler2DShadow shadowtex1HW;
+            uniform sampler2DShadow shadowtex0HW;
         #else
-            uniform sampler2D shadowtex1;
+            uniform sampler2D shadowtex0;
         #endif
     #endif
 #endif
@@ -44,6 +49,9 @@ uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 uniform float rainStrength;
+uniform float cloudHeight;
+uniform float cloudTime;
+uniform vec3 eyePosition;
 uniform int isEyeInWater;
 //uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;
@@ -54,12 +62,14 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
+uniform ivec2 eyeBrightnessSmooth;
 uniform int frameCounter;
 uniform vec2 taa_offset = vec2(0.0);
 
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
+#include "/lib/ign.glsl"
 #include "/lib/hsv.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/octohedral.glsl"
@@ -73,13 +83,20 @@ uniform float dhFarPlane;
 #ifdef PHOTONICS_REFLECT_ENABLED
     #include "/photonics/photonics.glsl"
 
+    #include "/lib/shadows.glsl"
+
     #ifdef SHADOWS_ENABLED
-        #include "/lib/shadows.glsl"
+        #include "/lib/shadow-sample.glsl"
+    #endif
+
+    #ifdef SHADOW_CLOUDS
+        #include "/lib/cloud-shadows.glsl"
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         #ifdef WORLD_OVERWORLD
             #include "/lib/sky-transmit.glsl"
+            #include "/lib/sky-irradiance.glsl"
         #endif
 
         #include "/lib/enhanced-lighting.glsl"
@@ -118,8 +135,8 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 }
 
 #ifdef PHOTONICS_REFLECT_ENABLED
-    #PH_USE_CUSTOM_ALPHA
-    #PH_ALPHA_FUNC(color) apply_tint_impl(color)
+    #define PH_USE_CUSTOM_ALPHA
+    #define PH_ALPHA_FUNC(color) apply_tint_impl(color)
 
     vec3 apply_tint_impl(const in vec4 color) {
         return color.rgb * (1.0 - color.a);
@@ -210,21 +227,21 @@ void main() {
                         vec3 shadowPos = hitLocalPos;
                         shadowPos += 0.08 * hitLocalNormal;
                         shadowPos = mul3(shadowModelView, shadowPos);
-                        shadowPos.z += 0.032 * hitViewDist;
+
+//                        shadowPos.z += 0.032 * hitViewDist;
                         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
 
                         distort(shadowPos.xy);
                         shadowPos = shadowPos * 0.5 + 0.5;
 
-                        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                            shadow = texture(shadowtex1HW, shadowPos).r;
-                        #else
-                            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
-                            shadow = step(shadowPos.z, shadowDepth);
-                        #endif
+                        shadow = SampleShadows(shadowPos);
 
                         float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
                         shadow *= pow(saturate(shadow_NoL), 0.2);
+                    #endif
+
+                    #ifdef SHADOW_CLOUDS
+                        shadow *= SampleCloudShadow(hitLocalPos, localSkyLightDir);
                     #endif
 
                     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -242,9 +259,15 @@ void main() {
 
 //                        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
                         vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
-
                         float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
-                        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*(1.0 - AmbientLightF) + AmbientLightF) * skyLightColor;
+
+                        vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+
+                        #ifndef SHADOWS_ENABLED
+                            skyLight *= lmcoord.y;
+                        #endif
+
+                        skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
 
                         reflectColor = albedo * (blockLight + skyLight);
                     #else
@@ -267,6 +290,17 @@ void main() {
 
                         reflectColor = albedo * lit;
                     #endif
+
+                    // TODO: fog
+//                    float borderFogF = GetBorderFogStrength(viewDist);
+                    float envFogF = GetEnvFogStrength(hitViewDist);
+                    float fogF = envFogF;//max(borderFogF, envFogF);
+
+                    vec3 fogColorL = RGBToLinear(fogColor);
+                    vec3 skyColorL = RGBToLinear(skyColor);
+                    vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localReflectDir);
+
+                    reflectColor = mix(reflectColor, fogColorFinal, fogF);
 
                     reflectColor *= result_tint_color;
                 }

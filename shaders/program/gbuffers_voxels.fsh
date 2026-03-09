@@ -23,9 +23,9 @@ in VertexData {
 
 #ifdef SHADOWS_ENABLED
     #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex1HW;
+        uniform sampler2DShadow shadowtex0HW;
     #else
-        uniform sampler2D shadowtex1;
+        uniform sampler2D shadowtex0;
     #endif
 
     #ifdef SHADOW_CLOUDS
@@ -51,6 +51,7 @@ uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
+uniform ivec2 eyeBrightnessSmooth;
 uniform vec4 entityColor;
 uniform float alphaTestRef;
 uniform int frameCounter;
@@ -64,6 +65,7 @@ uniform float dhFarPlane;
 #include "/lib/oklab.glsl"
 #include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
+#include "/lib/ign.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/shadows.glsl"
@@ -87,6 +89,10 @@ uniform float dhFarPlane;
 #ifdef LIGHTING_COLORED
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
+#endif
+
+#ifdef SHADOWS_ENABLED
+    #include "/lib/shadow-sample.glsl"
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -148,19 +154,14 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            shadow = texture(shadowtex1HW, shadowPos).r;
-        #else
-            float shadowDepth = texture(shadowtex1, shadowPos.xy).r;
-            shadow = step(shadowPos.z, shadowDepth);
-        #endif
-
-        #ifdef SHADOW_CLOUDS
-            shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
-        #endif
+        shadow = SampleShadows(shadowPos);
 
         float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
         shadow *= pow(saturate(shadow_NoL), 0.2);
+    #endif
+
+    #ifdef SHADOW_CLOUDS
+        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
     #endif
 
     #ifdef LIGHTING_COLORED

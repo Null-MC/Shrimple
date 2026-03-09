@@ -14,6 +14,7 @@ uniform float rainStrength;
 uniform int renderStage;
 uniform int isEyeInWater;
 uniform vec3 sunLocalDir;
+uniform ivec2 eyeBrightnessSmooth;
 
 uniform int vxRenderDistance;
 uniform float dhFarPlane;

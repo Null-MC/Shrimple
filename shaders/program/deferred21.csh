@@ -35,6 +35,7 @@ uniform float rainStrength;
 uniform int isEyeInWater;
 //uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;
+uniform ivec2 eyeBrightnessSmooth;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec2 taa_offset = vec2(0.0);
