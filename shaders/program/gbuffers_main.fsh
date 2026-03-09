@@ -54,11 +54,7 @@ uniform sampler2D gtexture;
 #endif
 
 #ifdef SHADOWS_ENABLED
-    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
-    #else
-        uniform sampler2D shadowtex0;
-    #endif
+    uniform SHADOW_SAMPLER TEX_SHADOW;
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -75,10 +71,10 @@ uniform sampler2D gtexture;
 #endif
 
 uniform float far;
-uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogStart;
 uniform float fogEnd;
+uniform vec3 fogColor;
 uniform vec3 skyColor;
 uniform float rainStrength;
 uniform float cloudHeight;
@@ -493,11 +489,11 @@ void main() {
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
-    if (isEyeInWater == 1) {
-        const vec3 waterAbsorbColor = vec3(0.357, 0.624, 0.82);
-        const vec3 waterAbsorbColorL = pow(1.0 - waterAbsorbColor, vec3(2.2));
-        color.rgb *= exp(-viewDist * waterAbsorbColorL);
-    }
+//    if (isEyeInWater == 1) {
+//        const vec3 waterAbsorbColor = vec3(0.122, 0.529, 0.702);
+//        const vec3 waterAbsorbColorL = pow(1.0 - waterAbsorbColor, vec3(2.2));
+//        color.rgb *= exp(-viewDist * waterAbsorbColorL);
+//    }
 
     outFinal = color;
 

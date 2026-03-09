@@ -22,11 +22,7 @@ in VertexData {
 #endif
 
 #ifdef SHADOWS_ENABLED
-    #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-        uniform sampler2DShadow shadowtex0HW;
-    #else
-        uniform sampler2D shadowtex0;
-    #endif
+    uniform SHADOW_SAMPLER TEX_SHADOW;
 
     #ifdef SHADOW_CLOUDS
         uniform sampler2D texCloudShadow;

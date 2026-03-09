@@ -95,6 +95,7 @@ void main() {
 
     #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
         vOut.chunkFade = saturate(mc_chunkFade);
+        if (mc_chunkFade < 0.0) vOut.chunkFade = 1.0;
     #endif
 
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);

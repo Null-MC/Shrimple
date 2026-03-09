@@ -25,10 +25,8 @@ in VertexData {
     uniform sampler2D lightmap;
 #endif
 
-#ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-    uniform sampler2DShadow shadowtex0HW;
-#else
-    uniform sampler2D shadowtex0;
+#ifdef SHADOWS_ENABLED
+    uniform SHADOW_SAMPLER TEX_SHADOW;
 #endif
 
 uniform float far;

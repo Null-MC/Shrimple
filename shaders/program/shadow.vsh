@@ -85,7 +85,10 @@ void main() {
         #endif
 
         vec3 viewPosOffset = viewPos;
-        viewPosOffset.z -= 0.20 * max(viewNormal.z, 0.0);
+
+        #ifndef RENDER_TRANSLUCENT
+            viewPosOffset.z -= 0.20 * max(viewNormal.z, 0.0);
+        #endif
 
         gl_Position = gl_ProjectionMatrix * vec4(viewPosOffset, 1.0);
         distort(gl_Position.xy);

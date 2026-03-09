@@ -109,6 +109,14 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     const int shadowMapResolution = 2;
 #endif
 
+#ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+    #define SHADOW_SAMPLER sampler2DShadow
+    #define TEX_SHADOW shadowtex0HW
+#else
+    #define SHADOW_SAMPLER sampler2D
+    #define TEX_SHADOW shadowtex0
+#endif
+
 #ifndef PHOTONICS
     #undef PHOTONICS_REFLECT_ENABLED
     #undef PHOTONICS_HAND_LIGHT_ENABLED
@@ -174,6 +182,11 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 #define _pow2(x) ((x)*(x))
 #define _pow3(x) ((x)*(x)*(x))
 #define _saturate(x) (clamp(x, 0.0, 1.0))
+
+float pow4(const in float x) {
+    float x2 = _pow2(x);
+    return _pow2(x2);
+}
 
 float pow5(const in float value) {
     float sq = value*value;
