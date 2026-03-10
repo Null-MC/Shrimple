@@ -121,40 +121,42 @@ vec3 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
 //    return LabToLinear(cf);
 }
 
+void copyToShared(const in ivec3 imgCoordOffset, const in uint i) {
+    ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
+    ivec3 pos = workGroupOffset + ivec3(i / lpvFlatten) % 10;
+
+    ivec3 lpvPos = imgCoordOffset + pos;
+    lpvBuffer[i] = GetLpvValue(lpvPos);
+
+    uint blockId = 0u;
+    if (IsInVoxelBounds(pos))
+        blockId = texelFetch(texVoxels, pos, 0).r;
+
+    voxelSharedData[i] = blockId;
+}
+
 void PopulateShared() {
     uint i1 = uint(gl_LocalInvocationIndex) * 2u;
     if (i1 >= 1000u) return;
 
     uint i2 = i1 + 1u;
-    // ivec3 voxelOffset = GetLpvVoxelOffset();
     ivec3 imgCoordOffset = GetVoxelFrameOffset();
-    ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
 
-    ivec3 pos1 = workGroupOffset + ivec3(i1 / lpvFlatten) % 10;
-    ivec3 pos2 = workGroupOffset + ivec3(i2 / lpvFlatten) % 10;
-
-    ivec3 lpvPos1 = imgCoordOffset + pos1;
-    lpvBuffer[i1] = GetLpvValue(lpvPos1);
-
-    ivec3 lpvPos2 = imgCoordOffset + pos2;
-    lpvBuffer[i2] = GetLpvValue(lpvPos2);
-
-    uint blockId1 = 0u;
-    if (IsInVoxelBounds(pos1))
-        blockId1 = texelFetch(texVoxels, pos1, 0).r;
-    voxelSharedData[i1] = blockId1;
-
-    uint blockId2 = 0u;
-    if (IsInVoxelBounds(pos2))
-        blockId2 = texelFetch(texVoxels, pos2, 0).r;
-    voxelSharedData[i2] = blockId2;
+    copyToShared(imgCoordOffset, i1);
+    copyToShared(imgCoordOffset, i2);
 }
 
 void main() {
     uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
     if (any(greaterThanEqual(chunkPos, VoxelBufferSize))) return;
 
-    PopulateShared();
+    uint i_base = uint(gl_LocalInvocationIndex) * 2u;
+    if (i_base < 1000u) {
+        ivec3 imgCoordOffset = GetVoxelFrameOffset();
+
+        copyToShared(imgCoordOffset, i_base);
+        copyToShared(imgCoordOffset, i_base + 1u);
+    }
 
     barrier();
 

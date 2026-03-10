@@ -12,5 +12,11 @@ vec3 SampleSkyIrradiance(const in vec3 localNormal) {
     vec3 sz = texture(texSkyIrradiance, vec3(sun_y, dir_y.z, rain)).rgb;
 
     vec3 abs_normal = abs(localNormal);
-    return sx*abs_normal.x + sy*abs_normal.y + sz*abs_normal.z;
+    vec3 irradiance = sx*abs_normal.x + sy*abs_normal.y + sz*abs_normal.z;
+
+    // fake ground occlusion
+//    float groundOcclusion = min(localNormal.y + 1.0, 1.0);
+//    groundOcclusion = mix(groundOcclusion, 1.0, altitude);
+
+    return irradiance;// * groundOcclusion;
 }

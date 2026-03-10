@@ -10,16 +10,17 @@ uniform sampler2D TEX_FINAL;
 
 #if DEBUG_VIEW == DEBUG_VIEW_SSAO
     uniform sampler2D TEX_SSAO;
+#elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
+    uniform sampler3D texSkyIrradiance;
 #endif
 
 #ifdef PHOTONICS_LIGHT_DEBUG
     uniform usampler2D texLightDebug;
 #endif
 
-//uniform sampler3D texSkyIrradiance;
-
 uniform vec2 viewSize;
 uniform int frameCounter;
+uniform float rainStrength;
 uniform float farPlane;
 uniform float far2;
 uniform float far3;
@@ -97,16 +98,19 @@ void main() {
         if (saturate(tex) == tex) {
             color = texture(TEX_SSAO, tex).rrr;
         }
+    #elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
+        const vec2 texSize = vec2(24, 6);
+        vec2 tex = (gl_FragCoord.xy - 8.5) / (texSize*8.0);
+        if (saturate(tex) == tex) {
+            vec3 uv = vec3(tex, rainStrength * 0.50 + 0.25);
+            color = texture(texSkyIrradiance, uv).rgb;
+            color = LinearToRGB(color);
+        }
     #endif
 
 //    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(900);
 //    if (saturate(tex) == tex) {
 //        color = texture(texCloudShadow, fract(tex*3.0)).rrr;
-//    }
-
-//    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(96, 24);
-//    if (saturate(tex) == tex) {
-//        color = texture(texSkyIrradiance, tex).rgb;
 //    }
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;

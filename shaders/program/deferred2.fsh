@@ -152,7 +152,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
 
     vec3 lighting;
     if (!ray.result_hit && !ray_iteration_bound_reached) {
-        lighting = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), trace_localDir);
+        lighting = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), trace_localDir);
     }
     else {
         lighting = vec3(0.0);

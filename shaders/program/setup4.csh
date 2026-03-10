@@ -97,5 +97,10 @@ void main() {
     float rainStrength = float(uv.z);
 
     vec3 irradiance = GetSkyIrradiance(localSunDir, localViewDir, rainStrength);
+
+    // fake ground occlusion
+    float groundOcclusion = min(localViewDir.y + 1.0, 1.0);
+    irradiance *= groundOcclusion * 0.65 + 0.35;
+
     imageStore(imgSkyIrradiance, uv, vec4(irradiance, 1.0));
 }

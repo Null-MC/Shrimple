@@ -12,7 +12,7 @@ vec3 GetSkyLightColor(const in vec3 localPos, const in float localSunLightDir_y,
         float skyLightBrightness = mix(nightBrightF, 6.00, dayF);
         skyLightBrightness *= abs(localSunLightDir_y);
 
-        skyLightBrightness *= mix(1.0, 0.2, smoothstep(0.0, 1.0, rainStrength));
+        skyLightBrightness *= mix(1.0, 0.08, smoothstep(0.0, 1.0, rainStrength));
 
         #ifdef WORLD_OVERWORLD
             float world_y = localPos.y + cameraPosition.y;

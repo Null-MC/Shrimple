@@ -79,7 +79,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 //#define PHOTONICS_LIGHT_DEBUG
 
 //#define DEBUG
-#define DEBUG_VIEW 0 // [0 1]
+#define DEBUG_VIEW 0 // [0 1 2]
 //#define DEBUG_WHITEWORLD
 
 

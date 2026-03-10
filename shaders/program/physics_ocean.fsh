@@ -298,7 +298,7 @@ void main() {
 
     vec3 fogColorL = RGBToLinear(fogColor);
     vec3 skyColorL = RGBToLinear(skyColor);
-    vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localViewDir);
+    vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 

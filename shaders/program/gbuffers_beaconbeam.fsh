@@ -54,7 +54,7 @@ void main() {
     float fogF = max(borderFogF, envFogF);
 
     vec3 localViewDir = normalize(vIn.localPos);
-    vec3 fogColorFinal = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
+    vec3 fogColorFinal = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 

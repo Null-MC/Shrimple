@@ -302,7 +302,7 @@ void main() {
 
                     vec3 fogColorL = RGBToLinear(fogColor);
                     vec3 skyColorL = RGBToLinear(skyColor);
-                    vec3 fogColorFinal = GetSkyFogColor(skyColorL, fogColorL, localReflectDir);
+                    vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localReflectDir);
 
                     reflectColor = mix(reflectColor, fogColorFinal, fogF);
 
@@ -378,7 +378,7 @@ void main() {
             }
             else {
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
-                reflectColor = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
+                reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
                 reflectColor *= _pow3(lmcoord_y);
             }
 
