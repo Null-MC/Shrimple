@@ -70,24 +70,54 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
 #endif
 
 #ifdef RENDER_FRAGMENT
-    vec3 BloomBoxSample(const in sampler2D texColor, const in vec2 texcoord, const in vec2 pixelSize) {
-        vec3 color = vec3(0.0);
-        float totalWeight = 0.0;
+    vec3 BloomSample(const in sampler2D texSrc, in vec2 texcoord, const in vec2 boundsMin, const in vec2 boundsMax) {
+        texcoord = clamp(texcoord, boundsMin, boundsMax);
+        return texture(texSrc, texcoord).rgb;
+    }
 
-        for (float iy = -1.5; iy <= 1.5; iy++) {
-            for (float ix = -1.5; ix <= 1.5; ix++) {
-                vec2 sampleOffset = vec2(ix, iy);
-                //float sampleWeight = pow(1.0 - length(sampleOffset) * 0.25, 1.0);
-                float sampleWeight = 1.0 - length(sampleOffset) * 0.25;
+    vec3 BloomBoxSample(const in sampler2D texColor, const in vec2 texcoord, const in vec2 boundsMin, const in vec2 boundsMax) {
+//        vec3 a = textureOffset(texColor, texcoord, ivec2(-2, +2)).rgb;
+//        vec3 b = textureOffset(texColor, texcoord, ivec2( 0, +2)).rgb;
+//        vec3 c = textureOffset(texColor, texcoord, ivec2(+2, +2)).rgb;
+//
+//        vec3 d = textureOffset(texColor, texcoord, ivec2(-2, 0)).rgb;
+//        vec3 e = textureOffset(texColor, texcoord, ivec2( 0, 0)).rgb;
+//        vec3 f = textureOffset(texColor, texcoord, ivec2(+2, 0)).rgb;
+//
+//        vec3 g = textureOffset(texColor, texcoord, ivec2(-2, -2)).rgb;
+//        vec3 h = textureOffset(texColor, texcoord, ivec2( 0, -2)).rgb;
+//        vec3 i = textureOffset(texColor, texcoord, ivec2(+2, -2)).rgb;
+//
+//        vec3 j = textureOffset(texColor, texcoord, ivec2(-1, +1)).rgb;
+//        vec3 k = textureOffset(texColor, texcoord, ivec2(+1, +1)).rgb;
+//        vec3 l = textureOffset(texColor, texcoord, ivec2(-1, -1)).rgb;
+//        vec3 m = textureOffset(texColor, texcoord, ivec2(+1, -1)).rgb;
 
-                vec2 sampleCoord = fma(sampleOffset, pixelSize, texcoord);
-                vec3 sampleColor = texture(texColor, sampleCoord).rgb;
-                color += sampleWeight * sampleColor;
-                totalWeight += sampleWeight;
-            }
-        }
+        vec2 px = 1.0 / viewSize;
 
-        return color / totalWeight;
+        vec3 a = BloomSample(texColor, fma(vec2(-2, +2), px, texcoord), boundsMin, boundsMax);
+        vec3 b = BloomSample(texColor, fma(vec2( 0, +2), px, texcoord), boundsMin, boundsMax);
+        vec3 c = BloomSample(texColor, fma(vec2(+2, +2), px, texcoord), boundsMin, boundsMax);
+
+        vec3 d = BloomSample(texColor, fma(vec2(-2,  0), px, texcoord), boundsMin, boundsMax);
+        vec3 e = BloomSample(texColor, fma(vec2( 0,  0), px, texcoord), boundsMin, boundsMax);
+        vec3 f = BloomSample(texColor, fma(vec2(+2,  0), px, texcoord), boundsMin, boundsMax);
+
+        vec3 g = BloomSample(texColor, fma(vec2(-2, -2), px, texcoord), boundsMin, boundsMax);
+        vec3 h = BloomSample(texColor, fma(vec2( 0, -2), px, texcoord), boundsMin, boundsMax);
+        vec3 i = BloomSample(texColor, fma(vec2(+2, -2), px, texcoord), boundsMin, boundsMax);
+
+        vec3 j = BloomSample(texColor, fma(vec2(-1, +1), px, texcoord), boundsMin, boundsMax);
+        vec3 k = BloomSample(texColor, fma(vec2(+1, +1), px, texcoord), boundsMin, boundsMax);
+        vec3 l = BloomSample(texColor, fma(vec2(-1, -1), px, texcoord), boundsMin, boundsMax);
+        vec3 m = BloomSample(texColor, fma(vec2(+1, -1), px, texcoord), boundsMin, boundsMax);
+
+        vec3 downsample;
+        downsample = e*0.125;
+        downsample += (a+c+g+i)*0.03125;
+        downsample += (b+d+f+h)*0.0625;
+        downsample += (j+k+l+m)*0.125;
+        return downsample;
     }
 
     vec3 BloomTileDownsample(const in sampler2D texSrc, const in int tile) {
@@ -106,7 +136,7 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
 //            tex = clamp(tex, srcBoundsMin, srcBoundsMax);
 //        #endif
 
-        vec3 color = BloomBoxSample(texSrc, tex, pixelSize);
+        vec3 color = BloomBoxSample(texSrc, tex, srcBoundsMin, srcBoundsMax);
 
 //        #ifdef DEBUG_BLOOM_TILES
 //            color = vec3(0.0, 1.0, 0.0);
@@ -127,15 +157,29 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
         vec2 tex = texcoord - 0.5 * pixelSize;
         tex = fma(tex, (srcBoundsMax - srcBoundsMin), srcBoundsMin);
 
-        tex -= 0.5 * pixelSize;
-        vec3 color1 = texture(texSrc, tex).rgb;
-        vec3 color2 = textureOffset(texSrc, tex, ivec2(1,0)).rgb;
-        vec3 color3 = textureOffset(texSrc, tex, ivec2(0,1)).rgb;
-        vec3 color4 = textureOffset(texSrc, tex, ivec2(1,1)).rgb;
+        const float filterRadius = 0.0005; // [0.0004 0.0008]
+        float x = filterRadius * (viewSize.y / viewSize.x);
+        float y = filterRadius;
 
-        vec3 color = 0.25 * (color1 + color2 + color3 + color4);
+        vec3 a = BloomSample(texSrc, vec2(tex.x - x, tex.y + y), srcBoundsMin, srcBoundsMax);
+        vec3 b = BloomSample(texSrc, vec2(tex.x,     tex.y + y), srcBoundsMin, srcBoundsMax);
+        vec3 c = BloomSample(texSrc, vec2(tex.x + x, tex.y + y), srcBoundsMin, srcBoundsMax);
 
-        return max(color, vec3(0.0));
+        vec3 d = BloomSample(texSrc, vec2(tex.x - x, tex.y), srcBoundsMin, srcBoundsMax);
+        vec3 e = BloomSample(texSrc, vec2(tex.x,     tex.y), srcBoundsMin, srcBoundsMax);
+        vec3 f = BloomSample(texSrc, vec2(tex.x + x, tex.y), srcBoundsMin, srcBoundsMax);
+
+        vec3 g = BloomSample(texSrc, vec2(tex.x - x, tex.y - y), srcBoundsMin, srcBoundsMax);
+        vec3 h = BloomSample(texSrc, vec2(tex.x,     tex.y - y), srcBoundsMin, srcBoundsMax);
+        vec3 i = BloomSample(texSrc, vec2(tex.x + x, tex.y - y), srcBoundsMin, srcBoundsMax);
+
+        vec3 upsample;
+        upsample = e*4.0;
+        upsample += (b+d+f+h)*2.0;
+        upsample += (a+c+g+i);
+        upsample *= 0.0625;
+
+        return max(upsample, vec3(0.0));
     }
 
 //    void DitherBloom(inout vec3 color) {

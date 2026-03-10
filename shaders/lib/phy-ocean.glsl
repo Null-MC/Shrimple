@@ -142,7 +142,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
         data.direction = -vec2(dx / pow(waveSum, 1.0 - PHYSICS_W_DETAIL));
         data.worldPos = wavePos / physics_oceanWaveHorizontalScale / PHYSICS_XZ_SCALE;
         data.height = height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
-        
+
         data.normal = physics_waveNormal(position, data.direction, factor, time);
 
         float waveAmplitude = max(data.normal.z, 0.0);

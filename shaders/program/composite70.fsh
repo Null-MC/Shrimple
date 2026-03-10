@@ -24,5 +24,5 @@ void main() {
     tex /= 1.0 - (2.0*tilePadding) * 2.0*pixelSize;
     tex += pixelSize;
 
-    outFinal = BloomBoxSample(BUFFER_FINAL, tex, pixelSize);
+    outFinal = BloomBoxSample(BUFFER_FINAL, tex, vec2(0.0), viewSize);
 }

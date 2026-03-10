@@ -137,6 +137,8 @@ option.BLOOM_ENABLED=Enabled
 option.BLOOM_STRENGTH=Strength
 suffix.BLOOM_STRENGTH=%
 
+option.BLOOM_LEVELS=Levels
+
 
 screen.EFFECT_SSAO=SSAO
 screen.EFFECT_SSAO.comment=Screen-Space Ambient Occlusion. For Voxy or Distant Horizons chunks only!
