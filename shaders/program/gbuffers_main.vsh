@@ -106,19 +106,6 @@ void main() {
     #endif
 
     #if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
-//        ivec2 blockUV = ivec2(blockId % 256, blockId / 256);
-//
-//        uint wavingMask = texelFetch(texBlockWaving, blockUV, 0).r;
-//        float waveBottom = bitfieldExtract(wavingMask, 2, 1);
-//        float waveTop = bitfieldExtract(wavingMask, 3, 1);
-//        float waveHeightF = 0.5 - at_midBlock.y / 64.0;
-//        float waveStrength = mix(waveBottom, waveTop, waveHeightF);
-//
-//        float time = mod(frameTimeCounter * 2.0, 2.0*PI);
-//        vec2 waveOffset = 0.3 * vec2(cos(time), sin(time));
-//        vOut.localPos.xz += waveOffset * waveStrength;
-
-//        ApplyWindWaving(vOut.localPos, vOut.blockId);
         vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
         vOut.localPos += GetWindWavingOffset(originPos, vOut.blockId);
 

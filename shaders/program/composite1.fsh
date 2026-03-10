@@ -73,6 +73,7 @@ uniform float dhFarPlane;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/fog.glsl"
+#include "/lib/water.glsl"
 #include "/lib/fresnel.glsl"
 #include "/lib/material.glsl"
 
@@ -166,6 +167,8 @@ void main() {
         float viewDist = length(viewPos);
         vec3 viewDir = viewPos / viewDist;
 
+        float totalDist = viewDist;
+
         #ifdef MATERIAL_PBR_ENABLED
             float roughness = mat_roughness(specularData.r);
             float metalness = mat_metalness(specularData.g);
@@ -210,6 +213,9 @@ void main() {
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
+
+                    float traceDist = distance(localPos, hitLocalPos);
+                    totalDist += traceDist;
 
                     float hit_sky = get_result_sky_light(hitLocalNormal) / 15.0;
                     vec2 lmcoord = vec2(0.0, hit_sky);
@@ -366,7 +372,11 @@ void main() {
                 }
             #endif
 
-            if (!hit) {
+            if (hit) {
+                if (isEyeInWater == 1)
+                    reflectColor *= GetWaterAbsorption(totalDist);
+            }
+            else {
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
                 reflectColor = GetSkyFogColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
                 reflectColor *= _pow3(lmcoord_y);
@@ -378,10 +388,12 @@ void main() {
             reflectColor *= _pow2(smoothness);
         }
 
+        // apply metal tint
         vec3 albedo = RGBToLinear(reflectDataR.rgb);
         vec3 tint = mix(vec3(1.0), albedo, metalness);
         reflectColor *= tint;
 
+        // apply fog for reflect source
         float borderFogF = GetBorderFogStrength(viewDist);
         float envFogF = GetEnvFogStrength(viewDist);
         float fogF = max(borderFogF, envFogF);

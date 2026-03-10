@@ -118,6 +118,7 @@ uniform float dhFarPlane;
 #include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
+#include "/lib/water.glsl"
 #include "/lib/ssao.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
@@ -489,11 +490,11 @@ void main() {
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
-//    if (isEyeInWater == 1) {
-//        const vec3 waterAbsorbColor = vec3(0.122, 0.529, 0.702);
-//        const vec3 waterAbsorbColorL = pow(1.0 - waterAbsorbColor, vec3(2.2));
-//        color.rgb *= exp(-viewDist * waterAbsorbColorL);
-//    }
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        if (isEyeInWater == 1) {
+            color.rgb *= GetWaterAbsorption(viewDist);
+        }
+    #endif
 
     outFinal = color;
 

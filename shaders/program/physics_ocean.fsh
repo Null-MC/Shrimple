@@ -44,6 +44,8 @@ uniform sampler2D gtexture;
     uniform sampler2D texCloudShadow;
 #endif
 
+uniform float fogStart;
+uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
 uniform float rainStrength;
@@ -58,6 +60,10 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform ivec2 eyeBrightnessSmooth;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
 uniform int isEyeInWater;
 uniform int frameCounter;
 
@@ -91,6 +97,10 @@ uniform int vxRenderDistance;
 #ifdef LIGHTING_COLORED
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
+#endif
+
+#ifdef LIGHTING_HAND
+    #include "/lib/hand-light.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED
@@ -156,11 +166,16 @@ void main() {
     vec2 waterUvOffset = wave.worldPos - vIn.physics_localPosition.xz;
     vec3 localTexNormal = wave.normal.xzy;
 
+    // TODO: foam looks weird with textured water
+    color.a = mix(color.a, 1.0, wave.foam);
+    albedo = mix(albedo, vec3(0.92), wave.foam);
+    specularData.r = mix(specularData.r, 0.48, wave.foam);
+
+    vec3 localGeoNormal = normalize(vIn.localNormal);
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
     float shadow = 1.0;
     #ifdef SHADOWS_ENABLED
-        vec3 localGeoNormal = normalize(vIn.localNormal);
 //        vec3 localTexNormal = localGeoNormal; // TODO: temp
 
         vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;

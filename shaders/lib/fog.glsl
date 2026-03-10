@@ -72,6 +72,8 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
             vec3 colorLab = mix(skyColorLab, fogColorLab, fogF);
             return LabToLinear(colorLab) * mix(0.04, 1.0, dayF);
         #else
+            if (isEyeInWater == 1) return fogColorL;
+
             float fogF = fogify(max(localViewDir.y, 0.0), FOG_HORIZON_F);
             return LabMixLinear(skyColorL, fogColorL, fogF);
         #endif

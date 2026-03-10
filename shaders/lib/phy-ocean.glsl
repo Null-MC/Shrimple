@@ -9,7 +9,7 @@ const float PHYSICS_WEIGHT = 0.8;
 const float PHYSICS_FREQUENCY_MULT = 1.18;
 const float PHYSICS_SPEED_MULT = 1.07;
 const float PHYSICS_ITER_INC = 12.0;
-const float PHYSICS_NORMAL_STRENGTH = 1.0;
+const float PHYSICS_NORMAL_STRENGTH = 0.6;
 
 // this is the surface detail from the physics options, ranges from 13 to 48 (yeah I know weird)
 uniform int physics_iterationsNormal;
@@ -46,6 +46,7 @@ const float physics_globalTime = 0.0;
 
 float physics_waveHeight(vec2 position, int iterations, float factor, float time) {
     position = (position - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
+
     float iter = 0.0;
     float frequency = PHYSICS_FREQUENCY;
     float speed = PHYSICS_SPEED;
@@ -110,6 +111,7 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
 //        #endif
 
         vec2 wavePos = (position.xy - physics_waveOffset) * PHYSICS_XZ_SCALE * physics_oceanWaveHorizontalScale;
+
         float iter = 0.0;
         float frequency = PHYSICS_FREQUENCY;
         float speed = PHYSICS_SPEED;
@@ -140,8 +142,8 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
         data.direction = -vec2(dx / pow(waveSum, 1.0 - PHYSICS_W_DETAIL));
         data.worldPos = wavePos / physics_oceanWaveHorizontalScale / PHYSICS_XZ_SCALE;
         data.height = height / waveSum * physics_oceanHeight * factor - physics_oceanHeight * factor * 0.5;
-
-        // data.normal = physics_waveNormal(position, data.direction, factor, time);
+        
+        data.normal = physics_waveNormal(position, data.direction, factor, time);
 
         float waveAmplitude = max(data.normal.z, 0.0);
         waveAmplitude = data.height * pow4(waveAmplitude);
@@ -155,19 +157,17 @@ vec3 physics_waveNormal(const in vec2 position, const in vec2 direction, const i
         waveAmplitude = saturate(waveAmplitude * 1.2);
         waterSurfaceNoise = (1.0 - waveAmplitude) * waterSurfaceNoise + waveAmplitude * physics_foamAmount;
 
-        float worleyNoise = 0.2 + 0.8 * s1.g;// * (1.0 - s2.g);
+//        float worleyNoise = 0.2 + 0.8 * s1.g * (1.0 - s2.g);
+//        float waterFoamMinSmooth = 0.45;
+//        float waterFoamMaxSmooth = 2.0;
+//        waterSurfaceNoise = smoothstep(waterFoamMinSmooth, 1.0, waterSurfaceNoise) * worleyNoise;
+
+        float worleyNoise = 0.2 + 0.8 * s1.g * (1.0 - s2.g);
         float waterFoamMinSmooth = 0.45;
         float waterFoamMaxSmooth = 2.0;
-        waterSurfaceNoise = smoothstep(waterFoamMinSmooth, 1.0, waterSurfaceNoise);
+        waterSurfaceNoise = smoothstep(waterFoamMinSmooth, 1.0, waterSurfaceNoise) * worleyNoise;
 
-        data.foam = saturate(waterFoamMaxSmooth * waterSurfaceNoise);
-
-        data.normal = physics_waveNormal(position, data.direction, factor, time);
-
-        // float detailNoise = smoothstep(0.0, 0.8, s1.g);
-        float detailNoise = saturate(1.0 - 2.0 * s1.g * s3.r);
-
-        data.foam = saturate(data.foam * physics_foamOpacity);
+        data.foam = saturate(waterFoamMaxSmooth * waterSurfaceNoise * physics_foamOpacity);
 
         return data;
     }
