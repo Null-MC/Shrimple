@@ -114,7 +114,7 @@ float GetEnvFogStrength(const in float viewDist) {
         if (isEyeInWater == 1) {
             density = 0.02;
         } else {
-            density = mix(0.001, 0.01, rainStrength);
+            density = mix(0.0004, 0.007, rainStrength);
         }
 
         return saturate(1.0 - exp(-density * viewDist));

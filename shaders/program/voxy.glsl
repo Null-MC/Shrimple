@@ -74,9 +74,9 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     vec3 localSkyLightDir = normalize(mat3(vxModelViewInv) * shadowLightPosition);
 
-    float shadow = 1.0;
+    float shadow = pow4(lmcoord_in.y);
     #ifdef SHADOW_CLOUDS
-        shadow = SampleCloudShadow(localPos, localSkyLightDir);
+        shadow *= SampleCloudShadow(localPos, localSkyLightDir);
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

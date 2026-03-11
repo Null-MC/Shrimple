@@ -304,25 +304,22 @@ void main() {
 
         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
 
-        float shadowCoverageF = smoothstep(0.92, 0.98, length(shadowPos.xy));
+        float shadowCoverageF = smoothstep(0.98, 0.92, length(shadowPos.xy));
+//        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
+        shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
+        shadowCoverageF = 1.0 - shadowCoverageF;
 
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
-
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 
-//        if (saturate(shadowPos) == shadowPos) {
-            shadow = SampleShadows(shadowPos);
+        shadow = SampleShadows(shadowPos);
 
-            #ifdef MATERIAL_PBR_ENABLED
-                shadow_NoL = mix(shadow_NoL, 1.0, sss);
-            #endif
-//        }
-//        else {
-//            shadow = pow5(vIn.lmcoord.y);
-//        }
+        #ifdef MATERIAL_PBR_ENABLED
+            shadow_NoL = mix(shadow_NoL, 1.0, sss);
+        #endif
+
         shadow = mix(shadow, pow4(vIn.lmcoord.y), shadowCoverageF);
 
         shadow *= pow(saturate(shadow_NoL), 0.2);
