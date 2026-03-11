@@ -2,7 +2,7 @@
 // Property of Distant Horizons [mod]
 
 const int noiseSteps = 4;
-const float noiseIntensity = 25.0;
+const float noiseIntensity = 8.0;
 const float noiseDropoff = 1024.0;
 
 

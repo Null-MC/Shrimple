@@ -19,6 +19,7 @@ uniform vec3 sunLocalDir;
 uniform int isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
 
+uniform float dhFarPlane;
 uniform int vxRenderDistance;
 
 #include "/lib/oklab.glsl"

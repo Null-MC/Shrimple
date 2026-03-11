@@ -6,23 +6,19 @@
 
 const float SSAO_StrengthF = 0.1;
 const float SSAO_Bias = 0.08;
-const float SSAO_MinLight = 0.3;
+const float SSAO_MinLight = 0.2;
 
 in vec2 texcoord;
 
 
-//uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_DEPTH;
-//uniform sampler2D TEX_GI_COLOR;
 uniform usampler2D TEX_TEX_NORMAL;
-//uniform usampler2D TEX_REFLECT_SPECULAR;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex0;
 #endif
 
 uniform float far;
-//uniform vec2 viewSize;
 uniform int frameCounter;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjection;
@@ -52,15 +48,6 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
     float rotatePhase = dither * (PI * 2.0);
     const float rStep = SSAO_RADIUS / float(SSAO_SAMPLES);
 
-//    #ifdef DISTANT_HORIZONS
-//        #define SSAO_PROJ_INV sharedProjectionInv
-//
-//        mat4 sharedProjectionInv = gbufferProjectionInverse;
-//        gbufferProjectionInverse.
-//    #else
-//        #define SSAO_PROJ_INV gbufferProjectionInverse
-//    #endif
-
     float ao = 0.0;
     int sampleCount = 0;
     float radius = rStep;
@@ -77,13 +64,9 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
 
         #ifdef DISTANT_HORIZONS
             mat4 projection = gbufferProjection;
-//            float traceNear = nearPlane;
-//            float traceFar = farPlane;
 
             if (abs(sampleViewPos.z) > dhNearPlane) {
                 projection = dhProjection;
-//                traceNear = dhNearPlane;
-//                traceFar = dhFarPlane;
             }
         #endif
 
@@ -115,8 +98,6 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
         vec3 sampleNormal = diff / sampleDist;
 
         float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_Bias, 0.0);
-//        float aoF = saturate(sampleDist / SSAO_RADIUS);
-//        ao += sampleNoLm * (1.0 - _pow2(aoF));
         ao += sampleNoLm / (1.0 + sampleDist);
         sampleCount++;
     }

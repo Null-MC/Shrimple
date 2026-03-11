@@ -141,11 +141,10 @@ void main() {
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
     #ifdef DISTANT_HORIZONS
-        #define SSAO_PROJ_INV projectionInv
-        mat4 projectionInv = gbufferProjectionInverse;
+        #define SSAO_PROJ_INV dhProjectionInverse
 
-        if (depth >= 1.0) {
-            projectionInv = dhProjectionInverse;
+        if (depth < 1.0) depth = 1.0;
+        else {
             depth = texelFetch(dhDepthTex0, uv, 0).r;
         }
     #else
@@ -172,7 +171,7 @@ void main() {
         float occlusion = BilateralGaussianBlur();
 //        float occlusion = texelFetch(TEX_SSAO, uv, 0).r;
 
-        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
+//        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
         color *= occlusion;
 
         float borderFogF = GetBorderFogStrength(viewDist);

@@ -19,6 +19,7 @@ in VertexData {
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
     uniform sampler2D texSkyTransmit;
+    uniform sampler3D texSkyIrradiance;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
@@ -29,6 +30,10 @@ in VertexData {
     uniform SHADOW_SAMPLER TEX_SHADOW;
 #endif
 
+#ifdef SHADOW_CLOUDS
+    uniform sampler2D texCloudShadow;
+#endif
+
 uniform float far;
 uniform float nearPlane;
 uniform float farPlane;
@@ -36,6 +41,10 @@ uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 skyColor;
+uniform float rainStrength;
+uniform float cloudHeight;
+uniform float cloudTime;
+uniform vec3 eyePosition;
 uniform vec3 sunLocalDir;
 uniform vec3 shadowLightPosition;
 uniform mat4 gbufferModelView;
@@ -43,17 +52,21 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
+uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
+uniform int frameCounter;
 
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 
 #include "/lib/oklab.glsl"
 #include "/lib/hsv.glsl"
+#include "/lib/ign.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/dh-noise.glsl"
+#include "/lib/shadows.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
     #include "/lib/octohedral.glsl"
@@ -62,13 +75,22 @@ uniform float dhFarPlane;
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef WORLD_OVERWORLD
+        #include "/lib/sky-transmit.glsl"
+        #include "/lib/sky-irradiance.glsl"
+    #endif
+
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/vanilla-light.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED
-    #include "/lib/shadows.glsl"
+    #include "/lib/shadow-sample.glsl"
+#endif
+
+#ifdef SHADOW_CLOUDS
+    #include "/lib/cloud-shadows.glsl"
 #endif
 
 
@@ -132,8 +154,12 @@ void main() {
         shadowPos.z += 0.032 * viewDist;
         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
 
+        float shadowCoverageF = smoothstep(0.92, 0.98, length(shadowPos.xy));
+
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
+
+        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
 
         shadow = SampleShadows(shadowPos);
 
@@ -153,11 +179,23 @@ void main() {
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-//        vec3 localSunLightDir = normalize(mat3(gbufferModelViewInverse) * sunPosition);
-        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+        vec3 skyLight = vec3(0.0);
+        #ifdef WORLD_OVERWORLD
+            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
 
-        float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
-        vec3 skyLight = lmcoord.y * ((skyLight_NoLm * shadow)*0.7 + 0.3) * skyLightColor;
+            #ifdef MATERIAL_PBR_ENABLED
+//                skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
+            #endif
+
+            skyLight = skyLight_NoLm * shadow * skyLightColor;
+
+            #ifndef SHADOWS_ENABLED
+                skyLight *= lmcoord.y;
+            #endif
+
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localNormal);
+        #endif
 
         color.rgb = albedo * (blockLight + skyLight);
     #else
