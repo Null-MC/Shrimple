@@ -82,6 +82,7 @@ uniform int vxRenderDistance;
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/sampling/lightmap.glsl"
+    #include "/lib/vanilla-light.glsl"
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -162,6 +163,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
             lighting = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), trace_localDir);
         #else
             lighting = texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb;
+            lighting = RGBToLinear(lighting);
         #endif
     }
     else {
@@ -170,7 +172,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
         vec3 hitLocalPos = ray.result_position - rt_camera_position;
         vec3 hitLocalNormal = ray.result_normal;
 
-        float NoVm = max(dot(hitLocalNormal, trace_localDir), 0.0);
+        float NoVm = max(dot(hitLocalNormal, -trace_localDir), 0.0);
 
         #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
 //            vec3 hitTracePos = ray.result_position
@@ -232,9 +234,12 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
                 vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
                 lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
             #else
-//                vec2 lmcoord = LightMapTex(vec2(0.0, hitSkyLevel));
-//                lighting += NoVm * texture(texLightmap, lmcoord).rgb;
-                lighting += NoVm * hitSkyLevel;
+                float oldLighting = GetOldLighting(hitLocalNormal);
+
+                vec2 lmcoord = LightMapTex(vec2(0.0, hitSkyLevel));
+                vec3 lmcolor = texture(texLightmap, lmcoord).rgb;
+                lighting += NoVm * oldLighting * RGBToLinear(lmcolor);
+//                lighting += NoVm * hitSkyLevel;
             #endif
         #endif
 

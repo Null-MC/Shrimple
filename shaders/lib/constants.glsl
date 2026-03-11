@@ -31,6 +31,7 @@
 #define TEX_REFLECT_SPECULAR colortex3
 #define TEX_GEO_NORMAL colortex4
 #define TEX_BLOOM_TILES colortex5
+#define IMG_BLOOM_TILES colorimg5
 #define TEX_GI_COLOR colortex6
 #define TEX_GI_POSITION colortex7
 

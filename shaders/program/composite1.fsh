@@ -213,6 +213,7 @@ void main() {
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
+                    float hitViewDist = length(hitLocalPos);
 
                     float traceDist = distance(localPos, hitLocalPos);
                     totalDist += traceDist;
@@ -224,8 +225,6 @@ void main() {
 
                     float shadow = 1.0;
                     #ifdef SHADOWS_ENABLED
-                        float hitViewDist = length(hitLocalPos);
-
                         vec3 shadowPos = hitLocalPos;
                         shadowPos += 0.08 * hitLocalNormal;
                         shadowPos = mul3(shadowModelView, shadowPos);

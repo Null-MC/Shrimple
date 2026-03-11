@@ -23,10 +23,10 @@ in VertexData {
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+#endif
 
-    #ifdef SHADOW_CLOUDS
-        uniform sampler2D texCloudShadow;
-    #endif
+#ifdef SHADOW_CLOUDS
+    uniform sampler2D texCloudShadow;
 #endif
 
 uniform float far;

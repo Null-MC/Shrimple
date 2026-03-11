@@ -401,7 +401,11 @@ void main() {
         #endif
 
         #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
-            lmcoord.y = 0.0;
+            #ifdef SHADOWS_ENABLED
+                lmcoord.y = shadow;
+            #else
+                lmcoord.y = 0.0;
+            #endif
         #endif
 
         lmcoord = LightMapTex(lmcoord);
@@ -423,6 +427,8 @@ void main() {
 //        #if defined(VOXY) || defined(DISTANT_HORIZONS)
 //            occlusion = mix(occlusion, 1.0, SSAO_GetFade(viewDist));
 //        #endif
+
+//        albedo *= occlusion;// * 0.5 + 0.5;
 
         color.rgb *= occlusion;
     #endif
