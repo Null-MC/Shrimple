@@ -1,6 +1,16 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#ifdef DISTANT_HORIZONS
+    #define TEX_LOD_DEPTH dhDepthTex0
+    #define SSAO_PROJ dhProjection
+    #define SSAO_PROJ_INV dhProjectionInverse
+#elif defined(VOXY)
+    #define TEX_LOD_DEPTH vxDepthTexOpaque
+    #define SSAO_PROJ vxProj
+    #define SSAO_PROJ_INV vxProjInv
+#endif
+
 #define TEX_DEPTH depthtex0
 #define SSAO_RADIUS 4.0
 
@@ -12,11 +22,8 @@ in vec2 texcoord;
 
 
 uniform sampler2D TEX_DEPTH;
+uniform sampler2D TEX_LOD_DEPTH;
 uniform usampler2D TEX_TEX_NORMAL;
-
-#ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex0;
-#endif
 
 uniform float far;
 uniform int frameCounter;
@@ -28,18 +35,11 @@ uniform vec2 taa_offset = vec2(0.0);
 uniform mat4 dhProjection;
 uniform mat4 dhProjectionInverse;
 uniform float dhNearPlane;
+uniform mat4 vxProj;
+uniform mat4 vxProjInv;
 
 #include "/lib/octohedral.glsl"
 #include "/lib/ign.glsl"
-
-
-#ifdef DISTANT_HORIZONS
-    #define SSAO_PROJ projection
-    #define SSAO_PROJ_INV projectionInv
-#else
-    #define SSAO_PROJ gbufferProjection
-    #define SSAO_PROJ_INV gbufferProjectionInverse
-#endif
 
 
 float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in vec3 viewNormal) {
@@ -62,27 +62,27 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
 
         vec3 sampleViewPos = viewPos + vec3(offset, -0.1);
 
-        #ifdef DISTANT_HORIZONS
-            mat4 projection = gbufferProjection;
-
-            if (abs(sampleViewPos.z) > dhNearPlane) {
-                projection = dhProjection;
-            }
-        #endif
+//        #ifdef DISTANT_HORIZONS
+//            mat4 projection = gbufferProjection;
+//
+//            if (abs(sampleViewPos.z) > dhNearPlane) {
+//                projection = dhProjection;
+//            }
+//        #endif
 
         vec3 sampleClipPos = project(SSAO_PROJ, sampleViewPos);
         sampleClipPos = saturate(sampleClipPos * 0.5 + 0.5);
 
-        float sampleClipDepth = texture(TEX_DEPTH, sampleClipPos.xy).r;
+        float sampleClipDepth = texture(TEX_LOD_DEPTH, sampleClipPos.xy).r;
 
-        #ifdef DISTANT_HORIZONS
-            mat4 projectionInv = gbufferProjectionInverse;
+//        #ifdef DISTANT_HORIZONS
+//            mat4 projectionInv = gbufferProjectionInverse;
 
-            if (sampleClipDepth >= 1.0) {
-                sampleClipDepth = texture(dhDepthTex0, sampleClipPos.xy).r;
-                projectionInv = dhProjectionInverse;
-            }
-        #endif
+//            if (sampleClipDepth >= 1.0) {
+//                sampleClipDepth = texture(dhDepthTex0, sampleClipPos.xy).r;
+//                projectionInv = dhProjectionInverse;
+//            }
+//        #endif
 
         if (sampleClipDepth >= 1.0) {
 //            maxWeight += 1.0;
@@ -119,17 +119,24 @@ void main() {
 
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
-    #ifdef DISTANT_HORIZONS
-        #define SSAO_PROJ_INV projectionInv
-        mat4 projectionInv = gbufferProjectionInverse;
+    if (depth < 1.0) depth = 1.0;
+    else {
+        depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+    }
 
-        if (depth >= 1.0) {
-            projectionInv = dhProjectionInverse;
-            depth = texelFetch(dhDepthTex0, uv, 0).r;
-        }
-    #else
-        #define SSAO_PROJ_INV gbufferProjectionInverse
-    #endif
+//    #ifdef DISTANT_HORIZONS
+//        #define SSAO_PROJ_INV projectionInv
+//        mat4 projectionInv = gbufferProjectionInverse;
+//
+//        if (depth >= 1.0) {
+//            projectionInv = dhProjectionInverse;
+//            depth = texelFetch(dhDepthTex0, uv, 0).r;
+//        }
+//    #else
+//        #define SSAO_PROJ_INV gbufferProjectionInverse
+//    #endif
+
+
 
     if (depth < 1.0) {
         uint reflectNormalData = texelFetch(TEX_TEX_NORMAL, uv, 0).r;

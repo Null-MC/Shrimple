@@ -4,7 +4,7 @@
     #include "/lib/common.glsl"
   ",
   "version": 1,
-  "excludeLodsFromVanillaDepth": false,
+  "excludeLodsFromVanillaDepth": true,
   #ifdef DEFERRED_NORMAL_ENABLED
     #ifdef DEFERRED_SPECULAR_ENABLED
       "opaqueDrawBuffers": [0,4,2,3],

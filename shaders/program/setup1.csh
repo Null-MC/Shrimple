@@ -9,8 +9,11 @@ const ivec3 workGroups = ivec3(32, 32, 1);
     layout(r8ui) uniform writeonly uimage2D imgBlockWaving;
 #endif
 
-#ifdef LIGHTING_COLORED
+#if defined(LIGHTING_COLORED) || defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
     layout(rgba8) uniform writeonly image2D imgBlockLight;
+#endif
+
+#ifdef LIGHTING_COLORED
     layout(r16ui) uniform writeonly uimage2D imgBlockMask;
 #endif
 
@@ -1083,10 +1086,12 @@ void main() {
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 
-    #ifdef LIGHTING_COLORED
+    #if defined(LIGHTING_COLORED) || defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
         vec4 dataLight = vec4(color / 255.0, range / 32.0);
         imageStore(imgBlockLight, uv, dataLight);
+    #endif
 
+    #ifdef LIGHTING_COLORED
         uint dataMask = packUnorm4x8(vec4(mixWeight, 0.0, 0.0, 0.0));
         dataMask = bitfieldInsert(dataMask, mixMask, 8, 8);
         imageStore(imgBlockMask, uv, uvec4(dataMask));

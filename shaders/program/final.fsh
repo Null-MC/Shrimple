@@ -102,7 +102,10 @@ void main() {
         const vec2 texSize = vec2(24, 6);
         vec2 tex = (gl_FragCoord.xy - 8.5) / (texSize*8.0);
         if (saturate(tex) == tex) {
-            vec3 uv = vec3(floor(tex*6.0)/6.0, rainStrength * 0.50 + 0.25);
+            vec3 uv = vec3(
+                tex.x,
+                floor(tex.y*6.0)/6.0,
+                rainStrength * 0.50 + 0.25);
             color = texture(texSkyIrradiance, uv).rgb;
             color = LinearToRGB(color);
         }

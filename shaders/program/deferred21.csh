@@ -3,6 +3,17 @@
 
 #define TEX_DEPTH depthtex0
 
+#ifdef DISTANT_HORIZONS
+    #define TEX_LOD_DEPTH dhDepthTex0
+    #define SSAO_PROJ dhProjection
+    #define SSAO_PROJ_INV dhProjectionInverse
+#elif defined(VOXY)
+    #define TEX_LOD_DEPTH vxDepthTexOpaque
+    #define SSAO_PROJ vxProj
+    #define SSAO_PROJ_INV vxProjInv
+#endif
+
+
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
@@ -14,13 +25,10 @@ shared float sharedDepthL[20*20];
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_DEPTH;
+uniform sampler2D TEX_LOD_DEPTH;
 uniform sampler2D TEX_SSAO;
 //uniform usampler2D TEX_TEX_NORMAL;
 //uniform usampler2D TEX_REFLECT_SPECULAR;
-
-#ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex0;
-#endif
 
 uniform float far;
 uniform vec2 viewSize;
@@ -43,21 +51,13 @@ uniform vec2 taa_offset = vec2(0.0);
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 uniform mat4 dhProjectionInverse;
+uniform mat4 vxProjInv;
 uniform int vxRenderDistance;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/ssao.glsl"
-
-
-#ifdef DISTANT_HORIZONS
-    #define _projection dhProjection
-    #define _projectionInv dhProjectionInverse
-#else
-    #define _projection gbufferProjection
-    #define _projectionInv gbufferProjectionInverse
-#endif
 
 
 int getSharedIndex(const in ivec2 uv) {
@@ -70,16 +70,19 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     ivec2 uv = uv_base + ivec2(i_shared % 20, i_shared / 20);
     sharedOcclusion[i_shared] = texelFetch(TEX_SSAO, uv, 0).r;
 
-    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-    float _near = nearPlane;
-    float _far = farPlane;
+//    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+//    float _near = nearPlane;
+//    float _far = farPlane;
 
+    float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
     #ifdef DISTANT_HORIZONS
-        if (depth >= 1.0) {
-            depth = texelFetch(dhDepthTex0, uv, 0).r;
-            _near = dhNearPlane;
-            _far = dhFarPlane;
-        }
+//        if (depth >= 1.0) {
+            float _near = dhNearPlane;
+            float _far = dhFarPlane;
+//        }
+    #elif defined(VOXY)
+        float _near = 16.0;
+        float _far = 48000.0;
     #endif
 
     sharedDepthL[i_shared] = linearizeDepth(depth * 2.0 - 1.0, _near, _far);
@@ -140,16 +143,10 @@ void main() {
     vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
-    #ifdef DISTANT_HORIZONS
-        #define SSAO_PROJ_INV dhProjectionInverse
-
-        if (depth < 1.0) depth = 1.0;
-        else {
-            depth = texelFetch(dhDepthTex0, uv, 0).r;
-        }
-    #else
-        #define SSAO_PROJ_INV gbufferProjectionInverse
-    #endif
+    if (depth < 1.0) depth = 1.0;
+    else {
+        depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+    }
 
     if (depth < 1.0) {
         vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;

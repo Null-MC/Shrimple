@@ -215,7 +215,7 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
             lighting += SampleFloodFill(samplePos) * 3.0;
         #endif
 
-        #ifndef WORLD_NETHER
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && !defined(WORLD_NETHER)
             // TODO: add indirect sky lighting
             float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
             vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
