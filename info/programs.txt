@@ -8,8 +8,8 @@ prepare1		fog/sky color [nether only]
 
 deferred1       photonics hand lighting
 deferred2       photonics GI lighting
-deferred10      photonics lighting [  0-255]
-deferred11      photonics lighting [256-511]
+deferred10      photonics block lighting [  0-255]
+deferred11      photonics block lighting [256-511]
 deferred20      voxy/DH SSAO
 deferred21      voxy/DH SSAO apply
 

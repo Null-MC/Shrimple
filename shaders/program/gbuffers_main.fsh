@@ -403,6 +403,10 @@ void main() {
             lmcoord.x *= 1.0 - lpvFade;
         #endif
 
+        #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
+            lmcoord.y = 0.0;
+        #endif
+
         lmcoord = LightMapTex(lmcoord);
         vec3 lit = texture(lightmap, lmcoord).rgb;
         lit = RGBToLinear(lit);

@@ -15,6 +15,10 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 uniform sampler2D TEX_GI_COLOR;
 uniform sampler2D TEX_GI_POSITION;
 
+#if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+    uniform sampler2D texLightmap;
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
     uniform sampler2D texSkyTransmit;
     uniform sampler3D texSkyIrradiance;
@@ -76,6 +80,8 @@ uniform int vxRenderDistance;
     #endif
 
     #include "/lib/enhanced-lighting.glsl"
+#else
+    #include "/lib/sampling/lightmap.glsl"
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -152,7 +158,11 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
 
     vec3 lighting;
     if (!ray.result_hit && !ray_iteration_bound_reached) {
-        lighting = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), trace_localDir);
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            lighting = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), trace_localDir);
+        #else
+            lighting = texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb;
+        #endif
     }
     else {
         lighting = vec3(0.0);
@@ -215,43 +225,53 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
             lighting += SampleFloodFill(samplePos) * 3.0;
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && !defined(WORLD_NETHER)
-            // TODO: add indirect sky lighting
+        #ifndef WORLD_NETHER
             float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
-            vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
-            lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
+
+            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
+                lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
+            #else
+//                vec2 lmcoord = LightMapTex(vec2(0.0, hitSkyLevel));
+//                lighting += NoVm * texture(texLightmap, lmcoord).rgb;
+                lighting += NoVm * hitSkyLevel;
+            #endif
         #endif
 
-        vec3 localSkyLightDir = normalize(mul3(gbufferModelViewInverse, shadowLightPosition));
-        float sky_NoL = dot(hitLocalNormal, localSkyLightDir);
+        #ifdef SHADOWS_ENABLED
+            vec3 localSkyLightDir = normalize(mul3(gbufferModelViewInverse, shadowLightPosition));
+            float sky_NoL = dot(hitLocalNormal, localSkyLightDir);
 
-        if (sky_NoL > 0.0) {
-            ray.origin = ray.result_position + 0.1 * hitLocalNormal;
-            ray.direction = localSkyLightDir;
+            if (sky_NoL > 0.0) {
+                ray.origin = ray.result_position + 0.1 * hitLocalNormal;
+                ray.direction = localSkyLightDir;
 
-//            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
-//            breakOnEmpty = true;
+    //            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
+    //            breakOnEmpty = true;
 
-            trace_ray(ray, true);
+                trace_ray(ray, true);
 
-//            breakOnEmpty = false;
-//            RAY_ITERATION_COUNT = 100;
+    //            breakOnEmpty = false;
+    //            RAY_ITERATION_COUNT = 100;
 
-            if (!ray.result_hit && !ray_iteration_bound_reached) {
-                #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                    vec3 skylightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
-                #else
-                    const vec3 skylightColor = RGBToLinear(vec3(0.89, 0.863, 0.722));
-                #endif
+                if (!ray.result_hit && !ray_iteration_bound_reached) {
+                    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                        vec3 skylightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
+                    #else
+                        const vec3 skylightColor = vec3(1.0);// RGBToLinear(vec3(0.89, 0.863, 0.722));
+                    #endif
 
-                #ifdef SHADOW_CLOUDS
-                    float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
-                    sky_NoL *= cloudShadow * 0.5 + 0.5;
-                #endif
+                    #ifdef SHADOW_CLOUDS
+                        float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
+                        sky_NoL *= cloudShadow * 0.5 + 0.5;
+                    #endif
 
-                lighting += sky_NoL * hitAlbedo * skylightColor;
+                    lighting += sky_NoL * skylightColor;
+                }
             }
-        }
+        #endif
+
+        lighting *= hitAlbedo;
     }
 
     return lighting;// * trace_tangentDir.z / pdf;
