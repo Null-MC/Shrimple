@@ -49,15 +49,12 @@ void main() {
     vec2 pixelSize = 1.0 / viewSize;
 
     vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / outputSize;
-//    vec3 bloom = BloomTileUpsample(TEX_BLOOM_TILES, texcoord, BLOOM_TILE);
-
-    vec2 tex = texcoord - 0.5 * pixelSize;
 
     vec2 srcBoundsMin, srcBoundsMax;
     GetBloomTileInnerBounds(BLOOM_TILE, srcBoundsMin, srcBoundsMax);
-    tex = mix(srcBoundsMin, srcBoundsMax, tex);
+    vec2 tex = mix(srcBoundsMin, srcBoundsMax, texcoord);
 
-    const float filterRadius = 0.001 / exp2(BLOOM_TILE); // [0.0004 0.0008]
+    const float filterRadius = 0.001;// * exp2(BLOOM_TILE); // [0.0004 0.0008]
     float x = filterRadius * (viewSize.y / viewSize.x);
     float y = filterRadius;
 

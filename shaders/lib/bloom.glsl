@@ -37,19 +37,12 @@ vec2 GetBloomTileInnerPosition(const in int tile) {
     return boundsMin + tilePadding*pixelSize;
 }
 
-void GetBloomTileOuterBounds(const in int tile, out vec2 boundsMin, out vec2 boundsMax) {
+void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 boundsMax) {
     boundsMin = GetBloomTileOuterPosition(tile);
     vec2 tileSize = GetBloomTileSize(tile);
 
     vec2 pixelSize = 1.0 / viewSize;
-    boundsMax = boundsMin + tileSize + 2.0 * tilePadding * pixelSize;
-}
 
-void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 boundsMax) {
-    GetBloomTileOuterBounds(tile, boundsMin, boundsMax);
-
-    vec2 pixelSize = 1.0 / viewSize;
-
-    boundsMin = boundsMin + tilePadding*pixelSize;
-    boundsMax = boundsMax - tilePadding*pixelSize;
+    boundsMin += tilePadding*pixelSize;
+    boundsMax = boundsMin + tileSize;
 }
