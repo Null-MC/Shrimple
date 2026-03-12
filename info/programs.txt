@@ -1,15 +1,18 @@
-setup1			build static block data
+setup1			static block LUTs
 setup2			cloud shadow blur
 setup3			sky transmit LUT
+setup4			sky irradiance LUT
 
 shadowcomp		floodfill propagation
 
 prepare1		fog/sky color [nether only]
 
-deferred1       photonics hand lighting
-deferred2       photonics GI lighting
-deferred10      photonics block lighting [  0-255]
-deferred11      photonics block lighting [256-511]
+--deferred1       photonics hand lighting
+--deferred2       photonics GI lighting
+--deferred3       photonics GI a-trous filter [1]
+--deferred10      photonics block lighting [  0-255]
+--deferred11      photonics block lighting [256-511]
+deferred12      photonics Lighting
 deferred20      voxy/DH SSAO
 deferred21      voxy/DH SSAO apply
 
@@ -35,4 +38,4 @@ composite90	    tonemap, gamma
 composite91	    taa resolve
 composite92     taa sharpen /CAS
 
-final			dither, output
+final			dither, output, debug

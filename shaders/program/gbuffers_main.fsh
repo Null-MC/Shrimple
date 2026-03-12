@@ -304,13 +304,17 @@ void main() {
 
         shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
 
-        float shadowCoverageF = smoothstep(0.98, 0.92, length(shadowPos.xy));
+        float shadowLength = length(shadowPos.xy);
+        float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);
 //        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
         shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
         shadowCoverageF = 1.0 - shadowCoverageF;
 
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
+
+//        float distortF = saturate(shadowLength / (shadowLength + Shadow_DistortF));
+//        shadowPos.z -= 0.008 * pow4(distortF);
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 
