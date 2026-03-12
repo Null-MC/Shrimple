@@ -49,7 +49,6 @@ uniform float cloudHeight;
 uniform float cloudTime;
 uniform vec3 eyePosition;
 uniform int isEyeInWater;
-//uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;
 uniform vec3 cameraPosition;
 uniform vec3 shadowLightPosition;
@@ -75,7 +74,11 @@ uniform float dhFarPlane;
 #include "/lib/fog.glsl"
 #include "/lib/water.glsl"
 #include "/lib/fresnel.glsl"
-#include "/lib/material.glsl"
+
+#ifdef MATERIAL_PBR_ENABLED
+    #include "/lib/material/pbr.glsl"
+    #include "/lib/material/lazanyi.glsl"
+#endif
 
 #ifdef PHOTONICS_REFLECT_ENABLED
     #include "/photonics/photonics.glsl"
@@ -169,14 +172,12 @@ void main() {
 
         float totalDist = viewDist;
 
+        vec3 albedo = RGBToLinear(reflectDataR.rgb);
+
         #ifdef MATERIAL_PBR_ENABLED
             float roughness = mat_roughness(specularData.r);
-            float metalness = mat_metalness(specularData.g);
-            float f0 = mat_f0(specularData.g);
         #else
             float roughness = mat_roughness_lab(specularData.r);
-            float metalness = mat_metalness_lab(specularData.g);
-            float f0 = mat_f0_lab(specularData.g);
         #endif
 
         float smoothness = 1.0 - roughness;
@@ -382,13 +383,25 @@ void main() {
             }
 
             float NoV = dot(viewNormal, -viewDir);
-            reflectColor *= F_schlick(NoV, f0, 1.0);
+
+            #ifdef MATERIAL_PBR_ENABLED
+                LazanyiF F = mat_f0_lazanyi(albedo, specularData.g);
+                reflectColor *= F_lazanyi(NoV, F.f0, F.f82);
+            #else
+                float f0 = mat_f0_lab(specularData.g);
+                reflectColor *= F_schlick(NoV, f0, 1.0);
+            #endif
 
             reflectColor *= _pow2(smoothness);
         }
 
+        #ifdef MATERIAL_PBR_ENABLED
+            float metalness = mat_metalness(specularData.g);
+        #else
+            float metalness = mat_metalness_lab(specularData.g);
+        #endif
+
         // apply metal tint
-        vec3 albedo = RGBToLinear(reflectDataR.rgb);
         vec3 tint = mix(vec3(1.0), albedo, metalness);
         reflectColor *= tint;
 

@@ -71,7 +71,7 @@ uniform float dhFarPlane;
 #include "/lib/shadows.glsl"
 
 #ifdef MATERIAL_PBR_ENABLED
-    #include "/lib/material.glsl"
+    #include "/lib/material/pbr.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

@@ -123,13 +123,13 @@ uniform float dhFarPlane;
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
     #include "/lib/fresnel.glsl"
-    #include "/lib/material.glsl"
+    #include "/lib/material/pbr.glsl"
 #endif
 
 #ifdef MATERIAL_PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/sampling/linear.glsl"
-    #include "/lib/parallax.glsl"
+    #include "/lib/material/parallax.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

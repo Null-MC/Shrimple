@@ -46,7 +46,7 @@ uniform vec2 taa_offset = vec2(0.0);
 #include "/lib/sampling/depth.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/fresnel.glsl"
-#include "/lib/material.glsl"
+#include "/lib/material/pbr.glsl"
 
 
 vec3 unprojectCorner(const in float screenPosX, const in float screenPosY) {

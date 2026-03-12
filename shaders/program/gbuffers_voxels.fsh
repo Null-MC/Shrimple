@@ -68,7 +68,7 @@ uniform float dhFarPlane;
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
     #include "/lib/fresnel.glsl"
-    #include "/lib/material.glsl"
+    #include "/lib/material/pbr.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

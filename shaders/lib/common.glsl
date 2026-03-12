@@ -194,6 +194,11 @@ float pow5(const in float value) {
     return sq*sq * value;
 }
 
+float pow6(const in float value) {
+    float sq = value*value;
+    return sq*sq*sq;
+}
+
 float safeacos(const in float x) {
     return acos(clamp(x, -1.0, 1.0));
 }
