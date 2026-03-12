@@ -1,6 +1,6 @@
 const float tilePadding = 2.0;
 
-const float EffectBloomStrengthF = BLOOM_STRENGTH * 0.005;
+const float EffectBloomStrengthF = 0.5 * BLOOM_STRENGTH * 0.01;
 
 
 float GetBloomTileScale(const in int tile) {
@@ -52,46 +52,4 @@ void GetBloomTileInnerBounds(const in int tile, out vec2 boundsMin, out vec2 bou
 
     boundsMin = boundsMin + tilePadding*pixelSize;
     boundsMax = boundsMax - tilePadding*pixelSize;
-}
-
-vec3 BloomSample(const in sampler2D texSrc, in vec2 texcoord, const in vec2 boundsMin, const in vec2 boundsMax) {
-    texcoord = clamp(texcoord, boundsMin, boundsMax);
-    return texture(texSrc, texcoord).rgb;
-}
-
-vec3 BloomTileUpsample(const in sampler2D texSrc, const in vec2 texcoord, const in int tile) {
-    vec2 srcBoundsMin, srcBoundsMax;
-    GetBloomTileInnerBounds(tile, srcBoundsMin, srcBoundsMax);
-
-    vec2 pixelSize = 1.0 / viewSize;
-//    srcBoundsMin -= 0.5 * pixelSize;
-//    srcBoundsMax += 0.5 * pixelSize;
-
-    vec2 tex = texcoord - 0.5 * pixelSize;
-//    tex = fma(tex, (srcBoundsMax - srcBoundsMin), srcBoundsMin);
-    tex = mix(srcBoundsMin, srcBoundsMax, tex);
-
-    const float filterRadius = 0.0005; // [0.0004 0.0008]
-    float x = filterRadius * (viewSize.y / viewSize.x);
-    float y = filterRadius;
-
-    vec3 a = BloomSample(texSrc, vec2(tex.x - x, tex.y + y), srcBoundsMin, srcBoundsMax);
-    vec3 b = BloomSample(texSrc, vec2(tex.x,     tex.y + y), srcBoundsMin, srcBoundsMax);
-    vec3 c = BloomSample(texSrc, vec2(tex.x + x, tex.y + y), srcBoundsMin, srcBoundsMax);
-
-    vec3 d = BloomSample(texSrc, vec2(tex.x - x, tex.y), srcBoundsMin, srcBoundsMax);
-    vec3 e = BloomSample(texSrc, vec2(tex.x,     tex.y), srcBoundsMin, srcBoundsMax);
-    vec3 f = BloomSample(texSrc, vec2(tex.x + x, tex.y), srcBoundsMin, srcBoundsMax);
-
-    vec3 g = BloomSample(texSrc, vec2(tex.x - x, tex.y - y), srcBoundsMin, srcBoundsMax);
-    vec3 h = BloomSample(texSrc, vec2(tex.x,     tex.y - y), srcBoundsMin, srcBoundsMax);
-    vec3 i = BloomSample(texSrc, vec2(tex.x + x, tex.y - y), srcBoundsMin, srcBoundsMax);
-
-    vec3 upsample;
-    upsample = e*4.0;
-    upsample += (b+d+f+h)*2.0;
-    upsample += (a+c+g+i);
-    upsample *= 0.0625;
-
-    return max(upsample, vec3(0.0));
 }

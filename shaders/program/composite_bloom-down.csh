@@ -68,8 +68,6 @@ void main() {
         src_pos = GetBloomTileInnerPosition(BLOOM_TILE-1) * viewSize;
     #endif
 
-//    src_pos += 2.0;
-
     int i_center = int(gl_LocalInvocationIndex) * 2;
     vec2 uv_center = src_pos + gl_WorkGroupID.xy * 32.0 - 0.5;
 
@@ -85,10 +83,8 @@ void main() {
     barrier();
 
     // exit early if OOB
-//    ivec2 inputSize  = ivec2(ceil(viewSize / exp2(BLOOM_TILE)));
-    ivec2 outputSize = ivec2(ceil(viewSize / exp2(BLOOM_TILE+1)));
-
     ivec2 local_uv = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 outputSize = ivec2(ceil(viewSize / exp2(BLOOM_TILE+1)));
     if (any(greaterThanEqual(local_uv, outputSize))) return;
 
     ivec2 neightbor_local_uv = ivec2(gl_LocalInvocationID.xy) + 1;
