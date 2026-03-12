@@ -1,28 +1,5 @@
-//#include "/lib/constants.glsl"
-//#include "/lib/common.glsl"
-
-#define _saturate(x) (clamp(x, 0.0, 1.0))
-
-vec3 mul3(const in mat4 matrix, const in vec3 vector) {
-    return mat3(matrix) * vector + matrix[3].xyz;
-}
-
-vec3 project(const in vec4 pos) {
-    return pos.xyz / pos.w;
-}
-
-vec3 project(const in mat4 matProj, const in vec3 pos) {
-    return project(matProj * vec4(pos, 1.0));
-}
-
-vec3 RGBToLinear(const in vec3 color) {
-    return pow(color, vec3(2.2));
-}
-
-float saturate(const in float x) {return _saturate(x);}
-
-float sumOf(vec2 vec) {return vec.x + vec.y;}
-float sumOf(vec3 vec) {return vec.x + vec.y + vec.z;}
+#include "/lib/constants.glsl"
+#include "/lib/common.glsl"
 
 #define TEX_DEPTH depthtex0
 
@@ -46,16 +23,17 @@ vec3 sun_direction = sunLocalDir;
 vec3 indirect_light_color = vec3(1.0);// mix(texelFetch(colortex4, ivec2(191, 1), 0).rgb, vec3(1f), 0.5);
 
 vec3 load_world_position() {
-    ivec2 uv = ivec2(gl_FragCoord.xy);
-    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+//    ivec2 uv = ivec2(gl_FragCoord.xy);
+//    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
     vec2 texcoord = gl_FragCoord.xy / viewSize;
+    float depth = texture(TEX_DEPTH, texcoord).r;
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
-    #ifdef TAA_ENABLED
-        ndcPos.xy += taa_offset * 2.0;
-    #endif
+//    #ifdef TAA_ENABLED
+//        ndcPos.xy += taa_offset * 2.0;
+//    #endif
 
     // TODO: fix hand depth
 
@@ -78,7 +56,7 @@ void load_fragment_variables(
 
     uint geoNormalData = texelFetch(TEX_GEO_NORMAL, uv, 0).r;
     world_normal = OctDecode(unpackUnorm2x16(geoNormalData));
-    world_normal_mapped = world_normal;
+//    world_normal_mapped = world_normal;
 
     uvec2 reflectData = texelFetch(TEX_REFLECT_SPECULAR, uv, 0).rg;
     vec4 reflectDataR = unpackUnorm4x8(reflectData.r);
