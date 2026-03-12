@@ -38,6 +38,7 @@
 #define DEBUG_VIEW_NONE 0
 #define DEBUG_VIEW_SSAO 1
 #define DEBUG_VIEW_IRRADIANCE 2
+#define DEBUG_VIEW_BLOOM 3
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float GoldenAngle = PI * (3.0 - sqrt(5.0));

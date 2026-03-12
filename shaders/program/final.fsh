@@ -12,6 +12,9 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_SSAO;
 #elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
     uniform sampler3D texSkyIrradiance;
+    uniform sampler2D texSkyTransmit;
+#elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
+    uniform sampler2D TEX_BLOOM_TILES;
 #endif
 
 #ifdef PHOTONICS_LIGHT_DEBUG
@@ -94,19 +97,39 @@ void main() {
     #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_SSAO
-        vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(320, 240);
+        vec2 tex = (gl_FragCoord.xy - 8) / (viewSize * 0.2);
         if (saturate(tex) == tex) {
             color = texture(TEX_SSAO, tex).rrr;
         }
     #elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
-        const vec2 texSize = vec2(24, 6);
-        vec2 tex = (gl_FragCoord.xy - 8.5) / (texSize*8.0);
+        const vec2 irradianceSize = vec2(24, 6);
+        vec2 tex = (gl_FragCoord.xy - 8) / (irradianceSize*8.0);
         if (saturate(tex) == tex) {
             vec3 uv = vec3(
                 tex.x,
                 floor(tex.y*6.0)/6.0,
                 rainStrength * 0.50 + 0.25);
             color = texture(texSkyIrradiance, uv).rgb;
+            color = LinearToRGB(color);
+        }
+
+        const vec2 transmitSize = vec2(256, 64);
+        vec2 tex2 = (gl_FragCoord.xy - irradianceSize.x*8.0 - 16.0) / transmitSize;
+        if (saturate(tex2) == tex2) {
+            color = texture(texSkyTransmit, tex2).rgb;
+        }
+    #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
+        vec2 tex = (gl_FragCoord.xy - 8.0) / (viewSize * 0.2);
+//        vec2 tex = gl_FragCoord.xy / viewSize;
+        if (saturate(tex) == tex) {
+            color = texture(TEX_BLOOM_TILES, tex).rgb;
+
+            #ifdef TONEMAP_ENABLED
+                float lum = luminance(color);
+                float tgt = lum / (lum + 0.75);
+                color *= tgt / lum;
+            #endif
+
             color = LinearToRGB(color);
         }
     #endif

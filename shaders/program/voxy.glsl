@@ -100,7 +100,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
             #endif
         #endif
 
-        color.rgb = albedo.rgb * (blockLight + skyLight);
+        color.rgb = albedo.rgb * (blockLight + skyLight + MinAmbientF);
     #else
         vec2 lmcoord = lmcoord_in;
 

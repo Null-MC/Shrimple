@@ -7,8 +7,8 @@
 const vec3 colorSkyDay     = pow(vec3(0.404, 0.639, 0.812), vec3(2.2));
 const vec3 colorFogDay     = pow(vec3(0.608, 0.659, 0.710), vec3(2.2));
 
-const vec3 colorSkyNight   = pow(vec3(0.095, 0.090, 0.106), vec3(2.2));
-const vec3 colorFogNight   = pow(vec3(0.276, 0.278, 0.288), vec3(2.2));
+const vec3 colorSkyNight   = pow(vec3(0.106, 0.090, 0.149), vec3(2.2));
+const vec3 colorFogNight   = pow(vec3(0.169, 0.220, 0.322), vec3(2.2));
 
 const vec3 colorSkyHorizon = pow(vec3(0.290, 0.243, 0.529), vec3(2.2));
 const vec3 colorFogHorizon = pow(vec3(0.980, 0.533, 0.118), vec3(2.2));
