@@ -375,12 +375,14 @@ void main() {
         vec3 skyLight = vec3(0.0);
         #ifdef WORLD_OVERWORLD
             vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
-            float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
+            float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
 
             #ifdef MATERIAL_PBR_ENABLED
-                skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
+//                skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
+                skyLight_NoLm = (skyLight_NoLm + sss) / (1.0 + sss);
             #endif
 
+            skyLight_NoLm = max(skyLight_NoLm, 0.0);
             skyLight = skyLight_NoLm * shadow * skyLightColor;
 
             #ifndef SHADOWS_ENABLED
