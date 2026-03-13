@@ -40,7 +40,9 @@
     "viewSize",
     "vxModelViewInv",
     "vxProjInv",
-    "vxRenderDistance"
+    "vxRenderDistance",
+    "weatherStrength",
+    "weatherDensity"
   ],
   "samplers": {
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)

@@ -1,6 +1,8 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+uniform sampler2D radiosity_position;
+
 #define TEX_DEPTH depthtex0
 
 #ifndef PH_LIGHT_OFFSET
@@ -114,23 +116,23 @@ void main() {
 
 
 
-//            vec3 lightClipPos = project(gbufferProjection, lightViewPos);
-//            vec2 lightScreenPos = lightClipPos.xy * 0.5 + 0.5;
-//
-//            uvec2 groupPos = gl_WorkGroupID.xy * 16u;
-//            vec2 screenMin = groupPos / viewSize;
-//            vec2 screenMax = (groupPos + 16u) / viewSize;
-//            vec2 nearest = clamp(lightScreenPos, screenMin, screenMax);
-//
-//            float f = 0.75 * gbufferProjection[1][1];
-//            float screenRadius = f * (lightRange + 0.5) / -lightViewPos.z;
-//
-//            float lightDistSq = lengthSq((nearest - lightScreenPos) * vec2(aspectRatio, 1.0));
-//            if (lightDistSq > _pow2(screenRadius)) hit = false;
+            vec3 lightClipPos = project(gbufferProjection, lightViewPos);
+            vec2 lightScreenPos = lightClipPos.xy * 0.5 + 0.5;
+
+            uvec2 groupPos = gl_WorkGroupID.xy * 16u;
+            vec2 screenMin = groupPos / viewSize;
+            vec2 screenMax = (groupPos + 16u) / viewSize;
+            vec2 nearest = clamp(lightScreenPos, screenMin, screenMax);
+
+            float f = 0.75 * gbufferProjection[1][1];
+            float screenRadius = f * (lightRange + 0.5) / -lightViewPos.z;
+
+            float lightDistSq = lengthSq((nearest - lightScreenPos) * vec2(aspectRatio, 1.0));
+            if (lightDistSq > _pow2(screenRadius)) hit = false;
 
 
             // test X/Y
-            uvec2 groupPos = gl_WorkGroupID.xy * 16u;
+//            uvec2 groupPos = gl_WorkGroupID.xy * 16u;
             vec2 groupPosMin = groupPos / viewSize;
             vec2 groupPosMax = (groupPos + 16u) / viewSize;
 

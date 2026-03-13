@@ -5,6 +5,7 @@
 
 in vec2 texcoord;
 
+uniform sampler2D radiosity_position;
 
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_FINAL;

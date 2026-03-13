@@ -90,7 +90,7 @@ vec3 GetSkyFogWaterColor(const in vec3 skyColorL, const in vec3 fogColorL, const
 }
 
 vec3 GetSkyFogWaterColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localViewDir) {
-    return GetSkyFogWaterColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainStrength);
+    return GetSkyFogWaterColor(skyColorL, fogColorL, sunLocalDir, localViewDir, weatherStrength);
 }
 
 float GetBorderFogStrength(const in float viewDist) {
@@ -110,13 +110,7 @@ float GetBorderFogStrength(const in float viewDist) {
 
 float GetEnvFogStrength(const in float viewDist) {
     #if defined(WORLD_OVERWORLD) && OVERWORLD_SKY == SKY_ENHANCED
-        float density;
-        if (isEyeInWater == 1) {
-            density = 0.02;
-        } else {
-            density = mix(0.0004, 0.007, rainStrength);
-        }
-
+        float density = isEyeInWater == 1 ? 0.02 : weatherDensity;
         return saturate(1.0 - exp(-density * viewDist));
     #else
         return smoothstep(fogStart, fogEnd, viewDist);

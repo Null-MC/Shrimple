@@ -40,6 +40,8 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 skyColor;
 uniform float rainStrength;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform int isEyeInWater;
 //uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;

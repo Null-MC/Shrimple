@@ -9,6 +9,7 @@ in VertexData {
 
 uniform sampler2D gtexture;
 
+uniform float rainStrength;
 uniform int renderStage;
 
 
@@ -35,6 +36,8 @@ void main() {
         if (renderStage == MC_RENDER_STAGE_SUN) {
             color.rgb *= 16.0;
         }
+
+        color.rgb *= 1.0 - rainStrength;
     #endif
 
     outFinal = color;

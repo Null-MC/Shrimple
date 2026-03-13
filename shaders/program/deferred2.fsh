@@ -5,6 +5,7 @@
 
 in vec2 texcoord;
 
+uniform sampler2D radiosity_position;
 
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_FINAL;
@@ -175,73 +176,70 @@ vec3 sample_indirect_lighting(const in vec3 localPos, const in vec3 localNormal)
         float NoVm = max(dot(hitLocalNormal, -trace_localDir), 0.0);
 
         #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-//            vec3 hitTracePos = ray.result_position
-//                + 0.08 * hitLocalNormal;
-//
-//            // TODO: sample random block light
-//            int binStart = load_light_offset(hitTracePos);
-//            int binCount = light_registry_array[binStart];
-//            int i = (frameCounter) % binCount + (binStart+1);// randomInt(binStart+1, binCount, frameCounter);
-//            Light light = load_light(i);
-//
-//            if (binCount > 0) {
-//            vec3 lightOffset = light.position - hitTracePos;
-//            float lightDist = length(lightOffset);
-//            vec3 lightDir = lightOffset / lightDist;
-//
-//            ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
-//            vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
-//            vec3 lightColor = RGBToLinear(lightColorRange.rgb);
-//            float lightRange = lightColorRange.a * 32.0;
-//
-//            lightColor = vec3(1,0,0);
-//            lightRange = 15.0;
-//
-//            lightColor *= 6.0 * (lightRange / 15.0);
-//
-//            float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
-//            float att_linear = 1.0 - saturate(lightDist / lightRange);
-//            float att = _pow3(att_linear);
-//
-////            RayJob ray = RayJob(hitTracePos, lightDir,
-////                vec3(0), vec3(0), vec3(0), false);
-////
-////            RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
-////            breakOnEmpty=true;
-////
-////            trace_ray(ray, true);
-////
-////            if (ray.result_hit) {
-////                lightColor *= result_tint_color;
-////
-////                if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
-////                    att = 0.0;
-////                }
-////            }
-//
-//            lighting += lightColor;
-//            }
+            vec3 hitTracePos = ray.result_position
+                + 0.08 * hitLocalNormal;
+
+            // TODO: sample random block light
+            int binStart = load_light_offset(hitTracePos);
+            int binCount = light_registry_array[binStart];
+            int i = (frameCounter) % binCount + (binStart+1);// randomInt(binStart+1, binCount, frameCounter);
+            Light light = load_light(light_registry_array[i]);
+
+            if (binCount > 0) {
+                vec3 lightOffset = light.position - hitTracePos;
+                float lightDist = length(lightOffset);
+                vec3 lightDir = lightOffset / lightDist;
+
+                ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
+                vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
+                vec3 lightColor = RGBToLinear(lightColorRange.rgb);
+                float lightRange = lightColorRange.a * 32.0;
+
+                lightColor *= 6.0 * (lightRange / 15.0);
+
+                float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+                float att_linear = 1.0 - saturate(lightDist / lightRange);
+                float att = _pow3(att_linear);
+
+                RayJob ray = RayJob(hitTracePos, lightDir,
+                    vec3(0), vec3(0), vec3(0), false);
+
+                RAY_ITERATION_COUNT = PHOTONICS_LIGHT_STEPS;
+                breakOnEmpty=true;
+
+                trace_ray(ray, true);
+
+                if (ray.result_hit) {
+                    lightColor *= result_tint_color;
+
+                    if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
+                        att = 0.0;
+                    }
+                }
+
+                lighting += att * NoVm * NoLm * lightColor;
+            }
         #elif defined(LIGHTING_COLORED)
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             lighting += SampleFloodFill(samplePos) * 3.0;
         #endif
 
-        #ifndef WORLD_NETHER
-            float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
-
-            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
-                lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
-            #else
-                float oldLighting = GetOldLighting(hitLocalNormal);
-
-                vec2 lmcoord = LightMapTex(vec2(0.0, hitSkyLevel));
-                vec3 lmcolor = texture(texLightmap, lmcoord).rgb;
-                lighting += NoVm * oldLighting * RGBToLinear(lmcolor);
-//                lighting += NoVm * hitSkyLevel;
-            #endif
-        #endif
+//        #ifndef WORLD_NETHER
+//            float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
+//
+//            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+//                vec3 hitSkyIrradiance = 0.5 * SampleSkyIrradiance(hitLocalNormal);
+//                lighting += _pow2(hitSkyLevel) * NoVm * hitSkyIrradiance;
+//            #else
+//                float oldLighting = GetOldLighting(hitLocalNormal);
+//
+//                vec2 lmcoord = LightMapTex(vec2(0.0, hitSkyLevel));
+//                vec3 lmcolor = texture(texLightmap, lmcoord).rgb;
+//                lighting += NoVm * oldLighting * RGBToLinear(lmcolor);
+////                lighting += NoVm * hitSkyLevel;
+//            #endif
+//        #endif
 
         #ifdef SHADOWS_ENABLED
             vec3 localSkyLightDir = normalize(mul3(gbufferModelViewInverse, shadowLightPosition));

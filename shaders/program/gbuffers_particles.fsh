@@ -48,6 +48,8 @@ uniform float cloudHeight;
 uniform float cloudTime;
 uniform vec3 eyePosition;
 uniform float rainStrength;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform float alphaTestRef;
 uniform vec3 sunLocalDir;
 uniform vec3 shadowLightPosition;

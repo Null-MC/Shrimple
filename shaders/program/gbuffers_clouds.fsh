@@ -21,6 +21,8 @@ uniform ivec2 eyeBrightnessSmooth;
 uniform int renderStage;
 uniform int isEyeInWater;
 uniform float rainStrength;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 uniform float fogDensity;
