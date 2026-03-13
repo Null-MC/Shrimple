@@ -20,6 +20,7 @@ uniform mat4 gbufferModelView;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int renderStage;
 uniform int isEyeInWater;
+uniform float skyDayF;
 uniform float rainStrength;
 uniform float weatherStrength;
 uniform float weatherDensity;

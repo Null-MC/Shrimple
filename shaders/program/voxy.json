@@ -35,6 +35,7 @@
     "rainStrength",
     "shadowLightPosition",
     "skyColor",
+    "skyDayF",
     "sunLocalDir",
     "taa_offset",
     "viewSize",

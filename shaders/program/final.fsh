@@ -115,7 +115,7 @@ void main() {
         }
 
         const vec2 transmitSize = vec2(256, 64);
-        vec2 tex2 = (gl_FragCoord.xy - irradianceSize.x*8.0 - 16.0) / transmitSize;
+        vec2 tex2 = (gl_FragCoord.xy - vec2(irradianceSize.x*8.0 + 16.0, 8.0)) / transmitSize;
         if (saturate(tex2) == tex2) {
             color = texture(texSkyTransmit, tex2).rgb;
         }

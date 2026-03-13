@@ -14,6 +14,7 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
+uniform float skyDayF;
 uniform float rainStrength;
 uniform float weatherStrength;
 uniform float weatherDensity;
@@ -55,6 +56,7 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir, con
 
     vec3 skyColorL = RGBToLinear(skyColor);
     vec3 fogColorL = RGBToLinear(fogColor);
+    float skyDayF = smoothstep(-0.1, 0.3, localSunDir.y);
 
     vec3 irradiance = vec3(0.0);
 
@@ -76,7 +78,7 @@ vec3 GetSkyIrradiance(const in vec3 localSunDir, const in vec3 localViewDir, con
                 cos_theta);
 
             vec3 sampleDir = transform_to_world(localViewDir, tangentSample);
-            vec3 skyColorFinal = GetSkyFogColor(skyColorL, fogColorL, localSunDir, sampleDir, rainStrength);
+            vec3 skyColorFinal = GetSkyFogColor(skyColorL, fogColorL, localSunDir, sampleDir, rainStrength, skyDayF);
             irradiance += skyColorFinal * (cos_theta * sin_theta);
         }
     }
@@ -96,7 +98,6 @@ void main() {
 
     vec3 localSunDir = normalize(vec3(sin(theta), cosTheta, 0.0));
     vec3 localViewDir = faceDirs[uv.y];
-
     float rainStrength = float(uv.z);
 
     vec3 irradiance = GetSkyIrradiance(localSunDir, localViewDir, rainStrength);

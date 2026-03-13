@@ -38,6 +38,7 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogStart;
 uniform float fogEnd;
+uniform float skyDayF;
 uniform vec3 skyColor;
 uniform float rainStrength;
 uniform float weatherStrength;
