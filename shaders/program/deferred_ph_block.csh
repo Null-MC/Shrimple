@@ -20,7 +20,7 @@ shared uint counter;
 layout(rgba16f) uniform image2D IMG_FINAL;
 
 #ifdef PHOTONICS_LIGHT_DEBUG
-    layout(r16ui) uniform uimage2D imgLightDebug;
+    layout(r32ui) uniform uimage2D imgLightDebug;
 #endif
 
 uniform sampler2D TEX_DEPTH;
@@ -46,6 +46,7 @@ uniform vec2 taa_offset = vec2(0.0);
 
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/depth.glsl"
+#include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/fresnel.glsl"
 #include "/lib/material/pbr.glsl"
@@ -72,6 +73,7 @@ void main() {
 
 //    GroupMemoryBarrierWithGroupSync();
 //    groupMemoryBarrier();
+    memoryBarrierShared();
     barrier();
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
@@ -91,6 +93,7 @@ void main() {
 
 //    GroupMemoryBarrierWithGroupSync();
 //    groupMemoryBarrier();
+    memoryBarrierShared();
     barrier();
 
     float depthMin = depthMinInt / float(UINT_MAX) * farPlane;
@@ -160,8 +163,8 @@ void main() {
 
 //    GroupMemoryBarrierWithGroupSync();
 //    memoryBarrierAtomicCounter();
-//    memoryBarrierShared();
-//    groupMemoryBarrier();
+    //    groupMemoryBarrier();
+    memoryBarrierShared();
     barrier();
 
     if (!on_screen) return;
@@ -190,18 +193,25 @@ void main() {
         vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
 
 
-        #if defined(PHOTONICS_LIGHT_DEBUG) && PH_LIGHT_OFFSET == 0
-            ivec2 group_uv = ivec2(gl_WorkGroupID.xy);
-            uvec4 data = imageLoad(imgLightDebug, group_uv);
-            data.r += counter;
-            imageStore(imgLightDebug, group_uv, data);
-//            imageAtomicAdd(imgLightDebug, group_uv, uvec4(counter));
+        #if defined(PHOTONICS_LIGHT_DEBUG) //&& PH_LIGHT_OFFSET == 0
+            if (gl_LocalInvocationIndex == 0) {
+                ivec2 group_uv = ivec2(gl_WorkGroupID.xy);
+    //            uvec4 data = imageLoad(imgLightDebug, group_uv);
+    //            data.r += counter;
+    //            imageStore(imgLightDebug, group_uv, data);
+                imageAtomicAdd(imgLightDebug, group_uv, counter);
+            }
         #endif
+
+
+//        float seed = hash12(vec2(83, 71)*frameCounter + gl_GlobalInvocationID.xy);
+        float seed = hash12(gl_GlobalInvocationID.xy);
+        uint i_offset = 0u;//uint(seed * 256.0 + 0.5) + frameCounter;
 
 
         counter = min(counter, PHOTONICS_BLOCK_LIGHT_SAMPLES);
         for (uint i = 0; i < counter; i++) {
-            int lightIndex = sharedLightList[i];
+            int lightIndex = sharedLightList[(i + i_offset) % counter];
             Light light = load_light(lightIndex);
 
             vec3 lightLocalPos = light.position - rt_camera_position;

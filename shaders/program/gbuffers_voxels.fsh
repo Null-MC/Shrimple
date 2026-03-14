@@ -39,6 +39,8 @@ uniform float fogEnd;
 uniform vec3 skyColor;
 uniform float skyDayF;
 uniform float rainStrength;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform float cloudHeight;
 uniform float cloudTime;
 uniform vec3 eyePosition;
