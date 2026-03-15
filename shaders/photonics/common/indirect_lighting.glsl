@@ -1,7 +1,20 @@
+#ifdef SHADOW_CLOUDS
+    uniform sampler2D texCloudShadow;
+#endif
+
 #if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
     uniform sampler3D texFloodFillA;
     uniform sampler3D texFloodFillB;
+#endif
 
+uniform float cloudHeight;
+uniform float cloudTime;
+
+#ifdef SHADOW_CLOUDS
+    #include "/lib/cloud-shadows.glsl"
+#endif
+
+#if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
     #include "/lib/hsv.glsl"
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
@@ -19,7 +32,7 @@ vec3 sample_cosine_weighted_hemisphere(out float pdf) {
     dir.y = r * sin(phi);
     dir.z = sqrt(1.0 - x);
 
-    pdf = dir.z / PI;
+    pdf = dir.z;// / PI;
 
     return dir;
 }
@@ -74,49 +87,55 @@ vec3 ph_sample_indirect_impl() {
 
         if (!ray.result_hit && !ray_iteration_bound_reached) {
             sample_color += indirect_light_color * result_tint_color;
+
+            #ifdef SHADOW_CLOUDS
+                float cloudShadow = SampleCloudShadow(hitLocalPos, ph_sun_direction);
+                sample_color *= cloudShadow * 0.5 + 0.5;
+            #endif
         }
 
         // other lighting
 
         #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-            vec3 hitTracePos = hitLocalPos + rt_camera_position
-                + 0.08 * hitLocalNormal;
-
-            // sample random block light
-            int binStart = load_light_offset(hitTracePos);
-            int binCount = light_registry_array[binStart];
-
-            if (binCount > 0) {
-                int i = (frameCounter) % binCount + (binStart+1);
-                Light light = load_light(light_registry_array[i]);
-
-                vec3 lightOffset = light.position - hitTracePos;
-                float lightDist = length(lightOffset);
-                vec3 lightDir = lightOffset / lightDist;
-
-                vec3 lightColor = vec3(1.0);//6.0 * RGBToLinear(light.color);
-
-                float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
-                float distance_squared = lengthSq(lightOffset) * light.falloff;
-                float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
-
-                ray.origin = hitTracePos;
-                ray.direction = lightDir;
-
-                breakOnEmpty=true;
-                trace_ray(ray, true);
-                breakOnEmpty=false;
-
-                if (ray.result_hit) {
-                    lightColor *= result_tint_color;
-
-                    if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
-                        att = 0.0;
-                    }
-                }
-
-                sample_color += att * NoLm * lightColor;
-            }
+//            vec3 hitTracePos = hitLocalPos + rt_camera_position
+//                + 0.08 * hitLocalNormal;
+//
+//            // sample random block light
+//            int binStart = load_light_offset(hitTracePos);
+//            int binCount = light_registry_array[binStart];
+//
+//            if (binCount > 0) {
+//                int i = (frameCounter) % binCount + (binStart+1);
+//                Light light = load_light(light_registry_array[i]);
+//
+//                vec3 lightOffset = light.position - hitTracePos;
+//                float lightDist = length(lightOffset);
+//                vec3 lightDir = lightOffset / lightDist;
+//
+////                vec3 lightColor = 6.0 * RGBToLinear(light.color);
+//                vec3 lightColor = 6.0 * light.color;
+//
+//                float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+//                float distance_squared = lengthSq(lightOffset) * light.falloff;
+//                float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
+//
+//                ray.origin = hitTracePos;
+//                ray.direction = lightDir;
+//
+//                breakOnEmpty=true;
+//                trace_ray(ray, true);
+//                breakOnEmpty=false;
+//
+//                if (ray.result_hit) {
+//                    lightColor *= result_tint_color;
+//
+//                    if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
+//                        att = 0.0;
+//                    }
+//                }
+//
+//                sample_color += att * NoLm * lightColor;
+//            }
         #elif defined(LIGHTING_COLORED)
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
@@ -126,5 +145,5 @@ vec3 ph_sample_indirect_impl() {
         indirect_color += sample_color * hitAlbedo;
     }
 
-    return indirect_color * tint;
+    return pdf * indirect_color * tint;
 }
