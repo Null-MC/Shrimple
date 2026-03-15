@@ -8,19 +8,31 @@ uniform usampler2D TEX_GEO_NORMAL;
 uniform usampler2D TEX_TEX_NORMAL;
 uniform usampler2D TEX_REFLECT_SPECULAR;
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    uniform sampler3D texSkyIrradiance;
+#endif
+
 uniform vec2 viewSize;
-//uniform vec3 sun_dir;
-//uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform vec2 taa_offset = vec2(0.0);
 
 #include "/lib/octohedral.glsl"
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #include "/lib/sky-irradiance.glsl"
+    #include "/lib/enhanced-lighting.glsl"
+#endif
+
 
 vec3 sun_direction = sunLocalDir;
 
-// TODO: wtf is this?
-vec3 indirect_light_color = vec3(1.0);// mix(texelFetch(colortex4, ivec2(191, 1), 0).rgb, vec3(1f), 0.5);
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    vec3 indirect_light_color = GetSkyLightColor(vec3(0.0), sunLocalDir.y, abs(sunLocalDir.y));
+#else
+    vec3 indirect_light_color = vec3(1,0,0);// mix(texelFetch(colortex4, ivec2(191, 1), 0).rgb, vec3(1f), 0.5);
+#endif
 
 vec3 load_world_position() {
 //    ivec2 uv = ivec2(gl_FragCoord.xy);
@@ -56,7 +68,6 @@ void load_fragment_variables(
 
     uint geoNormalData = texelFetch(TEX_GEO_NORMAL, uv, 0).r;
     world_normal = OctDecode(unpackUnorm2x16(geoNormalData));
-//    world_normal_mapped = world_normal;
 
     uvec2 reflectData = texelFetch(TEX_REFLECT_SPECULAR, uv, 0).rg;
     vec4 reflectDataR = unpackUnorm4x8(reflectData.r);
@@ -66,7 +77,13 @@ void load_fragment_variables(
 }
 
 vec3 get_sky_color(ivec2 gBufferLoc, vec3 worldPos, vec3 newNormal) {
-    return vec3(0.1); // TODO
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        return SampleSkyIrradiance(newNormal);
+    #else
+        vec3 fogColorL = RGBToLinear(fogColor);
+        vec3 skyColorL = RGBToLinear(skyColor);
+        return GetSkyFogWaterColor(skyColorL, fogColorL, newNormal);
+    #endif
 }
 
 bool is_in_world() {
@@ -76,5 +93,5 @@ bool is_in_world() {
 }
 
 vec2 get_taa_jitter() {
-    return vec2(0.0);// taa_offset;
+    return taa_offset;
 }

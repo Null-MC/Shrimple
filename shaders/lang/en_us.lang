@@ -167,6 +167,8 @@ screen.MODS=Mods
 
 screen.MOD_PHOTONICS=Photonics
 
+option.PHOTONICS_RESTIR_ENABLED=Restir
+
 option.PHOTONICS_REFLECT_ENABLED=Reflections
 option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
 

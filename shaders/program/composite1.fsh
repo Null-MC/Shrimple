@@ -1,8 +1,6 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-uniform sampler2D radiosity_position;
-
 #ifndef PHOTONICS_REFLECT_ENABLED
     const bool colortex0MipmapEnabled = true;
 #endif

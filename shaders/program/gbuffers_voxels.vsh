@@ -1,8 +1,6 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-uniform sampler2D radiosity_position;
-
 //in vec4 mc_Entity;
 in vec4 at_midBlock;
 

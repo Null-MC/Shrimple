@@ -1,8 +1,6 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-uniform sampler2D radiosity_position;
-
 in vec2 texcoord;
 
 uniform sampler2D TEX_FINAL;

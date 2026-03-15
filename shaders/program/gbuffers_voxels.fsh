@@ -1,8 +1,6 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-uniform sampler2D radiosity_position;
-
 in VertexData {
     vec2 lmcoord;
     vec3 localPos;
