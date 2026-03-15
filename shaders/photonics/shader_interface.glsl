@@ -10,28 +10,43 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     uniform sampler3D texSkyIrradiance;
+#else
+    uniform sampler2D texLightmap;
 #endif
 
 uniform vec2 viewSize;
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
+uniform float skyDayF;
+uniform vec3 skyColor;
 uniform vec3 sunLocalDir;
 uniform float weatherStrength;
 uniform float weatherDensity;
+uniform int isEyeInWater;
 uniform vec2 taa_offset = vec2(0.0);
+
+uniform int vxRenderDistance;
 
 #include "/lib/octohedral.glsl"
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     #include "/lib/sky-irradiance.glsl"
     #include "/lib/enhanced-lighting.glsl"
+#else
+    #include "/lib/sampling/lightmap.glsl"
+    #include "/lib/oklab.glsl"
+    #include "/lib/fog.glsl"
 #endif
 
 
 vec3 sun_direction = sunLocalDir;
+//vec3 indirect_light_color = vec3(0.0);
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     vec3 indirect_light_color = GetSkyLightColor(vec3(0.0), sunLocalDir.y, abs(sunLocalDir.y));
 #else
-    vec3 indirect_light_color = vec3(1,0,0);// mix(texelFetch(colortex4, ivec2(191, 1), 0).rgb, vec3(1f), 0.5);
+    vec3 indirect_light_color = RGBToLinear(texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb);
 #endif
 
 vec3 load_world_position() {
@@ -43,9 +58,9 @@ vec3 load_world_position() {
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
-//    #ifdef TAA_ENABLED
-//        ndcPos.xy += taa_offset * 2.0;
-//    #endif
+    #ifdef TAA_ENABLED
+        ndcPos.xy -= taa_offset * 2.0;
+    #endif
 
     // TODO: fix hand depth
 
