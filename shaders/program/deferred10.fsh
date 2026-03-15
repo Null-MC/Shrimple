@@ -36,8 +36,14 @@ void main() {
     if (depth < 1.0) {
         uvec2 reflectData = texelFetch(TEX_REFLECT_SPECULAR, uv, 0).rg;
 
-        lighting += sample_photonics_direct(texcoord);
-        lighting += sample_photonics_handheld(texcoord);
+        #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+            lighting += sample_photonics_direct(texcoord);
+        #endif
+
+        #ifdef PHOTONICS_HAND_LIGHT_ENABLED
+            lighting += sample_photonics_handheld(texcoord);
+        #endif
+
         lighting *= 6.0;
 
         #ifdef PHOTONICS_GI_ENABLED

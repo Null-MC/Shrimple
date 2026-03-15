@@ -63,13 +63,13 @@ vec3 ph_sample_indirect_impl() {
 
         indirect_color *= result_tint_color;
         if (!ray.result_hit && !ray_iteration_bound_reached) {
-//            if (!sun) {
-//                indirect_color *= (float(i > 0) * 2 + 2) * indirect_light_color;
-//            } else {
-//                indirect_color *= (float(i > 0) * 15 + 1) * indirect_light_color;
-//            }
-
-            indirect_color *= indirect_light_color;
+            if (!sun) {
+                ivec2 uv = ivec2(gl_FragCoord.xy);
+                vec3 worldPos = cameraPosition;
+                indirect_color *= get_sky_color(uv, worldPos, ray.direction);
+            } else {
+                indirect_color *= indirect_light_color;
+            }
 
             return indirect_color;
         } else if (dot(lightEmittance, lightEmittance) > 0.0f) {
