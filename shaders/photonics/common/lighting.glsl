@@ -1,6 +1,17 @@
 #include "/photonics/photonics.glsl"
 #include "/photonics/common/util.glsl"
 
+#if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
+    #ifdef LIGHTING_COLORED
+        uniform sampler3D texFloodFillA;
+        uniform sampler3D texFloodFillB;
+    #endif
+
+    #include "/lib/hsv.glsl"
+    #include "/lib/voxel.glsl"
+    #include "/lib/floodfill-render.glsl"
+#endif
+
 void sample_handheld(out vec4 color) {
     if (any(notEqual(handheld_color, vec3(0.0f)))) {
         vec4 direction_vert_out = direction_transformation_matrix_in * vec4(left_handed ? 1.0f : -1.0f, -1.0f, 0.0f, 1.0f);
@@ -32,57 +43,55 @@ void sample_handheld(out vec4 color) {
     }
 }
 
-// TODO: take sun light into account
 vec3 ph_sample_indirect_impl() {
-    ray.result_position = rt_pos;
-    ray.result_normal = block_normal;
+    ray.origin = rt_pos + 0.1 * block_normal;
+    ray.direction = normalize(normal + ph_sample_random_direction(rng_state));
 
-    //    bool is_axis_aligned = is_axis_aligned(base_normal);
+    breakOnEmpty = true;
+    trace_ray(ray, true);
+    breakOnEmpty = false;
 
-    // If normal is not axis aligned, sample both hemispheres
-    //    if (!is_axis_aligned) {
-    //        light_ray.result_normal = vec3(0.0f);
-    //    }
+    vec3 indirect_color;
+    vec3 tint = result_tint_color;
 
-    vec3 indirect_color = vec3(1.0f);
+    if (!ray.result_hit && !ray_iteration_bound_reached) {
+        // hit sky
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        vec3 worldPos = rt_pos + world_offset;
+        indirect_color = get_sky_color(uv, worldPos, ray.direction);
+    }
+    else {
+        vec3 hitAlbedo = RGBToLinear(ray.result_color);
+        vec3 hitLocalPos = ray.result_position - rt_camera_position;
+        vec3 hitLocalNormal = ray.result_normal;
 
-    for (int i = 0; i < 2; i++) {
-        lightEmittance = vec3(0.0f);
-        ray.origin = ray.result_position + 0.1f * ray.result_normal;
-        // TODO: use blue noise
-        ray.direction = normalize(ray.result_normal + ph_sample_random_direction(rng_state));
-
-        bool sun = ph_RandomFloat01(rng_state) < 0.25f && dot(ph_sun_direction, ray.result_normal) > 0.707f;
-        if (sun) {
-            ray.direction = ph_sun_direction;
-        }
+        // trace sun
+        ray.origin = ray.result_position;
+        ray.direction = ph_sun_direction;
 
         breakOnEmpty = true;
         trace_ray(ray, true);
         breakOnEmpty = false;
 
-        indirect_color *= result_tint_color;
+        vec3 sample_color = vec3(0.0);
+
         if (!ray.result_hit && !ray_iteration_bound_reached) {
-            if (!sun) {
-                ivec2 uv = ivec2(gl_FragCoord.xy);
-                vec3 worldPos = cameraPosition;
-                indirect_color *= get_sky_color(uv, worldPos, ray.direction);
-            } else {
-                indirect_color *= indirect_light_color;
-            }
-
-            return indirect_color;
-        } else if (dot(lightEmittance, lightEmittance) > 0.0f) {
-            indirect_color *= 2.0f * lightEmittance;
-            //            indirect_color = vec3(0.0f);
-
-            return indirect_color;
+            sample_color += indirect_light_color * result_tint_color;
         }
 
-        indirect_color *= ray.result_color;
+        // other lighting
+        // TODO: support block light trace?
+
+        #if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
+            vec3 voxelPos = GetVoxelPosition(hitLocalPos);
+            vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
+            sample_color += SampleFloodFill(samplePos) * 3.0;
+        #endif
+
+        indirect_color += sample_color * hitAlbedo;
     }
 
-    return vec3(0.0f);
+    return indirect_color * tint;
 }
 
 void sample_indirect() {
