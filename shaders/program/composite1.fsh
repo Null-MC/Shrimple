@@ -83,7 +83,7 @@ uniform float dhFarPlane;
     #include "/lib/material/lazanyi.glsl"
 #endif
 
-#ifdef PHOTONICS_REFLECT_ENABLED
+#if defined(PHOTONICS_REFLECT_ENABLED)
     #include "/photonics/photonics.glsl"
 
     #include "/lib/shadows.glsl"

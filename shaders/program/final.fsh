@@ -5,8 +5,6 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_FINAL;
 
-//uniform sampler2D texCloudShadow;
-
 #if DEBUG_VIEW == DEBUG_VIEW_SSAO
     uniform sampler2D TEX_SSAO;
 #elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
@@ -14,10 +12,6 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D texSkyTransmit;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
     uniform sampler2D TEX_BLOOM_TILES;
-#endif
-
-#ifdef PHOTONICS_LIGHT_DEBUG
-    uniform usampler2D texLightDebug;
 #endif
 
 uniform vec2 viewSize;
@@ -29,12 +23,8 @@ uniform float far3;
 
 #include "/lib/sampling/bayer.glsl"
 
-#if defined(DEBUG_FAR) || defined(PHOTONICS_LIGHT_DEBUG)
+#if defined(DEBUG_FAR)
     #include "/lib/text.glsl"
-#endif
-
-#ifdef PHOTONICS_LIGHT_DEBUG
-    #include "/photonics/photonics.glsl"
 #endif
 
 
@@ -60,39 +50,6 @@ void main() {
         printLine();
 
         endText(color);
-    #endif
-
-    #ifdef PHOTONICS_LIGHT_DEBUG
-        beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewSize.y/2 - 24));
-
-        text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
-        text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
-
-        printString((_L, _i, _g, _h, _t, _s, _colon, _space));
-        printUnsignedInt(ph_light_count);
-        printLine();
-
-        int binStart = load_light_offset(rt_camera_position);
-        int binCount = light_registry_array[binStart];
-
-        printString((_C, _u, _r, _r, _e, _n, _t, _space, _b, _i, _n, _colon, _space));
-        printInt(binCount);
-        printLine();
-
-        endText(color);
-
-
-        vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(320, 240);
-        if (saturate(tex) == tex) {
-            int counter = int(texture(texLightDebug, tex).r);
-            if (counter > 0) {
-                color = mix(vec3(0,0,1), vec3(0,1,0), saturate(counter/128.0));
-                color = mix(color, vec3(1,0,0), saturate((counter-128)/128.0));
-            }
-            else {
-                color = vec3(0.0);
-            }
-        }
     #endif
 
     #if DEBUG_VIEW == DEBUG_VIEW_SSAO
@@ -132,11 +89,6 @@ void main() {
             color = LinearToRGB(color);
         }
     #endif
-
-//    vec2 tex = (gl_FragCoord.xy - 8.5) / vec2(900);
-//    if (saturate(tex) == tex) {
-//        color = texture(texCloudShadow, fract(tex*3.0)).rrr;
-//    }
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;
 

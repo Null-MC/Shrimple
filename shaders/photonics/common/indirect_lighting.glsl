@@ -94,7 +94,7 @@ vec3 ph_sample_indirect_impl() {
                 float lightDist = length(lightOffset);
                 vec3 lightDir = lightOffset / lightDist;
 
-                vec3 lightColor = 6.0 * RGBToLinear(light.color);
+                vec3 lightColor = vec3(1.0);//6.0 * RGBToLinear(light.color);
 
                 float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
                 float distance_squared = lengthSq(lightOffset) * light.falloff;
