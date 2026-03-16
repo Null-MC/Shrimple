@@ -12,6 +12,8 @@ in vec4 at_midBlock;
 
 #ifdef LIGHTING_COLORED
     layout(r16ui) uniform writeonly uimage3D imgVoxels;
+
+    uniform sampler2D texBlockLight;
 #endif
 
 #ifdef WIND_ENABLED
@@ -19,14 +21,18 @@ in vec4 at_midBlock;
 #endif
 
 uniform int renderStage;
+uniform int entityId;
 uniform int blockEntityId;
+uniform int currentRenderedItemId;
 uniform float windTime;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
 
+#include "/lib/entities.glsl"
 #include "/lib/blocks.glsl"
+#include "/lib/items.glsl"
 #include "/lib/shadows.glsl"
 
 #ifdef WIND_ENABLED
@@ -36,6 +42,7 @@ uniform vec3 cameraPosition;
 
 #ifdef LIGHTING_COLORED
     #include "/lib/voxel.glsl"
+    #include "/lib/sampling/block_light.glsl"
 #endif
 
 
@@ -55,14 +62,40 @@ void main() {
             || blockId == BLOCK_WATER
             || blockId == BLOCK_IGNORED;
 
-        if (isRenderTerrain && !ignoreBlock && (gl_VertexID % 4) == 0) {
-            vec3 localPos = mul3(shadowModelViewInverse, viewPos);
-            vec3 originPos = localPos + at_midBlock.xyz / 64.0;
-            ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
+        vec3 localPos = mul3(shadowModelViewInverse, viewPos);
+        vec3 originPos = vec3(-9999.0);
 
-            if (IsInVoxelBounds(voxelPos)) {
-                imageStore(imgVoxels, voxelPos, uvec4(blockId));
+        int lpvId = blockId;
+        if (!isRenderTerrain) {
+//            if (lightRange > 0) {
+            lpvId = currentRenderedItemId;
+//                originPos = localPos;
+//            }
+        }
+
+        vec3 lightColor;
+        float lightRange;
+        GetBlockColorRange(lpvId, lightColor, lightRange);
+
+        if (isRenderTerrain) {
+            #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+                if (lightRange > 0.0) ignoreBlock = true;
+            #endif
+
+            if (!ignoreBlock && (gl_VertexID % 4) == 0) {
+                originPos = localPos + at_midBlock.xyz / 64.0;
             }
+        }
+        else if (entityId != ENTITY_PLAYER_CURRENT) {
+            if (lightRange > 0) {
+//                lpvId = currentRenderedItemId;
+                originPos = localPos;
+            }
+        }
+
+        ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
+        if (IsInVoxelBounds(voxelPos)) {
+            imageStore(imgVoxels, voxelPos, uvec4(lpvId));
         }
     #endif
 

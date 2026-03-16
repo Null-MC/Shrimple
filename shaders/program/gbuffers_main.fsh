@@ -151,7 +151,8 @@ uniform float dhFarPlane;
     #include "/lib/floodfill-render.glsl"
 #endif
 
-#ifdef LIGHTING_HAND
+#if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+    #include "/lib/sampling/block_light.glsl"
     #include "/lib/hand-light.glsl"
 #endif
 
@@ -451,16 +452,14 @@ void main() {
 
         vec3 handLightColor1 = vec3(1.0);
         if (heldItemId >= 0) {
-            ivec2 blockLightUV1 = ivec2(heldItemId % 256, heldItemId / 256);
-            vec4 lightColorRange1 = texelFetch(texBlockLight, blockLightUV1, 0);
-            handLightColor1 = RGBToLinear(lightColorRange1.rgb);
+            float lightRange;
+            GetBlockColorRange(heldItemId, handLightColor1, lightRange);
         }
 
         vec3 handLightColor2 = vec3(1.0);
         if (heldItemId2 >= 0) {
-            ivec2 blockLightUV2 = ivec2(heldItemId2 % 256, heldItemId2 / 256);
-            vec4 lightColorRange2 = texelFetch(texBlockLight, blockLightUV2, 0);
-            handLightColor2 = RGBToLinear(lightColorRange2.rgb);
+            float lightRange;
+            GetBlockColorRange(heldItemId2, handLightColor2, lightRange);
         }
 
         vec3 lightDir = normalize(vIn.localPos - handLightPos);

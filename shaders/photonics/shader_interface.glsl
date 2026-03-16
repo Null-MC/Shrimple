@@ -15,11 +15,12 @@ uniform usampler2D TEX_TEX_NORMAL;
 uniform usampler2D TEX_REFLECT_SPECULAR;
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-    uniform sampler3D texSkyIrradiance;
+//    uniform sampler3D texSkyIrradiance;
 #else
     uniform sampler2D texLightmap;
 #endif
 
+uniform float far;
 uniform vec2 viewSize;
 uniform vec3 fogColor;
 uniform float fogStart;
@@ -27,6 +28,7 @@ uniform float fogEnd;
 uniform float skyDayF;
 uniform vec3 skyColor;
 uniform vec3 sunLocalDir;
+uniform ivec2 eyeBrightnessSmooth;
 uniform float weatherStrength;
 uniform float weatherDensity;
 uniform int isEyeInWater;
@@ -37,13 +39,16 @@ uniform int vxRenderDistance;
 #include "/lib/octohedral.glsl"
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-    #include "/lib/sky-irradiance.glsl"
+//    #include "/lib/sky-irradiance.glsl"
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/sampling/lightmap.glsl"
-    #include "/lib/oklab.glsl"
-    #include "/lib/fog.glsl"
+//    #include "/lib/oklab.glsl"
+//    #include "/lib/fog.glsl"
 #endif
+
+#include "/lib/oklab.glsl"
+#include "/lib/fog.glsl"
 
 
 vec3 sun_direction = sunLocalDir;
@@ -89,13 +94,14 @@ void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world
 }
 
 vec3 get_sky_color(ivec2 gBufferLoc, vec3 worldPos, vec3 newNormal) {
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        return SampleSkyIrradiance(newNormal);
-    #else
+//    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+//        return SampleSkyIrradiance(newNormal);
+//    #else
         vec3 fogColorL = RGBToLinear(fogColor);
         vec3 skyColorL = RGBToLinear(skyColor);
-        return GetSkyFogWaterColor(skyColorL, fogColorL, newNormal);
-    #endif
+//        return GetSkyFogWaterColor(skyColorL, fogColorL, newNormal);
+        return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, newNormal, weatherStrength, skyDayF);
+//    #endif
 }
 
 bool is_in_world() {

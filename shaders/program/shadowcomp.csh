@@ -18,8 +18,6 @@ const float LpvBlockRange = 16.0;
 shared uint voxelSharedData[10*10*10];
 shared vec3 lpvBuffer[10*10*10];
 
-//layout(r16ui) uniform readonly uimage3D imgVoxels;
-
 layout(rgba8) uniform image3D imgFloodFillA;
 layout(rgba8) uniform image3D imgFloodFillB;
 
@@ -37,15 +35,16 @@ uniform mat4 gbufferPreviousModelView;
 #include "/lib/oklab.glsl"
 #include "/lib/voxel.glsl"
 #include "/lib/blocks.glsl"
+#include "/lib/sampling/block_light.glsl"
 
 
 bool IsLightBlock(const in uint blockId) {
-    #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-        return blockId == BLOCK_LAVA
-            || blockId == BLOCK_CAVEVINE_BERRIES;
-    #else
+//    #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+//        return blockId == BLOCK_LAVA
+//            || blockId == BLOCK_CAVEVINE_BERRIES;
+//    #else
         return blockId > 0u && blockId < 65535u;
-    #endif
+//    #endif
 }
 
 vec3 GetLpvValue(const in ivec3 texCoord) {
@@ -189,11 +188,7 @@ void main() {
     vec3 lightColor = vec3(0.0);
     float lightRange = 0.0;
     if (IsLightBlock(blockId)) {
-        ivec2 blockLightUV = ivec2(blockId % 256, blockId / 256);
-        vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
-
-        lightColor = RGBToLinear(lightColorRange.rgb);
-        lightRange = lightColorRange.a * 32.0;
+        GetBlockColorRange(blockId, lightColor, lightRange);
     }
 
     if (blockId >= BLOCK_HONEY && blockId <= BLOCK_TINTED_GLASS) {

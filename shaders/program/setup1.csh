@@ -17,6 +17,7 @@ const ivec3 workGroups = ivec3(32, 32, 1);
     layout(r16ui) uniform writeonly uimage2D imgBlockMask;
 #endif
 
+#include "/lib/entities.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/items.glsl"
 
@@ -71,6 +72,14 @@ void main() {
 
     // foliage
     if (blockId >= 100 && blockId < 200) mixWeight = 1.0;
+
+    switch (blockId) {
+        case ENTITY_BLAZE:
+            mixWeight = 1.0;
+            color = color_Fire;
+            range = 8;
+            break;
+    }
 
     switch (blockId) {
         case BLOCK_AZURE_BLUET:
@@ -344,16 +353,12 @@ void main() {
             color = vec3(87, 184, 110);
             range = 7;
             break;
-        case BLOCK_JACK_O_LANTERN_N:
-        case BLOCK_JACK_O_LANTERN_E:
-        case BLOCK_JACK_O_LANTERN_S:
-        case BLOCK_JACK_O_LANTERN_W:
+        case BLOCK_JACK_O_LANTERN:
             mixWeight = 0.0;
             color = vec3(196, 179, 83);
             range = 15;
             break;
-        case BLOCK_LANTERN_CEIL:
-        case BLOCK_LANTERN_FLOOR:
+        case BLOCK_LANTERN:
             mixWeight = 0.85;
             color = vec3(231, 188, 115);
             range = 12;
@@ -394,11 +399,7 @@ void main() {
             color = color_RedstoneTorch;
             range = 9;
             break;
-        case BLOCK_REDSTONE_TORCH_FLOOR_LIT:
-        case BLOCK_REDSTONE_TORCH_WALL_N_LIT:
-        case BLOCK_REDSTONE_TORCH_WALL_E_LIT:
-        case BLOCK_REDSTONE_TORCH_WALL_S_LIT:
-        case BLOCK_REDSTONE_TORCH_WALL_W_LIT:
+        case BLOCK_REDSTONE_TORCH_LIT:
             mixWeight = 0.95;
             color = color_RedstoneTorch;
             range = 7;
@@ -542,37 +543,24 @@ void main() {
             mixMask = MASK(1, 1, 1, 1, 1, 0);
             mixWeight = 0.5;
             break;
-        case BLOCK_SMOKER_LIT_N:
-        case BLOCK_SMOKER_LIT_E:
-        case BLOCK_SMOKER_LIT_S:
-        case BLOCK_SMOKER_LIT_W:
+        case BLOCK_SMOKER_LIT:
             mixWeight = 0.0;
             color = color_Furnace;
             range = 6;
             break;
-        case BLOCK_SOUL_CAMPFIRE_LIT_N_S:
-        case BLOCK_SOUL_CAMPFIRE_LIT_W_E:
+        case BLOCK_SOUL_CAMPFIRE_LIT:
         case BLOCK_SOUL_FIRE:
-        case BLOCK_SOUL_LANTERN_CEIL:
-        case BLOCK_SOUL_LANTERN_FLOOR:
+        case BLOCK_SOUL_LANTERN:
             mixWeight = 0.9;
             color = color_SoulFire;
             range = 12;
             break;
-        case BLOCK_SOUL_TORCH_FLOOR:
-        case BLOCK_SOUL_TORCH_WALL_N:
-        case BLOCK_SOUL_TORCH_WALL_E:
-        case BLOCK_SOUL_TORCH_WALL_S:
-        case BLOCK_SOUL_TORCH_WALL_W:
+        case BLOCK_SOUL_TORCH:
             mixWeight = 1.0;
             color = color_SoulFire;
             range = 10;
             break;
-        case BLOCK_TORCH_FLOOR:
-        case BLOCK_TORCH_WALL_N:
-        case BLOCK_TORCH_WALL_E:
-        case BLOCK_TORCH_WALL_S:
-        case BLOCK_TORCH_WALL_W:
+        case BLOCK_TORCH:
             mixWeight = 1.0;
             color = vec3(color_Torch);
             range = 12;

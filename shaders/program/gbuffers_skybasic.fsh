@@ -38,7 +38,10 @@ void main() {
     }
     else {
         vec3 localViewDir = normalize(localPos);
-        color.rgb = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
+        vec3 skyColorL = RGBToLinear(skyColor);
+        vec3 fogColorL = RGBToLinear(fogColor);
+//        color.rgb = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
+        color.rgb = GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, weatherStrength, skyDayF);
         color.a = 1.0;
     }
 

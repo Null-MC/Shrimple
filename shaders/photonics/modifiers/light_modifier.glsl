@@ -1,14 +1,15 @@
 #ifdef PHOTONICS_SHRIMPLE_COLORS
     uniform sampler2D texBlockLight;
+
+    #include "/lib/sampling/block_light.glsl"
 #endif
 
 
 void modify_light(inout Light light, vec3 world_pos) {
     #ifdef PHOTONICS_SHRIMPLE_COLORS
-        ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
-        vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
-        vec3 lightColor = RGBToLinear(lightColorRange.rgb);
-        float lightRange = lightColorRange.a * 32.0;
+        vec3 lightColor;
+        float lightRange;
+        GetBlockColorRange(light.blockId, lightColor, lightRange);
 
         light.color = (lightRange / 15.0) * lightColor;
         light.block_radius = 1.5 * lightRange;
