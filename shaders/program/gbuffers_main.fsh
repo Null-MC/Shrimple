@@ -152,7 +152,7 @@ uniform float dhFarPlane;
 #endif
 
 #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
-    #include "/lib/sampling/block_light.glsl"
+    #include "/lib/sampling/block-light.glsl"
     #include "/lib/hand-light.glsl"
 #endif
 

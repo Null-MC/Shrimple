@@ -77,9 +77,9 @@ uniform float dhFarPlane;
 #include "/lib/fog.glsl"
 #include "/lib/water.glsl"
 #include "/lib/fresnel.glsl"
+#include "/lib/material/pbr.glsl"
 
 #ifdef MATERIAL_PBR_ENABLED
-    #include "/lib/material/pbr.glsl"
     #include "/lib/material/lazanyi.glsl"
 #endif
 

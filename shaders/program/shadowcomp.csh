@@ -35,7 +35,8 @@ uniform mat4 gbufferPreviousModelView;
 #include "/lib/oklab.glsl"
 #include "/lib/voxel.glsl"
 #include "/lib/blocks.glsl"
-#include "/lib/sampling/block_light.glsl"
+#include "/lib/sampling/block-light.glsl"
+#include "/lib/sampling/block-mask.glsl"
 
 
 bool IsLightBlock(const in uint blockId) {
@@ -81,14 +82,12 @@ vec3 sampleShared(const in ivec3 pos, const in int mask_index, out float weight)
     uint blockId = voxelSharedData[shared_index];
     weight = 1.0;
 
-//    if (blockId > 0 && blockId != 0u)
-//        ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, weight);
-    if (blockId > 0u && blockId < 65000u) {
-        ivec2 blockMaskUV = ivec2(blockId % 256, blockId / 256);
-        uint maskData = texelFetch(texBlockMask, blockMaskUV, 0).r;
+//    if (blockId > 0u && blockId < 65000u) {
+//        ivec2 blockMaskUV = ivec2(blockId % 256, blockId / 256);
+//        uint maskData = texelFetch(texBlockMask, blockMaskUV, 0).r;
 //        mixWeight = unpackUnorm4x8(maskData).r;
 //        mixMask = bitfieldExtract(maskData, 8, 8);
-    }
+//    }
 
     uint wMask = bitfieldExtract(mixMask, mask_index, 1);
     return lpvBuffer[shared_index] * wMask;// * mixWeight;
@@ -170,19 +169,12 @@ void main() {
 
     vec3 lightValue = vec3(0.0);
 
-//    float mixWeight = blockId == 0u ? 1.0 : 0.0;
     float mixWeight = 1.0;
     uint mixMask = 0xFFFF;
     vec3 tint = vec3(1.0);
 
-    // TODO: which is it?
-//    if (blockId > 0u && blockId != 0u)
-//        ParseBlockLpvData(StaticBlockMap[blockId].lpv_data, mixMask, mixWeight);
     if (blockId > 0u && blockId < 65000u) {
-        ivec2 blockMaskUV = ivec2(blockId % 256, blockId / 256);
-        uint maskData = texelFetch(texBlockMask, blockMaskUV, 0).r;
-        mixWeight = unpackUnorm4x8(maskData).r;
-        mixMask = bitfieldExtract(maskData, 8, 8);
+        GetBlockMask(blockId, mixWeight, mixMask);
     }
 
     vec3 lightColor = vec3(0.0);

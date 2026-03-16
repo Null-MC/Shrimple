@@ -42,7 +42,7 @@ uniform vec3 cameraPosition;
 
 #ifdef LIGHTING_COLORED
     #include "/lib/voxel.glsl"
-    #include "/lib/sampling/block_light.glsl"
+    #include "/lib/sampling/block-light.glsl"
 #endif
 
 

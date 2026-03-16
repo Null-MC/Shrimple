@@ -14,9 +14,7 @@ uniform usampler2D TEX_GEO_NORMAL;
 uniform usampler2D TEX_TEX_NORMAL;
 uniform usampler2D TEX_REFLECT_SPECULAR;
 
-#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-//    uniform sampler3D texSkyIrradiance;
-#else
+#if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D texLightmap;
 #endif
 
@@ -39,12 +37,9 @@ uniform int vxRenderDistance;
 #include "/lib/octohedral.glsl"
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-//    #include "/lib/sky-irradiance.glsl"
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/sampling/lightmap.glsl"
-//    #include "/lib/oklab.glsl"
-//    #include "/lib/fog.glsl"
 #endif
 
 #include "/lib/oklab.glsl"
@@ -66,6 +61,7 @@ vec3 load_world_position() {
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
     #ifdef TAA_ENABLED
+        // this must exist to prevent GI sampling from being in blocks
         ndcPos.xy -= 2.0 * taa_offset;
     #endif
 
@@ -94,14 +90,9 @@ void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world
 }
 
 vec3 get_sky_color(ivec2 gBufferLoc, vec3 worldPos, vec3 newNormal) {
-//    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-//        return SampleSkyIrradiance(newNormal);
-//    #else
-        vec3 fogColorL = RGBToLinear(fogColor);
-        vec3 skyColorL = RGBToLinear(skyColor);
-//        return GetSkyFogWaterColor(skyColorL, fogColorL, newNormal);
-        return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, newNormal, weatherStrength, skyDayF);
-//    #endif
+    vec3 fogColorL = RGBToLinear(fogColor);
+    vec3 skyColorL = RGBToLinear(skyColor);
+    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, newNormal, weatherStrength, skyDayF);
 }
 
 bool is_in_world() {
@@ -111,8 +102,7 @@ bool is_in_world() {
 }
 
 vec2 get_taa_jitter() {
-//    return -2.0*taa_offset;
-    return vec2(0.0);
+    return 2.0*taa_offset;
 }
 
 float GetLightAttenuation_Diffuse(float lightDist, const in float lightRange, const in float lightRadius) {
