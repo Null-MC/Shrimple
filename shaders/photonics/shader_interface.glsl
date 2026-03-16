@@ -60,6 +60,10 @@ vec3 load_world_position() {
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
+    #ifdef TAA_ENABLED
+        ndcPos.xy -= 2.0 * taa_offset;
+    #endif
+
     // TODO: fix hand depth
 
     vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
@@ -101,6 +105,7 @@ bool is_in_world() {
 }
 
 vec2 get_taa_jitter() {
+//    return -2.0*taa_offset;
     return vec2(0.0);
 }
 

@@ -53,6 +53,7 @@ vec3 ph_sample_indirect_impl() {
     float pdf;
     vec3 trace_tangentDir = sample_cosine_weighted_hemisphere(pdf);
     vec3 trace_localDir = transform_to_world(normal, trace_tangentDir);
+    lightEmittance = vec3(0.0);
 
     ray.origin = rt_pos + 0.1 * block_normal;
     ray.direction = trace_localDir;
@@ -74,9 +75,10 @@ vec3 ph_sample_indirect_impl() {
         vec3 hitAlbedo = RGBToLinear(ray.result_color);
         vec3 hitLocalPos = ray.result_position - rt_camera_position;
         vec3 hitLocalNormal = ray.result_normal;
+        vec3 hitEmission = 8.0 * lightEmittance;
 
         // trace sun
-        ray.origin = ray.result_position;
+        ray.origin = ray.result_position + 0.1 * ray.result_normal;
         ray.direction = ph_sun_direction;
 
         breakOnEmpty = true;
@@ -150,6 +152,8 @@ vec3 ph_sample_indirect_impl() {
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             sample_color += SampleFloodFill(samplePos) * 3.0;
         #endif
+
+        sample_color += hitEmission;
 
         indirect_color += sample_color * hitAlbedo;
     }

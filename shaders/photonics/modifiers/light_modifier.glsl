@@ -5,7 +5,6 @@
 
 void modify_light(inout Light light, vec3 world_pos) {
     #ifdef PHOTONICS_SHRIMPLE_COLORS
-        // TODO
         ivec2 blockLightUV = ivec2(light.blockId % 256, light.blockId / 256);
         vec4 lightColorRange = texelFetch(texBlockLight, blockLightUV, 0);
         vec3 lightColor = RGBToLinear(lightColorRange.rgb);
