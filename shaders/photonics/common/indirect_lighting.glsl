@@ -21,37 +21,27 @@ uniform float cloudTime;
 #endif
 
 
-vec3 sample_cosine_weighted_hemisphere(out float pdf) {
-    float x = rand_next_float();
+vec3 sample_cosine_weighted_hemisphere() {
+    vec2 u = vec2(rand_next_float(), rand_next_float());
+    float r = sqrt(u.x);
+    float theta = 6.28318530718 * u.y;
 
-    float r = sqrt(x);
-    float phi = 2.0 * PI * rand_next_float();
-
-    vec3 dir;
-    dir.x = r * cos(phi);
-    dir.y = r * sin(phi);
-    dir.z = sqrt(1.0 - x);
-
-    pdf = dir.z;// / PI;
-
-    return dir;
+    return vec3(r * cos(theta), r * sin(theta), sqrt(max(0.0, 1.0 - u.x)));
 }
 
 vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
-    float sign = step(0.0, normal.z) * 2.0 - 1.0;
+    vec3 up = abs(normal.z) < 0.999
+        ? vec3(0.0, 0.0, 1.0)
+        : vec3(1.0, 0.0, 0.0);
 
-    float a = -1.0 / (sign + normal.z);
-    float b = normal.x * normal.y * a;
-    vec3 tangent = vec3(1.0 + sign * normal.x * normal.x * a, sign * b, -sign * normal.x);
-    vec3 bitangent = vec3(b, sign + normal.y * normal.y * a, -normal.y);
-    mat3 tbn = mat3(tangent, bitangent, normal);
+    vec3 tangent = normalize(cross(up, normal));
+    vec3 bitangent = cross(normal, tangent);
 
-    return tbn * local_dir;
+    return mat3(tangent, bitangent, normal) * local_dir;
 }
 
 vec3 ph_sample_indirect_impl() {
-    float pdf;
-    vec3 trace_tangentDir = sample_cosine_weighted_hemisphere(pdf);
+    vec3 trace_tangentDir = sample_cosine_weighted_hemisphere();
     vec3 trace_localDir = transform_to_world(normal, trace_tangentDir);
     lightEmittance = vec3(0.0);
 
@@ -106,46 +96,55 @@ vec3 ph_sample_indirect_impl() {
             int binStart = load_light_offset(hitTracePos);
             int binCount = light_registry_array[binStart];
 
-            int sample_count = min(binCount, PHOTONICS_GI_BLOCK_SAMPLES);
-            float sample_scale = float(binCount) / float(sample_count);
+            if (binCount > 0) {
+                int sample_count = min(binCount, PHOTONICS_GI_BLOCK_SAMPLES);
+                float sample_scale = float(binCount) / float(sample_count);
 
-            for (int i = 0; i < sample_count; i++) {
-                int k = ((frameCounter + i*8) % binCount) + (binStart+1);
-                Light light = load_light(light_registry_array[k]);
+                for (int i = 0; i < PHOTONICS_GI_BLOCK_SAMPLES; i++) {
+                    if (i > binCount) break;
 
-                vec3 lightOffset = light.position - hitTracePos;
-                float lightDist = length(lightOffset);
-                vec3 lightDir = lightOffset / lightDist;
+                    int k = ((frameCounter + i*8) % binCount) + (binStart+1);
+                    Light light = load_light(light_registry_array[k]);
 
-                vec3 lightColor = light.color * sample_scale;
+                    vec3 lightOffset = light.position - hitTracePos;
+                    float distSq = dot(lightOffset, lightOffset);
+                    float invDist = inversesqrt(distSq);
+                    vec3 lightDir = lightOffset * invDist;
+                    float lightDist = distSq * invDist;
 
-                float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+                    float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+                    if (NoLm < EPSILON) continue;
 
-                #ifdef PHOTONICS_SHRIMPLE_COLORS
-                    const float lightRadius = 0.5;
-                    float att = GetLightAttenuation_Diffuse(lightDist, light.block_radius, lightRadius);
-                #else
-                    float distance_squared = dot(to_light, to_light) * light.falloff;
-                    float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
-                #endif
+                    vec3 lightColor = light.color * sample_scale;
 
-                ray.origin = hitTracePos;
-                ray.direction = lightDir;
+                    #ifdef PHOTONICS_SHRIMPLE_COLORS
+                        const float lightRadius = 0.5;
+                        float att = GetLightAttenuation_Diffuse(lightDist, light.block_radius, lightRadius);
+                    #else
+                        float distance_squared = dot(to_light, to_light) * light.falloff;
+                        float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
+                    #endif
 
-                breakOnEmpty=true;
-                trace_ray(ray, true);
-                breakOnEmpty=false;
+                    if (att < EPSILON) continue;
 
-                if (ray.result_hit) {
-                    lightColor *= RGBToLinear(result_tint_color);
+                    ray.origin = hitTracePos;
+                    ray.direction = lightDir;
 
-                    if (lengthSq(hitTracePos - ray.result_position) < _pow2(lightDist) && floor(light.position) != floor(ray.result_position)) {
-                        att = 0.0;
+                    breakOnEmpty=true;
+                    trace_ray(ray, true);
+                    breakOnEmpty=false;
+
+                    if (ray.result_hit) {
+                        lightColor *= RGBToLinear(result_tint_color);
+
+                        if (lengthSq(hitTracePos - ray.result_position) < distSq * 0.98 && floor(light.position) != floor(ray.result_position)) {
+                            att = 0.0;
+                        }
                     }
-                }
 
-                sample_color += att * NoLm * lightColor;
-                // TODO: apply NoV?
+                    sample_color += att * NoLm * lightColor;
+                    // TODO: apply NoV?
+                }
             }
         #elif defined(LIGHTING_COLORED)
             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
@@ -158,5 +157,5 @@ vec3 ph_sample_indirect_impl() {
         indirect_color += sample_color * hitAlbedo;
     }
 
-    return pdf * indirect_color * tint;
+    return trace_tangentDir.z * indirect_color * tint;
 }
