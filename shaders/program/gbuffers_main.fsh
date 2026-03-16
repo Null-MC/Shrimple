@@ -151,8 +151,11 @@ uniform float dhFarPlane;
     #include "/lib/floodfill-render.glsl"
 #endif
 
-#if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
-    #include "/lib/sampling/block-light.glsl"
+#if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+    #ifdef LIGHTING_COLORED
+        #include "/lib/sampling/block-light.glsl"
+    #endif
+
     #include "/lib/hand-light.glsl"
 #endif
 
@@ -398,6 +401,14 @@ void main() {
 
         color.rgb = albedo * (blockLight + skyLight + MinAmbientF);
     #else
+        #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
+            #ifdef SHADOWS_ENABLED
+                lmcoord.y = shadow;
+            #else
+                lmcoord.y = _pow3(lmcoord.y);
+            #endif
+        #endif
+
         lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
 
         float oldLighting = GetOldLighting(localTexNormal);
@@ -408,14 +419,6 @@ void main() {
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;
-        #endif
-
-        #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
-            #ifdef SHADOWS_ENABLED
-                lmcoord.y = shadow;
-            #else
-                lmcoord.y = 0.0;
-            #endif
         #endif
 
         lmcoord = LightMapTex(lmcoord);

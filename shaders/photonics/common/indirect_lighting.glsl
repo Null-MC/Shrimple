@@ -14,6 +14,10 @@ uniform float cloudTime;
     #include "/lib/cloud-shadows.glsl"
 #endif
 
+#if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+    #include "/lib/vanilla-light.glsl"
+#endif
+
 #if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
     #include "/lib/hsv.glsl"
     #include "/lib/voxel.glsl"
@@ -67,24 +71,34 @@ vec3 ph_sample_indirect_impl() {
         vec3 hitLocalNormal = ray.result_normal;
         vec3 hitEmission = 8.0 * lightEmittance;
 
-        // trace sun
-        ray.origin = ray.result_position + 0.1 * ray.result_normal;
-        ray.direction = ph_sun_direction;
-
-        breakOnEmpty = true;
-        trace_ray(ray, true);
-        breakOnEmpty = false;
-
         vec3 sample_color = vec3(0.0);
 
-        if (!ray.result_hit && !ray_iteration_bound_reached) {
-            sample_color += indirect_light_color * RGBToLinear(result_tint_color);
+        #ifdef SHADOWS_ENABLED
+            // trace sun
+            ray.origin = ray.result_position + 0.1 * ray.result_normal;
+            ray.direction = ph_sun_direction;
 
-            #ifdef SHADOW_CLOUDS
-                float cloudShadow = SampleCloudShadow(hitLocalPos, ph_sun_direction);
-                sample_color *= cloudShadow * 0.5 + 0.5;
+            breakOnEmpty = true;
+            trace_ray(ray, true);
+            breakOnEmpty = false;
+
+            if (!ray.result_hit && !ray_iteration_bound_reached) {
+                sample_color += indirect_light_color * RGBToLinear(result_tint_color);
+
+                #ifdef SHADOW_CLOUDS
+                    float cloudShadow = SampleCloudShadow(hitLocalPos, ph_sun_direction);
+                    sample_color *= cloudShadow * 0.5 + 0.5;
+                #endif
+            }
+        #else
+            #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
+                float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
+                vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, _pow3(hitSkyLevel)))).rgb;
+
+                float oldLighting = GetOldLighting(hitLocalNormal);
+                sample_color += oldLighting * RGBToLinear(lmcolor);
             #endif
-        }
+        #endif
 
         // other lighting
 

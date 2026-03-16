@@ -203,12 +203,20 @@ void main() {
 
 //        skyLight *= lmcoord.y;
 
-        color.rgb = albedo * (blockLight + skyLight);
+        color.rgb = albedo * (blockLight + skyLight + MinAmbientF);
 
 //        #ifdef RENDER_TERRAIN
 //            color.rgb *= _pow2(vIn.color.a);
 //        #endif
     #else
+        #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
+            #ifdef SHADOWS_ENABLED
+                lmcoord.y = shadow;
+            #else
+                lmcoord.y = _pow3(lmcoord.y);
+            #endif
+        #endif
+
         #ifdef SHADOWS_ENABLED
             lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
         #endif
@@ -219,8 +227,7 @@ void main() {
             lmcoord.x *= 1.0 - lpvFade;
         #endif
 
-        lmcoord = LightMapTex(lmcoord);
-        vec3 lit = texture(lightmap, lmcoord).rgb;
+        vec3 lit = texture(lightmap, LightMapTex(lmcoord)).rgb;
         lit = RGBToLinear(lit);
 
         #ifdef LIGHTING_COLORED
