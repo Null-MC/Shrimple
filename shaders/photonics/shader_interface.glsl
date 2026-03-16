@@ -3,6 +3,12 @@
 
 #define TEX_DEPTH depthtex0
 
+#define PH_USE_CUSTOM_ALPHA
+#define PH_ALPHA_FUNC(color) apply_tint_impl(color)
+
+vec3 apply_tint_impl(vec4 color) {
+    return RGBToLinear(color.xyz) * (1f - _pow2(color.a));
+}
 
 uniform usampler2D TEX_GEO_NORMAL;
 uniform usampler2D TEX_TEX_NORMAL;
@@ -96,4 +102,14 @@ bool is_in_world() {
 
 vec2 get_taa_jitter() {
     return vec2(0.0);
+}
+
+float GetLightAttenuation_Diffuse(float lightDist, const in float lightRange, const in float lightRadius) {
+    lightDist = max(lightDist - lightRadius, 0.0);
+    float lightDistF = 1.0 - saturate(lightDist / lightRange);
+
+    float invSq = 1.0 / (_pow2(lightDist) + lightRadius);
+    float linear = pow5(lightDistF);
+
+    return mix(linear, invSq, lightDistF);
 }

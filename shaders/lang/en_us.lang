@@ -180,3 +180,7 @@ option.PHOTONICS_HAND_LIGHT_ENABLED=Hand Light
 option.PHOTONICS_BLOCK_LIGHT_ENABLED=Block Light
 
 option.PHOTONICS_GI_ENABLED=Global Illumination
+
+option.PHOTONICS_GI_BLOCK_SAMPLES=GI Block RT Samples
+
+option.PHOTONICS_SHRIMPLE_COLORS=Shrimple Colors

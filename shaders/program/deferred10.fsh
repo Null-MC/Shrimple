@@ -15,12 +15,8 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 #endif
 
 uniform int frameCounter;
-//uniform vec2 taa_offset = vec2(0.0);
 
 #include "/photonics/photonics.glsl"
-
-//#include "/lib/octohedral.glsl"
-//#include "/lib/hand-light.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -43,8 +39,6 @@ void main() {
         #ifdef PHOTONICS_HAND_LIGHT_ENABLED
             lighting += sample_photonics_handheld(texcoord);
         #endif
-
-        lighting *= 6.0;
 
         #ifdef PHOTONICS_GI_ENABLED
             lighting += texture(texPhotonicsIndirect, texcoord).rgb;
