@@ -1,0 +1,12 @@
+{
+	"lights": {
+		"glow_lichen": {
+			"is_traced": true,
+			"intensity": 1.0,
+			"radius": 7.0,
+			"falloff": 1.0,
+			"color": "#adcf81",
+			"blocks": ["glow_lichen"]
+		}
+	}
+}

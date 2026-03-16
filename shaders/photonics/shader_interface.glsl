@@ -41,7 +41,6 @@ uniform int vxRenderDistance;
 
 
 vec3 sun_direction = sunLocalDir;
-//vec3 indirect_light_color = vec3(0.0);
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     vec3 indirect_light_color = GetSkyLightColor(vec3(0.0), sunLocalDir.y, abs(sunLocalDir.y));
@@ -50,17 +49,10 @@ vec3 sun_direction = sunLocalDir;
 #endif
 
 vec3 load_world_position() {
-//    ivec2 uv = ivec2(gl_FragCoord.xy);
-//    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-
     vec2 texcoord = gl_FragCoord.xy / viewSize;
     float depth = texture(TEX_DEPTH, texcoord).r;
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
-
-    #ifdef TAA_ENABLED
-        ndcPos.xy -= taa_offset * 2.0;
-    #endif
 
     // TODO: fix hand depth
 
@@ -69,12 +61,7 @@ vec3 load_world_position() {
     return localPos + cameraPosition;
 }
 
-void load_fragment_variables(
-    out vec3 albedo, // The albedo of the current fragment
-    out vec3 world_pos, // The world pos of the current fragment, after accounting for world_normal
-    out vec3 world_normal, // The world normal for the current fragment
-    out vec3 world_normal_mapped // The normal from the normal map of the current fragment
-) {
+void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world_normal, out vec3 world_normal_mapped) {
     ivec2 uv = ivec2(gl_FragCoord.xy);
 
     uint reflectNormalData = texelFetch(TEX_TEX_NORMAL, uv, 0).r;
@@ -108,5 +95,5 @@ bool is_in_world() {
 }
 
 vec2 get_taa_jitter() {
-    return taa_offset;
+    return vec2(0.0);
 }
