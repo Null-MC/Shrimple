@@ -21,28 +21,27 @@ layout(location = 1) out float variance_frag_out;
 
 // 3×3 Gaussian Kernel & Offsets
 const float kernel[9] = float[](
-1.0/6., 2.0/3., 1.0/6.,
-2.0/3., 1.0   , 2.0/3.,
-1.0/6., 2.0/3., 1.0/6.
+    1.0/6., 2.0/3., 1.0/6.,
+    2.0/3., 1.0   , 2.0/3.,
+    1.0/6., 2.0/3., 1.0/6.
 );
+
 const ivec2 offset[9] = ivec2[](
-ivec2(-1, -1), ivec2(0, -1), ivec2(1, -1),
-ivec2(-1,  0), ivec2(0,  0), ivec2(1,  0),
-ivec2(-1,  1), ivec2(0,  1), ivec2(1,  1)
+    ivec2(-1, -1), ivec2(0, -1), ivec2(1, -1),
+    ivec2(-1,  0), ivec2(0,  0), ivec2(1,  0),
+    ivec2(-1,  1), ivec2(0,  1), ivec2(1,  1)
 );
 
 // Rec.709 luminance coefficients
 const vec3 LUM_COEFF = vec3(0.2126, 0.7152, 0.0722);
 
-float normal_edge_stopping_weight(vec3 center_normal, vec3 sample_normal)
-{
+float normal_edge_stopping_weight(vec3 center_normal, vec3 sample_normal) {
     const float power = 48.0f;
 
     return pow(clamp(dot(center_normal, sample_normal), 0.0f, 1.0f), power);
 }
 
-float depth_edge_stopping_weight(float center_depth, float sample_depth)
-{
+float depth_edge_stopping_weight(float center_depth, float sample_depth) {
     const float phi = 0.5f;
 
     // TODO: paper also uses dz/dx
@@ -50,22 +49,20 @@ float depth_edge_stopping_weight(float center_depth, float sample_depth)
     return exp(-abs(center_depth - sample_depth) / phi);
 }
 
-float luma_edge_stopping_weight(float center_luma, float sample_luma, float phi)
-{
+float luma_edge_stopping_weight(float center_luma, float sample_luma, float phi) {
     return exp(-abs(center_luma - sample_luma) / phi);
 }
 
-float ph_linearize_depth(float d)
-{
+float ph_linearize_depth(float d) {
     return near * far / (far + d * (near - far));
 }
 
 #include "/photonics/modifiers/restir_denoiser_depth_fetch_modifier.glsl"
 
 #ifdef PH_RESTIR_DENOISER_DEPTH_FETCH_MODIFIER_DISABLED
-#define PH_DEPTH_MODIFIER(p) p
+    #define PH_DEPTH_MODIFIER(p) p
 #else
-#define PH_DEPTH_MODIFIER(p) modify_denoiser_depth_fetch(p)
+    #define PH_DEPTH_MODIFIER(p) modify_denoiser_depth_fetch(p)
 #endif
 
 void main() {

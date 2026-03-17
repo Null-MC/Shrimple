@@ -33,6 +33,7 @@ uniform int isEyeInWater;
 uniform vec2 taa_offset = vec2(0.0);
 
 uniform int vxRenderDistance;
+uniform float dhFarPlane;
 
 #include "/lib/octohedral.glsl"
 
@@ -102,7 +103,11 @@ bool is_in_world() {
 }
 
 vec2 get_taa_jitter() {
-    return 2.0*taa_offset;
+    #ifdef TAA_ENABLED
+        return 2.0*taa_offset;
+    #else
+        return vec2(0.0);
+    #endif
 }
 
 float GetLightAttenuation_Diffuse(float lightDist, const in float lightRange, const in float lightRadius) {

@@ -93,7 +93,7 @@ vec3 ph_sample_indirect_impl() {
         #else
             #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
                 float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
-                vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, _pow3(hitSkyLevel)))).rgb;
+                vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, hitSkyLevel))).rgb;
 
                 float oldLighting = GetOldLighting(hitLocalNormal);
                 sample_color += oldLighting * RGBToLinear(lmcolor);
@@ -135,7 +135,7 @@ vec3 ph_sample_indirect_impl() {
                         const float lightRadius = 0.5;
                         float att = GetLightAttenuation_Diffuse(lightDist, light.block_radius, lightRadius);
                     #else
-                        float distance_squared = dot(to_light, to_light) * light.falloff;
+                        float distance_squared = dot(lightOffset, lightOffset) * light.falloff;
                         float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
                     #endif
 

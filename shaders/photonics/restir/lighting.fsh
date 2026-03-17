@@ -12,7 +12,7 @@ layout(location = 2) out vec4 reservoir_frag_out;
 layout(location = 3) out vec4 lighting_frag_out;
 
 #ifdef PH_ENABLE_HANDHELD_LIGHT
-layout(location = 5) out vec4 handheld_frag_out;
+    layout(location = 5) out vec4 handheld_frag_out;
 #endif
 
 #include "/photonics/common/header.glsl"
@@ -21,7 +21,7 @@ const float ph_spatial_reuse_radius = PH_RESTIR_SPATIAL_REUSE_RADIUS * PH_RENDER
 vec3 ph_sun_direction = ph_signed_nudge(sun_direction);
 
 #include "/photonics/restir/restir.glsl"
-#include "/photonics/common/lighting.glsl"
+#include "/photonics/common/ph_lighting_common.glsl"
 
 void main() {
     if (!is_in_world()) {
@@ -36,20 +36,20 @@ void main() {
     bad_angle = is_bad_angle(world_pos, block_normal);
 
     #ifdef PH_ENABLE_HANDHELD_LIGHT
-    sample_handheld(handheld_frag_out);
+        sample_handheld(handheld_frag_out);
     #endif
 
     #ifdef PH_ENABLE_GI
-    RAY_ITERATION_COUNT = 20;
+        RAY_ITERATION_COUNT = 20;
 
-    // Detect edge
-    // TODO: we probably should do fract(2.0f * base_position)
-    ivec3 inside = ivec3(lessThan(abs(fract(rt_pos) - 0.5f), vec3(0.48f)));
-    bool onEdge = inside.x + inside.y + inside.z <= 1;
+        // Detect edge
+        // TODO: we probably should do fract(2.0f * base_position)
+        ivec3 inside = ivec3(lessThan(abs(fract(rt_pos) - 0.5f), vec3(0.48f)));
+        bool onEdge = inside.x + inside.y + inside.z <= 1;
 
-    if (!onEdge) sample_indirect();
+        if (!onEdge) sample_indirect();
 
-    RAY_ITERATION_COUNT = 100;
+        RAY_ITERATION_COUNT = 100;
     #endif
 
     if (ph_light_count == 0) {
@@ -80,9 +80,9 @@ void main() {
 
     if (reservoir_is_valid(reservoir)) {
         #ifdef PH_RESTIR_SOFT_SHADOWS
-        light_sample_trace_hit(reservoir.light, true);
+            light_sample_trace_hit(reservoir.light, true);
         #else
-        light_sample_trace_hit(reservoir.light, false);
+            light_sample_trace_hit(reservoir.light, false);
         #endif
 
         reservoir_compute_weight(reservoir);
