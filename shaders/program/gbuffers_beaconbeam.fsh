@@ -63,12 +63,15 @@ void main() {
 
     outFinal = color;
 
+    #ifdef RENDER_TRANSLUCENT
+        outTint = vec3(1.0);
+    #endif
+
     #ifdef DEFERRED_NORMAL_ENABLED
-        outGeoNormal = 0u;
-        outTexNormal = 0u;
+        outNormal = uvec2(0u);
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED
-        outReflectSpecular = uvec2(0u);
+        outAlbedoSpecular = uvec2(0u);
     #endif
 }

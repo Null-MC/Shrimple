@@ -8,7 +8,7 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_FINAL;
-uniform usampler2D TEX_REFLECT_SPECULAR;
+uniform usampler2D TEX_ALBEDO_SPECULAR;
 
 //#ifdef LIGHTING_REFLECT_ENABLED
 //    uniform usampler2D TEX_TEX_NORMAL;
@@ -40,7 +40,7 @@ void main() {
     vec3 lighting = vec3(0.0);
 
     if (depth < 1.0) {
-        uvec2 reflectData = texelFetch(TEX_REFLECT_SPECULAR, uv, 0).rg;
+        uvec2 reflectData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
 
 //        #ifdef LIGHTING_REFLECT_ENABLED
 //            uint reflectNormalData = texelFetch(TEX_TEX_NORMAL, uv, 0).r;

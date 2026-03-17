@@ -26,14 +26,14 @@
 
 #define TEX_FINAL colortex0
 #define IMG_FINAL colorimg0
-#define TEX_SSAO colortex1
-#define TEX_TEX_NORMAL colortex2
-#define TEX_REFLECT_SPECULAR colortex3
-#define TEX_GEO_NORMAL colortex4
-#define TEX_BLOOM_TILES colortex5
-#define IMG_BLOOM_TILES colorimg5
-#define TEX_GI_COLOR colortex6
-#define TEX_GI_POSITION colortex7
+#define TEX_TRANSLUCENT_FINAL colortex1
+#define TEX_TRANSLUCENT_TINT colortex2
+#define TEX_ALBEDO_SPECULAR colortex3
+#define TEX_NORMAL colortex4
+#define TEX_SSAO colortex5
+
+#define TEX_BLOOM_TILES texBloomTiles
+#define IMG_BLOOM_TILES imgBloomTiles
 
 #define DEBUG_VIEW_NONE 0
 #define DEBUG_VIEW_SSAO 1

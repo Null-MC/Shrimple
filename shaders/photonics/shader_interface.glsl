@@ -10,9 +10,8 @@ vec3 apply_tint_impl(vec4 color) {
     return color.xyz * (1.0 - _pow2(color.a));
 }
 
-uniform usampler2D TEX_GEO_NORMAL;
-uniform usampler2D TEX_TEX_NORMAL;
-uniform usampler2D TEX_REFLECT_SPECULAR;
+uniform usampler2D TEX_NORMAL;
+uniform usampler2D TEX_ALBEDO_SPECULAR;
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D texLightmap;
@@ -76,16 +75,14 @@ vec3 load_world_position() {
 void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world_normal, out vec3 world_normal_mapped) {
     ivec2 uv = ivec2(gl_FragCoord.xy);
 
-    uint reflectNormalData = texelFetch(TEX_TEX_NORMAL, uv, 0).r;
-    vec3 viewNormal = OctDecode(unpackUnorm2x16(reflectNormalData));
-    world_normal_mapped = mat3(gbufferModelViewInverse) * viewNormal;
+    uvec2 normalData = texelFetch(TEX_NORMAL, uv, 0).rg;
+    world_normal = OctDecode(unpackUnorm2x16(normalData.r));
+    vec3 texViewNormal = OctDecode(unpackUnorm2x16(normalData.g));
 
-    uint geoNormalData = texelFetch(TEX_GEO_NORMAL, uv, 0).r;
-    world_normal = OctDecode(unpackUnorm2x16(geoNormalData));
+    world_normal_mapped = mat3(gbufferModelViewInverse) * texViewNormal;
 
-    uvec2 reflectData = texelFetch(TEX_REFLECT_SPECULAR, uv, 0).rg;
-    vec4 reflectDataR = unpackUnorm4x8(reflectData.r);
-    albedo = RGBToLinear(reflectDataR.rgb);
+    uint albedoData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).r;
+    albedo = RGBToLinear(unpackUnorm4x8(albedoData.r).rgb);
 
     world_pos = load_world_position() - 0.01 * world_normal;
 }

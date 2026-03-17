@@ -23,7 +23,7 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_LOD_DEPTH;
-uniform usampler2D TEX_TEX_NORMAL;
+uniform usampler2D TEX_NORMAL;
 
 uniform float far;
 uniform int frameCounter;
@@ -109,8 +109,7 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
 }
 
 
-
-/* RENDERTARGETS: 1 */
+/* RENDERTARGETS: 5 */
 layout(location = 0) out float outOcclusion;
 
 void main() {
@@ -139,7 +138,7 @@ void main() {
 
 
     if (depth < 1.0) {
-        uint reflectNormalData = texelFetch(TEX_TEX_NORMAL, uv, 0).r;
+        uint normalData = texelFetch(TEX_NORMAL, uv, 0).g;
 //        uint geoNormalData = texelFetch(TEX_GEO_NORMAL, uv, 0).r;
 
         vec3 screenPos = vec3(texcoord, depth);
@@ -157,7 +156,7 @@ void main() {
 
         if (viewDist >= 0.9 * far) {
 //            vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
-            vec3 viewTexNormal = OctDecode(unpackUnorm2x16(reflectNormalData));
+            vec3 viewTexNormal = OctDecode(unpackUnorm2x16(normalData));
 
             occlusion = GetSpiralOcclusion(texcoord, viewPos, viewTexNormal);
             occlusion = saturate(1.0 - occlusion);

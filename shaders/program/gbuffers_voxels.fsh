@@ -25,6 +25,7 @@ in VertexData {
     uniform SHADOW_SAMPLER TEX_SHADOW;
 
     #ifdef SHADOW_COLORED
+        uniform SHADOW_SAMPLER TEX_SHADOW_COLOR;
         uniform sampler2D shadowcolor0;
     #endif
 #endif
@@ -265,15 +266,20 @@ void main() {
 
     outFinal = color;
 
-    #ifdef DEFERRED_NORMAL_ENABLED
-        outGeoNormal = packUnorm2x16(OctEncode(hitLocalNormal));
+    #ifdef RENDER_TRANSLUCENT
+        outTint = LinearToRGB(albedo * color.a);
+    #endif
 
+    #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
-        outTexNormal = packUnorm2x16(OctEncode(viewNormal));
+
+        outNormal = uvec2(
+            packUnorm2x16(OctEncode(hitLocalNormal)),
+            packUnorm2x16(OctEncode(viewNormal)));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED
-        outReflectSpecular = uvec2(
+        outAlbedoSpecular = uvec2(
             packUnorm4x8(vec4(LinearToRGB(albedo.rgb), vIn.lmcoord.y)),
             packUnorm4x8(specularData));
     #endif

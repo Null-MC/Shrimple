@@ -303,16 +303,18 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
+    outTint = LinearToRGB(albedo * color.a);
 
     #ifdef DEFERRED_NORMAL_ENABLED
-        outGeoNormal = packUnorm2x16(OctEncode(localGeoNormal));
-
         vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
-        outTexNormal = packUnorm2x16(OctEncode(viewTexNormal));
+
+        outNormal = uvec2(
+            packUnorm2x16(OctEncode(localGeoNormal)),
+            packUnorm2x16(OctEncode(viewTexNormal)));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED
-        outReflectSpecular = uvec2(
+        outAlbedoSpecular = uvec2(
             packUnorm4x8(vec4(LinearToRGB(albedo), vIn.lmcoord.y)),
             packUnorm4x8(specularData));
     #endif

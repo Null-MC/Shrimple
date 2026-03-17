@@ -27,8 +27,6 @@ uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_LOD_DEPTH;
 uniform sampler2D TEX_SSAO;
-//uniform usampler2D TEX_TEX_NORMAL;
-//uniform usampler2D TEX_REFLECT_SPECULAR;
 
 uniform float far;
 uniform vec2 viewSize;
@@ -136,7 +134,7 @@ void main() {
     copyToShared(uv_base, i_base + 0);
     copyToShared(uv_base, i_base + 1);
 
-//    memoryBarrierShared();
+    memoryBarrierShared();
     barrier();
 
     // exit early if OOB
@@ -169,7 +167,6 @@ void main() {
         float viewDist = length(localPos);
 
         float occlusion = BilateralGaussianBlur();
-//        float occlusion = texelFetch(TEX_SSAO, uv, 0).r;
 
 //        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
         color *= occlusion;

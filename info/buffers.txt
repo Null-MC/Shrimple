@@ -1,12 +1,11 @@
 ### COLORTEX
 colortex0		    RGB16F		1.0		final
-colortex1		    R16F		1.0		SSAO
-colortex2		    R32UI		1.0		reflection normal
-colortex3		    RG32UI		1.0		reflection albedo, specular
-colortex4		    R32UI		1.0		photonics geo normal
-colortex5		    RGBA16F		1.0		bloom tiles
-colortex6		    RGBA16F		1.0		GI color
-colortex7		    RGBA16F		1.0		GI position
+colortex1		    RGBA16F		1.0		translucent final
+colortex2		    RGB8		1.0		translucent tint
+
+colortex3		    RG32UI		1.0		deferred albedo, specular
+colortex4		    RG32UI		1.0		deferred normal
+colortex5		    R16F		1.0		SSAO
 
 
 ### CUSTOM IMAGES

@@ -239,15 +239,19 @@ void main() {
 
     outFinal = color;
 
-    #ifdef PHOTONICS_LIGHT_ENABLED
-        outGeoNormal = packUnorm2x16(OctEncode(localNormal));
+    #ifdef RENDER_TRANSLUCENT
+        outTint = LinearToRGB(albedo * color.a);
     #endif
 
-    #if defined(LIGHTING_REFLECT_ENABLED) || defined(PHOTONICS_LIGHT_ENABLED)
+    #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
 
-        outTexNormal = packUnorm2x16(OctEncode(viewNormal));
+        outNormal = uvec2(
+            packUnorm2x16(OctEncode(localNormal)),
+            packUnorm2x16(OctEncode(viewNormal)));
+    #endif
 
+    #ifdef DEFERRED_SPECULAR_ENABLED
         outReflectSpecular = uvec2(
             packUnorm4x8(vec4(LinearToRGB(albedo), lmcoord.y)),
             packUnorm4x8(vec4(smoothness, f0, 0.0, emission)));
