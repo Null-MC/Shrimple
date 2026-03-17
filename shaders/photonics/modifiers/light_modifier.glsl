@@ -14,11 +14,11 @@ void modify_light(inout Light light, vec3 world_pos) {
         light.color = (lightRange / 15.0) * lightColor;
         light.block_radius = 1.5 * lightRange;
     #else
-//        light.color /= light.intensity;
-//
-//        light.color = RGBToLinear(saturate(light.color));
-//
-//        light.color *= light.intensity;
+        light.color /= light.intensity;
+
+        light.color = RGBToLinear(saturate(light.color));
+
+        light.color *= light.intensity;
 
         //    light.attenuation = vec2(0.0, 0.5);
     #endif

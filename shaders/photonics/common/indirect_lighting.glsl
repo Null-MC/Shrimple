@@ -57,7 +57,7 @@ vec3 ph_sample_indirect_impl() {
     breakOnEmpty = false;
 
     vec3 indirect_color;
-    vec3 tint = RGBToLinear(result_tint_color);
+    vec3 tint = result_tint_color;
 
     if (!ray.result_hit && !ray_iteration_bound_reached) {
         // hit sky
@@ -66,7 +66,7 @@ vec3 ph_sample_indirect_impl() {
         indirect_color = get_sky_color(uv, worldPos, ray.direction);
     }
     else {
-        vec3 hitAlbedo = RGBToLinear(ray.result_color);
+        vec3 hitAlbedo = ray.result_color;
         vec3 hitLocalPos = ray.result_position - rt_camera_position;
         vec3 hitLocalNormal = ray.result_normal;
         vec3 hitEmission = 8.0 * lightEmittance;
@@ -83,7 +83,7 @@ vec3 ph_sample_indirect_impl() {
             breakOnEmpty = false;
 
             if (!ray.result_hit && !ray_iteration_bound_reached) {
-                sample_color += indirect_light_color * RGBToLinear(result_tint_color);
+                sample_color += indirect_light_color * result_tint_color;
 
                 #ifdef SHADOW_CLOUDS
                     float cloudShadow = SampleCloudShadow(hitLocalPos, ph_sun_direction);
@@ -149,7 +149,7 @@ vec3 ph_sample_indirect_impl() {
                     breakOnEmpty=false;
 
                     if (ray.result_hit) {
-                        lightColor *= RGBToLinear(result_tint_color);
+                        lightColor *= result_tint_color;
 
                         if (lengthSq(hitTracePos - ray.result_position) < distSq * 0.98 && floor(light.position) != floor(ray.result_position)) {
                             att = 0.0;

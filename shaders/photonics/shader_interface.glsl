@@ -7,7 +7,7 @@
 #define PH_ALPHA_FUNC(color) apply_tint_impl(color)
 
 vec3 apply_tint_impl(vec4 color) {
-    return RGBToLinear(color.xyz) * (1f - _pow2(color.a));
+    return color.xyz * (1.0 - _pow2(color.a));
 }
 
 uniform usampler2D TEX_GEO_NORMAL;
