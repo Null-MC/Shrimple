@@ -17,5 +17,5 @@ void main() {
     vec3 tint = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0).rgb;
     vec4 color = texelFetch(TEX_TRANSLUCENT_FINAL, uv, 0);
 
-    outFinal = mix(src * RGBToLinear(tint), color.rgb, color.a);
+    outFinal = mix(src * normalize(RGBToLinear(tint)), color.rgb, color.a);
 }

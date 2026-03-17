@@ -12,7 +12,7 @@ void modify_light(inout Light light, vec3 world_pos) {
         GetBlockColorRange(light.blockId, lightColor, lightRange);
 
         light.color = (lightRange / 15.0) * lightColor;
-        light.block_radius = 1.5 * lightRange;
+        light.block_radius = lightRange;
     #else
         light.color /= light.intensity;
 

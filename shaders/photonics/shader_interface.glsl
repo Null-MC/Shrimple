@@ -106,13 +106,3 @@ vec2 get_taa_jitter() {
         return vec2(0.0);
     #endif
 }
-
-float GetLightAttenuation_Diffuse(float lightDist, const in float lightRange, const in float lightRadius) {
-    lightDist = max(lightDist - lightRadius, 0.0);
-    float lightDistF = 1.0 - saturate(lightDist / lightRange);
-
-    float invSq = 1.0 / (_pow2(lightDist) + lightRadius);
-    float linear = pow5(lightDistF);
-
-    return mix(linear, invSq, lightDistF);
-}
