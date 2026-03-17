@@ -5,9 +5,12 @@
 in vec4 mc_Entity;
 in vec4 at_midBlock;
 
-#ifndef RENDER_SOLID
+#if defined(SHADOWS_ENABLED) && (!defined(RENDER_SOLID) || defined(SHADOW_COLORED))
     out vec2 texcoord;
-//    out int blockId;
+
+    #ifdef SHADOW_COLORED
+        out vec4 color;
+    #endif
 #endif
 
 #ifdef LIGHTING_COLORED
@@ -100,9 +103,12 @@ void main() {
     #endif
 
     #ifdef SHADOWS_ENABLED
-        #ifndef RENDER_SOLID
+        #if !defined(RENDER_SOLID) || defined(SHADOW_COLORED)
             texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
-//            blockId = int(mc_Entity.x + EPSILON);
+        #endif
+
+        #ifdef SHADOW_COLORED
+            color = gl_Color;
         #endif
 
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);

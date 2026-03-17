@@ -1,27 +1,6 @@
-const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
+const vec4 ignF = vec4(1.0/16.0, 1.0/17.0, 12.9898, 78.233);
 
 
-float InterleavedGradientNoise(const in vec2 pixel) {
-    float x = dot(pixel, magic.xy);
-    return fract(magic.z * fract(x));
+float InterleavedGradientNoise(const in vec2 seed) {
+    return fract(dot(seed, ignF.xy) + 0.5 * fract(dot(seed.xy, ignF.zw)));
 }
-
-// https://www.shadertoy.com/view/WsfBDf
-float InterleavedGradientNoiseTime(const in vec2 pixel) {
-    vec2 uv = pixel + frameCounter * 5.588238;
-    return fract(magic.z * fract(dot(magic.xy, uv)));
-}
-
-//#ifndef RENDER_COMPUTE
-//    float InterleavedGradientNoise() {
-//        return InterleavedGradientNoise(gl_FragCoord.xy);
-//    }
-//
-//    float InterleavedGradientNoiseTime() {
-//        return InterleavedGradientNoiseTime(gl_FragCoord.xy);
-//    }
-//
-//    float InterleavedGradientNoiseTime(const in int offset) {
-//        return InterleavedGradientNoiseTime(gl_FragCoord.xy + offset);
-//    }
-//#endif

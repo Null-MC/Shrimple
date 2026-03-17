@@ -55,6 +55,11 @@ uniform sampler2D gtexture;
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+
+    #ifdef SHADOW_COLORED
+        uniform SHADOW_SAMPLER TEX_SHADOW_COLOR;
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -295,7 +300,7 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    float shadow = 1.0;
+    vec3 shadow = vec3(1.0);
     #ifdef SHADOWS_ENABLED
         vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
@@ -331,7 +336,7 @@ void main() {
             shadow_NoL = mix(shadow_NoL, 1.0, sss);
         #endif
 
-        shadow = mix(shadow, pow4(vIn.lmcoord.y), shadowCoverageF);
+        shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
 
         shadow *= pow(saturate(shadow_NoL), 0.2);
     #endif
@@ -403,13 +408,13 @@ void main() {
     #else
         #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
             #ifdef SHADOWS_ENABLED
-                lmcoord.y = shadow;
+                lmcoord.y = maxOf(shadow);
             #else
                 lmcoord.y = _pow3(lmcoord.y);
             #endif
         #endif
 
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
+        lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
 
         float oldLighting = GetOldLighting(localTexNormal);
         #ifdef MATERIAL_PBR_ENABLED

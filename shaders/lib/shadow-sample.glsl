@@ -5,38 +5,81 @@ float GetShadowDither() {
     vec2 seed = gl_FragCoord.xy;
 
     #ifdef TAA_ENABLED
-        seed += vec2(71.83, 83.71) * frameCounter;
+        seed += vec2(71.83, 83.71) * (frameCounter % 16);
     #endif
 
     return InterleavedGradientNoise(seed);
 }
 
-float SampleShadows(const in vec3 shadowPos) {
-    #if SHADOW_PCF_SAMPLES > 1
-        float dither = GetShadowDither();
-        float angle = fract(dither) * (PI * 2.0);
-        float s = sin(angle), c = cos(angle);
-        mat2 rotation = mat2(c, -s, s, c);
-    #endif
-
-    float shadow = 0.0;
-    for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-        vec3 shadowSamplePos = shadowPos;
+#ifdef SHADOW_COLORED
+    vec3 SampleShadows(const in vec3 shadowPos) {
         #if SHADOW_PCF_SAMPLES > 1
-            float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
-            float theta = i * GoldenAngle + PHI;
-
-            vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
-            shadowSamplePos.xy += (rotation * pcfDiskOffset) * ShadowPixelRadius;
+            float dither = GetShadowDither();
+            float angle = fract(dither) * (PI * 2.0);
+            float s = sin(angle), c = cos(angle);
+            mat2 rotation = mat2(c, -s, s, c);
         #endif
 
-        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-            shadow += texture(TEX_SHADOW, shadowSamplePos).r;
-        #else
-            float shadowDepth = texture(TEX_SHADOW, shadowSamplePos.xy).r;
-            shadow += step(shadowSamplePos.z, shadowDepth);
-        #endif
+        vec3 shadow = vec3(0.0);
+
+        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+            vec3 shadowSamplePos = shadowPos;
+            #if SHADOW_PCF_SAMPLES > 1
+                float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                float theta = i * GoldenAngle + PHI;
+
+                vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                shadowSamplePos.xy += (rotation * pcfDiskOffset) * ShadowPixelRadius;
+            #endif
+
+            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                float shadowF = texture(TEX_SHADOW, shadowSamplePos).r;
+                float shadowColorF = texture(TEX_SHADOW_COLOR, shadowSamplePos).r;
+            #else
+                float shadowDepth = texture(TEX_SHADOW, shadowSamplePos.xy).r;
+                float shadowF = step(shadowSamplePos.z, shadowDepth).r;
+            #endif
+
+            vec4 shadowColor = texture(shadowcolor0, shadowSamplePos.xy);
+            shadowColor.rgb = RGBToLinear(shadowColor.rgb) * (1.0 - _pow2(shadowColor.a));
+            shadowColor.rgb = mix(shadowColor.rgb, vec3(1.0), shadowColorF);
+
+            shadow += shadowF * shadowColor.rgb;
+        }
+
+        return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
     }
+#else
+    vec3 SampleShadows(const in vec3 shadowPos) {
+        #if SHADOW_PCF_SAMPLES > 1
+            float dither = GetShadowDither();
+            float angle = fract(dither) * (PI * 2.0);
+            float s = sin(angle), c = cos(angle);
+            mat2 rotation = mat2(c, -s, s, c);
+        #endif
 
-    return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
-}
+        float shadow = 0.0;
+
+        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+            vec3 shadowSamplePos = shadowPos;
+            #if SHADOW_PCF_SAMPLES > 1
+                float r = sqrt((i + 0.5) / SHADOW_PCF_SAMPLES);
+                float theta = i * GoldenAngle + PHI;
+
+                vec2 pcfDiskOffset = vec2(cos(theta), sin(theta)) * r;
+                shadowSamplePos.xy += (rotation * pcfDiskOffset) * ShadowPixelRadius;
+            #endif
+
+            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+                float shadow_sample = texture(TEX_SHADOW, shadowSamplePos).r;
+            #else
+                float shadowDepth = texture(TEX_SHADOW, shadowSamplePos.xy).r;
+                float shadow_sample = step(shadowSamplePos.z, shadowDepth).r;
+            #endif
+
+            shadow += shadow_sample;
+        }
+
+        return vec3(max(shadow / float(SHADOW_PCF_SAMPLES), 0.0));
+    }
+#endif

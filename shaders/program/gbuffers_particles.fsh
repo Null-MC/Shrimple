@@ -32,6 +32,11 @@ uniform sampler2D gtexture;
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+
+    #ifdef SHADOW_COLORED
+        uniform SHADOW_SAMPLER TEX_SHADOW_COLOR;
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -136,7 +141,7 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    float shadow = 1.0;
+    vec3 shadow = vec3(1.0);
     #ifdef SHADOWS_ENABLED
         vec3 shadowPos = mul3(shadowModelView, vIn.localPos);
         shadowPos.z += 0.016 * viewDist;
@@ -191,7 +196,7 @@ void main() {
             color.rgb *= _pow2(vIn.color.a);
         #endif
     #else
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
+        lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;

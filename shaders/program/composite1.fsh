@@ -34,6 +34,10 @@ uniform usampler2D TEX_REFLECT_SPECULAR;
 
     #ifdef SHADOWS_ENABLED
         uniform SHADOW_SAMPLER TEX_SHADOW;
+
+        #ifdef SHADOW_COLORED
+            uniform sampler2D shadowcolor0;
+        #endif
     #endif
 #endif
 
@@ -227,7 +231,7 @@ void main() {
 
                     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-                    float shadow = 1.0;
+                    vec3 shadow = vec3(1.0);
                     #ifdef SHADOWS_ENABLED
                         vec3 shadowPos = hitLocalPos;
                         shadowPos += 0.08 * hitLocalNormal;
@@ -279,7 +283,7 @@ void main() {
                         reflectColor = albedo * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
-                            lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
+                            lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
                         #endif
 
                         lmcoord.y *= GetOldLighting(hitLocalNormal);

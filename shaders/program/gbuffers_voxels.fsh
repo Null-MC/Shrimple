@@ -23,6 +23,10 @@ in VertexData {
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+
+    #ifdef SHADOW_COLORED
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -142,7 +146,7 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    float shadow = 1.0;
+    vec3 shadow = vec3(1.0);
     #ifdef SHADOWS_ENABLED
         vec3 shadowPos = hitLocalPos;
         shadowPos += 0.08 * hitLocalNormal;
@@ -211,7 +215,7 @@ void main() {
     #else
         #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
             #ifdef SHADOWS_ENABLED
-                lmcoord.y = shadow;
+                lmcoord.y = maxOf(shadow);
             #else
                 lmcoord.y = _pow3(lmcoord.y);
             #endif

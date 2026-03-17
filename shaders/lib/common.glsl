@@ -53,6 +53,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define SHADOW_PCF_SAMPLES 3 // [1 2 3 4 5 6 7 8 9]
 const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 450 500 600 700 800 900 1000 1200 1400 1600 1800 2000 2200 2400 2600 2800 3000 3200 3400 3600 3800 4000]
 #define SHADOW_AMBIENT 66 // [0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82 84 86 88 90 92 94 96 98 100]
+#define SHADOW_COLORED
 //#define SHADOW_CLOUDS
 
 //#define BLOOM_ENABLED
@@ -112,10 +113,22 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 
 #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
     #define SHADOW_SAMPLER sampler2DShadow
-    #define TEX_SHADOW shadowtex0HW
+
+    #ifdef SHADOW_COLORED
+        #define TEX_SHADOW shadowtex1HW
+        #define TEX_SHADOW_COLOR shadowtex0HW
+    #else
+        #define TEX_SHADOW shadowtex0HW
+    #endif
 #else
     #define SHADOW_SAMPLER sampler2D
-    #define TEX_SHADOW shadowtex0
+
+    #ifdef SHADOW_COLORED
+        #define TEX_SHADOW shadowtex1
+        #define TEX_SHADOW_COLOR shadowtex0
+    #else
+        #define TEX_SHADOW shadowtex0
+    #endif
 #endif
 
 #ifndef PHOTONICS
