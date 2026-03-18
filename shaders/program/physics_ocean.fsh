@@ -50,6 +50,7 @@ uniform sampler2D gtexture;
     uniform sampler2D texCloudShadow;
 #endif
 
+uniform float far;
 uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 fogColor;
