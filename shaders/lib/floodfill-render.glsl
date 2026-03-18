@@ -13,8 +13,12 @@
 //    #endif
 //}
 
-vec3 GetFloodFillSamplePos(const in vec3 voxelPos, const in vec3 geoNormal) {
-    return geoNormal * 0.5 + voxelPos;
+vec3 GetFloodFillSamplePos(const in vec3 voxelPos, const in vec3 geoNormal, const in vec3 texNormal) {
+    return texNormal * 0.75 - geoNormal * 0.25 + voxelPos;
+}
+
+vec3 GetFloodFillSamplePos(const in vec3 voxelPos, const in vec3 normal) {
+    return normal * 0.50 + voxelPos;
 }
 
 vec3 _SampleFloodFill(const in vec3 lpvPos, const in int frame) {

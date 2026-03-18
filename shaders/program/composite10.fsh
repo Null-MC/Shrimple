@@ -393,14 +393,14 @@ void main() {
             float NoV = dot(texViewNormal, -viewDir);
 
             #ifdef MATERIAL_PBR_ENABLED
-                LazanyiF F = mat_f0_lazanyi(albedo, specularData.g);
-                reflectColor *= F_lazanyi(NoV, F.f0, F.f82);
+                LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
+                vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
             #else
                 float f0 = mat_f0_lab(specularData.g);
-                reflectColor *= F_schlick(NoV, f0, 1.0);
+                float F = F_schlick(NoV, f0, 1.0);
             #endif
 
-            reflectColor *= _pow2(smoothness);
+            reflectColor *= F * _pow2(smoothness);
         }
 
         #ifdef MATERIAL_PBR_ENABLED
@@ -410,8 +410,7 @@ void main() {
         #endif
 
         // apply metal tint
-        vec3 tint = mix(vec3(1.0), albedo, metalness);
-        reflectColor *= tint;
+        reflectColor *= mix(vec3(1.0), albedo, metalness);
 
         // apply fog for reflect source
         float borderFogF = GetBorderFogStrength(viewDist);

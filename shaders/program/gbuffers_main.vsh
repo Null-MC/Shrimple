@@ -40,14 +40,25 @@ out VertexData {
     #ifdef RENDER_TERRAIN
         flat int blockId;
     #endif
+
+    #if defined(VELOCITY_ENABLED) && defined(RENDER_TERRAIN)
+        vec3 velocity;
+    #endif
 } vOut;
 
 
-#if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
-    uniform usampler2D texBlockWaving;
+#ifdef RENDER_TERRAIN
+    #ifdef WIND_ENABLED
+        uniform usampler2D texBlockWaving;
+    #endif
+
+    #ifdef WATER_WAVE_ENABLED
+        uniform sampler2D texWaterHeight;
+    #endif
 #endif
 
 uniform float windTime;
+uniform float windTimeLast;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform mat4 gbufferModelView;
@@ -58,6 +69,7 @@ uniform vec3 cameraPosition;
 uniform vec2 taa_offset = vec2(0.0);
 
 
+#include "/lib/blocks.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/tbn.glsl"
@@ -103,13 +115,44 @@ void main() {
 
     #ifdef RENDER_TERRAIN
         vOut.blockId = int(mc_Entity.x + EPSILON);
-    #endif
+        vec3 velocity = vec3(0.0);
 
-    #if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
-        vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
-        vOut.localPos += GetWindWavingOffset(originPos, vOut.blockId);
+        #ifdef WATER_WAVE_ENABLED
+            if (vOut.blockId == BLOCK_WATER) {
+                vec2 waterWorldPos = (vOut.localPos.xz + cameraPosition.xz) / WaterNormalScale;
+                // add 1px offset to avoid flickering at seams
+                vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
+                float waveHeight = texture(texWaterHeight, water_uv).r;
 
-        viewPos = mul3(gbufferModelView, vOut.localPos);
+                float viewDist = length(viewPos);
+                float fadeDist = smoothstep(0.0, 2.0, viewDist);
+                vOut.localPos.y += (waveHeight*0.5 - 0.4) * fadeDist;
+            }
+        #endif
+
+        #ifdef WIND_ENABLED
+            vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
+            originPos.xz += hash22(floor(originPos.xz)) * 8.0 - 4.0;
+            vec3 wind = GetWindForce(originPos, windTime);
+
+            vec3 windOffset = GetWindWavingOffset(wind, vOut.blockId);
+            vOut.localPos += windOffset;
+
+            #ifdef VELOCITY_ENABLED
+                // TODO: move calc to GetWindWavingOffset() ?
+                vec3 windLast = GetWindForce(originPos, windTimeLast);
+                vec3 windOffsetLast = GetWindWavingOffset(windLast, vOut.blockId);
+                velocity = windOffset - windOffsetLast;
+            #endif
+        #endif
+
+        #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
+            viewPos = mul3(gbufferModelView, vOut.localPos);
+        #endif
+
+        #ifdef VELOCITY_ENABLED
+            vOut.velocity = velocity;
+        #endif
     #endif
 
     gl_Position = gl_ProjectionMatrix * vec4(viewPos, 1.0);

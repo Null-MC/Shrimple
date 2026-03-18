@@ -266,6 +266,10 @@ void main() {
 
     outFinal = color;
 
+    #ifdef TAA_ENABLED
+        outVelocity = vec3(0.0);
+    #endif
+
     #ifdef RENDER_TRANSLUCENT
         outTint = LinearToRGB(albedo * color.a);
     #endif

@@ -1,4 +1,5 @@
 #define RENDER_FRAGMENT
+#define RENDER_TRANSLUCENT
 
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
@@ -38,6 +39,11 @@ uniform sampler2D gtexture;
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+
+    #ifdef SHADOW_COLORED
+        uniform SHADOW_SAMPLER TEX_SHADOW_COLOR;
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -48,7 +54,10 @@ uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 skyColor;
+uniform float skyDayF;
 uniform float rainStrength;
+uniform float weatherStrength;
+uniform float weatherDensity;
 uniform float cloudHeight;
 uniform float cloudTime;
 uniform vec3 eyePosition;
@@ -174,7 +183,7 @@ void main() {
     vec3 localGeoNormal = normalize(vIn.localNormal);
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    float shadow = 1.0;
+    vec3 shadow = vec3(1.0);
     #ifdef SHADOWS_ENABLED
 //        vec3 localTexNormal = localGeoNormal; // TODO: temp
 
@@ -267,7 +276,7 @@ void main() {
 
         color.rgb = albedo * (blockLight + skyLight + MinAmbientF);
     #else
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
+        lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
 
         float oldLighting = GetOldLighting(localTexNormal);
 //        #ifdef MATERIAL_PBR_ENABLED
@@ -304,6 +313,11 @@ void main() {
 
     outFinal = color;
     outTint = LinearToRGB(albedo * color.a);
+
+    #ifdef TAA_ENABLED
+        // TODO: we could actually set this but useless for translucent rn
+        outVelocity = vec3(0.0);
+    #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;

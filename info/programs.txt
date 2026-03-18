@@ -6,6 +6,8 @@ setup4			sky irradiance LUT
 shadowcomp		floodfill propagation
 
 prepare1		fog/sky color [nether only]
+prepare2		water height
+prepare3		water normal
 
 deferred10      photonics Lighting
 deferred20      voxy/DH SSAO

@@ -3,9 +3,11 @@ vec2 GetLinearCoords(const in vec2 texcoord, const in vec2 texSize, out vec2 uv[
     vec2 pixelSize = 1.0 / texSize;
 
     uv[0] = texcoord - f*pixelSize;
-    uv[1] = uv[0] + vec2(1.0, 0.0)*pixelSize;
-    uv[2] = uv[0] + vec2(0.0, 1.0)*pixelSize;
-    uv[3] = uv[0] + vec2(1.0, 1.0)*pixelSize;
+    uv[1] = fract(uv[0] + vec2(1.0, 0.0)*pixelSize);
+    uv[2] = fract(uv[0] + vec2(0.0, 1.0)*pixelSize);
+    uv[3] = fract(uv[0] + vec2(1.0, 1.0)*pixelSize);
+
+    uv[0] = fract(uv[0]);
 
     return f;
 }
@@ -34,7 +36,22 @@ vec3 LinearBlend4(const in vec3 samples[4], const in vec2 f) {
     return mix(x1, x2, f.y);
 }
 
-vec3 TextureLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const in float bias, const in vec2 f) {
+vec3 TextureLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const in vec2 f) {
+    vec3 samples[4];
+    samples[0] = texture(samplerName, uv[0]).rgb;
+    samples[1] = texture(samplerName, uv[1]).rgb;
+    samples[2] = texture(samplerName, uv[2]).rgb;
+    samples[3] = texture(samplerName, uv[3]).rgb;
+    return LinearBlend4(samples, f);
+}
+
+vec3 TextureLinearRGB(const in sampler2D samplerName, const in vec2 texcoord, const in vec2 texSize) {
+    vec2 uv[4];
+    vec2 f = GetLinearCoords(texcoord, texSize, uv);
+    return TextureLinearRGB(samplerName, uv, f);
+}
+
+vec3 TextureLinearBiasRGB(const in sampler2D samplerName, const in vec2 uv[4], const in float bias, const in vec2 f) {
     vec3 samples[4];
     samples[0] = texture(samplerName, uv[0], bias).rgb;
     samples[1] = texture(samplerName, uv[1], bias).rgb;
@@ -43,10 +60,10 @@ vec3 TextureLinearRGB(const in sampler2D samplerName, const in vec2 uv[4], const
     return LinearBlend4(samples, f);
 }
 
-vec3 TextureLinearRGB(const in sampler2D samplerName, const in vec2 texcoord, const in vec2 texSize, const in int bias) {
+vec3 TextureLinearBiasRGB(const in sampler2D samplerName, const in vec2 texcoord, const in vec2 texSize, const in int bias) {
     vec2 uv[4];
     vec2 f = GetLinearCoords(texcoord, texSize, uv);
-    return TextureLinearRGB(samplerName, uv, bias, f);
+    return TextureLinearBiasRGB(samplerName, uv, bias, f);
 }
 
 float TextureLodLinear(const in sampler2D samplerName, const in vec2 uv[4], const in float lod, const in vec2 f, const in int comp) {

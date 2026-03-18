@@ -6,6 +6,7 @@ colortex2		    RGB8		1.0		translucent tint
 colortex3		    RG32UI		1.0		deferred albedo, specular
 colortex4		    RG32UI		1.0		deferred normal
 colortex5		    R16F		1.0		SSAO
+colortex6           RGB16F      1.0     velocity
 
 
 ### CUSTOM IMAGES

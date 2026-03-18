@@ -1,3 +1,5 @@
+#define RENDER_TRANSLUCENT
+
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 

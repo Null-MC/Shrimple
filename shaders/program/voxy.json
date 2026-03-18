@@ -5,17 +5,22 @@
   ",
   "version": 1,
   "excludeLodsFromVanillaDepth": true,
-  #ifdef DEFERRED_NORMAL_ENABLED
-    #ifdef DEFERRED_SPECULAR_ENABLED
-      "opaqueDrawBuffers": [0,4,2,3],
-      "translucentDrawBuffers": [0,4,2,3],
+  #ifdef TAA_ENABLED
+    #ifdef DEFERRED_ENABLED
+      "opaqueDrawBuffers": [0,6,4,3],
+      "translucentDrawBuffers": [1,2,6,4,3],
     #else
-      "opaqueDrawBuffers": [0,4,2],
-      "translucentDrawBuffers": [0,4,2],
+      "opaqueDrawBuffers": [0,6],
+      "translucentDrawBuffers": [1,2,6],
     #endif
   #else
-    "opaqueDrawBuffers": [0],
-    "translucentDrawBuffers": [0],
+    #ifdef DEFERRED_ENABLED
+      "opaqueDrawBuffers": [0,4,3],
+      "translucentDrawBuffers": [1,2,4,3],
+    #else
+      "opaqueDrawBuffers": [0],
+      "translucentDrawBuffers": [1,2],
+    #endif
   #endif
   #ifdef TAA_ENABLED
     "taaOffset": "{return taa_offset;}",

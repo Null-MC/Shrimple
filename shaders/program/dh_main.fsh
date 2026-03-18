@@ -28,6 +28,11 @@ in VertexData {
 
 #ifdef SHADOWS_ENABLED
     uniform SHADOW_SAMPLER TEX_SHADOW;
+
+    #ifdef SHADOW_COLORED
+        uniform SHADOW_SAMPLER TEX_SHADOW_COLOR;
+        uniform sampler2D shadowcolor0;
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -150,7 +155,7 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    float shadow = 1.0;
+    vec3 shadow = vec3(1.0);
     #ifdef SHADOWS_ENABLED
         vec3 shadowPos = vIn.localPos;
         shadowPos += 0.08 * localNormal;
@@ -203,7 +208,7 @@ void main() {
 
         color.rgb = albedo * (blockLight + skyLight);
     #else
-        lmcoord.y = min(lmcoord.y, shadow * 0.5 + 0.5);
+        lmcoord.y = min(lmcoord.y, maxOf(shadow) * 0.5 + 0.5);
 
         lmcoord.y *= GetOldLighting(localNormal);
 
@@ -243,6 +248,10 @@ void main() {
         outTint = LinearToRGB(albedo * color.a);
     #endif
 
+    #if defined(VELOCITY_ENABLED)
+        outVelocity = vec3(0.0);
+    #endif
+
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
 
@@ -252,7 +261,7 @@ void main() {
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED
-        outReflectSpecular = uvec2(
+        outAlbedoSpecular = uvec2(
             packUnorm4x8(vec4(LinearToRGB(albedo), lmcoord.y)),
             packUnorm4x8(vec4(smoothness, f0, 0.0, emission)));
     #endif

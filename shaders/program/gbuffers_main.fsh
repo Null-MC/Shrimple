@@ -34,6 +34,10 @@ in VertexData {
     #ifdef RENDER_TERRAIN
         flat int blockId;
     #endif
+
+    #if defined(VELOCITY_ENABLED) && defined(RENDER_TERRAIN)
+        vec3 velocity;
+    #endif
 } vIn;
 
 
@@ -73,6 +77,10 @@ uniform sampler2D gtexture;
 
 #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
     uniform sampler2D texBlockLight;
+#endif
+
+#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+    uniform sampler2D TEX_WATER_NORMAL;
 #endif
 
 uniform float far;
@@ -123,6 +131,7 @@ uniform float dhFarPlane;
 #include "/lib/tbn.glsl"
 #include "/lib/ign.glsl"
 #include "/lib/sampling/lightmap.glsl"
+#include "/lib/sampling/linear.glsl"
 #include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
@@ -132,11 +141,14 @@ uniform float dhFarPlane;
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
     #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
+
+    #ifdef MATERIAL_PBR_ENABLED
+        #include "/lib/material/lazanyi.glsl"
+    #endif
 #endif
 
 #ifdef MATERIAL_PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
-    #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
 
@@ -284,17 +296,40 @@ void main() {
         #endif
     #endif
 
+    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+        if (vIn.blockId == BLOCK_WATER) {
+            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
+
+            vec2 water_uv = fract(worldPos / WaterNormalScale);
+            localTexNormal = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xzy * 2.0 - 1.0;
+
+            water_uv = fract(water_uv * 8.0);
+            localTexNormal += 0.25 * (texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xzy * 2.0 - 1.0);
+
+//            vec2 water_uv = worldPos / WaterNormalScale;
+//            localTexNormal = TextureLinearRGB(TEX_WATER_NORMAL, water_uv, vec2(WaterNormalResolution));
+
+            localTexNormal.y *= 6.0;
+            localTexNormal = normalize(localTexNormal);
+        }
+    #endif
+
     vec3 albedo = RGBToLinear(color.rgb);
 
     #ifdef DEBUG_WHITEWORLD
         albedo = vec3(0.86);
     #endif
 
-    #if (defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)) && defined(RENDER_TERRAIN)
+    #ifdef RENDER_TERRAIN
         if (vIn.blockId == BLOCK_WATER) {
-            // TODO: add option to make clear?
-//            albedo = vec3(0.0);
-            specularData = vec4(0.98, 0.02, 0.0, 0.0);
+            #ifndef WATER_TEXTURE_ENABLED
+                albedo = RGBToLinear(vIn.color.rgb);
+                color.a = 0.04;
+            #endif
+
+            #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+                specularData = vec4(0.98, 0.02, 0.0, 0.0);
+            #endif
         }
     #endif
 
@@ -377,7 +412,7 @@ void main() {
         vec3 blockLight = lmcoord.x * blockLightColor;
 
         #ifdef LIGHTING_COLORED
-            vec3 samplePos = GetFloodFillSamplePos(voxelPos, localTexNormal);
+            vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
             vec3 lpvSample = SampleFloodFill(samplePos) * 3.0;
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
@@ -479,19 +514,46 @@ void main() {
     #endif
 
     #ifdef LIGHTING_REFLECT_ENABLED
+        float NoV = dot(localTexNormal, -localViewDir);
+
         #ifdef MATERIAL_PBR_ENABLED
             float smoothness = 1.0 - mat_roughness(specularData.r);
             float metalness = mat_metalness(specularData.g);
-            float f0 = mat_f0(specularData.g);
+            LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
+            vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
 
             color.rgb *= 1.0 - metalness * sqrt(smoothness);
         #else
             float smoothness = 1.0 - mat_roughness_lab(specularData.r);
             float f0 = mat_f0_lab(specularData.g);
+            float F = F_schlick(NoV, f0, 1.0);
         #endif
 
-        float NoV = dot(localTexNormal, -localViewDir);
-        color.rgb *= 1.0 - F_schlick(NoV, f0, 1.0) * _pow2(smoothness);
+        color.rgb *= 1.0 - F * _pow2(smoothness);
+
+//        color.rgb *= 1.0 - ;
+
+        #if !defined(SSR_ENABLED) && !defined(PHOTONICS_REFLECT_ENABLED)
+            // TODO: sky only reflect
+//            vec3 reflectViewDir = normalize(reflect(viewDir, texViewNormal));
+            vec3 reflectLocalDir = normalize(reflect(localViewDir, localTexNormal));
+
+//            vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
+            vec3 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
+//            reflectColor *= _pow3(lmcoord.y);
+            reflectColor *= lmcoord.y;
+
+            #ifdef MATERIAL_PBR_ENABLED
+//                float metalness = mat_metalness(specularData.g);
+            #else
+                float metalness = mat_metalness_lab(specularData.g);
+            #endif
+
+            // apply metal tint
+            reflectColor *= mix(vec3(1.0), albedo, metalness);
+
+            color.rgb += F * _pow2(smoothness) * reflectColor;
+        #endif
     #endif
 
     #ifdef MATERIAL_PBR_ENABLED
@@ -503,6 +565,7 @@ void main() {
 
 //    color.rgb = localTexNormal * 0.5 + 0.5;
 //    color.rgb = vec3(lmcoord, 0);
+//    color.a = 1.0;
 
 
     float borderFogF = GetBorderFogStrength(viewDist);
@@ -531,8 +594,23 @@ void main() {
 
     outFinal = color;
 
+    #if defined(VELOCITY_ENABLED)
+        #if defined(RENDER_TERRAIN)
+            outVelocity = vIn.velocity;
+        #else
+            outVelocity = vec3(0.0);
+        #endif
+    #endif
+
     #ifdef RENDER_TRANSLUCENT
-        outTint = LinearToRGB(albedo * color.a);
+        vec3 tint = vec3(1.0);
+
+        #ifdef RENDER_TERRAIN
+            if (vIn.blockId >= BLOCK_STAINED_GLASS_BLACK && vIn.blockId <= BLOCK_TINTED_GLASS)
+                tint = LinearToRGB(albedo * color.a);
+        #endif
+
+        outTint = tint;
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

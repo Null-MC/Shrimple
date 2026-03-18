@@ -58,6 +58,10 @@ void main() {
 
     outFinal = final;
 
+    #ifdef TAA_ENABLED
+        outVelocity = vec3(0.0);
+    #endif
+
     #ifdef RENDER_TRANSLUCENT
         outTint = vec3(1.0);
     #endif

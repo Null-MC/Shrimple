@@ -11,6 +11,7 @@ shared vec3 sharedBuffer[18*18];
 layout(rgba16f) uniform writeonly image2D imgTAA;
 
 uniform sampler2D TEX_FINAL;
+uniform sampler2D TEX_VELOCITY;
 uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
@@ -54,19 +55,16 @@ void main() {
     if (all(lessThan(uv, viewSize))) {
         vec2 texcoord = (uv + 0.5) / viewSize;
         float depthNow = texture(depthtex0, texcoord).r;
+        vec3 velocity = texture(TEX_VELOCITY, texcoord).xyz;
+
         vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-
         vec3 viewPos = project(gbufferProjectionInverse, clipPos);
-
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
-        const vec3 velocity = vec3(0.0); // TODO
-        vec3 localPosPrev = localPos - velocity + (cameraPosition - previousCameraPosition);
+        vec3 localPosPrev = localPos + (cameraPosition - previousCameraPosition) - velocity;
 
         vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
-
         vec3 clipPosPrev = project(gbufferPreviousProjection, viewPosPrev);
-
         vec2 uv_prev = clipPosPrev.xy * 0.5 + 0.5;
 
 

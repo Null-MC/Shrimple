@@ -17,6 +17,7 @@ uniform usampler2D TEX_ALBEDO_SPECULAR;
     uniform sampler2D texLightmap;
 #endif
 
+uniform float near;
 uniform float far;
 uniform vec2 viewSize;
 uniform vec3 fogColor;

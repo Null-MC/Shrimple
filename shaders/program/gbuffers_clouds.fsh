@@ -12,6 +12,10 @@ in VertexData {
     uniform sampler2D dhDepthTex0;
 #endif
 
+#ifdef VOXY
+    uniform sampler2D vxDepthTexOpaque;
+#endif
+
 uniform float near;
 uniform float far;
 uniform float farPlane;
@@ -44,23 +48,22 @@ uniform float dhFarPlane;
 
 void main() {
     #ifdef DISTANT_HORIZONS
-//        float depthDh = texelFetch(dhDepthTex0, ivec2(gl_FragCoord.xy), 0).r;
-//        float depthDhL = linearizeDepth(depthDh * 2.0 - 1.0, dhNearPlane, dhFarPlane);
-//
-//        vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
-//
-//        if (-viewPos.z >= depthDhL) {
-//            discard;
-//            return;
-//        }
-
-
         float depthDh = texelFetch(dhDepthTex0, ivec2(gl_FragCoord.xy), 0).r;
+
         if (depthDh > 0.0 && depthDh < 1.0) {
             float depthDhL = linearizeDepth(depthDh * 2.0 - 1.0, dhNearPlane, dhFarPlane);
-            float depthL = linearizeDepth(gl_FragCoord.z * 2.0 - 1.0, near, farPlane);
+            vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
 
-            if (depthL >= depthDhL) {discard; return;}
+            if (-viewPos.z >= depthDhL) {discard; return;}
+        }
+    #elif defined(VOXY)
+        float depthVoxy = texelFetch(vxDepthTexOpaque, ivec2(gl_FragCoord.xy), 0).r;
+
+        if (depthVoxy > 0.0 && depthVoxy < 1.0) {
+            float depthVoxyL = linearizeDepth(depthVoxy * 2.0 - 1.0, vxNearPlane, vxFarPlane);
+            vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
+
+            if (-viewPos.z >= depthVoxyL) {discard; return;}
         }
     #endif
 
@@ -80,6 +83,11 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
+
+    #ifdef TAA_ENABLED
+        // TODO: can this be hard-coded?
+        outVelocity = vec3(0.0);
+    #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;

@@ -23,6 +23,10 @@ in vec4 at_midBlock;
     uniform usampler2D texBlockWaving;
 #endif
 
+#ifdef WATER_WAVE_ENABLED
+    uniform sampler2D texWaterHeight;
+#endif
+
 uniform int renderStage;
 uniform int entityId;
 uniform int blockEntityId;
@@ -113,15 +117,34 @@ void main() {
 
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
 
-        #ifdef WIND_ENABLED
-            if (isRenderTerrain) {
+        if (isRenderTerrain) {
+            #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
                 vec3 localPos = mul3(shadowModelViewInverse, viewPos);
-                vec3 originPos = localPos + at_midBlock.xyz / 64.0;
+            #endif
 
-                localPos += GetWindWavingOffset(originPos, blockId);
+            #ifdef WATER_WAVE_ENABLED
+                if (blockId == BLOCK_WATER) {
+                    vec2 waterWorldPos = (localPos.xz + cameraPosition.xz) / WaterNormalScale;
+                    // add 1px offset to avoid flickering at seams
+                    vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
+                    float waveHeight = texture(texWaterHeight, water_uv).r;
+
+                    float viewDist = length(viewPos);
+                    float fadeDist = smoothstep(0.0, 2.0, viewDist);
+                    localPos.y += (waveHeight*0.5 - 0.4) * fadeDist;
+                }
+            #endif
+
+            #ifdef WIND_ENABLED
+                vec3 originPos = localPos + at_midBlock.xyz / 64.0;
+                vec3 wind = GetWindForce(originPos, windTime);
+                localPos += GetWindWavingOffset(wind, blockId);
+            #endif
+
+            #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
                 viewPos = mul3(shadowModelView, localPos);
-            }
-        #endif
+            #endif
+        }
 
         vec3 viewPosOffset = viewPos;
 

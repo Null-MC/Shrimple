@@ -134,6 +134,10 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         outTint = LinearToRGB(albedo * color.a);
     #endif
 
+    #if defined(VELOCITY_ENABLED)
+        outVelocity = vec3(0.0);
+    #endif
+
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
 
