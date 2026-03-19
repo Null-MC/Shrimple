@@ -94,7 +94,7 @@ uniform int vxRenderDistance;
 #include "/lib/shadows.glsl"
 #include "/lib/phy-ocean.glsl"
 
-//#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+//#if defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)
 //    #include "/lib/fresnel.glsl"
 //    #include "/lib/pbr.glsl"
 //#endif
@@ -176,7 +176,7 @@ void main() {
         color.a = 0.04;
     #endif
 
-//    #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+//    #if defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)
         vec4 specularData = vec4(0.98, 0.02, 0.0, 0.0);
 //    #endif
 
@@ -184,7 +184,7 @@ void main() {
         albedo = vec3(0.86);
     #endif
 
-    #if (defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)) && defined(RENDER_TERRAIN)
+    #if (defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)) && defined(RENDER_TERRAIN)
         // TODO: add option to make clear?
         //            albedo = vec3(0.0);
         specularData = vec4(0.98, 0.02, 0.0, 0.0);
@@ -365,10 +365,7 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
-
-        outNormal = uvec2(
-            packUnorm2x16(OctEncode(localGeoNormal)),
-            packUnorm2x16(OctEncode(viewTexNormal)));
+        outNormal = vec4(OctEncode(localGeoNormal), OctEncode(viewTexNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

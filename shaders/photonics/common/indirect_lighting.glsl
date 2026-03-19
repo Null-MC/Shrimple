@@ -124,6 +124,10 @@ vec3 ph_sample_indirect_impl() {
                         Light light = load_light(light_registry_array[k]);
 
                         vec3 lightOffset = light.position - hitTracePos;
+
+                        // TODO: can't use this because it includes specular now
+//                        vec3 shit = modify_attenuation(light, lightOffset, hitTracePos, hitTracePos, hitLocalNormal, hitLocalNormal) * sample_scale;
+
                         float distSq = dot(lightOffset, lightOffset);
                         float invDist = inversesqrt(distSq);
                         vec3 lightDir = lightOffset * invDist;

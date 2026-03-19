@@ -5,8 +5,8 @@ const vec4 colortex1ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex2Format = RGB8;
 const vec4 colortex2ClearColor = vec4(1.0,1.0,1.0,0.0);
 const int colortex3Format = RG32UI;
-const int colortex4Format = RG32UI;
-const int colortex5Format = R16F;
+const int colortex4Format = RGBA16;
+const int colortex5Format = R16;
 const int colortex6Format = RGB16F;
 const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
 
@@ -34,6 +34,8 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define WATER_TEXTURE_ENABLED
 
 #define MATERIAL_FORMAT 0 // [0 1 2]
+//#define REFLECT_ENABLED
+//#define REFRACT_ENABLED
 
 #define MATERIAL_PARALLAX_ENABLED
 #define MATERIAL_PARALLAX_TYPE 1 // [0 1 2]
@@ -48,8 +50,8 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define LIGHTING_MODE 0 // [0 1]
 #define LIGHTING_MIN 0.060 // [0.000 0.002 0.004 0.006 0.008 0.010 0.012 0.014 0.016 0.018 0.020 0.025 0.030 0.035 0.040 0.045 0.050 0.060 0.070 0.080 0.090 0.100 0.150 0.200 0.250 0.300 0.350 0.400 0.450 0.500 0.550 0.600 0.650 0.700 0.800 0.900 1.000 1.200 1.400 1.600 1.800 2.000 2.200 2.400 2.600 2.800 3.000]
 #define LIGHTING_HAND
+//#define LIGHTING_SPECULAR
 //#define LIGHTING_COLORED
-//#define LIGHTING_REFLECT_ENABLED
 #define LIGHTING_COLORED_CANDLES
 #define LIGHTING_VOXEL_SIZE 128 // [64 128 256]
 #define LPV_FRUSTUM_OFFSET 0
@@ -185,8 +187,10 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     #undef MATERIAL_PARALLAX_ENABLED
 #endif
 
-#ifndef LIGHTING_REFLECT_ENABLED
-    #undef SSR_ENABLED
+#if defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED)
+    // TODO: replace former with latter
+    #define REFLECT_ENABLED
+    #define DEFERRED_REFLECT_ENABLED
 #endif
 
 #if !defined(VOXY) && !defined(DISTANT_HORIZONS)

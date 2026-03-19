@@ -36,7 +36,7 @@ out VertexData {
         flat uint atlasTileSize;
     #endif
 
-//    #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+//    #if defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)
     #ifdef RENDER_TERRAIN
         flat int blockId;
     #endif

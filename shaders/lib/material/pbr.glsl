@@ -53,8 +53,9 @@ float mat_roughness(const in float specular_r) {
 }
 
 float mat_f0_lab(const in float specular_g) {
-    // TODO: add HCM
-    return clamp(specular_g, 0.0, 0.9);
+    float f0 = clamp(specular_g, 0.0, 0.9);
+    if (f0 < EPSILON) f0 = 0.04;
+    return f0;
 }
 
 float mat_f0_old(const in float specular_g) {

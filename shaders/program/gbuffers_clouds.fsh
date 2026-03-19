@@ -91,10 +91,7 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
-
-        outNormal = uvec2(
-            packUnorm2x16(OctEncode(localNormal)),
-            packUnorm2x16(OctEncode(viewNormal)));
+        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

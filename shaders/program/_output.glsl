@@ -8,7 +8,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef DEFERRED_ENABLED
             /* RENDERTARGETS: 1,2,6,4,3 */
-            layout(location = 3) out uvec2 outNormal;
+            layout(location = 3) out vec4 outNormal;
             layout(location = 4) out uvec2 outAlbedoSpecular;
         #else
             /* RENDERTARGETS: 1,2,6 */
@@ -16,7 +16,7 @@ layout(location = 0) out vec4 outFinal;
     #else
         #ifdef DEFERRED_ENABLED
             /* RENDERTARGETS: 1,2,4,3 */
-            layout(location = 2) out uvec2 outNormal;
+            layout(location = 2) out vec4 outNormal;
             layout(location = 3) out uvec2 outAlbedoSpecular;
         #else
             /* RENDERTARGETS: 1,2 */
@@ -28,7 +28,7 @@ layout(location = 0) out vec4 outFinal;
 
         #ifdef DEFERRED_ENABLED
             /* RENDERTARGETS: 0,6,4,3 */
-            layout(location = 2) out uvec2 outNormal;
+            layout(location = 2) out vec4 outNormal;
             layout(location = 3) out uvec2 outAlbedoSpecular;
         #else
             /* RENDERTARGETS: 0,6 */
@@ -36,7 +36,7 @@ layout(location = 0) out vec4 outFinal;
     #else
         #ifdef DEFERRED_ENABLED
             /* RENDERTARGETS: 0,4,3 */
-            layout(location = 1) out uvec2 outNormal;
+            layout(location = 1) out vec4 outNormal;
             layout(location = 2) out uvec2 outAlbedoSpecular;
         #else
             /* RENDERTARGETS: 0 */

@@ -74,7 +74,7 @@ uniform float dhFarPlane;
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/shadows.glsl"
 
-#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+#if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
     #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
 #endif
@@ -244,7 +244,7 @@ void main() {
         color.rgb = albedo * lit;
     #endif
 
-    #ifdef LIGHTING_REFLECT_ENABLED
+    #ifdef DEFERRED_REFLECT_ENABLED
         float smoothness = 1.0 - mat_roughness_lab(specularData.r);
         float f0 = mat_f0_lab(specularData.g);
 
@@ -276,10 +276,7 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
-
-        outNormal = uvec2(
-            packUnorm2x16(OctEncode(hitLocalNormal)),
-            packUnorm2x16(OctEncode(viewNormal)));
+        outNormal = vec4(OctEncode(hitLocalNormal), OctEncode(viewNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

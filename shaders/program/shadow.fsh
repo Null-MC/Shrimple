@@ -31,8 +31,8 @@ void main() {
         #ifdef SHADOW_COLORED
             outColor *= color;
 
-            if (blockId == BLOCK_WATER)
-                outColor.a = 1.0;
+//            if (blockId == BLOCK_WATER)
+//                outColor.a = outColor.a*0.2 + 0.8;
         #endif
     #endif
 

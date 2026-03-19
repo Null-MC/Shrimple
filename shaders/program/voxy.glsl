@@ -61,7 +61,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
-    #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+    #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
         if (parameters.customId == BLOCK_WATER) {
             // TODO: add option to make clear?
             // albedo = vec3(0.0);
@@ -140,10 +140,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
-
-        outNormal = uvec2(
-            packUnorm2x16(OctEncode(localNormal)),
-            packUnorm2x16(OctEncode(viewNormal)));
+        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

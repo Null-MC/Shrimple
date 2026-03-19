@@ -41,7 +41,7 @@ vec3 f82_from_f0(const in vec3 f0) {
     return (2371179624770769.0 * f0 + 2041666790000000.0) / 4412846414770769.0;
 }
 
-LazanyiF mat_f0_lazanyi(const in vec3 albedo, const in float specular_g) {
+LazanyiF mat_f0_lazanyi(const in vec3 albedo, float specular_g) {
     #if MATERIAL_FORMAT != MAT_DEFAULT
         float metalness = mat_metalness(specular_g);
 
@@ -52,7 +52,8 @@ LazanyiF mat_f0_lazanyi(const in vec3 albedo, const in float specular_g) {
                 return lazanyi_hcm[hcm_i];
         #endif
 
-        vec3 f0  = mix(vec3(specular_g), sqrt(albedo), metalness);
+//        if (specular_g < EPSILON) specular_g = 0.04;
+        vec3 f0  = mix(vec3(mat_f0(specular_g)), sqrt(albedo), metalness);
         vec3 f82 = f82_from_f0(f0);
         return LazanyiF(f0, f82);
     #else

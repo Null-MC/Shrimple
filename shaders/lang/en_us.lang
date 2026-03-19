@@ -112,15 +112,21 @@ option.LIGHTING_MODE=Mode
 value.LIGHTING_MODE.0=Vanilla
 value.LIGHTING_MODE.1=Enhanced
 
+option.LIGHTING_COLORED=Colored
+
 option.LIGHTING_HAND=Hand Light
 option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players hand will also cast light onto the world.
 
-option.LIGHTING_COLORED=Colored
-
-option.LIGHTING_REFLECT_ENABLED=Reflections
-
 option.LIGHTING_VOXEL_SIZE=Voxel Size
 suffix.LIGHTING_VOXEL_SIZE=m
+
+option.LIGHTING_SPECULAR=Specular
+option.LIGHTING_SPECULAR.comment=Allows light to reflect from smooth or metal blocks.
+
+option.SHADOW_AMBIENT=Ambient
+suffix.SHADOW_AMBIENT=%
+
+option.REFRACT_ENABLED=Refraction
 
 option.LIGHTING_MIN=Minimum
 suffix.LIGHTING_MIN=%
@@ -138,9 +144,6 @@ option.shadowDistance=Distance
 suffix.shadowDistance=m
 
 option.SHADOW_PCF_SAMPLES=Sample Count
-
-option.SHADOW_AMBIENT=Ambient
-suffix.SHADOW_AMBIENT=%
 
 option.SHADOW_CLOUDS=Cloud Shadows
 

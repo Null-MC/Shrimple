@@ -44,7 +44,7 @@
 #define DEBUG_VIEW_BLOOM 3
 
 const int WaterNormalResolution = 512;
-const float WaterNormalScale = 16.0;
+const float WaterNormalScale = 32.0;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float GoldenAngle = PI * (3.0 - sqrt(5.0));

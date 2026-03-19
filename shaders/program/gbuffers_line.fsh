@@ -67,7 +67,7 @@ void main() {
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED
-        outNormal = uvec2(0u);
+        outNormal = vec4(0.0);
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

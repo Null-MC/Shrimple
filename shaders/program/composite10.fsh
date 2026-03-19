@@ -12,7 +12,7 @@ in vec2 texcoord;
 
 uniform sampler2D depthtex0;
 uniform sampler2D TEX_FINAL;
-uniform usampler2D TEX_NORMAL;
+uniform sampler2D TEX_NORMAL;
 uniform usampler2D TEX_ALBEDO_SPECULAR;
 
 #ifdef PHOTONICS_REFLECT_ENABLED
@@ -191,8 +191,8 @@ void main() {
         float smoothness = 1.0 - roughness;
 
         if (smoothness > (1.5/255.0)) {
-            uint reflectNormalData = texelFetch(TEX_NORMAL, uv, 0).g;
-            vec3 texViewNormal = OctDecode(unpackUnorm2x16(reflectNormalData));
+            vec2 normalData = texelFetch(TEX_NORMAL, uv, 0).zw;
+            vec3 texViewNormal = OctDecode(normalData);
 
             float lmcoord_y = albedoData.w;
 
@@ -374,7 +374,7 @@ void main() {
 
                 if (hit) {
                     // float roughL = _pow2(roughness);
-                    float mip = roughness * 4.0;
+                    float mip = roughness * 6.0;
 
                     reflectColor = textureLod(TEX_FINAL, traceScreenPos, mip).rgb;
                 }

@@ -126,10 +126,6 @@ void main() {
                 vec3 localPos = mul3(shadowModelViewInverse, viewPos);
             #endif
 
-            if (blockId == BLOCK_WATER) {
-                color.a = 1.0;
-            }
-
             #ifdef WATER_WAVE_ENABLED
                 if (blockId == BLOCK_WATER) {
                     vec2 waterWorldPos = (localPos.xz + cameraPosition.xz) / WaterNormalScale;

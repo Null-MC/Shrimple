@@ -77,7 +77,7 @@ uniform float dhFarPlane;
 #include "/lib/dh-noise.glsl"
 #include "/lib/shadows.glsl"
 
-#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+#if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
     #include "/lib/octohedral.glsl"
     #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
@@ -141,7 +141,7 @@ void main() {
         albedo = vec3(0.86);
     #endif
 
-    #if (defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)) //&& defined(RENDER_TRANSLUCENT)
+    #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
         if (vIn.materialId == DH_BLOCK_WATER) {
             // TODO: add option to make clear?
             // albedo = vec3(0.0);
@@ -219,7 +219,7 @@ void main() {
         color.rgb = albedo * lit;
     #endif
 
-    #ifdef LIGHTING_REFLECT_ENABLED
+    #ifdef REFLECT_ENABLED
         float NoV = dot(localNormal, -localViewDir);
         color.rgb *= 1.0 - F_schlick(NoV, f0, 1.0) * _pow2(smoothness);
     #endif
@@ -254,10 +254,7 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localNormal;
-
-        outNormal = uvec2(
-            packUnorm2x16(OctEncode(localNormal)),
-            packUnorm2x16(OctEncode(viewNormal)));
+        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED
