@@ -10,6 +10,7 @@ in vec4 at_midBlock;
 
     #ifdef SHADOW_COLORED
         out vec4 color;
+        flat out int blockId;
     #endif
 #endif
 
@@ -61,7 +62,10 @@ void main() {
         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    int blockId = int(mc_Entity.x + EPSILON);
+    #if !defined(SHADOWS_ENABLED) || !defined(SHADOW_COLORED)
+        int blockId;
+    #endif
+    blockId = int(mc_Entity.x + EPSILON);
     if (mc_Entity.x < 0.0) blockId = BLOCK_SOLID;
 
     #ifdef LIGHTING_COLORED
@@ -121,6 +125,10 @@ void main() {
             #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
                 vec3 localPos = mul3(shadowModelViewInverse, viewPos);
             #endif
+
+            if (blockId == BLOCK_WATER) {
+                color.a = 1.0;
+            }
 
             #ifdef WATER_WAVE_ENABLED
                 if (blockId == BLOCK_WATER) {

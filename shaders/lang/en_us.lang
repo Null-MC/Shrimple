@@ -59,15 +59,24 @@ suffix.NETHER_BRIGHTNESS=%
 screen.WORLD_END=End
 
 
+screen.WATER=Water
+
+option.WATER_WAVE_ENABLED=Waves
+
+option.WATER_TEXTURE_ENABLED=Texture
+
+
 screen.MATERIAL=Materials/PBR
 
 option.MATERIAL_FORMAT=Format
+option.MATERIAL_FORMAT.comment=The PBR format of the resource pack being used.
 value.MATERIAL_FORMAT.0=Default
 value.MATERIAL_FORMAT.1=Old PBR
 value.MATERIAL_FORMAT.2=Lab PBR
 
 
 screen.MATERIAL_PARALLAX=Parallax
+screen.MATERIAL_PARALLAX.comment=Allows per-pixel displacement of texture data. Requires a resource pack with PBR /POM support.
 
 option.MATERIAL_PARALLAX_ENABLED=Enabled
 
@@ -77,12 +86,18 @@ value.MATERIAL_PARALLAX_TYPE.1=Sharp
 value.MATERIAL_PARALLAX_TYPE.2=Smooth
 
 option.MATERIAL_PARALLAX_DEPTH=Depth
+option.MATERIAL_PARALLAX_DEPTH.comment=The amount of displacement into a block.
 suffix.MATERIAL_PARALLAX_DEPTH=%
 
 option.MATERIAL_PARALLAX_SAMPLES=Sample Count
+option.MATERIAL_PARALLAX_SAMPLES.comment=The number of samples to take when calculating displacement. Higher values will increase quality but lower performance.
+
+option.MATERIAL_PARALLAX_ENTITIES=Entities
+option.MATERIAL_PARALLAX_ENTITIES.comment=Allows parallax displacement to be applied to entities. May cause issues with mods that don't provide proper geometry data.
 
 
 screen.MATERIAL_EMISSION=Emission
+screen.MATERIAL_EMISSION.comment=The visible brightness of PBR textures.
 
 option.MATERIAL_EMISSION_SCALE=Scale
 suffix.MATERIAL_EMISSION_SCALE=x
@@ -98,6 +113,7 @@ value.LIGHTING_MODE.0=Vanilla
 value.LIGHTING_MODE.1=Enhanced
 
 option.LIGHTING_HAND=Hand Light
+option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players hand will also cast light onto the world.
 
 option.LIGHTING_COLORED=Colored
 
@@ -130,6 +146,12 @@ option.SHADOW_CLOUDS=Cloud Shadows
 
 
 screen.EFFECTS=Effects
+
+
+screen.EFFECT_SSR=SSR
+screen.EFFECT_SSR.comment=Screen-Space Reflections
+
+option.SSR_ENABLED=Enabled
 
 
 screen.EFFECT_BLOOM=Bloom

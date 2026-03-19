@@ -9,6 +9,8 @@ const int colortex4Format = RG32UI;
 const int colortex5Format = R16F;
 const int colortex6Format = RGB16F;
 const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
+
+const int shadowcolor0Format = RGBA8;
 */
 
 
@@ -38,6 +40,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define MATERIAL_PARALLAX_SAMPLES 32 // [8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96]
 #define MATERIAL_PARALLAX_DEPTH 25 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 #define MATERIAL_PARALLAX_MAX_DIST 48.0
+//#define MATERIAL_PARALLAX_ENTITIES
 
 #define MATERIAL_EMISSION_SCALE 40 // [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99]
 #define MATERIAL_EMISSION_POWER 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
@@ -151,6 +154,9 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     #define PHOTONICS_LIGHT_ENABLED
 #endif
 
+#ifdef MATERIAL_PARALLAX_ENTITIES
+#endif
+
 #ifdef PHOTONICS_RESTIR_ENABLED
 #endif
 
@@ -173,6 +179,10 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 #endif
 
 #ifdef SSAO_ENABLED
+#endif
+
+#if defined(RENDER_ENTITY) && defined(MATERIAL_PARALLAX_ENABLED) && !defined(MATERIAL_PARALLAX_ENTITIES)
+    #undef MATERIAL_PARALLAX_ENABLED
 #endif
 
 #ifndef LIGHTING_REFLECT_ENABLED

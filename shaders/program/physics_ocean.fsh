@@ -30,6 +30,10 @@ uniform sampler2D gtexture;
 #ifdef LIGHTING_COLORED
     uniform sampler3D texFloodFillA;
     uniform sampler3D texFloodFillB;
+
+    #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+        uniform sampler2D texBlockLight;
+    #endif
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
@@ -76,6 +80,8 @@ uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
 uniform int isEyeInWater;
 uniform int frameCounter;
+uniform int heldItemId;
+uniform int heldItemId2;
 
 uniform int vxRenderDistance;
 
@@ -109,7 +115,11 @@ uniform int vxRenderDistance;
     #include "/lib/floodfill-render.glsl"
 #endif
 
-#ifdef LIGHTING_HAND
+#if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+    #ifdef LIGHTING_COLORED
+        #include "/lib/sampling/block-light.glsl"
+    #endif
+
     #include "/lib/hand-light.glsl"
 #endif
 
@@ -141,25 +151,34 @@ void main() {
     vec4 color = textureLod(gtexture, texcoord, mip);
     color.rgb *= vIn.color.rgb;
 
-    #ifdef MATERIAL_PBR_ENABLED
-//        vec4 normalData = textureLod(normals, texcoord, mip);
-//        vec3 tex_normal = mat_normal(normalData.xyz);
-//        float tex_occlusion = mat_occlusion(normalData.w);
-
-//        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
-//        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
-//        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
-
-        vec4 specularData = textureLod(specular, texcoord, mip);
-//        float sss = mat_sss(specularData.b);
-    #else
-        vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
-//        vec3 localTexNormal = localGeoNormal;
-//        const float tex_occlusion = 1.0;
-//        const float sss = 0.0;
-    #endif
+//    #ifdef MATERIAL_PBR_ENABLED
+////        vec4 normalData = textureLod(normals, texcoord, mip);
+////        vec3 tex_normal = mat_normal(normalData.xyz);
+////        float tex_occlusion = mat_occlusion(normalData.w);
+//
+////        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
+////        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
+////        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+//
+//        vec4 specularData = textureLod(specular, texcoord, mip);
+////        float sss = mat_sss(specularData.b);
+//    #else
+//        vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
+////        vec3 localTexNormal = localGeoNormal;
+////        const float tex_occlusion = 1.0;
+////        const float sss = 0.0;
+//    #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
+
+    #ifndef WATER_TEXTURE_ENABLED
+        albedo = RGBToLinear(vIn.color.rgb);
+        color.a = 0.04;
+    #endif
+
+//    #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_REFLECT_ENABLED)
+        vec4 specularData = vec4(0.98, 0.02, 0.0, 0.0);
+//    #endif
 
     #ifdef DEBUG_WHITEWORLD
         albedo = vec3(0.86);
@@ -302,6 +321,30 @@ void main() {
         color.rgb = albedo * lit;
     #endif
 
+    #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+        float handLight1 = max(heldBlockLightValue  - handDist, 0.0) / 15.0;
+        float handLight2 = max(heldBlockLightValue2 - handDist, 0.0) / 15.0;
+
+        vec3 handLightColor1 = vec3(1.0);
+        if (heldItemId >= 0) {
+            float lightRange;
+            GetBlockColorRange(heldItemId, handLightColor1, lightRange);
+        }
+
+        vec3 handLightColor2 = vec3(1.0);
+        if (heldItemId2 >= 0) {
+            float lightRange;
+            GetBlockColorRange(heldItemId2, handLightColor2, lightRange);
+        }
+
+        vec3 lightDir = normalize(vIn.localPos - handLightPos);
+        float NoLm = max(dot(localTexNormal, -lightDir), 0.0);
+
+        if (heldBlockLightValue > 0 || heldBlockLightValue2 > 0) {
+            color.rgb += albedo * NoLm * (_pow2(handLight1) * handLightColor1 + _pow2(handLight2) * handLightColor2);
+        }
+    #endif
+
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);
     float fogF = max(borderFogF, envFogF);
@@ -313,7 +356,7 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
-    outTint = LinearToRGB(albedo * color.a);
+    outTint = vec3(1.0);
 
     #ifdef TAA_ENABLED
         // TODO: we could actually set this but useless for translucent rn

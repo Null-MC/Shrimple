@@ -7,6 +7,7 @@
 
     #ifdef SHADOW_COLORED
         in vec4 color;
+        flat in int blockId;
     #endif
 #endif
 
@@ -14,6 +15,8 @@
 uniform sampler2D gtexture;
 
 uniform float alphaTestRef;
+
+#include "/lib/blocks.glsl"
 
 
 /* RENDERTARGETS: 0 */
@@ -27,6 +30,9 @@ void main() {
 
         #ifdef SHADOW_COLORED
             outColor *= color;
+
+            if (blockId == BLOCK_WATER)
+                outColor.a = 1.0;
         #endif
     #endif
 

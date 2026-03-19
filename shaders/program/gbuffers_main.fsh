@@ -73,10 +73,10 @@ uniform sampler2D gtexture;
 #ifdef LIGHTING_COLORED
     uniform sampler3D texFloodFillA;
     uniform sampler3D texFloodFillB;
-#endif
 
-#if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
-    uniform sampler2D texBlockLight;
+    #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
+        uniform sampler2D texBlockLight;
+    #endif
 #endif
 
 #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
@@ -266,11 +266,35 @@ void main() {
                 tex_normal = GetParallaxSlopeNormal(bounds, texcoord, traceCoordDepth.z);
             }
         #endif
+    #else
+        vec3 tex_normal = vec3(0.0, 0.0, 1.0);
+    #endif
 
-        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
-        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
-        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+        if (vIn.blockId == BLOCK_WATER) {
+            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
 
+            vec2 water_uv = fract(worldPos / WaterNormalScale);
+            tex_normal = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xyz * 2.0 - 1.0;
+
+            water_uv = fract(water_uv * 8.0);
+            tex_normal += 0.25 * (texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xyz * 2.0 - 1.0);
+
+            //            vec2 water_uv = worldPos / WaterNormalScale;
+            //            tex_normal = TextureLinearRGB(TEX_WATER_NORMAL, water_uv, vec2(WaterNormalResolution));
+
+            tex_normal.z *= 6.0;
+            tex_normal = normalize(tex_normal);
+
+//            if (isEyeInWater != 1 && localGeoNormal.y < -0.999) {discard; return;}
+        }
+    #endif
+
+    vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
+    mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
+    vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+
+    #ifdef MATERIAL_PBR_ENABLED
         vec4 specularData = textureLod(specular, texcoord, mip);
         float sss = mat_sss(specularData.b);
 
@@ -281,7 +305,7 @@ void main() {
 //        }
     #else
         vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
-        vec3 localTexNormal = localGeoNormal;
+//        vec3 localTexNormal = localGeoNormal;
         const float tex_occlusion = 1.0;
         const float sss = 0.0;
 
@@ -294,24 +318,6 @@ void main() {
 
             if (isGrass) localTexNormal = vec3(0,1,0);
         #endif
-    #endif
-
-    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
-        if (vIn.blockId == BLOCK_WATER) {
-            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
-
-            vec2 water_uv = fract(worldPos / WaterNormalScale);
-            localTexNormal = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xzy * 2.0 - 1.0;
-
-            water_uv = fract(water_uv * 8.0);
-            localTexNormal += 0.25 * (texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution), 0).xzy * 2.0 - 1.0);
-
-//            vec2 water_uv = worldPos / WaterNormalScale;
-//            localTexNormal = TextureLinearRGB(TEX_WATER_NORMAL, water_uv, vec2(WaterNormalResolution));
-
-            localTexNormal.y *= 6.0;
-            localTexNormal = normalize(localTexNormal);
-        }
     #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
@@ -523,10 +529,13 @@ void main() {
             vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
 
             color.rgb *= 1.0 - metalness * sqrt(smoothness);
+            color.a = max(color.a, maxOf(F));
         #else
             float smoothness = 1.0 - mat_roughness_lab(specularData.r);
             float f0 = mat_f0_lab(specularData.g);
             float F = F_schlick(NoV, f0, 1.0);
+
+            color.a = max(color.a, F);
         #endif
 
         color.rgb *= 1.0 - F * _pow2(smoothness);

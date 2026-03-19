@@ -55,7 +55,11 @@ void main() {
     if (all(lessThan(uv, viewSize))) {
         vec2 texcoord = (uv + 0.5) / viewSize;
         float depthNow = texture(depthtex0, texcoord).r;
-        vec3 velocity = texture(TEX_VELOCITY, texcoord).xyz;
+        #if defined(TAA_ENABLED) && defined(WIND_ENABLED)
+            vec3 velocity = texture(TEX_VELOCITY, texcoord).xyz;
+        #else
+            const vec3 velocity = vec3(0.0);
+        #endif
 
         vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
         vec3 viewPos = project(gbufferProjectionInverse, clipPos);
