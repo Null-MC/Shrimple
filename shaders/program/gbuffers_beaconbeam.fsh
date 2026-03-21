@@ -68,7 +68,7 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        outTint = vec3(1.0);
+        outTint = vec4(1.0, 1.0, 1.0, 0.0);
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

@@ -19,7 +19,7 @@ in VertexData {
         flat float chunkFade;
     #endif
 
-    #ifdef MATERIAL_PBR_ENABLED
+    #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
         flat uint localTangent;
         flat float localTangentW;
     #endif
@@ -278,12 +278,18 @@ void main() {
         if (vIn.blockId == BLOCK_WATER) {
             vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
 
-            vec2 water_uv = fract(worldPos / WaterNormalScale) * WaterNormalResolution;
-            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv), 0).xyz * 2.0 - 1.0;
+//            const float waterPixel = 1.0 / float(WaterNormalResolution);
+
+            vec2 water_uv = worldPos / WaterNormalScale;
+            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+//            vec3 waterNormal1 = texture(TEX_WATER_NORMAL, mod(water_uv, 1.0 - waterPixel) + 0.5*waterPixel).xyz * 2.0 - 1.0;
+//            vec3 waterNormal1 = texture(TEX_WATER_NORMAL, abs(mod(water_uv, 2.0) - 1.0)).xyz * 2.0 - 1.0;
             waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
 
-            water_uv = fract(worldPos / WaterNormalScale * 5.0) * WaterNormalResolution;
-            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv), 0).xyz * 2.0 - 1.0;
+            water_uv *= 5.0;
+            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+//            vec3 waterNormal2 = texture(TEX_WATER_NORMAL, mod(water_uv, 1.0 - waterPixel) + 0.5*waterPixel).xyz * 2.0 - 1.0;
+//            vec3 waterNormal2 = texture(TEX_WATER_NORMAL, abs(mod(water_uv, 2.0) - 1.0)).xyz * 2.0 - 1.0;
             waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
 
             tex_normal = normalize(waterNormal1 + waterNormal2);
@@ -328,10 +334,6 @@ void main() {
 
     vec3 albedo = RGBToLinear(color.rgb);
 
-    #ifdef DEBUG_WHITEWORLD
-        albedo = vec3(0.86);
-    #endif
-
     #ifdef RENDER_TERRAIN
         if (vIn.blockId == BLOCK_WATER) {
             #ifndef WATER_TEXTURE_ENABLED
@@ -347,7 +349,17 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    vec3 shadow = vec3(1.0);
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        vec3 shadow = vec3(1.0);
+    #else
+        float shadowF = 1.0;
+    #endif
+
+    float cloudShadowF = 1.0;
+    #ifdef SHADOW_CLOUDS
+        cloudShadowF = SampleCloudShadow(vIn.localPos, localSkyLightDir);
+    #endif
+
     #ifdef SHADOWS_ENABLED
         vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
@@ -372,24 +384,22 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-//        float distortF = saturate(shadowLength / (shadowLength + Shadow_DistortF));
-//        shadowPos.z -= 0.008 * pow4(distortF);
+        // TODO: this needs to move somewhere else and apply to diffuse only
+//        float shadow_geoNoL = dot(localGeoNormal, localSkyLightDir);
+//        #ifdef MATERIAL_PBR_ENABLED
+//            shadow_geoNoL = mix(shadow_geoNoL, 1.0, sss);
+//            shadow_geoNoL = pow(saturate(shadow_geoNoL), 0.2);
+//        #endif
 
-        float shadow_NoL = dot(localTexNormal, localSkyLightDir);
-
-        shadow = SampleShadows(shadowPos);
-
-        #ifdef MATERIAL_PBR_ENABLED
-            shadow_NoL = mix(shadow_NoL, 1.0, sss);
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            shadow = SampleShadowColor(shadowPos);
+            shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
+            shadow *= cloudShadowF; // * shadow_geoNoL
+        #else
+            shadowF = SampleShadow(shadowPos);
+            shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
+            shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif
-
-        shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
-
-        shadow *= pow(saturate(shadow_NoL), 0.2);
-    #endif
-
-    #ifdef SHADOW_CLOUDS
-        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
     #endif
 
     vec2 lmcoord = vIn.lmcoord;
@@ -435,6 +445,9 @@ void main() {
         float roughL = _pow2(roughness);
     #endif
 
+    vec3 diffuseFinal = vec3(0.0);
+    vec3 specularFinal = vec3(0.0);
+
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         shadow *= smoothstep((2.5/16.0), (13.5/16.0), lmcoord.y);
 
@@ -449,20 +462,19 @@ void main() {
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 
-        vec3 diffuse = blockLight + MinAmbientF;
-        vec3 specular = vec3(0.0);
+        diffuseFinal = blockLight + MinAmbientF;
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = shadow * GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
 
             #ifdef MATERIAL_PBR_ENABLED
-//                skyLight_NoLm = mix(skyLight_NoLm, 1.0, 0.7*sss);
                 skyLight_NoLm = (skyLight_NoLm + sss) / (1.0 + sss);
             #endif
 
             skyLight_NoLm = max(skyLight_NoLm, 0.0);
-            vec3 skyLight = skyLight_NoLm * shadow * skyLightColor;
+            vec3 skyLight = skyLight_NoLm * skyLightColor;
 
             #ifndef SHADOWS_ENABLED
                 skyLight *= lmcoord.y;
@@ -472,13 +484,16 @@ void main() {
                 skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
             #endif
 
-            diffuse += skyLight;
+            diffuseFinal += skyLight;
 
             #ifdef LIGHTING_SPECULAR
-                if (skyLight_NoLm > 0.0) {
-                    vec3 H = normalize(sunLocalDir - localViewDir);
+                if (skyLight_NoLm > 0.0 && dot(localGeoNormal, localSkyLightDir) > 0.0) {
+                    vec3 skySpecularLightDir = GetAreaLightDir(localTexNormal, localViewDir, localSkyLightDir, 100.0, 8.0);
+                    skySpecularLightDir = normalize(skySpecularLightDir + 0.1*localSkyLightDir);
+
+                    vec3 H = normalize(skySpecularLightDir - localViewDir);
                     float sky_NoH = max(dot(localTexNormal, H), 0.0);
-                    float sky_LoH = max(dot(sunLocalDir, H), 0.0);
+                    float sky_LoH = max(dot(skySpecularLightDir, H), 0.0);
                     float sky_NoV = max(dot(localTexNormal, -localViewDir), 0.0);
 
                     #ifdef MATERIAL_PBR_ENABLED
@@ -489,48 +504,46 @@ void main() {
                         float sky_F = F_schlick(sky_LoH, f0, 1.0);
                     #endif
 
-                    float alpha = max(_pow2(roughL), 0.0002);
-                    specular += skyLight_NoLm * D_GGX(sky_NoH, alpha) * V_Approx(skyLight_NoLm, sky_NoV, alpha) * sky_F * shadow * skyLightColor;
+//                    float alpha = max(_pow2(roughL), 0.0006);
+                    float alpha = max(roughL, 0.02);
+                    specularFinal += skyLight_NoLm * D_GGX(sky_NoH, alpha) * V_Approx(skyLight_NoLm, sky_NoV, alpha) * sky_F * skyLightColor;
                 }
 
                 // apply metal tint
-                specular *= mix(vec3(1.0), albedo, metalness);
+                specularFinal *= mix(vec3(1.0), albedo, metalness);
             #endif
         #endif
 
-        color.rgb = albedo/PI * diffuse + specular;
+//        color.rgb = albedo/PI * diffuseFinal * color.a + specular;
     #else
         #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
             #ifdef SHADOWS_ENABLED
-                lmcoord.y = maxOf(shadow);
+                lmcoord.y = shadowF;
             #else
                 lmcoord.y = _pow3(lmcoord.y);
             #endif
         #endif
 
-        lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
+        lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;
         #endif
 
         lmcoord = LightMapTex(lmcoord);
-        vec3 lit = texture(lightmap, lmcoord).rgb;
+        diffuseFinal = texture(lightmap, lmcoord).rgb;
         float oldLighting = GetOldLighting(localTexNormal);
         #ifdef MATERIAL_PBR_ENABLED
-        oldLighting = mix(oldLighting, 1.0, sss);
+            oldLighting = mix(oldLighting, 1.0, sss);
         #endif
-        lit *= oldLighting;
-        lit = RGBToLinear(lit);
+        diffuseFinal *= oldLighting;
+        diffuseFinal = RGBToLinear(diffuseFinal);
 
         #ifdef LIGHTING_COLORED
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localTexNormal);
             vec3 lpvSample = SampleFloodFill(samplePos, pow(vIn.lmcoord.x, 2.2));
-            lit += lpvFade * lpvSample;
+            diffuseFinal += lpvFade * lpvSample;
         #endif
-
-
-        color.rgb = albedo * lit;
     #endif
 
     #ifdef RENDER_TERRAIN
@@ -542,11 +555,11 @@ void main() {
 
 //        albedo *= occlusion;// * 0.5 + 0.5;
 
-        color.rgb *= occlusion;
+        diffuseFinal *= occlusion;
     #endif
 
     // TODO: move to ambient lighting?
-    color.rgb *= tex_occlusion;
+    diffuseFinal *= tex_occlusion;
 
     #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
         float handLight1 = max(heldBlockLightValue  - handDist, 0.0) / 15.0;
@@ -564,11 +577,11 @@ void main() {
             GetBlockColorRange(heldItemId2, handLightColor2, lightRange);
         }
 
-        vec3 lightDir = normalize(vIn.localPos - handLightPos);
-        float NoLm = max(dot(localTexNormal, -lightDir), 0.0);
+        vec3 handLightDir = normalize(vIn.localPos - handLightPos);
+        float hand_NoLm = max(dot(localTexNormal, -handLightDir), 0.0);
 
         if (heldBlockLightValue > 0 || heldBlockLightValue2 > 0) {
-            color.rgb += albedo * NoLm * (_pow2(handLight1) * handLightColor1 + _pow2(handLight2) * handLightColor2);
+            diffuseFinal += hand_NoLm * (_pow2(handLight1) * handLightColor1 + _pow2(handLight2) * handLightColor2);
         }
     #endif
 
@@ -580,7 +593,7 @@ void main() {
             LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
             vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
 
-            color.rgb *= 1.0 - metalness * sqrt(smoothness);
+            diffuseFinal *= 1.0 - metalness * sqrt(smoothness);
             color.a = max(color.a, maxOf(F));
         #else
             float f0 = mat_f0_lab(specularData.g);
@@ -589,7 +602,7 @@ void main() {
             color.a = max(color.a, F);
         #endif
 
-        color.rgb *= 1.0 - F * _pow2(smoothness);
+        diffuseFinal *= 1.0 - F * _pow2(smoothness);
 
         #if !(defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED))
             // TODO: reflect in view space to avoid view-bob
@@ -604,16 +617,25 @@ void main() {
             // apply metal tint
             reflectColor *= mix(vec3(1.0), albedo, metalness);
 
-            color.rgb += F * _pow2(smoothness) * reflectColor;
+            specularFinal += F * _pow2(smoothness) * reflectColor;
         #endif
     #endif
 
     #ifdef MATERIAL_PBR_ENABLED
         float emission = mat_emission(specularData);
         TransformEmission(emission);
-        color.rgb += albedo * emission;
+        diffuseFinal += emission;
     #endif
 
+    #ifdef DEBUG_WHITEWORLD
+        albedo = vec3(0.86);
+    #endif
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
+    #else
+        color.rgb = albedo * diffuseFinal + specularFinal;
+    #endif
 
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);
@@ -633,11 +655,14 @@ void main() {
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        if (isEyeInWater == 1) {
-            color.rgb *= GetWaterAbsorption(viewDist);
-        }
-    #endif
+//    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+//        if (isEyeInWater == 1) {
+//            color.rgb *= GetWaterAbsorption(viewDist);
+//        }
+//    #endif
+
+//    color.rgb = localTexNormal * 0.5 + 0.5;
+//    color.a = 1.0;
 
     outFinal = color;
 
@@ -650,14 +675,22 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        vec3 tint = vec3(1.0);
+        vec3 tint = LinearToRGB(albedo) * color.a;
+        uint matID = 0;
 
         #ifdef RENDER_TERRAIN
+            if (vIn.blockId == BLOCK_WATER) {
+                matID = MAT_WATER;
+                tint = vIn.color.rgb;
+            }
+
             if (vIn.blockId >= BLOCK_STAINED_GLASS_BLACK && vIn.blockId <= BLOCK_TINTED_GLASS)
-                tint = LinearToRGB(albedo * color.a);
+                matID = MAT_STAINED_GLASS;
         #endif
 
-        outTint = tint;
+        outTint = vec4(
+            tint,
+            (matID + 0.5) / 255.0);
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

@@ -42,10 +42,10 @@ vec3 f82_from_f0(const in vec3 f0) {
 }
 
 LazanyiF mat_f0_lazanyi(const in vec3 albedo, float specular_g) {
-    #if MATERIAL_FORMAT != MAT_DEFAULT
+    #if MATERIAL_FORMAT != FORMAT_DEFAULT
         float metalness = mat_metalness(specular_g);
 
-        #if MATERIAL_FORMAT == MAT_LABPBR
+        #if MATERIAL_FORMAT == FORMAT_LABPBR
             int hcm_i = int(specular_g * 255.0 - 229.5);
 
             if (hcm_i >= 0 && hcm_i < 8)

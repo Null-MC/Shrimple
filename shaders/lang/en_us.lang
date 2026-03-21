@@ -10,6 +10,7 @@ value.DEBUG_VIEW.0=None
 value.DEBUG_VIEW.1=SSAO
 value.DEBUG_VIEW.2=Sky LUTs
 value.DEBUG_VIEW.3=Bloom Tiles
+value.DEBUG_VIEW.4=Water Waves
 
 option.DEBUG_WHITEWORLD=White-World
 option.DEBUG_WHITEWORLD.comment=Makes all textures white, for inspecting lighting alone.

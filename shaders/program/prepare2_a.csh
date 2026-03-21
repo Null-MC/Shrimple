@@ -4,7 +4,7 @@
 const ivec2 textureSize = ivec2(WaterNormalResolution);
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-const ivec3 workGroups = ivec3(32, 32, 1);
+const ivec3 workGroups = ivec3(16, 16, 1);
 
 layout(r16f) uniform writeonly image2D imgWaterHeight;
 
@@ -35,11 +35,13 @@ void main() {
 
         height += gerstner_wave(texcoord, freq, amp, speed, dir, steepness);
 
-        freq *= 0.996;
+        freq *= 0.994;
         amp *= 0.75;
         speed *= 1.1;
         steepness *= 1.2;
     }
+
+//    height = sin(texcoord.x*9.0+texcoord.y*15.0) * 0.5 + 0.5;
 
     height = saturate(height);
     imageStore(imgWaterHeight, uv, vec4(height));

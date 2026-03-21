@@ -25,7 +25,7 @@ out VertexData {
         flat float chunkFade;
     #endif
 
-    #ifdef MATERIAL_PBR_ENABLED
+    #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
         flat uint localTangent;
         flat float localTangentW;
     #endif
@@ -169,7 +169,7 @@ void main() {
         vOut.lmcoord.x = max(vOut.lmcoord.x, handLight);
     #endif
 
-    #ifdef MATERIAL_PBR_ENABLED
+    #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
         vec3 viewTangent = normalize(gl_NormalMatrix * at_tangent.xyz);
         vec3 localTangent = mat3(gbufferModelViewInverse) * viewTangent;
         vOut.localTangent = packUnorm2x16(OctEncode(localTangent));

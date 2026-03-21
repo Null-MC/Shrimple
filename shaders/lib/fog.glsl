@@ -31,6 +31,17 @@ float GetSkyHorizonF(const in float localSunDirY) {
 }
 
 #if OVERWORLD_SKY == SKY_ENHANCED
+    vec3 GetEnhancedSkyUpColor(const in vec3 localSunDir, const in float rainStrength, const in float skyDayF) {
+        vec3 skyColorLab = mix(LinearToLab(colorSkyNight), LinearToLab(colorSkyDay), skyDayF);
+
+        float horizonF = GetSkyHorizonF(localSunDir.y);
+        skyColorLab = mix(skyColorLab, LinearToLab(colorSkyHorizon), horizonF);
+
+        skyColorLab = mix(skyColorLab, LinearToLab(colorRainSky), rainStrength);
+
+        return LabToLinear(skyColorLab) * mix(0.04, 1.0, skyDayF);
+    }
+
     vec3 GetEnhancedSkyFogColor(const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength, const in float skyDayF) {
 //        float dayF = smoothstep(-0.1, 0.3, localSunDir.y);
         vec3 skyColorLab = mix(LinearToLab(colorSkyNight), LinearToLab(colorSkyDay), skyDayF);
@@ -67,19 +78,27 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
     #endif
 }
 
+vec3 GetWaterFogColor(const in vec3 fogColorL, const in vec3 localSunDir, const in float rainStrength, const in float skyDayF) {
+    #if OVERWORLD_SKY == SKY_ENHANCED
+        // TODO: sample irradiance up instead?
+        vec3 skyUpColor = GetEnhancedSkyUpColor(localSunDir, rainStrength, skyDayF);
+
+        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+        skyUpColor *= _pow2(eyeBrightF) * 0.92 + 0.08;
+
+        const vec3 waterFogColorL = pow(vec3(0.067, 0.416, 0.471), vec3(2.2));
+        return waterFogColorL * skyUpColor;// * skyColorL;
+    #else
+        return fogColorL;
+    #endif
+}
+
 vec3 GetSkyFogWaterColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength, const in float skyDayF) {
-    vec3 color;
     if (isEyeInWater == 1) {
-        #if OVERWORLD_SKY == SKY_ENHANCED
-            const vec3 waterFogColorL = pow(vec3(0.067, 0.416, 0.471), vec3(2.2));
-            color = waterFogColorL * skyColorL;
-        #else
-            color = fogColorL;
-        #endif
+        return GetWaterFogColor(fogColorL, localSunDir, rainStrength, skyDayF);
     }
-    else {
-        color = GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainStrength, skyDayF);
-    }
+
+    vec3 color = GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainStrength, skyDayF);
 
     #if OVERWORLD_SKY == SKY_ENHANCED
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
@@ -108,11 +127,15 @@ float GetBorderFogStrength(const in float viewDist) {
     #undef _far
 }
 
-float GetEnvFogStrength(const in float viewDist) {
+float GetEnvFogStrength(const in float viewDist, bool inWater) {
     #if defined(WORLD_OVERWORLD) && OVERWORLD_SKY == SKY_ENHANCED
-        float density = isEyeInWater == 1 ? 0.02 : weatherDensity;
+        float density = inWater ? 0.02 : weatherDensity;
         return saturate(1.0 - exp(-density * viewDist));
     #else
         return smoothstep(fogStart, fogEnd, viewDist);
     #endif
+}
+
+float GetEnvFogStrength(const in float viewDist) {
+    return GetEnvFogStrength(viewDist, isEyeInWater == 1);
 }

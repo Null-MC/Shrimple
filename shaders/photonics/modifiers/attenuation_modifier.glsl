@@ -67,8 +67,8 @@ vec3 modify_attenuation(
             float F = F_schlick(LoH, f0, 1.0);
         #endif
 
-        float alpha = max(_pow2(roughL), 0.0002);
-        lit += D_GGX(NoH, alpha) * V_Approx(NoLm, NoV, alpha) * (1.0 - roughness) * F;
+        float alpha = max(roughL, 0.006);
+        lit += D_GGX(NoH, alpha) * V_Approx(NoLm, NoV, alpha) * F; // * (1.0 - roughness)
     #endif
 
     return NoLm * att * lit * light.color;

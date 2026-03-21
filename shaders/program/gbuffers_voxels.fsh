@@ -158,7 +158,7 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        shadow = SampleShadows(shadowPos);
+        shadow = SampleShadowColor(shadowPos);
 
         float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
         shadow *= pow(saturate(shadow_NoL), 0.2);
@@ -271,7 +271,9 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        outTint = LinearToRGB(albedo * color.a);
+        outTint = vec4(
+            LinearToRGB(albedo * color.a),
+            0.0);
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

@@ -26,8 +26,34 @@ vec2 GetShadowSampleOffset(const in mat2 rotation, const in int i) {
     return (rotation * pcfDiskOffset) * ShadowPixelRadius;
 }
 
+float SampleShadows(const in vec3 shadowPos) {
+    #if SHADOW_PCF_SAMPLES > 1
+        mat2 rotation = GetRandomShadowRotation();
+    #endif
+
+    float shadow = 0.0;
+
+    for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
+        vec3 shadowSamplePos = shadowPos;
+        #if SHADOW_PCF_SAMPLES > 1
+            shadowSamplePos.xy += GetShadowSampleOffset(rotation, i);
+        #endif
+
+        #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
+            float shadow_sample = texture(TEX_SHADOW, shadowSamplePos).r;
+        #else
+            float shadowDepth = texture(TEX_SHADOW, shadowSamplePos.xy).r;
+            float shadow_sample = step(shadowSamplePos.z, shadowDepth).r;
+        #endif
+
+        shadow += shadow_sample;
+    }
+
+    return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
+}
+
 #ifdef SHADOW_COLORED
-    vec3 SampleShadows(const in vec3 shadowPos) {
+    vec3 SampleShadowColor(const in vec3 shadowPos) {
         #if SHADOW_PCF_SAMPLES > 1
             mat2 rotation = GetRandomShadowRotation();
         #endif
@@ -58,29 +84,7 @@ vec2 GetShadowSampleOffset(const in mat2 rotation, const in int i) {
         return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
     }
 #else
-    vec3 SampleShadows(const in vec3 shadowPos) {
-        #if SHADOW_PCF_SAMPLES > 1
-            mat2 rotation = GetRandomShadowRotation();
-        #endif
-
-        float shadow = 0.0;
-
-        for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-            vec3 shadowSamplePos = shadowPos;
-            #if SHADOW_PCF_SAMPLES > 1
-                shadowSamplePos.xy += GetShadowSampleOffset(rotation, i);
-            #endif
-
-            #ifdef IRIS_FEATURE_SEPARATE_HARDWARE_SAMPLERS
-                float shadow_sample = texture(TEX_SHADOW, shadowSamplePos).r;
-            #else
-                float shadowDepth = texture(TEX_SHADOW, shadowSamplePos.xy).r;
-                float shadow_sample = step(shadowSamplePos.z, shadowDepth).r;
-            #endif
-
-            shadow += shadow_sample;
-        }
-
-        return vec3(max(shadow / float(SHADOW_PCF_SAMPLES), 0.0));
+    vec3 SampleShadowColor(const in vec3 shadowPos) {
+        return vec3(SampleShadows(shadowPos));
     }
 #endif

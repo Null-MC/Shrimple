@@ -245,7 +245,10 @@ void main() {
     outFinal = color;
 
     #ifdef RENDER_TRANSLUCENT
-        outTint = LinearToRGB(albedo * color.a);
+        outTint = vec4(1.0, 1.0, 1.0, 0.0);
+
+        // TODO: ?
+        // outTint = LinearToRGB(albedo * color.a);
     #endif
 
     #if defined(VELOCITY_ENABLED)

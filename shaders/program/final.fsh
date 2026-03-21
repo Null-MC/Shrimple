@@ -12,9 +12,10 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D texSkyTransmit;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
     uniform sampler2D TEX_BLOOM_TILES;
+#elif DEBUG_VIEW == DEBUG_VIEW_WATER
+    uniform sampler2D texWaterHeight;
+    uniform sampler2D TEX_WATER_NORMAL;
 #endif
-
-//uniform sampler2D TEX_WATER_NORMAL;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -90,12 +91,18 @@ void main() {
 
             color = LinearToRGB(color);
         }
+    #elif DEBUG_VIEW == DEBUG_VIEW_WATER
+        vec2 tex = (gl_FragCoord.xy - 8) / (256.0);
+        if (saturate(tex) == tex) {
+            color = texture(texWaterHeight, tex).rgb;
+        }
+
+        vec2 tex2 = (gl_FragCoord.xy - vec2(272, 8)) / (256.0);
+        if (saturate(tex2) == tex2) {
+            color = texture(TEX_WATER_NORMAL, tex2).rgb;
+        }
     #endif
 
-//    vec2 tex = (gl_FragCoord.xy - 8) / (256.0);
-//    if (saturate(tex) == tex) {
-//        color = texture(colortex7, tex).rgb;
-//    }
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;
 

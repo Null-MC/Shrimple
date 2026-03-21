@@ -4,7 +4,7 @@
 const ivec2 textureSize = ivec2(WaterNormalResolution);
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-const ivec3 workGroups = ivec3(32, 32, 1);
+const ivec3 workGroups = ivec3(16, 16, 1);
 
 layout(rgba8) uniform writeonly image2D IMG_WATER_NORMAL;
 
@@ -22,7 +22,8 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     if (i_shared >= (18*18)) return;
 
     ivec2 uv = uv_base + ivec2(i_shared % 18, i_shared / 18);
-    sharedHeight[i_shared] = texelFetch(texWaterHeight, uv % textureSize, 0).r;
+    sharedHeight[i_shared] = texelFetch(texWaterHeight, clamp(uv, ivec2(0), textureSize-1), 0).r;
+//    sharedHeight[i_shared] = texelFetch(texWaterHeight, (uv + textureSize) % textureSize, 0).r;
 }
 
 vec3 ComputeNormal() {

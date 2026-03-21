@@ -356,7 +356,10 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
-    outTint = vec3(1.0);
+
+    outTint = vec4(
+        LinearToRGB(albedo),
+        (MAT_WATER + 0.5) / 255.0);
 
     #ifdef TAA_ENABLED
         // TODO: we could actually set this but useless for translucent rn

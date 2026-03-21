@@ -6,6 +6,10 @@
 #define BLOCK_SOLID 1
 #define BLOCK_PHYMOD_SNOW 829925
 
+#define MAT_NONE 0
+#define MAT_WATER 1
+#define MAT_STAINED_GLASS 2
+
 #define BLOCK_OUTLINE_NONE 0
 #define BLOCK_OUTLINE_SOLID 1
 #define BLOCK_OUTLINE_CONSTRUCTION 2
@@ -13,9 +17,9 @@
 #define SKY_VANILLA 0
 #define SKY_ENHANCED 1
 
-#define MAT_DEFAULT 0
-#define MAT_LABPBR 2
-#define MAT_OLDPBR 1
+#define FORMAT_DEFAULT 0
+#define FORMAT_LABPBR 2
+#define FORMAT_OLDPBR 1
 
 #define PARALLAX_DEFAULT 0
 #define PARALLAX_SHARP 1
@@ -42,8 +46,9 @@
 #define DEBUG_VIEW_SSAO 1
 #define DEBUG_VIEW_IRRADIANCE 2
 #define DEBUG_VIEW_BLOOM 3
+#define DEBUG_VIEW_WATER 4
 
-const int WaterNormalResolution = 512;
+const int WaterNormalResolution = 256;
 const float WaterNormalScale = 32.0;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);

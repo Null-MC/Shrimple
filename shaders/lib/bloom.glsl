@@ -1,6 +1,6 @@
 const float tilePadding = 2.0;
 
-const float EffectBloomStrengthF = 0.5 * BLOOM_STRENGTH * 0.01;
+const float EffectBloomStrengthF = BLOOM_STRENGTH * 0.01;
 
 
 float GetBloomTileScale(const in int tile) {

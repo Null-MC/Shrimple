@@ -141,7 +141,17 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
-    vec3 shadow = vec3(1.0);
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        vec3 shadow = vec3(1.0);
+    #else
+        float shadowF = 1.0;
+    #endif
+
+    float cloudShadowF = 1.0;
+    #ifdef SHADOW_CLOUDS
+        cloudShadowF = SampleCloudShadow(vIn.localPos, localSkyLightDir);
+    #endif
+
     #ifdef SHADOWS_ENABLED
         vec3 shadowPos = mul3(shadowModelView, vIn.localPos);
         shadowPos.z += 0.016 * viewDist;
@@ -150,11 +160,13 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        shadow = SampleShadows(shadowPos);
-    #endif
-
-    #ifdef SHADOW_CLOUDS
-        shadow *= SampleCloudShadow(vIn.localPos, localSkyLightDir);
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            shadow = SampleShadowColor(shadowPos);
+            shadow *= cloudShadowF;
+        #else
+            shadowF = SampleShadows(shadowPos);
+            shadowF *= cloudShadowF;
+        #endif
     #endif
 
     #ifdef LIGHTING_COLORED
@@ -196,7 +208,7 @@ void main() {
             color.rgb *= _pow2(vIn.color.a);
         #endif
     #else
-        lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
+        lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
 
         #ifdef LIGHTING_COLORED
             lmcoord.x *= 1.0 - lpvFade;
@@ -254,7 +266,7 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        outTint = vec3(1.0);
+        outTint = vec4(1.0, 1.0, 1.0, 0.0);
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

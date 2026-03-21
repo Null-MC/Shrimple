@@ -1,7 +1,7 @@
 layout(location = 0) out vec4 outFinal;
 
 #ifdef RENDER_TRANSLUCENT
-    layout(location = 1) out vec3 outTint;
+    layout(location = 1) out vec4 outTint;
 
     #ifdef TAA_ENABLED
         layout(location = 2) out vec3 outVelocity;

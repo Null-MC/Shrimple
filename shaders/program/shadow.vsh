@@ -133,7 +133,7 @@ void main() {
                     vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
                     float waveHeight = texture(texWaterHeight, water_uv).r;
 
-                    float viewDist = length(viewPos);
+                    float viewDist = length(localPos);
                     float fadeDist = smoothstep(0.0, 2.0, viewDist);
                     localPos.y += (waveHeight*0.5 - 0.4) * fadeDist;
                 }
