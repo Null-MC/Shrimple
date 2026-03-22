@@ -82,8 +82,8 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
             float _far = dhFarPlane;
 //        }
     #elif defined(VOXY)
-        float _near = 16.0;
-        float _far = 48000.0;
+        float _near = vxNearPlane;
+        float _far = vxFarPlane;
     #endif
 
     sharedDepthL[i_shared] = linearizeDepth(depth * 2.0 - 1.0, _near, _far);

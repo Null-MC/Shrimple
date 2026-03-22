@@ -57,6 +57,7 @@ out VertexData {
     #endif
 #endif
 
+uniform float far;
 uniform float windTime;
 uniform float windTimeLast;
 uniform int heldBlockLightValue;
@@ -125,8 +126,11 @@ void main() {
                 float waveHeight = texture(texWaterHeight, water_uv).r;
 
                 float viewDist = length(viewPos);
-                float fadeDist = smoothstep(0.0, 2.0, viewDist);
-                vOut.localPos.y += (waveHeight*0.5 - 0.4) * fadeDist;
+                float waveFadeF = smoothstep(0.0, 2.0, viewDist);
+                #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                    waveFadeF *= smoothstep(dh_clipDistF * far, 0.8 * dh_clipDistF * far, viewDist);
+                #endif
+                vOut.localPos.y += (waveHeight*0.5 - 0.4) * waveFadeF;
             }
         #endif
 

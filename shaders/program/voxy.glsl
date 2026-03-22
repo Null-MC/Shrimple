@@ -9,6 +9,15 @@
 #include "/lib/fog.glsl"
 #include "/lib/shadows.glsl"
 
+#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
+    #include "/lib/fresnel.glsl"
+    #include "/lib/material/pbr.glsl"
+
+    #ifdef MATERIAL_PBR_ENABLED
+        #include "/lib/material/lazanyi.glsl"
+    #endif
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     #ifdef WORLD_OVERWORLD
         #include "/lib/sky-transmit.glsl"
@@ -18,6 +27,10 @@
     #include "/lib/enhanced-lighting.glsl"
 #else
     #include "/lib/vanilla-light.glsl"
+#endif
+
+#ifdef LIGHTING_SPECULAR
+    #include "/lib/brdf.glsl"
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -54,65 +67,180 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     vec3 albedo = RGBToLinear(color.rgb);
-
-    #ifdef DEBUG_WHITEWORLD
-        albedo = vec3(0.86);
-    #endif
-
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
-    #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
-        if (parameters.customId == BLOCK_WATER) {
-            // TODO: add option to make clear?
-            // albedo = vec3(0.0);
+    vec3 localTexNormal = localNormal;
+    if (parameters.customId == BLOCK_WATER) {
+        #ifndef WATER_TEXTURE_ENABLED
+            albedo = RGBToLinear(parameters.tinting.rgb);
+            color.a = 0.04;
+        #endif
+
+        #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
             specularData = vec4(0.98, 0.02, 0.0, 0.0);
-        }
-    #endif
+        #endif
+
+        #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+            vec2 worldPos = localPos.xz + cameraPosition.xz;
+
+            vec2 water_uv = worldPos / WaterNormalScale;
+            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
+
+            water_uv *= 5.0;
+            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
+
+            localTexNormal = normalize(waterNormal1 + waterNormal2).xzy;
+        #endif
+    }
 
     float viewDist = length(localPos);
     vec2 lmcoord_in = LightMapNorm(parameters.lightMap);
 
     vec3 localSkyLightDir = normalize(mat3(vxModelViewInv) * shadowLightPosition);
+    vec3 localViewDir = normalize(localPos);
 
-    float shadow = pow4(lmcoord_in.y);
+    float shadowF = 1.0;//pow4(lmcoord_in.y);
     #ifdef SHADOW_CLOUDS
-        shadow *= SampleCloudShadow(localPos, localSkyLightDir);
+        shadowF *= SampleCloudShadow(localPos, localSkyLightDir);
     #endif
 
+    #ifdef LIGHTING_SPECULAR
+//        #ifdef MATERIAL_PBR_ENABLED
+//            float roughness = mat_roughness(specularData.r);
+//            float metalness = mat_metalness(specularData.g);
+//        #else
+            float roughness = mat_roughness_lab(specularData.r);
+            float metalness = mat_metalness_lab(specularData.g);
+//        #endif
+
+        float roughL = _pow2(roughness);
+    #endif
+
+    vec3 diffuseFinal = vec3(0.0);
+    vec3 specularFinal = vec3(0.0);
+
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        shadowF *= smoothstep((2.5/16.0), (13.5/16.0), lmcoord_in.y);
+
         vec2 lmcoord = _pow3(lmcoord_in);
 
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-        vec3 skyLight = vec3(0.0);
+        diffuseFinal = blockLight + MinAmbientF;
+
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
-            float skyLight_NoLm = max(dot(localSkyLightDir, localNormal), 0.0);
-            skyLight = skyLight_NoLm * shadow * skyLightColor;
+            vec3 skyLightColor = shadowF * GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
+
+            float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
+//            #ifdef MATERIAL_PBR_ENABLED
+//                skyLight_NoLm = (skyLight_NoLm + sss) / (1.0 + sss);
+//            #endif
+
+            skyLight_NoLm = max(skyLight_NoLm, 0.0);
+            vec3 skyLight = skyLight_NoLm * skyLightColor;
 
             #ifndef SHADOWS_ENABLED
                 skyLight *= lmcoord.y;
             #endif
 
-            #ifndef PHOTONICS_GI_ENABLED
-                skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localNormal);
+            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+
+            diffuseFinal += skyLight;
+
+            #ifdef LIGHTING_SPECULAR
+                if (skyLight_NoLm > 0.0) {
+                    vec3 skySpecularLightDir = GetAreaLightDir(localTexNormal, localViewDir, localSkyLightDir, 100.0, 8.0);
+                    skySpecularLightDir = normalize(skySpecularLightDir + 0.1*localSkyLightDir);
+
+                    vec3 H = normalize(skySpecularLightDir - localViewDir);
+                    float sky_NoH = max(dot(localTexNormal, H), 0.0);
+                    float sky_LoH = max(dot(skySpecularLightDir, H), 0.0);
+                    float sky_NoV = max(dot(localTexNormal, -localViewDir), 0.0);
+
+//                    #ifdef MATERIAL_PBR_ENABLED
+//                        LazanyiF sky_L = mat_f0_lazanyi(albedo, specularData.g);
+//                        vec3 sky_F = F_lazanyi(sky_LoH, sky_L.f0, sky_L.f82);
+//                    #else
+                        float f0 = mat_f0_lab(specularData.g);
+                        float sky_F = F_schlick(sky_LoH, f0, 1.0);
+//                    #endif
+
+                    float alpha = max(roughL, 0.02);
+                    specularFinal += skyLight_NoLm * D_GGX(sky_NoH, alpha) * V_Approx(skyLight_NoLm, sky_NoV, alpha) * sky_F * skyLightColor;
+                }
+
+                // apply metal tint
+                specularFinal *= mix(vec3(1.0), albedo, metalness);
             #endif
         #endif
-
-        color.rgb = albedo.rgb/PI * (blockLight + skyLight + MinAmbientF);
     #else
         vec2 lmcoord = lmcoord_in;
 
-        lmcoord.y = min(lmcoord.y, shadow * (1.0 - AmbientLightF) + AmbientLightF);
-
-        lmcoord.y *= GetOldLighting(localNormal);
+        lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
 
         lmcoord = LightMapTex(lmcoord);
-        vec3 lit = texture(lightmap, lmcoord).rgb;
-        lit = RGBToLinear(lit);
+        diffuseFinal = texture(lightmap, lmcoord).rgb;
+        float oldLighting = GetOldLighting(localTexNormal);
+//        #ifdef MATERIAL_PBR_ENABLED
+//            oldLighting = mix(oldLighting, 1.0, sss);
+//        #endif
+        diffuseFinal *= oldLighting;
+        diffuseFinal = RGBToLinear(diffuseFinal);
+    #endif
 
-        color.rgb = albedo.rgb * lit;
+    #ifdef LIGHTING_SPECULAR
+        float NoV = dot(localTexNormal, -localViewDir);
+
+        float smoothness = 1.0 - roughness;
+//        #ifdef MATERIAL_PBR_ENABLED
+//            LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
+//            vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
+//
+//            diffuseFinal *= 1.0 - metalness * sqrt(smoothness);
+//            color.a = max(color.a, maxOf(F));
+//        #else
+            float f0 = mat_f0_lab(specularData.g);
+            float F = F_schlick(NoV, f0, 1.0);
+
+            color.a = max(color.a, F);
+//        #endif
+
+        diffuseFinal *= 1.0 - F * _pow2(smoothness);
+
+        #if !(defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED))
+            // TODO: reflect in view space to avoid view-bob
+            //            vec3 reflectViewDir = normalize(reflect(viewDir, texViewNormal));
+            vec3 reflectLocalDir = normalize(reflect(localViewDir, localTexNormal));
+
+            //            vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
+            vec3 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
+            //            reflectColor *= _pow3(lmcoord.y);
+            reflectColor *= lmcoord.y;
+
+            // apply metal tint
+            reflectColor *= mix(vec3(1.0), albedo, metalness);
+
+            specularFinal += F * _pow2(smoothness) * reflectColor;
+        #endif
+    #endif
+
+    #ifdef MATERIAL_PBR_ENABLED
+        float emission = mat_emission(specularData);
+        TransformEmission(emission);
+        diffuseFinal += emission;
+    #endif
+
+    #ifdef DEBUG_WHITEWORLD
+        albedo = vec3(0.86);
+    #endif
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
+    #else
+        color.rgb = albedo * diffuseFinal + specularFinal;
     #endif
 
     #if !defined(SSAO_ENABLED) || defined(RENDER_TRANSLUCENT)
@@ -122,7 +250,6 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
         vec3 fogColorL = RGBToLinear(fogColor);
         vec3 skyColorL = RGBToLinear(skyColor);
-        vec3 localViewDir = normalize(localPos);
         vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
         color.rgb = mix(color.rgb, fogColorFinal, fogF);
@@ -131,9 +258,18 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     outFinal = color;
 
     #ifdef RENDER_TRANSLUCENT
-        outTint = vec4(
-            LinearToRGB(albedo * color.a),
-            0.0);
+        vec3 tint = LinearToRGB(albedo * color.a);
+        uint matID = 0;
+
+        if (parameters.customId == BLOCK_WATER) {
+            matID = MAT_WATER;
+            tint = parameters.tinting.rgb;
+        }
+
+        if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)
+            matID = MAT_STAINED_GLASS;
+
+        outTint = vec4(tint, (matID + 0.5) / 255.0);
     #endif
 
     #if defined(VELOCITY_ENABLED)
@@ -141,7 +277,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED
-        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
+        vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
         outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
     #endif
 

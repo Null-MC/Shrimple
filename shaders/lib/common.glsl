@@ -79,7 +79,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 #define TAA_SHARPNESS 50 //[0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100]
 //#define TAA_SHARPEN_HISTORY
 
-#define PHOTONICS_RESTIR_ENABLED
+//#define PHOTONICS_RESTIR_ENABLED
 #define PHOTONICS_REFLECT_ENABLED
 #define PHOTONICS_REFLECT_STEPS 100 // [10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define PHOTONICS_HAND_LIGHT_ENABLED
@@ -101,7 +101,6 @@ const float shadowDistanceRenderMul = 1.0;
     const float voxelDistance = 64.0;
 #endif
 
-const float dh_clipDistF = 0.85;
 const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 
 #if MATERIAL_FORMAT == FORMAT_DEFAULT && defined(MC_TEXTURE_FORMAT_LAB_PBR)

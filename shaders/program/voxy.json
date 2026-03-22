@@ -22,6 +22,17 @@
       "translucentDrawBuffers": [1,2],
     #endif
   #endif
+  "blending": {
+    #if LIGHTING_MODE == 1
+      0: "ONE ONE_MINUS_SRC_ALPHA ONE ZERO",
+      #ifdef TAA_ENABLED
+        3: "off",
+      #else
+        2: "off",
+      #endif
+    #endif
+    1: "off"
+  },
   #ifdef TAA_ENABLED
     "taaOffset": "{return taa_offset;}",
   #endif
@@ -57,6 +68,9 @@
     #endif
     #ifdef SHADOW_CLOUDS
       "texCloudShadow": "sampler2D",
+    #endif
+    #ifdef WATER_WAVE_ENABLED
+      "colortex7": "sampler2D",
     #endif
     "lightmap": "sampler2D"
   }

@@ -43,7 +43,13 @@ uniform mat4 vxProjInv;
 
 
 float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in vec3 viewNormal) {
-    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
+    vec2 seed = gl_FragCoord.xy;
+
+    #ifdef TAA_ENABLED
+        seed += vec2(71.83, 83.71) * (frameCounter % 16);
+    #endif
+
+    float dither = InterleavedGradientNoise(seed);
 
     float rotatePhase = dither * (PI * 2.0);
     const float rStep = SSAO_RADIUS / float(SSAO_SAMPLES);

@@ -138,7 +138,7 @@ uniform float dhFarPlane;
 #include "/lib/water.glsl"
 #include "/lib/ssao.glsl"
 
-#if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
+#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
     #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
 
@@ -194,11 +194,8 @@ uniform float dhFarPlane;
 void main() {
     float viewDist = length(vIn.localPos);
 
-    #if defined(RENDER_TRANSLUCENT) && defined(DISTANT_HORIZONS)
-        if (viewDist > dh_clipDistF * far) {
-            discard;
-            return;
-        }
+    #ifdef DISTANT_HORIZONS
+        if (viewDist > dh_clipDistF * far) {discard; return;}
     #endif
 
     vec2 texcoord = vIn.texcoord;
@@ -278,33 +275,25 @@ void main() {
         if (vIn.blockId == BLOCK_WATER) {
             vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
 
-//            const float waterPixel = 1.0 / float(WaterNormalResolution);
-
             vec2 water_uv = worldPos / WaterNormalScale;
             vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-//            vec3 waterNormal1 = texture(TEX_WATER_NORMAL, mod(water_uv, 1.0 - waterPixel) + 0.5*waterPixel).xyz * 2.0 - 1.0;
-//            vec3 waterNormal1 = texture(TEX_WATER_NORMAL, abs(mod(water_uv, 2.0) - 1.0)).xyz * 2.0 - 1.0;
             waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
 
             water_uv *= 5.0;
             vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-//            vec3 waterNormal2 = texture(TEX_WATER_NORMAL, mod(water_uv, 1.0 - waterPixel) + 0.5*waterPixel).xyz * 2.0 - 1.0;
-//            vec3 waterNormal2 = texture(TEX_WATER_NORMAL, abs(mod(water_uv, 2.0) - 1.0)).xyz * 2.0 - 1.0;
             waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
 
             tex_normal = normalize(waterNormal1 + waterNormal2);
-
-            //            vec2 water_uv = worldPos / WaterNormalScale;
-            //            tex_normal = TextureLinearRGB(TEX_WATER_NORMAL, water_uv, vec2(WaterNormalResolution));
-
-
-//            if (isEyeInWater != 1 && localGeoNormal.y < -0.999) {discard; return;}
         }
     #endif
 
-    vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
-    mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
-    vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+    #if defined(MATERIAL_PBR_ENABLED) || (defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT))
+        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
+        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
+        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+    #else
+        vec3 localTexNormal = localGeoNormal;
+    #endif
 
     #ifdef MATERIAL_PBR_ENABLED
         vec4 specularData = textureLod(specular, texcoord, mip);
@@ -349,15 +338,15 @@ void main() {
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
+    float cloudShadowF = 1.0;
+    #ifdef SHADOW_CLOUDS
+        cloudShadowF = SampleCloudShadow(vIn.localPos, localSkyLightDir);
+    #endif
+
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         vec3 shadow = vec3(1.0);
     #else
         float shadowF = 1.0;
-    #endif
-
-    float cloudShadowF = 1.0;
-    #ifdef SHADOW_CLOUDS
-        cloudShadowF = SampleCloudShadow(vIn.localPos, localSkyLightDir);
     #endif
 
     #ifdef SHADOWS_ENABLED
@@ -468,7 +457,6 @@ void main() {
             vec3 skyLightColor = shadow * GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
 
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
-
             #ifdef MATERIAL_PBR_ENABLED
                 skyLight_NoLm = (skyLight_NoLm + sss) / (1.0 + sss);
             #endif
@@ -504,7 +492,6 @@ void main() {
                         float sky_F = F_schlick(sky_LoH, f0, 1.0);
                     #endif
 
-//                    float alpha = max(_pow2(roughL), 0.0006);
                     float alpha = max(roughL, 0.02);
                     specularFinal += skyLight_NoLm * D_GGX(sky_NoH, alpha) * V_Approx(skyLight_NoLm, sky_NoV, alpha) * sky_F * skyLightColor;
                 }
@@ -513,8 +500,6 @@ void main() {
                 specularFinal *= mix(vec3(1.0), albedo, metalness);
             #endif
         #endif
-
-//        color.rgb = albedo/PI * diffuseFinal * color.a + specular;
     #else
         #if defined(PHOTONICS_GI_ENABLED) && !defined(RENDER_TRANSLUCENT)
             #ifdef SHADOWS_ENABLED
@@ -675,7 +660,7 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        vec3 tint = LinearToRGB(albedo) * color.a;
+        vec3 tint = LinearToRGB(albedo * color.a);
         uint matID = 0;
 
         #ifdef RENDER_TERRAIN
@@ -688,9 +673,7 @@ void main() {
                 matID = MAT_STAINED_GLASS;
         #endif
 
-        outTint = vec4(
-            tint,
-            (matID + 0.5) / 255.0);
+        outTint = vec4(tint, (matID + 0.5) / 255.0);
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED

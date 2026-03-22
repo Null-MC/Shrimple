@@ -10,12 +10,23 @@ uniform sampler2D TEX_TRANSLUCENT_TINT;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex0;
+    uniform sampler2D dhDepthTex1;
+#endif
+
+#ifdef VOXY
+    uniform sampler2D vxDepthTexOpaque;
+    uniform sampler2D vxDepthTexTrans;
+#endif
+
 #ifdef REFRACT_ENABLED
 //    uniform sampler2D depthtex0;
 //    uniform sampler2D depthtex1;
     uniform sampler2D TEX_NORMAL;
 #endif
 
+uniform float far;
 uniform float fogStart;
 uniform float fogEnd;
 uniform vec3 fogColor;
@@ -34,6 +45,9 @@ uniform float weatherStrength;
 uniform float weatherDensity;
 uniform ivec2 eyeBrightnessSmooth;
 
+uniform float dhFarPlane;
+uniform mat4 dhProjectionInverse;
+uniform mat4 vxProjInv;
 uniform int vxRenderDistance;
 
 #include "/lib/oklab.glsl"
@@ -51,10 +65,13 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
-    vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
     vec4 color = texelFetch(TEX_TRANSLUCENT_FINAL, uv, 0);
     float depthOpaque = texelFetch(depthtex1, uv, 0).r;
     float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
+    #endif
 
     #ifdef REFRACT_ENABLED
 //        float depthOpaque = texelFetch(depthtex1, uv, 0).r;
@@ -87,41 +104,67 @@ void main() {
         vec3 src = texelFetch(TEX_FINAL, uv, 0).rgb;
     #endif
 
-    uint matID = uint(tintData.a * 255.0 + 0.5);
-//    vec3 tintColor = tintData.rgb;
-
-    if (matID == MAT_STAINED_GLASS)
-        src *= normalize(RGBToLinear(tintData.rgb));
-
-    vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-    vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
-
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        if (matID == MAT_WATER && isEyeInWater != 1 && depthTranslucent < depthOpaque) {
-            vec3 opaqueNdcPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+        uint matID = uint(tintData.a * 255.0 + 0.5);
+
+        if (matID == MAT_STAINED_GLASS)
+            src *= normalize(RGBToLinear(tintData.rgb));
+
+        #ifdef DISTANT_HORIZONS
+            bool isTransLod = depthTranslucent == 1.0;
+            if (isTransLod) {
+                depthTranslucent = texelFetch(dhDepthTex0, uv, 0).r;
+            }
+            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+            vec3 transViewPos = project(isTransLod ? dhProjectionInverse : gbufferProjectionInverse, transNdcPos);
+        #elif defined(VOXY)
+            bool isTransLod = depthTranslucent == 1.0;
+            if (isTransLod) {
+                depthTranslucent = texelFetch(vxDepthTexTrans, uv, 0).r;
+            }
+            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+            vec3 transViewPos = project(isTransLod ? vxProjInv : gbufferProjectionInverse, transNdcPos);
+        #else
+            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+            vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
+        #endif
+
+        #ifdef DISTANT_HORIZONS
+            bool isOpaqueLod = depthOpaque == 1.0;
+            if (isOpaqueLod) {
+                depthOpaque = texelFetch(dhDepthTex1, uv, 0).r;
+            }
+        #elif defined(VOXY)
+            bool isOpaqueLod = depthOpaque == 1.0;
+            if (isOpaqueLod) {
+                depthOpaque = texelFetch(vxDepthTexOpaque, uv, 0).r;
+            }
+        #endif
+
+        vec3 opaqueNdcPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+
+        #ifdef DISTANT_HORIZONS
+            vec3 opaqueViewPos = project(isOpaqueLod ? dhProjectionInverse : gbufferProjectionInverse, opaqueNdcPos);
+        #elif defined(VOXY)
+            vec3 opaqueViewPos = project(isOpaqueLod ? vxProjInv : gbufferProjectionInverse, opaqueNdcPos);
+        #else
             vec3 opaqueViewPos = project(gbufferProjectionInverse, opaqueNdcPos);
+        #endif
 
-            //        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-            //        vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
-
+        if (matID == MAT_WATER && isEyeInWater != 1 && transViewPos.z > opaqueViewPos.z) {
             float waterDepth = distance(opaqueViewPos, transViewPos);
 
             // fog
             float borderFogF = GetBorderFogStrength(waterDepth);
             float envFogF = GetEnvFogStrength(waterDepth, true);
-            float fogF = max(borderFogF, envFogF);
 
-            vec3 fogColorL = RGBToLinear(fogColor);
-//            vec3 skyColorL = RGBToLinear(skyColor);
+            vec3 fogColorL = RGBToLinear(tintData.rgb);
             vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
 
-            src = mix(src, fogColorFinal, fogF);
-
+            src = mix(src, fogColorFinal, max(borderFogF, envFogF));
 
             // absorption
-    //        waterDepth = min(waterDepth, 8.0);
-            vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(tintData.rgb));
-    //        src *= exp(-3.0 * waterDepth * (1.0 - normalize(waterColor)));
+            vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
             src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
         }
     #endif
@@ -133,9 +176,7 @@ void main() {
         if (isEyeInWater == 1) {
             float waterDepth = length(transViewPos);
 
-//            waterDepth = min(waterDepth, 8.0);
             vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
-//            color.rgb *= exp(-3.0 * waterDepth * (1.0 - normalize(waterColor)));
             color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
         }
     #endif

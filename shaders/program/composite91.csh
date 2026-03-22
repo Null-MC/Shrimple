@@ -15,6 +15,14 @@ uniform sampler2D TEX_VELOCITY;
 uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
+#ifdef DISTANT_HORIZONS
+    uniform sampler2D dhDepthTex0;
+#endif
+
+#ifdef VOXY
+    uniform sampler2D vxDepthTexTrans;
+#endif
+
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -22,6 +30,11 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 uniform vec3 previousCameraPosition;
 uniform vec2 viewSize;
+
+uniform mat4 dhProjection;
+uniform mat4 dhProjectionInverse;
+uniform mat4 vxProj;
+uniform mat4 vxProjInv;
 
 const float TAA_RejectionStrength = 0.1;
 const int TAA_MaxAccumFrames = 8;
@@ -39,6 +52,32 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     sharedBuffer[i_shared] = color;
 }
 
+#ifdef DISTANT_HORIZONS
+    #define LOD_PROJ_INV dhProjectionInverse
+    #define LOD_PROJ_LAST dhProjection
+#elif defined(VOXY)
+    #define LOD_PROJ_INV vxProjInv
+    #define LOD_PROJ_LAST vxProj
+#else
+    #define LOD_PROJ_INV gbufferProjectionInverse
+    #define LOD_PROJ_LAST gbufferPreviousProjection
+#endif
+
+vec3 reproject(const in vec3 ndcPos, const in bool isLod) {
+    vec3 viewPos = project(isLod ? LOD_PROJ_INV : gbufferProjectionInverse, ndcPos);
+    vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+
+    vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
+
+    #if defined(TAA_ENABLED) && defined(WIND_ENABLED)
+        ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+        localPosPrev -= texelFetch(TEX_VELOCITY, uv, 0).xyz;
+    #endif
+
+    vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
+    return project(isLod ? LOD_PROJ_LAST : gbufferPreviousProjection, viewPosPrev);
+}
+
 
 void main() {
     uint i_base = gl_LocalInvocationIndex * 2u;
@@ -53,34 +92,35 @@ void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 
     if (all(lessThan(uv, viewSize))) {
-        vec2 texcoord = (uv + 0.5) / viewSize;
-        float depthNow = texture(depthtex0, texcoord).r;
-        #if defined(TAA_ENABLED) && defined(WIND_ENABLED)
-            vec3 velocity = texture(TEX_VELOCITY, texcoord).xyz;
-        #else
-            const vec3 velocity = vec3(0.0);
+        float depthNow = texelFetch(depthtex0, uv, 0).r;
+        bool isLod = false;
+
+        #ifdef DISTANT_HORIZONS
+            if (depthNow == 1.0) {
+                depthNow = texelFetch(dhDepthTex0, uv, 0).r;
+                isLod = true;
+            }
+        #elif defined(VOXY)
+            if (depthNow == 1.0) {
+                depthNow = texelFetch(vxDepthTexTrans, uv, 0).r;
+                isLod = true;
+            }
         #endif
 
-        vec3 clipPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-        vec3 viewPos = project(gbufferProjectionInverse, clipPos);
-        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-
-        vec3 localPosPrev = localPos + (cameraPosition - previousCameraPosition) - velocity;
-
-        vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
-        vec3 clipPosPrev = project(gbufferPreviousProjection, viewPosPrev);
-        vec2 uv_prev = clipPosPrev.xy * 0.5 + 0.5;
-
+        vec2 texcoord = (uv + 0.5) / viewSize;
+        vec3 ndcPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
+        vec3 ndcPosPrev = reproject(ndcPos, isLod);
+        vec2 texcoord_prev = ndcPosPrev.xy * 0.5 + 0.5;
 
         #ifdef TAA_SHARPEN_HISTORY
-            vec4 lastColor = sample_CatmullRom_RGBA(texTAA_prev, uv_prev, viewSize);
+            vec4 lastColor = sample_CatmullRom_RGBA(texTAA_prev, texcoord_prev, viewSize);
         #else
-            vec4 lastColor = texture(texTAA_prev, uv_prev);
+            vec4 lastColor = texture(texTAA_prev, texcoord_prev);
         #endif
 
         float mixRate = TAA_MaxAccumFrames;//clamp(lastColor.a, 0.0, TAA_MaxAccumFrames);
 
-        if (saturate(uv_prev) != uv_prev) mixRate = 0.0;
+        if (saturate(texcoord_prev) != texcoord_prev) mixRate = 0.0;
 
         ivec2 luv = ivec2(gl_LocalInvocationID.xy) + 1;
 

@@ -17,6 +17,8 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_WATER_NORMAL;
 #endif
 
+//uniform sampler2D TEX_TRANSLUCENT_TINT;
+
 uniform vec2 viewSize;
 uniform int frameCounter;
 uniform float rainStrength;
@@ -102,6 +104,11 @@ void main() {
             color = texture(TEX_WATER_NORMAL, tex2).rgb;
         }
     #endif
+
+//    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
+//    if (saturate(tex) == tex) {
+//        color = texture(TEX_TRANSLUCENT_TINT, tex).rgb;
+//    }
 
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;

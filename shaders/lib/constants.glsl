@@ -55,5 +55,7 @@ const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float GoldenAngle = PI * (3.0 - sqrt(5.0));
 const float PHI = (1.0 + sqrt(5.0)) / 2.0;
 
+const float dh_clipDistF = 0.85;
+
 const float vxNearPlane = 16.0;
 const float vxFarPlane = 16*3000;
