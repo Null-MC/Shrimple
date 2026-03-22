@@ -78,7 +78,7 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
     #endif
 }
 
-vec3 GetWaterFogColor(const in vec3 waterFogColorL, const in vec3 localSunDir, const in float rainStrength, const in float skyDayF) {
+vec3 GetWaterFogColor(const in vec3 fogColorL, const in vec3 localSunDir, const in float rainStrength, const in float skyDayF) {
     #if OVERWORLD_SKY == SKY_ENHANCED
         // TODO: sample irradiance up instead?
         vec3 skyUpColor = GetEnhancedSkyUpColor(localSunDir, rainStrength, skyDayF);
@@ -86,8 +86,8 @@ vec3 GetWaterFogColor(const in vec3 waterFogColorL, const in vec3 localSunDir, c
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
         skyUpColor *= _pow2(eyeBrightF) * 0.92 + 0.08;
 
-//        const vec3 waterFogColorL = pow(vec3(0.067, 0.416, 0.471), vec3(2.2));
-        return waterFogColorL * skyUpColor;// * skyColorL;
+        const vec3 waterFogColorL = pow(vec3(0.059, 0.380, 0.357), vec3(2.2));
+        return waterFogColorL * skyUpColor;
     #else
         return fogColorL;
     #endif
@@ -95,8 +95,7 @@ vec3 GetWaterFogColor(const in vec3 waterFogColorL, const in vec3 localSunDir, c
 
 vec3 GetSkyFogWaterColor(const in vec3 skyColorL, const in vec3 fogColorL, const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength, const in float skyDayF) {
     if (isEyeInWater == 1) {
-        const vec3 waterFogColorL = pow(vec3(0.067, 0.416, 0.471), vec3(2.2));
-        return GetWaterFogColor(waterFogColorL, localSunDir, rainStrength, skyDayF);
+        return GetWaterFogColor(fogColorL, localSunDir, rainStrength, skyDayF);
     }
 
     vec3 color = GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainStrength, skyDayF);
@@ -130,8 +129,14 @@ float GetBorderFogStrength(const in float viewDist) {
 
 float GetEnvFogStrength(const in float viewDist, bool inWater) {
     #if defined(WORLD_OVERWORLD) && OVERWORLD_SKY == SKY_ENHANCED
-        float density = inWater ? 0.02 : weatherDensity;
-        return saturate(1.0 - exp(-density * viewDist));
+//        float density = inWater ? 0.02 : weatherDensity;
+//        return saturate(1.0 - exp(-density * viewDist));
+        if (inWater) {
+            return smoothstep(0.0, 24.0, viewDist);
+        }
+        else {
+            return saturate(1.0 - exp(-weatherDensity * viewDist));
+        }
     #else
         return smoothstep(fogStart, fogEnd, viewDist);
     #endif

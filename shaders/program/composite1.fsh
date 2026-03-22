@@ -176,6 +176,16 @@ void main() {
         if (isEyeInWater == 1) {
             float waterDepth = length(transViewPos);
 
+            // fog
+//            float borderFogF = GetBorderFogStrength(waterDepth);
+//            float envFogF = GetEnvFogStrength(waterDepth, true);
+//
+//            vec3 fogColorL = RGBToLinear(tintData.rgb);
+//            vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
+//
+//            color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
+
+            // absorption
             vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
             color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
         }

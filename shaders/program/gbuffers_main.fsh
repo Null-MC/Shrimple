@@ -326,8 +326,8 @@ void main() {
     #ifdef RENDER_TERRAIN
         if (vIn.blockId == BLOCK_WATER) {
             #ifndef WATER_TEXTURE_ENABLED
-                albedo = RGBToLinear(vIn.color.rgb);
-                color.a = 0.04;
+                albedo = vec3(0.0);//RGBToLinear(vIn.color.rgb);
+                color.a = 0.02;
             #endif
 
             #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
