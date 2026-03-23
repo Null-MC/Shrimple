@@ -3,13 +3,9 @@
 
 in VertexData {
     vec4 color;
-    vec2 texcoord;
     vec3 localPos;
-//    vec3 localNormal;
 } vIn;
 
-
-uniform sampler2D gtexture;
 
 uniform float near;
 uniform float far;
@@ -33,8 +29,6 @@ uniform int vxRenderDistance;
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 
-//#include "/lib/sampling/depth.glsl"
-//#include "/lib/octohedral.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
 
@@ -42,7 +36,7 @@ uniform float dhFarPlane;
 #include "_output.glsl"
 
 void main() {
-    vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
+    vec4 color = vIn.color;
     color.rgb = RGBToLinear(color.rgb);
 
     #ifdef MATERIAL_PBR_ENABLED
@@ -52,7 +46,6 @@ void main() {
     color.rgb *= color.a;
 
     float viewDist = length(vIn.localPos);
-//    vec3 localNormal = normalize(vIn.localNormal);
 
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);

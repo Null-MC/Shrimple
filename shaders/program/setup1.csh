@@ -479,7 +479,7 @@ void main() {
             color = color_RedstoneTorch;
             range = 8.0;
             break;
-        case BLOCK_REPEATER:
+        case BLOCK_REPEATER_LIT:
             mixWeight = 0.9;
             color = color_RedstoneTorch;
             range = 7;

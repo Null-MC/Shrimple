@@ -240,6 +240,8 @@ void main() {
         color.rgb += albedo * emission;
     #endif
 
+    color.rgb *= color.a;
+
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);
     float fogF = max(borderFogF, envFogF);
