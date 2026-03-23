@@ -67,7 +67,7 @@ void main() {
 
             vec3 weight_inv = 1.0 / (4.0*weight + 1.0);
             vec3 color = ((b + d + f + h) * weight + e) * weight_inv;
-            color = saturate(color);
+            color = max(color, vec3(0.0));
         #else
             vec3 color = texelFetch(texTAA, uv, 0).rgb;
             vec3 e = color;

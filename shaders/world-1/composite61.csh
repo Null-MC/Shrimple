@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "nether.glsl"
-#include "/program/composite91.csh"
+#include "/program/composite61.csh"

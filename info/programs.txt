@@ -40,7 +40,5 @@ composite86		bloom upscale 1/2
 composite87		bloom upscale final
 
 composite90	    tonemap, gamma
---composite91	    taa resolve
---composite92     taa sharpen /CAS
 
 final			dither, output, debug

@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "overworld.glsl"
-#include "/program/composite92.csh"
+#include "/program/composite60.csh"

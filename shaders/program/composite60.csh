@@ -38,7 +38,7 @@ uniform mat4 vxProj;
 uniform mat4 vxProjInv;
 
 const float TAA_RejectionStrength = 0.1;
-const int TAA_MaxAccumFrames = 8;
+const int TAA_MaxAccumFrames = 16;
 
 
 int getSharedIndex(const in ivec2 uv) {
@@ -50,6 +50,7 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
 
     ivec2 uv_i = ivec2(i_shared % 18, i_shared / 18);
     vec3 color = texelFetch(TEX_FINAL, uv_base + uv_i, 0).rgb;
+//    color = color / (1.0 + luminance(color));
     sharedBuffer[i_shared] = color;
 }
 
@@ -157,6 +158,7 @@ void main() {
 //        vec3 diff = clamped - antialiased;
 //        mixRate *= 1.0 / (dot(diff, diff) * TAA_RejectionStrength + 1.0);
 
+//        clamped = clamped / (1.0 - luminance(clamped));
         imageStore(imgTAA, uv, vec4(clamped, mixRate + 1.0));
     }
 }
