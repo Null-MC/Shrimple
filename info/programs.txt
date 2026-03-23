@@ -18,6 +18,9 @@ deferred21      voxy/DH SSAO apply
 composite1      translucent overlay
 composite10     reflections
 
+composite60	    taa resolve
+composite61     taa sharpen /CAS
+
 composite70		bloom downscale 1/2
 composite71		bloom downscale 1/4
 composite72		bloom downscale 1/8
@@ -37,7 +40,7 @@ composite86		bloom upscale 1/2
 composite87		bloom upscale final
 
 composite90	    tonemap, gamma
-composite91	    taa resolve
-composite92     taa sharpen /CAS
+--composite91	    taa resolve
+--composite92     taa sharpen /CAS
 
 final			dither, output, debug

@@ -69,7 +69,7 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, uv, 0).r;
     float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
 
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #ifdef MATERIAL_GLASS_TINT
         vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
     #endif
 
@@ -104,11 +104,13 @@ void main() {
         vec3 src = texelFetch(TEX_FINAL, uv, 0).rgb;
     #endif
 
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_ABSORPTION)
         uint matID = uint(tintData.a * 255.0 + 0.5);
 
-        if (matID == MAT_STAINED_GLASS)
-            src *= normalize(RGBToLinear(tintData.rgb));
+        #ifdef MATERIAL_GLASS_TINT
+            if (matID == MAT_STAINED_GLASS)
+                src *= normalize(RGBToLinear(tintData.rgb));
+        #endif
 
         #ifdef DISTANT_HORIZONS
             bool isTransLod = depthTranslucent == 1.0;
@@ -129,64 +131,69 @@ void main() {
             vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
         #endif
 
-        #ifdef DISTANT_HORIZONS
-            bool isOpaqueLod = depthOpaque == 1.0;
-            if (isOpaqueLod) {
-                depthOpaque = texelFetch(dhDepthTex1, uv, 0).r;
-            }
-        #elif defined(VOXY)
-            bool isOpaqueLod = depthOpaque == 1.0;
-            if (isOpaqueLod) {
-                depthOpaque = texelFetch(vxDepthTexOpaque, uv, 0).r;
-            }
-        #endif
-
-        vec3 opaqueNdcPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
-
-        #ifdef DISTANT_HORIZONS
-            vec3 opaqueViewPos = project(isOpaqueLod ? dhProjectionInverse : gbufferProjectionInverse, opaqueNdcPos);
-        #elif defined(VOXY)
-            vec3 opaqueViewPos = project(isOpaqueLod ? vxProjInv : gbufferProjectionInverse, opaqueNdcPos);
-        #else
-            vec3 opaqueViewPos = project(gbufferProjectionInverse, opaqueNdcPos);
-        #endif
-
-        if (matID == MAT_WATER && isEyeInWater != 1 && transViewPos.z > opaqueViewPos.z) {
-            float waterDepth = distance(opaqueViewPos, transViewPos);
-
-            // fog
-            float borderFogF = GetBorderFogStrength(waterDepth);
-            float envFogF = GetEnvFogStrength(waterDepth, true);
-
-            vec3 fogColorL = RGBToLinear(tintData.rgb);
-            vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
-
-            src = mix(src, fogColorFinal, max(borderFogF, envFogF));
-
-            #ifdef WATER_ABSORPTION
-                vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
-                src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+        #if defined(WATER_FOG_FIX) || defined(WATER_ABSORPTION)
+            #ifdef DISTANT_HORIZONS
+                bool isOpaqueLod = depthOpaque == 1.0;
+                if (isOpaqueLod) {
+                    depthOpaque = texelFetch(dhDepthTex1, uv, 0).r;
+                }
+            #elif defined(VOXY)
+                bool isOpaqueLod = depthOpaque == 1.0;
+                if (isOpaqueLod) {
+                    depthOpaque = texelFetch(vxDepthTexOpaque, uv, 0).r;
+                }
             #endif
-        }
+
+            vec3 opaqueNdcPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+
+            #ifdef DISTANT_HORIZONS
+                vec3 opaqueViewPos = project(isOpaqueLod ? dhProjectionInverse : gbufferProjectionInverse, opaqueNdcPos);
+            #elif defined(VOXY)
+                vec3 opaqueViewPos = project(isOpaqueLod ? vxProjInv : gbufferProjectionInverse, opaqueNdcPos);
+            #else
+                vec3 opaqueViewPos = project(gbufferProjectionInverse, opaqueNdcPos);
+            #endif
+
+            if (matID == MAT_WATER && isEyeInWater != 1 && transViewPos.z > opaqueViewPos.z) {
+                float waterDepth = distance(opaqueViewPos, transViewPos);
+
+                #ifdef WATER_FOG_FIX
+                    float borderFogF = GetBorderFogStrength(waterDepth);
+                    float envFogF = GetEnvFogStrength(waterDepth, true);
+
+                    vec3 fogColorL = RGBToLinear(tintData.rgb);
+                    vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
+
+                    src = mix(src, fogColorFinal, max(borderFogF, envFogF));
+                #endif
+
+                #ifdef WATER_ABSORPTION
+                    vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
+                    src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+                #endif
+            }
+        #endif
     #endif
 
 //    color.rgb = mix(src, color.rgb, color.a);
     color.rgb += src * (1.0 - color.a);
 
-    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WATER_FOG_FIX)
         if (isEyeInWater == 1) {
             float waterDepth = length(transViewPos);
 
-            if (depthTranslucent == 1.0) {
+            #ifdef WATER_FOG_FIX
                 // sky fog fix
-                float borderFogF = GetBorderFogStrength(waterDepth);
-                float envFogF = GetEnvFogStrength(waterDepth, true);
+                if (depthTranslucent == 1.0) {
+                    float borderFogF = GetBorderFogStrength(waterDepth);
+                    float envFogF = GetEnvFogStrength(waterDepth, true);
 
-                vec3 fogColorL = RGBToLinear(tintData.rgb);
-                vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
+                    vec3 fogColorL = RGBToLinear(tintData.rgb);
+                    vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
 
-                color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
-            }
+                    color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
+                }
+            #endif
 
             #ifdef WATER_ABSORPTION
                 vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));

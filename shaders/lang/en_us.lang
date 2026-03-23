@@ -66,6 +66,12 @@ option.WATER_WAVE_ENABLED=Waves
 
 option.WATER_TEXTURE_ENABLED=Texture
 
+option.WATER_FOG_FIX=Fog Fix
+option.WATER_FOG_FIX.comment=Applies fog to water when camera is not in water.
+
+option.WATER_COLOR_OVERRIDE=Custom Color
+option.WATER_COLOR_OVERRIDE.comment=Replaces the vanilla water colors with custom colors, to avoid mismatches between surface and fog colors.
+
 
 screen.MATERIAL=Materials/PBR
 
@@ -74,6 +80,9 @@ option.MATERIAL_FORMAT.comment=The PBR format of the resource pack being used.
 value.MATERIAL_FORMAT.0=Default
 value.MATERIAL_FORMAT.1=Old PBR
 value.MATERIAL_FORMAT.2=Lab PBR
+
+option.MATERIAL_GLASS_TINT=Glass Tinting
+option.MATERIAL_GLASS_TINT.comment=Allows stained glass to apply multiplicative blending to the scene behind it.
 
 
 screen.MATERIAL_PARALLAX=Parallax

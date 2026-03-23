@@ -666,7 +666,7 @@ void main() {
     #endif
 
     #ifdef RENDER_TRANSLUCENT
-        vec3 tint = LinearToRGB(albedo * color.a);
+        vec3 tint = vec3(1.0);
         uint matID = 0;
 
         #ifdef RENDER_TERRAIN
@@ -683,8 +683,10 @@ void main() {
         #endif
 
         #if defined(RENDER_TERRAIN) || defined(RENDER_HAND)
-            if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS)
+            if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS) {
                 matID = MAT_STAINED_GLASS;
+                tint = LinearToRGB(normalize(albedo) * color.a);
+            }
         #endif
 
         outTint = vec4(tint, (matID + 0.5) / 255.0);
