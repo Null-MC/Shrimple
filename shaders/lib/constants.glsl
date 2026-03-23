@@ -38,6 +38,7 @@
 #define TEX_VELOCITY colortex6
 #define TEX_WATER_NORMAL colortex7
 #define IMG_WATER_NORMAL colorimg7
+#define TEX_META colortex8
 
 #define TEX_BLOOM_TILES texBloomTiles
 #define IMG_BLOOM_TILES imgBloomTiles

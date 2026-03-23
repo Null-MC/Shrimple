@@ -352,6 +352,7 @@ void main() {
     #endif
 
     outFinal = color;
+    outMeta = 0u;
 
     #ifdef RENDER_TRANSLUCENT
 //        outTint = vec4(1.0, 1.0, 1.0, 0.0);

@@ -10,6 +10,9 @@ const int colortex5Format = R16;
 const int colortex6Format = RGB16F;
 const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
 
+const int colortex8Format = R8UI;
+const vec4 colortex8ClearColor = vec4(0.0,0.0,0.0,0.0);
+
 const int shadowcolor0Format = RGBA8;
 */
 
@@ -32,6 +35,8 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 
 //#define WATER_WAVE_ENABLED
 #define WATER_TEXTURE_ENABLED
+//#define WATER_ABSORPTION
+#define WATER_COLOR_OVERRIDE
 
 #define MATERIAL_FORMAT 0 // [0 1 2]
 //#define REFLECT_ENABLED

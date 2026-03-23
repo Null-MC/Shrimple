@@ -11,6 +11,8 @@
 in vec2 texcoord;
 
 uniform sampler2D depthtex0;
+uniform usampler2D TEX_META;
+
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_NORMAL;
 uniform usampler2D TEX_ALBEDO_SPECULAR;
@@ -67,6 +69,7 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int frameCounter;
+uniform vec2 viewSize;
 uniform vec2 taa_offset = vec2(0.0);
 
 uniform int vxRenderDistance;
@@ -172,7 +175,10 @@ void main() {
             ndcPos.xy -= taa_offset * 2.0;
         #endif
 
-        // TODO: fix hand depth
+        uint meta = texelFetch(TEX_META, uv, 0).r;
+        if (meta != 0u) {
+//            ndcPos.z /= MC_HAND_DEPTH;
+        }
 
         vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
         float viewDist = length(viewPos);
@@ -337,8 +343,11 @@ void main() {
                     traceScreenPos = traceClipPos.xy * 0.5 + 0.5;
                     if (saturate(traceScreenPos) != traceScreenPos) break;
 
-                    float sampleClipDepth = texture(depthtex0, traceScreenPos).r * 2.0 - 1.0;
-                    float screenDepthL = linearizeDepth(sampleClipDepth, near, farPlane);
+                    uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
+                    if (meta != 0u) continue;
+
+                    float sampleDepth = texture(depthtex0, traceScreenPos).r;
+                    float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
                     float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
 
                     if (screenDepthL < traceDepthL - 0.02) {
@@ -360,8 +369,11 @@ void main() {
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
                         if (saturate(testPos) != testPos) break;
 
-                        float sampleClipDepth = texture(depthtex0, testPos).r * 2.0 - 1.0;
-                        float screenDepthL = linearizeDepth(sampleClipDepth, near, farPlane);
+                        uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
+                        if (meta != 0u) continue;
+
+                        float sampleDepth = texture(depthtex0, testPos).r;
+                        float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
                         float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
 
                         if (screenDepthL < traceDepthL) {

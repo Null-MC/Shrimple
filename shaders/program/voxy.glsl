@@ -256,6 +256,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     outFinal = color;
+    outMeta = 0u;
 
     #ifdef RENDER_TRANSLUCENT
         vec3 tint = LinearToRGB(albedo * color.a);

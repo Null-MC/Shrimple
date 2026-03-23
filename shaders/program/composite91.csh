@@ -12,6 +12,7 @@ layout(rgba16f) uniform writeonly image2D imgTAA;
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_VELOCITY;
+uniform usampler2D TEX_META;
 uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
@@ -63,7 +64,9 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     #define LOD_PROJ_LAST gbufferPreviousProjection
 #endif
 
-vec3 reproject(const in vec3 ndcPos, const in bool isLod) {
+vec3 reproject(const in vec3 ndcPos, const bool isHand, const in bool isLod) {
+    if (isHand) return ndcPos;
+
     vec3 viewPos = project(isLod ? LOD_PROJ_INV : gbufferProjectionInverse, ndcPos);
     vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
@@ -95,6 +98,14 @@ void main() {
         float depthNow = texelFetch(depthtex0, uv, 0).r;
         bool isLod = false;
 
+        uint meta = texelFetch(TEX_META, uv, 0).r;
+        bool isHand = meta != 0u;
+        if (isHand) {
+            depthNow = depthNow * 2.0 - 1.0;
+            depthNow /= MC_HAND_DEPTH;
+            depthNow = depthNow * 0.5 + 0.5;
+        }
+
         #ifdef DISTANT_HORIZONS
             if (depthNow == 1.0) {
                 depthNow = texelFetch(dhDepthTex0, uv, 0).r;
@@ -109,7 +120,7 @@ void main() {
 
         vec2 texcoord = (uv + 0.5) / viewSize;
         vec3 ndcPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-        vec3 ndcPosPrev = reproject(ndcPos, isLod);
+        vec3 ndcPosPrev = reproject(ndcPos, isHand, isLod);
         vec2 texcoord_prev = ndcPosPrev.xy * 0.5 + 0.5;
 
         #ifdef TAA_SHARPEN_HISTORY

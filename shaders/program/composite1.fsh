@@ -163,9 +163,10 @@ void main() {
 
             src = mix(src, fogColorFinal, max(borderFogF, envFogF));
 
-            // absorption
-            vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
-            src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+            #ifdef WATER_ABSORPTION
+                vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
+                src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+            #endif
         }
     #endif
 
@@ -176,18 +177,21 @@ void main() {
         if (isEyeInWater == 1) {
             float waterDepth = length(transViewPos);
 
-            // fog
-//            float borderFogF = GetBorderFogStrength(waterDepth);
-//            float envFogF = GetEnvFogStrength(waterDepth, true);
-//
-//            vec3 fogColorL = RGBToLinear(tintData.rgb);
-//            vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
-//
-//            color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
+            if (depthTranslucent == 1.0) {
+                // sky fog fix
+                float borderFogF = GetBorderFogStrength(waterDepth);
+                float envFogF = GetEnvFogStrength(waterDepth, true);
 
-            // absorption
-            vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
-            color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+                vec3 fogColorL = RGBToLinear(tintData.rgb);
+                vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
+
+                color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
+            }
+
+            #ifdef WATER_ABSORPTION
+                vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
+                color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+            #endif
         }
     #endif
 

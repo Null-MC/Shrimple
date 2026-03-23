@@ -83,6 +83,7 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
+    outMeta = 0u;
 
     #ifdef TAA_ENABLED
         // TODO: can this be hard-coded?

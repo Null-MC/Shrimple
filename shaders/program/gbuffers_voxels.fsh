@@ -265,6 +265,7 @@ void main() {
 
 
     outFinal = color;
+    outMeta = 0u;
 
     #ifdef TAA_ENABLED
         outVelocity = vec3(0.0);

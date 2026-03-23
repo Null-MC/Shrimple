@@ -639,6 +639,7 @@ void main() {
     vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
+    color.a = max(color.a, fogF);
 
 //    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
 //        if (isEyeInWater == 1) {
@@ -650,6 +651,11 @@ void main() {
 //    color.a = 1.0;
 
     outFinal = color;
+
+    outMeta = 0u;
+    #ifdef RENDER_HAND
+        outMeta = 1u;
+    #endif
 
     #if defined(VELOCITY_ENABLED)
         #if defined(RENDER_TERRAIN)
@@ -664,12 +670,20 @@ void main() {
         uint matID = 0;
 
         #ifdef RENDER_TERRAIN
-            if (vIn.blockId == BLOCK_WATER) {
-                matID = MAT_WATER;
-                tint = vIn.color.rgb;
-            }
+            int blockId = vIn.blockId;
+        #else
+            int blockId = currentRenderedItemId;
+        #endif
 
-            if (vIn.blockId >= BLOCK_STAINED_GLASS_BLACK && vIn.blockId <= BLOCK_TINTED_GLASS)
+        #ifdef RENDER_TERRAIN
+            if (blockId == BLOCK_WATER) {
+                matID = MAT_WATER;
+                tint = vIn.color.rgb * 0.6;
+            }
+        #endif
+
+        #if defined(RENDER_TERRAIN) || defined(RENDER_HAND)
+            if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS)
                 matID = MAT_STAINED_GLASS;
         #endif
 

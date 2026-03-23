@@ -57,6 +57,7 @@ void main() {
     // TODO: fog?
 
     outFinal = final;
+    outMeta = 0u;
 
     #ifdef TAA_ENABLED
         outVelocity = vec3(0.0);

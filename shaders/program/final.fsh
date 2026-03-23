@@ -17,7 +17,7 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_WATER_NORMAL;
 #endif
 
-//uniform sampler2D TEX_TRANSLUCENT_TINT;
+//uniform sampler2D TEX_TRANSLUCENT_FINAL;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -107,7 +107,7 @@ void main() {
 
 //    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
 //    if (saturate(tex) == tex) {
-//        color = texture(TEX_TRANSLUCENT_TINT, tex).rgb;
+//        color = texture(TEX_TRANSLUCENT_FINAL, tex).rgb;
 //    }
 
 

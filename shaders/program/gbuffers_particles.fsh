@@ -260,6 +260,7 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
+    outMeta = 0u;
 
     #ifdef TAA_ENABLED
         outVelocity = vec3(0.0);

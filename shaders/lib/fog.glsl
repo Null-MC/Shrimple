@@ -86,8 +86,14 @@ vec3 GetWaterFogColor(const in vec3 fogColorL, const in vec3 localSunDir, const 
         float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
         skyUpColor *= _pow2(eyeBrightF) * 0.92 + 0.08;
 
-        const vec3 waterFogColorL = pow(vec3(0.059, 0.380, 0.357), vec3(2.2));
-        return waterFogColorL * skyUpColor;
+        #ifdef WATER_COLOR_OVERRIDE
+            const vec3 waterFogColorL = pow(vec3(0.059, 0.380, 0.357), vec3(2.2));
+            skyUpColor *= waterFogColorL;
+        #else
+            skyUpColor *= fogColorL;
+        #endif
+
+        return skyUpColor;
     #else
         return fogColorL;
     #endif
