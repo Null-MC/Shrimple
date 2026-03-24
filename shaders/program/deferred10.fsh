@@ -41,13 +41,23 @@ void main() {
 
     if (depth < 1.0) {
         uvec2 reflectData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
-        vec4 reflectDataR = unpackUnorm4x8(reflectData.r);
-        vec3 albedo = RGBToLinear(reflectDataR.rgb);
+        vec4 albedoData = unpackUnorm4x8(reflectData.r);
+        vec4 specularData = unpackUnorm4x8(reflectData.g);
+        vec3 albedo = RGBToLinear(albedoData.rgb);
 
         #ifdef PHOTONICS_GI_ENABLED
-            lighting += texture(texPhotonicsIndirect, texcoord).rgb/PI;
+            vec3 gi = texture(texPhotonicsIndirect, texcoord).rgb/PI;
 
-            // TODO: reduce GI for metals
+            // reduce GI [diffuse] for metals
+            #ifdef MATERIAL_PBR_ENABLED
+                float metalness = mat_metalness(specularData.g);
+                float roughness = mat_roughness(specularData.r);
+                float smoothL = 1.0 - _pow2(roughness);
+                gi *= 1.0 - metalness * smoothL;
+            #endif
+
+//            gi *= 1.0 - F * _pow2(smoothness);
+            lighting += gi;
         #endif
 
         #ifdef LIGHTING_SPECULAR

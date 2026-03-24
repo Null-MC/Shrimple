@@ -51,14 +51,8 @@ out VertexData {
 } vOut;
 
 
-#ifdef RENDER_TERRAIN
-    #ifdef WIND_ENABLED
-        uniform usampler2D texBlockWaving;
-    #endif
-
-//    #ifdef WATER_WAVE_ENABLED
-//        uniform sampler2D texWaterHeight;
-//    #endif
+#if defined(RENDER_TERRAIN) && defined(WIND_ENABLED)
+    uniform usampler2D texBlockWaving;
 #endif
 
 uniform float far;
@@ -132,10 +126,6 @@ void main() {
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
             if (vOut.blockId == BLOCK_WATER) {
                 vec2 waterWorldPos = (vOut.localPos.xz + cameraPosition.xz) / WaterNormalScale;
-
-//                // add 1px offset to avoid flickering at seams
-//                vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
-//                float waveHeight = texture(texWaterHeight, water_uv).r;
                 float waveHeight = wave_fbm(waterWorldPos, 8);
 
                 float viewDist = length(viewPos);
@@ -149,19 +139,13 @@ void main() {
         #endif
 
         #ifdef WIND_ENABLED
-            vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
-            originPos.xz += hash22(floor(originPos.xz + cameraPosition.xz)) * 8.0 - 4.0;
-            vec3 wind = GetWindForce(originPos, windTime);
-
-            vec3 windOffset = GetWindWavingOffset(wind, vOut.blockId);
-            vOut.localPos += windOffset;
-
             #ifdef VELOCITY_ENABLED
-                // TODO: move calc to GetWindWavingOffset() ?
-                vec3 windLast = GetWindForce(originPos, windTimeLast);
-                vec3 windOffsetLast = GetWindWavingOffset(windLast, vOut.blockId);
-                velocity = windOffset - windOffsetLast;
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, at_midBlock.xyz / 64.0, vOut.blockId, velocity, windTime, windTimeLast);
+            #else
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, at_midBlock.xyz / 64.0, vOut.blockId, windTime);
             #endif
+
+            vOut.localPos += windOffset;
         #endif
 
         #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)

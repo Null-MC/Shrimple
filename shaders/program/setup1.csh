@@ -6,7 +6,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(32, 32, 1);
 
 #ifdef WIND_ENABLED
-    layout(r8ui) uniform writeonly uimage2D imgBlockWaving;
+    layout(r16ui) uniform writeonly uimage2D imgBlockWaving;
 #endif
 
 #if defined(LIGHTING_COLORED) || defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
@@ -68,6 +68,7 @@ void main() {
 
     float wavingBottom = 0.0;
     float wavingTop = 0.0;
+    bool waveSnap = true;
 
 
     // foliage
@@ -127,6 +128,7 @@ void main() {
         case BLOCK_LEAVES:
             wavingTop = 1.0;
             wavingBottom = 1.0;
+            waveSnap = false;
             break;
     }
 
@@ -1086,9 +1088,9 @@ void main() {
     #endif
 
     #ifdef WIND_ENABLED
-//        uint wavingData = (uint(wavingTop * 16.0) << 4) & uint(wavingBottom * 16.0);
-        uint wavingData = bitfieldInsert(0u, uint(wavingBottom * 15.0), 0, 4);
-        wavingData = bitfieldInsert(wavingData, uint(wavingTop * 15.0), 4, 4);
+        uint wavingData = bitfieldInsert(0u, uint(wavingBottom * 127.0), 0, 7);
+        wavingData = bitfieldInsert(wavingData, uint(wavingTop * 127.0), 7, 7);
+        wavingData = bitfieldInsert(wavingData, uint(waveSnap), 14, 1);
         imageStore(imgBlockWaving, uv, uvec4(wavingData));
     #endif
 }

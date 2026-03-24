@@ -36,8 +36,6 @@
 #define TEX_NORMAL colortex4
 #define TEX_SSAO colortex5
 #define TEX_VELOCITY colortex6
-#define TEX_WATER_NORMAL colortex7
-#define IMG_WATER_NORMAL colorimg7
 #define TEX_META colortex8
 
 #define TEX_BLOOM_TILES texBloomTiles
@@ -47,7 +45,6 @@
 #define DEBUG_VIEW_SSAO 1
 #define DEBUG_VIEW_IRRADIANCE 2
 #define DEBUG_VIEW_BLOOM 3
-#define DEBUG_VIEW_WATER 4
 
 const int WaterNormalResolution = 256;
 const float WaterNormalScale = 1.0;

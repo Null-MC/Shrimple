@@ -1,14 +1,15 @@
 //uniform usampler2D TEX_ALBEDO_SPECULAR;
 
+#include "/lib/lighting/attenuation.glsl"
 #include "/lib/material/pbr.glsl"
 #include "/lib/fresnel.glsl"
 
-#ifdef LIGHTING_SPECULAR
-    #include "/lib/lighting/specular.glsl"
-#endif
-
 #ifdef MATERIAL_PBR_ENABLED
     #include "/lib/material/lazanyi.glsl"
+#endif
+
+#ifdef LIGHTING_SPECULAR
+    #include "/lib/lighting/specular.glsl"
 #endif
 
 

@@ -81,17 +81,14 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         #endif
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-            vec2 worldPos = localPos.xz + cameraPosition.xz;
+            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
+            float waveHeight = wave_fbm(waterWorldPos, 12);
+            vec3 wavePos = vec3(localPos.xz, waveHeight);
+//            wavePos.z += localPos.y - vIn.waveHeight;
 
-            vec2 water_uv = worldPos / WaterNormalScale;
-            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
-
-            water_uv *= 5.0;
-            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
-
-            localTexNormal = normalize(waterNormal1 + waterNormal2).xzy;
+            vec3 dX = dFdx(wavePos);
+            vec3 dY = dFdy(wavePos);
+            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;
         #endif
     }
 

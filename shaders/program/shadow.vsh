@@ -24,14 +24,11 @@ in vec4 at_midBlock;
     uniform usampler2D texBlockWaving;
 #endif
 
-#ifdef WATER_WAVE_ENABLED
-    uniform sampler2D texWaterHeight;
-#endif
-
 uniform int renderStage;
 uniform int entityId;
 uniform int blockEntityId;
 uniform int currentRenderedItemId;
+uniform float frameTimeCounter;
 uniform float windTime;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
@@ -46,6 +43,10 @@ uniform vec3 cameraPosition;
 #ifdef WIND_ENABLED
     #include "/lib/hash-noise.glsl"
     #include "/lib/wind-waving.glsl"
+#endif
+
+#ifdef WATER_WAVE_ENABLED
+    #include "/lib/water-waves.glsl"
 #endif
 
 #ifdef LIGHTING_COLORED
@@ -128,21 +129,20 @@ void main() {
 
             #ifdef WATER_WAVE_ENABLED
                 if (blockId == BLOCK_WATER) {
-                    vec2 waterWorldPos = (localPos.xz + cameraPosition.xz) / WaterNormalScale;
-                    // add 1px offset to avoid flickering at seams
-                    vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
-                    float waveHeight = texture(texWaterHeight, water_uv).r;
+                    vec2 waterWorldPos = localPos.xz + cameraPosition.xz;
+                    float waveHeight = wave_fbm(waterWorldPos, 8);
 
                     float viewDist = length(localPos);
-                    float fadeDist = smoothstep(0.0, 2.0, viewDist);
-                    localPos.y += (waveHeight*0.5 - 0.4) * fadeDist;
+                    float waveFadeF = smoothstep(0.0, 2.0, viewDist);
+                    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                        waveFadeF *= smoothstep(dh_clipDistF * far, 0.8 * dh_clipDistF * far, viewDist);
+                    #endif
+                    localPos.y += (waveHeight*0.5 - 0.4) * waveFadeF;
                 }
             #endif
 
             #ifdef WIND_ENABLED
-                vec3 originPos = localPos + at_midBlock.xyz / 64.0;
-                vec3 wind = GetWindForce(originPos, windTime);
-                localPos += GetWindWavingOffset(wind, blockId);
+                localPos += GetWindWavingOffset(localPos, at_midBlock.xyz / 64.0, blockId, windTime);
             #endif
 
             #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)

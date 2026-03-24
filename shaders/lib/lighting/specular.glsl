@@ -32,7 +32,7 @@ vec3 SampleLightSpecular(vec3 albedo, vec3 normal, vec3 lightDir, vec3 viewDir, 
         vec3 F = F_lazanyi(LoH, L.f0, L.f82);
 
 //        float smoothL = 1.0 - roughL;
-//        float metalness = mat_metalness(specularData.g);
+//        float metalness = mat_metalness(specularG);
 //        att *= 1.0 - metalness * smoothL;
     #else
         float f0 = mat_f0_lab(specularG);

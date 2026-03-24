@@ -27,7 +27,7 @@ in VertexData {
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
-    uniform sampler2D lightmap;
+    uniform sampler2D texLightmap;
 #endif
 
 #ifdef SHADOWS_ENABLED
@@ -82,11 +82,21 @@ uniform float dhFarPlane;
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/dh-noise.glsl"
 #include "/lib/shadows.glsl"
+#include "/lib/octohedral.glsl"
 
-#if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
-    #include "/lib/octohedral.glsl"
+//#if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
+//    #include "/lib/octohedral.glsl"
+//    #include "/lib/fresnel.glsl"
+//    #include "/lib/material/pbr.glsl"
+//#endif
+
+#if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
     #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
+
+    #ifdef MATERIAL_PBR_ENABLED
+        #include "/lib/material/lazanyi.glsl"
+    #endif
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -281,7 +291,7 @@ void main() {
         lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
 
         lmcoord = LightMapTex(lmcoord);
-        diffuseFinal = texture(lightmap, lmcoord).rgb;
+        diffuseFinal = texture(texLightmap, lmcoord).rgb;
         float oldLighting = GetOldLighting(localTexNormal);
 //        #ifdef MATERIAL_PBR_ENABLED
 //            oldLighting = mix(oldLighting, 1.0, sss);

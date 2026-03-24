@@ -155,12 +155,12 @@ void main() {
 
         vec3 ndcPos = screenPos * 2.0 - 1.0;
 
-        // TODO: fix hand depth
+        // don't fix hand depth, not needed
 
         vec3 viewPos = project(SSAO_PROJ_INV, ndcPos);
         float viewDist = length(viewPos);
 
-        if (viewDist >= 0.9 * far) {
+        if (viewDist >= dh_clipDistF * far) {
 //            vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
             vec3 viewTexNormal = OctDecode(normalData);
 

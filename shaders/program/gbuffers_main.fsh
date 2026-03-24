@@ -283,20 +283,8 @@ void main() {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (vIn.blockId == BLOCK_WATER) {
-//            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
-//
-//            vec2 water_uv = worldPos / WaterNormalScale;
-//            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-//            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
-//
-//            water_uv *= 5.0;
-//            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-//            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
-//
-//            tex_normal = normalize(waterNormal1 + waterNormal2);
-
             vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
-            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);// - vIn.waveHeight;
+            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
             vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
             wavePos.z += vIn.localPos.y - vIn.waveHeight;
 
