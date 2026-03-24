@@ -20,6 +20,8 @@ layout(location = 3) out vec4 direct_soft_frag_out;
 layout(location = 4) out vec4 handheld_frag_out;
 #endif
 
+uniform vec4 lightningBoltPosition;
+
 struct Frag {
     vec4 direct;
     vec4 direct_soft;
@@ -58,8 +60,8 @@ vec3 ph_sample_direct_lighting(vec3 position, vec3 normal, vec3 mapped_normal, L
     trace_ray(ray, true);
     RAY_ITERATION_COUNT = 100;
 
-    if (!ray.result_hit) return vec3(0f);
-    if (floor(light.position) != floor(ray.result_position)) return vec3(0f);
+//    if (!ray.result_hit) return vec3(0f);
+    if (ray.result_hit && floor(light.position) != floor(ray.result_position)) return vec3(0f);
 
     light.color *= result_tint_color;
 
@@ -181,6 +183,23 @@ void main() {
 
     #ifdef PH_ENABLE_HANDHELD_LIGHT
     sample_handheld(handheld_frag_out);
+
+    if (lightningBoltPosition.w > 0.0) {
+        Light light;
+        light.index = -2;
+        // light.blockId = ENTITY_LIGHTNING;
+        light.position = lightningBoltPosition.xyz + rt_camera_position;
+        light.color = vec3(10.0);
+        light.intensity = 10.0;
+        light.attenuation = vec2(1.0, 0.01);
+        light.falloff = 1.0;
+        light.block_radius = 80.0;
+
+        #ifndef PH_LIGHT_MODIFIER_DISABLED
+        modify_light(light, world_pos);
+        #endif
+        handheld_frag_out.xyz += ph_sample_direct_lighting(rt_pos, block_normal, normal, light);
+    }
     #endif
 
     #ifdef PH_ENABLE_GI

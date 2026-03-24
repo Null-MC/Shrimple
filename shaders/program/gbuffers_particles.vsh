@@ -24,7 +24,7 @@ uniform vec3 relativeEyePosition;
 #include "/lib/sampling/lightmap.glsl"
 
 #ifdef LIGHTING_HAND
-    #include "/lib/hand-light.glsl"
+    #include "/lib/lighting/hand.glsl"
 #endif
 
 

@@ -120,7 +120,7 @@ uniform int vxRenderDistance;
         #include "/lib/sampling/block-light.glsl"
     #endif
 
-    #include "/lib/hand-light.glsl"
+    #include "/lib/lighting/hand.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED

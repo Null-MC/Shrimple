@@ -83,7 +83,7 @@ uniform float dhFarPlane;
 #include "/lib/sampling/depth.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/fog.glsl"
-#include "/lib/water.glsl"
+#include "/lib/water-absorb.glsl"
 #include "/lib/fresnel.glsl"
 #include "/lib/material/pbr.glsl"
 
@@ -433,5 +433,5 @@ void main() {
     }
 
     vec3 src = texelFetch(TEX_FINAL, uv, 0).rgb;
-    outFinal = src + reflectColor;
+    outFinal = src + max(reflectColor, vec3(0.0));
 }

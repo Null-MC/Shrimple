@@ -50,7 +50,7 @@
 #define DEBUG_VIEW_WATER 4
 
 const int WaterNormalResolution = 256;
-const float WaterNormalScale = 32.0;
+const float WaterNormalScale = 1.0;
 
 const vec3 luma_factor = vec3(0.2126, 0.7152, 0.0722);
 const float GoldenAngle = PI * (3.0 - sqrt(5.0));

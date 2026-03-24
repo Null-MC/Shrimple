@@ -140,7 +140,7 @@ vec3 ph_sample_indirect_impl() {
 
                         #ifdef PHOTONICS_SHRIMPLE_COLORS
                             const float lightRadius = 0.5;
-                            float att = GetLightAttenuation_Diffuse(lightDist, light.block_radius, lightRadius);
+                            float att = GetLightAttenuation(lightDist, light.block_radius, lightRadius);
                         #else
                             float distance_squared = dot(lightOffset, lightOffset) * light.falloff;
                             float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);

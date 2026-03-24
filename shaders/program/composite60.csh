@@ -38,7 +38,7 @@ uniform mat4 vxProj;
 uniform mat4 vxProjInv;
 
 const float TAA_RejectionStrength = 0.1;
-const int TAA_MaxAccumFrames = 16;
+const int TAA_MaxAccumFrames = 8;
 
 
 int getSharedIndex(const in ivec2 uv) {

@@ -101,7 +101,7 @@ uniform float dhFarPlane;
 #endif
 
 #ifdef LIGHTING_SPECULAR
-    #include "/lib/brdf.glsl"
+    #include "/lib/lighting/specular.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED

@@ -19,6 +19,10 @@ in VertexData {
         flat float chunkFade;
     #endif
 
+    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+        float waveHeight;
+    #endif
+
     #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
         flat uint localTangent;
         flat float localTangentW;
@@ -79,9 +83,9 @@ uniform sampler2D gtexture;
     #endif
 #endif
 
-#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
-    uniform sampler2D TEX_WATER_NORMAL;
-#endif
+//#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+//    uniform sampler2D TEX_WATER_NORMAL;
+//#endif
 
 uniform float far;
 uniform float fogDensity;
@@ -108,6 +112,7 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
 uniform int frameCounter;
+uniform float frameTimeCounter;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
 uniform ivec2 eyeBrightnessSmooth;
@@ -135,7 +140,8 @@ uniform float dhFarPlane;
 #include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
-#include "/lib/water.glsl"
+#include "/lib/water-absorb.glsl"
+#include "/lib/lighting/attenuation.glsl"
 #include "/lib/ssao.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
@@ -150,6 +156,10 @@ uniform float dhFarPlane;
 #ifdef MATERIAL_PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
     #include "/lib/material/parallax.glsl"
+#endif
+
+#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+    #include "/lib/water-waves.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -169,7 +179,7 @@ uniform float dhFarPlane;
 #endif
 
 #ifdef LIGHTING_SPECULAR
-    #include "/lib/brdf.glsl"
+    #include "/lib/lighting/specular.glsl"
 #endif
 
 #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
@@ -177,7 +187,7 @@ uniform float dhFarPlane;
         #include "/lib/sampling/block-light.glsl"
     #endif
 
-    #include "/lib/hand-light.glsl"
+    #include "/lib/lighting/hand.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED
@@ -273,17 +283,26 @@ void main() {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (vIn.blockId == BLOCK_WATER) {
-            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
+//            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
+//
+//            vec2 water_uv = worldPos / WaterNormalScale;
+//            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+//            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
+//
+//            water_uv *= 5.0;
+//            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
+//            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
+//
+//            tex_normal = normalize(waterNormal1 + waterNormal2);
 
-            vec2 water_uv = worldPos / WaterNormalScale;
-            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
+            vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
+            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);// - vIn.waveHeight;
+            vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
+            wavePos.z += vIn.localPos.y - vIn.waveHeight;
 
-            water_uv *= 5.0;
-            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
-
-            tex_normal = normalize(waterNormal1 + waterNormal2);
+            vec3 dX = dFdx(wavePos);
+            vec3 dY = dFdy(wavePos);
+            tex_normal = normalize(cross(normalize(dY), normalize(dX)));
         }
     #endif
 
@@ -479,21 +498,7 @@ void main() {
                     vec3 skySpecularLightDir = GetAreaLightDir(localTexNormal, localViewDir, localSkyLightDir, 100.0, 8.0);
                     skySpecularLightDir = normalize(skySpecularLightDir + 0.1*localSkyLightDir);
 
-                    vec3 H = normalize(skySpecularLightDir - localViewDir);
-                    float sky_NoH = max(dot(localTexNormal, H), 0.0);
-                    float sky_LoH = max(dot(skySpecularLightDir, H), 0.0);
-                    float sky_NoV = max(dot(localTexNormal, -localViewDir), 0.0);
-
-                    #ifdef MATERIAL_PBR_ENABLED
-                        LazanyiF sky_L = mat_f0_lazanyi(albedo, specularData.g);
-                        vec3 sky_F = F_lazanyi(sky_LoH, sky_L.f0, sky_L.f82);
-                    #else
-                        float f0 = mat_f0_lab(specularData.g);
-                        float sky_F = F_schlick(sky_LoH, f0, 1.0);
-                    #endif
-
-                    float alpha = max(roughL, 0.02);
-                    specularFinal += skyLight_NoLm * D_GGX(sky_NoH, alpha) * V_Approx(skyLight_NoLm, sky_NoV, alpha) * sky_F * skyLightColor;
+                    specularFinal += SampleLightSpecular(albedo, localTexNormal, skySpecularLightDir, -localViewDir, skyLight_NoLm, roughL, specularData.g) * skyLightColor;
                 }
 
                 // apply metal tint
@@ -547,26 +552,36 @@ void main() {
     diffuseFinal *= tex_occlusion;
 
     #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
-        float handLight1 = max(heldBlockLightValue  - handDist, 0.0) / 15.0;
-        float handLight2 = max(heldBlockLightValue2 - handDist, 0.0) / 15.0;
-
-        vec3 handLightColor1 = vec3(1.0);
         if (heldItemId >= 0) {
+            vec3 lightColor;
             float lightRange;
-            GetBlockColorRange(heldItemId, handLightColor1, lightRange);
+            GetBlockColorRange(heldItemId, lightColor, lightRange);
+
+            const float lightRadius = 0.5;
+            float att = GetLightAttenuation(handDist, lightRange, lightRadius);
+            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+            float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
+
+            diffuseFinal += att * hand_NoLm * lightColor;
+            #ifdef LIGHTING_SPECULAR
+                specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
+            #endif
         }
 
-        vec3 handLightColor2 = vec3(1.0);
         if (heldItemId2 >= 0) {
+            vec3 lightColor;
             float lightRange;
-            GetBlockColorRange(heldItemId2, handLightColor2, lightRange);
-        }
+            GetBlockColorRange(heldItemId2, lightColor, lightRange);
 
-        vec3 handLightDir = normalize(vIn.localPos - handLightPos);
-        float hand_NoLm = max(dot(localTexNormal, -handLightDir), 0.0);
+            const float lightRadius = 0.5;
+            float att = GetLightAttenuation(handDist, lightRange, lightRadius);
+            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+            float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
 
-        if (heldBlockLightValue > 0 || heldBlockLightValue2 > 0) {
-            diffuseFinal += hand_NoLm * (_pow2(handLight1) * handLightColor1 + _pow2(handLight2) * handLightColor2);
+            diffuseFinal += att * hand_NoLm * lightColor;
+            #ifdef LIGHTING_SPECULAR
+                specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
+            #endif
         }
     #endif
 

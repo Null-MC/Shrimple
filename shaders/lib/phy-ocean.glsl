@@ -57,6 +57,7 @@ float physics_waveHeight(vec2 position, int iterations, float factor, float time
 
     for (int i = 0; i < iterations; i++) {
         vec2 direction = vec2(sin(iter), cos(iter));
+
         float x = dot(direction, position) * frequency + modifiedTime * speed;
         float wave = exp(sin(x) - 1.0);
         float result = wave * cos(x);

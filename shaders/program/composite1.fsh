@@ -51,7 +51,7 @@ uniform mat4 vxProjInv;
 uniform int vxRenderDistance;
 
 #include "/lib/oklab.glsl"
-#include "/lib/water.glsl"
+#include "/lib/water-absorb.glsl"
 #include "/lib/fog.glsl"
 
 #ifdef REFRACT_ENABLED

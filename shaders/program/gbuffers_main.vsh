@@ -25,6 +25,10 @@ out VertexData {
         flat float chunkFade;
     #endif
 
+    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
+        float waveHeight;
+    #endif
+
     #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
         flat uint localTangent;
         flat float localTangentW;
@@ -52,9 +56,9 @@ out VertexData {
         uniform usampler2D texBlockWaving;
     #endif
 
-    #ifdef WATER_WAVE_ENABLED
-        uniform sampler2D texWaterHeight;
-    #endif
+//    #ifdef WATER_WAVE_ENABLED
+//        uniform sampler2D texWaterHeight;
+//    #endif
 #endif
 
 uniform float far;
@@ -67,6 +71,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
 uniform vec3 cameraPosition;
+uniform float frameTimeCounter;
 uniform vec2 taa_offset = vec2(0.0);
 
 
@@ -79,13 +84,19 @@ uniform vec2 taa_offset = vec2(0.0);
     #include "/lib/sampling/atlas.glsl"
 #endif
 
-#if defined(WIND_ENABLED) && defined(RENDER_TERRAIN)
-    #include "/lib/hash-noise.glsl"
-    #include "/lib/wind-waving.glsl"
+#ifdef RENDER_TERRAIN
+    #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+        #include "/lib/water-waves.glsl"
+    #endif
+
+    #ifdef WIND_ENABLED
+        #include "/lib/hash-noise.glsl"
+        #include "/lib/wind-waving.glsl"
+    #endif
 #endif
 
 #ifdef LIGHTING_HAND
-    #include "/lib/hand-light.glsl"
+    #include "/lib/lighting/hand.glsl"
 #endif
 
 
@@ -118,25 +129,28 @@ void main() {
         vOut.blockId = int(mc_Entity.x + EPSILON);
         vec3 velocity = vec3(0.0);
 
-        #ifdef WATER_WAVE_ENABLED
+        #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
             if (vOut.blockId == BLOCK_WATER) {
                 vec2 waterWorldPos = (vOut.localPos.xz + cameraPosition.xz) / WaterNormalScale;
-                // add 1px offset to avoid flickering at seams
-                vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
-                float waveHeight = texture(texWaterHeight, water_uv).r;
+
+//                // add 1px offset to avoid flickering at seams
+//                vec2 water_uv = fract(waterWorldPos + (1.0/WaterNormalResolution));
+//                float waveHeight = texture(texWaterHeight, water_uv).r;
+                float waveHeight = wave_fbm(waterWorldPos, 8);
 
                 float viewDist = length(viewPos);
                 float waveFadeF = smoothstep(0.0, 2.0, viewDist);
                 #if defined(DISTANT_HORIZONS) || defined(VOXY)
                     waveFadeF *= smoothstep(dh_clipDistF * far, 0.8 * dh_clipDistF * far, viewDist);
                 #endif
-                vOut.localPos.y += (waveHeight*0.5 - 0.4) * waveFadeF;
+                vOut.waveHeight = (waveHeight*0.5 - 0.4) * waveFadeF;
+                vOut.localPos.y += vOut.waveHeight;
             }
         #endif
 
         #ifdef WIND_ENABLED
             vec3 originPos = vOut.localPos + at_midBlock.xyz / 64.0;
-            originPos.xz += hash22(floor(originPos.xz)) * 8.0 - 4.0;
+            originPos.xz += hash22(floor(originPos.xz + cameraPosition.xz)) * 8.0 - 4.0;
             vec3 wind = GetWindForce(originPos, windTime);
 
             vec3 windOffset = GetWindWavingOffset(wind, vOut.blockId);

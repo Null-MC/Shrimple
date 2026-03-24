@@ -46,6 +46,8 @@ void main() {
 
         #ifdef PHOTONICS_GI_ENABLED
             lighting += texture(texPhotonicsIndirect, texcoord).rgb/PI;
+
+            // TODO: reduce GI for metals
         #endif
 
         #ifdef LIGHTING_SPECULAR

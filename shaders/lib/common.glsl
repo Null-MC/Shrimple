@@ -96,6 +96,9 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 #define PHOTONICS_GI_BLOCK_SAMPLES 4 // [1 2 3 4 5 6 7 8]
 #define PHOTONICS_SHRIMPLE_COLORS
 
+#define RENDER_SCALE 50
+const float RenderScale = RENDER_SCALE * 0.01;
+
 //#define DEBUG
 #define DEBUG_VIEW 0 // [0 1 2 3 4]
 //#define DEBUG_WHITEWORLD
@@ -228,6 +231,8 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 #define _pow2(x) ((x)*(x))
 #define _pow3(x) ((x)*(x)*(x))
 #define _saturate(x) (clamp(x, 0.0, 1.0))
+
+float pow2(const in float x) {return x * x;}
 
 float pow4(const in float x) {
     float x2 = _pow2(x);
