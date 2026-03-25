@@ -281,6 +281,14 @@ void main() {
         vec3 tex_normal = vec3(0.0, 0.0, 1.0);
     #endif
 
+    #if defined(MATERIAL_PBR_ENABLED) || (defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT))
+        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
+        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
+        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
+    #else
+        vec3 localTexNormal = localGeoNormal;
+    #endif
+
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (vIn.blockId == BLOCK_WATER) {
             vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
@@ -290,16 +298,8 @@ void main() {
 
             vec3 dX = dFdx(wavePos);
             vec3 dY = dFdy(wavePos);
-            tex_normal = normalize(cross(normalize(dY), normalize(dX)));
+            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
         }
-    #endif
-
-    #if defined(MATERIAL_PBR_ENABLED) || (defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT))
-        vec3 localTangent = OctDecode(unpackUnorm2x16(vIn.localTangent));
-        mat3 matLocalTBN = BuildTBN(localGeoNormal, localTangent, vIn.localTangentW);
-        vec3 localTexNormal = normalize(matLocalTBN * tex_normal);
-    #else
-        vec3 localTexNormal = localGeoNormal;
     #endif
 
     #ifdef MATERIAL_PBR_ENABLED
@@ -652,6 +652,11 @@ void main() {
 
 //    color.rgb = localTexNormal * 0.5 + 0.5;
 //    color.a = 1.0;
+//    #ifdef RENDER_TRANSLUCENT
+//        color.rgb = 0.5 * (color.rgb + vec3(1,0,0));
+//    #else
+//        color.rgb = 0.5 * (color.rgb + vec3(0,0,1));
+//    #endif
 
     outFinal = color;
 

@@ -88,10 +88,10 @@ void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world
     world_pos = load_world_position() - 0.01 * world_normal;
 }
 
-vec3 get_sky_color(ivec2 gBufferLoc, vec3 worldPos, vec3 newNormal) {
+vec3 get_sky_color(ivec2 uv, vec3 worldPos, vec3 normal) {
     vec3 fogColorL = RGBToLinear(fogColor);
     vec3 skyColorL = RGBToLinear(skyColor);
-    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, newNormal, weatherStrength, skyDayF);
+    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, normal, weatherStrength, skyDayF);
 }
 
 bool is_in_world() {

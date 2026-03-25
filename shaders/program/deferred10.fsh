@@ -45,8 +45,12 @@ void main() {
         vec4 specularData = unpackUnorm4x8(reflectData.g);
         vec3 albedo = RGBToLinear(albedoData.rgb);
 
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            albedo /= PI;
+        #endif
+
         #ifdef PHOTONICS_GI_ENABLED
-            vec3 gi = texture(texPhotonicsIndirect, texcoord).rgb/PI;
+            vec3 gi = texture(texPhotonicsIndirect, texcoord).rgb;
 
             // reduce GI [diffuse] for metals
             #ifdef MATERIAL_PBR_ENABLED

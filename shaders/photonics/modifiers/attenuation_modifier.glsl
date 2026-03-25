@@ -28,7 +28,7 @@ vec3 modify_attenuation(
 
     #ifdef PHOTONICS_SHRIMPLE_COLORS
         const float lightRadius = 0.5;
-        float att = 3.0 * GetLightAttenuation(lightDist, light.block_radius, lightRadius);
+        float att = GetLightAttenuation(lightDist, light.block_radius, lightRadius);
     #else
         float att = 1.0 / (lightDistSq * light.falloff * light.attenuation.y + light.attenuation.x);
     #endif
@@ -37,7 +37,7 @@ vec3 modify_attenuation(
     float NoLm = max(dot(texture_normal, light_dir), 0.0);
     NoLm *= step(EPSILON, dot(geometry_normal, light_dir));
 
-    vec3 lit = vec3(NoLm/PI);
+    vec3 lit = vec3(NoLm);
 
     #ifdef LIGHTING_SPECULAR
         vec3 localPos = sample_pos - rt_camera_position;
@@ -52,7 +52,7 @@ vec3 modify_attenuation(
         float roughness = mat_roughness(specularData.r);
         float roughL = _pow2(roughness);
 
-        lit *= albedo;
+        lit *= albedo/PI;
         lit += SampleLightSpecular(albedo, texture_normal, light_dir, -localViewDir, NoLm, roughL, specularData.g);
 
 //        vec3 H = normalize(light_dir - localViewDir);

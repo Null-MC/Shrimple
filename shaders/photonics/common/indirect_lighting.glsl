@@ -73,6 +73,10 @@ vec3 ph_sample_indirect_impl() {
         vec3 hitLocalNormal = ray.result_normal;
         vec3 hitEmission = 8.0 * lightEmittance;
 
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            hitAlbedo /= PI;
+        #endif
+
         vec3 sample_color = vec3(0.0);
 
         #ifdef PHOTONICS_GI_ENABLED
@@ -176,7 +180,7 @@ vec3 ph_sample_indirect_impl() {
 
         sample_color += hitEmission;
 
-        indirect_color += sample_color * hitAlbedo;
+        indirect_color += hitAlbedo * sample_color;
     }
 
     return trace_tangentDir.z * indirect_color * tint;
