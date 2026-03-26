@@ -21,6 +21,7 @@ uniform float weatherDensity;
 uniform vec3 sunLocalDir;
 uniform int isEyeInWater;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 
 uniform float dhFarPlane;
 uniform int vxRenderDistance;

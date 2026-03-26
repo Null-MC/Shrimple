@@ -1,10 +1,15 @@
-const float MinAmbientF = LIGHTING_MIN * 0.01;
+#ifdef WORLD_NETHER
+    const float MinAmbientF = NETHER_BRIGHTNESS * 0.01;
+#else
+    const float MinAmbientF = LIGHTING_MIN * 0.01;
+#endif
 
 
 vec3 GetSkyLightColor(const in vec3 localPos, const in float localSunLightDir_y, const in float localSkyLightDir_y) {
     #ifdef WORLD_NETHER
-        const float brightnessF = NETHER_BRIGHTNESS * 0.01;
-        return vec3(brightnessF);
+//        const float brightnessF = NETHER_BRIGHTNESS * 0.01;
+//        return vec3(brightnessF);
+        return vec3(0.0);
     #else
         const float nightBrightF = OVERWORLD_NIGHT_BRIGHTNESS * 0.01;
 

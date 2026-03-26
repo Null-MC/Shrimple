@@ -107,8 +107,10 @@ vec3 GetSkyFogWaterColor(const in vec3 skyColorL, const in vec3 fogColorL, const
     vec3 color = GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, localViewDir, rainF, skyDayF);
 
     #if OVERWORLD_SKY == SKY_ENHANCED
-        float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
-        color *= _pow2(eyeBrightF) * 0.92 + 0.08;
+        if (hasSkylight) {
+            float eyeBrightF = eyeBrightnessSmooth.y / 240.0;
+            color *= _pow2(eyeBrightF) * 0.92 + 0.08;
+        }
     #endif
 
     return color;

@@ -13,6 +13,7 @@ uniform float farPlane;
 uniform vec3 sunLocalDir;
 uniform mat4 gbufferModelView;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 uniform int renderStage;
 uniform int isEyeInWater;
 uniform float skyDayF;

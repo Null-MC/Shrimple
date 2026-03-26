@@ -116,6 +116,7 @@ uniform float frameTimeCounter;
 uniform bool firstPersonCamera;
 uniform vec3 relativeEyePosition;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 uniform int isEyeInWater;
 uniform int heldItemId;
 uniform int heldItemId2;

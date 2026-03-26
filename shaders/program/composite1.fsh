@@ -44,6 +44,7 @@ uniform float skyDayF;
 uniform float weatherStrength;
 uniform float weatherDensity;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 
 uniform float dhFarPlane;
 uniform mat4 dhProjectionInverse;

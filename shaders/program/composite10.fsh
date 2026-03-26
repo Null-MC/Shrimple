@@ -68,6 +68,7 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 uniform int frameCounter;
 uniform vec2 viewSize;
 uniform vec2 taa_offset = vec2(0.0);
