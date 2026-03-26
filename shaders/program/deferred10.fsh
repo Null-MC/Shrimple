@@ -49,7 +49,7 @@ void main() {
             albedo /= PI;
         #endif
 
-        #ifdef PHOTONICS_GI_ENABLED
+        #if defined(PHOTONICS_GI_ENABLED) && !defined(PHOTONICS_RESTIR_ENABLED)
             vec3 gi = texture(texPhotonicsIndirect, texcoord).rgb;
 
             // reduce GI [diffuse] for metals

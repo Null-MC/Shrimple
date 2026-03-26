@@ -27,6 +27,7 @@ uniform float skyDayF;
 uniform vec3 skyColor;
 uniform vec3 sunLocalDir;
 uniform ivec2 eyeBrightnessSmooth;
+uniform bool hasSkylight;
 uniform float weatherStrength;
 uniform float weatherDensity;
 uniform int isEyeInWater;
