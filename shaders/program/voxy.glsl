@@ -18,6 +18,10 @@
     #endif
 #endif
 
+#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+    #include "/lib/water-waves.glsl"
+#endif
+
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     #ifdef WORLD_OVERWORLD
         #include "/lib/sky-transmit.glsl"

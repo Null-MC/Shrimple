@@ -24,6 +24,7 @@ in vec4 at_midBlock;
     uniform usampler2D texBlockWaving;
 #endif
 
+uniform float far;
 uniform int renderStage;
 uniform int entityId;
 uniform int blockEntityId;
