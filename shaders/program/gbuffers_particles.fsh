@@ -64,7 +64,7 @@ uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
 uniform ivec2 eyeBrightnessSmooth;
-uniform bool hasSkylight;
+uniform int hasSkylight;
 uniform int frameCounter;
 uniform int isEyeInWater;
 

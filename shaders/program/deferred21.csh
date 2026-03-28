@@ -44,7 +44,7 @@ uniform float weatherDensity;
 uniform int isEyeInWater;
 //uniform vec3 sunPosition;
 uniform vec3 sunLocalDir;
-uniform bool hasSkylight;
+uniform int hasSkylight;
 uniform ivec2 eyeBrightnessSmooth;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;

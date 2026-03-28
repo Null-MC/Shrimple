@@ -23,7 +23,7 @@ uniform int isEyeInWater;
 uniform vec3 sunLocalDir;
 uniform vec3 cameraPosition;
 uniform ivec2 eyeBrightnessSmooth;
-uniform bool hasSkylight;
+uniform int hasSkylight;
 
 uniform int vxRenderDistance;
 uniform float dhFarPlane;

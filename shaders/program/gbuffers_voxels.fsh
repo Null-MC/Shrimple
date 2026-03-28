@@ -56,7 +56,7 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform ivec2 eyeBrightnessSmooth;
-uniform bool hasSkylight;
+uniform int hasSkylight;
 uniform vec4 entityColor;
 uniform float alphaTestRef;
 uniform int frameCounter;
