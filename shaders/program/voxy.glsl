@@ -18,9 +18,9 @@
     #endif
 #endif
 
-#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-    #include "/lib/water-waves.glsl"
-#endif
+//#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+//    #include "/lib/water-waves.glsl"
+//#endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
     #ifdef WORLD_OVERWORLD
@@ -84,16 +84,16 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
             specularData = vec4(0.98, 0.02, 0.0, 0.0);
         #endif
 
-        #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
-            float waveHeight = wave_fbm(waterWorldPos, 12);
-            vec3 wavePos = vec3(localPos.xz, waveHeight);
-//            wavePos.z += localPos.y - vIn.waveHeight;
-
-            vec3 dX = dFdx(wavePos);
-            vec3 dY = dFdy(wavePos);
-            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;
-        #endif
+//        #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+//            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
+//            float waveHeight = wave_fbm(waterWorldPos, 12);
+//            vec3 wavePos = vec3(localPos.xz, waveHeight);
+////            wavePos.z += localPos.y - vIn.waveHeight;
+//
+//            vec3 dX = dFdx(wavePos);
+//            vec3 dY = dFdy(wavePos);
+//            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;
+//        #endif
     }
 
     float viewDist = length(localPos);

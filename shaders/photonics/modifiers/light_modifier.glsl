@@ -22,4 +22,6 @@ void modify_light(inout Light light, vec3 world_pos) {
 
         //    light.attenuation = vec2(0.0, 0.5);
     #endif
+
+    light.color *= 8.0;
 }
