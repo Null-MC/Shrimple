@@ -24,7 +24,7 @@
   #endif
   "blending": {
     #if LIGHTING_MODE == 1
-      0: "ONE ONE_MINUS_SRC_ALPHA ONE ZERO",
+      0: "ONE ONE_MINUS_SRC_ALPHA ONE ONE",
       #ifdef TAA_ENABLED
         3: "off",
       #else

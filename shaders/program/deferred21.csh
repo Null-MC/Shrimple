@@ -159,7 +159,7 @@ void main() {
 
     if (depth < 1.0 || lodDepth < 1.0) {
         vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
-        vec3 screenPos = vec3(texcoord, depth);
+        vec3 screenPos = vec3(texcoord, lodDepth < 1.0 ? lodDepth : depth);
 
         #ifdef TAA_ENABLED
             // screenPos.xy -= taa_offset;
@@ -167,7 +167,7 @@ void main() {
 
         vec3 ndcPos = screenPos * 2.0 - 1.0;
 
-        // TODO: fix hand depth
+        // TODO: fix hand depth?
 
         vec3 viewPos = project(lodDepth < 1.0 ? SSAO_PROJ_INV : gbufferProjectionInverse, ndcPos);
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
