@@ -144,13 +144,20 @@ void main() {
 
     vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+    float lodDepth = 1.0;
 
-    if (depth < 1.0) depth = 1.0;
-    else {
-        depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+    if (depth >= 1.0) {
+        lodDepth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
     }
 
-    if (depth < 1.0) {
+    if (lodDepth < 1.0) {
+        float occlusion = BilateralGaussianBlur();
+
+        //        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
+        color *= occlusion;
+    }
+
+    if (depth < 1.0 || lodDepth < 1.0) {
         vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
         vec3 screenPos = vec3(texcoord, depth);
 
@@ -162,15 +169,10 @@ void main() {
 
         // TODO: fix hand depth
 
-        vec3 viewPos = project(SSAO_PROJ_INV, ndcPos);
+        vec3 viewPos = project(lodDepth < 1.0 ? SSAO_PROJ_INV : gbufferProjectionInverse, ndcPos);
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
         float viewDist = length(localPos);
-
-        float occlusion = BilateralGaussianBlur();
-
-//        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
-        color *= occlusion;
 
         float borderFogF = GetBorderFogStrength(viewDist);
         float envFogF = GetEnvFogStrength(viewDist);
