@@ -27,10 +27,17 @@ uniform sampler2D TEX_BLOOM_TILES;
 
 #if BLOOM_TILE == 0
     uniform sampler2D TEX_DEST;
+
+    uniform sampler2D depthtex0;
+    uniform sampler2D texBlurTiles;
 #endif
 
 uniform vec2 viewSize;
+uniform int isEyeInWater;
+uniform float nearPlane;
+uniform float farPlane;
 
+#include "/lib/sampling/depth.glsl"
 #include "/lib/bloom.glsl"
 
 
@@ -43,8 +50,8 @@ vec3 BloomSample(in vec2 texcoord, const in vec2 boundsMin, const in vec2 bounds
 void main() {
     ivec2 outputSize = ivec2(ceil(viewSize / exp2(BLOOM_TILE)));
 
-    ivec2 local_uv = ivec2(gl_GlobalInvocationID.xy);
-    if (any(greaterThanEqual(local_uv, outputSize))) return;
+    ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+    if (any(greaterThanEqual(uv, outputSize))) return;
 
     vec2 pixelSize = 1.0 / viewSize;
 
@@ -78,24 +85,50 @@ void main() {
 
     vec3 bloom = max(upsample, vec3(0.0));
 
-
-
-
+    vec2 src_tex = texcoord;
     #if BLOOM_TILE > 0
         vec2 dstBoundsMin, dstBoundsMax;
         GetBloomTileInnerBounds(BLOOM_TILE-1, dstBoundsMin, dstBoundsMax);
-        texcoord = mix(dstBoundsMin, dstBoundsMax, texcoord);
+        src_tex = mix(dstBoundsMin, dstBoundsMax, texcoord);
     #endif
 
-    vec3 color = texture(TEX_DEST, texcoord).rgb;
+    vec3 color = texture(TEX_DEST, src_tex).rgb;
 
     #if BLOOM_TILE == 0
         bloom *= EffectBloomStrengthF;
+
+        if (isEyeInWater == 1) {
+            float depth = texelFetch(depthtex0, uv, 0).r;
+            depth = linearizeDepth(depth, nearPlane, farPlane);
+
+            float blurF = saturate(depth * 0.025);
+            float blurTileF = blurF * 3.0;
+            int blurTile = int(ceil(blurTileF));
+
+            vec2 blurBoundsMin, blurBoundsMax;
+            GetBloomTileInnerBounds(blurTile, blurBoundsMin, blurBoundsMax);
+            vec2 blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
+
+            vec3 color_blurred = texture(texBlurTiles, blur_tex).rgb;
+
+            if (blurTileF > 1.0) {
+                int blurTileMin = blurTile-1;
+                GetBloomTileInnerBounds(blurTileMin, blurBoundsMin, blurBoundsMax);
+                blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
+
+                vec3 color_blurred2 = texture(texBlurTiles, blur_tex).rgb;
+
+                color = mix(color_blurred2, color_blurred, blurTileF - blurTileMin);
+            }
+            else {
+                color = mix(color, color_blurred, blurTileF);
+            }
+        }
     #endif
 
     color += bloom;
 
-    ivec2 output_uv = local_uv;
+    ivec2 output_uv = uv;
 
     #if BLOOM_TILE > 0
 //        vec2 outputPos = GetBloomTileInnerPosition(BLOOM_TILE-1);

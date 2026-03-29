@@ -70,7 +70,7 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, uv, 0).r;
     float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
 
-    #ifdef MATERIAL_GLASS_TINT
+    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_FOG_FIX)
         vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
     #endif
 
@@ -105,31 +105,31 @@ void main() {
         vec3 src = texelFetch(TEX_FINAL, uv, 0).rgb;
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        bool isTransLod = depthTranslucent == 1.0;
+        if (isTransLod) {
+            depthTranslucent = texelFetch(dhDepthTex0, uv, 0).r;
+        }
+        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transViewPos = project(isTransLod ? dhProjectionInverse : gbufferProjectionInverse, transNdcPos);
+    #elif defined(VOXY)
+        bool isTransLod = depthTranslucent == 1.0;
+        if (isTransLod) {
+            depthTranslucent = texelFetch(vxDepthTexTrans, uv, 0).r;
+        }
+        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transViewPos = project(isTransLod ? vxProjInv : gbufferProjectionInverse, transNdcPos);
+    #else
+        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
+    #endif
+
     #if defined(MATERIAL_GLASS_TINT) || defined(WATER_ABSORPTION)
         uint matID = uint(tintData.a * 255.0 + 0.5);
 
         #ifdef MATERIAL_GLASS_TINT
             if (matID == MAT_STAINED_GLASS)
                 src *= normalize(RGBToLinear(tintData.rgb));
-        #endif
-
-        #ifdef DISTANT_HORIZONS
-            bool isTransLod = depthTranslucent == 1.0;
-            if (isTransLod) {
-                depthTranslucent = texelFetch(dhDepthTex0, uv, 0).r;
-            }
-            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-            vec3 transViewPos = project(isTransLod ? dhProjectionInverse : gbufferProjectionInverse, transNdcPos);
-        #elif defined(VOXY)
-            bool isTransLod = depthTranslucent == 1.0;
-            if (isTransLod) {
-                depthTranslucent = texelFetch(vxDepthTexTrans, uv, 0).r;
-            }
-            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-            vec3 transViewPos = project(isTransLod ? vxProjInv : gbufferProjectionInverse, transNdcPos);
-        #else
-            vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
-            vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
         #endif
 
         #if defined(WATER_FOG_FIX) || defined(WATER_ABSORPTION)
@@ -177,7 +177,7 @@ void main() {
     #endif
 
 //    color.rgb = mix(src, color.rgb, color.a);
-    color.rgb += src * (1.0 - color.a);
+    color.rgb += src * saturate(1.0 - color.a);
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WATER_FOG_FIX)
         if (isEyeInWater == 1) {
