@@ -200,9 +200,8 @@ suffix.TAA_SHARPNESS=%
 
 screen.MODS=Mods
 
-screen.MOD_PHOTONICS=Photonics
 
-option.PHOTONICS_RESTIR_ENABLED=Restir
+screen.MOD_PHOTONICS=Photonics
 
 option.PHOTONICS_REFLECT_ENABLED=Reflections
 option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
@@ -211,11 +210,23 @@ option.PHOTONICS_BLOCK_TINT_ENABLED=Tinting
 option.PHOTONICS_BLOCK_TINT_ENABLED.comment=Allows traced lighting & reflections to be tinted from translucent blocks, like stained glass.
 
 option.PHOTONICS_HAND_LIGHT_ENABLED=Hand Light
+option.PHOTONICS_HAND_LIGHT_ENABLED.comment=Enables RT shadows from light held in-hand.
 
 option.PHOTONICS_BLOCK_LIGHT_ENABLED=Block Light
+option.PHOTONICS_BLOCK_LIGHT_ENABLED.comment=Enables RT shadows from lights placed in the world.
 
 option.PHOTONICS_GI_ENABLED=Global Illumination
-
-option.PHOTONICS_GI_BLOCK_SAMPLES=GI Block RT Samples
+option.PHOTONICS_GI_ENABLED.comment=Enables bounced lighting calculations to simulate global illumination.
 
 option.PHOTONICS_SHRIMPLE_COLORS=Shrimple Colors
+option.PHOTONICS_SHRIMPLE_COLORS.comment=Replace photonics light colors with Shrimples built-in colors.
+
+screen.MOD_PH_ADV=Advanced Options
+
+option.PHOTONICS_RESTIR_ENABLED=ReSTIR
+
+option.PHOTONICS_RESTIR_GI_ENABLED=ReSTIR + GI
+option.PHOTONICS_RESTIR_GI_ENABLED.comment=Enables full-resolution GI using ReSTIR pass. Only works when ReSTIR is enabled.
+
+option.PHOTONICS_GI_BLOCK_SAMPLES=GI Block RT Samples
+option.PHOTONICS_GI_BLOCK_SAMPLES.comment=The maximum number of block-lights to sample for GI for each pixel.
