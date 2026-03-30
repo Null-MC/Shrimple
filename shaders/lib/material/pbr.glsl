@@ -1,3 +1,8 @@
+#if MATERIAL_FORMAT_POROSITY == 0
+    #undef MATERIAL_FORMAT_POROSITY
+    #define MATERIAL_FORMAT_POROSITY MATERIAL_FORMAT
+#endif
+
 vec3 mat_normal_lab(const in vec2 normalData) {
     vec2 normal_xy = fma(normalData.xy, vec2(2.0), vec2(-254.0/255.0));
     float normal_z = sqrt(max(1.0 - dot(normal_xy, normal_xy), 0.0));
@@ -123,6 +128,28 @@ float mat_sss(const in float specular_b) {
         return mat_sss_old();
     #else
         return 0.0;
+    #endif
+}
+
+float mat_porosity_lab(const in float specular_b) {
+    return specular_b * (255.0/64.0) * step(specular_b, (64.5/255.0));
+}
+
+float mat_porosity_old(const in vec2 specular_rg) {
+    // half metalInv = (half)1.0 - saturate(unmix((half)0.04, (half)(229.0/255.0), f0_metal));
+    // return sqrt(roughness) * metalInv;
+    float roughness = mat_roughness(specular_rg.r);
+    float metalness = mat_metalness_old(specular_rg.g);
+    return pow(roughness, 1.0 + metalness);
+}
+
+float mat_porosity(const in vec3 specular_rgb) {
+    #if MATERIAL_FORMAT_POROSITY == -1
+        return 0.0;
+    #elif MATERIAL_FORMAT_POROSITY == FORMAT_LABPBR
+        return mat_porosity_lab(specular_rgb.b);
+    #else
+        return mat_porosity_old(specular_rgb.rg);
     #endif
 }
 

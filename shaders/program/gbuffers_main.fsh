@@ -96,6 +96,7 @@ uniform vec3 skyColor;
 uniform float skyDayF;
 uniform float rainStrength;
 uniform float weatherStrength;
+uniform float weatherWetness;
 uniform float weatherDensity;
 uniform float cloudHeight;
 uniform float cloudTime;
@@ -343,6 +344,16 @@ void main() {
             #endif
         }
     #endif
+
+    float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), vIn.lmcoord.y);
+    float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
+    float porosity = mat_porosity(specularData.rgb);
+    float surfaceWetness = wetness * porosity;
+
+    if (surfaceWetness > 0.0) {
+        albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
+        specularData.r = mix(specularData.r, 1.0, surfaceWetness);
+    }
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 

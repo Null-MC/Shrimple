@@ -36,6 +36,7 @@ uniform vec2 viewSize;
 uniform int isEyeInWater;
 uniform float nearPlane;
 uniform float farPlane;
+uniform float blindness;
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/bloom.glsl"
@@ -97,12 +98,14 @@ void main() {
     #if BLOOM_TILE == 0
         bloom *= EffectBloomStrengthF;
 
-        if (isEyeInWater == 1) {
+        if (isEyeInWater == 1 || blindness > 0.0) {
             float depth = texelFetch(depthtex0, uv, 0).r;
             depth = linearizeDepth(depth, nearPlane, farPlane);
 
-            float blurF = saturate(depth * 0.025);
-            float blurTileF = blurF * 3.0;
+            float waterBlur = 2.0 * saturate(depth * 0.025) * float(isEyeInWater == 1);
+            float blindBlur = 3.0 * blindness;
+            float blurTileF = max(waterBlur, blindBlur);
+
             int blurTile = int(ceil(blurTileF));
 
             vec2 blurBoundsMin, blurBoundsMax;

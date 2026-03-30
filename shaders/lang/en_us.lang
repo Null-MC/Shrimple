@@ -106,6 +106,13 @@ option.MATERIAL_PARALLAX_ENTITIES=Entities
 option.MATERIAL_PARALLAX_ENTITIES.comment=Allows parallax displacement to be applied to entities. May cause issues with mods that don't provide proper geometry data.
 
 
+option.MATERIAL_FORMAT_POROSITY=Porosity Format
+value.MATERIAL_FORMAT_POROSITY.-1=Disabled
+value.MATERIAL_FORMAT_POROSITY.0=Default
+value.MATERIAL_FORMAT_POROSITY.1=Old PBR / Generated
+value.MATERIAL_FORMAT_POROSITY.2=Lab PBR
+
+
 screen.MATERIAL_EMISSION=Emission
 screen.MATERIAL_EMISSION.comment=The visible brightness of PBR textures.
 
