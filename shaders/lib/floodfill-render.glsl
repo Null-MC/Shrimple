@@ -37,7 +37,7 @@ vec3 _SampleFloodFill(const in vec3 lpvPos, const in int frame) {
 
 vec3 SampleFloodFill(const in vec3 lpvPos) {
     vec3 lpvSample = _SampleFloodFill(lpvPos, frameCounter);
-    return lpvSample;
+    return lpvSample * 6.0;
 
 //    vec3 hsv = RgbToHsv(lpvSample);
 ////    hsv.z = hsv.z * (LpvBlockRange/15.0);

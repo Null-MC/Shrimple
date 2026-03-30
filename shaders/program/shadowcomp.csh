@@ -12,7 +12,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 const float LpvFalloff = 0.998;
-const float LpvBlockRange = 16.0;
+const float LpvBlockRange = 16.0; // [8 10 12 14 16 18 20 22 24 26 28 30 32]
 
 
 shared uint voxelSharedData[10*10*10];
@@ -31,8 +31,7 @@ uniform vec3 previousCameraPosition;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferPreviousModelView;
 
-#include "/lib/hsv.glsl"
-#include "/lib/oklab.glsl"
+//#include "/lib/oklab.glsl"
 #include "/lib/voxel.glsl"
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/block-light.glsl"
@@ -48,6 +47,22 @@ bool IsLightBlock(const in uint blockId) {
 //    #endif
 }
 
+vec3 toExp2(const in vec3 color) {
+    float lum_now = luminance(color);
+    if (lum_now < EPSILON) return color;
+
+    float lum_tgt = exp2(lum_now * LpvBlockRange) - 1.0;
+    return color * (lum_tgt / lum_now);
+}
+
+vec3 fromExp2(const in vec3 color) {
+    float lum_now = luminance(color);
+    if (lum_now < EPSILON) return color;
+
+    float lum_tgt = log2(lum_now + 1.0) / LpvBlockRange;
+    return color * (lum_tgt / lum_now);
+}
+
 vec3 GetLpvValue(const in ivec3 texCoord) {
     if (!IsInVoxelBounds(texCoord)) return vec3(0.0);
 
@@ -55,13 +70,7 @@ vec3 GetLpvValue(const in ivec3 texCoord) {
         ? imageLoad(imgFloodFillB, texCoord).rgb
         : imageLoad(imgFloodFillA, texCoord).rgb;
 
-    lpvSample = RGBToLinear(lpvSample);
-
-    vec3 hsv = RgbToHsv(lpvSample);
-    hsv.z = exp2(hsv.z * LpvBlockRange) - 1.0;
-    lpvSample = HsvToRgb(hsv);
-
-    return lpvSample;
+    return RGBToLinear(lpvSample);
 }
 
 const ivec3 lpvFlatten = ivec3(1, 10, 100);
@@ -124,7 +133,8 @@ void copyToShared(const in ivec3 imgCoordOffset, const in uint i) {
     ivec3 pos = workGroupOffset + ivec3(i / lpvFlatten) % 10;
 
     ivec3 lpvPos = imgCoordOffset + pos;
-    lpvBuffer[i] = GetLpvValue(lpvPos);
+    vec3 color = GetLpvValue(lpvPos);
+    lpvBuffer[i] = toExp2(color);
 
     uint blockId = 0u;
     if (IsInVoxelBounds(pos))
@@ -156,6 +166,7 @@ void main() {
         copyToShared(imgCoordOffset, i_base + 1u);
     }
 
+    memoryBarrierShared();
     barrier();
 
     ivec3 imgCoord = ivec3(gl_GlobalInvocationID);
@@ -195,16 +206,11 @@ void main() {
     }
 
     if (lightRange > 0.0) {
-        vec3 hsv = RgbToHsv(lightColor);
-        hsv.z = exp2(lightRange * 0.75) - 1.0;
-        // hsv.z = lightRange / 15.0;
-        lightValue += HsvToRgb(hsv);
+        vec3 newLight = lightColor * (lightRange / 15.0);
+        lightValue += toExp2(newLight);
     }
 
-    vec3 hsv = RgbToHsv(lightValue);
-    hsv.z = log2(hsv.z + 1.0) / LpvBlockRange;
-    lightValue = HsvToRgb(hsv);
-
+    lightValue = fromExp2(lightValue);
     lightValue = LinearToRGB(lightValue);
 
     if (frameCounter % 2 == 0)

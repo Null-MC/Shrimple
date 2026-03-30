@@ -174,7 +174,7 @@ vec3 ph_sample_indirect_impl() {
             #elif defined(LIGHTING_COLORED)
                 vec3 voxelPos = GetVoxelPosition(hitLocalPos);
                 vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
-                sample_color += SampleFloodFill(samplePos) * 3.0;
+                sample_color += SampleFloodFill(samplePos);
             #endif
         #endif
 

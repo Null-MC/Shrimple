@@ -188,7 +188,7 @@ void main() {
 
         #ifdef LIGHTING_COLORED
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
-            vec3 lpvSample = SampleFloodFill(samplePos) * 3.0;
+            vec3 lpvSample = SampleFloodFill(samplePos);
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 

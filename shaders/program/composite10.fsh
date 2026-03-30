@@ -198,23 +198,24 @@ void main() {
         float smoothness = 1.0 - roughness;
 
         if (smoothness > (1.5/255.0)) {
-            vec2 normalData = texelFetch(TEX_NORMAL, uv, 0).zw;
-            vec3 texViewNormal = OctDecode(normalData);
+            vec4 normalData = texelFetch(TEX_NORMAL, uv, 0);
+            vec3 localGeoNormal = OctDecode(normalData.xy);
+            vec3 viewTexNormal = OctDecode(normalData.zw);
 
             float lmcoord_y = albedoData.w;
 
-            vec3 reflectViewDir = normalize(reflect(viewDir, texViewNormal));
+            vec3 reflectViewDir = normalize(reflect(viewDir, viewTexNormal));
 
             bool hit = false;
             #ifdef PHOTONICS_REFLECT_ENABLED
                 vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
                 vec3 rtPos = localPos + rt_camera_position;
 
-                vec3 localNormal = mat3(gbufferModelViewInverse) * texViewNormal;
+//                vec3 localNormal = mat3(gbufferModelViewInverse) * viewTexNormal;
                 vec3 localReflectDir = mat3(gbufferModelViewInverse) * reflectViewDir;
 
                 RayJob ray = RayJob(
-                    rtPos + 0.004 * localNormal,
+                    rtPos + 0.004 * localGeoNormal,
                     localReflectDir,
                     vec3(0), vec3(0), vec3(0), false
                 );
@@ -225,7 +226,9 @@ void main() {
 
                 if (ray.result_hit) {
                     hit = true;
-                    vec3 albedo = RGBToLinear(ray.result_color);
+                    if (lengthSq(ray.result_position - rtPos) > 0.002) {
+//                    vec3 albedo = RGBToLinear(ray.result_color);
+                    vec3 albedo = ray.result_color;
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
@@ -270,7 +273,7 @@ void main() {
                         #ifdef LIGHTING_COLORED
                             vec3 voxelPos = GetVoxelPosition(hitLocalPos);
                             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
-                            vec3 lpvSample = SampleFloodFill(samplePos) * 3.0;
+                            vec3 lpvSample = SampleFloodFill(samplePos);
                             blockLight = lpvSample;
                         #endif
 
@@ -322,6 +325,7 @@ void main() {
                     reflectColor = mix(reflectColor, fogColorFinal, fogF);
 
                     reflectColor *= result_tint_color;
+                    }
                 }
             #else
                 vec3 screenEnd = projectScreenTrace(viewPos, screenPos, reflectViewDir);
@@ -401,9 +405,10 @@ void main() {
                 vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
                 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
                 reflectColor *= _pow3(lmcoord_y);
+//                reflectColor = vec3(4.0, 0.0, 0.0);
             }
 
-            float NoV = dot(texViewNormal, -viewDir);
+            float NoV = dot(viewTexNormal, -viewDir);
 
             #ifdef MATERIAL_PBR_ENABLED
                 LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);

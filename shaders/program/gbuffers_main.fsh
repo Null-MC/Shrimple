@@ -345,15 +345,17 @@ void main() {
         }
     #endif
 
-    float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), vIn.lmcoord.y);
-    float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
-    float porosity = mat_porosity(specularData.rgb);
-    float surfaceWetness = wetness * porosity;
+    #if defined(MATERIAL_PBR_ENABLED) && defined(WORLD_OVERWORLD)
+        float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), vIn.lmcoord.y);
+        float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
+        float porosity = mat_porosity(specularData.rgb);
+        float surfaceWetness = wetness * porosity;
 
-    if (surfaceWetness > 0.0) {
-        albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
-        specularData.r = mix(specularData.r, 1.0, surfaceWetness);
-    }
+        if (surfaceWetness > 0.0) {
+            albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
+            specularData.r = mix(specularData.r, 1.0, surfaceWetness);
+        }
+    #endif
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
@@ -466,7 +468,7 @@ void main() {
 
         #ifdef LIGHTING_COLORED
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
-            vec3 lpvSample = SampleFloodFill(samplePos) * 3.0;
+            vec3 lpvSample = SampleFloodFill(samplePos);
             blockLight = mix(blockLight, lpvSample, lpvFade);
         #endif
 
