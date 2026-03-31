@@ -705,6 +705,26 @@ void main() {
 
     #ifdef LIGHTING_COLORED_CANDLES
         switch (blockId) {
+            case BLOCK_PLAIN_CANDLES_LIT_1:
+                color = color_Candle;
+                range = 3;
+                mixWeight = 1.0;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_2:
+                color = color_Candle;
+                range = 6;
+                mixWeight = 1.0;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_3:
+                color = color_Candle;
+                range = 9;
+                mixWeight = 1.0;
+                break;
+            case BLOCK_PLAIN_CANDLES_LIT_4:
+                color = color_Candle;
+                range = 12;
+                mixWeight = 1.0;
+                break;
             case BLOCK_BLACK_CANDLES_LIT_1:
                 color = color_CandleBlack;
                 range = 3;
