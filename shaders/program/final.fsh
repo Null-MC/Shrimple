@@ -14,7 +14,7 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_BLOOM_TILES;
 #endif
 
-//uniform sampler2D TEX_TRANSLUCENT_FINAL;
+uniform sampler2D colortex7;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -92,10 +92,10 @@ void main() {
         }
     #endif
 
-//    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
-//    if (saturate(tex) == tex) {
-//        color = texture(TEX_TRANSLUCENT_FINAL, tex).rgb;
-//    }
+    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
+    if (saturate(tex) == tex) {
+        color = texture(colortex7, tex).rgb;
+    }
 
 
     color += (GetBayerValue(ivec2(gl_FragCoord.xy)) - 0.5) / 255.0;
