@@ -238,7 +238,6 @@ void main() {
 
             vec2 localCoord = GetLocalCoord(texcoord, bounds.atlasTilePos, bounds.atlasTileSize);
             texcoord = GetParallaxCoord(bounds, localCoord, viewDist, texDepth, traceCoordDepth);
-//            texcoord = GetAtlasCoord(localCoord, bounds.atlasTilePos, bounds.atlasTileSize);
         }
     #endif
 
