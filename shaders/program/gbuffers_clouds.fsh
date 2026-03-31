@@ -34,7 +34,9 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogStart;
 uniform float fogEnd;
+uniform vec2 viewSize;
 
+uniform mat4 dhProjectionInverse;
 uniform int vxRenderDistance;
 uniform float dhNearPlane;
 uniform float dhFarPlane;
@@ -52,10 +54,12 @@ void main() {
         float depthDh = texelFetch(dhDepthTex0, ivec2(gl_FragCoord.xy), 0).r;
 
         if (depthDh > 0.0 && depthDh < 1.0) {
-            float depthDhL = linearizeDepth(depthDh * 2.0 - 1.0, dhNearPlane, dhFarPlane);
+//            float depthDhL = linearizeDepth(depthDh * 2.0 - 1.0, dhNearPlane, dhFarPlane);
+            vec2 texcoord = gl_FragCoord.xy / viewSize;
+            vec3 dhViewPos = project(dhProjectionInverse, vec3(texcoord, depthDh)*2.0-1.0);
             vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
 
-            if (-viewPos.z >= depthDhL) {discard; return;}
+            if (viewPos.z > dhViewPos.z) {discard; return;}
         }
     #elif defined(VOXY)
         float depthVoxy = texelFetch(vxDepthTexOpaque, ivec2(gl_FragCoord.xy), 0).r;
@@ -81,7 +85,7 @@ void main() {
     vec3 localViewDir = normalize(vIn.localPos);
     vec3 fogColorFinal = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), localViewDir);
 
-    color.rgb = mix(color.rgb, fogColorFinal, fogF);
+    color.rgb = mix(color.rgb * color.a, fogColorFinal, fogF);
 
     outFinal = color;
     outMeta = 0u;
@@ -92,8 +96,8 @@ void main() {
     #endif
 
     #ifdef DEFERRED_NORMAL_ENABLED
-        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
-        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
+//        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
+        outNormal = vec4(0.0);//vec4(OctEncode(localNormal), OctEncode(viewNormal));
     #endif
 
     #ifdef DEFERRED_SPECULAR_ENABLED

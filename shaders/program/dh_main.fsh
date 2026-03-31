@@ -15,10 +15,6 @@ in VertexData {
 
 #ifdef RENDER_TRANSLUCENT
     uniform sampler2D depthtex0;
-
-    #ifdef WATER_WAVE_ENABLED
-        uniform sampler2D TEX_WATER_NORMAL;
-    #endif
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
@@ -68,6 +64,7 @@ uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int isEyeInWater;
+uniform float frameTimeCounter;
 uniform int frameCounter;
 uniform vec2 viewSize;
 
@@ -98,6 +95,10 @@ uniform float dhFarPlane;
     #ifdef MATERIAL_PBR_ENABLED
         #include "/lib/material/lazanyi.glsl"
     #endif
+#endif
+
+#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+    #include "/lib/water-waves.glsl"
 #endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -170,17 +171,14 @@ void main() {
         #endif
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-            vec2 worldPos = vIn.localPos.xz + cameraPosition.xz;
+            vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
+            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
+            vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
+            wavePos.z += vIn.localPos.y;
 
-            vec2 water_uv = worldPos / WaterNormalScale;
-            vec3 waterNormal1 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal1 = normalize(vec3(1.0,1.0,6.0) * waterNormal1);
-
-            water_uv *= 5.0;
-            vec3 waterNormal2 = texelFetch(TEX_WATER_NORMAL, ivec2(water_uv * WaterNormalResolution) % WaterNormalResolution, 0).xyz * 2.0 - 1.0;
-            waterNormal2 = normalize(vec3(0.2,0.2,1.0) * waterNormal2);
-
-            localTexNormal = normalize(waterNormal1 + waterNormal2).xzy;
+            vec3 dX = dFdx(wavePos);
+            vec3 dY = dFdy(wavePos);
+            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
         #endif
     }
 
@@ -234,6 +232,8 @@ void main() {
     vec3 specularFinal = vec3(0.0);
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        shadow *= smoothstep((2.5/16.0), (13.5/16.0), lmcoord.y);
+
         lmcoord = _pow3(lmcoord);
 
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
@@ -347,7 +347,7 @@ void main() {
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
     #else
-        color.rgb = albedo * diffuseFinal + specularFinal;
+        color.rgb = albedo * diffuseFinal * color.a + specularFinal;
     #endif
 
     #if !defined(SSAO_ENABLED) || defined(RENDER_TRANSLUCENT)
@@ -360,6 +360,7 @@ void main() {
         vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
         color.rgb = mix(color.rgb, fogColorFinal, fogF);
+        color.a = max(color.a, fogF);
     #endif
 
     outFinal = color;
@@ -368,7 +369,7 @@ void main() {
     #ifdef RENDER_TRANSLUCENT
 //        outTint = vec4(1.0, 1.0, 1.0, 0.0);
         vec3 tint = LinearToRGB(albedo * color.a);
-        uint matID = 0;
+        uint matID = 0u;
 
         if (vIn.materialId == DH_BLOCK_WATER) {
             matID = MAT_WATER;

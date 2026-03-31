@@ -83,10 +83,6 @@ uniform sampler2D gtexture;
     #endif
 #endif
 
-//#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
-//    uniform sampler2D TEX_WATER_NORMAL;
-//#endif
-
 uniform float far;
 uniform float fogDensity;
 uniform float fogStart;
@@ -339,9 +335,9 @@ void main() {
                 color.a = 0.02;
             #endif
 
-            #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
+//            #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
                 specularData = vec4(0.98, 0.02, 0.0, 0.0);
-            #endif
+//            #endif
         }
     #endif
 
@@ -633,10 +629,16 @@ void main() {
         albedo = vec3(0.86);
     #endif
 
+    #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
+        #ifdef RENDER_TRANSLUCENT
+            color.a *= vIn.chunkFade;
+        #endif
+    #endif
+
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
     #else
-        color.rgb = albedo * diffuseFinal + specularFinal;
+        color.rgb = albedo * diffuseFinal * color.a + specularFinal;
     #endif
 
     float borderFogF = GetBorderFogStrength(viewDist);
@@ -644,9 +646,7 @@ void main() {
     float fogF = max(borderFogF, envFogF);
 
     #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
-        #ifdef RENDER_TRANSLUCENT
-            color.a *= vIn.chunkFade;
-        #else
+        #ifndef RENDER_TRANSLUCENT
             fogF = max(fogF, 1.0 - vIn.chunkFade);
         #endif
     #endif
