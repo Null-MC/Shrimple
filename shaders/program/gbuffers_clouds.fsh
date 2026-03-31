@@ -8,6 +8,11 @@ in VertexData {
 } vIn;
 
 
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    uniform sampler2D texSkyTransmit;
+    uniform sampler3D texSkyIrradiance;
+#endif
+
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex0;
 #endif
@@ -22,6 +27,9 @@ uniform float farPlane;
 uniform vec3 sunLocalDir;
 uniform mat4 gbufferModelView;
 uniform ivec2 eyeBrightnessSmooth;
+uniform mat4 gbufferModelViewInverse;
+uniform vec3 shadowLightPosition;
+uniform vec3 cameraPosition;
 uniform int hasSkylight;
 uniform int renderStage;
 uniform int isEyeInWater;
@@ -45,6 +53,13 @@ uniform float dhFarPlane;
 #include "/lib/octohedral.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
+
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #include "/lib/sky-transmit.glsl"
+    #include "/lib/sky-irradiance.glsl"
+
+    #include "/lib/enhanced-lighting.glsl"
+#endif
 
 
 #include "_output.glsl"
@@ -72,11 +87,25 @@ void main() {
         }
     #endif
 
-    vec4 color = vIn.color;
-    color.rgb = RGBToLinear(color.rgb);
-
     float viewDist = length(vIn.localPos);
     vec3 localNormal = normalize(vIn.localNormal);
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        vec4 color;
+        color.rgb = RGBToLinear(vec3(0.776, 0.788, 0.831));
+        color.a = mix(0.64, 0.96, rainStrength);
+
+        vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+        color.rgb *= 0.2 * skyLightColor;
+
+        color.rgb += AmbientLightF * SampleSkyIrradiance(localNormal);
+
+//        color.rgb *= 0.1;
+    #else
+        vec4 color = vIn.color;
+        color.rgb = RGBToLinear(color.rgb);
+    #endif
 
     float borderFogF = 0.0;//smoothstep(0.94 * far, far, viewDist);
     float envFogF = GetEnvFogStrength(viewDist);

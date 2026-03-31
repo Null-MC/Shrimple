@@ -132,22 +132,19 @@ void main() {
     float viewDist = length(vIn.localPos);
     vec3 localViewDir = vIn.localPos / viewDist;
 
-    #ifdef RENDER_TRANSLUCENT
-        float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+//    #ifdef RENDER_TRANSLUCENT
+//        float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+//
+//        if (depth < 1.0) {
+//            vec3 vanillaNdcPos = vec3(gl_FragCoord.xy / viewSize, depth) * 2.0 - 1.0;
+//            vec3 vanillaViewPos = project(gbufferProjectionInverse, vanillaNdcPos);
+//
+//            vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
+//            if (vanillaViewPos.z > viewPos.z) {discard; return;}
+//        }
+//    #endif
 
-        if (depth < 1.0) {
-            vec3 vanillaNdcPos = vec3(gl_FragCoord.xy / viewSize, depth) * 2.0 - 1.0;
-            vec3 vanillaViewPos = project(gbufferProjectionInverse, vanillaNdcPos);
-
-            vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
-            if (vanillaViewPos.z > viewPos.z) {discard; return;}
-        }
-    #endif
-
-    if (viewDist < dh_clipDistF * far) {
-        discard;
-        return;
-    }
+//    if (viewDist < dh_clipDistF * far) {discard; return;}
 
     vec4 color = vIn.color;
 
@@ -181,6 +178,20 @@ void main() {
             localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
         #endif
     }
+
+    #ifdef RENDER_TRANSLUCENT
+        float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+
+        if (depth < 1.0) {
+            vec3 vanillaNdcPos = vec3(gl_FragCoord.xy / viewSize, depth) * 2.0 - 1.0;
+            vec3 vanillaViewPos = project(gbufferProjectionInverse, vanillaNdcPos);
+
+            vec3 viewPos = mul3(gbufferModelView, vIn.localPos);
+            if (vanillaViewPos.z > viewPos.z) {discard;}
+        }
+    #endif
+
+    if (viewDist < dh_clipDistF * far) {discard;}
 
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 

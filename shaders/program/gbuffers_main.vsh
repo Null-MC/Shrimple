@@ -181,8 +181,8 @@ void main() {
     #ifdef MATERIAL_PARALLAX_ENABLED
         vec2 atlasTilePos, atlasTileSize;
         GetAtlasBounds(vOut.texcoord, atlasTilePos, atlasTileSize);
-        vOut.atlasTilePos = packUnorm2x16(atlasTilePos);
-        vOut.atlasTileSize = packUnorm2x16(atlasTileSize);
+        vOut.atlasTilePos = packHalf2x16(atlasTilePos);
+        vOut.atlasTileSize = packHalf2x16(atlasTileSize);
 
         mat3 matViewTBN = BuildTBN(viewNormal, viewTangent, at_tangent.w);
 

@@ -202,9 +202,9 @@ uniform float dhFarPlane;
 void main() {
     float viewDist = length(vIn.localPos);
 
-    #ifdef DISTANT_HORIZONS
-        if (viewDist > dh_clipDistF * far) {discard; return;}
-    #endif
+//    #ifdef DISTANT_HORIZONS
+//        if (viewDist > dh_clipDistF * far) {discard;}
+//    #endif
 
     vec2 texcoord = vIn.texcoord;
 	float mip = textureQueryLod(gtexture, texcoord).y;
@@ -231,20 +231,29 @@ void main() {
 
         ParallaxBounds bounds;
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_MAX_DIST) {
-            bounds.atlasTilePos = unpackUnorm2x16(vIn.atlasTilePos);
-            bounds.atlasTileSize = unpackUnorm2x16(vIn.atlasTileSize);
+            bounds.atlasTilePos = unpackHalf2x16(vIn.atlasTilePos);
+            bounds.atlasTileSize = unpackHalf2x16(vIn.atlasTileSize);
             bounds.tanViewDir = tanViewDir;
             bounds.mip = mip;
 
             vec2 localCoord = GetLocalCoord(texcoord, bounds.atlasTilePos, bounds.atlasTileSize);
             texcoord = GetParallaxCoord(bounds, localCoord, viewDist, texDepth, traceCoordDepth);
+//            texcoord = GetAtlasCoord(localCoord, bounds.atlasTilePos, bounds.atlasTileSize);
         }
     #endif
 
     vec4 color = textureLod(gtexture, texcoord, mip);
+    vec2 lmcoord = vIn.lmcoord;
 
-    #ifndef RENDER_SOLID
-        if (color.a < alphaTestRef) discard;
+    #ifdef RENDER_COLORWHEEL
+        float ao;
+        vec4 overlayColor;
+        clrwl_computeFragment(color, color, lmcoord, ao, overlayColor);
+        color.rgb = mix(color.rgb, overlayColor.rgb, overlayColor.a);
+    #else
+        #ifndef RENDER_SOLID
+            if (color.a < alphaTestRef) discard;
+        #endif
     #endif
 
     #if defined(RENDER_TERRAIN) && LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -300,6 +309,10 @@ void main() {
         }
     #endif
 
+    #ifdef DISTANT_HORIZONS
+        if (viewDist > dh_clipDistF * far) {discard;}
+    #endif
+
     #ifdef MATERIAL_PBR_ENABLED
         vec4 specularData = textureLod(specular, texcoord, mip);
         float sss = mat_sss(specularData.b);
@@ -335,9 +348,7 @@ void main() {
                 color.a = 0.02;
             #endif
 
-//            #if defined(MATERIAL_PBR_ENABLED) || defined(DEFERRED_REFLECT_ENABLED)
-                specularData = vec4(0.98, 0.02, 0.0, 0.0);
-//            #endif
+            specularData = vec4(0.98, 0.02, 0.0, 0.0);
         }
     #endif
 
@@ -407,8 +418,6 @@ void main() {
             shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif
     #endif
-
-    vec2 lmcoord = vIn.lmcoord;
 
     #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
         lmcoord.x = 0.0;

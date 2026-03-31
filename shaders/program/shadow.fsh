@@ -29,7 +29,14 @@ void main() {
         outColor = texture(gtexture, texcoord);
 
         #ifdef SHADOW_COLORED
-            outColor *= color;
+            #ifdef RENDER_COLORWHEEL
+                vec2 lmcoord;
+                float ao;
+                vec4 overlayColor;
+                clrwl_computeFragment(outColor, outColor, lmcoord, ao, overlayColor);
+            #else
+                outColor *= color;
+            #endif
 
 //            if (blockId == BLOCK_WATER)
 //                outColor.a = outColor.a*0.2 + 0.8;
