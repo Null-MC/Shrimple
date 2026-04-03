@@ -139,6 +139,7 @@ void main() {
         #endif
 
         #ifdef WIND_ENABLED
+            if (vOut.blockId > 0 && vOut.blockId < 256*256) {
             #ifdef VELOCITY_ENABLED
                 vec3 windOffset = GetWindWavingOffset(vOut.localPos, at_midBlock.xyz / 64.0, vOut.blockId, velocity, windTime, windTimeLast);
             #else
@@ -146,6 +147,7 @@ void main() {
             #endif
 
             vOut.localPos += windOffset;
+            }
         #endif
 
         #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
