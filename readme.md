@@ -9,10 +9,16 @@ A Minecraft Java shader that attempts to maintain a minimal "vanilla" aesthetic,
 - Parallax/"POM". Also support "smooth" and "sharp" methods.
 
 
+### Legacy Version
+If you for some reason still want to use the older "legacy" version of Shrimple (pre 1.0), you can [download it here](https://github.com/Null-MC/Shrimple/archive/refs/heads/legacy.zip).
+
 ## Mod Support
 
 ### Photonics
-The [Photonics](https://modrinth.com/mod/photonics) mod can be used to replace screen-space reflection with fully world-space reflections. RT lighting is not currently supported.
+- Add [Photonics](https://modrinth.com/mod/photonics) mod to enable ray-traced:
+  + Block/Hand Light Shadows
+  + World-Space Reflections
+  + Global Illumination
 
 ### Other
  - [Colorwheel](https://modrinth.com/mod/colorwheel)
