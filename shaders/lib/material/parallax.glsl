@@ -10,6 +10,8 @@ struct ParallaxBounds {
 };
 
 vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+//    vec2 atlasSize = textureSize(normals, 0);
+
     #ifdef MATERIAL_PARALLAX_OPTIMIZE
         vec2 atlasCoord = GetAtlasCoord(localCoord, bounds.atlasTilePos, bounds.atlasTileSize);
         float maxTexDepth = 1.0 - texelFetch(normals, ivec2(atlasCoord * atlasSize), 2).a;
@@ -29,9 +31,10 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, 
     float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_MAX_DIST);
     float maxSampleCount = viewDistF * MATERIAL_PARALLAX_SAMPLES + 0.5;
 
-    vec2 localSize = atlasSize * vIn.atlasTileSize;
-    if (all(greaterThan(localSize, vec2(EPSILON))))
-        stepCoord.y *= localSize.x / localSize.y;
+//    vec2 localSize = atlasSize * vIn.atlasTileSize;
+//    if (all(greaterThan(localSize, vec2(EPSILON))))
+//        stepCoord *= localSize / maxOf(localSize);
+//        stepCoord.y *= localSize.x / localSize.y;
 
     float i;
     texDepth = 1.0;
