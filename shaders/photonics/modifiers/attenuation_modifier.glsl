@@ -1,5 +1,3 @@
-//uniform usampler2D TEX_ALBEDO_SPECULAR;
-
 #include "/lib/lighting/attenuation.glsl"
 #include "/lib/material/pbr.glsl"
 #include "/lib/fresnel.glsl"
@@ -33,11 +31,8 @@ vec3 modify_attenuation(
         float att = 1.0 / (lightDistSq * light.falloff * light.attenuation.y + light.attenuation.x);
     #endif
 
-    //    att *= max(dot(geometry_normal, light_dir), 0.0);
     float NoLm = max(dot(texture_normal, light_dir), 0.0);
     NoLm *= step(EPSILON, dot(geometry_normal, light_dir));
-
-    vec3 lit = vec3(NoLm);
 
     #ifdef LIGHTING_SPECULAR
         vec3 localPos = sample_pos - rt_camera_position;
@@ -49,34 +44,25 @@ vec3 modify_attenuation(
         vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
 
         vec3 albedo = RGBToLinear(albedoData.rgb);
+        // TODO: force Lab metalness when no PBR RP?
         float roughness = mat_roughness(specularData.r);
+        float metalness = mat_metalness(specularData.g);
         float roughL = _pow2(roughness);
 
-        lit *= albedo/PI;
-        lit += SampleLightSpecular(albedo, texture_normal, light_dir, -localViewDir, NoLm, roughL, specularData.g);
+        vec3 lit = albedo/PI;
 
-//        vec3 H = normalize(light_dir - localViewDir);
-//        float NoH = max(dot(texture_normal, H), 0.0);
-//        float LoH = max(dot(light_dir, H), 0.0);
-//        float NoV = max(dot(texture_normal, -localViewDir), 0.0);
-//
-//        lit *= albedo;
-//
-//        #ifdef MATERIAL_PBR_ENABLED
-//            LazanyiF L = mat_f0_lazanyi(albedo, specularData.g);
-//            vec3 F = F_lazanyi(LoH, L.f0, L.f82);
-//
-//            float smoothL = 1.0 - roughL;
-//            float metalness = mat_metalness(specularData.g);
-//            att *= 1.0 - metalness * smoothL;
-//        #else
-//            float f0 = mat_f0_lab(specularData.g);
-//            float F = F_schlick(LoH, f0, 1.0);
-//        #endif
-//
-//        float alpha = max(roughL, 0.006);
-//        lit += D_GGX(NoH, alpha) * V_Approx(NoLm, NoV, alpha) * F; // * (1.0 - roughness)
+        // reduce diffuse for metals
+        lit *= 1.0 - metalness * (1.0 - roughL);
+
+        vec3 specular = SampleLightSpecular(albedo, texture_normal, light_dir, -localViewDir, NoLm, roughL, specularData.g);
+
+        // TODO: decrease specular with roughness
+
+        // apply metal tint
+        lit += specular * mix(vec3(1.0), albedo, metalness);
+
+        return att * NoLm * lit * light.color;
+    #else
+        return att * NoLm * light.color;
     #endif
-
-    return att * lit * light.color;
 }

@@ -202,10 +202,6 @@ uniform float dhFarPlane;
 void main() {
     float viewDist = length(vIn.localPos);
 
-//    #ifdef DISTANT_HORIZONS
-//        if (viewDist > dh_clipDistF * far) {discard;}
-//    #endif
-
     vec2 texcoord = vIn.texcoord;
 	float mip = textureQueryLod(gtexture, texcoord).y;
     vec3 localViewDir = vIn.localPos / viewDist;
@@ -315,15 +311,8 @@ void main() {
     #ifdef MATERIAL_PBR_ENABLED
         vec4 specularData = textureLod(specular, texcoord, mip);
         float sss = mat_sss(specularData.b);
-
-        // TODO: DEBUG ONLY!
-//        if (specularData.g >= 0.9) {
-//            color.rgb = vec3(1.0);
-//            specularData.rg = vec2(1.0);
-//        }
     #else
         vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
-//        vec3 localTexNormal = localGeoNormal;
         const float tex_occlusion = 1.0;
         const float sss = 0.0;
 
@@ -445,15 +434,9 @@ void main() {
         #ifdef MATERIAL_PBR_ENABLED
             float roughness = mat_roughness(specularData.r);
             float metalness = mat_metalness(specularData.g);
-
-//            LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
-//            vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
         #else
             float roughness = mat_roughness_lab(specularData.r);
             float metalness = mat_metalness_lab(specularData.g);
-
-//            float f0 = mat_f0_lab(specularData.g);
-//            float F = F_schlick(NoV, f0, 1.0);
         #endif
 
         float roughL = _pow2(roughness);
@@ -506,9 +489,6 @@ void main() {
 
                     specularFinal += SampleLightSpecular(albedo, localTexNormal, skySpecularLightDir, -localViewDir, skyLight_NoLm, roughL, specularData.g) * skyLightColor;
                 }
-
-                // apply metal tint
-                specularFinal *= mix(vec3(1.0), albedo, metalness);
             #endif
         #endif
     #else
@@ -543,15 +523,7 @@ void main() {
     #endif
 
     #ifdef RENDER_TERRAIN
-        float occlusion = _pow2(vIn.color.a);
-
-//        #if defined(VOXY) || defined(DISTANT_HORIZONS)
-//            occlusion = mix(occlusion, 1.0, SSAO_GetFade(viewDist));
-//        #endif
-
-//        albedo *= occlusion;// * 0.5 + 0.5;
-
-        diffuseFinal *= occlusion;
+        diffuseFinal *= _pow2(vIn.color.a);
     #endif
 
     diffuseFinal *= tex_occlusion;
@@ -611,19 +583,16 @@ void main() {
 
         #if !(defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED))
             // TODO: reflect in view space to avoid view-bob
-//            vec3 reflectViewDir = normalize(reflect(viewDir, texViewNormal));
             vec3 reflectLocalDir = normalize(reflect(localViewDir, localTexNormal));
 
-//            vec3 reflectLocalDir = mat3(gbufferModelViewInverse) * reflectViewDir;
             vec3 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
-//            reflectColor *= _pow3(lmcoord.y);
             reflectColor *= lmcoord.y;
-
-            // apply metal tint
-            reflectColor *= mix(vec3(1.0), albedo, metalness);
 
             specularFinal += F * _pow2(smoothness) * reflectColor;
         #endif
+
+        // apply metal tint
+        specularFinal *= mix(vec3(1.0), albedo, metalness);
     #endif
 
     #ifdef MATERIAL_PBR_ENABLED
