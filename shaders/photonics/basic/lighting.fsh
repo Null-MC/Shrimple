@@ -64,6 +64,8 @@ vec3 ph_sample_direct_lighting(vec3 position, vec3 normal, vec3 mapped_normal, L
     if (ray.result_hit && floor(light.position) != floor(ray.result_position)) return vec3(0f);
 
     light.color *= result_tint_color;
+//    if (any(greaterThan(result_tint_color, vec3(0.0))))
+//        light.color *= normalize(result_tint_color);
 
     return light.color;
 }

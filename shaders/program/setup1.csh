@@ -285,6 +285,10 @@ void main() {
             color = vec3(230, 128, 47);
             range = 8;
             break;
+        case BLOCK_CREATE_XP:
+            color = vec3(157, 232, 80);
+            range = 15;
+            break;
         case BLOCK_DOOR_N:
             mixMask = MASK(0, 1, 1, 1, 1, 1);
             mixWeight = 1.0;

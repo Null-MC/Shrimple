@@ -146,14 +146,14 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
     return projectToScreenBounds(screenPos, screenDir);
 }
 
-#ifdef PHOTONICS_REFLECT_ENABLED
-    #define PH_USE_CUSTOM_ALPHA
-    #define PH_ALPHA_FUNC(color) apply_tint_impl(color)
-
-    vec3 apply_tint_impl(const in vec4 color) {
-        return color.rgb * (1.0 - color.a);
-    }
-#endif
+//#ifdef PHOTONICS_REFLECT_ENABLED
+//    #define PH_USE_CUSTOM_ALPHA
+//    #define PH_ALPHA_FUNC(color) apply_tint_impl(color)
+//
+//    vec3 apply_tint_impl(const in vec4 color) {
+//        return color.rgb * (1.0 - color.a);
+//    }
+//#endif
 
 
 /* RENDERTARGETS: 0 */
@@ -291,7 +291,7 @@ void main() {
                             skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
 
-                        reflectColor = albedo * (blockLight + skyLight);
+                        reflectColor = albedo/PI * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
                             lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);

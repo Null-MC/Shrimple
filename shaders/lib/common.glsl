@@ -189,6 +189,9 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 #ifdef PHOTONICS_RESTIR_GI_ENABLED
 #endif
 
+#ifdef PHOTONICS_SHRIMPLE_COLORS
+#endif
+
 #ifdef SSR_ENABLED
 #endif
 

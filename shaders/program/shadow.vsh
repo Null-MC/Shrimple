@@ -91,9 +91,9 @@ void main() {
         GetBlockColorRange(lpvId, lightColor, lightRange);
 
         if (isRenderTerrain) {
-            #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                if (lightRange > 0.0) ignoreBlock = true;
-            #endif
+//            #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
+//                if (lightRange > 0.0) ignoreBlock = true;
+//            #endif
 
             if (!ignoreBlock && (gl_VertexID % 4) == 0) {
                 originPos = localPos + at_midBlock.xyz / 64.0;

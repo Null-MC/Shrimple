@@ -1,0 +1,14 @@
+{
+  "lights": {
+    "create": {
+      "intensity": 12,
+      "radius": 15,
+      "falloff": 0.2,
+      "color": "#9de850",
+      "is_traced": true,
+      "blocks": [
+        "create:experience_block"
+      ]
+    }
+  }
+}

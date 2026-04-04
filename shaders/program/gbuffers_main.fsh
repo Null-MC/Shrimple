@@ -470,7 +470,7 @@ void main() {
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-        #ifdef LIGHTING_COLORED
+        #if defined(LIGHTING_COLORED) && !(defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && !defined(RENDER_TRANSLUCENT))
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
             vec3 lpvSample = SampleFloodFill(samplePos);
             blockLight = mix(blockLight, lpvSample, lpvFade);
@@ -554,7 +554,6 @@ void main() {
         diffuseFinal *= occlusion;
     #endif
 
-    // TODO: move to ambient lighting?
     diffuseFinal *= tex_occlusion;
 
     #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)

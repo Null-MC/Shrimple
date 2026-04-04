@@ -3,12 +3,13 @@
 
 #define TEX_DEPTH depthtex0
 
-#define PH_USE_CUSTOM_ALPHA
-#define PH_ALPHA_FUNC(color) apply_tint_impl(color)
+//#define PH_USE_CUSTOM_ALPHA
+//#define PH_ALPHA_FUNC(color) apply_tint_impl(color)
 
-vec3 apply_tint_impl(vec4 color) {
-    return color.xyz * (1.0 - _pow2(color.a));
-}
+//vec3 apply_tint_impl(vec4 color) {
+//    vec3 shit = sqrt(color.xyz) * (1.0 - _pow2(color.a));
+//    return _pow2(shit);
+//}
 
 uniform sampler2D TEX_NORMAL;
 uniform usampler2D TEX_ALBEDO_SPECULAR;
