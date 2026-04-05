@@ -26,6 +26,7 @@ const vec3 color_White = vec3(255);
 const vec3 color_Amethyst = vec3(118, 58, 201);
 const vec3 color_Candle = vec3(230, 144, 76);
 const vec3 color_CopperBulb = vec3(230, 204, 128);
+const vec3 color_CopperLantern = vec3(107, 227, 191);
 const vec3 color_CopperTorch = vec3(126, 230, 25);
 const vec3 color_Fire = vec3(220, 152, 89);
 const vec3 color_Furnace = vec3(196, 159, 114);
@@ -271,6 +272,14 @@ void main() {
         case BLOCK_COPPER_BULB_WEATHERED_LIT:
             color = color_CopperBulb;
             range = 8;
+            break;
+        case BLOCK_COPPER_LANTERN:
+        case BLOCK_EXPOSED_COPPER_LANTERN:
+        case BLOCK_WEATHERED_COPPER_LANTERN:
+        case BLOCK_OXIDIZED_COPPER_LANTERN:
+            mixWeight = 0.85;
+            color = color_CopperLantern;
+            range = 15;
             break;
         case BLOCK_COPPER_TORCH_FLOOR:
         case BLOCK_COPPER_TORCH_WALL_N:
