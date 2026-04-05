@@ -10,21 +10,34 @@ struct ParallaxBounds {
 };
 
 vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, const in float viewDist, out float texDepth, out vec3 traceDepth) {
-//    vec2 atlasSize = textureSize(normals, 0);
-
     #ifdef MATERIAL_PARALLAX_OPTIMIZE
+        const int parallax_mip = 2;
+        //vec2 atlasSize = textureSize(normals, 0);
+        vec2 atlasMipSize = textureSize(normals, parallax_mip);
+
         vec2 atlasCoord = GetAtlasCoord(localCoord, bounds.atlasTilePos, bounds.atlasTileSize);
-        float maxTexDepth = 1.0 - texelFetch(normals, ivec2(atlasCoord * atlasSize), 2).a;
-        maxTexDepth = sqrt(maxTexDepth);
+        float depth = texelFetch(normals, ivec2(atlasCoord * atlasSize), 0).a;
+        float mipDepth = texelFetch(normals, ivec2(atlasCoord * atlasMipSize), parallax_mip).a;
+
+        float maxTexDepth = min(depth, mipDepth);
+//        float maxTexDepth = min(depth, mipDepth) - 2.0 * (mipDepth - depth);
+//        maxTexDepth = saturate(maxTexDepth);
+
+//        vec2 preStepCoord = bounds.tanViewDir.xy * ParallaxDepthF / (bounds.tanViewDir.z*3.0 + 1.0);
+//        atlasCoord = GetAtlasCoord(localCoord - preStepCoord, bounds.atlasTilePos, bounds.atlasTileSize);
+//        maxTexDepth = min(maxTexDepth, texelFetch(normals, ivec2(atlasCoord * atlasMipSize), parallax_mip).a);
+
+        maxTexDepth = 1.0 - maxTexDepth;
+//        maxTexDepth = max(maxTexDepth, 0.1);
     #else
         const float maxTexDepth = 1.0;
     #endif
 
     vec2 stepCoord = bounds.tanViewDir.xy * (ParallaxDepthF * maxTexDepth) / (bounds.tanViewDir.z * MATERIAL_PARALLAX_SAMPLES + 1.0);
-    const float stepDepth = maxTexDepth / MATERIAL_PARALLAX_SAMPLES;
+    float stepDepth = maxTexDepth / MATERIAL_PARALLAX_SAMPLES;
 
     #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
-        vec2 atlasPixelSize = 1.0 / atlasSize;
+//        vec2 atlasPixelSize = 1.0 / atlasSize;
         float prevTexDepth;
     #endif
 
