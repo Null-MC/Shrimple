@@ -46,6 +46,7 @@
 #define DEBUG_VIEW_IRRADIANCE 2
 #define DEBUG_VIEW_BLOOM 3
 
+const float Water_f0 = 0.02;
 const int WaterNormalResolution = 256;
 const float WaterNormalScale = 1.0;
 

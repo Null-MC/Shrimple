@@ -180,6 +180,15 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
     #define TEX_DEPTH depthtex0
 #endif
 
+vec3 toNdc(vec3 screenPos) {
+    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+        screenPos.xy = screenPos.xy * 2.0 - 1.0;
+        return screenPos;
+    #else
+        return screenPos * 2.0 - 1.0;
+    #endif
+}
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
@@ -198,29 +207,29 @@ void main() {
 //        uint meta = texelFetch(TEX_META, uv, 0).r;
 
         vec3 screenPos = vec3(texcoord, depth);
-        vec3 ndcPos = screenPos * 2.0 - 1.0;
+        vec3 ndcPos = toNdc(screenPos);
 
         #if defined(TAA_ENABLED) && defined(PHOTONICS_REFLECT_ENABLED)
             ndcPos.xy -= taa_offset * 2.0;
         #endif
 
+//        if (meta != 0u) {
+////            ndcPos.z /= MC_HAND_DEPTH;
+//        }
+
         #if defined(DISTANT_HORIZONS) || defined(VOXY)
+            #define MAT_PROJ_INV matProjInv
+
             mat4 matProjInv = mat4(
                 gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
                 0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
                 0.0, 0.0, 0.0, 1.0/near,
                 0.0, 0.0, -1.0, 0.0);
-
-            ndcPos.z = ndcPos.z * 0.5 + 0.5;
-            vec3 viewPos = project(matProjInv, ndcPos);
         #else
-
-//        if (meta != 0u) {
-////            ndcPos.z /= MC_HAND_DEPTH;
-//        }
-
-            vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
+            #define MAT_PROJ_INV gbufferProjectionInverse
         #endif
+
+        vec3 viewPos = project(MAT_PROJ_INV, ndcPos);
 
 //        outFinal = viewPos * 0.01;
 //        return;
@@ -372,26 +381,15 @@ void main() {
                 }
             #else
                 vec3 screenEnd = projectScreenTrace(viewPos, screenPos, reflectViewDir);
-                #if defined(DISTANT_HORIZONS) || defined(VOXY)
-                    vec3 traceClipEnd = screenEnd;
-                    traceClipEnd.xy = traceClipEnd.xy * 2.0 - 1.0;
-                #else
-                    vec3 traceClipEnd = screenEnd * 2.0 - 1.0;
-                #endif
+                vec3 traceClipEnd = toNdc(screenEnd);
                 vec3 traceClipStart = ndcPos;
 
                 vec3 traceClipPos;
                 vec3 traceClipPos_prev = traceClipStart;
                 vec2 traceScreenPos;
 
-//                #ifdef TAA_ENABLED
-//                    traceClipStart.xy -= taa_offset * 2.0;
-//                    traceClipEnd.xy   -= taa_offset * 2.0;
-//                #endif
-
-                float dither = 0.0;//GetBayerValue(uv);
                 for (uint i = 0; i < SSR_COARSE_STEPS; i++) {
-                    float f = (i + dither) / float(SSR_COARSE_STEPS);
+                    float f = (i + 0.5) / float(SSR_COARSE_STEPS);
                     traceClipPos = mix(traceClipStart, traceClipEnd, saturate(f));
                     traceScreenPos = traceClipPos.xy * 0.5 + 0.5;
                     if (saturate(traceScreenPos) != traceScreenPos) break;
@@ -423,7 +421,7 @@ void main() {
                     traceClipEnd = traceClipPos;
 
                     for (uint i = 0; i <= SSR_REFINE_STEPS; i++) {
-                        float f = (i + dither) / float(SSR_REFINE_STEPS);
+                        float f = (i + 0.5) / float(SSR_REFINE_STEPS);
                         traceClipPos = mix(traceClipStart, traceClipEnd, saturate(f));
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
                         if (saturate(testPos) != testPos) break;
@@ -450,9 +448,7 @@ void main() {
                 }
 
                 if (hit) {
-                    // float roughL = _pow2(roughness);
                     float mip = roughness * 6.0;
-
                     reflectColor = textureLod(TEX_FINAL, traceScreenPos, mip).rgb;
                 }
             #endif

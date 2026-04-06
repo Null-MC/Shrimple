@@ -159,12 +159,12 @@ void main() {
     vec3 localTexNormal = localNormal;
     if (vIn.materialId == DH_BLOCK_WATER) {
         #ifndef WATER_TEXTURE_ENABLED
-//            albedo = RGBToLinear(parameters.tinting.rgb);
-            color.a = 0.04;
+            albedo = vec3(0.0);//RGBToLinear(parameters.tinting.rgb);
+            color.a = WATER_F0;
         #endif
 
         #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
-            specularData = vec4(0.98, 0.02, 0.0, 0.0);
+            specularData = vec4(0.98, Water_f0, 0.0, 0.0);
         #endif
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
