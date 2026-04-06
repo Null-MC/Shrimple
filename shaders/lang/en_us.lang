@@ -176,6 +176,10 @@ screen.EFFECT_SSR.comment=Screen-Space Reflections
 
 option.SSR_ENABLED=Enabled
 
+option.SSR_COARSE_STEPS=Coarse Steps
+
+option.SSR_REFINE_STEPS=Refine Steps
+
 
 screen.EFFECT_BLOOM=Bloom
 

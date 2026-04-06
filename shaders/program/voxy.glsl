@@ -74,27 +74,29 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
     vec3 localTexNormal = localNormal;
-    if (parameters.customId == BLOCK_WATER) {
-        #ifndef WATER_TEXTURE_ENABLED
-            albedo = RGBToLinear(parameters.tinting.rgb);
-            color.a = 0.04;
-        #endif
+    #ifdef RENDER_TRANSLUCENT
+        if (parameters.customId == BLOCK_WATER) {
+            #ifndef WATER_TEXTURE_ENABLED
+                albedo = vec3(0.0);//RGBToLinear(parameters.tinting.rgb);
+                color.a = 0.02;
+            #endif
 
-        #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
-            specularData = vec4(0.98, 0.02, 0.0, 0.0);
-        #endif
+            #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
+                specularData = vec4(0.98, 0.02, 0.0, 0.0);
+            #endif
 
-//        #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-//            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
-//            float waveHeight = wave_fbm(waterWorldPos, 12);
-//            vec3 wavePos = vec3(localPos.xz, waveHeight);
-////            wavePos.z += localPos.y - vIn.waveHeight;
+//            #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
+//                vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
+//                float waveHeight = wave_fbm(waterWorldPos, 12);
+//                vec3 wavePos = vec3(localPos.xz, waveHeight);
+//    //            wavePos.z += localPos.y - vIn.waveHeight;
 //
-//            vec3 dX = dFdx(wavePos);
-//            vec3 dY = dFdy(wavePos);
-//            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;
-//        #endif
-    }
+//                vec3 dX = dFdx(wavePos);
+//                vec3 dY = dFdy(wavePos);
+//                localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;
+//            #endif
+        }
+    #endif
 
     float viewDist = length(localPos);
     vec2 lmcoord_in = LightMapNorm(parameters.lightMap);

@@ -14,7 +14,7 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_BLOOM_TILES;
 #endif
 
-//uniform sampler2D TEX_TRANSLUCENT_FINAL;
+//uniform sampler2D texDepthLod;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -94,7 +94,8 @@ void main() {
 
 //    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
 //    if (saturate(tex) == tex) {
-//        color = texture(TEX_TRANSLUCENT_FINAL, tex).rgb;
+//        color = texture(texDepthLod, tex).rrr;
+//        color = pow(color, vec3(0.2));
 //    }
 
 

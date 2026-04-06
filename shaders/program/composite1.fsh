@@ -124,7 +124,7 @@ void main() {
         vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
     #endif
 
-    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_ABSORPTION)
+    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_ABSORPTION) || defined(WATER_FOG_FIX)
         uint matID = uint(tintData.a * 255.0 + 0.5);
 
         #ifdef MATERIAL_GLASS_TINT

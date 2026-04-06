@@ -7,31 +7,24 @@
   "excludeLodsFromVanillaDepth": true,
   #ifdef TAA_ENABLED
     #ifdef DEFERRED_ENABLED
-      "opaqueDrawBuffers": [0,6,4,3],
-      "translucentDrawBuffers": [1,2,6,4,3],
+      "opaqueDrawBuffers": [0,8,6,4,3],
+      "translucentDrawBuffers": [1,8,2,6,4,3],
     #else
-      "opaqueDrawBuffers": [0,6],
-      "translucentDrawBuffers": [1,2,6],
+      "opaqueDrawBuffers": [0,8,6],
+      "translucentDrawBuffers": [1,8,2,6],
     #endif
   #else
     #ifdef DEFERRED_ENABLED
-      "opaqueDrawBuffers": [0,4,3],
-      "translucentDrawBuffers": [1,2,4,3],
+      "opaqueDrawBuffers": [0,8,4,3],
+      "translucentDrawBuffers": [1,8,2,4,3],
     #else
-      "opaqueDrawBuffers": [0],
-      "translucentDrawBuffers": [1,2],
+      "opaqueDrawBuffers": [0,8],
+      "translucentDrawBuffers": [1,8,2],
     #endif
   #endif
   "blending": {
-    #if LIGHTING_MODE == 1
-      0: "ONE ONE_MINUS_SRC_ALPHA ONE ONE",
-      #ifdef TAA_ENABLED
-        3: "off",
-      #else
-        2: "off",
-      #endif
-    #endif
-    1: "off"
+    -1: "off",
+    0: "ONE ONE_MINUS_SRC_ALPHA ONE ONE"
   },
   #ifdef TAA_ENABLED
     "taaOffset": "{return taa_offset;}",

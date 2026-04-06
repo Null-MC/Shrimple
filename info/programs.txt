@@ -6,16 +6,14 @@ setup4			sky irradiance LUT
 shadowcomp		floodfill propagation
 
 prepare1		fog/sky color [nether only]
-prepare2_a		water height
-prepare2_b		water height fade X
-prepare2_c		water height fade Y
-prepare2_d		water normal
 
 deferred10      photonics Lighting
 deferred20      voxy/DH SSAO
 deferred21      voxy/DH SSAO apply
 
 composite1      translucent overlay
+
+composite9      depth merge translucent
 composite10     reflections
 
 composite60	    taa resolve

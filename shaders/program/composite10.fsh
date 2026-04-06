@@ -5,12 +5,16 @@
     const bool colortex0MipmapEnabled = true;
 #endif
 
-#define MATERIAL_REFLECT_STEPS 32
-#define MATERIAL_REFLECT_REFINE_STEPS 8
 
 in vec2 texcoord;
 
-uniform sampler2D depthtex0;
+//uniform sampler2D depthtex0;
+#if defined(DISTANT_HORIZONS) || defined(VOXY)
+    uniform sampler2D texDepthLod;
+#else
+    uniform sampler2D depthtex0;
+#endif
+
 uniform usampler2D TEX_META;
 
 uniform sampler2D TEX_FINAL;
@@ -136,10 +140,25 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
     float viewDist = length(viewPos);
 
     vec3 dest_viewPos = 0.1 * viewDist * viewDir + viewPos;
-    vec3 dest_clipPos = project(gbufferProjection, dest_viewPos);
+
+    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+        mat4 matProj = mat4(
+            gbufferProjection[0][0], 0.0, 0.0, 0.0,
+            0.0, gbufferProjection[1][1], 0.0, 0.0,
+            0.0, 0.0, 0.0, -1.0,
+            0.0, 0.0, near, 0.0);
+
+        vec3 dest_clipPos = project(matProj, dest_viewPos);
+        vec3 dest_screenPos = dest_clipPos.xyz;
+        dest_screenPos.xy = dest_screenPos.xy * 0.5 + 0.5;
+    #else
+        vec3 dest_clipPos = project(gbufferProjection, dest_viewPos);
+        vec3 dest_screenPos = dest_clipPos.xyz * 0.5 + 0.5;
+    #endif
+
     // float4 dest_clipPos = mul(ap.camera.projection, float4(dest_viewPos, 1.0));
     // dest_clipPos.xyz = clamp(dest_clipPos.xyz, float3(-1.0, -1.0, 0.00001), 1.0) / dest_clipPos.w;
-    vec3 dest_screenPos = dest_clipPos.xyz * 0.5 + 0.5;
+//    vec3 dest_screenPos = dest_clipPos.xyz * 0.5 + 0.5;
 
     vec3 screenDir = normalize(dest_screenPos - screenPos);
 
@@ -155,19 +174,28 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 //    }
 //#endif
 
+#if defined(DISTANT_HORIZONS) || defined(VOXY)
+    #define TEX_DEPTH texDepthLod
+#else
+    #define TEX_DEPTH depthtex0
+#endif
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
 
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
-    float depth = texture(depthtex0, texcoord).r;
+
+    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+
     vec3 reflectColor = vec3(0.0);
 
     if (depth < 1.0) {
         uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
         vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
         vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
+//        uint meta = texelFetch(TEX_META, uv, 0).r;
 
         vec3 screenPos = vec3(texcoord, depth);
         vec3 ndcPos = screenPos * 2.0 - 1.0;
@@ -176,12 +204,27 @@ void main() {
             ndcPos.xy -= taa_offset * 2.0;
         #endif
 
-        uint meta = texelFetch(TEX_META, uv, 0).r;
-        if (meta != 0u) {
-//            ndcPos.z /= MC_HAND_DEPTH;
-        }
+        #if defined(DISTANT_HORIZONS) || defined(VOXY)
+            mat4 matProjInv = mat4(
+                gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
+                0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
+                0.0, 0.0, 0.0, 1.0/near,
+                0.0, 0.0, -1.0, 0.0);
 
-        vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
+            ndcPos.z = ndcPos.z * 0.5 + 0.5;
+            vec3 viewPos = project(matProjInv, ndcPos);
+        #else
+
+//        if (meta != 0u) {
+////            ndcPos.z /= MC_HAND_DEPTH;
+//        }
+
+            vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
+        #endif
+
+//        outFinal = viewPos * 0.01;
+//        return;
+
         float viewDist = length(viewPos);
         vec3 viewDir = viewPos / viewDist;
 
@@ -329,7 +372,12 @@ void main() {
                 }
             #else
                 vec3 screenEnd = projectScreenTrace(viewPos, screenPos, reflectViewDir);
-                vec3 traceClipEnd = screenEnd * 2.0 - 1.0;
+                #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                    vec3 traceClipEnd = screenEnd;
+                    traceClipEnd.xy = traceClipEnd.xy * 2.0 - 1.0;
+                #else
+                    vec3 traceClipEnd = screenEnd * 2.0 - 1.0;
+                #endif
                 vec3 traceClipStart = ndcPos;
 
                 vec3 traceClipPos;
@@ -342,8 +390,8 @@ void main() {
 //                #endif
 
                 float dither = 0.0;//GetBayerValue(uv);
-                for (uint i = 0; i < MATERIAL_REFLECT_STEPS; i++) {
-                    float f = (i + dither) / float(MATERIAL_REFLECT_STEPS);
+                for (uint i = 0; i < SSR_COARSE_STEPS; i++) {
+                    float f = (i + dither) / float(SSR_COARSE_STEPS);
                     traceClipPos = mix(traceClipStart, traceClipEnd, saturate(f));
                     traceScreenPos = traceClipPos.xy * 0.5 + 0.5;
                     if (saturate(traceScreenPos) != traceScreenPos) break;
@@ -351,9 +399,15 @@ void main() {
                     uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
                     if (meta != 0u) continue;
 
-                    float sampleDepth = texture(depthtex0, traceScreenPos).r;
-                    float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
-                    float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
+                    float sampleDepth = texture(TEX_DEPTH, traceScreenPos).r;
+
+                    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                        float screenDepthL = near / sampleDepth;
+                        float traceDepthL = near / traceClipPos.z;
+                    #else
+                        float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
+                        float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
+                    #endif
 
                     if (screenDepthL < traceDepthL - 0.02) {
                         hit = true;
@@ -368,8 +422,8 @@ void main() {
                     traceClipStart = traceClipPos_prev;
                     traceClipEnd = traceClipPos;
 
-                    for (uint i = 0; i <= MATERIAL_REFLECT_REFINE_STEPS; i++) {
-                        float f = (i + dither) / float(MATERIAL_REFLECT_REFINE_STEPS);
+                    for (uint i = 0; i <= SSR_REFINE_STEPS; i++) {
+                        float f = (i + dither) / float(SSR_REFINE_STEPS);
                         traceClipPos = mix(traceClipStart, traceClipEnd, saturate(f));
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
                         if (saturate(testPos) != testPos) break;
@@ -377,9 +431,15 @@ void main() {
                         uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
                         if (meta != 0u) continue;
 
-                        float sampleDepth = texture(depthtex0, testPos).r;
-                        float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
-                        float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
+                        float sampleDepth = texture(TEX_DEPTH, testPos).r;
+
+                        #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                            float screenDepthL = near / sampleDepth;
+                            float traceDepthL = near / traceClipPos.z;
+                        #else
+                            float screenDepthL = linearizeDepth(sampleDepth * 2.0 - 1.0, near, farPlane);
+                            float traceDepthL = linearizeDepth(traceClipPos.z, near, farPlane);
+                        #endif
 
                         if (screenDepthL < traceDepthL) {
                             break;

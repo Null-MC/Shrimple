@@ -82,6 +82,8 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 #define SSAO_SAMPLES 4 // [2 4 6 8 10 12]
 
 #define SSR_ENABLED
+#define SSR_COARSE_STEPS 32 // [8 12 16 20 24 28 32 36 40 48 52 56 60 64]
+#define SSR_REFINE_STEPS 8 // [2 4 6 8 10 12 14 16]
 
 //#define TONEMAP_ENABLED
 
